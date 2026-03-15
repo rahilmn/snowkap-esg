@@ -14,3 +14,38 @@ run = ["bash", "run.sh"]
 [[ports]]
 localPort = 8000
 externalPort = 80
+
+[agent]
+expertMode = true
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "snowkap-esg-jwt-secret-2026-production-key-change-me-64chars!!"
+SECRET_KEY = "snowkap-esg-secret-key-2026-production-change-me-64chars-long!!"
+ENVIRONMENT = "production"
+DEBUG = "false"
+DATABASE_URL_SYNC = "postgresql://postgres:password@helium/heliumdb?sslmode=disable"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python -m uvicorn backend.main:app --host 0.0.0.0 --port 5000"
+
+[workflows.workflow.metadata]
+outputType = "webview"

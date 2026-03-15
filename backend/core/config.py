@@ -71,13 +71,43 @@ class Settings(BaseSettings):
     NEWS_API_KEY: str = ""
     GNEWS_API_KEY: str = ""
 
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def ensure_asyncpg_driver(cls, v: str) -> str:
+        if v.startswith("postgresql://"):
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if "sslmode=" in v:
+            v = v.split("?")[0]
+        return v
+
+    @field_validator("DATABASE_URL_SYNC", mode="before")
+    @classmethod
+    def ensure_sync_driver(cls, v: str) -> str:
+        import os
+        db_url = os.environ.get("DATABASE_URL_SYNC") or os.environ.get("DATABASE_URL") or v
+        if db_url.startswith("postgresql+asyncpg://"):
+            db_url = db_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+        if not db_url.startswith("postgresql://"):
+            db_url = "postgresql://" + db_url.split("://", 1)[-1]
+        return db_url
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
+        import os
         if isinstance(v, str):
             import json
-            return json.loads(v)
-        return v
+            origins = json.loads(v)
+        else:
+            origins = v
+        replit_domain = os.environ.get("REPLIT_DEV_DOMAIN", "")
+        if replit_domain:
+            origins.append(f"https://{replit_domain}")
+        replit_domains = os.environ.get("REPLIT_DOMAINS", "")
+        if replit_domains:
+            for d in replit_domains.split(","):
+                origins.append(f"https://{d.strip()}")
+        return origins
 
 
 settings = Settings()

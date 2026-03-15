@@ -60,8 +60,8 @@ app = FastAPI(
     description="ESG Intelligence Platform with Smart Ontology & Causal Chain Reasoning",
     version=settings.APP_VERSION,
     lifespan=lifespan,
-    docs_url="/api/docs" if settings.ENVIRONMENT != "production" else None,
-    redoc_url="/api/redoc" if settings.ENVIRONMENT != "production" else None,
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
 )
 
 # CORS
