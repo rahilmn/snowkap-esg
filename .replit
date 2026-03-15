@@ -1,8 +1,9 @@
 run = "bash run.sh"
 entrypoint = "backend/main.py"
+modules = ["python-3.12", "nodejs-20", "bash"]
 
 [nix]
-channel = "stable-24_05"
+channel = "stable-25_05"
 
 [env]
 PYTHONPATH = "/home/runner/${REPL_SLUG}"
