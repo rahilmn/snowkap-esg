@@ -1,0 +1,83 @@
+"""Application configuration via Pydantic Settings.
+
+Per CLAUDE.md: Pydantic v2 for all schemas, strict type hints.
+"""
+
+from typing import List
+
+from pydantic import field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+    )
+
+    # --- Application ---
+    ENVIRONMENT: str = "development"
+    DEBUG: bool = True
+    APP_NAME: str = "SNOWKAP ESG Platform"
+    APP_VERSION: str = "2.0.0"
+    SECRET_KEY: str = "change-me-to-a-random-64-char-string-in-production"
+
+    # --- Database (PostgreSQL 16 + pgvector + asyncpg) ---
+    DATABASE_URL: str = "postgresql+asyncpg://esg_user:esg_password@localhost:5432/esg_platform"
+    DATABASE_URL_SYNC: str = "postgresql://esg_user:esg_password@localhost:5432/esg_platform"
+
+    # --- Redis 7 ---
+    REDIS_URL: str = "redis://localhost:6379/0"
+
+    # --- Apache Jena Fuseki ---
+    JENA_FUSEKI_URL: str = "http://localhost:3030"
+    JENA_DATASET: str = "esg"
+
+    # --- MinIO ---
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "esg-files"
+    MINIO_SECURE: bool = False
+
+    # --- AI / LLM ---
+    ANTHROPIC_API_KEY: str = ""
+    OPENAI_API_KEY: str = ""
+
+    # --- Zep Cloud ---
+    ZEP_API_KEY: str = ""
+
+    # --- MiroFish ---
+    MIROFISH_URL: str = "http://localhost:5001"
+
+    # --- Email (Resend) ---
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM: str = "noreply@snowkap.com"
+
+    # --- Auth (JWT + Magic Links — no passwords, no OTP) ---
+    JWT_SECRET: str = "change-me-to-a-random-64-char-string-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_EXPIRE_MINUTES: int = 1440  # 24 hours
+    MAGIC_LINK_EXPIRE_MINUTES: int = 15
+
+    # --- CORS ---
+    CORS_ORIGINS: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+
+    # --- Sentry ---
+    SENTRY_DSN: str = ""
+
+    # --- News ---
+    NEWS_API_KEY: str = ""
+    GNEWS_API_KEY: str = ""
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
+        if isinstance(v, str):
+            import json
+            return json.loads(v)
+        return v
+
+
+settings = Settings()

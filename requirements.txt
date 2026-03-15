@@ -1,0 +1,68 @@
+# =============================================================================
+# SNOWKAP ESG Platform — Python Dependencies
+# Python 3.12 required
+# =============================================================================
+
+# --- FastAPI + Server ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-multipart==0.0.19
+python-jose[cryptography]==3.3.0
+httpx==0.28.1
+email-validator==2.2.0
+
+# --- Database ---
+sqlalchemy[asyncio]==2.0.36
+asyncpg==0.30.0
+alembic==1.14.1
+pgvector==0.3.6
+
+# --- Redis + Celery ---
+redis==5.2.1
+celery[redis]==5.4.0
+
+# --- AI / LLM ---
+anthropic==0.42.0
+openai==1.58.1
+langgraph==0.2.60
+langchain-core==0.3.28
+langchain-anthropic==0.3.4
+
+# --- Knowledge Graph (rdflib for dev, Jena via HTTP for prod) ---
+rdflib==7.1.1
+SPARQLWrapper==2.0.0
+
+# --- Agent Memory ---
+zep-cloud==2.8.0
+
+# --- File Storage ---
+minio==7.2.12
+
+# --- Email ---
+resend==2.5.0
+
+# --- Real-Time ---
+python-socketio==5.11.4
+
+# --- Monitoring ---
+structlog==24.4.0
+sentry-sdk[fastapi]==2.19.2
+
+# --- File Processing (Phase 10) ---
+pdfplumber==0.11.4
+openpyxl==3.1.5
+Pillow==11.1.0
+
+# --- Utilities ---
+feedparser==6.0.11
+python-dateutil==2.9.0
+orjson==3.10.13
+tenacity==9.0.0
+
+# --- Testing ---
+pytest==8.3.4
+pytest-asyncio==0.25.0
+pytest-cov==6.0.0
+factory-boy==3.3.1

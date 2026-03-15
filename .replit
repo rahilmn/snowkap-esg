@@ -1,0 +1,15 @@
+run = "bash run.sh"
+entrypoint = "backend/main.py"
+
+[nix]
+channel = "stable-24_05"
+
+[env]
+PYTHONPATH = "/home/runner/${REPL_SLUG}"
+
+[deployment]
+run = ["bash", "run.sh"]
+
+[[ports]]
+localPort = 8000
+externalPort = 80

@@ -1,0 +1,229 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# SNOWKAP ESG Base Ontology (OWL2)
+# Per MASTER_BUILD_PLAN Phase 3.1: Base Ontology
+# Core classes and causal relationship properties for ESG intelligence
+# =============================================================================
+
+<http://snowkap.com/ontology/esg> a owl:Ontology ;
+    rdfs:label "SNOWKAP ESG Ontology" ;
+    rdfs:comment "Smart ESG Ontology with causal chain reasoning for the SNOWKAP ESG Platform" ;
+    owl:versionInfo "1.0.0" .
+
+# =============================================================================
+# Core Classes
+# Per MASTER_BUILD_PLAN Phase 3.1:
+#   Company, Facility, Supplier, Regulation, MaterialIssue, ESGFramework,
+#   GeographicRegion, Industry, Commodity, WorkforceSegment
+# =============================================================================
+
+snowkap:Company a owl:Class ;
+    rdfs:label "Company" ;
+    rdfs:comment "An organization tracked for ESG analysis" .
+
+snowkap:Facility a owl:Class ;
+    rdfs:label "Facility" ;
+    rdfs:comment "A physical facility or plant location" .
+
+snowkap:Supplier a owl:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "A supply chain entity providing goods or services" .
+
+snowkap:Regulation a owl:Class ;
+    rdfs:label "Regulation" ;
+    rdfs:comment "A regulatory instrument or policy affecting ESG compliance" .
+
+snowkap:MaterialIssue a owl:Class ;
+    rdfs:label "Material Issue" ;
+    rdfs:comment "An ESG material issue relevant to an industry or company" .
+
+snowkap:ESGFramework a owl:Class ;
+    rdfs:label "ESG Framework" ;
+    rdfs:comment "An ESG reporting framework or standard" .
+
+snowkap:GeographicRegion a owl:Class ;
+    rdfs:label "Geographic Region" ;
+    rdfs:comment "A geographic area (country, state, district, city)" .
+
+snowkap:Industry a owl:Class ;
+    rdfs:label "Industry" ;
+    rdfs:comment "An industry sector per SASB classification" .
+
+snowkap:Commodity a owl:Class ;
+    rdfs:label "Commodity" ;
+    rdfs:comment "A physical commodity in supply chains (steel, coal, oil, etc.)" .
+
+snowkap:WorkforceSegment a owl:Class ;
+    rdfs:label "Workforce Segment" ;
+    rdfs:comment "A category of workers (drivers, factory workers, etc.)" .
+
+snowkap:NewsEvent a owl:Class ;
+    rdfs:label "News Event" ;
+    rdfs:comment "A news event that may have ESG impact" .
+
+snowkap:CausalChain a owl:Class ;
+    rdfs:label "Causal Chain" ;
+    rdfs:comment "A chain of causal relationships linking a news event to ESG impact" .
+
+# =============================================================================
+# ESG Framework Instances (8 frameworks per CLAUDE.md)
+# =============================================================================
+
+snowkap:BRSR a snowkap:ESGFramework ;
+    rdfs:label "BRSR" ;
+    rdfs:comment "Business Responsibility and Sustainability Reporting (India)" .
+
+snowkap:ESRS a snowkap:ESGFramework ;
+    rdfs:label "ESRS" ;
+    rdfs:comment "European Sustainability Reporting Standards" .
+
+snowkap:GRI a snowkap:ESGFramework ;
+    rdfs:label "GRI" ;
+    rdfs:comment "Global Reporting Initiative" .
+
+snowkap:IFRS_S1 a snowkap:ESGFramework ;
+    rdfs:label "IFRS S1" ;
+    rdfs:comment "IFRS Sustainability Disclosure Standard S1 (General)" .
+
+snowkap:IFRS_S2 a snowkap:ESGFramework ;
+    rdfs:label "IFRS S2" ;
+    rdfs:comment "IFRS Sustainability Disclosure Standard S2 (Climate)" .
+
+snowkap:CDP a snowkap:ESGFramework ;
+    rdfs:label "CDP" ;
+    rdfs:comment "Carbon Disclosure Project" .
+
+snowkap:TCFD a snowkap:ESGFramework ;
+    rdfs:label "TCFD" ;
+    rdfs:comment "Task Force on Climate-Related Financial Disclosures" .
+
+snowkap:CSRD a snowkap:ESGFramework ;
+    rdfs:label "CSRD" ;
+    rdfs:comment "Corporate Sustainability Reporting Directive (EU)" .
+
+snowkap:SASB a snowkap:ESGFramework ;
+    rdfs:label "SASB" ;
+    rdfs:comment "Sustainability Accounting Standards Board" .
+
+# =============================================================================
+# Causal Relationship Properties
+# Per CLAUDE.md & MASTER_BUILD_PLAN:
+#   directlyImpacts, indirectlyImpacts, suppliesTo, sourcesFrom,
+#   locatedIn, regulatedBy, competessWith, employsWorkforce
+# =============================================================================
+
+snowkap:directlyImpacts a owl:ObjectProperty ;
+    rdfs:label "directly impacts" ;
+    rdfs:comment "Direct operational impact (0-hop)" ;
+    rdfs:domain snowkap:NewsEvent ;
+    rdfs:range snowkap:Company .
+
+snowkap:indirectlyImpacts a owl:ObjectProperty ;
+    rdfs:label "indirectly impacts" ;
+    rdfs:comment "Indirect impact through causal chain (1+ hops)" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range snowkap:Company .
+
+snowkap:suppliesTo a owl:ObjectProperty ;
+    rdfs:label "supplies to" ;
+    rdfs:comment "Supply chain upstream relationship" ;
+    rdfs:domain snowkap:Supplier ;
+    rdfs:range snowkap:Company .
+
+snowkap:sourcesFrom a owl:ObjectProperty ;
+    rdfs:label "sources from" ;
+    rdfs:comment "Supply chain downstream relationship" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:Supplier .
+
+snowkap:locatedIn a owl:ObjectProperty ;
+    rdfs:label "located in" ;
+    rdfs:comment "Geographic location relationship" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range snowkap:GeographicRegion .
+
+snowkap:regulatedBy a owl:ObjectProperty ;
+    rdfs:label "regulated by" ;
+    rdfs:comment "Subject to regulation" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:Regulation .
+
+snowkap:competessWith a owl:ObjectProperty ;
+    rdfs:label "competes with" ;
+    rdfs:comment "Industry competitor relationship" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:Company .
+
+snowkap:employsWorkforce a owl:ObjectProperty ;
+    rdfs:label "employs workforce" ;
+    rdfs:comment "Workforce employment relationship" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:WorkforceSegment .
+
+snowkap:belongsToIndustry a owl:ObjectProperty ;
+    rdfs:label "belongs to industry" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:Industry .
+
+snowkap:hasMaterialIssue a owl:ObjectProperty ;
+    rdfs:label "has material issue" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:MaterialIssue .
+
+snowkap:reportsUnder a owl:ObjectProperty ;
+    rdfs:label "reports under" ;
+    rdfs:comment "Company reports under ESG framework" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:ESGFramework .
+
+snowkap:dependsOnCommodity a owl:ObjectProperty ;
+    rdfs:label "depends on commodity" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:Commodity .
+
+snowkap:hasFacility a owl:ObjectProperty ;
+    rdfs:label "has facility" ;
+    rdfs:domain snowkap:Company ;
+    rdfs:range snowkap:Facility .
+
+# =============================================================================
+# Data Properties
+# =============================================================================
+
+snowkap:impactScore a owl:DatatypeProperty ;
+    rdfs:label "impact score" ;
+    rdfs:comment "Impact score with hop decay (1.0 → 0.7 → 0.4 → 0.2)" ;
+    rdfs:range xsd:float .
+
+snowkap:hopCount a owl:DatatypeProperty ;
+    rdfs:label "hop count" ;
+    rdfs:comment "Number of hops in causal chain" ;
+    rdfs:range xsd:integer .
+
+snowkap:financialExposure a owl:DatatypeProperty ;
+    rdfs:label "financial exposure" ;
+    rdfs:comment "Estimated financial exposure in INR" ;
+    rdfs:range xsd:float .
+
+snowkap:latitude a owl:DatatypeProperty ;
+    rdfs:domain snowkap:Facility ;
+    rdfs:range xsd:float .
+
+snowkap:longitude a owl:DatatypeProperty ;
+    rdfs:domain snowkap:Facility ;
+    rdfs:range xsd:float .
+
+snowkap:esgPillar a owl:DatatypeProperty ;
+    rdfs:label "ESG pillar" ;
+    rdfs:comment "E (Environmental), S (Social), or G (Governance)" ;
+    rdfs:range xsd:string .
+
+snowkap:sasbCategory a owl:DatatypeProperty ;
+    rdfs:label "SASB category" ;
+    rdfs:comment "One of 45 SASB industry categories" ;
+    rdfs:range xsd:string .

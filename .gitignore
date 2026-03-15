@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.production
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (frontend)
+node_modules/
+client/dist/
+
+# Docker volumes (local)
+docker-data/
+postgres-data/
+redis-data/
+jena-data/
+minio-data/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Logs
+*.log
+logs/
+
+# Alembic
+backend/migrations/versions/__pycache__/
+
+# Compiled
+*.so
+*.dylib
+
+# Secrets
+*.pem
+*.key
+credentials.json
