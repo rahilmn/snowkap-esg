@@ -103,7 +103,7 @@ if _client_dist.is_dir():
     if _assets_dir.is_dir():
         app.mount("/assets", StaticFiles(directory=str(_assets_dir)), name="static-assets")
 
-    @app.get("/{path:path}")
+    @app.api_route("/{path:path}", methods=["GET", "HEAD"])
     async def serve_spa(path: str) -> FileResponse:
         """Serve the React SPA — any non-API route returns index.html."""
         file_path = _client_dist / path
