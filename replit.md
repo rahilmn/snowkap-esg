@@ -25,7 +25,7 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
 - `DEBUG` — Set to "false"
 
 ## Running
-- Workflow "Start application" runs `python -m uvicorn backend.main:app --host 0.0.0.0 --port 5000`
+- Workflow "Start application" runs `python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000`
 - Frontend is pre-built in `client/dist/` and served as static files
 - To rebuild frontend: `cd client && npm install --legacy-peer-deps && npm run build`
 
