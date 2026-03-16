@@ -11,10 +11,10 @@ import json
 from dataclasses import dataclass
 
 import structlog
-from anthropic import AsyncAnthropic
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.core import llm
 from backend.core.config import settings
 from backend.models.company import Company, Supplier
 from backend.ontology.jena_client import jena_client
@@ -23,8 +23,9 @@ logger = structlog.get_logger()
 
 SNOWKAP_NS = "http://snowkap.com/ontology/esg#"
 
-# Standard commodity dependency chains
+# Standard commodity dependency chains — 25 SASB industries (Stage 2.7)
 COMMODITY_CHAINS = {
+    # Original 10
     "steel": ["iron_ore", "coal", "limestone", "mining"],
     "plastic": ["oil", "petrochemicals", "naphtha", "refining"],
     "electronics": ["semiconductors", "rare_earth", "copper", "lithium", "mining"],
@@ -35,6 +36,22 @@ COMMODITY_CHAINS = {
     "construction": ["cement", "steel", "sand", "timber", "water"],
     "logistics": ["fuel", "vehicles", "tires", "lubricants"],
     "it_services": ["electricity", "cooling", "hardware", "fiber_optics"],
+    # Stage 2.7: 15 new industries
+    "renewable_energy": ["solar_panels", "silicon", "rare_earth", "copper", "lithium", "wind_turbines"],
+    "fashion": ["cotton", "polyester", "leather", "dyes", "water", "chemicals", "textiles"],
+    "mining": ["explosives", "diesel", "heavy_machinery", "water", "electricity"],
+    "chemicals": ["oil", "natural_gas", "minerals", "water", "catalysts"],
+    "oil_gas": ["drilling_equipment", "steel", "chemicals", "water", "transport"],
+    "metals": ["iron_ore", "bauxite", "copper_ore", "coal", "electricity", "water"],
+    "banking": ["electricity", "data_centers", "real_estate", "paper"],
+    "healthcare": ["pharmaceuticals", "medical_devices", "chemicals", "cold_chain", "plastics"],
+    "telecom": ["fiber_optics", "copper", "electricity", "semiconductors", "towers"],
+    "agriculture": ["seeds", "fertilizers", "pesticides", "water", "diesel", "machinery"],
+    "cement": ["limestone", "clay", "coal", "electricity", "gypsum", "water"],
+    "shipping": ["fuel_oil", "steel", "containers", "port_services", "insurance"],
+    "aviation": ["jet_fuel", "aluminum", "titanium", "electronics", "rubber"],
+    "hospitality": ["food", "water", "electricity", "textiles", "cleaning_chemicals"],
+    "food_beverage": ["agriculture", "sugar", "water", "packaging", "cold_chain", "flavors"],
 }
 
 # Scope 3 categories per supply chain direction
@@ -147,10 +164,8 @@ async def generate_industry_supply_chain(
     Per MASTER_BUILD_PLAN Phase 3.4:
     Industry → typical supply chain shape (auto-generated via Claude)
     """
-    if not settings.ANTHROPIC_API_KEY:
+    if not llm.is_configured():
         return []
-
-    client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     prompt = f"""For the company "{company_name}" in the "{industry}" industry, generate a typical
 supply chain mapping. Return a JSON array of supply chain nodes.
@@ -167,12 +182,11 @@ Focus on India-relevant supply chains. Include 10-15 key nodes.
 Return JSON array only, no markdown."""
 
     try:
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1500,
+        raw_text = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
         )
-        nodes_raw = json.loads(response.content[0].text)
+        nodes_raw = json.loads(raw_text)
         nodes = [
             SupplyChainNode(
                 name=n["name"],

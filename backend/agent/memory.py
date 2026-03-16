@@ -1,9 +1,10 @@
 """TenantMemoryManager — Zep Cloud memory for agent conversations.
 
-Per MASTER_BUILD_PLAN Phase 5:
+Per MASTER_BUILD_PLAN Phase 5 + Stage 7.4:
 - Shared Zep Cloud memory with MiroFish agents
 - Per-tenant, per-user conversation memory
 - Agent context persistence across sessions
+- Stage 7.4: Memory tagging by agent_id + topic for cross-agent context
 """
 
 from typing import Any
@@ -14,11 +15,35 @@ from backend.core.config import settings
 
 logger = structlog.get_logger()
 
+# Topic extraction keywords mapped to canonical topics
+_TOPIC_KEYWORDS: dict[str, list[str]] = {
+    "supply_chain": ["supply chain", "supplier", "scope 3", "upstream", "downstream", "procurement"],
+    "compliance": ["compliance", "brsr", "gri", "tcfd", "esrs", "disclosure", "gap analysis"],
+    "risk": ["risk", "penalty", "exposure", "vulnerability", "threat"],
+    "climate": ["climate", "emissions", "carbon", "ghg", "net zero", "decarbonization"],
+    "financial": ["financial", "revenue", "cost", "roi", "investment", "market cap"],
+    "regulatory": ["regulation", "sebi", "cbam", "epa", "mandate", "law", "legal"],
+    "stakeholder": ["stakeholder", "investor", "community", "employee", "rating"],
+    "prediction": ["prediction", "forecast", "trend", "outlook", "future"],
+    "opportunity": ["opportunity", "green revenue", "carbon credit", "growth"],
+}
+
+
+def extract_topics(text: str) -> list[str]:
+    """Extract canonical topics from text content."""
+    text_lower = text.lower()
+    topics = []
+    for topic, keywords in _TOPIC_KEYWORDS.items():
+        if any(kw in text_lower for kw in keywords):
+            topics.append(topic)
+    return topics[:5]  # Cap at 5 topics
+
 
 class TenantMemoryManager:
     """Manages conversation memory per tenant+user via Zep Cloud.
 
     Falls back to in-memory storage when Zep is unavailable.
+    Stage 7.4: All messages tagged with agent_id + topics for cross-agent retrieval.
     """
 
     def __init__(self) -> None:
@@ -47,8 +72,14 @@ class TenantMemoryManager:
         content: str,
         metadata: dict[str, Any] | None = None,
     ) -> None:
-        """Store a conversation message."""
+        """Store a conversation message with agent_id and topic tags (Stage 7.4)."""
         session_id = self._session_id(tenant_id, user_id)
+        meta = metadata or {}
+
+        # Stage 7.4: Auto-tag with topics extracted from content
+        if "topics" not in meta:
+            meta["topics"] = extract_topics(content)
+
         zep = await self._get_zep()
 
         if zep:
@@ -59,7 +90,7 @@ class TenantMemoryManager:
                     messages=[Message(
                         role_type=role,
                         content=content,
-                        metadata=metadata or {},
+                        metadata=meta,
                     )],
                 )
                 return
@@ -72,7 +103,7 @@ class TenantMemoryManager:
         self._fallback[session_id].append({
             "role": role,
             "content": content,
-            "metadata": metadata or {},
+            "metadata": meta,
         })
         # Keep only last 50 messages in fallback
         self._fallback[session_id] = self._fallback[session_id][-50:]
@@ -103,6 +134,84 @@ class TenantMemoryManager:
 
         # Fallback
         return self._fallback.get(session_id, [])[-last_n:]
+
+    async def get_agent_memory(
+        self,
+        tenant_id: str,
+        user_id: str,
+        agent_id: str,
+        last_n: int = 5,
+    ) -> list[dict]:
+        """Retrieve memory entries tagged with a specific agent_id (Stage 7.4).
+
+        Used for cross-agent context: when routing to a new agent, retrieve
+        entries from the previous agent's domain for continuity.
+        """
+        session_id = self._session_id(tenant_id, user_id)
+        zep = await self._get_zep()
+
+        if zep:
+            try:
+                memory = await zep.memory.get(session_id=session_id)
+                filtered = [
+                    {
+                        "role": msg.role_type,
+                        "content": msg.content,
+                        "metadata": msg.metadata or {},
+                    }
+                    for msg in (memory.messages or [])
+                    if (msg.metadata or {}).get("agent") == agent_id
+                ]
+                return filtered[-last_n:]
+            except Exception as e:
+                logger.warning("zep_get_agent_memory_failed", error=str(e))
+
+        # Fallback
+        all_msgs = self._fallback.get(session_id, [])
+        filtered = [m for m in all_msgs if m.get("metadata", {}).get("agent") == agent_id]
+        return filtered[-last_n:]
+
+    async def get_topic_memory(
+        self,
+        tenant_id: str,
+        user_id: str,
+        topics: list[str],
+        last_n: int = 5,
+    ) -> list[dict]:
+        """Retrieve memory entries matching any of the given topics (Stage 7.4).
+
+        Used for cross-agent context sharing: e.g., executive agent retrieves
+        supply_chain-tagged memory when preparing a board briefing.
+        """
+        session_id = self._session_id(tenant_id, user_id)
+        topic_set = set(topics)
+
+        zep = await self._get_zep()
+
+        if zep:
+            try:
+                memory = await zep.memory.get(session_id=session_id)
+                filtered = []
+                for msg in (memory.messages or []):
+                    msg_topics = set((msg.metadata or {}).get("topics", []))
+                    if msg_topics & topic_set:
+                        filtered.append({
+                            "role": msg.role_type,
+                            "content": msg.content,
+                            "metadata": msg.metadata or {},
+                        })
+                return filtered[-last_n:]
+            except Exception as e:
+                logger.warning("zep_get_topic_memory_failed", error=str(e))
+
+        # Fallback
+        all_msgs = self._fallback.get(session_id, [])
+        filtered = []
+        for m in all_msgs:
+            msg_topics = set(m.get("metadata", {}).get("topics", []))
+            if msg_topics & topic_set:
+                filtered.append(m)
+        return filtered[-last_n:]
 
     async def get_context_summary(
         self,

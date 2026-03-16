@@ -9,6 +9,7 @@ import socketio
 import structlog
 
 from backend.core.config import settings
+from backend.core.security import decode_jwt_token
 
 logger = structlog.get_logger()
 
@@ -41,11 +42,31 @@ async def join_tenant(sid: str, data: dict) -> None:
     """Join a tenant-scoped room for real-time updates.
 
     Per MASTER_BUILD_PLAN: tenant-scoped rooms.
-    Client sends: {"tenant_id": "xxx"}
+    Client sends: {"tenant_id": "xxx", "token": "jwt_token"}
+    JWT is validated to ensure user belongs to the requested tenant.
     """
     tenant_id = data.get("tenant_id")
+    token = data.get("token")
     if not tenant_id:
         return
+
+    # Validate JWT — user must belong to the tenant they're joining
+    if not token:
+        logger.warning("socketio_join_no_token", sid=sid, tenant_id=tenant_id)
+        await sio.emit("error", {"message": "Authentication required"}, to=sid)
+        return
+
+    try:
+        payload = decode_jwt_token(token)
+        if payload.get("tenant_id") != tenant_id:
+            logger.warning("socketio_tenant_mismatch", sid=sid, jwt_tenant=payload.get("tenant_id"), requested=tenant_id)
+            await sio.emit("error", {"message": "Tenant mismatch"}, to=sid)
+            return
+    except Exception:
+        logger.warning("socketio_invalid_token", sid=sid)
+        await sio.emit("error", {"message": "Invalid token"}, to=sid)
+        return
+
     room = f"tenant:{tenant_id}"
     sio.enter_room(sid, room)
     logger.info("socketio_join_tenant", sid=sid, tenant_id=tenant_id)

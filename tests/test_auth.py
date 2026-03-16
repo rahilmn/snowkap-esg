@@ -1,6 +1,6 @@
 """Auth flow tests — 3-way login system.
 
-Per CLAUDE.md: Domain → Designation → Company Name → Magic Link → JWT
+Per CLAUDE.md: Domain → Designation → Company Name → JWT
 """
 
 import pytest
@@ -31,15 +31,16 @@ async def test_resolve_domain_accepts_corporate():
 
 
 @pytest.mark.asyncio
-async def test_magic_link_domain_mismatch():
+async def test_login_domain_mismatch():
     """Email domain must match company domain per CLAUDE.md Rule #8."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        response = await client.post("/api/auth/magic-link", json={
+        response = await client.post("/api/auth/login", json={
             "email": "user@other.com",
             "domain": "mahindra.com",
             "designation": "Analyst",
             "company_name": "Mahindra Logistics",
+            "name": "Test User",
         })
         assert response.status_code == 400
         assert "must match" in response.json()["detail"]

@@ -14,6 +14,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=True,
+        extra="ignore",
     )
 
     # --- Application ---
@@ -90,6 +91,38 @@ class Settings(BaseSettings):
         if not db_url.startswith("postgresql://"):
             db_url = "postgresql://" + db_url.split("://", 1)[-1]
         return db_url
+
+    @field_validator("JWT_SECRET", mode="after")
+    @classmethod
+    def reject_default_secret_in_production(cls, v: str, info) -> str:
+        """Refuse to start if JWT_SECRET is the default placeholder in non-debug mode."""
+        default = "change-me-to-a-random-64-char-string-in-production"
+        if v == default:
+            import os
+            debug = os.environ.get("DEBUG", "true").lower() in ("true", "1", "yes")
+            env = os.environ.get("ENVIRONMENT", "development").lower()
+            if not debug or env == "production":
+                raise ValueError(
+                    "FATAL: JWT_SECRET is set to the default placeholder. "
+                    "Set a random 64-char secret in production."
+                )
+        return v
+
+    @field_validator("SECRET_KEY", mode="after")
+    @classmethod
+    def reject_default_app_secret_in_production(cls, v: str, info) -> str:
+        """Refuse to start if SECRET_KEY is the default placeholder in non-debug mode."""
+        default = "change-me-to-a-random-64-char-string-in-production"
+        if v == default:
+            import os
+            debug = os.environ.get("DEBUG", "true").lower() in ("true", "1", "yes")
+            env = os.environ.get("ENVIRONMENT", "development").lower()
+            if not debug or env == "production":
+                raise ValueError(
+                    "FATAL: SECRET_KEY is set to the default placeholder. "
+                    "Set a random 64-char secret in production."
+                )
+        return v
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

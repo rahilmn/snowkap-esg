@@ -1,22 +1,46 @@
-"""Entity extraction from news articles via Claude NER + resolution against Jena.
+"""Entity extraction from news articles via LLM NER + resolution against Jena.
 
 Per MASTER_BUILD_PLAN Part 1, Layer 2: Entity Extraction & Linking
 - NER from news: companies, locations, commodities, regulations, events
 - Entity resolution against Jena knowledge graph (fuzzy match + semantic similarity)
+
+Stage 2.2: Rank matches by exact > substring > fuzzy + edge count.
+Stage 3.1: frameworks_mentioned field on ExtractionResult.
 """
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import structlog
-from anthropic import AsyncAnthropic
 
+from backend.core import llm
 from backend.core.config import settings
 from backend.ontology.jena_client import jena_client
 
 logger = structlog.get_logger()
 
 SNOWKAP_NS = "http://snowkap.com/ontology/esg#"
+
+# Framework alias normalization (Stage 3.1)
+FRAMEWORK_ALIASES: dict[str, str] = {
+    "task force on climate": "TCFD",
+    "task force on climate-related financial disclosures": "TCFD",
+    "global reporting initiative": "GRI",
+    "sustainability accounting standards board": "SASB",
+    "business responsibility and sustainability report": "BRSR",
+    "business responsibility and sustainability reporting": "BRSR",
+    "carbon disclosure project": "CDP",
+    "european sustainability reporting standards": "ESRS",
+    "corporate sustainability reporting directive": "CSRD",
+    "international financial reporting standards": "IFRS",
+    "ifrs s1": "IFRS_S1",
+    "ifrs s2": "IFRS_S2",
+    "international sustainability standards board": "ISSB",
+    "science based targets initiative": "SBTi",
+    "science-based targets": "SBTi",
+    "sustainable finance disclosure regulation": "SFDR",
+    "eu taxonomy": "EU_TAXONOMY",
+}
 
 
 @dataclass
@@ -37,15 +61,23 @@ class ExtractionResult:
     esg_topics: list[str] | None = None  # e.g., ["emissions", "water_scarcity"]
     sentiment: str | None = None  # positive, negative, neutral
     financial_signal: bool = False  # Whether article has financial impact signals
+    frameworks_mentioned: list[str] = field(default_factory=list)  # Stage 3.1
+
+
+def normalize_framework(name: str) -> str:
+    """Normalize framework aliases to canonical names."""
+    name_lower = name.strip().lower()
+    for alias, canonical in FRAMEWORK_ALIASES.items():
+        if alias in name_lower:
+            return canonical
+    return name.strip().upper().replace(" ", "_") if name else name
 
 
 async def extract_entities(article_title: str, article_content: str) -> list[ExtractedEntity]:
-    """Extract ESG-relevant entities from a news article using Claude NER."""
-    if not settings.ANTHROPIC_API_KEY:
-        logger.warning("anthropic_key_missing", action="entity_extraction")
+    """Extract ESG-relevant entities from a news article using LLM NER."""
+    if not llm.is_configured():
+        logger.warning("llm_not_configured", action="entity_extraction")
         return []
-
-    client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     prompt = f"""Extract all ESG-relevant entities from this news article. Return ONLY a JSON array.
 
@@ -70,23 +102,36 @@ Return JSON array only, no markdown:
 [{{"text": "...", "type": "...", "confidence": 0.9, "esg_relevance": "E"}}]"""
 
     try:
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=1500,
+        raw_text = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
         )
-        entities_raw = json.loads(response.content[0].text)
-        entities = [
-            ExtractedEntity(
-                text=e["text"],
-                entity_type=e["type"],
-                confidence=e.get("confidence", 0.8),
+        raw_text = raw_text.strip()
+        if raw_text.startswith("```"):
+            raw_text = raw_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+
+        entities_raw = json.loads(raw_text)
+
+        if not isinstance(entities_raw, list):
+            logger.warning("entity_extraction_invalid_format", type=type(entities_raw).__name__)
+            return []
+
+        entities = []
+        for e in entities_raw:
+            if not isinstance(e, dict) or "text" not in e or "type" not in e:
+                continue
+            entities.append(ExtractedEntity(
+                text=str(e["text"]),
+                entity_type=str(e["type"]),
+                confidence=float(e.get("confidence", 0.8)),
                 esg_relevance=e.get("esg_relevance"),
-            )
-            for e in entities_raw
-        ]
+            ))
+
         logger.info("entities_extracted", count=len(entities), title_preview=article_title[:60])
         return entities
+    except (json.JSONDecodeError, KeyError, IndexError) as e:
+        logger.error("entity_extraction_parse_failed", error=str(e))
+        return []
     except Exception as e:
         logger.error("entity_extraction_failed", error=str(e))
         return []
@@ -96,10 +141,8 @@ async def extract_and_classify(
     article_title: str, article_content: str,
 ) -> ExtractionResult:
     """Full extraction + ESG classification for an article."""
-    if not settings.ANTHROPIC_API_KEY:
+    if not llm.is_configured():
         return ExtractionResult(entities=[])
-
-    client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     prompt = f"""Analyze this news article for ESG intelligence. Return a JSON object.
 
@@ -115,29 +158,46 @@ Return exactly this structure (no markdown, pure JSON):
   "esg_topics": ["emissions", "water_scarcity", "labor_rights"],
   "sentiment": "positive|negative|neutral",
   "financial_signal": true|false,
-  "frameworks_mentioned": ["BRSR", "GRI"]
+  "frameworks_mentioned": ["BRSR", "GRI 305", "TCFD"]
 }}
 
 ESG Topics should be specific: emissions, carbon, water, waste, biodiversity, labor_rights,
-worker_safety, community, supply_chain_ethics, board_diversity, anti_corruption, data_privacy, etc."""
+worker_safety, community, supply_chain_ethics, board_diversity, anti_corruption, data_privacy, etc.
+
+frameworks_mentioned: List ALL ESG/sustainability frameworks referenced (BRSR, GRI, SASB, TCFD,
+CDP, ESRS, CSRD, IFRS S1, IFRS S2, etc.) including specific indicator codes if mentioned."""
 
     try:
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=2000,
+        raw_text = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
+            max_tokens=2000,
         )
-        data = json.loads(response.content[0].text)
+        raw_text = raw_text.strip()
+        if raw_text.startswith("```"):
+            raw_text = raw_text.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
 
-        entities = [
-            ExtractedEntity(
-                text=e["text"],
-                entity_type=e["type"],
-                confidence=e.get("confidence", 0.8),
+        data = json.loads(raw_text)
+
+        if not isinstance(data, dict):
+            logger.warning("extract_classify_invalid_format", type=type(data).__name__)
+            return ExtractionResult(entities=[])
+
+        entities = []
+        for e in data.get("entities", []):
+            if not isinstance(e, dict) or "text" not in e or "type" not in e:
+                continue
+            entities.append(ExtractedEntity(
+                text=str(e["text"]),
+                entity_type=str(e["type"]),
+                confidence=float(e.get("confidence", 0.8)),
                 esg_relevance=e.get("esg_relevance"),
-            )
-            for e in data.get("entities", [])
-        ]
+            ))
+
+        # Normalize framework mentions (Stage 3.1)
+        raw_frameworks = data.get("frameworks_mentioned", [])
+        if not isinstance(raw_frameworks, list):
+            raw_frameworks = []
+        frameworks = [normalize_framework(f) for f in raw_frameworks if isinstance(f, str) and f.strip()]
 
         return ExtractionResult(
             entities=entities,
@@ -145,7 +205,11 @@ worker_safety, community, supply_chain_ethics, board_diversity, anti_corruption,
             esg_topics=data.get("esg_topics", []),
             sentiment=data.get("sentiment"),
             financial_signal=data.get("financial_signal", False),
+            frameworks_mentioned=frameworks,
         )
+    except (json.JSONDecodeError, KeyError, IndexError) as e:
+        logger.error("extract_classify_parse_failed", error=str(e))
+        return ExtractionResult(entities=[])
     except Exception as e:
         logger.error("extract_and_classify_failed", error=str(e))
         return ExtractionResult(entities=[])
@@ -157,33 +221,34 @@ async def resolve_entities_against_graph(
 ) -> list[ExtractedEntity]:
     """Resolve extracted entities against the tenant's Jena knowledge graph.
 
-    Per MASTER_BUILD_PLAN: Entity resolution against Jena (fuzzy match + semantic similarity)
+    Stage 2.2: Rank matches by exact > substring > fuzzy + edge count in graph.
     """
     graph_uri = jena_client._tenant_graph(tenant_id)
     resolved = []
 
     for entity in entities:
-        # Build SPARQL to find matching nodes by label
         escaped = entity.text.replace("\\", "\\\\").replace('"', '\\"')
         sparql = f"""
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX snowkap: <{SNOWKAP_NS}>
-        SELECT ?node ?label ?type WHERE {{
+        SELECT ?node ?label ?type (COUNT(?edge) AS ?edge_count) WHERE {{
             GRAPH <{graph_uri}> {{
                 ?node rdfs:label ?label .
                 OPTIONAL {{ ?node a ?type }}
+                OPTIONAL {{ ?node ?edge ?_ }}
                 FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{escaped}")))
             }}
         }}
-        LIMIT 3
+        GROUP BY ?node ?label ?type
+        ORDER BY DESC(?edge_count)
+        LIMIT 5
         """
         try:
             result = await jena_client.query(sparql)
             bindings = result.get("results", {}).get("bindings", [])
 
             if bindings:
-                # Take the best match
-                best = bindings[0]
+                best = _rank_matches(bindings, entity.text)
                 entity.resolved_uri = best["node"]["value"]
                 logger.debug(
                     "entity_resolved",
@@ -203,3 +268,29 @@ async def resolve_entities_against_graph(
         tenant_id=tenant_id,
     )
     return resolved
+
+
+def _rank_matches(bindings: list[dict], query_text: str) -> dict:
+    """Rank entity matches: exact label > substring > fuzzy + edge count."""
+    query_lower = query_text.lower().strip()
+    exact = []
+    substring = []
+    fuzzy = []
+
+    for b in bindings:
+        label = b.get("label", {}).get("value", "").lower().strip()
+        edge_count = int(b.get("edge_count", {}).get("value", "0"))
+
+        if label == query_lower:
+            exact.append((b, edge_count))
+        elif query_lower in label or label in query_lower:
+            substring.append((b, edge_count))
+        else:
+            fuzzy.append((b, edge_count))
+
+    for tier in [exact, substring, fuzzy]:
+        if tier:
+            tier.sort(key=lambda x: x[1], reverse=True)
+            return tier[0][0]
+
+    return bindings[0]

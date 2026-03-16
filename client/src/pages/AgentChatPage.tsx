@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import ReactMarkdown from "react-markdown";
 import { agent } from "@/lib/api";
 import { useChatStore } from "@/stores/chatStore";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -18,7 +20,13 @@ interface PendingAction {
 }
 
 export function AgentChatPage() {
-  const [input, setInput] = useState("");
+  const location = useLocation();
+  const articleContext = location.state as { articleId?: string; articleTitle?: string } | null;
+  const [input, setInput] = useState(
+    articleContext?.articleTitle
+      ? `Analyze the ESG impact of: "${articleContext.articleTitle}"`
+      : "",
+  );
   const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
   const [conversationId] = useState(() => `conv_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -111,9 +119,23 @@ export function AgentChatPage() {
   }
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-8rem)]">
-      {/* Agent Selector Sidebar */}
-      <div className="w-56 flex-shrink-0 space-y-3">
+    <div className="flex gap-4 md:gap-6 h-[calc(100vh-8rem)]">
+      {/* Mobile Agent Selector */}
+      <div className="md:hidden absolute top-2 right-4 z-10">
+        <select
+          className="rounded-md border bg-background px-2 py-1 text-xs"
+          value={selectedAgent ?? ""}
+          onChange={(e) => selectAgent(e.target.value || null)}
+        >
+          <option value="">Auto-route</option>
+          {availableAgents.map((a) => (
+            <option key={a.id} value={a.id}>{a.name}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Agent Selector Sidebar — hidden on mobile */}
+      <div className="hidden md:block w-56 flex-shrink-0 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Specialists</h2>
         </div>
@@ -163,7 +185,7 @@ export function AgentChatPage() {
             <div className="text-center text-muted-foreground py-12">
               <p className="text-lg font-medium mb-2">Ask anything about ESG</p>
               <p className="text-sm">The AI will route your question to the best specialist agent.</p>
-              <div className="grid grid-cols-2 gap-2 mt-6 max-w-md mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6 max-w-md mx-auto">
                 {[
                   "What's my supply chain risk?",
                   "Show me compliance gaps",
@@ -247,7 +269,9 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             </Badge>
           </div>
         )}
-        <p className="whitespace-pre-line">{message.content}</p>
+        <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2">
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        </div>
       </div>
     </div>
   );

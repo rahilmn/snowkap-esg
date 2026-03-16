@@ -1,13 +1,12 @@
+/** App routes — swipe-first navigation (Stage 6.9) */
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { LoginPage } from "@/pages/LoginPage";
-import { DashboardPage } from "@/pages/DashboardPage";
-import { NewsFeedPage } from "@/pages/NewsFeedPage";
-import { PredictionsPage } from "@/pages/PredictionsPage";
-import { OntologyPage } from "@/pages/OntologyPage";
+import { SwipeFeedPage } from "@/pages/SwipeFeedPage";
+import { SavedNewsPage } from "@/pages/SavedNewsPage";
 import { AgentChatPage } from "@/pages/AgentChatPage";
-import { CompaniesPage } from "@/pages/CompaniesPage";
 import { AdminPage } from "@/pages/AdminPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -26,12 +25,9 @@ export function App() {
           <ProtectedRoute>
             <AppLayout>
               <Routes>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/news" element={<NewsFeedPage />} />
-                <Route path="/predictions" element={<PredictionsPage />} />
-                <Route path="/ontology" element={<OntologyPage />} />
+                <Route path="/" element={<SwipeFeedPage />} />
+                <Route path="/saved" element={<SavedNewsPage />} />
                 <Route path="/agent" element={<AgentChatPage />} />
-                <Route path="/companies" element={<CompaniesPage />} />
                 <Route path="/admin" element={<AdminPage />} />
               </Routes>
             </AppLayout>

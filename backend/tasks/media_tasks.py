@@ -30,14 +30,15 @@ def process_media_file_task(self, media_file_id: str, tenant_id: str) -> dict:
     Pipeline: download from MinIO → detect type → extract text → generate embeddings → store.
     """
     async def _process():
-        from backend.core.database import async_session_factory
+        from backend.core.database import create_worker_session_factory
         from backend.models.media import MediaChunk, MediaFile
         from backend.services.embedding_service import generate_embeddings_batch
         from backend.services.processors import detect_processor, process_file
         from backend.services.storage_service import storage_service
         from sqlalchemy import select
 
-        async with async_session_factory() as db:
+        session_factory = create_worker_session_factory()
+        async with session_factory() as db:
             # Load media file record
             result = await db.execute(
                 select(MediaFile).where(

@@ -200,3 +200,72 @@ class TestDesignationMapping:
 
     def test_whitespace_handling(self):
         assert map_designation_to_role("  CEO  ") == Role.EXECUTIVE
+
+
+# --- Stage 8.3: Additional Security Tests ---
+
+class TestHashedTokens:
+    """Stage 8.3: Verify hashed token storage for magic links."""
+
+    def test_hash_is_deterministic(self):
+        from backend.core.security import hash_magic_link_token
+        token = "test-token-value-12345"
+        hash1 = hash_magic_link_token(token)
+        hash2 = hash_magic_link_token(token)
+        assert hash1 == hash2, "Same token must produce same hash"
+
+    def test_hash_differs_from_raw_token(self):
+        from backend.core.security import hash_magic_link_token
+        token = generate_magic_link_token()
+        hashed = hash_magic_link_token(token)
+        assert hashed != token, "Hash must differ from raw token"
+
+    def test_different_tokens_produce_different_hashes(self):
+        from backend.core.security import hash_magic_link_token
+        token_a = generate_magic_link_token()
+        token_b = generate_magic_link_token()
+        assert hash_magic_link_token(token_a) != hash_magic_link_token(token_b)
+
+
+class TestSPARQLWhitelist:
+    """Stage 8.3: Verify SPARQL query whitelist enforcement."""
+
+    def test_select_query_allowed(self):
+        from backend.services.ontology_service import validate_sparql_query
+        query = "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10"
+        assert validate_sparql_query(query) is True
+
+    def test_construct_query_allowed(self):
+        from backend.services.ontology_service import validate_sparql_query
+        query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }"
+        assert validate_sparql_query(query) is True
+
+    def test_delete_query_blocked(self):
+        from backend.services.ontology_service import validate_sparql_query
+        query = "DELETE WHERE { ?s ?p ?o }"
+        assert validate_sparql_query(query) is False
+
+    def test_drop_query_blocked(self):
+        from backend.services.ontology_service import validate_sparql_query
+        query = "DROP GRAPH <urn:test>"
+        assert validate_sparql_query(query) is False
+
+    def test_insert_query_blocked(self):
+        from backend.services.ontology_service import validate_sparql_query
+        query = "INSERT DATA { <s> <p> <o> }"
+        assert validate_sparql_query(query) is False
+
+
+class TestJWTSecretValidation:
+    """Stage 8.3: Verify JWT secret meets minimum requirements."""
+
+    def test_jwt_secret_minimum_length(self):
+        assert len(settings.JWT_SECRET) >= 32, (
+            "JWT_SECRET must be at least 32 characters for security"
+        )
+
+    def test_jwt_secret_not_default(self):
+        insecure_defaults = {"secret", "changeme", "your-secret-key", "test"}
+        assert settings.JWT_SECRET not in insecure_defaults, (
+            "JWT_SECRET must not be a well-known default value"
+        )

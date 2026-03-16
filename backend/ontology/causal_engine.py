@@ -5,13 +5,11 @@ Per MASTER_BUILD_PLAN Phase 3.2:
 - Impact scoring: decay function per hop (direct=1.0, 1-hop=0.7, 2-hop=0.4, 3-hop=0.2)
 - Path explanation: human-readable causal chain
 
-Per CLAUDE.md: Causal Relationship Types:
-  directOperational (0-hop), supplyChainUpstream (1-hop), supplyChainDownstream (1-hop),
-  workforceIndirect (2-hop), regulatoryContagion (1-hop), geographicProximity (0-hop),
-  industrySpillover (1-hop), commodityChain (3-hop)
+Stage 2.4: Fix 4-hop SPARQL property path syntax. Edge-aware dedup.
+           Multi-path reporting (return up to 5 paths, not just best).
+Stage 2.5: Add 9 new relationship types (total: 17).
 """
 
-from collections import deque
 from dataclasses import dataclass, field
 
 import structlog
@@ -23,8 +21,9 @@ logger = structlog.get_logger()
 # Decay per hop per MASTER_BUILD_PLAN
 HOP_DECAY = {0: 1.0, 1: 0.7, 2: 0.4, 3: 0.2, 4: 0.1}
 
-# Causal relationship types per CLAUDE.md
+# Stage 2.5: 17 causal relationship types (was 8)
 RELATIONSHIP_TYPES = {
+    # Original 8
     "directOperational": {"typical_hops": 0, "description": "Direct operational impact"},
     "supplyChainUpstream": {"typical_hops": 1, "description": "Upstream supply chain impact"},
     "supplyChainDownstream": {"typical_hops": 1, "description": "Downstream supply chain impact"},
@@ -33,14 +32,26 @@ RELATIONSHIP_TYPES = {
     "geographicProximity": {"typical_hops": 0, "description": "Geographic proximity impact"},
     "industrySpillover": {"typical_hops": 1, "description": "Industry spillover effect"},
     "commodityChain": {"typical_hops": 3, "description": "Commodity chain impact"},
+    # Stage 2.5: 9 new types
+    "waterSharedBasin": {"typical_hops": 1, "description": "Shared water basin exposure"},
+    "pollutionDispersion": {"typical_hops": 1, "description": "Pollution dispersion pathway"},
+    "climateRiskExposure": {"typical_hops": 0, "description": "Climate risk zone exposure"},
+    "laborContractor": {"typical_hops": 2, "description": "Labor contractor chain"},
+    "communityAffected": {"typical_hops": 1, "description": "Community affected by operations"},
+    "regulatoryJurisdiction": {"typical_hops": 1, "description": "Shared regulatory jurisdiction"},
+    "ownershipChain": {"typical_hops": 2, "description": "Corporate ownership chain"},
+    "investorExposure": {"typical_hops": 1, "description": "Investor portfolio exposure"},
+    "customerConcentration": {"typical_hops": 1, "description": "Customer concentration risk"},
 }
 
 MAX_HOPS = 4
+MAX_PATHS = 5  # Stage 2.4: return up to 5 paths
 
 SNOWKAP_NS = "http://snowkap.com/ontology/esg#"
 
-# Map Jena predicate URIs to relationship types
+# Map Jena predicate URIs to relationship types (expanded for Stage 2.5)
 PREDICATE_TO_RELATIONSHIP = {
+    # Original mappings
     f"{SNOWKAP_NS}directlyImpacts": "directOperational",
     f"{SNOWKAP_NS}indirectlyImpacts": "workforceIndirect",
     f"{SNOWKAP_NS}suppliesTo": "supplyChainUpstream",
@@ -53,6 +64,18 @@ PREDICATE_TO_RELATIONSHIP = {
     f"{SNOWKAP_NS}belongsToIndustry": "industrySpillover",
     f"{SNOWKAP_NS}hasMaterialIssue": "directOperational",
     f"{SNOWKAP_NS}employsWorkforce": "workforceIndirect",
+    # Stage 2.5: new predicate mappings
+    f"{SNOWKAP_NS}sharesWaterBasin": "waterSharedBasin",
+    f"{SNOWKAP_NS}pollutionPathway": "pollutionDispersion",
+    f"{SNOWKAP_NS}climateExposure": "climateRiskExposure",
+    f"{SNOWKAP_NS}laborContractedBy": "laborContractor",
+    f"{SNOWKAP_NS}affectsCommunity": "communityAffected",
+    f"{SNOWKAP_NS}sameJurisdiction": "regulatoryJurisdiction",
+    f"{SNOWKAP_NS}ownedBy": "ownershipChain",
+    f"{SNOWKAP_NS}investedIn": "investorExposure",
+    f"{SNOWKAP_NS}customerOf": "customerConcentration",
+    f"{SNOWKAP_NS}reportsUnder": "directOperational",
+    f"{SNOWKAP_NS}frameworkIndicator": "directOperational",
 }
 
 
@@ -95,11 +118,7 @@ def classify_relationship(edge_uris: list[str]) -> str:
 
 
 def generate_explanation(path: CausalPath) -> str:
-    """Generate human-readable causal chain explanation.
-
-    Per MASTER_BUILD_PLAN example:
-    "LPG prices → cooking fuel → truck drivers → your fleet welfare costs"
-    """
+    """Generate human-readable causal chain explanation."""
     if not path.nodes:
         return ""
     return " → ".join(path.nodes)
@@ -113,13 +132,7 @@ async def find_causal_chains(
 ) -> list[CausalPath]:
     """BFS traversal from news entity to company node in the ontology graph.
 
-    Algorithm:
-    1. Resolve source_entity to a URI in the tenant's Jena graph
-    2. Resolve target_company_id to its company URI
-    3. BFS outward from source, following all causal relationships
-    4. At each hop, check if target company is reachable
-    5. Record all paths up to max_hops
-    6. Score each path with decay function and generate explanations
+    Stage 2.4: Returns up to MAX_PATHS paths with edge-aware deduplication.
     """
     logger.info(
         "causal_chain_search",
@@ -144,17 +157,22 @@ async def find_causal_chains(
         found = await _bfs_paths(source_uri, target_uri, tenant_id, max_hops)
         paths.extend(found)
 
-    # Deduplicate by node sequence
+    # Stage 2.4: Edge-aware dedup (paths via different relationship types are distinct)
     seen = set()
     unique_paths = []
     for p in paths:
-        key = tuple(p.node_uris)
+        # Key includes both nodes AND edges for edge-aware dedup
+        key = (tuple(p.node_uris), tuple(p.edge_uris))
         if key not in seen:
             seen.add(key)
             unique_paths.append(p)
 
-    # Sort by impact score descending
+    # Sort by impact score descending, return up to MAX_PATHS
     unique_paths.sort(key=lambda p: p.impact_score, reverse=True)
+    unique_paths = unique_paths[:MAX_PATHS]
+
+    # Stage 3.2: Enrich paths with framework data from Jena
+    unique_paths = await _enrich_paths_with_frameworks(unique_paths, tenant_id)
 
     logger.info("causal_chains_found", count=len(unique_paths), source=source_entity)
     return unique_paths
@@ -164,7 +182,6 @@ async def _resolve_entity(entity_text: str, tenant_id: str) -> list[str]:
     """Resolve an entity text to URIs in the Jena graph via label matching."""
     graph_uri = jena_client._tenant_graph(tenant_id)
 
-    # Try exact label match first, then partial
     sparql = f"""
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX snowkap: <{SNOWKAP_NS}>
@@ -191,16 +208,15 @@ async def _bfs_paths(
     tenant_id: str,
     max_hops: int,
 ) -> list[CausalPath]:
-    """BFS from source to target in the Jena knowledge graph."""
-    graph_uri = jena_client._tenant_graph(tenant_id)
+    """BFS from source to target in the Jena knowledge graph.
 
-    # Use SPARQL property paths for efficient multi-hop traversal
+    Stage 2.4: Fixed 4-hop property path syntax. Returns multiple paths per hop level.
+    """
+    graph_uri = jena_client._tenant_graph(tenant_id)
     paths: list[CausalPath] = []
 
-    # Check each hop distance (0 to max_hops)
     for hops in range(max_hops + 1):
         if hops == 0:
-            # Direct connection
             sparql = f"""
             PREFIX snowkap: <{SNOWKAP_NS}>
             SELECT ?rel WHERE {{
@@ -251,13 +267,19 @@ async def _bfs_paths(
             LIMIT 10
             """
         else:
-            # 4-hop: use property path with max length
+            # Stage 2.4: Fixed 4-hop property path syntax
+            # Use explicit 4-hop pattern instead of broken property path
             sparql = f"""
             PREFIX snowkap: <{SNOWKAP_NS}>
-            SELECT ?path WHERE {{
+            SELECT ?mid1 ?mid2 ?mid3 ?mid4 ?rel1 ?rel2 ?rel3 ?rel4 ?rel5 WHERE {{
                 GRAPH <{graph_uri}> {{
-                    <{source_uri}> (snowkap:|!snowkap:){{1,4}} <{target_uri}> .
-                    BIND("exists" AS ?path)
+                    <{source_uri}> ?rel1 ?mid1 .
+                    ?mid1 ?rel2 ?mid2 .
+                    ?mid2 ?rel3 ?mid3 .
+                    ?mid3 ?rel4 ?mid4 .
+                    ?mid4 ?rel5 <{target_uri}> .
+                    FILTER(?mid1 != ?mid2 && ?mid2 != ?mid3 && ?mid3 != ?mid4)
+                    FILTER(?mid1 != <{source_uri}> && ?mid4 != <{target_uri}>)
                 }}
             }}
             LIMIT 5
@@ -361,12 +383,126 @@ def _binding_to_path(
         path.explanation = generate_explanation(path)
         return path
 
+    elif hops == 4:
+        mid1 = binding.get("mid1", {}).get("value", "")
+        mid2 = binding.get("mid2", {}).get("value", "")
+        mid3 = binding.get("mid3", {}).get("value", "")
+        mid4 = binding.get("mid4", {}).get("value", "")
+        rel1 = binding.get("rel1", {}).get("value", "")
+        rel2 = binding.get("rel2", {}).get("value", "")
+        rel3 = binding.get("rel3", {}).get("value", "")
+        rel4 = binding.get("rel4", {}).get("value", "")
+        rel5 = binding.get("rel5", {}).get("value", "")
+        path = CausalPath(
+            nodes=[
+                source_label, _uri_to_label(mid1), _uri_to_label(mid2),
+                _uri_to_label(mid3), _uri_to_label(mid4), target_label,
+            ],
+            node_uris=[source_uri, mid1, mid2, mid3, mid4, target_uri],
+            edges=[
+                _uri_to_label(rel1), _uri_to_label(rel2),
+                _uri_to_label(rel3), _uri_to_label(rel4), _uri_to_label(rel5),
+            ],
+            edge_uris=[rel1, rel2, rel3, rel4, rel5],
+            hops=4,
+            relationship_type=classify_relationship([rel1, rel2, rel3, rel4, rel5]),
+            impact_score=calculate_impact(4),
+        )
+        path.explanation = generate_explanation(path)
+        return path
+
     return None
 
 
 def _escape_sparql(text: str) -> str:
-    """Escape special characters for SPARQL string literals."""
-    return text.replace("\\", "\\\\").replace('"', '\\"').replace("'", "\\'")
+    """Escape special characters for SPARQL string literals.
+
+    Handles all SPARQL 1.1 special characters to prevent injection.
+    """
+    # Order matters: escape backslash first
+    text = text.replace("\\", "\\\\")
+    text = text.replace('"', '\\"')
+    text = text.replace("'", "\\'")
+    text = text.replace("\n", "\\n")
+    text = text.replace("\r", "\\r")
+    text = text.replace("\t", "\\t")
+    text = text.replace("\b", "\\b")
+    text = text.replace("\f", "\\f")
+    # Strip characters that could break out of string context
+    text = text.replace("{", "").replace("}", "")
+    text = text.replace("<", "").replace(">", "")
+    return text
+
+
+async def _query_entity_frameworks(entity_uri: str, tenant_id: str) -> list[str]:
+    """Query framework relationships for an entity from Jena.
+
+    Stage 3.2: After BFS discovers entities, query reportsUnder and frameworkIndicator.
+    Returns framework codes like ["BRSR:P6", "GRI 305", "TCFD:Strategy"].
+    """
+    graph_uri = jena_client._tenant_graph(tenant_id)
+    frameworks: list[str] = []
+
+    # Query direct framework links via reportsUnder
+    sparql_fw = f"""
+    PREFIX snowkap: <{SNOWKAP_NS}>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?fw ?fwLabel WHERE {{
+        GRAPH <{graph_uri}> {{
+            <{entity_uri}> snowkap:reportsUnder ?fw_uri .
+            ?fw_uri rdfs:label ?fwLabel .
+            BIND(STR(?fwLabel) AS ?fw)
+        }}
+    }}
+    LIMIT 20
+    """
+    try:
+        result = await jena_client.query(sparql_fw)
+        for b in result.get("results", {}).get("bindings", []):
+            fw = b.get("fw", {}).get("value", "") or b.get("fwLabel", {}).get("value", "")
+            if fw:
+                frameworks.append(fw)
+    except Exception:
+        pass
+
+    # Query material issue → framework indicator mappings
+    sparql_ind = f"""
+    PREFIX snowkap: <{SNOWKAP_NS}>
+    SELECT ?indicator WHERE {{
+        GRAPH <{graph_uri}> {{
+            <{entity_uri}> snowkap:frameworkIndicator ?indicator .
+        }}
+    }}
+    LIMIT 20
+    """
+    try:
+        result = await jena_client.query(sparql_ind)
+        for b in result.get("results", {}).get("bindings", []):
+            indicator = b.get("indicator", {}).get("value", "")
+            if indicator:
+                frameworks.append(indicator)
+    except Exception:
+        pass
+
+    return list(set(frameworks))
+
+
+async def _enrich_paths_with_frameworks(
+    paths: list[CausalPath], tenant_id: str,
+) -> list[CausalPath]:
+    """Enrich causal paths with framework data from Jena.
+
+    Stage 3.2: For each entity in the path, query framework relationships
+    and merge into path.frameworks.
+    """
+    for path in paths:
+        all_frameworks: list[str] = []
+        for uri in path.node_uris:
+            if uri.startswith(SNOWKAP_NS) or uri.startswith("http"):
+                fws = await _query_entity_frameworks(uri, tenant_id)
+                all_frameworks.extend(fws)
+        path.frameworks = list(set(all_frameworks))
+    return paths
 
 
 async def find_all_impacts_for_entity(
@@ -377,6 +513,7 @@ async def find_all_impacts_for_entity(
     """Find all companies impacted by an entity, with causal chains.
 
     Used for: "Show me all paths from [news event] to [any company in my tenant]"
+    Stage 2.4: Returns up to MAX_PATHS paths per company.
     """
     graph_uri = jena_client._tenant_graph(tenant_id)
 
@@ -388,6 +525,7 @@ async def find_all_impacts_for_entity(
     # Find all Company nodes in the tenant graph
     sparql = f"""
     PREFIX snowkap: <{SNOWKAP_NS}>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?company ?label WHERE {{
         GRAPH <{graph_uri}> {{
             ?company a snowkap:Company .
@@ -414,6 +552,7 @@ async def find_all_impacts_for_entity(
                     "company_uri": company_uri,
                     "company_name": company_label,
                     "best_path": best_path,
+                    "all_paths": paths[:MAX_PATHS],  # Stage 2.4: return multiple paths
                     "all_paths_count": len(paths),
                     "max_impact_score": best_path.impact_score,
                     "min_hops": min(p.hops for p in paths),

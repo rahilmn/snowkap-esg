@@ -55,6 +55,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application startup and shutdown lifecycle."""
     logger.info("snowkap_starting", version=settings.APP_VERSION, environment=settings.ENVIRONMENT)
     yield
+    # Cleanup persistent connections
+    from backend.ontology.jena_client import jena_client
+    await jena_client.close()
     await engine.dispose()
     logger.info("snowkap_shutdown")
 
@@ -68,22 +71,33 @@ app = FastAPI(
     redoc_url="/api/redoc",
 )
 
-class NoCacheMiddleware(BaseHTTPMiddleware):
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to every response."""
     async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        if settings.ENVIRONMENT == "production":
+            response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
         if os.environ.get("ENVIRONMENT") != "deployed":
             response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         return response
 
-app.add_middleware(NoCacheMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 
-# CORS
+# CORS — explicit methods and headers (no wildcards)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Authorization", "Content-Type", "Accept", "Origin",
+        "X-Requested-With", "X-Tenant-Id",
+    ],
+    expose_headers=["X-Request-Id"],
 )
 
 # --- Routers per CLAUDE.md: modular FastAPI routers ---

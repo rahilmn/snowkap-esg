@@ -107,17 +107,15 @@ async def process_pdf(file_data: bytes) -> ProcessorResult:
 
 
 async def process_image(file_data: bytes, filename: str) -> ProcessorResult:
-    """Extract text/description from image using Claude Vision."""
-    if not settings.ANTHROPIC_API_KEY:
-        return ProcessorResult(text="", metadata={"error": "ANTHROPIC_API_KEY not configured"})
+    """Extract text/description from image using GPT-4o Vision."""
+    from backend.core import llm
+
+    if not llm.is_configured():
+        return ProcessorResult(text="", metadata={"error": "OPENAI_API_KEY not configured"})
 
     try:
-        import anthropic
         import base64
 
-        client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
-
-        # Determine media type
         ext = filename.rsplit(".", 1)[-1].lower()
         media_types = {
             "png": "image/png",
@@ -127,35 +125,18 @@ async def process_image(file_data: bytes, filename: str) -> ProcessorResult:
             "webp": "image/webp",
         }
         media_type = media_types.get(ext, "image/jpeg")
-
         b64_data = base64.standard_b64encode(file_data).decode("utf-8")
 
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
+        text = await llm.chat_with_image(
+            image_b64=b64_data,
+            media_type=media_type,
+            prompt="Extract all text visible in this image. If it contains charts, tables, or diagrams, describe their content and data. Focus on any ESG-related information (environmental, social, governance). Return the extracted content as structured text.",
             max_tokens=2000,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": media_type,
-                            "data": b64_data,
-                        },
-                    },
-                    {
-                        "type": "text",
-                        "text": "Extract all text visible in this image. If it contains charts, tables, or diagrams, describe their content and data. Focus on any ESG-related information (environmental, social, governance). Return the extracted content as structured text.",
-                    },
-                ],
-            }],
         )
 
-        text = response.content[0].text
         return ProcessorResult(
             text=text,
-            metadata={"source": "claude_vision", "media_type": media_type},
+            metadata={"source": "gpt4o_vision", "media_type": media_type},
             chunks=[{"content": text, "chunk_index": 0}],
         )
     except Exception as e:

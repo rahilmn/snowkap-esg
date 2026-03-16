@@ -2,24 +2,18 @@
 
 Per CLAUDE.md: MiroFish triggered only on high-impact news (score >70).
 Per MASTER_BUILD_PLAN Phase 4.3: Celery task triggers prediction.
+Stage 8.1: Use asgiref.sync.async_to_sync instead of creating new event loops.
+Stage 8.2: Idempotency — skip if PredictionReport exists for same (article, company, tenant) within 24h.
 """
 
-import asyncio
+from datetime import datetime, timedelta, timezone
 
 import structlog
+from asgiref.sync import async_to_sync
 
 from backend.tasks.celery_app import celery_app
 
 logger = structlog.get_logger()
-
-
-def _run_async(coro):
-    """Run an async coroutine from a sync Celery task."""
-    loop = asyncio.new_event_loop()
-    try:
-        return loop.run_until_complete(coro)
-    finally:
-        loop.close()
 
 
 @celery_app.task(
@@ -27,6 +21,7 @@ def _run_async(coro):
     bind=True,
     max_retries=2,
     default_retry_delay=60,
+    soft_time_limit=600,
 )
 def trigger_simulation_task(
     self,
@@ -38,14 +33,37 @@ def trigger_simulation_task(
 ) -> dict:
     """Trigger MiroFish prediction simulation as background task.
 
-    Per MASTER_BUILD_PLAN Phase 4.3:
-    Celery task: trigger_prediction(news_event, company, causal_chain)
+    Stage 8.2: Skips if a PredictionReport for the same (article, company, tenant)
+    was created within the last 24 hours, unless user_requested=True.
     """
     async def _run():
-        from backend.core.database import async_session_factory
+        from sqlalchemy import select
+        from backend.core.database import create_worker_session_factory
+        from backend.models.prediction import PredictionReport
         from backend.services.prediction_service import run_prediction_pipeline
 
-        async with async_session_factory() as db:
+        session_factory = create_worker_session_factory()
+        async with session_factory() as db:
+            # Stage 8.2: Idempotency check
+            if not user_requested:
+                cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+                existing = await db.execute(
+                    select(PredictionReport.id).where(
+                        PredictionReport.article_id == article_id,
+                        PredictionReport.company_id == company_id,
+                        PredictionReport.tenant_id == tenant_id,
+                        PredictionReport.created_at >= cutoff,
+                    ).limit(1)
+                )
+                if existing.scalar_one_or_none() is not None:
+                    logger.info(
+                        "prediction_task_skipped_duplicate",
+                        tenant_id=tenant_id,
+                        article_id=article_id,
+                        company_id=company_id,
+                    )
+                    return {"status": "skipped", "reason": "duplicate_within_24h"}
+
             result = await run_prediction_pipeline(
                 tenant_id=tenant_id,
                 article_id=article_id,
@@ -58,7 +76,7 @@ def trigger_simulation_task(
             return result
 
     try:
-        result = _run_async(_run())
+        result = async_to_sync(_run)()
         logger.info(
             "prediction_task_complete",
             tenant_id=tenant_id,
@@ -74,11 +92,13 @@ def trigger_simulation_task(
             article_id=article_id,
             error=str(e),
         )
-        # Retry on transient failures
         raise self.retry(exc=e)
 
 
-@celery_app.task(name="prediction.auto_trigger_check")
+@celery_app.task(
+    name="prediction.auto_trigger_check",
+    soft_time_limit=300,
+)
 def auto_trigger_check_task(tenant_id: str, article_id: str) -> dict:
     """Check if an article meets trigger conditions for any company, and dispatch.
 
@@ -86,11 +106,12 @@ def auto_trigger_check_task(tenant_id: str, article_id: str) -> dict:
     """
     async def _check():
         from sqlalchemy import select
-        from backend.core.database import async_session_factory
+        from backend.core.database import create_worker_session_factory
         from backend.models.news import ArticleScore
         from backend.services.prediction_service import should_trigger_prediction
 
-        async with async_session_factory() as db:
+        session_factory = create_worker_session_factory()
+        async with session_factory() as db:
             result = await db.execute(
                 select(ArticleScore).where(
                     ArticleScore.article_id == article_id,
@@ -106,7 +127,6 @@ def auto_trigger_check_task(tenant_id: str, article_id: str) -> dict:
                     causal_hops=score.causal_hops,
                     financial_exposure=score.financial_exposure,
                 ):
-                    # Dispatch prediction for this company
                     trigger_simulation_task.delay(
                         tenant_id=tenant_id,
                         article_id=article_id,
@@ -117,7 +137,7 @@ def auto_trigger_check_task(tenant_id: str, article_id: str) -> dict:
             return {"article_id": article_id, "triggered_for": triggered}
 
     try:
-        return _run_async(_check())
+        return async_to_sync(_check)()
     except Exception as e:
         logger.error("auto_trigger_check_failed", article_id=article_id, error=str(e))
         return {"article_id": article_id, "error": str(e)}

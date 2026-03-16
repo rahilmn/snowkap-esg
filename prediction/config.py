@@ -21,7 +21,8 @@ class MiroFishSettings(BaseSettings):
 
     # LLM
     ANTHROPIC_API_KEY: str = ""
-    LLM_MODEL: str = "claude-sonnet-4-6-20250514"
+    OPENAI_API_KEY: str = ""
+    LLM_MODEL: str = "gpt-4o"
 
     # Zep Cloud (agent memory)
     ZEP_API_KEY: str = ""

@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 
 from backend.core.dependencies import TenantContext, get_tenant_context
+from backend.models.company import Company
 from backend.models.media import MediaChunk, MediaFile
 
 logger = structlog.get_logger()
@@ -72,6 +73,20 @@ async def upload_file(
     """
     if not file.filename:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Filename required")
+
+    # Verify company_id belongs to this tenant
+    if company_id:
+        company_result = await ctx.db.execute(
+            select(Company).where(
+                Company.id == company_id,
+                Company.tenant_id == ctx.tenant_id,
+            )
+        )
+        if not company_result.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Company does not belong to your tenant",
+            )
 
     content_type = file.content_type or "application/octet-stream"
     if content_type not in ALLOWED_TYPES:

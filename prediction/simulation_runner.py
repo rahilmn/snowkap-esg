@@ -4,20 +4,29 @@ Per MASTER_BUILD_PLAN Phase 4:
 - OASIS-inspired framework for agent simulation
 - Parallel agent deliberation, results aggregation
 - 10-40 rounds per simulation
+
+Stage 4.3: Inter-agent debate — top 3 divergent responses fed back
+Stage 4.4: Structured action logging per agent per round
+Stage 4.5: LLM retry with exponential backoff (2s, 5s)
 """
 
+import asyncio
 import json
 import time
 from dataclasses import dataclass, field
 
 import structlog
-from anthropic import AsyncAnthropic
+from openai import AsyncOpenAI
 
 from prediction.config import mirofish_settings
 from prediction.oasis_profile_generator import AgentProfile
 from prediction.simulation_config_generator import SimulationConfig
 
 logger = structlog.get_logger()
+
+# Stage 4.5: Retry config
+LLM_RETRY_DELAYS = [2.0, 5.0]
+LLM_RETRYABLE_ERRORS = ("overloaded", "rate_limit", "timeout", "529", "529", "500", "502", "503")
 
 
 @dataclass
@@ -34,12 +43,26 @@ class AgentResponse:
 
 
 @dataclass
+class ActionLogEntry:
+    """Stage 4.4: Structured log entry for agent actions."""
+    round_number: int
+    agent_id: str
+    agent_role: str
+    action: str  # "analyze", "debate", "revise", "error"
+    confidence: float = 0.0
+    duration_ms: float = 0.0
+    retries: int = 0
+    error: str | None = None
+
+
+@dataclass
 class RoundResult:
     """Result of a single simulation round."""
     round_number: int
     responses: list[AgentResponse] = field(default_factory=list)
     consensus_score: float = 0.0
     dominant_sentiment: str = "neutral"
+    debate_triggered: bool = False
 
 
 @dataclass
@@ -51,6 +74,7 @@ class SimulationResult:
     duration_seconds: float = 0.0
     convergence_score: float = 0.0
     round_results: list[RoundResult] = field(default_factory=list)
+    action_log: list[ActionLogEntry] = field(default_factory=list)
     consensus_analysis: str = ""
     consensus_recommendation: str = ""
     consensus_financial_impact: str = ""
@@ -74,8 +98,9 @@ async def run_simulation(
     2. For each round:
        a. Each agent analyzes the scenario
        b. Collect all responses
-       c. Check for convergence
-       d. If converged or max rounds reached, stop
+       c. Stage 4.3: If divergence detected, trigger inter-agent debate
+       d. Check for convergence
+       e. If converged or max rounds reached, stop
     3. Synthesize consensus from all agent responses
     """
     start_time = time.time()
@@ -86,13 +111,13 @@ async def run_simulation(
         total_agents=len(agents),
     )
 
-    if not mirofish_settings.ANTHROPIC_API_KEY:
-        logger.warning("anthropic_key_missing_mirofish")
+    if not mirofish_settings.OPENAI_API_KEY:
+        logger.warning("openai_key_missing_mirofish")
         result.consensus_analysis = "Simulation skipped — no API key configured"
         result.convergence_score = 0.0
         return result
 
-    client = AsyncAnthropic(api_key=mirofish_settings.ANTHROPIC_API_KEY)
+    client = AsyncOpenAI(api_key=mirofish_settings.OPENAI_API_KEY)
     all_responses: list[AgentResponse] = []
     prev_round_summary = ""
 
@@ -101,7 +126,7 @@ async def run_simulation(
 
         # Run each agent for this round
         for agent in agents:
-            response = await _run_agent_round(
+            response, log_entry = await _run_agent_round_with_logging(
                 client=client,
                 agent=agent,
                 seed_document=seed_document,
@@ -112,20 +137,41 @@ async def run_simulation(
             response.round_number = round_num
             round_result.responses.append(response)
             all_responses.append(response)
+            result.action_log.append(log_entry)
+
+        # Stage 4.3: Inter-agent debate on divergent views
+        if round_num >= 2 and len(round_result.responses) >= 3:
+            divergent = _find_divergent_responses(round_result.responses)
+            if divergent:
+                round_result.debate_triggered = True
+                debate_summary = await _run_debate_round(
+                    client, divergent, seed_document, scenario_prompt, round_num,
+                )
+                if debate_summary:
+                    prev_round_summary = debate_summary
+                    # Log debate action
+                    result.action_log.append(ActionLogEntry(
+                        round_number=round_num,
+                        agent_id="debate_moderator",
+                        agent_role="moderator",
+                        action="debate",
+                    ))
 
         # Calculate round convergence
         round_result.consensus_score = _calculate_convergence(round_result.responses)
         round_result.dominant_sentiment = _dominant_sentiment(round_result.responses)
         result.round_results.append(round_result)
 
-        # Build summary for next round
-        prev_round_summary = _summarize_round(round_result)
+        # Build summary for next round (if no debate summary was generated)
+        if not round_result.debate_triggered:
+            prev_round_summary = _summarize_round(round_result)
 
         logger.info(
             "simulation_round_complete",
             simulation_id=simulation_id,
             round=round_num,
             convergence=round_result.consensus_score,
+            debate=round_result.debate_triggered,
         )
 
         # Early stop if converged (>0.8 consensus)
@@ -153,19 +199,74 @@ async def run_simulation(
         rounds=result.rounds_completed,
         convergence=result.convergence_score,
         duration=f"{result.duration_seconds:.1f}s",
+        total_actions=len(result.action_log),
+        debates=sum(1 for r in result.round_results if r.debate_triggered),
     )
     return result
 
 
-async def _run_agent_round(
-    client: AsyncAnthropic,
+async def _llm_call_with_retry(
+    client: AsyncOpenAI,
+    *,
+    model: str,
+    max_tokens: int,
+    system: str | None = None,
+    messages: list[dict],
+) -> str:
+    """Stage 4.5: LLM call with exponential backoff retry.
+
+    Retries on transient errors (overloaded, rate limit, 5xx).
+    Returns the text content from the first content block.
+    """
+    last_error: Exception | None = None
+
+    for attempt in range(1 + len(LLM_RETRY_DELAYS)):
+        try:
+            full_messages = []
+            if system:
+                full_messages.append({"role": "system", "content": system})
+            full_messages.extend(messages)
+
+            response = await client.chat.completions.create(
+                model=model,
+                max_tokens=max_tokens,
+                messages=full_messages,
+                temperature=0.3,
+            )
+            return response.choices[0].message.content or ""
+        except Exception as e:
+            last_error = e
+            error_str = str(e).lower()
+            is_retryable = any(kw in error_str for kw in LLM_RETRYABLE_ERRORS)
+
+            if not is_retryable or attempt >= len(LLM_RETRY_DELAYS):
+                raise
+
+            delay = LLM_RETRY_DELAYS[attempt]
+            logger.warning(
+                "llm_retry",
+                attempt=attempt + 1,
+                delay=delay,
+                error=str(e)[:100],
+            )
+            await asyncio.sleep(delay)
+
+    raise last_error  # type: ignore[misc]
+
+
+async def _run_agent_round_with_logging(
+    client: AsyncOpenAI,
     agent: AgentProfile,
     seed_document: str,
     scenario_prompt: str,
     round_number: int,
     prev_round_summary: str,
-) -> AgentResponse:
-    """Run a single agent for one round of simulation."""
+) -> tuple[AgentResponse, ActionLogEntry]:
+    """Stage 4.4: Run a single agent round with structured action logging."""
+    start_ms = time.time() * 1000
+    retries = 0
+    error_msg = None
+
     system_prompt = agent.to_system_prompt()
 
     user_content = f"""## Simulation Round {round_number}
@@ -189,19 +290,18 @@ Provide your analysis as JSON:
 {"analysis": "...", "recommendation": "...", "financial_estimate": "...", "confidence": 0.0-1.0, "time_horizon": "short|medium|long"}"""
 
     try:
-        response = await client.messages.create(
+        text = await _llm_call_with_retry(
+            client,
             model=mirofish_settings.LLM_MODEL,
             max_tokens=800,
             system=system_prompt,
             messages=[{"role": "user", "content": user_content}],
         )
 
-        text = response.content[0].text
-        # Try to parse as JSON
+        # Parse JSON response
         try:
             data = json.loads(text)
         except json.JSONDecodeError:
-            # Extract JSON from response if wrapped in text
             start = text.find("{")
             end = text.rfind("}") + 1
             if start >= 0 and end > start:
@@ -209,7 +309,7 @@ Provide your analysis as JSON:
             else:
                 data = {"analysis": text, "confidence": 0.5}
 
-        return AgentResponse(
+        response = AgentResponse(
             agent_id=agent.agent_id,
             agent_role=agent.role,
             analysis=data.get("analysis", ""),
@@ -218,15 +318,106 @@ Provide your analysis as JSON:
             confidence=float(data.get("confidence", 0.5)),
             time_horizon=data.get("time_horizon", "medium"),
         )
+        action = "analyze"
 
     except Exception as e:
-        logger.warning("agent_round_failed", agent=agent.agent_id, error=str(e))
-        return AgentResponse(
+        error_msg = str(e)[:200]
+        logger.warning("agent_round_failed", agent=agent.agent_id, error=error_msg)
+        response = AgentResponse(
             agent_id=agent.agent_id,
             agent_role=agent.role,
-            analysis=f"Agent failed to respond: {str(e)}",
+            analysis=f"Agent failed to respond: {error_msg}",
             confidence=0.0,
         )
+        action = "error"
+
+    duration_ms = time.time() * 1000 - start_ms
+    log_entry = ActionLogEntry(
+        round_number=round_number,
+        agent_id=agent.agent_id,
+        agent_role=agent.role,
+        action=action,
+        confidence=response.confidence,
+        duration_ms=round(duration_ms, 1),
+        retries=retries,
+        error=error_msg,
+    )
+
+    return response, log_entry
+
+
+def _find_divergent_responses(responses: list[AgentResponse]) -> list[AgentResponse]:
+    """Stage 4.3: Find the top 3 most divergent agent responses.
+
+    Divergence = responses whose confidence differs most from the mean.
+    Returns empty list if divergence is low (all agents roughly agree).
+    """
+    if len(responses) < 3:
+        return []
+
+    valid = [r for r in responses if r.confidence > 0]
+    if len(valid) < 3:
+        return []
+
+    avg_conf = sum(r.confidence for r in valid) / len(valid)
+    variance = sum((r.confidence - avg_conf) ** 2 for r in valid) / len(valid)
+
+    # Only trigger debate if meaningful divergence exists
+    if variance < 0.04:  # std dev < 0.2
+        return []
+
+    # Sort by distance from mean, pick top 3
+    sorted_by_divergence = sorted(valid, key=lambda r: abs(r.confidence - avg_conf), reverse=True)
+    return sorted_by_divergence[:3]
+
+
+async def _run_debate_round(
+    client: AsyncOpenAI,
+    divergent_responses: list[AgentResponse],
+    seed_document: str,
+    scenario_prompt: str,
+    round_number: int,
+) -> str | None:
+    """Stage 4.3: Run a debate round where divergent agents present their cases.
+
+    The moderator synthesizes the debate into a summary that informs the next round.
+    """
+    debate_context = []
+    for r in divergent_responses:
+        debate_context.append(
+            f"**{r.agent_role}** (confidence={r.confidence:.2f}):\n"
+            f"Analysis: {r.analysis[:300]}\n"
+            f"Recommendation: {r.recommendation[:200]}"
+        )
+
+    prompt = f"""You are moderating an ESG simulation debate. Three agents with divergent views
+are presenting their cases about this scenario:
+
+{scenario_prompt[:500]}
+
+## Divergent Agent Views
+
+{chr(10).join(debate_context)}
+
+## Your Task
+Synthesize these divergent views into a balanced summary that:
+1. Identifies the key point of disagreement
+2. Highlights the strongest argument from each side
+3. Notes where further analysis is needed
+
+Keep your summary under 300 words. Write in third person ("The agents disagree on...")."""
+
+    try:
+        text = await _llm_call_with_retry(
+            client,
+            model=mirofish_settings.LLM_MODEL,
+            max_tokens=500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return text
+    except Exception as e:
+        logger.warning("debate_round_failed", error=str(e))
+        return None
 
 
 def _calculate_convergence(responses: list[AgentResponse]) -> float:
@@ -276,7 +467,7 @@ def _summarize_round(round_result: RoundResult) -> str:
 
 
 async def _synthesize_consensus(
-    client: AsyncAnthropic,
+    client: AsyncOpenAI,
     all_responses: list[AgentResponse],
     config: SimulationConfig,
 ) -> dict:
@@ -310,12 +501,12 @@ Synthesize into a JSON consensus:
 Return JSON only, no markdown."""
 
     try:
-        response = await client.messages.create(
+        text = await _llm_call_with_retry(
+            client,
             model=mirofish_settings.LLM_MODEL,
             max_tokens=1000,
             messages=[{"role": "user", "content": prompt}],
         )
-        text = response.content[0].text
         start = text.find("{")
         end = text.rfind("}") + 1
         if start >= 0 and end > start:

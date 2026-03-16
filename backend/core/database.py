@@ -29,6 +29,24 @@ async_session_factory = async_sessionmaker(
 )
 
 
+def create_worker_session_factory() -> async_sessionmaker[AsyncSession]:
+    """Create a fresh engine + session factory for Celery workers.
+
+    Celery tasks run in separate processes/threads with their own event loops,
+    so they need their own asyncpg connection pool (not shared with the API).
+    """
+    worker_engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        poolclass=NullPool,
+    )
+    return async_sessionmaker(
+        worker_engine,
+        class_=AsyncSession,
+        expire_on_commit=False,
+    )
+
+
 async def get_db() -> AsyncSession:
     """Dependency: yields an async database session."""
     async with async_session_factory() as session:

@@ -52,5 +52,17 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overscroll-behavior: none;
+    -webkit-tap-highlight-color: transparent;
   }
+}
+
+/* Stage 6.11: Safe area insets for mobile */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Prevent scroll bouncing on card stack */
+.touch-pan-y {
+  touch-action: pan-y;
 }

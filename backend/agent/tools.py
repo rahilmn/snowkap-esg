@@ -234,30 +234,57 @@ async def ontology_rule_tool(
 
 
 # Tool registry for LangGraph
+# Stage 7.1: Added trigger_keywords for agent-driven tool selection during chaining
 TOOL_REGISTRY: dict[str, dict[str, Any]] = {
     "sparql": {
         "fn": sparql_tool,
         "description": "Query the ESG knowledge graph using SPARQL. Returns entities, relationships, and ontology data.",
         "requires_db": False,
+        "trigger_keywords": ["ontology", "knowledge graph", "entity", "relationship", "owl", "rdf", "triple"],
     },
     "database": {
         "fn": domain_db_tool,
         "description": "Query the domain database (companies, articles, predictions, analyses) with tenant scoping.",
         "requires_db": True,
+        "trigger_keywords": ["article", "company", "report", "score", "analysis", "data", "record"],
     },
     "causal_chain": {
         "fn": causal_chain_tool,
         "description": "Find causal impact chains from a news entity to tenant companies via knowledge graph traversal.",
         "requires_db": False,
+        "trigger_keywords": ["causal", "impact chain", "supply chain path", "entity impact", "hops", "chain"],
     },
     "prediction": {
         "fn": prediction_tool,
         "description": "Retrieve MiroFish prediction reports for companies or articles.",
         "requires_db": True,
+        "trigger_keywords": ["prediction", "forecast", "simulation", "mirofish", "confidence", "scenario"],
     },
     "ontology_rules": {
         "fn": ontology_rule_tool,
         "description": "List and describe ontology business rules for the tenant.",
         "requires_db": False,
+        "trigger_keywords": ["rule", "threshold", "business rule", "classification", "ontology rule"],
     },
 }
+
+
+def select_tools_for_request(request: str, available_tools: list[str]) -> list[str]:
+    """Stage 7.1: Select which tools to run based on an agent's data request.
+
+    Used during tool chaining round 2+ to pick targeted tools
+    instead of running all agent tools.
+    """
+    request_lower = request.lower()
+    selected = []
+
+    for tool_name in available_tools:
+        tool_info = TOOL_REGISTRY.get(tool_name)
+        if not tool_info:
+            continue
+        keywords = tool_info.get("trigger_keywords", [])
+        if any(kw in request_lower for kw in keywords):
+            selected.append(tool_name)
+
+    # If no match, fall back to all available tools
+    return selected if selected else available_tools

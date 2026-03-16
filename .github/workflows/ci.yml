@@ -54,6 +54,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Stage 8.4: Ruff linting — catches style/import/type issues
+      - name: Lint (ruff)
+        run: |
+          pip install ruff
+          ruff check backend/ --select E,F,I --ignore E501
+
       - name: Syntax check
         run: python -m py_compile backend/main.py
 
@@ -76,6 +82,7 @@ jobs:
           print(f'All Python files compiled successfully')
           "
 
+      # Stage 8.4: Removed continue-on-error — tests must pass
       - name: Run tests
         env:
           DATABASE_URL: postgresql+asyncpg://esg_user:test_password@localhost:5432/esg_platform_test
@@ -86,7 +93,6 @@ jobs:
           SECRET_KEY: test-secret-key-min-32-characters-long
           ENVIRONMENT: test
         run: python -m pytest tests/ -v --tb=short
-        continue-on-error: true  # Tests may need running services
 
   # ---------------------------------------------------------------------------
   # Frontend: lint + type-check + build
@@ -108,11 +114,12 @@ jobs:
         working-directory: client
         run: npm ci || npm install
 
+      # Stage 8.4: Removed continue-on-error — type check must pass
       - name: Type check
         working-directory: client
         run: npx tsc --noEmit
-        continue-on-error: true  # First run may have minor issues
 
+      # Stage 8.4: Frontend build is a hard gate
       - name: Build
         working-directory: client
         run: npm run build

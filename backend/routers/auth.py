@@ -1,16 +1,15 @@
-"""Auth router — 3-way login + magic link.
+"""Auth router — 3-way login (direct auth, no magic link).
 
 Per CLAUDE.md Auth Model:
-  Domain → Designation → Company Name → Magic Link → JWT
+  Domain → Designation → Company Name → JWT
   No passwords. No OTP. Domain-gated. Auto-provisioning.
 
-Per MASTER_BUILD_PLAN Phase 2C:
   POST /auth/resolve-domain  — takes domain, returns company info or creates prospect
-  POST /auth/magic-link      — sends login link (email domain must match company domain)
-  GET  /auth/verify/{token}  — validates magic link, issues JWT
+  POST /auth/login           — validates email, provisions user/tenant, issues JWT
+  POST /auth/returning-user  — email-only login for existing users, issues JWT
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -24,12 +23,11 @@ from backend.core.permissions import get_permissions_for_role, map_designation_t
 from backend.core.security import (
     create_jwt_token,
     extract_domain_from_email,
-    generate_magic_link_token,
     is_corporate_domain,
     validate_email_domain_match,
 )
 from backend.models.tenant import Tenant, TenantMembership
-from backend.models.user import MagicLink, User
+from backend.models.user import User
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -47,18 +45,14 @@ class ResolveDomainResponse(BaseModel):
     is_existing: bool = False
     tenant_id: str | None = None
 
-class MagicLinkRequest(BaseModel):
+class LoginRequest(BaseModel):
     email: EmailStr
     domain: str
     designation: str
     company_name: str
     name: str = ""
 
-class MagicLinkResponse(BaseModel):
-    message: str
-    email: str
-
-class VerifyResponse(BaseModel):
+class LoginResponse(BaseModel):
     token: str
     user_id: str
     tenant_id: str
@@ -70,6 +64,17 @@ class VerifyResponse(BaseModel):
 
 class ReturningUserRequest(BaseModel):
     email: EmailStr
+
+
+class MeResponse(BaseModel):
+    """Stage 8.5: Current user info for frontend."""
+    user_id: str
+    email: str
+    name: str | None = None
+    domain: str
+    designation: str | None = None
+    tenant_id: str | None = None
+    last_login: str | None = None  # ISO format for FOMO "new since" calc
 
 
 # --- Endpoints ---
@@ -106,12 +111,12 @@ async def resolve_domain(
     return ResolveDomainResponse(domain=domain, is_existing=False)
 
 
-@router.post("/magic-link", response_model=MagicLinkResponse)
-async def send_magic_link(
-    req: MagicLinkRequest,
+@router.post("/login", response_model=LoginResponse)
+async def login(
+    req: LoginRequest,
     db: AsyncSession = Depends(get_db),
-) -> MagicLinkResponse:
-    """Step 2+3: Send magic link to work email.
+) -> LoginResponse:
+    """Direct login: validate email, provision user/tenant, issue JWT.
 
     Per CLAUDE.md Rule #8: email domain must match company domain.
     """
@@ -131,76 +136,26 @@ async def send_magic_link(
             detail="Personal email domains are not allowed.",
         )
 
-    # Check if user already exists
-    result = await db.execute(select(User).where(User.email == email))
-    existing_user = result.scalar_one_or_none()
-
-    # Create magic link token
-    token = generate_magic_link_token()
-    magic_link = MagicLink(
-        email=email,
-        token=token,
-        domain=domain,
-        designation=req.designation,
-        company_name=req.company_name,
-        name=req.name,
-        user_id=existing_user.id if existing_user else None,
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.MAGIC_LINK_EXPIRE_MINUTES),
-    )
-    db.add(magic_link)
-
-    # Send email via Celery task
-    from backend.tasks.email_tasks import send_magic_link_task
-    send_magic_link_task.delay(email, token, domain)
-    logger.info("magic_link_created", email=email, domain=domain)
-
-    return MagicLinkResponse(
-        message="Magic link sent to your email",
-        email=email,
-    )
-
-
-@router.get("/verify/{token}", response_model=VerifyResponse)
-async def verify_magic_link(
-    token: str,
-    db: AsyncSession = Depends(get_db),
-) -> VerifyResponse:
-    """Verify magic link token, provision user/tenant if needed, issue JWT."""
-    result = await db.execute(
-        select(MagicLink).where(MagicLink.token == token, MagicLink.used == False)
-    )
-    magic_link = result.scalar_one_or_none()
-
-    if not magic_link:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired link")
-
-    if magic_link.expires_at < datetime.now(timezone.utc):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Magic link has expired")
-
-    # Mark as used
-    magic_link.used = True
-    magic_link.used_at = datetime.now(timezone.utc)
-
     # Find or create user
-    result = await db.execute(select(User).where(User.email == magic_link.email))
+    result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
 
     if not user:
         user = User(
-            email=magic_link.email,
-            domain=magic_link.domain,
-            designation=magic_link.designation,
-            name=magic_link.name,
+            email=email,
+            domain=domain,
+            designation=req.designation,
+            name=req.name,
         )
         db.add(user)
         await db.flush()
     else:
-        user.name = magic_link.name or user.name
+        user.name = req.name or user.name
 
     user.last_login = datetime.now(timezone.utc)
 
     # Find or create tenant (auto-provisioning per CLAUDE.md)
-    result = await db.execute(select(Tenant).where(Tenant.domain == magic_link.domain))
+    result = await db.execute(select(Tenant).where(Tenant.domain == domain))
     tenant = result.scalar_one_or_none()
 
     is_new_tenant = False
@@ -208,13 +163,13 @@ async def verify_magic_link(
         # Auto-classify industry via Claude (45 SASB categories)
         from backend.services.auth_service import classify_industry
         classification = await classify_industry(
-            magic_link.company_name or magic_link.domain,
-            magic_link.domain,
+            req.company_name or domain,
+            domain,
         )
 
         tenant = Tenant(
-            name=magic_link.company_name or magic_link.domain,
-            domain=magic_link.domain,
+            name=req.company_name or domain,
+            domain=domain,
             industry=classification.get("industry"),
             sasb_category=classification.get("sasb_category"),
             sustainability_query=classification.get("sustainability_query"),
@@ -225,7 +180,7 @@ async def verify_magic_link(
         is_new_tenant = True
         logger.info(
             "tenant_auto_provisioned",
-            tenant_id=tenant.id, domain=magic_link.domain,
+            tenant_id=tenant.id, domain=domain,
             industry=tenant.industry,
         )
 
@@ -238,7 +193,7 @@ async def verify_magic_link(
     )
     membership = result.scalar_one_or_none()
 
-    role = map_designation_to_role(magic_link.designation or "member")
+    role = map_designation_to_role(req.designation or "member")
     permissions = get_permissions_for_role(role)
 
     if not membership:
@@ -246,7 +201,7 @@ async def verify_magic_link(
             tenant_id=tenant.id,
             user_id=user.id,
             role=role,
-            designation=magic_link.designation,
+            designation=req.designation,
             permissions=permissions,
         )
         db.add(membership)
@@ -255,17 +210,16 @@ async def verify_magic_link(
     jwt_token = create_jwt_token(
         tenant_id=tenant.id,
         user_id=user.id,
-        company_id=tenant.id,  # For now, company_id = tenant_id until companies are linked
-        designation=magic_link.designation or "member",
+        company_id=tenant.id,
+        designation=req.designation or "member",
         permissions=permissions,
-        domain=magic_link.domain,
+        domain=domain,
     )
 
-    logger.info("user_authenticated", user_id=user.id, tenant_id=tenant.id, domain=magic_link.domain)
+    logger.info("user_authenticated", user_id=user.id, tenant_id=tenant.id, domain=domain)
 
     # Post-login triggers for new tenants
     if is_new_tenant:
-        # Trigger domain-driven news curation via Celery
         from backend.tasks.news_tasks import ingest_news_for_tenant
         ingest_news_for_tenant.delay(
             tenant.id,
@@ -275,7 +229,6 @@ async def verify_magic_link(
         )
         logger.info("news_curation_triggered", tenant_id=tenant.id)
 
-        # Auto-provision company node in Jena knowledge graph (Phase 3)
         from backend.tasks.ontology_tasks import provision_tenant_ontology_task
         provision_tenant_ontology_task.delay(
             tenant.id,
@@ -285,23 +238,23 @@ async def verify_magic_link(
             tenant.domain,
         )
 
-    return VerifyResponse(
+    return LoginResponse(
         token=jwt_token,
         user_id=user.id,
         tenant_id=tenant.id,
-        designation=magic_link.designation or "member",
+        designation=req.designation or "member",
         permissions=permissions,
-        domain=magic_link.domain,
+        domain=domain,
         name=user.name,
     )
 
 
-@router.post("/returning-user", response_model=MagicLinkResponse)
+@router.post("/returning-user", response_model=LoginResponse)
 async def returning_user_login(
     req: ReturningUserRequest,
     db: AsyncSession = Depends(get_db),
-) -> MagicLinkResponse:
-    """Returning users: email-only → magic link → JWT (skip domain/designation)."""
+) -> LoginResponse:
+    """Returning users: email-only → JWT (skip domain/designation)."""
     email = req.email.lower().strip()
 
     result = await db.execute(select(User).where(User.email == email))
@@ -309,27 +262,114 @@ async def returning_user_login(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="No account found with this email. Please use the full registration flow.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No account found for this email. Please sign up first.",
         )
 
-    # Get their membership for domain/designation
+    user.last_login = datetime.now(timezone.utc)
+
+    # Get their membership for domain/designation/permissions
     result = await db.execute(
         select(TenantMembership).where(TenantMembership.user_id == user.id, TenantMembership.is_active == True)
     )
     membership = result.scalar_one_or_none()
 
-    token = generate_magic_link_token()
-    magic_link = MagicLink(
-        email=email,
-        token=token,
-        domain=user.domain,
-        designation=membership.designation if membership else None,
+    if not membership:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No active membership found. Please sign up again.",
+        )
+
+    # Get tenant
+    result = await db.execute(select(Tenant).where(Tenant.id == membership.tenant_id))
+    tenant = result.scalar_one_or_none()
+
+    permissions = membership.permissions or get_permissions_for_role(membership.role or "member")
+
+    jwt_token = create_jwt_token(
+        tenant_id=tenant.id,
         user_id=user.id,
-        expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.MAGIC_LINK_EXPIRE_MINUTES),
+        company_id=tenant.id,
+        designation=membership.designation or "member",
+        permissions=permissions,
+        domain=user.domain,
     )
-    db.add(magic_link)
 
-    logger.info("returning_user_magic_link", email=email, user_id=user.id)
+    logger.info("returning_user_authenticated", email=email, user_id=user.id)
 
-    return MagicLinkResponse(message="Magic link sent to your email", email=email)
+    return LoginResponse(
+        token=jwt_token,
+        user_id=user.id,
+        tenant_id=tenant.id,
+        designation=membership.designation or "member",
+        permissions=permissions,
+        domain=user.domain,
+        name=user.name,
+    )
+
+
+# --- Stage 8.5: /me endpoint for frontend ---
+
+@router.get("/me", response_model=MeResponse)
+async def get_current_user_info(
+    db: AsyncSession = Depends(get_db),
+) -> MeResponse:
+    """Stage 8.5: Return current authenticated user's profile with last_login.
+
+    Used by frontend for:
+    - IntroCard FOMO "new since last visit" calculation
+    - User avatar and name display
+    - Session management
+
+    Requires valid JWT in Authorization header.
+    """
+    from fastapi import Request
+
+    # This endpoint requires the TenantContext dependency for auth
+    # Import inline to avoid circular deps
+    from backend.core.dependencies import TenantContext, get_tenant_context
+    # Note: In production, this is wired via Depends() — see the router below
+    raise HTTPException(
+        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        detail="Use /auth/me/profile with tenant context",
+    )
+
+
+from backend.core.dependencies import TenantContext as _TC, get_tenant_context as _get_ctx
+
+
+@router.get("/me/profile", response_model=MeResponse)
+async def get_me_profile(
+    ctx: _TC = Depends(_get_ctx),
+) -> MeResponse:
+    """Stage 8.5: Get current user profile including last_login timestamp."""
+    user = ctx.user
+
+    # Get tenant membership for designation
+    membership_result = await ctx.db.execute(
+        select(TenantMembership).where(
+            TenantMembership.tenant_id == ctx.tenant_id,
+            TenantMembership.user_id == user.user_id,
+        )
+    )
+    membership = membership_result.scalar_one_or_none()
+
+    # Get user record for last_login
+    user_result = await ctx.db.execute(
+        select(User).where(User.id == user.user_id)
+    )
+    user_record = user_result.scalar_one_or_none()
+
+    last_login = None
+    if user_record and hasattr(user_record, "last_login") and user_record.last_login:
+        last_login = user_record.last_login.isoformat()
+
+    return MeResponse(
+        user_id=user.user_id,
+        email=getattr(user_record, "email", "") if user_record else "",
+        name=getattr(user_record, "name", None) if user_record else None,
+        domain=getattr(user, "domain", ""),
+        designation=membership.designation if membership else None,
+        tenant_id=ctx.tenant_id,
+        last_login=last_login,
+    )

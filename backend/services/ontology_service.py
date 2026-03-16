@@ -34,10 +34,125 @@ SNOWKAP_NS = "http://snowkap.com/ontology/esg#"
 # Impact decay per hop — per MASTER_BUILD_PLAN Phase 3.2
 HOP_DECAY = {0: 1.0, 1: 0.7, 2: 0.4, 3: 0.2, 4: 0.1}
 
+# ---------------------------------------------------------------------------
+# Rule-based framework mapper — fills framework_hits when OpenAI extraction
+# returns nothing (common for general news articles).
+# ---------------------------------------------------------------------------
+
+# Topic keyword → framework codes
+_TOPIC_FRAMEWORK_MAP: dict[str, list[str]] = {
+    "emissions": ["GRI:305", "BRSR:P6", "TCFD:Metrics", "ESRS:E1", "CDP:Climate"],
+    "carbon": ["GRI:305", "BRSR:P6", "TCFD:Metrics", "ESRS:E1", "CDP:Climate"],
+    "climate": ["GRI:305", "BRSR:P6", "TCFD:Metrics", "ESRS:E1", "CDP:Climate"],
+    "greenhouse": ["GRI:305", "BRSR:P6", "TCFD:Metrics", "ESRS:E1", "CDP:Climate"],
+    "water": ["GRI:303", "BRSR:P6", "ESRS:E3", "CDP:Water"],
+    "effluent": ["GRI:303", "BRSR:P6", "ESRS:E3", "CDP:Water"],
+    "biodiversity": ["GRI:304", "BRSR:P6", "ESRS:E4"],
+    "ecosystem": ["GRI:304", "BRSR:P6", "ESRS:E4"],
+    "waste": ["GRI:306", "BRSR:P6", "ESRS:E5"],
+    "circular economy": ["GRI:306", "BRSR:P6", "ESRS:E5"],
+    "energy": ["GRI:302", "BRSR:P6", "TCFD:Metrics"],
+    "renewable": ["GRI:302", "BRSR:P6", "TCFD:Metrics"],
+    "safety": ["GRI:403", "BRSR:P3", "ESRS:S1"],
+    "health": ["GRI:403", "BRSR:P3", "ESRS:S1"],
+    "occupational": ["GRI:403", "BRSR:P3", "ESRS:S1"],
+    "diversity": ["GRI:405", "BRSR:P5", "ESRS:S1"],
+    "inclusion": ["GRI:405", "BRSR:P5", "ESRS:S1"],
+    "gender": ["GRI:405", "BRSR:P5", "ESRS:S1"],
+    "corruption": ["GRI:205", "BRSR:P1", "ESRS:G1"],
+    "bribery": ["GRI:205", "BRSR:P1", "ESRS:G1"],
+    "ethics": ["GRI:205", "BRSR:P1", "ESRS:G1"],
+    "community": ["GRI:413", "BRSR:P8", "ESRS:S3"],
+    "social": ["GRI:413", "BRSR:P8", "ESRS:S3"],
+    "supply chain": ["GRI:414", "BRSR:P5", "ESRS:S2"],
+    "supplier": ["GRI:414", "BRSR:P5", "ESRS:S2"],
+    "privacy": ["GRI:418", "BRSR:P9", "ESRS:S4"],
+    "data": ["GRI:418", "BRSR:P9", "ESRS:S4"],
+    "employee": ["GRI:401", "BRSR:P3", "ESRS:S1"],
+    "labor": ["GRI:401", "BRSR:P3", "ESRS:S1"],
+    "labour": ["GRI:401", "BRSR:P3", "ESRS:S1"],
+    "workforce": ["GRI:401", "BRSR:P3", "ESRS:S1"],
+    "sustainability": ["BRSR:P6", "TCFD:Strategy", "ESRS:E1"],
+    "esg": ["BRSR:P6", "TCFD:Strategy", "ESRS:E1"],
+    "governance": ["TCFD:Governance", "BRSR:P1", "ESRS:G1"],
+    "board": ["TCFD:Governance", "BRSR:P1", "ESRS:G1"],
+}
+
+# Pillar-level fallback frameworks
+_PILLAR_FRAMEWORK_MAP: dict[str, list[str]] = {
+    "E": ["GRI:305", "BRSR:P6", "TCFD:Metrics", "ESRS:E1", "CDP:Climate"],
+    "S": ["GRI:403", "GRI:401", "BRSR:P3", "ESRS:S1"],
+    "G": ["GRI:205", "TCFD:Governance", "BRSR:P1", "ESRS:G1"],
+}
+
+
+def infer_frameworks_from_content(
+    title: str | None = None,
+    summary: str | None = None,
+    esg_topics: list[str] | None = None,
+    esg_pillar: str | None = None,
+) -> list[str]:
+    """Map ESG topics, pillar, and text content to relevant framework codes.
+
+    Used as a fallback when OpenAI entity extraction returns no framework
+    mentions (typical for general news articles).
+    """
+    matched: set[str] = set()
+
+    # 1. Match from explicit esg_topics (highest signal)
+    for topic in (esg_topics or []):
+        topic_lower = topic.lower().replace("_", " ")
+        for keyword, frameworks in _TOPIC_FRAMEWORK_MAP.items():
+            if keyword in topic_lower:
+                matched.update(frameworks)
+
+    # 2. Scan title + summary for keyword hits
+    text_blob = " ".join(filter(None, [title, summary])).lower()
+    for keyword, frameworks in _TOPIC_FRAMEWORK_MAP.items():
+        if keyword in text_blob:
+            matched.update(frameworks)
+
+    # 3. Pillar-level fallback if nothing matched yet
+    if not matched and esg_pillar:
+        matched.update(_PILLAR_FRAMEWORK_MAP.get(esg_pillar, []))
+
+    return sorted(matched)
+
 
 def get_tenant_graph_uri(tenant_id: str) -> str:
     """Get the named graph URI for a tenant per CLAUDE.md convention."""
     return f"urn:snowkap:tenant:{tenant_id}"
+
+
+def validate_sparql_query(query: str) -> bool:
+    """Stage 8.3: Validate a SPARQL query against the whitelist.
+
+    Returns True if the query is read-only and safe, False if it contains
+    destructive operations. Extracted for testability.
+    """
+    query_stripped = query.strip()
+    query_upper = query_stripped.upper()
+
+    # Skip PREFIX declarations to find the actual query type
+    query_body = query_stripped
+    while query_body.upper().startswith("PREFIX"):
+        newline_idx = query_body.find("\n")
+        if newline_idx == -1:
+            break
+        query_body = query_body[newline_idx + 1:].strip()
+
+    query_body_upper = query_body.upper()
+    if not (query_body_upper.startswith("SELECT") or query_body_upper.startswith("CONSTRUCT")
+            or query_body_upper.startswith("ASK") or query_body_upper.startswith("DESCRIBE")):
+        return False
+
+    # Block destructive keywords even within subqueries
+    dangerous_keywords = {"DROP", "DELETE", "INSERT", "CLEAR", "LOAD", "CREATE", "MOVE", "COPY", "ADD"}
+    for keyword in dangerous_keywords:
+        if keyword in query_upper:
+            return False
+
+    return True
 
 
 async def execute_sparql(tenant_id: str, query: str) -> dict:
@@ -48,11 +163,9 @@ async def execute_sparql(tenant_id: str, query: str) -> dict:
     graph_uri = get_tenant_graph_uri(tenant_id)
     logger.info("sparql_execute", tenant_id=tenant_id, graph=graph_uri, query_len=len(query))
 
-    # Validate query doesn't escape tenant graph (basic security check)
-    query_upper = query.upper()
-    if "DROP" in query_upper or "DELETE" in query_upper or "CLEAR" in query_upper:
-        logger.warning("sparql_dangerous_query_blocked", tenant_id=tenant_id)
-        return {"error": "Destructive queries are not allowed through the proxy"}
+    if not validate_sparql_query(query):
+        logger.warning("sparql_query_blocked", tenant_id=tenant_id)
+        return {"error": "Only read-only SPARQL queries (SELECT, CONSTRUCT, ASK, DESCRIBE) are allowed"}
 
     return await jena_client.query(query, tenant_id=tenant_id)
 
@@ -87,6 +200,25 @@ async def analyze_article_impact(
 
     # Resolve entities against Jena
     resolved_entities = await resolve_entities_against_graph(extraction.entities, tenant_id)
+
+    # Stage 3.1: Capture frameworks from extraction
+    extraction_frameworks = extraction.frameworks_mentioned or []
+
+    # Fallback: rule-based framework inference when extraction returns none
+    if not extraction_frameworks:
+        extraction_frameworks = infer_frameworks_from_content(
+            title=article.title,
+            summary=article.summary,
+            esg_topics=extraction.esg_topics,
+            esg_pillar=extraction.esg_pillar,
+        )
+        if extraction_frameworks:
+            logger.info(
+                "frameworks_inferred_by_rules",
+                article_id=article_id,
+                count=len(extraction_frameworks),
+                frameworks=extraction_frameworks,
+            )
 
     # Update article with extraction results
     article.entities = [
@@ -123,6 +255,26 @@ async def analyze_article_impact(
                 )
                 best_chains.extend(chains)
 
+        # Fallback: direct company name matching when Jena is unavailable
+        if not best_chains:
+            company_name_lower = company.name.lower()
+            for entity in resolved_entities:
+                entity_lower = entity.text.lower()
+                # Check if entity name matches or contains company name (or vice versa)
+                if (entity_lower in company_name_lower
+                        or company_name_lower in entity_lower
+                        or any(w in company_name_lower for w in entity_lower.split() if len(w) > 3)):
+                    rel_type = "directOperational" if entity.entity_type == "company" else "industrySpillover"
+                    best_chains.append(CausalPath(
+                        nodes=[article.title[:50], entity.text, company.name],
+                        hops=0 if entity.entity_type == "company" else 1,
+                        relationship_type=rel_type,
+                        impact_score=calculate_impact(0 if entity.entity_type == "company" else 1),
+                        explanation=f"Direct match: '{entity.text}' linked to {company.name}",
+                        frameworks=extraction_frameworks,
+                    ))
+                    break
+
         if not best_chains and geo_matches:
             # Geographic proximity alone creates a 0-hop connection
             for match in geo_matches:
@@ -143,6 +295,10 @@ async def analyze_article_impact(
         best = max(best_chains, key=lambda c: c.impact_score + geo_boost)
         final_score = min(best.impact_score + geo_boost, 1.0)
 
+        # Stage 3.3: Merge frameworks from extraction + causal chain
+        chain_frameworks = best.frameworks or []
+        all_frameworks = list(set(extraction_frameworks + chain_frameworks))
+
         # Persist causal chain
         chain = CausalChain(
             tenant_id=tenant_id,
@@ -154,12 +310,12 @@ async def analyze_article_impact(
             impact_score=final_score,
             explanation=best.explanation,
             esg_pillar=extraction.esg_pillar,
-            framework_alignment=best.frameworks or [],
+            framework_alignment=all_frameworks,
             confidence=min(e.confidence for e in resolved_entities) if resolved_entities else 0.5,
         )
         db.add(chain)
 
-        # Persist article score
+        # Persist article score (Stage 3.3: populate frameworks field)
         score = ArticleScore(
             tenant_id=tenant_id,
             article_id=article_id,
@@ -167,11 +323,14 @@ async def analyze_article_impact(
             relevance_score=final_score * 100,
             impact_score=final_score * 100,
             causal_hops=best.hops,
+            frameworks=all_frameworks,
             scoring_metadata={
                 "geo_boost": geo_boost,
                 "extraction_sentiment": extraction.sentiment,
                 "esg_topics": extraction.esg_topics,
                 "financial_signal": extraction.financial_signal,
+                "frameworks_from_extraction": extraction_frameworks,
+                "frameworks_from_chain": chain_frameworks,
             },
         )
         db.add(score)

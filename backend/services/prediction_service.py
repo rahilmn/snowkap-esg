@@ -19,8 +19,8 @@ from backend.models.tenant import TenantConfig
 
 logger = structlog.get_logger()
 
-# Trigger conditions per MASTER_BUILD_PLAN Part 2
-TRIGGER_CONDITIONS = {
+# Default trigger conditions per MASTER_BUILD_PLAN Part 2
+DEFAULT_TRIGGER_CONDITIONS = {
     "impact_score_threshold": 70,
     "causal_chain_hops": 2,
     "financial_exposure_min": 1_000_000,
@@ -28,23 +28,53 @@ TRIGGER_CONDITIONS = {
 }
 
 
+def _get_trigger_conditions(tenant_config: dict | None = None) -> dict:
+    """Stage 4.7: Get trigger conditions — tenant-configurable with defaults.
+
+    Tenants can override thresholds via TenantConfig.mirofish_config:
+    {
+        "trigger_conditions": {
+            "impact_score_threshold": 60,
+            "causal_chain_hops": 1,
+            "financial_exposure_min": 500_000,
+        }
+    }
+    """
+    if not tenant_config:
+        return DEFAULT_TRIGGER_CONDITIONS
+
+    mirofish_cfg = tenant_config.get("mirofish_config") or {}
+    overrides = mirofish_cfg.get("trigger_conditions") or {}
+
+    merged = {**DEFAULT_TRIGGER_CONDITIONS}
+    for key in DEFAULT_TRIGGER_CONDITIONS:
+        if key in overrides:
+            merged[key] = overrides[key]
+    return merged
+
+
 def should_trigger_prediction(
     impact_score: float,
     causal_hops: int,
     financial_exposure: float | None,
     user_requested: bool = False,
+    tenant_config: dict | None = None,
 ) -> bool:
     """Check if a news event meets MiroFish trigger conditions.
 
     Per CLAUDE.md Rule #3: NEVER run MiroFish on every article — only high-impact.
+    Stage 4.7: Thresholds are tenant-configurable via TenantConfig.mirofish_config.
     """
     if user_requested:
         return True
-    if impact_score < TRIGGER_CONDITIONS["impact_score_threshold"]:
+
+    conditions = _get_trigger_conditions(tenant_config)
+
+    if impact_score < conditions["impact_score_threshold"]:
         return False
-    if causal_hops < TRIGGER_CONDITIONS["causal_chain_hops"]:
+    if causal_hops < conditions["causal_chain_hops"]:
         return False
-    if financial_exposure and financial_exposure < TRIGGER_CONDITIONS["financial_exposure_min"]:
+    if financial_exposure and financial_exposure < conditions["financial_exposure_min"]:
         return False
     return True
 
@@ -129,7 +159,14 @@ async def run_prediction_pipeline(
                 "framework_alignment": chain.framework_alignment,
             }
 
+    # Load tenant config for MiroFish settings (needed before trigger check)
+    config_result = await db.execute(
+        select(TenantConfig).where(TenantConfig.tenant_id == tenant_id)
+    )
+    tenant_config = config_result.scalar_one_or_none()
+
     # Check trigger conditions (unless user requested)
+    # Stage 4.7: Pass tenant config so thresholds are tenant-configurable
     if not user_requested:
         # Get article score for this company
         score_result = await db.execute(
@@ -140,18 +177,14 @@ async def run_prediction_pipeline(
             )
         )
         score = score_result.scalar_one_or_none()
+        tc_data = {"mirofish_config": tenant_config.mirofish_config} if tenant_config else None
         if score and not should_trigger_prediction(
             impact_score=score.impact_score,
             causal_hops=score.causal_hops,
             financial_exposure=score.financial_exposure,
+            tenant_config=tc_data,
         ):
             return {"status": "skipped", "reason": "Below trigger thresholds"}
-
-    # Load tenant config for MiroFish settings
-    config_result = await db.execute(
-        select(TenantConfig).where(TenantConfig.tenant_id == tenant_id)
-    )
-    tenant_config = config_result.scalar_one_or_none()
 
     # Prepare data for MiroFish
     article_data = {

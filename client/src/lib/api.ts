@@ -3,7 +3,7 @@ import type {
   ChatResponse,
   AgentInfo,
   Company,
-  MagicLinkResponse,
+  LoginResponse,
   OntologyStats,
   PredictionDetail,
   PredictionReport,
@@ -12,7 +12,6 @@ import type {
   TenantSummary,
   UsageStats,
   UserSummary,
-  VerifyResponse,
 } from "@/types";
 
 const BASE = "/api";
@@ -52,23 +51,20 @@ export const auth = {
       body: JSON.stringify({ domain }),
     }),
 
-  sendMagicLink: (data: {
+  login: (data: {
     email: string;
     domain: string;
     designation: string;
     company_name: string;
     name: string;
   }) =>
-    request<MagicLinkResponse>("/auth/magic-link", {
+    request<LoginResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  verify: (token: string) =>
-    request<VerifyResponse>(`/auth/verify/${token}`),
-
   returningUser: (email: string) =>
-    request<MagicLinkResponse>("/auth/returning-user", {
+    request<LoginResponse>("/auth/returning-user", {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
@@ -95,6 +91,12 @@ export const news = {
     const res = await request<{ articles: Article[]; total: number }>(`/news/feed?${q}`);
     return res.articles;
   },
+
+  stats: () =>
+    request<{ total: number; high_impact: number; predictions: number; new_today: number }>("/news/stats"),
+
+  bookmark: (articleId: string) =>
+    request<{ status: string }>(`/news/${articleId}/bookmark`, { method: "POST" }),
 };
 
 // ---- Predictions ----

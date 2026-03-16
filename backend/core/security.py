@@ -6,6 +6,7 @@ Per CLAUDE.md:
 - Email domain must match company domain at login
 """
 
+import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -53,6 +54,14 @@ def decode_jwt_token(token: str) -> dict[str, Any]:
 def generate_magic_link_token() -> str:
     """Generate a cryptographically secure magic link token."""
     return secrets.token_urlsafe(48)
+
+
+def hash_magic_link_token(token: str) -> str:
+    """SHA-256 hash a magic link token for safe DB storage.
+
+    The raw token only exists in the email link; the DB stores the hash.
+    """
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
 def is_corporate_domain(domain: str) -> bool:

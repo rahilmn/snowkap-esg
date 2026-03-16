@@ -4,27 +4,23 @@ Per MASTER_BUILD_PLAN Phase 3:
 - Auto-provision tenant ontology graph
 - Background article impact analysis
 - Bulk entity extraction and resolution
+
+Stage 8.1: Use asgiref.sync.async_to_sync instead of creating new event loops.
+Stage 8.2: Add soft_time_limit to all tasks.
 """
 
-import asyncio
-
 import structlog
+from asgiref.sync import async_to_sync
 
 from backend.tasks.celery_app import celery_app
 
 logger = structlog.get_logger()
 
 
-def _run_async(coro):
-    """Run an async coroutine from a sync Celery task."""
-    loop = asyncio.new_event_loop()
-    try:
-        return loop.run_until_complete(coro)
-    finally:
-        loop.close()
-
-
-@celery_app.task(name="ontology.provision_tenant")
+@celery_app.task(
+    name="ontology.provision_tenant",
+    soft_time_limit=600,
+)
 def provision_tenant_ontology_task(
     tenant_id: str,
     tenant_name: str,
@@ -32,10 +28,7 @@ def provision_tenant_ontology_task(
     sasb_category: str | None,
     domain: str,
 ) -> dict:
-    """Background task: provision tenant's Jena knowledge graph.
-
-    Called after new tenant creation during magic link verification.
-    """
+    """Background task: provision tenant's Jena knowledge graph."""
     async def _provision():
         from backend.ontology.tenant_provisioner import provision_tenant_graph
         return await provision_tenant_graph(
@@ -47,7 +40,7 @@ def provision_tenant_ontology_task(
         )
 
     try:
-        result = _run_async(_provision())
+        result = async_to_sync(_provision)()
         logger.info("tenant_ontology_provisioned", tenant_id=tenant_id, success=result)
         return {"tenant_id": tenant_id, "success": result}
     except Exception as e:
@@ -55,7 +48,10 @@ def provision_tenant_ontology_task(
         return {"tenant_id": tenant_id, "success": False, "error": str(e)}
 
 
-@celery_app.task(name="ontology.analyze_article")
+@celery_app.task(
+    name="ontology.analyze_article",
+    soft_time_limit=600,
+)
 def analyze_article_impact_task(article_id: str, tenant_id: str) -> dict:
     """Background task: full article impact analysis pipeline.
 
@@ -65,16 +61,17 @@ def analyze_article_impact_task(article_id: str, tenant_id: str) -> dict:
     4. Score and store results
     """
     async def _analyze():
-        from backend.core.database import async_session_factory
+        from backend.core.database import create_worker_session_factory
         from backend.services.ontology_service import analyze_article_impact
 
-        async with async_session_factory() as db:
+        session_factory = create_worker_session_factory()
+        async with session_factory() as db:
             impacts = await analyze_article_impact(article_id, tenant_id, db)
             await db.commit()
             return impacts
 
     try:
-        impacts = _run_async(_analyze())
+        impacts = async_to_sync(_analyze)()
         logger.info(
             "article_impact_analyzed_bg",
             article_id=article_id,
@@ -91,20 +88,24 @@ def analyze_article_impact_task(article_id: str, tenant_id: str) -> dict:
         return {"article_id": article_id, "error": str(e)}
 
 
-@celery_app.task(name="ontology.provision_full")
+@celery_app.task(
+    name="ontology.provision_full",
+    soft_time_limit=600,
+)
 def provision_full_ontology_task(tenant_id: str) -> dict:
     """Background task: full ontology provisioning (companies + facilities + supply chain)."""
     async def _provision_full():
-        from backend.core.database import async_session_factory
+        from backend.core.database import create_worker_session_factory
         from backend.ontology.tenant_provisioner import provision_full_tenant_ontology
 
-        async with async_session_factory() as db:
+        session_factory = create_worker_session_factory()
+        async with session_factory() as db:
             stats = await provision_full_tenant_ontology(tenant_id, db)
             await db.commit()
             return stats
 
     try:
-        stats = _run_async(_provision_full())
+        stats = async_to_sync(_provision_full)()
         logger.info("full_ontology_provisioned_bg", **stats)
         return stats
     except Exception as e:
@@ -112,7 +113,10 @@ def provision_full_ontology_task(tenant_id: str) -> dict:
         return {"tenant_id": tenant_id, "error": str(e)}
 
 
-@celery_app.task(name="ontology.generate_supply_chain")
+@celery_app.task(
+    name="ontology.generate_supply_chain",
+    soft_time_limit=600,
+)
 def generate_supply_chain_task(
     company_id: str,
     company_name: str,
@@ -126,7 +130,7 @@ def generate_supply_chain_task(
         return [{"name": n.name, "type": n.node_type, "tier": n.tier} for n in nodes]
 
     try:
-        nodes = _run_async(_generate())
+        nodes = async_to_sync(_generate)()
         logger.info(
             "supply_chain_generated_bg",
             company_id=company_id,

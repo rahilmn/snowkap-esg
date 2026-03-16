@@ -5,6 +5,9 @@ Per MASTER_BUILD_PLAN Phase 3.3:
 - News → location extraction
 - Proximity matching: "water scarcity in Kolhapur" → "you have a plant in Kolhapur"
 - Climate/disaster risk zones per geography
+
+Stage 2.3: Wire haversine_distance() into entity matching. Add international zones.
+Add risk types: water_stress, air_quality, landslide, coastal_erosion.
 """
 
 import math
@@ -21,15 +24,70 @@ logger = structlog.get_logger()
 
 SNOWKAP_NS = "http://snowkap.com/ontology/esg#"
 
-# Climate risk zones per region (India-focused initial dataset)
-CLIMATE_RISK_ZONES = {
-    "coastal_flood": ["mumbai", "chennai", "kolkata", "kochi", "visakhapatnam", "surat"],
-    "drought_prone": ["marathwada", "vidarbha", "bundelkhand", "rayalaseema", "kutch"],
-    "cyclone_belt": ["odisha", "andhra pradesh", "tamil nadu", "west bengal", "gujarat"],
-    "heat_stress": ["rajasthan", "madhya pradesh", "telangana", "chhattisgarh", "vidarbha"],
-    "flood_prone": ["assam", "bihar", "uttar pradesh", "kerala", "karnataka"],
-    "seismic": ["himalayan belt", "kutch", "northeast india"],
-    "industrial_pollution": ["delhi", "kanpur", "ludhiana", "vapi", "ankleshwar"],
+# Climate risk zones — India + international (Stage 2.3)
+CLIMATE_RISK_ZONES: dict[str, list[str]] = {
+    # India
+    "coastal_flood": [
+        "mumbai", "chennai", "kolkata", "kochi", "visakhapatnam", "surat",
+        "mangalore", "goa", "puducherry",
+    ],
+    "drought_prone": [
+        "marathwada", "vidarbha", "bundelkhand", "rayalaseema", "kutch",
+        "anantapur", "kurnool",
+    ],
+    "cyclone_belt": [
+        "odisha", "andhra pradesh", "tamil nadu", "west bengal", "gujarat",
+    ],
+    "heat_stress": [
+        "rajasthan", "madhya pradesh", "telangana", "chhattisgarh", "vidarbha",
+        "nagpur", "jaisalmer",
+    ],
+    "flood_prone": [
+        "assam", "bihar", "uttar pradesh", "kerala", "karnataka",
+        "brahmaputra", "ganga",
+    ],
+    "seismic": ["himalayan belt", "kutch", "northeast india", "uttarakhand"],
+    "industrial_pollution": [
+        "delhi", "kanpur", "ludhiana", "vapi", "ankleshwar",
+        "noida", "ghaziabad", "faridabad",
+    ],
+    # Stage 2.3: New risk types
+    "water_stress": [
+        "chennai", "bangalore", "hyderabad", "jaipur", "cape town",
+        "mexico city", "sao paulo", "karachi", "lima", "cairo",
+        "delhi", "pune", "ahmedabad",
+    ],
+    "air_quality": [
+        "delhi", "lahore", "dhaka", "beijing", "mumbai", "kolkata",
+        "kanpur", "lucknow", "patna", "gurgaon",
+    ],
+    "landslide": [
+        "uttarakhand", "himachal pradesh", "sikkim", "meghalaya",
+        "nilgiris", "kodagu", "wayanad",
+    ],
+    "coastal_erosion": [
+        "sundarbans", "kochi", "mumbai", "chennai", "goa",
+        "alibag", "ratnagiri",
+    ],
+    # International zones
+    "typhoon_belt": [
+        "philippines", "taiwan", "japan", "vietnam", "hong kong",
+        "guangdong", "fujian",
+    ],
+    "wildfire_zone": [
+        "california", "australia", "portugal", "greece", "turkey",
+        "british columbia", "amazon",
+    ],
+    "permafrost_thaw": [
+        "siberia", "alaska", "northern canada", "greenland", "scandinavia",
+    ],
+    "sea_level_rise": [
+        "maldives", "tuvalu", "bangladesh", "netherlands", "jakarta",
+        "miami", "venice", "shanghai",
+    ],
+    "desertification": [
+        "sahel", "gobi", "thar", "kalahari", "patagonia",
+    ],
 }
 
 
@@ -41,7 +99,7 @@ class GeoMatch:
     company_id: str
     company_name: str
     matched_location: str
-    match_type: str  # exact_city, exact_district, exact_state, proximity
+    match_type: str  # exact_city, exact_district, exact_state, proximity, haversine
     distance_km: float | None = None
     climate_risk_zones: list[str] | None = None
 
@@ -56,6 +114,25 @@ def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
+# Known city coordinates for haversine matching when no lat/lng on facility
+CITY_COORDINATES: dict[str, tuple[float, float]] = {
+    "mumbai": (19.076, 72.8777), "delhi": (28.6139, 77.209),
+    "bangalore": (12.9716, 77.5946), "hyderabad": (17.385, 78.4867),
+    "chennai": (13.0827, 80.2707), "kolkata": (22.5726, 88.3639),
+    "pune": (18.5204, 73.8567), "ahmedabad": (23.0225, 72.5714),
+    "jaipur": (26.9124, 75.7873), "surat": (21.1702, 72.8311),
+    "lucknow": (26.8467, 80.9462), "kanpur": (26.4499, 80.3319),
+    "nagpur": (21.1458, 79.0882), "kochi": (9.9312, 76.2673),
+    "visakhapatnam": (17.6868, 83.2185), "goa": (15.2993, 74.124),
+    # International
+    "singapore": (1.3521, 103.8198), "dubai": (25.2048, 55.2708),
+    "london": (51.5074, -0.1278), "new york": (40.7128, -74.006),
+    "tokyo": (35.6762, 139.6503), "shanghai": (31.2304, 121.4737),
+    "hong kong": (22.3193, 114.1694), "sydney": (-33.8688, 151.2093),
+    "cape town": (-33.9249, 18.4241), "sao paulo": (-23.5505, -46.6333),
+}
+
+
 async def find_geographic_matches(
     locations: list[str],
     tenant_id: str,
@@ -68,7 +145,7 @@ async def find_geographic_matches(
     1. Exact city match
     2. Exact district match
     3. Exact state match
-    4. Lat/lng proximity within threshold
+    4. Haversine proximity within threshold (Stage 2.3: now wired)
     """
     # Get all facilities for this tenant
     result = await db.execute(
@@ -87,6 +164,7 @@ async def find_geographic_matches(
     for facility, company in rows:
         for location in locations_lower:
             match_type = None
+            distance = None
 
             # Exact city match
             if facility.city and location in facility.city.lower():
@@ -97,6 +175,17 @@ async def find_geographic_matches(
             # Exact state match
             elif facility.state and location in facility.state.lower():
                 match_type = "exact_state"
+            # Stage 2.3: Haversine proximity check
+            elif facility.latitude and facility.longitude:
+                # Get coordinates for the news location
+                loc_coords = CITY_COORDINATES.get(location)
+                if loc_coords:
+                    distance = haversine_distance(
+                        loc_coords[0], loc_coords[1],
+                        float(facility.latitude), float(facility.longitude),
+                    )
+                    if distance <= proximity_km:
+                        match_type = "haversine"
 
             if match_type:
                 # Determine climate risk zones for this location
@@ -109,6 +198,7 @@ async def find_geographic_matches(
                     company_name=company.name,
                     matched_location=location,
                     match_type=match_type,
+                    distance_km=round(distance, 1) if distance else None,
                     climate_risk_zones=risk_zones,
                 ))
 
@@ -164,6 +254,11 @@ async def seed_facilities_to_jena(
             triples.append((region_uri, "a", f"<{SNOWKAP_NS}GeographicRegion>"))
             triples.append((region_uri, "rdfs:label", f'"{facility.city}"'))
             triples.append((fac_uri, f"<{SNOWKAP_NS}locatedIn>", region_uri))
+
+            # Seed climate risks for the city
+            risks = _get_climate_risks(facility.city)
+            for risk in risks:
+                triples.append((region_uri, f"<{SNOWKAP_NS}climateRiskZone>", f'"{risk}"'))
 
         if facility.state:
             state_uri = f"<{SNOWKAP_NS}region_{facility.state.lower().replace(' ', '_')}>"

@@ -5,6 +5,9 @@ Per MASTER_BUILD_PLAN Phase 2C + Phase 3:
 - Create tenant named graph with base ontology
 - Seed company + industry + framework links
 - Seed facilities and supply chain data
+
+Stage 3.4: Expand from 3 to all 9 frameworks. Create MATERIAL_ISSUE_TO_FRAMEWORK
+mapping. Auto-generate OWL rules during provisioning.
 """
 
 import structlog
@@ -15,6 +18,7 @@ from backend.models.company import Company, Facility, Supplier
 from backend.models.tenant import Tenant
 from backend.ontology.jena_client import jena_client
 from backend.ontology.geographic_intelligence import seed_facilities_to_jena
+from backend.ontology.rule_compiler import compile_and_deploy_rule
 from backend.ontology.supply_chain_graph import seed_supply_chain_to_jena
 
 logger = structlog.get_logger()
@@ -49,6 +53,109 @@ FRAMEWORK_PILLARS = {
     "IFRS_S2": ["E"],
 }
 
+# Stage 3.4: All 9 frameworks (was 3)
+ALL_FRAMEWORKS = ["BRSR", "GRI", "SASB", "TCFD", "CDP", "ESRS", "IFRS_S1", "IFRS_S2", "CSRD"]
+
+# Stage 3.4: Material issue → framework indicator mappings
+MATERIAL_ISSUE_TO_FRAMEWORK: dict[str, list[tuple[str, str]]] = {
+    # (framework, indicator)
+    "emissions": [
+        ("BRSR", "P6"), ("GRI", "305"), ("TCFD", "Metrics"),
+        ("CDP", "Climate"), ("ESRS", "E1"), ("IFRS_S2", "Scope1-3"),
+    ],
+    "water_management": [
+        ("BRSR", "P6"), ("GRI", "303"), ("CDP", "Water"), ("ESRS", "E3"),
+    ],
+    "water_scarcity": [
+        ("BRSR", "P6"), ("GRI", "303"), ("CDP", "Water"), ("ESRS", "E3"),
+    ],
+    "data_privacy": [
+        ("BRSR", "P9"), ("GRI", "418"), ("ESRS", "S4"),
+    ],
+    "business_ethics": [
+        ("BRSR", "P1"), ("GRI", "205"), ("ESRS", "G1"),
+    ],
+    "anti_corruption": [
+        ("BRSR", "P1"), ("GRI", "205"), ("ESRS", "G1"),
+    ],
+    "energy_management": [
+        ("BRSR", "P6"), ("GRI", "302"), ("TCFD", "Metrics"),
+        ("CDP", "Climate"), ("ESRS", "E1"), ("IFRS_S2", "Energy"),
+    ],
+    "waste": [
+        ("BRSR", "P6"), ("GRI", "306"), ("ESRS", "E5"),
+    ],
+    "waste_management": [
+        ("BRSR", "P6"), ("GRI", "306"), ("ESRS", "E5"),
+    ],
+    "biodiversity": [
+        ("BRSR", "P6"), ("GRI", "304"), ("ESRS", "E4"), ("CDP", "Forests"),
+    ],
+    "worker_safety": [
+        ("BRSR", "P3"), ("GRI", "403"), ("ESRS", "S2"),
+    ],
+    "workforce_safety": [
+        ("BRSR", "P3"), ("GRI", "403"), ("ESRS", "S2"),
+    ],
+    "workforce_diversity": [
+        ("BRSR", "P5"), ("GRI", "405"), ("ESRS", "S1"),
+    ],
+    "workforce_management": [
+        ("BRSR", "P3"), ("GRI", "401"), ("ESRS", "S1"),
+    ],
+    "supply_chain_labor": [
+        ("BRSR", "P5"), ("GRI", "414"), ("ESRS", "S2"),
+    ],
+    "supply_chain_ethics": [
+        ("BRSR", "P5"), ("GRI", "414"), ("ESRS", "S2"),
+    ],
+    "community_relations": [
+        ("BRSR", "P8"), ("GRI", "413"), ("ESRS", "S3"),
+    ],
+    "product_safety": [
+        ("BRSR", "P9"), ("GRI", "416"), ("ESRS", "S4"),
+    ],
+    "food_safety": [
+        ("BRSR", "P9"), ("GRI", "416"), ("ESRS", "S4"),
+    ],
+    "drug_safety": [
+        ("BRSR", "P9"), ("GRI", "416"), ("ESRS", "S4"),
+    ],
+    "packaging": [
+        ("BRSR", "P6"), ("GRI", "301"), ("ESRS", "E5"),
+    ],
+    "fuel_management": [
+        ("BRSR", "P6"), ("GRI", "302"), ("TCFD", "Metrics"), ("IFRS_S2", "Energy"),
+    ],
+    "driver_safety": [
+        ("BRSR", "P3"), ("GRI", "403"), ("ESRS", "S2"),
+    ],
+    "fleet_efficiency": [
+        ("BRSR", "P6"), ("GRI", "305"), ("TCFD", "Metrics"),
+    ],
+    "e_waste": [
+        ("BRSR", "P6"), ("GRI", "306"), ("ESRS", "E5"),
+    ],
+    "systemic_risk": [
+        ("BRSR", "P1"), ("TCFD", "Risk"), ("IFRS_S1", "Risks"),
+    ],
+    "financial_inclusion": [
+        ("BRSR", "P8"), ("GRI", "203"), ("ESRS", "S3"),
+    ],
+    "access_to_care": [
+        ("BRSR", "P8"), ("GRI", "203"), ("ESRS", "S4"),
+    ],
+    "climate_adaptation": [
+        ("BRSR", "P6"), ("TCFD", "Strategy"), ("ESRS", "E1"), ("IFRS_S2", "Resilience"),
+    ],
+    "lifecycle_impacts": [
+        ("BRSR", "P6"), ("GRI", "301"), ("ESRS", "E5"),
+    ],
+    "ecological_impacts": [
+        ("BRSR", "P6"), ("GRI", "304"), ("ESRS", "E4"),
+    ],
+}
+
 
 async def provision_tenant_graph(
     tenant_id: str,
@@ -63,13 +170,13 @@ async def provision_tenant_graph(
     1. Upload base ontology to tenant graph
     2. Create company node
     3. Link to industry and material issues
-    4. Link to relevant ESG frameworks
+    4. Link to ALL 9 ESG frameworks (Stage 3.4)
+    5. Auto-generate framework indicator rules per material issue
     """
     graph_uri = jena_client._tenant_graph(tenant_id)
 
     # 1. Upload base ontology
     try:
-        import importlib.resources as pkg_resources
         from pathlib import Path
 
         ttl_path = Path(__file__).parent / "sustainability.ttl"
@@ -88,7 +195,8 @@ async def provision_tenant_graph(
         (company_uri, f"<{SNOWKAP_NS}domain>", f'"{domain}"'),
     ]
 
-    # 3. Link to industry
+    # 3. Link to industry + material issues
+    material_issues: list[str] = []
     if industry:
         industry_slug = industry.lower().replace(" ", "_").replace("&", "and")
         industry_uri = f"<{SNOWKAP_NS}industry_{industry_slug}>"
@@ -96,7 +204,6 @@ async def provision_tenant_graph(
         triples.append((industry_uri, "rdfs:label", f'"{industry}"'))
         triples.append((company_uri, f"<{SNOWKAP_NS}belongsToIndustry>", industry_uri))
 
-        # Link to material issues
         material_issues = INDUSTRY_MATERIAL_ISSUES.get(industry, [])
         for issue in material_issues:
             issue_uri = f"<{SNOWKAP_NS}issue_{issue}>"
@@ -108,11 +215,24 @@ async def provision_tenant_graph(
     if sasb_category:
         triples.append((company_uri, f"<{SNOWKAP_NS}sasbCategory>", f'"{sasb_category}"'))
 
-    # 5. Link to default ESG frameworks (BRSR mandatory for India, + common ones)
-    default_frameworks = ["BRSR", "GRI", "SASB"]
-    for fw in default_frameworks:
+    # 5. Stage 3.4: Link to ALL 9 frameworks (was 3)
+    for fw in ALL_FRAMEWORKS:
         fw_uri = f"<{SNOWKAP_NS}{fw}>"
+        triples.append((fw_uri, "a", f"<{SNOWKAP_NS}Framework>"))
+        triples.append((fw_uri, "rdfs:label", f'"{fw}"'))
+        pillars = FRAMEWORK_PILLARS.get(fw, [])
+        for pillar in pillars:
+            triples.append((fw_uri, f"<{SNOWKAP_NS}esgPillar>", f'"{pillar}"'))
         triples.append((company_uri, f"<{SNOWKAP_NS}reportsUnder>", fw_uri))
+
+    # 6. Stage 3.4: Auto-generate framework indicator rules per material issue
+    for issue in material_issues:
+        mappings = MATERIAL_ISSUE_TO_FRAMEWORK.get(issue, [])
+        for framework, indicator in mappings:
+            issue_uri = f"<{SNOWKAP_NS}issue_{issue}>"
+            fw_uri = f"<{SNOWKAP_NS}{framework}>"
+            triples.append((issue_uri, f"<{SNOWKAP_NS}reportsUnder>", fw_uri))
+            triples.append((issue_uri, f"<{SNOWKAP_NS}frameworkIndicator>", f'"{framework}:{indicator}"'))
 
     success = await jena_client.insert_triples(triples, tenant_id)
 
@@ -122,6 +242,7 @@ async def provision_tenant_graph(
             tenant_id=tenant_id,
             company=tenant_name,
             industry=industry,
+            frameworks=len(ALL_FRAMEWORKS),
             triples=len(triples),
         )
     return success
@@ -134,11 +255,6 @@ async def provision_full_tenant_ontology(
     """Full ontology provisioning for an existing tenant — seeds all data.
 
     Called after initial company/facility/supplier data is available.
-    Steps:
-    1. Provision base tenant graph (if not already done)
-    2. Seed all companies for the tenant
-    3. Seed facilities (geographic intelligence)
-    4. Seed supply chain data
     """
     # Get tenant info
     result = await db.execute(select(Tenant).where(Tenant.id == tenant_id))
@@ -181,6 +297,11 @@ async def provision_full_tenant_ontology(
 
         if company.domain:
             triples.append((comp_uri, f"<{SNOWKAP_NS}domain>", f'"{company.domain}"'))
+
+        # Link company to all 9 frameworks
+        for fw in ALL_FRAMEWORKS:
+            fw_uri = f"<{SNOWKAP_NS}{fw}>"
+            triples.append((comp_uri, f"<{SNOWKAP_NS}reportsUnder>", fw_uri))
 
         await jena_client.insert_triples(triples, tenant_id)
         stats["companies"] += 1

@@ -88,29 +88,31 @@ class TestAuthEndpoints:
             assert resp.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_magic_link_email_domain_mismatch(self):
+    async def test_login_email_domain_mismatch(self):
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
-            resp = await client.post("/api/auth/magic-link", json={
+            resp = await client.post("/api/auth/login", json={
                 "email": "user@other.com",
                 "domain": "mahindra.com",
                 "designation": "Analyst",
                 "company_name": "Mahindra",
+                "name": "Test User",
             })
             assert resp.status_code == 400
             assert "must match" in resp.json()["detail"]
 
     @pytest.mark.asyncio
-    async def test_magic_link_personal_email_blocked(self):
+    async def test_login_personal_email_blocked(self):
         transport = ASGITransport(app=app)
         async with AsyncClient(transport=transport, base_url="http://test") as client:
-            resp = await client.post("/api/auth/magic-link", json={
+            resp = await client.post("/api/auth/login", json={
                 "email": "user@gmail.com",
                 "domain": "gmail.com",
                 "designation": "Analyst",
                 "company_name": "Test",
+                "name": "Test User",
             })
-            # Should fail because gmail.com is blocked at resolve-domain level
+            # Should fail because gmail.com is blocked
             assert resp.status_code == 400
 
 

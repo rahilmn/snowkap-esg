@@ -1,14 +1,16 @@
 """Auth service — domain resolution, industry classification, magic links.
 
 Per MASTER_BUILD_PLAN Phase 2C:
-- Industry auto-classification via Claude (45 SASB categories)
+- Industry auto-classification via LLM (45 SASB categories)
 - Auto-generate sustainabilityQuery + generalQuery from domain + industry
 """
 
+import json
+
 import structlog
-from anthropic import AsyncAnthropic
 
 from backend.core.config import settings
+from backend.core import llm
 
 logger = structlog.get_logger()
 
@@ -33,20 +35,18 @@ SASB_CATEGORIES = [
 
 
 async def classify_industry(company_name: str, domain: str) -> dict[str, str | None]:
-    """Use Claude to classify a company into one of 45 SASB categories.
+    """Use LLM to classify a company into one of 45 SASB categories.
 
     Returns: {"industry": str, "sasb_category": str, "sustainability_query": str, "general_query": str}
     """
-    if not settings.ANTHROPIC_API_KEY:
-        logger.warning("anthropic_api_key_missing", action="classify_industry")
+    if not llm.is_configured():
+        logger.warning("llm_not_configured", action="classify_industry")
         return {
             "industry": None,
             "sasb_category": None,
             "sustainability_query": f'"{company_name}" ESG sustainability',
             "general_query": f'"{company_name}" news',
         }
-
-    client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
     prompt = f"""Given the company name "{company_name}" with domain "{domain}", classify it into exactly one of these SASB industry categories:
 
@@ -61,13 +61,11 @@ Respond with ONLY a JSON object (no markdown, no explanation):
 }}"""
 
     try:
-        response = await client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=300,
+        text = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
+            max_tokens=300,
         )
-        import json
-        result = json.loads(response.content[0].text)
+        result = json.loads(text)
         logger.info("industry_classified", company=company_name, industry=result.get("industry"))
         return result
     except Exception as e:

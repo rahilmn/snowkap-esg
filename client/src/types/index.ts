@@ -7,12 +7,7 @@ export interface ResolveDomainResponse {
   tenant_id: string | null;
 }
 
-export interface MagicLinkResponse {
-  message: string;
-  email: string;
-}
-
-export interface VerifyResponse {
+export interface LoginResponse {
   token: string;
   user_id: string;
   tenant_id: string;
@@ -41,6 +36,7 @@ export interface Article {
   summary: string | null;
   source: string | null;
   url: string | null;
+  image_url: string | null;
   published_at: string | null;
   esg_pillar: string | null;
   sentiment: string | null;
@@ -48,6 +44,15 @@ export interface Article {
   impact_scores: ArticleScore[];
   predictions: ArticlePrediction[];
   frameworks: string[];
+  framework_hits: FrameworkHit[];
+}
+
+export interface FrameworkHit {
+  framework: string;
+  indicator: string | null;
+  indicator_name: string | null;
+  relevance: number | null;
+  explanation: string | null;
 }
 
 export interface ArticleScore {
@@ -59,6 +64,7 @@ export interface ArticleScore {
   explanation: string | null;
   financial_exposure: number | null;
   frameworks: string[];
+  framework_hits: FrameworkHit[];
 }
 
 export interface ArticlePrediction {

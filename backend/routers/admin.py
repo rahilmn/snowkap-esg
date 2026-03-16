@@ -402,6 +402,13 @@ async def update_user_role(
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> UserSummary:
     """Update a user's role and permissions within this tenant."""
+    # Block self-role-change to prevent privilege escalation
+    if user_id == ctx.user.user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot change your own role. Ask another admin.",
+        )
+
     result = await ctx.db.execute(
         select(TenantMembership).where(
             TenantMembership.tenant_id == ctx.tenant_id,

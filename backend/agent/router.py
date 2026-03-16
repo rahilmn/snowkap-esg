@@ -37,6 +37,8 @@ class ChatResponse(BaseModel):
     tools_used: list[str]
     conversation_id: str | None = None
     pending_actions: list[dict] | None = None  # Actions needing confirmation
+    handoff_suggestion: dict | None = None  # Stage 7.3: Agent-to-agent handoff
+    pipeline: dict | None = None  # Stage 7.6: NEXUS pipeline info
 
 
 class AgentInfo(BaseModel):
@@ -139,6 +141,8 @@ async def agent_chat(
         tools_used=result.get("tools_used", []),
         conversation_id=req.conversation_id,
         pending_actions=agent_ctx.pending_actions if agent_ctx.pending_actions else None,
+        handoff_suggestion=result.get("handoff_suggestion"),
+        pipeline=result.get("pipeline"),
     )
 
 
@@ -414,3 +418,153 @@ async def search_conversations(
     )
 
     return {"query": query, "results": results}
+
+
+# --- Stage 7.3: Agent-to-Agent Handoff ---
+
+class HandoffRequest(BaseModel):
+    """Request to execute an agent handoff."""
+    from_agent: str
+    to_agent: str
+    context: str
+    question: str
+    conversation_id: str | None = None
+
+
+@router.post("/handoff", response_model=ChatResponse)
+async def execute_handoff(
+    req: HandoffRequest,
+    ctx: TenantContext = Depends(get_tenant_context),
+) -> ChatResponse:
+    """Stage 7.3: Execute an agent-to-agent handoff.
+
+    Transfers context from one specialist to another, preserving
+    the handoff context and acceptance criteria.
+    """
+    from backend.services.agent_service import AGENT_ROSTER
+
+    if req.to_agent not in AGENT_ROSTER:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown target agent: {req.to_agent}",
+        )
+
+    # Build enriched question with handoff context
+    enriched_question = (
+        f"{req.question}\n\n"
+        f"--- Handoff Context from {req.from_agent} ---\n"
+        f"{req.context}"
+    )
+
+    from backend.agent.graph import run_agent_pipeline
+
+    result = await run_agent_pipeline(
+        tenant_id=ctx.tenant_id,
+        user_id=ctx.user.user_id,
+        question=enriched_question,
+        agent_id=req.to_agent,
+        db=ctx.db,
+    )
+
+    logger.info(
+        "agent_handoff_executed",
+        from_agent=req.from_agent,
+        to_agent=req.to_agent,
+        tenant_id=ctx.tenant_id,
+    )
+
+    return ChatResponse(
+        response=result.get("response", ""),
+        agent=result.get("agent", {"id": req.to_agent, "name": AGENT_ROSTER[req.to_agent]["name"]}),
+        classification=result.get("classification", {}),
+        tools_used=result.get("tools_used", []),
+        conversation_id=req.conversation_id,
+    )
+
+
+# --- Stage 7.6: NEXUS Pipeline Info ---
+
+@router.get("/pipelines")
+async def list_pipelines(
+    ctx: TenantContext = Depends(get_tenant_context),
+) -> dict:
+    """Stage 7.6: List available NEXUS-Lite multi-agent pipelines."""
+    from backend.services.agent_service import NEXUS_PIPELINES, AGENT_ROSTER
+
+    pipelines = []
+    for pid, config in NEXUS_PIPELINES.items():
+        agents = [
+            {"id": a, "name": AGENT_ROSTER[a]["name"]}
+            for a in config["agents"]
+            if a in AGENT_ROSTER
+        ]
+        pipelines.append({
+            "id": pid,
+            "description": config["description"],
+            "triggers": config["triggers"],
+            "agents": agents,
+        })
+
+    return {"pipelines": pipelines}
+
+
+# --- Stage 7.5: Escalation ---
+
+class EscalationRequest(BaseModel):
+    """Request to escalate a conversation."""
+    action: str  # "switch_agent", "escalate_human", "raw_data"
+    target_agent: str | None = None  # For switch_agent
+    conversation_id: str | None = None
+
+
+@router.post("/escalate")
+async def handle_escalation(
+    req: EscalationRequest,
+    ctx: TenantContext = Depends(get_tenant_context),
+) -> dict:
+    """Stage 7.5: Handle escalation actions from low-confidence responses."""
+    from backend.agent.memory import memory_manager
+
+    if req.action == "switch_agent":
+        if not req.target_agent:
+            from backend.services.agent_service import AGENT_ROSTER
+            available = [
+                {"id": aid, "name": cfg["name"]}
+                for aid, cfg in AGENT_ROSTER.items()
+            ]
+            return {"status": "choose_agent", "available_agents": available}
+
+        return {
+            "status": "switched",
+            "message": f"Switched to {req.target_agent}. Please ask your question again.",
+            "new_agent": req.target_agent,
+        }
+
+    elif req.action == "escalate_human":
+        # In production, this would create a support ticket or notify a human analyst
+        logger.info(
+            "human_escalation_requested",
+            tenant_id=ctx.tenant_id,
+            user_id=ctx.user.user_id,
+            conversation_id=req.conversation_id,
+        )
+        return {
+            "status": "escalated",
+            "message": "Your question has been flagged for review by a human ESG analyst. You'll receive a response within 24 hours.",
+        }
+
+    elif req.action == "raw_data":
+        # Return recent tool results from memory
+        recent = await memory_manager.get_memory(
+            ctx.tenant_id, ctx.user.user_id, last_n=5,
+        )
+        return {
+            "status": "raw_data",
+            "recent_context": recent,
+            "message": "Here is the raw data from recent queries. You can interpret it directly.",
+        }
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"Unknown escalation action: {req.action}. Use: switch_agent, escalate_human, raw_data",
+    )

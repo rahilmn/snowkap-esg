@@ -26,12 +26,29 @@ async def fetch_google_news(query: str, max_results: int = 20) -> list[dict]:
         for entry in feed.entries[:max_results]:
             raw_summary = entry.get("summary", "")
             clean_summary = re.sub(r"<[^>]+>", "", raw_summary).replace("&nbsp;", " ").strip() or None
+
+            # Extract image URL from RSS media fields or summary HTML
+            image_url = None
+            media_content = entry.get("media_content", [])
+            if media_content and isinstance(media_content, list):
+                image_url = media_content[0].get("url")
+            if not image_url:
+                media_thumb = entry.get("media_thumbnail", [])
+                if media_thumb and isinstance(media_thumb, list):
+                    image_url = media_thumb[0].get("url")
+            if not image_url:
+                # Try extracting from <img> in summary HTML
+                img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', raw_summary)
+                if img_match:
+                    image_url = img_match.group(1)
+
             articles.append({
                 "title": entry.get("title", ""),
                 "url": entry.get("link", ""),
                 "source": entry.get("source", {}).get("title", ""),
                 "published_at": entry.get("published", ""),
                 "summary": clean_summary,
+                "image_url": image_url,
             })
         logger.info("news_fetched", query=query, count=len(articles))
         return articles

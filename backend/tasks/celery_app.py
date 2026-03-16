@@ -3,6 +3,8 @@
 Per CLAUDE.md: Redis 7 as Celery broker, Celery 5.4+ for background processing.
 """
 
+import sys
+
 from celery import Celery
 
 from backend.core.config import settings
@@ -22,6 +24,8 @@ celery_app.conf.update(
     task_track_started=True,
     task_acks_late=True,
     worker_prefetch_multiplier=1,
+    # Windows: prefork pool has a fast_trace_task bug; use solo pool instead
+    worker_pool="solo" if sys.platform == "win32" else "prefork",
 )
 
 celery_app.autodiscover_tasks([
