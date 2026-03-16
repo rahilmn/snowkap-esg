@@ -25,8 +25,11 @@ expertMode = true
 [userenv]
 
 [userenv.shared]
+JWT_SECRET = "snowkap-esg-jwt-secret-2026-production-key-change-me-64chars!!"
+SECRET_KEY = "snowkap-esg-secret-key-2026-production-change-me-64chars-long!!"
 ENVIRONMENT = "production"
 DEBUG = "false"
+DATABASE_URL_SYNC = "postgresql://postgres:password@helium/heliumdb?sslmode=disable"
 
 [workflows]
 runButton = "Project"
