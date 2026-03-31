@@ -52,6 +52,11 @@ class JenaClient:
     async def _get_client(self) -> httpx.AsyncClient:
         """Get or create the persistent async HTTP client with connection pooling."""
         if self._client is None or self._client.is_closed:
+            # Add basic auth for Jena write operations if configured
+            auth = None
+            if settings.JENA_ADMIN_USER and settings.JENA_ADMIN_PASSWORD:
+                auth = httpx.BasicAuth(settings.JENA_ADMIN_USER, settings.JENA_ADMIN_PASSWORD)
+
             self._client = httpx.AsyncClient(
                 timeout=httpx.Timeout(30.0, connect=2.0),
                 limits=httpx.Limits(
@@ -59,6 +64,7 @@ class JenaClient:
                     max_keepalive_connections=10,
                     keepalive_expiry=30.0,
                 ),
+                auth=auth,
             )
         return self._client
 
@@ -276,7 +282,11 @@ class JenaClient:
 
         graph_uri = self._tenant_graph(tenant_id)
         triple_lines = "\n".join(f"  {s} {p} {o} ." for s, p, o in triples)
-        sparql = f"INSERT DATA {{ GRAPH <{graph_uri}> {{\n{triple_lines}\n}} }}"
+        sparql = (
+            "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+            f"INSERT DATA {{ GRAPH <{graph_uri}> {{\n{triple_lines}\n}} }}"
+        )
 
         try:
             await self._request_with_retry(

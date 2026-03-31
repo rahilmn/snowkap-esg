@@ -62,6 +62,8 @@ class AgentState(TypedDict):
     # Stage 7.5: Escalation
     low_confidence_count: int
     escalation_offered: bool
+    # Role personalization
+    designation: str
 
 
 # --- Node Functions ---
@@ -227,6 +229,15 @@ async def synthesise(state: AgentState) -> dict:
         else:
             memory_context = f"## Cross-Agent Context\n{cross_summary}"
 
+    # Resolve role profile for personalization
+    synth_role_profile = None
+    synth_designation = state.get("designation") or None
+    if synth_designation:
+        from backend.core.permissions import map_designation_to_role
+        from backend.services.role_curation import get_role_profile
+        mapped_role = map_designation_to_role(synth_designation)
+        synth_role_profile = get_role_profile(mapped_role)
+
     response = await _generate_response(
         personality=personality,
         question=state["question"],
@@ -234,6 +245,8 @@ async def synthesise(state: AgentState) -> dict:
         memory_context=memory_context,
         recent_messages=state.get("context", {}).get("memory", []),
         tenant_id=state["tenant_id"],
+        role_profile=synth_role_profile,
+        designation=synth_designation,
     )
 
     # Stage 7.1: Check if agent requests more data
@@ -473,6 +486,8 @@ async def run_agent_pipeline(
     question: str,
     agent_id: str | None = None,
     db=None,
+    article_id: str | None = None,
+    designation: str | None = None,
 ) -> dict:
     """Universal entry point for agent conversations.
 
@@ -480,6 +495,19 @@ async def run_agent_pipeline(
     via agent_service.run_agent_conversation().
     """
     graph = get_graph()
+
+    # When article_id is provided, use sequential pipeline for ontology-driven context
+    # LangGraph doesn't carry article_id through its state machine
+    if article_id:
+        return await run_agent_conversation(
+            tenant_id=tenant_id,
+            user_id=user_id,
+            question=question,
+            agent_id=agent_id,
+            db=db,
+            article_id=article_id,
+            designation=designation,
+        )
 
     if graph:
         # Run via LangGraph
@@ -507,6 +535,8 @@ async def run_agent_pipeline(
                 # Stage 7.5
                 "low_confidence_count": 0,
                 "escalation_offered": False,
+                # Role personalization
+                "designation": designation or "",
             }
 
             if agent_id and agent_id in AGENT_ROSTER:
@@ -542,4 +572,6 @@ async def run_agent_pipeline(
         question=question,
         agent_id=agent_id,
         db=db,
+        article_id=article_id,
+        designation=designation,
     )

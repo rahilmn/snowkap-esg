@@ -181,14 +181,13 @@ async def ontology_rule_tool(
     Does NOT create or modify rules — that requires explicit API calls.
     """
     if action == "list":
-        from backend.ontology.jena_client import JenaClient
-        from backend.core.config import settings
+        from backend.ontology.jena_client import jena_client
 
-        client = JenaClient(settings.JENA_FUSEKI_URL, settings.JENA_DATASET)
         graph_uri = f"urn:snowkap:tenant:{tenant_id}"
 
-        results = await client.query(
+        results = await jena_client.query(
             f"""
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
             SELECT ?rule ?type ?label WHERE {{
                 GRAPH <{graph_uri}> {{
                     ?rule a <urn:snowkap:ontology#BusinessRule> ;

@@ -41,10 +41,14 @@ async def classify_industry(company_name: str, domain: str) -> dict[str, str | N
     """
     if not llm.is_configured():
         logger.warning("llm_not_configured", action="classify_industry")
+        # GAP 9: Include E/S terms even in fallback to avoid governance-only bias
         return {
             "industry": None,
             "sasb_category": None,
-            "sustainability_query": f'"{company_name}" ESG sustainability',
+            "sustainability_query": (
+                f'"{company_name}" ESG sustainability emissions climate risk '
+                f'workforce diversity social impact governance'
+            ),
             "general_query": f'"{company_name}" news',
         }
 
@@ -58,7 +62,18 @@ Respond with ONLY a JSON object (no markdown, no explanation):
   "sasb_category": "<exact SASB category from list>",
   "sustainability_query": "<Google News search query for this company's ESG/sustainability news>",
   "general_query": "<Google News search query for this company's general business news>"
-}}"""
+}}
+
+IMPORTANT for sustainability_query and general_query:
+- The queries MUST cover ALL THREE ESG pillars — Environmental, Social, AND Governance.
+- For financial sector companies (banks, NBFCs, AMCs, insurance, investment firms):
+  Include Environmental terms like "financed emissions", "climate risk disclosure", "green bond",
+  "sustainable finance", "green lending", "renewable energy financing".
+  Include Social terms like "financial inclusion", "workforce diversity", "social impact",
+  "community investment", "responsible lending".
+  Do NOT only include Governance terms — balance across E, S, and G.
+- For all industries: ensure the sustainability_query includes at least one term from each
+  of E (environment/climate/emissions), S (social/workforce/community), and G (governance/compliance)."""
 
     try:
         text = await llm.chat(
@@ -70,9 +85,13 @@ Respond with ONLY a JSON object (no markdown, no explanation):
         return result
     except Exception as e:
         logger.error("industry_classification_failed", error=str(e), company=company_name)
+        # GAP 9: Include E/S terms even in error fallback
         return {
             "industry": None,
             "sasb_category": None,
-            "sustainability_query": f'"{company_name}" ESG sustainability',
+            "sustainability_query": (
+                f'"{company_name}" ESG sustainability emissions climate risk '
+                f'workforce diversity social impact governance'
+            ),
             "general_query": f'"{company_name}" news',
         }

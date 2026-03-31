@@ -78,7 +78,8 @@ export function SwipeCardStack({
   }, [goneIds, cards, api]);
 
   const bind = useDrag(
-    ({ args: [index], active, movement: [mx, my], direction: [xDir], velocity: [vx] }) => {
+    ({ args: [index], active, movement: [mx, my], direction: [_xDir], velocity: [vx] }) => {
+      void _xDir;
       const card = cards[index];
       if (!card || goneRef.current.has(card.id)) return;
 
@@ -98,15 +99,25 @@ export function SwipeCardStack({
         return;
       }
 
-      if (!active && trigger) {
+      // Fix 2: Swipe UP = save, Swipe RIGHT/LEFT = next card
+      const swipeUp = !active && my < -80 && Math.abs(mx) < 60;
+      if (swipeUp) {
         markGone(card.id);
-        const dir = xDir > 0 ? 1 : -1;
-        if (dir > 0) onSwipeRight(card);
-        else onSwipeLeft(card);
+        onSwipeRight(card); // swipe up = save
+        api.start((i) => {
+          if (i !== index) return;
+          return { y: -window.innerHeight, x: 0, config: { friction: 50, tension: 200 } };
+        });
+        return;
       }
 
-      // Tap detection — small movement, quick release
-      if (!active && Math.abs(mx) < 10 && Math.abs(my) < 10) {
+      if (!active && trigger) {
+        markGone(card.id);
+        onSwipeLeft(card); // swipe right/left = skip to next
+      }
+
+      // Tap detection — increased threshold for mobile reliability
+      if (!active && Math.abs(mx) < 15 && Math.abs(my) < 15) {
         onTap(card);
         return;
       }

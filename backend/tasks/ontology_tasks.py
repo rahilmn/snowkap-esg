@@ -6,7 +6,8 @@ Per MASTER_BUILD_PLAN Phase 3:
 - Bulk entity extraction and resolution
 
 Stage 8.1: Use asgiref.sync.async_to_sync instead of creating new event loops.
-Stage 8.2: Add soft_time_limit to all tasks.
+Stage 8.2: Add soft_time_limit + hard time_limit to all tasks.
+QA: Added retry policies and hard_time_limit.
 """
 
 import structlog
@@ -20,6 +21,9 @@ logger = structlog.get_logger()
 @celery_app.task(
     name="ontology.provision_tenant",
     soft_time_limit=600,
+    time_limit=720,
+    max_retries=1,
+    default_retry_delay=60,
 )
 def provision_tenant_ontology_task(
     tenant_id: str,
@@ -51,6 +55,9 @@ def provision_tenant_ontology_task(
 @celery_app.task(
     name="ontology.analyze_article",
     soft_time_limit=600,
+    time_limit=720,
+    max_retries=2,
+    default_retry_delay=30,
 )
 def analyze_article_impact_task(article_id: str, tenant_id: str) -> dict:
     """Background task: full article impact analysis pipeline.
@@ -91,6 +98,9 @@ def analyze_article_impact_task(article_id: str, tenant_id: str) -> dict:
 @celery_app.task(
     name="ontology.provision_full",
     soft_time_limit=600,
+    time_limit=720,
+    max_retries=1,
+    default_retry_delay=60,
 )
 def provision_full_ontology_task(tenant_id: str) -> dict:
     """Background task: full ontology provisioning (companies + facilities + supply chain)."""
@@ -116,6 +126,9 @@ def provision_full_ontology_task(tenant_id: str) -> dict:
 @celery_app.task(
     name="ontology.generate_supply_chain",
     soft_time_limit=600,
+    time_limit=720,
+    max_retries=1,
+    default_retry_delay=60,
 )
 def generate_supply_chain_task(
     company_id: str,

@@ -1,34 +1,58 @@
-/** Saved news page — grid of bookmarked articles (Stage 6.9) */
+/** Saved news page — grid of bookmarked articles with multi-select delete */
 
 import { useState, useCallback } from "react";
 import { useSavedStore } from "@/stores/savedStore";
-import { KnowMoreSheet } from "@/components/panels/KnowMoreSheet";
+import { ArticleDetailSheet } from "@/components/panels/ArticleDetailSheet";
 import { esgPillarBg, formatDate } from "@/lib/utils";
 import { computeFomoTag } from "@/lib/fomo";
 import type { Article } from "@/types";
 
 export function SavedNewsPage() {
-  const { savedArticles, unsaveArticle } = useSavedStore();
+  const { savedArticles, unsaveArticle, clearAll } = useSavedStore();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [longPressId, setLongPressId] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  const handleTap = useCallback((article: Article) => {
-    setSelectedArticle(article);
+  // Multi-select mode
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }, []);
 
-  const handleLongPress = useCallback(
-    (articleId: string) => {
-      setLongPressId(articleId);
-    },
-    [],
-  );
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(savedArticles.map((a) => a.id)));
+  }, [savedArticles]);
 
-  const confirmUnsave = useCallback(
-    (articleId: string) => {
-      unsaveArticle(articleId);
-      setLongPressId(null);
+  const deselectAll = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const deleteSelected = useCallback(() => {
+    selectedIds.forEach((id) => unsaveArticle(id));
+    setSelectedIds(new Set());
+    setSelectMode(false);
+  }, [selectedIds, unsaveArticle]);
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleTap = useCallback(
+    (article: Article) => {
+      if (selectMode) {
+        toggleSelect(article.id);
+      } else {
+        setSelectedArticle(article);
+      }
     },
-    [unsaveArticle],
+    [selectMode, toggleSelect],
   );
 
   if (savedArticles.length === 0) {
@@ -49,46 +73,111 @@ export function SavedNewsPage() {
 
   return (
     <div className="px-4 pt-4 pb-16">
-      <h2 className="text-lg font-bold text-gray-900 mb-4">
-        Saved Stories ({savedArticles.length})
-      </h2>
+      {/* Header — normal mode vs select mode */}
+      {!selectMode ? (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900">
+            Saved Stories ({savedArticles.length})
+          </h2>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSelectMode(true)}
+              className="text-xs text-gray-600 font-medium px-3 py-1.5 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              Select
+            </button>
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="text-xs text-red-500 font-medium px-3 py-1.5 rounded-md border border-red-200 hover:bg-red-50 transition-colors"
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-gray-900">
+            {selectedIds.size} selected
+          </h2>
+          <div className="flex items-center gap-2">
+            {selectedIds.size < savedArticles.length ? (
+              <button
+                onClick={selectAll}
+                className="text-xs text-gray-600 font-medium px-3 py-1.5 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Select All
+              </button>
+            ) : (
+              <button
+                onClick={deselectAll}
+                className="text-xs text-gray-600 font-medium px-3 py-1.5 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                Deselect All
+              </button>
+            )}
+            <button
+              onClick={exitSelectMode}
+              className="text-xs text-gray-600 font-medium px-3 py-1.5 rounded-md border border-gray-200 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
+      {/* Clear all confirmation */}
+      {showClearConfirm && (
+        <div className="mb-4 p-3 rounded-lg border border-red-200 bg-red-50 flex items-center justify-between">
+          <p className="text-sm text-red-700">Remove all {savedArticles.length} saved stories?</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { clearAll(); setShowClearConfirm(false); setSelectMode(false); }}
+              className="px-3 py-1 text-xs bg-red-500 text-white rounded-md font-medium"
+            >
+              Yes, clear all
+            </button>
+            <button
+              onClick={() => setShowClearConfirm(false)}
+              className="px-3 py-1 text-xs bg-white text-gray-700 rounded-md border border-gray-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Article grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {savedArticles.map((article) => {
           const topScore = article.impact_scores?.[0];
           const impactScore = topScore?.impact_score ?? 0;
           const fomo = computeFomoTag(article.published_at, impactScore);
+          const isSelected = selectedIds.has(article.id);
 
           return (
             <div
               key={article.id}
-              className="relative bg-white rounded-lg border border-gray-200 p-3 cursor-pointer hover:shadow-md transition-shadow"
+              className={`relative rounded-lg border p-3 cursor-pointer transition-all ${
+                isSelected
+                  ? "border-red-400 bg-red-50/50 shadow-sm"
+                  : "border-gray-200 bg-white hover:shadow-md"
+              }`}
               onClick={() => handleTap(article)}
-              onContextMenu={(e) => {
-                e.preventDefault();
-                handleLongPress(article.id);
-              }}
             >
-              {/* Unsave confirmation overlay */}
-              {longPressId === article.id && (
-                <div className="absolute inset-0 bg-white/95 rounded-lg flex items-center justify-center z-10">
-                  <div className="text-center">
-                    <p className="text-sm text-gray-700 mb-2">Remove from saved?</p>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); confirmUnsave(article.id); }}
-                        className="px-3 py-1 text-xs bg-red-500 text-white rounded-md"
-                      >
-                        Remove
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); setLongPressId(null); }}
-                        className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded-md"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
+              {/* Selection checkbox (visible in select mode) */}
+              {selectMode && (
+                <div
+                  className={`absolute top-2 right-2 w-5 h-5 rounded-full border-2 flex items-center justify-center z-10 ${
+                    isSelected
+                      ? "border-red-500 bg-red-500"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
+                  {isSelected && (
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
                 </div>
               )}
 
@@ -105,7 +194,7 @@ export function SavedNewsPage() {
                 )}
               </div>
 
-              <h3 className="text-sm font-medium text-gray-900 line-clamp-2 leading-tight">
+              <h3 className="text-sm font-medium text-gray-900 line-clamp-2 leading-tight pr-6">
                 {article.title}
               </h3>
 
@@ -129,7 +218,19 @@ export function SavedNewsPage() {
         })}
       </div>
 
-      <KnowMoreSheet
+      {/* Sticky delete bar (visible when items selected) */}
+      {selectMode && selectedIds.size > 0 && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 flex justify-center">
+          <button
+            onClick={deleteSelected}
+            className="px-6 py-3 bg-red-500 text-white text-sm font-semibold rounded-full shadow-lg hover:bg-red-600 transition-colors"
+          >
+            Delete {selectedIds.size} {selectedIds.size === 1 ? "story" : "stories"}
+          </button>
+        </div>
+      )}
+
+      <ArticleDetailSheet
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
+import { StructuredMessageRenderer } from "@/components/panels/StructuredMessageRenderer";
+import { ArticleChatContext } from "@/components/panels/ArticleChatContext";
 import { agent } from "@/lib/api";
 import { useChatStore } from "@/stores/chatStore";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -21,12 +23,28 @@ interface PendingAction {
 
 export function AgentChatPage() {
   const location = useLocation();
-  const articleContext = location.state as { articleId?: string; articleTitle?: string } | null;
-  const [input, setInput] = useState(
-    articleContext?.articleTitle
-      ? `Analyze the ESG impact of: "${articleContext.articleTitle}"`
-      : "",
-  );
+  const articleContext = location.state as {
+    articleId?: string;
+    articleTitle?: string;
+    articleSummary?: string;
+    priorityLevel?: string;
+    contentType?: string;
+    frameworks?: string[];
+    impactScore?: number;
+    explanation?: string;
+    executiveInsight?: string;
+    // v2 context
+    topRiskName?: string;
+    topRiskScore?: number;
+    topRiskClass?: string;
+    tonePrimary?: string;
+    primaryTheme?: string;
+    frameworkCount?: number;
+    aggregateRisk?: number;
+    riskMode?: string;
+    relevanceScore?: number;
+  } | null;
+  const [input, setInput] = useState("");
   const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
   const [conversationId] = useState(() => `conv_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -52,6 +70,25 @@ export function AgentChatPage() {
     if (agentsQuery.data) setAgents(agentsQuery.data);
   }, [agentsQuery.data, setAgents]);
 
+  // Handle quick-action prompt from ArticleChatContext
+  function handleQuickPrompt(prompt: string) {
+    setInput(prompt);
+    // Auto-send after a tick so the input is visible
+    setTimeout(() => {
+      addMessage({ role: "user", content: prompt });
+      setLoading(true);
+      agent.chat(prompt, selectedAgent ?? undefined, conversationId, articleContext?.articleId)
+        .then((result) => {
+          addMessage({ role: "assistant", content: result.response, agent: result.agent });
+          if (result.pending_actions?.length) setPendingActions((prev) => [...prev, ...result.pending_actions!]);
+        })
+        .catch((e) => {
+          addMessage({ role: "assistant", content: `Error: ${e instanceof Error ? e.message : "Unknown"}` });
+        })
+        .finally(() => { setLoading(false); setInput(""); });
+    }, 100);
+  }
+
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -67,7 +104,12 @@ export function AgentChatPage() {
     setLoading(true);
 
     try {
-      const result = await agent.chat(question, selectedAgent ?? undefined, conversationId);
+      const result = await agent.chat(
+        question,
+        selectedAgent ?? undefined,
+        conversationId,
+        articleContext?.articleId,  // Pass article_id for ontology-driven context
+      );
       addMessage({
         role: "assistant",
         content: result.response,
@@ -79,9 +121,11 @@ export function AgentChatPage() {
         setPendingActions((prev) => [...prev, ...result.pending_actions!]);
       }
     } catch (e) {
+      const errMsg = e instanceof Error ? e.message : "Failed to get response";
+      console.error("Agent chat error:", e);
       addMessage({
         role: "assistant",
-        content: `Error: ${e instanceof Error ? e.message : "Failed to get response"}`,
+        content: `I encountered an issue. ${errMsg.includes("500") ? "The server is processing — please try again in a moment." : errMsg}`,
       });
     } finally {
       setLoading(false);
@@ -119,20 +163,13 @@ export function AgentChatPage() {
   }
 
   return (
-    <div className="flex gap-4 md:gap-6 h-[calc(100vh-8rem)]">
-      {/* Mobile Agent Selector */}
-      <div className="md:hidden absolute top-2 right-4 z-10">
-        <select
-          className="rounded-md border bg-background px-2 py-1 text-xs"
-          value={selectedAgent ?? ""}
-          onChange={(e) => selectAgent(e.target.value || null)}
-        >
-          <option value="">Auto-route</option>
-          {availableAgents.map((a) => (
-            <option key={a.id} value={a.id}>{a.name}</option>
-          ))}
-        </select>
-      </div>
+    <div
+      className="flex gap-4 md:gap-6 h-[calc(100vh-8rem)]"
+      style={{
+        background: "radial-gradient(circle at center, #ffffff 0%, #f7f9fb 50%, #e1f6ff 100%)",
+      }}
+    >
+      {/* Mobile Agent Selector — hidden (auto-route handles routing) */}
 
       {/* Agent Selector Sidebar — hidden on mobile */}
       <div className="hidden md:block w-56 flex-shrink-0 space-y-3">
@@ -181,23 +218,37 @@ export function AgentChatPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
+          {messages.length === 0 && articleContext?.articleTitle && (
+            <ArticleChatContext
+              articleTitle={articleContext.articleTitle}
+              priorityLevel={articleContext.priorityLevel}
+              relevanceScore={articleContext.relevanceScore}
+              primaryTheme={articleContext.primaryTheme}
+              topRiskName={articleContext.topRiskName}
+              topRiskClass={articleContext.topRiskClass}
+              riskMode={articleContext.riskMode}
+              frameworkCount={articleContext.frameworkCount}
+              onSendPrompt={handleQuickPrompt}
+            />
+          )}
+
+          {messages.length === 0 && !articleContext?.articleTitle && (
             <div className="text-center text-muted-foreground py-12">
               <p className="text-lg font-medium mb-2">Ask anything about ESG</p>
               <p className="text-sm">The AI will route your question to the best specialist agent.</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6 max-w-md mx-auto">
                 {[
-                  "What's my supply chain risk?",
-                  "Show me compliance gaps",
-                  "Summarize recent ESG trends",
-                  "Draft a BRSR disclosure section",
+                  "What are the top ESG risks for our company this quarter?",
+                  "How do our competitors compare on sustainability?",
+                  "Analyze our BRSR compliance gaps with specific remediation steps",
+                  "What supply chain risks should we prioritize based on recent news?",
+                  "Generate a board briefing on our ESG positioning vs industry peers",
+                  "Which facilities face climate risk and what should we do about it?",
                 ].map((q) => (
                   <button
                     key={q}
                     className="text-left text-xs rounded-md border p-2 hover:border-primary transition-colors"
-                    onClick={() => {
-                      setInput(q);
-                    }}
+                    onClick={() => setInput(q)}
                   >
                     {q}
                   </button>
@@ -234,11 +285,14 @@ export function AgentChatPage() {
         <div className="border-t p-4">
           <div className="flex gap-2">
             <Input
+              id="agent-chat-input"
+              name="agent-chat-input"
               placeholder="Ask about ESG, supply chain, compliance, predictions..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               disabled={isLoading}
+              autoComplete="off"
             />
             <Button onClick={handleSend} disabled={!input.trim() || isLoading}>
               Send
@@ -270,7 +324,11 @@ function MessageBubble({ message }: { message: ChatMessage }) {
           </div>
         )}
         <div className="prose prose-sm max-w-none dark:prose-invert [&>p]:mb-2 [&>p:last-child]:mb-0 [&>ul]:mb-2 [&>ol]:mb-2">
-          <ReactMarkdown>{message.content}</ReactMarkdown>
+          {isUser ? (
+            <ReactMarkdown skipHtml={true}>{message.content}</ReactMarkdown>
+          ) : (
+            <StructuredMessageRenderer content={message.content} />
+          )}
         </div>
       </div>
     </div>

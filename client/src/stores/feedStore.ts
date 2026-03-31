@@ -18,13 +18,18 @@ interface FeedState {
 export const useFeedStore = create<FeedState>()((set) => ({
   currentIndex: 0,
   dismissedIds: new Set<string>(),
-  hasSeenIntro: false,
+  hasSeenIntro: true,
   lastRefreshTime: Date.now(),
 
   dismiss: (articleId) =>
     set((state) => {
-      const newIds = new Set(state.dismissedIds);
+      let newIds = new Set(state.dismissedIds);
       newIds.add(articleId);
+      // Cap at 500 entries to prevent unbounded memory growth
+      if (newIds.size > 500) {
+        const arr = Array.from(newIds);
+        newIds = new Set(arr.slice(arr.length - 300));
+      }
       return { dismissedIds: newIds, currentIndex: state.currentIndex + 1 };
     }),
 

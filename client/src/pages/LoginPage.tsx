@@ -1,38 +1,79 @@
+/**
+ * LoginPage — matches UX/Create account/ "Identity Setup" design.
+ * Underline-style inputs, black CTA button, Snowkap logo.
+ * Keeps existing 3-way auth logic (domain → designation → confirm).
+ */
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { auth } from "@/lib/api";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Spinner } from "@/components/ui/Spinner";
+import { COLORS, RADII } from "@/lib/designTokens";
+
+const DESIGNATIONS = [
+  "CEO", "CFO", "CTO", "COO",
+  "Head of Sustainability", "Sustainability Manager",
+  "ESG Manager", "ESG Analyst", "Data Analyst",
+  "Consultant", "Managing Director",
+];
+
+
 
 type Step = "domain" | "designation" | "confirm" | "returning";
 
-const DESIGNATIONS = [
-  "CEO",
-  "CFO",
-  "CTO",
-  "COO",
-  "Head of Sustainability",
-  "Sustainability Manager",
-  "ESG Manager",
-  "ESG Analyst",
-  "Data Analyst",
-  "Consultant",
-];
+/* Underline-only input matching UX Create Account design */
+function UnderlineInput({
+  label, value, onChange, placeholder, type = "text", onKeyDown, name,
+}: {
+  label: string; value: string; onChange: (v: string) => void;
+  placeholder?: string; type?: string; onKeyDown?: (e: React.KeyboardEvent) => void;
+  name?: string;
+}) {
+  const inputId = name || label.toLowerCase().replace(/\s+/g, "-");
+  return (
+    <div>
+      <label
+        htmlFor={inputId}
+        style={{ fontSize: "16px", color: COLORS.textMuted, display: "block", marginBottom: "8px" }}
+      >
+        {label}
+      </label>
+      <input
+        id={inputId}
+        name={inputId}
+        type={type}
+        autoComplete={type === "email" ? "email" : name || "off"}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        onKeyDown={onKeyDown}
+        style={{
+          width: "345px",
+          maxWidth: "100%",
+          border: "none",
+          borderBottom: `1px solid ${COLORS.textMuted}`,
+          outline: "none",
+          fontSize: "16px",
+          padding: "8px 0",
+          background: "transparent",
+          color: COLORS.textPrimary,
+        }}
+      />
+    </div>
+  );
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
+  const loginStore = useAuthStore((s) => s.login);
 
   const [step, setStep] = useState<Step>("domain");
   const [domain, setDomain] = useState("");
   const [designation, setDesignation] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [industry, setIndustry] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
   const [returningEmail, setReturningEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,10 +84,9 @@ export function LoginPage() {
     try {
       const result = await auth.resolveDomain(domain);
       if (result.company_name) setCompanyName(result.company_name);
-      if (result.industry) setIndustry(result.industry);
       setStep("designation");
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to resolve domain");
+      setError(e instanceof Error ? e.message : typeof e === "string" ? e : "Failed to resolve domain");
     } finally {
       setLoading(false);
     }
@@ -56,15 +96,10 @@ export function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await auth.login({
-        email,
-        domain,
-        designation,
-        company_name: companyName,
-        name,
-      });
-      login(result);
-      navigate("/", { replace: true });
+      const result = await auth.login({ email, domain, designation, company_name: companyName, name });
+      loginStore(result);
+      sessionStorage.setItem("pending_login", JSON.stringify({ completed: true }));
+      navigate("/welcome", { replace: true });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to sign in");
     } finally {
@@ -77,222 +112,263 @@ export function LoginPage() {
     setError("");
     try {
       const result = await auth.returningUser(returningEmail);
-      login(result);
-      navigate("/", { replace: true });
+      loginStore(result);
+      navigate("/welcome", { replace: true });
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to sign in");
+      setError(e instanceof Error ? e.message : typeof e === "string" ? e : "Check your email");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground">SNOWKAP</h1>
-          <p className="text-muted-foreground mt-1">ESG Intelligence Platform</p>
-        </div>
+    <div className="min-h-screen flex justify-center" style={{ backgroundColor: COLORS.bgWhite }}>
+      <div className="max-w-[440px] w-full min-h-screen relative" style={{ height: "956px" }}>
+        {/* Snowkap logo */}
+        <img
+          src="/assets/snowkap-icon.png"
+          alt="Snowkap"
+          style={{ position: "absolute", top: "62px", left: "47px", width: "40px", height: "40px" }}
+        />
 
-        {/* Step indicator */}
-        {step !== "returning" && (
-          <div className="flex items-center justify-center gap-2 mb-6">
-            {["domain", "designation", "confirm"].map((s, i) => (
-              <div key={s} className="flex items-center gap-2">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                    step === s
-                      ? "bg-primary text-primary-foreground"
-                      : ["domain", "designation", "confirm"].indexOf(step) > i
-                        ? "bg-primary/20 text-primary"
-                        : "bg-muted text-muted-foreground"
-                  }`}
+        {/* Identity Setup heading */}
+        <h1
+          style={{
+            position: "absolute",
+            top: "173px",
+            left: "47px",
+            fontSize: "36px",
+            color: COLORS.brand,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {step === "domain" ? "Welcome" : step === "returning" ? "Welcome Back" : "Identity Setup"}
+        </h1>
+
+        {/* Form content */}
+        <div style={{ position: "absolute", top: "240px", left: "47px", right: "47px" }}>
+          {error && (
+            <p style={{ color: "#ff4044", fontSize: "14px", marginBottom: "16px" }}>{error}</p>
+          )}
+
+          {/* Step 1: Domain */}
+          {step === "domain" && (
+            <div className="space-y-6">
+              <UnderlineInput
+                label="Company Domain"
+                name="domain"
+                value={domain}
+                onChange={setDomain}
+                placeholder="e.g. company.com"
+                onKeyDown={(e) => e.key === "Enter" && handleResolveDomain()}
+              />
+              <button
+                onClick={handleResolveDomain}
+                disabled={!domain.trim() || loading}
+                style={{
+                  width: "345px",
+                  maxWidth: "100%",
+                  height: "54px",
+                  backgroundColor: COLORS.darkCard,
+                  color: COLORS.bgWhite,
+                  borderRadius: RADII.button,
+                  fontSize: "20px",
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.6 : 1,
+                  marginTop: "32px",
+                  boxShadow: "0px 4px 4px rgba(0,0,0,0.12)",
+                }}
+              >
+                {loading ? "Resolving..." : "Continue"}
+              </button>
+              <p
+                onClick={() => setStep("returning")}
+                style={{ fontSize: "14px", color: COLORS.brand, cursor: "pointer", marginTop: "16px" }}
+              >
+                Already have an account? Sign in &rarr;
+              </p>
+            </div>
+          )}
+
+          {/* Step 2: Designation */}
+          {step === "designation" && (
+            <div className="space-y-4">
+              <p style={{ fontSize: "16px", color: COLORS.textSecondary, marginBottom: "12px" }}>
+                Select your designation at {companyName || domain}
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {DESIGNATIONS.map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => { setDesignation(d); setStep("confirm"); }}
+                    style={{
+                      padding: "12px",
+                      borderRadius: RADII.card,
+                      fontSize: "14px",
+                      textAlign: "left",
+                      border: `1px solid ${designation === d ? COLORS.brand : COLORS.textDisabled}`,
+                      backgroundColor: designation === d ? COLORS.brandLight : COLORS.bgWhite,
+                      color: designation === d ? COLORS.brand : COLORS.textPrimary,
+                      cursor: "pointer",
+                    }}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+
+              {/* Custom role input */}
+              <div style={{ marginTop: "16px" }}>
+                <label
+                  htmlFor="custom-role"
+                  style={{ fontSize: "14px", color: COLORS.textSecondary, display: "block", marginBottom: "6px" }}
                 >
-                  {i + 1}
-                </div>
-                {i < 2 && <div className="w-8 h-px bg-border" />}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {step === "domain" && "Enter your company domain"}
-              {step === "designation" && "Select your designation"}
-              {step === "confirm" && "Confirm & sign in"}
-              {step === "returning" && "Welcome back"}
-            </CardTitle>
-            <CardDescription>
-              {step === "domain" && "No passwords needed. Sign in with your work email."}
-              {step === "designation" && "This determines your dashboard view and permissions."}
-              {step === "confirm" && "Review your details and sign in."}
-              {step === "returning" && "Enter your email to sign in."}
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-
-            {/* Step 1: Domain */}
-            {step === "domain" && (
-              <>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Company Domain</label>
-                  <Input
-                    placeholder="e.g. mahindra.com"
-                    value={domain}
-                    onChange={(e) => setDomain(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleResolveDomain()}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Your corporate email domain (not gmail, yahoo, etc.)
-                  </p>
-                </div>
-                <Button className="w-full" onClick={handleResolveDomain} disabled={!domain.trim() || loading}>
-                  {loading ? <Spinner className="mr-2 h-4 w-4" /> : null}
-                  Continue
-                </Button>
-                <div className="relative my-4">
-                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">or</span>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full" onClick={() => setStep("returning")}>
-                  I already have an account
-                </Button>
-              </>
-            )}
-
-            {/* Step 2: Designation */}
-            {step === "designation" && (
-              <>
-                <div className="grid grid-cols-2 gap-2">
-                  {DESIGNATIONS.map((d) => (
-                    <button
-                      key={d}
-                      className={`rounded-md border p-3 text-sm text-left transition-colors hover:border-primary ${
-                        designation === d ? "border-primary bg-primary/5 font-medium" : "border-border"
-                      }`}
-                      onClick={() => setDesignation(d)}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Or enter custom</label>
-                  <Input
-                    placeholder="Your designation"
-                    value={designation}
-                    onChange={(e) => setDesignation(e.target.value)}
-                  />
-                </div>
+                  Don&apos;t see your role? Type it here:
+                </label>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setStep("domain")}>Back</Button>
-                  <Button className="flex-1" onClick={() => setStep("confirm")} disabled={!designation.trim()}>
+                  <input
+                    id="custom-role"
+                    name="custom-role"
+                    type="text"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="e.g. VP of ESG, Climate Officer, CSO"
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      borderBottom: `1px solid ${COLORS.textMuted}`,
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "8px 0",
+                      background: "transparent",
+                      color: COLORS.textPrimary,
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (role.trim()) {
+                        setDesignation(role.trim());
+                        setStep("confirm");
+                      }
+                    }}
+                    disabled={!role.trim()}
+                    style={{
+                      padding: "8px 16px",
+                      borderRadius: RADII.button,
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      backgroundColor: role.trim() ? COLORS.darkCard : COLORS.textDisabled,
+                      color: COLORS.bgWhite,
+                      border: "none",
+                      cursor: role.trim() ? "pointer" : "not-allowed",
+                    }}
+                  >
                     Continue
-                  </Button>
+                  </button>
                 </div>
-              </>
-            )}
+              </div>
 
-            {/* Step 3: Confirm & Sign In */}
-            {step === "confirm" && (
-              <>
-                <div className="rounded-md bg-muted p-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Domain</span>
-                    <span className="font-medium">{domain}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Designation</span>
-                    <span className="font-medium">{designation}</span>
-                  </div>
-                  {industry && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Industry</span>
-                      <span className="font-medium">{industry}</span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Your Name</label>
-                  <Input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rahil Sharma"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Company Name</label>
-                  <Input
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="e.g. Mahindra Logistics Ltd"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Work Email</label>
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={`you@${domain}`}
-                    onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Must be a @{domain} email address
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setStep("designation")}>Back</Button>
-                  <Button
-                    className="flex-1"
-                    onClick={handleLogin}
-                    disabled={!email.trim() || !companyName.trim() || !name.trim() || loading}
-                  >
-                    {loading ? <Spinner className="mr-2 h-4 w-4" /> : null}
-                    Sign In
-                  </Button>
-                </div>
-              </>
-            )}
+              <button
+                onClick={() => setStep("domain")}
+                style={{ fontSize: "14px", color: COLORS.textSecondary, background: "none", border: "none", cursor: "pointer", marginTop: "8px" }}
+              >
+                &larr; Back
+              </button>
+            </div>
+          )}
 
-            {/* Returning User */}
-            {step === "returning" && (
-              <>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Work Email</label>
-                  <Input
-                    type="email"
-                    value={returningEmail}
-                    onChange={(e) => setReturningEmail(e.target.value)}
-                    placeholder="you@company.com"
-                    onKeyDown={(e) => e.key === "Enter" && handleReturningUser()}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setStep("domain")}>Back</Button>
-                  <Button
-                    className="flex-1"
-                    onClick={handleReturningUser}
-                    disabled={!returningEmail.trim() || loading}
-                  >
-                    {loading ? <Spinner className="mr-2 h-4 w-4" /> : null}
-                    Sign In
-                  </Button>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+          {/* Step 3: Confirm — matches UX "Create Account" form */}
+          {step === "confirm" && (
+            <div className="space-y-6">
+              <UnderlineInput label="Full Name" name="fullname" value={name} onChange={setName} placeholder="e.g. John Smith" />
+              <UnderlineInput label="Company Name" name="company" value={companyName} onChange={setCompanyName} placeholder="e.g. Acme Corporation" />
+              <UnderlineInput label="Designation" name="designation" value={designation} onChange={setDesignation} placeholder="e.g. Head of Sustainability" />
+
+              <UnderlineInput
+                label="Email"
+                name="email"
+                value={email}
+                onChange={setEmail}
+                placeholder={domain ? `you@${domain}` : "you@company.com"}
+                type="email"
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
+
+              <button
+                onClick={handleLogin}
+                disabled={!email.trim() || !companyName.trim() || !name.trim() || loading}
+                style={{
+                  width: "345px",
+                  maxWidth: "100%",
+                  height: "54px",
+                  backgroundColor: COLORS.darkCard,
+                  color: COLORS.bgWhite,
+                  borderRadius: RADII.button,
+                  fontSize: "20px",
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading || !email.trim() || !name.trim() ? 0.6 : 1,
+                  marginTop: "16px",
+                  boxShadow: "0px 4px 4px rgba(0,0,0,0.12)",
+                }}
+              >
+                {loading ? "Signing in..." : "Create Account"}
+              </button>
+
+              <button
+                onClick={() => setStep("designation")}
+                style={{ fontSize: "14px", color: COLORS.textSecondary, background: "none", border: "none", cursor: "pointer", marginTop: "8px" }}
+              >
+                &larr; Back
+              </button>
+            </div>
+          )}
+
+          {/* Returning user */}
+          {step === "returning" && (
+            <div className="space-y-6">
+              <UnderlineInput
+                label="Work Email"
+                name="work-email"
+                value={returningEmail}
+                onChange={setReturningEmail}
+                placeholder="you@company.com"
+                type="email"
+                onKeyDown={(e) => e.key === "Enter" && handleReturningUser()}
+              />
+              <button
+                onClick={handleReturningUser}
+                disabled={!returningEmail.trim() || loading}
+                style={{
+                  width: "345px",
+                  maxWidth: "100%",
+                  height: "54px",
+                  backgroundColor: COLORS.darkCard,
+                  color: COLORS.bgWhite,
+                  borderRadius: RADII.button,
+                  fontSize: "20px",
+                  fontWeight: 500,
+                  border: "none",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  opacity: loading ? 0.6 : 1,
+                  marginTop: "16px",
+                  boxShadow: "0px 4px 4px rgba(0,0,0,0.12)",
+                }}
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+              <button
+                onClick={() => setStep("domain")}
+                style={{ fontSize: "14px", color: COLORS.textSecondary, background: "none", border: "none", cursor: "pointer", marginTop: "8px" }}
+              >
+                &larr; New account
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

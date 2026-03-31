@@ -129,7 +129,7 @@ services:
   # Per CLAUDE.md: OWL2 ontology, SPARQL endpoint, tenant named graphs
   # ---------------------------------------------------------------------------
   jena-fuseki:
-    image: stain/jena-fuseki:latest
+    image: stain/jena-fuseki:5.2.0
     container_name: esg-jena
     restart: unless-stopped
     environment:
@@ -152,7 +152,7 @@ services:
   # 7. minio — MinIO S3-compatible file storage (port 9000)
   # ---------------------------------------------------------------------------
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-02-28T09-55-16Z
     container_name: esg-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -177,7 +177,7 @@ services:
   # Per CLAUDE.md: /api/ → FastAPI, /predict/ → MiroFish, /ws/ → Socket.IO
   # ---------------------------------------------------------------------------
   nginx:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
     container_name: esg-nginx
     restart: unless-stopped
     ports:

@@ -7,6 +7,7 @@ interface ImpactMetricsProps {
   causalHops: number;
   financialExposure: number | null;
   companyName: string;
+  confidence?: number | null;
 }
 
 export function ImpactMetrics({
@@ -14,7 +15,9 @@ export function ImpactMetrics({
   causalHops,
   financialExposure,
   companyName,
+  confidence,
 }: ImpactMetricsProps) {
+  void confidence; // Used in future metrics display
   const scoreColor =
     impactScore >= 80 ? "text-red-600" : impactScore >= 50 ? "text-amber-600" : "text-green-600";
 

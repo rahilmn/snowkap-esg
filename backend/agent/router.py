@@ -28,6 +28,7 @@ class ChatRequest(BaseModel):
     question: str
     agent_id: str | None = None  # Optional: force a specific agent
     conversation_id: str | None = None  # Optional: thread ID
+    article_id: str | None = None  # Optional: article context for ontology-driven analysis
 
 
 class ChatResponse(BaseModel):
@@ -105,15 +106,34 @@ async def agent_chat(
 
     agent_ctx = _build_agent_context(ctx, req.conversation_id)
 
-    from backend.agent.graph import run_agent_pipeline
+    try:
+        from backend.agent.graph import run_agent_pipeline
 
-    result = await run_agent_pipeline(
-        tenant_id=ctx.tenant_id,
-        user_id=ctx.user.user_id,
-        question=req.question,
-        agent_id=req.agent_id,
-        db=ctx.db,
-    )
+        result = await run_agent_pipeline(
+            tenant_id=ctx.tenant_id,
+            user_id=ctx.user.user_id,
+            question=req.question,
+            agent_id=req.agent_id,
+            db=ctx.db,
+            article_id=req.article_id,
+            designation=ctx.user.designation,
+        )
+    except Exception as e:
+        logger.error(
+            "agent_chat_error",
+            error=str(e),
+            tenant_id=ctx.tenant_id,
+            user_id=ctx.user.user_id,
+            question=req.question[:100],
+        )
+        # Return a graceful error response instead of 500
+        return ChatResponse(
+            response=f"I'm sorry, I encountered an issue processing your request. Please try again. (Error: {str(e)[:100]})",
+            agent={"id": "analytics", "name": "ESG Analytics Agent"},
+            classification={"error": True},
+            tools_used=[],
+            conversation_id=req.conversation_id,
+        )
 
     logger.info(
         "agent_chat_completed",
@@ -131,8 +151,8 @@ async def agent_chat(
             "response_preview": result.get("response", "")[:200],
             "conversation_id": req.conversation_id,
         })
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("socketio_emit_failed", emit_event="agent_response", error=str(exc))
 
     return ChatResponse(
         response=result.get("response", ""),
@@ -201,8 +221,8 @@ async def ask_about_news(
             ).limit(1)
         )
         prediction_available = pred_result.scalar_one_or_none() is not None
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("prediction_lookup_failed", article_id=req.article_id, error=str(exc))
 
     # Build article summary
     article_summary = {
@@ -265,6 +285,7 @@ async def ask_about_news(
         user_id=ctx.user.user_id,
         question=enriched_question,
         db=ctx.db,
+        designation=ctx.user.designation,
     )
 
     logger.info(
@@ -322,8 +343,8 @@ async def confirm_action(
             "user_id": ctx.user.user_id,
             "result": result,
         })
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug("socketio_emit_failed", emit_event="agent_action_executed", error=str(exc))
 
     return {"status": "executed", "result": result}
 
@@ -464,6 +485,7 @@ async def execute_handoff(
         question=enriched_question,
         agent_id=req.to_agent,
         db=ctx.db,
+        designation=ctx.user.designation,
     )
 
     logger.info(

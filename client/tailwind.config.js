@@ -3,6 +3,9 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Inter", "GoogleSans", "system-ui", "sans-serif"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -38,6 +41,17 @@ export default {
           social: "#3b82f6",
           governance: "#8b5cf6",
         },
+        snowkap: {
+          brand: "#df5900",
+          riskHigh: "#ff4044",
+          elevated: "#18a87d",
+          framework: "#0e97e7",
+          darkCard: "#080707",
+        },
+      },
+      boxShadow: {
+        card: "0px 10px 30px 0px rgba(102, 123, 136, 0.15)",
+        darkCard: "0px 10px 30px 0px rgba(0, 0, 0, 0.12)",
       },
       borderRadius: {
         lg: "var(--radius)",

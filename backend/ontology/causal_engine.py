@@ -76,6 +76,12 @@ PREDICATE_TO_RELATIONSHIP = {
     f"{SNOWKAP_NS}customerOf": "customerConcentration",
     f"{SNOWKAP_NS}reportsUnder": "directOperational",
     f"{SNOWKAP_NS}frameworkIndicator": "directOperational",
+    # Reverse edges for bidirectional BFS traversal
+    f"{SNOWKAP_NS}sourcesFrom": "supplyChainDownstream",
+    f"{SNOWKAP_NS}provides": "supplyChainUpstream",
+    f"{SNOWKAP_NS}belongsToCompany": "directOperational",
+    f"{SNOWKAP_NS}hasFacilityIn": "geographicProximity",
+    f"{SNOWKAP_NS}sameCompany": "directOperational",
 }
 
 
@@ -101,12 +107,26 @@ def calculate_impact(hops: int, base_score: float = 1.0) -> float:
 
 
 def _uri_to_label(uri: str) -> str:
-    """Extract a human-readable label from a URI."""
+    """Extract a human-readable label from a URI.
+
+    Strips UUIDs and technical prefixes to produce clean display names.
+    """
     if "#" in uri:
-        return uri.split("#")[-1].replace("_", " ")
-    if "/" in uri:
-        return uri.rsplit("/", 1)[-1].replace("_", " ")
-    return uri
+        fragment = uri.split("#")[-1]
+    elif "/" in uri:
+        fragment = uri.rsplit("/", 1)[-1]
+    else:
+        fragment = uri
+
+    # Strip common prefixes (company_, supplier_, facility_, commodity_, region_, competitor_)
+    import re
+    cleaned = re.sub(r"^(company|supplier|facility|commodity|region|competitor|industry|issue)_", "", fragment)
+    # Strip UUIDs (8-4-4-4-12 hex pattern)
+    cleaned = re.sub(r"[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}", "", cleaned)
+    # Clean up underscores and extra spaces
+    cleaned = cleaned.replace("_", " ").strip().strip("-").strip()
+
+    return cleaned if cleaned else fragment.replace("_", " ")
 
 
 def classify_relationship(edge_uris: list[str]) -> str:
@@ -121,7 +141,7 @@ def generate_explanation(path: CausalPath) -> str:
     """Generate human-readable causal chain explanation."""
     if not path.nodes:
         return ""
-    return " → ".join(path.nodes)
+    return " -> ".join(path.nodes)
 
 
 async def find_causal_chains(
@@ -179,7 +199,10 @@ async def find_causal_chains(
 
 
 async def _resolve_entity(entity_text: str, tenant_id: str) -> list[str]:
-    """Resolve an entity text to URIs in the Jena graph via label matching."""
+    """Resolve an entity text to URIs in the Jena graph via label matching.
+
+    Also follows sameCompany links to find the canonical company URI.
+    """
     graph_uri = jena_client._tenant_graph(tenant_id)
 
     sparql = f"""
@@ -187,8 +210,16 @@ async def _resolve_entity(entity_text: str, tenant_id: str) -> list[str]:
     PREFIX snowkap: <{SNOWKAP_NS}>
     SELECT DISTINCT ?entity WHERE {{
         GRAPH <{graph_uri}> {{
-            ?entity rdfs:label ?label .
-            FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{_escape_sparql(entity_text)}")))
+            {{
+                ?entity rdfs:label ?label .
+                FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{_escape_sparql(entity_text)}")))
+            }}
+            UNION
+            {{
+                ?alias rdfs:label ?label .
+                FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{_escape_sparql(entity_text)}")))
+                ?alias snowkap:sameCompany ?entity .
+            }}
         }}
     }}
     LIMIT 5
@@ -462,8 +493,8 @@ async def _query_entity_frameworks(entity_uri: str, tenant_id: str) -> list[str]
             fw = b.get("fw", {}).get("value", "") or b.get("fwLabel", {}).get("value", "")
             if fw:
                 frameworks.append(fw)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("causal_chain_framework_lookup_failed", error=str(exc))
 
     # Query material issue → framework indicator mappings
     sparql_ind = f"""
@@ -481,8 +512,8 @@ async def _query_entity_frameworks(entity_uri: str, tenant_id: str) -> list[str]
             indicator = b.get("indicator", {}).get("value", "")
             if indicator:
                 frameworks.append(indicator)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning("entity_impact_indicator_lookup_failed", error=str(exc))
 
     return list(set(frameworks))
 

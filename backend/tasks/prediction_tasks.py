@@ -22,6 +22,7 @@ logger = structlog.get_logger()
     max_retries=2,
     default_retry_delay=60,
     soft_time_limit=600,
+    time_limit=720,
 )
 def trigger_simulation_task(
     self,
@@ -98,6 +99,7 @@ def trigger_simulation_task(
 @celery_app.task(
     name="prediction.auto_trigger_check",
     soft_time_limit=300,
+    time_limit=360,
 )
 def auto_trigger_check_task(tenant_id: str, article_id: str) -> dict:
     """Check if an article meets trigger conditions for any company, and dispatch.

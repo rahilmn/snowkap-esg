@@ -9,7 +9,7 @@ uvicorn[standard]==0.34.0
 pydantic==2.10.4
 pydantic-settings==2.7.1
 python-multipart==0.0.19
-python-jose[cryptography]==3.3.0
+PyJWT[crypto]==2.9.0
 httpx==0.28.1
 email-validator==2.2.0
 
@@ -28,8 +28,8 @@ celery[redis]==5.4.0
 anthropic==0.42.0
 openai==1.58.1
 langgraph==0.2.60
-langchain-core>=0.3.28
-langchain-anthropic>=0.3.4
+langchain-core==0.3.28
+langchain-anthropic==0.3.4
 
 # --- Knowledge Graph (rdflib for dev, Jena via HTTP for prod) ---
 rdflib==7.1.1
@@ -56,8 +56,13 @@ pdfplumber==0.11.4
 openpyxl==3.1.5
 Pillow==11.1.0
 
+# --- Security & Rate Limiting ---
+slowapi==0.1.9
+
 # --- Utilities ---
 feedparser==6.0.11
+trafilatura==1.12.2
+googlenewsdecoder==0.1.7
 python-dateutil==2.9.0
 orjson==3.10.13
 tenacity==9.0.0

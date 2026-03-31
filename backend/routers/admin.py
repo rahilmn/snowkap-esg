@@ -117,8 +117,8 @@ class TenantUsageDetail(BaseModel):
 )
 async def list_all_tenants(
     is_active: bool | None = None,
-    limit: int = Query(default=50, le=200),
-    offset: int = 0,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> list[TenantSummary]:
     """List all tenants — platform admin only."""

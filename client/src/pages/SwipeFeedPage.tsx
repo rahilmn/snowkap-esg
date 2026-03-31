@@ -1,6 +1,6 @@
 /** Swipe Feed Page — main news experience (Stage 6.9) */
 
-import { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { news } from "@/lib/api";
 import { useNewsStore } from "@/stores/newsStore";
@@ -9,7 +9,7 @@ import { useFeedStore } from "@/stores/feedStore";
 import { SwipeCardStack } from "@/components/cards/SwipeCardStack";
 import { NewsCard } from "@/components/cards/NewsCard";
 import { IntroCard } from "@/components/cards/IntroCard";
-import { KnowMoreSheet } from "@/components/panels/KnowMoreSheet";
+import { ArticleDetailSheet } from "@/components/panels/ArticleDetailSheet";
 import { Spinner } from "@/components/ui/Spinner";
 import type { Article } from "@/types";
 
@@ -18,6 +18,11 @@ const PAGE_SIZE = 20;
 
 export function SwipeFeedPage() {
   const { articles, setArticles } = useNewsStore();
+
+  // Clear stale data on mount
+  React.useEffect(() => {
+    useFeedStore.getState().reset();
+  }, []);
   const { saveArticle } = useSavedStore();
   const { hasSeenIntro, markIntroSeen, dismissedIds, setRefreshTime } = useFeedStore();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
@@ -26,14 +31,18 @@ export function SwipeFeedPage() {
   const { isLoading, refetch } = useQuery({
     queryKey: ["news-feed", offset],
     queryFn: async () => {
-      const result = await news.list({ limit: PAGE_SIZE, offset });
+      const result = await news.list({ limit: PAGE_SIZE, offset, sort_by: "priority" });
       if (offset === 0) {
         setArticles(result);
+        // Clear dismissed cards on fresh load so new articles show
+        useFeedStore.getState().reset();
       } else {
-        setArticles([...articles, ...result]);
+        setArticles([...useNewsStore.getState().articles, ...result]);
       }
       return result;
     },
+    staleTime: 0, // Always refetch fresh data
+    refetchOnMount: "always",
   });
 
   // Filter out dismissed articles
@@ -121,14 +130,24 @@ export function SwipeFeedPage() {
       )}
 
       {hasSeenIntro && visibleArticles.length === 0 && !isLoading && (
-        <div className="text-center text-muted-foreground">
-          <p className="text-lg font-medium">No news stories yet</p>
-          <p className="text-sm mt-1">Check back later for ESG updates</p>
+        <div className="text-center px-8" style={{ color: "#888" }}>
+          <div style={{ fontSize: "48px", marginBottom: "16px" }}>&#128640;</div>
+          <p className="text-lg font-medium" style={{ color: "#111" }}>
+            Fetching ESG intelligence...
+          </p>
+          <p className="text-sm mt-2" style={{ lineHeight: "1.6" }}>
+            We&apos;re gathering and analyzing news for your company.
+            Articles will appear here as they&apos;re processed.
+          </p>
+          <p className="text-xs mt-4" style={{ color: "#999" }}>
+            This usually takes 1-2 minutes for new accounts.
+            <br />Pull down to refresh.
+          </p>
         </div>
       )}
 
-      {/* Know More bottom sheet */}
-      <KnowMoreSheet
+      {/* Unified detail sheet */}
+      <ArticleDetailSheet
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />

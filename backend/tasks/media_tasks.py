@@ -23,7 +23,7 @@ def _run_async(coro):
         loop.close()
 
 
-@celery_app.task(name="media.process_file", bind=True, max_retries=2, default_retry_delay=30)
+@celery_app.task(name="media.process_file", bind=True, max_retries=2, default_retry_delay=30, soft_time_limit=300, time_limit=360)
 def process_media_file_task(self, media_file_id: str, tenant_id: str) -> dict:
     """Background task: process an uploaded media file.
 
@@ -124,8 +124,8 @@ def process_media_file_task(self, media_file_id: str, tenant_id: str) -> dict:
                         "status": "processed",
                         "chunks": len(proc_result.chunks),
                     })
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.debug("socketio_emit_failed", emit_event="media_processed", media_file_id=media_file_id, error=str(exc))
 
                 return {
                     "media_file_id": media_file_id,

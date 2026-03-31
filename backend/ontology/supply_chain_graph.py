@@ -129,12 +129,18 @@ async def seed_supply_chain_to_jena(
         triples.append((sup_uri, "a", f"<{SNOWKAP_NS}Supplier>"))
         triples.append((sup_uri, "rdfs:label", f'"{supplier.supplier_name}"'))
         triples.append((sup_uri, f"<{SNOWKAP_NS}suppliesTo>", comp_uri))
+        # Reverse edge: company sources from supplier (enables BFS from company outward)
+        triples.append((comp_uri, f"<{SNOWKAP_NS}sourcesFrom>", sup_uri))
 
         if supplier.commodity:
             commodity_uri = f"<{SNOWKAP_NS}commodity_{supplier.commodity.lower().replace(' ', '_')}>"
             triples.append((commodity_uri, "a", f"<{SNOWKAP_NS}Commodity>"))
             triples.append((commodity_uri, "rdfs:label", f'"{supplier.commodity}"'))
             triples.append((comp_uri, f"<{SNOWKAP_NS}dependsOnCommodity>", commodity_uri))
+            # Reverse: commodity is depended on by company (enables BFS from commodity to company)
+            triples.append((commodity_uri, f"<{SNOWKAP_NS}suppliesTo>", comp_uri))
+            # Supplier provides the commodity
+            triples.append((sup_uri, f"<{SNOWKAP_NS}provides>", commodity_uri))
 
             # Add commodity chain dependencies
             chain = COMMODITY_CHAINS.get(supplier.commodity.lower(), [])

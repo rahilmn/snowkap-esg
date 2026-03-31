@@ -27,6 +27,7 @@ class Company(Base, TenantMixin):
     general_query: Mapped[str | None] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(50), default="active")
     profile_data: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    competitors: Mapped[dict | None] = mapped_column(JSONB)  # [{name, domain, relationship, sub_sector}]
 
     # Relationships
     facilities: Mapped[list["Facility"]] = relationship(back_populates="company")

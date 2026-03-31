@@ -9,12 +9,14 @@ Per CLAUDE.md Auth Model:
   POST /auth/returning-user  — email-only login for existing users, issues JWT
 """
 
+import re
 from datetime import datetime, timezone
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.config import settings
@@ -35,8 +37,24 @@ router = APIRouter()
 
 # --- Request / Response schemas ---
 
+def _sanitize(text: str) -> str:
+    """Strip HTML tags and script content."""
+    return re.sub(r'<[^>]+>', '', text).strip()
+
+
 class ResolveDomainRequest(BaseModel):
     domain: str
+
+    @field_validator("domain")
+    @classmethod
+    def validate_domain(cls, v: str) -> str:
+        v = v.strip().lower()
+        if not v:
+            raise ValueError("Domain cannot be empty")
+        # Must look like a domain: alphanumeric + dots + hyphens, no HTML
+        if not re.match(r'^[a-z0-9]([a-z0-9-]*\.)+[a-z]{2,}$', v):
+            raise ValueError("Invalid domain format")
+        return v
 
 class ResolveDomainResponse(BaseModel):
     domain: str
@@ -122,6 +140,9 @@ async def login(
     """
     email = req.email.lower().strip()
     domain = req.domain.lower().strip()
+    safe_name = _sanitize(req.name)[:200]
+    safe_company_name = _sanitize(req.company_name)[:200]
+    safe_designation = _sanitize(req.designation)[:100]
 
     # Validate email domain matches company domain
     if not validate_email_domain_match(email, domain):
@@ -144,13 +165,18 @@ async def login(
         user = User(
             email=email,
             domain=domain,
-            designation=req.designation,
-            name=req.name,
+            designation=safe_designation,
+            name=safe_name,
         )
-        db.add(user)
-        await db.flush()
+        try:
+            db.add(user)
+            await db.flush()
+        except IntegrityError:
+            await db.rollback()
+            result = await db.execute(select(User).where(User.email == email))
+            user = result.scalar_one()
     else:
-        user.name = req.name or user.name
+        user.name = safe_name or user.name
 
     user.last_login = datetime.now(timezone.utc)
 
@@ -163,12 +189,12 @@ async def login(
         # Auto-classify industry via Claude (45 SASB categories)
         from backend.services.auth_service import classify_industry
         classification = await classify_industry(
-            req.company_name or domain,
+            safe_company_name or domain,
             domain,
         )
 
         tenant = Tenant(
-            name=req.company_name or domain,
+            name=safe_company_name or domain,
             domain=domain,
             industry=classification.get("industry"),
             sasb_category=classification.get("sasb_category"),
@@ -193,7 +219,7 @@ async def login(
     )
     membership = result.scalar_one_or_none()
 
-    role = map_designation_to_role(req.designation or "member")
+    role = map_designation_to_role(safe_designation or "member")
     permissions = get_permissions_for_role(role)
 
     if not membership:
@@ -201,25 +227,44 @@ async def login(
             tenant_id=tenant.id,
             user_id=user.id,
             role=role,
-            designation=req.designation,
+            designation=safe_designation,
             permissions=permissions,
         )
         db.add(membership)
+
+    # Look up actual company_id for this tenant
+    from backend.models.company import Company
+    company_result = await db.execute(
+        select(Company).where(Company.tenant_id == tenant.id).limit(1)
+    )
+    company = company_result.scalar_one_or_none()
+    actual_company_id = company.id if company else tenant.id
 
     # Issue JWT per CLAUDE.md spec
     jwt_token = create_jwt_token(
         tenant_id=tenant.id,
         user_id=user.id,
-        company_id=tenant.id,
-        designation=req.designation or "member",
+        company_id=actual_company_id,
+        designation=safe_designation or "member",
         permissions=permissions,
         domain=domain,
     )
 
-    logger.info("user_authenticated", user_id=user.id, tenant_id=tenant.id, domain=domain)
+    logger.info("user_authenticated", user_id=user.id, tenant_id=tenant.id, company_id=actual_company_id, domain=domain)
 
     # Post-login triggers for new tenants
     if is_new_tenant:
+        # Phase 3: Auto-provision company from domain (LLM discovers facilities, suppliers, industry)
+        try:
+            from backend.services.company_intelligence import auto_provision_company
+            provision_result = await auto_provision_company(domain, tenant.id, db)
+            logger.info("company_auto_provisioned", result=provision_result)
+            # Refresh tenant after provisioning may have updated it
+            await db.refresh(tenant)
+        except Exception as e:
+            logger.warning("company_auto_provision_failed", error=str(e))
+            # Fallback: still trigger basic provisioning below
+
         from backend.tasks.news_tasks import ingest_news_for_tenant
         ingest_news_for_tenant.delay(
             tenant.id,
@@ -238,11 +283,14 @@ async def login(
             tenant.domain,
         )
 
+    # Ensure all DB changes are committed before returning
+    await db.commit()
+
     return LoginResponse(
         token=jwt_token,
         user_id=user.id,
         tenant_id=tenant.id,
-        designation=req.designation or "member",
+        designation=safe_designation or "member",
         permissions=permissions,
         domain=domain,
         name=user.name,
@@ -286,10 +334,18 @@ async def returning_user_login(
 
     permissions = membership.permissions or get_permissions_for_role(membership.role or "member")
 
+    # Look up actual company_id
+    from backend.models.company import Company
+    company_result = await db.execute(
+        select(Company).where(Company.tenant_id == tenant.id).limit(1)
+    )
+    company = company_result.scalar_one_or_none()
+    actual_company_id = company.id if company else tenant.id
+
     jwt_token = create_jwt_token(
         tenant_id=tenant.id,
         user_id=user.id,
-        company_id=tenant.id,
+        company_id=actual_company_id,
         designation=membership.designation or "member",
         permissions=permissions,
         domain=user.domain,
@@ -310,9 +366,12 @@ async def returning_user_login(
 
 # --- Stage 8.5: /me endpoint for frontend ---
 
+from backend.core.dependencies import TenantContext as _TC, get_tenant_context as _get_ctx
+
+
 @router.get("/me", response_model=MeResponse)
 async def get_current_user_info(
-    db: AsyncSession = Depends(get_db),
+    ctx: _TC = Depends(_get_ctx),
 ) -> MeResponse:
     """Stage 8.5: Return current authenticated user's profile with last_login.
 
@@ -323,26 +382,6 @@ async def get_current_user_info(
 
     Requires valid JWT in Authorization header.
     """
-    from fastapi import Request
-
-    # This endpoint requires the TenantContext dependency for auth
-    # Import inline to avoid circular deps
-    from backend.core.dependencies import TenantContext, get_tenant_context
-    # Note: In production, this is wired via Depends() — see the router below
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Use /auth/me/profile with tenant context",
-    )
-
-
-from backend.core.dependencies import TenantContext as _TC, get_tenant_context as _get_ctx
-
-
-@router.get("/me/profile", response_model=MeResponse)
-async def get_me_profile(
-    ctx: _TC = Depends(_get_ctx),
-) -> MeResponse:
-    """Stage 8.5: Get current user profile including last_login timestamp."""
     user = ctx.user
 
     # Get tenant membership for designation

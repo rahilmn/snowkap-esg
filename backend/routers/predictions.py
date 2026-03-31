@@ -10,7 +10,7 @@ Per MASTER_BUILD_PLAN Phase 4.4:
 """
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import func, select
 
@@ -65,11 +65,12 @@ class PredictionStatsResponse(BaseModel):
 
 # --- Endpoints ---
 
-@router.get("/", response_model=list[PredictionResponse])
+@router.get("", response_model=list[PredictionResponse])
+@router.get("/", response_model=list[PredictionResponse], include_in_schema=False)
 async def list_predictions(
     company_id: str | None = None,
-    limit: int = 50,
-    offset: int = 0,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> list[PredictionResponse]:
     """List prediction reports — tenant-scoped."""
@@ -195,6 +196,20 @@ async def trigger_prediction(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No permission to trigger predictions",
+        )
+
+    # BUG-14: Verify article exists for this tenant before queuing prediction
+    from backend.models.news import Article
+    article_result = await ctx.db.execute(
+        select(Article).where(
+            Article.id == req.article_id,
+            Article.tenant_id == ctx.tenant_id,
+        )
+    )
+    if not article_result.scalar_one_or_none():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Article {req.article_id} not found for this tenant",
         )
 
     # Dispatch Celery task

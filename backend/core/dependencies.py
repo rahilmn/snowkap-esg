@@ -11,14 +11,14 @@ from dataclasses import dataclass
 import structlog
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError
+from jwt.exceptions import InvalidTokenError as JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.core.database import get_db
 from backend.core.security import decode_jwt_token
 
 logger = structlog.get_logger()
-security_scheme = HTTPBearer()
+security_scheme = HTTPBearer(auto_error=False)
 
 
 @dataclass
@@ -44,9 +44,16 @@ class TenantContext:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security_scheme),
 ) -> CurrentUser:
     """Extract and validate user from JWT Bearer token."""
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     try:
         payload = decode_jwt_token(credentials.credentials)
     except JWTError as e:
@@ -54,6 +61,17 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    # Validate all required JWT claims exist
+    required_fields = ["sub", "tenant_id", "company_id", "designation", "domain"]
+    missing = [f for f in required_fields if f not in payload]
+    if missing:
+        logger.warning("jwt_missing_claims", missing_fields=missing)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token: missing required claims",
             headers={"WWW-Authenticate": "Bearer"},
         )
 

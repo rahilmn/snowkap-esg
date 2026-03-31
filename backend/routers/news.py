@@ -6,7 +6,7 @@ Stage 8.5: Added /stats and /bookmark endpoints for frontend IntroCard + SavedNe
 from datetime import datetime, timedelta, timezone
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
@@ -35,10 +35,15 @@ class ArticleScoreResponse(BaseModel):
     impact_score: float
     causal_hops: int
     relationship_type: str
+    content_label: str = "direct_impact"  # GAP-7: "direct_impact" | "competitive_intelligence" | "sector_news"
     explanation: str | None = None
     financial_exposure: float | None = None
     frameworks: list[str] = []
     framework_hits: list[FrameworkHit] = []  # Stage 3.5
+    # Causal chain data for visualization
+    chain_path: list | None = None        # [{nodes: [...], edges: [...]}]
+    confidence: float | None = None
+    framework_alignment: list[str] = []
 
 
 class ArticlePredictionResponse(BaseModel):
@@ -68,6 +73,52 @@ class ArticleResponse(BaseModel):
     predictions: list[ArticlePredictionResponse] = []
     frameworks: list[str] = []
     framework_hits: list[FrameworkHit] = []  # Stage 3.5
+
+    # Phase 1C: Enhanced sentiment + criticality (exposed to frontend)
+    sentiment_score: float | None = None
+    sentiment_confidence: float | None = None
+    aspect_sentiments: dict | None = None
+    content_type: str | None = None
+    urgency: str | None = None
+    time_horizon: str | None = None
+    reversibility: str | None = None
+    priority_score: float | None = None
+    priority_level: str | None = None
+    financial_signal: dict | None = None
+    executive_insight: str | None = None
+
+    # Advanced Intelligence (Phase 1-3)
+    relevance_score: float | None = None
+    relevance_breakdown: dict | None = None
+    deep_insight: dict | None = None
+    rereact_recommendations: dict | None = None
+
+    # v2.0 Intelligence Modules
+    nlp_extraction: dict | None = None
+    esg_themes: dict | None = None
+    framework_matches: list | None = None
+    risk_matrix: dict | None = None
+    geographic_signal: dict | None = None
+
+    # Internal fields for scoring (not serialized to JSON, used in-memory)
+    _content_type: str | None = None
+    _esg_pillar: str | None = None
+    _topics: list[str] | None = None
+    _priority_score: float | None = None
+    _published_at: str | None = None
+    _sentiment_score: float | None = None
+
+    model_config = {"arbitrary_types_allowed": True}
+
+    def __init__(self, **data):
+        # Extract internal fields before Pydantic validation
+        internal = {}
+        for key in ("_content_type", "_esg_pillar", "_topics", "_priority_score", "_published_at", "_sentiment_score"):
+            if key in data:
+                internal[key] = data.pop(key)
+        super().__init__(**data)
+        for key, val in internal.items():
+            object.__setattr__(self, key, val)
 
 
 # Stage 3.5: Framework indicator names for enriched responses
@@ -162,11 +213,54 @@ class NewsFeedResponse(BaseModel):
 
 
 async def _load_articles_with_scores(
-    ctx: TenantContext, limit: int = 50, offset: int = 0,
+    ctx: TenantContext,
+    limit: int = 50,  # capped at 200 in endpoint
+    offset: int = 0,
+    sort_by: str = "priority",
+    pillar_filter: str | None = None,
+    content_type_filter: str | None = None,
 ) -> list[ArticleResponse]:
-    """Load articles and join impact scores + company names."""
+    """Load articles and join impact scores + company names.
+
+    Phase 2C: Supports priority-based, recency, and impact sorting.
+    """
     query = select(Article).where(Article.tenant_id == ctx.tenant_id)
-    query = query.order_by(Article.created_at.desc()).limit(limit).offset(offset)
+
+    # Phase 2C: Apply filters
+    if pillar_filter:
+        query = query.where(Article.esg_pillar == pillar_filter)
+    if content_type_filter:
+        query = query.where(Article.content_type == content_type_filter)
+
+    # Sort order
+    if sort_by == "priority":
+        # Home dashboard: priority first, filter out rejected articles
+        # Use or_(is None) to include unanalyzed articles (NULL priority_level)
+        from sqlalchemy import or_
+        query = query.where(
+            or_(Article.priority_level != "REJECTED", Article.priority_level.is_(None))
+        )
+        query = query.order_by(
+            Article.priority_score.desc().nullslast(),
+            Article.created_at.desc(),
+        )
+    elif sort_by == "latest":
+        # Newest articles first — filter out articles older than 2 months
+        from datetime import datetime, timedelta, timezone
+        two_months_ago = datetime.now(timezone.utc) - timedelta(days=60)
+        query = query.where(Article.created_at >= two_months_ago)
+        query = query.order_by(
+            Article.created_at.desc(),
+        )
+    elif sort_by == "impact":
+        query = query.order_by(
+            Article.priority_score.desc().nullslast(),
+            Article.created_at.desc(),
+        )
+    else:  # recency
+        query = query.order_by(Article.created_at.desc())
+
+    query = query.limit(limit).offset(offset)
 
     result = await ctx.db.execute(query)
     articles = result.scalars().all()
@@ -252,16 +346,35 @@ async def _load_articles_with_scores(
         # Stage 3.5: Parse framework strings into enriched FrameworkHit objects
         fw_hits = [_parse_framework_tag(fw) for fw in merged]
 
+        # GAP-7: Derive content_label from scoring_metadata or relationship_type
+        scoring_meta = s.scoring_metadata or {}
+        rel_type = chain.relationship_type if chain else "directOperational"
+        content_label = scoring_meta.get("content_label")
+        if not content_label:
+            # Backward-compat: derive from relationship_type for older records
+            if rel_type in ("directOperational", "geographicProximity", "climateRiskExposure"):
+                content_label = "direct_impact"
+            elif rel_type == "competitiveIntelligence":
+                content_label = "competitive_intelligence"
+            elif rel_type == "industrySpillover":
+                content_label = "sector_news"
+            else:
+                content_label = "direct_impact"
+
         score_resp = ArticleScoreResponse(
             company_id=s.company_id,
             company_name=company_names.get(s.company_id, "Unknown"),
             impact_score=s.impact_score,
             causal_hops=s.causal_hops,
-            relationship_type=chain.relationship_type if chain else "directOperational",
+            relationship_type=rel_type,
+            content_label=content_label,
             explanation=chain.explanation if chain else None,
             financial_exposure=s.financial_exposure,
             frameworks=merged,
             framework_hits=fw_hits,
+            chain_path=chain.chain_path if chain else None,
+            confidence=chain.confidence if chain else None,
+            framework_alignment=chain_frameworks,
         )
         scores_by_article.setdefault(s.article_id, []).append(score_resp)
 
@@ -293,19 +406,166 @@ async def _load_articles_with_scores(
             predictions=preds_by_article.get(a.id, []),
             frameworks=article_frameworks,
             framework_hits=article_fw_hits,
+            # Phase 1C: Enhanced fields for frontend
+            sentiment_score=a.sentiment_score,
+            sentiment_confidence=a.sentiment_confidence,
+            aspect_sentiments=a.aspect_sentiments,
+            content_type=a.content_type,
+            urgency=a.urgency,
+            time_horizon=a.time_horizon,
+            reversibility=a.reversibility,
+            priority_score=a.priority_score,
+            priority_level=a.priority_level,
+            financial_signal=a.financial_signal,
+            executive_insight=a.executive_insight,
+            relevance_score=a.relevance_score,
+            relevance_breakdown=a.relevance_breakdown,
+            deep_insight=a.deep_insight,
+            rereact_recommendations=a.rereact_recommendations,
+            # v2.0 Intelligence Modules
+            nlp_extraction=a.nlp_extraction,
+            esg_themes=a.esg_themes,
+            framework_matches=a.framework_matches,
+            risk_matrix=a.risk_matrix,
+            geographic_signal=a.geographic_signal,
+            # Internal fields for role-based scoring (not in JSON response)
+            _content_type=a.content_type,
+            _esg_pillar=a.esg_pillar,
+            _topics=a.topics,
+            _priority_score=a.priority_score,
+            _published_at=a.published_at,
+            _sentiment_score=a.sentiment_score,
         ))
     return response_articles
+
+
+@router.get("/home", response_model=NewsFeedResponse)
+async def get_home_articles(
+    ctx: TenantContext = Depends(get_tenant_context),
+) -> NewsFeedResponse:
+    """Get HOME-tier articles (top 5 by priority, relevance >= 7).
+
+    QA Audit 7: Dedicated endpoint enforcing 3-5 article limit server-side.
+    Per v2.0 Module 10: negative-sentiment-first on ties.
+    """
+    articles = await _load_articles_with_scores(
+        ctx, limit=5, offset=0, sort_by="priority",
+    )
+    # Filter to HOME-tier only (relevance >= 7)
+    home_articles = [a for a in articles if (a.relevance_score or 0) >= 7]
+    # Sort: priority desc, then negative sentiment first on ties
+    home_articles.sort(
+        key=lambda a: (-(a.priority_score or 0), (a.sentiment_score or 0)),
+    )
+    return NewsFeedResponse(articles=home_articles[:5], total=len(home_articles))
 
 
 @router.get("/feed", response_model=NewsFeedResponse)
 async def get_news_feed(
     company_id: str | None = None,
-    limit: int = 50,
-    offset: int = 0,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    sort_by: str = "priority",
+    pillar: str | None = None,
+    content_type: str | None = None,
+    min_relevance: float = 20.0,  # GAP-7: filter out low-relevance noise (0-100 scale)
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> NewsFeedResponse:
-    """Get tenant-scoped news feed with impact scores."""
-    articles = await _load_articles_with_scores(ctx, limit, offset)
+    """Get tenant-scoped news feed with impact scores.
+
+    Phase 2C: Supports sort_by (priority|recency|impact), pillar filter (E|S|G),
+    and content_type filter (regulatory|financial|operational|...).
+    GAP-7: min_relevance filters out articles where all impact_scores are below threshold.
+    """
+    # Cap limit to prevent unbounded queries
+    limit = min(limit, 200)
+    articles = await _load_articles_with_scores(
+        ctx, limit, offset,
+        sort_by=sort_by,
+        pillar_filter=pillar,
+        content_type_filter=content_type,
+    )
+
+    # GAP-7: Filter out articles where the best impact score for any company
+    # is below the min_relevance threshold — reduces cross-entity noise
+    if min_relevance > 0 and articles:
+        filtered = []
+        for a in articles:
+            if not a.impact_scores:
+                # Keep articles without scores (unscored articles pass through)
+                filtered.append(a)
+                continue
+            best_score = max(s.impact_score for s in a.impact_scores)
+            if best_score >= min_relevance:
+                filtered.append(a)
+        articles = filtered
+
+    # Phase 2C: Apply role-based re-scoring for personalized feed
+    if sort_by == "priority" and articles:
+        from backend.core.permissions import map_designation_to_role
+        from backend.services.role_curation import (
+            compute_role_relevance,
+            compute_user_preference_boost,
+            get_role_profile,
+            recency_score,
+        )
+
+        user_role = map_designation_to_role(ctx.user.designation or "")
+        # BUG-11: Pre-compute role profile ONCE before the loop
+        role_profile = get_role_profile(user_role)
+
+        # Load user preferences if they exist
+        from sqlalchemy import select as sa_select
+        from backend.models.user_preference import UserPreference
+        pref_result = await ctx.db.execute(
+            sa_select(UserPreference).where(
+                UserPreference.user_id == ctx.user.user_id,
+                UserPreference.tenant_id == ctx.tenant_id,
+            )
+        )
+        user_pref = pref_result.scalar_one_or_none()
+
+        # Score each article with role + preference boost
+        scored = []
+        for article_resp in articles:
+            role_rel = compute_role_relevance(
+                user_role,
+                getattr(article_resp, "_content_type", None),
+                article_resp.frameworks,
+                getattr(article_resp, "_esg_pillar", None),
+                role_profile=role_profile,
+            )
+            user_boost = 0.0
+            if user_pref:
+                user_boost = compute_user_preference_boost(
+                    user_pref.preferred_frameworks,
+                    user_pref.preferred_pillars,
+                    user_pref.preferred_topics,
+                    user_pref.dismissed_topics,
+                    article_resp.frameworks,
+                    getattr(article_resp, "_esg_pillar", None),
+                    getattr(article_resp, "_topics", None),
+                )
+            # Composite feed score
+            priority = getattr(article_resp, "_priority_score", None) or 0.0
+            impact = max((s.impact_score for s in (article_resp.impact_scores or [])), default=0.0)
+            rec = recency_score(getattr(article_resp, "_published_at", None))
+
+            feed_score = (
+                priority * 0.35
+                + role_rel * 0.25
+                + rec * 0.20
+                + max(0, user_boost) * 0.15
+                + impact * 0.05
+            )
+            # Sentiment for tie-breaking: negative sentiment first (downside risk priority)
+            sentiment = getattr(article_resp, "_sentiment_score", None) or 0.5
+            scored.append((feed_score, sentiment, article_resp))
+
+        # Sort: highest feed_score first; on ties, most negative sentiment first
+        scored.sort(key=lambda x: (x[0], -x[1]), reverse=True)
+        articles = [a for _, _, a in scored]
+
     return NewsFeedResponse(articles=articles, total=len(articles))
 
 
@@ -423,7 +683,23 @@ async def bookmark_article(
 
     article.bookmarked = req.bookmarked
     article.bookmarked_by = ctx.user.user_id if req.bookmarked else None
-    await ctx.db.commit()
+    try:
+        await ctx.db.commit()
+    except Exception:
+        # BUG-13: Handle race condition — concurrent bookmark attempts
+        # Rollback and re-read the current state (idempotent behavior)
+        await ctx.db.rollback()
+        result = await ctx.db.execute(
+            select(Article).where(
+                Article.id == article_id,
+                Article.tenant_id == ctx.tenant_id,
+            )
+        )
+        article = result.scalar_one_or_none()
+        if article:
+            article.bookmarked = req.bookmarked
+            article.bookmarked_by = ctx.user.user_id if req.bookmarked else None
+            await ctx.db.commit()
 
     logger.info(
         "article_bookmark_toggled",

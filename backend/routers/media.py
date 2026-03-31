@@ -164,8 +164,8 @@ async def upload_file(
 async def list_media_files(
     status_filter: str | None = None,
     company_id: str | None = None,
-    limit: int = Query(default=50, le=200),
-    offset: int = 0,
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> list[MediaFileResponse]:
     """List uploaded media files for this tenant."""

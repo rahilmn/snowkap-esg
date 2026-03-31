@@ -38,6 +38,25 @@ INDUSTRY_MATERIAL_ISSUES = {
     "Food & Beverage": ["water_management", "food_safety", "supply_chain_ethics", "packaging"],
     "Services": ["data_privacy", "workforce_management", "energy_management", "business_ethics"],
     "Renewable Resources & Alternative Energy": ["lifecycle_impacts", "ecological_impacts", "workforce_safety"],
+    # Beta: SASB sub-categories for specific industries
+    "Commercial Banks": [
+        "data_privacy", "business_ethics", "systemic_risk", "financial_inclusion",
+        "anti_corruption", "cybersecurity",
+    ],
+    "Electric Utilities & Power Generators": [
+        "emissions", "water_management", "community_relations", "climate_adaptation",
+        "waste_management", "worker_safety", "energy_management",
+    ],
+    "Solar Technology & Project Developers": [
+        "lifecycle_impacts", "ecological_impacts", "workforce_safety",
+        "waste", "supply_chain_labor", "energy_management",
+    ],
+    "Investment Banking & Brokerage": [
+        "business_ethics", "systemic_risk", "data_privacy", "anti_corruption",
+    ],
+    "Asset Management & Custody Activities": [
+        "business_ethics", "systemic_risk", "data_privacy", "anti_corruption",
+    ],
 }
 
 # Framework → relevant pillars
@@ -154,6 +173,9 @@ MATERIAL_ISSUE_TO_FRAMEWORK: dict[str, list[tuple[str, str]]] = {
     "ecological_impacts": [
         ("BRSR", "P6"), ("GRI", "304"), ("ESRS", "E4"),
     ],
+    "cybersecurity": [
+        ("BRSR", "P9"), ("GRI", "418"), ("ESRS", "S4"),
+    ],
 }
 
 
@@ -163,12 +185,13 @@ async def provision_tenant_graph(
     industry: str | None,
     sasb_category: str | None,
     domain: str,
+    company_id: str | None = None,
 ) -> bool:
     """Create and populate the tenant's named graph in Jena.
 
     Steps:
     1. Upload base ontology to tenant graph
-    2. Create company node
+    2. Create company node (using company_id for unified URI if available)
     3. Link to industry and material issues
     4. Link to ALL 9 ESG frameworks (Stage 3.4)
     5. Auto-generate framework indicator rules per material issue
@@ -188,7 +211,9 @@ async def provision_tenant_graph(
         return False
 
     # 2. Create company + tenant triples
-    company_uri = f"<{SNOWKAP_NS}company_{tenant_id}>"
+    # Use company_id for unified URI (matches facility/supplier seeding), with tenant_id alias
+    primary_id = company_id or tenant_id
+    company_uri = f"<{SNOWKAP_NS}company_{primary_id}>"
     triples: list[tuple[str, str, str]] = [
         (company_uri, "a", f"<{SNOWKAP_NS}Company>"),
         (company_uri, "rdfs:label", f'"{tenant_name}"'),
@@ -234,6 +259,15 @@ async def provision_tenant_graph(
             triples.append((issue_uri, f"<{SNOWKAP_NS}reportsUnder>", fw_uri))
             triples.append((issue_uri, f"<{SNOWKAP_NS}frameworkIndicator>", f'"{framework}:{indicator}"'))
 
+    # 6b. If company_id differs from tenant_id, create alias so entity resolver
+    # finds the company node via either URI
+    if company_id and company_id != tenant_id:
+        alias_uri = f"<{SNOWKAP_NS}company_{tenant_id}>"
+        triples.append((alias_uri, "a", f"<{SNOWKAP_NS}Company>"))
+        triples.append((alias_uri, "rdfs:label", f'"{tenant_name}"'))
+        triples.append((alias_uri, f"<{SNOWKAP_NS}sameCompany>", company_uri))
+        triples.append((company_uri, f"<{SNOWKAP_NS}sameCompany>", alias_uri))
+
     success = await jena_client.insert_triples(triples, tenant_id)
 
     if success:
@@ -245,6 +279,43 @@ async def provision_tenant_graph(
             frameworks=len(ALL_FRAMEWORKS),
             triples=len(triples),
         )
+
+    # 7. Seed competitor nodes from Company.competitors (if available)
+    try:
+        from sqlalchemy import select
+        from backend.models.company import Company
+        from backend.core.database import async_session_factory
+
+        async with async_session_factory() as db:
+            comp_result = await db.execute(
+                select(Company).where(Company.tenant_id == tenant_id)
+            )
+            company_obj = comp_result.scalars().first()
+            if company_obj and company_obj.competitors:
+                competitor_triples: list[tuple[str, str, str]] = []
+                for comp in company_obj.competitors:
+                    if not isinstance(comp, dict) or not comp.get("name"):
+                        continue
+                    comp_slug = comp["name"].lower().replace(" ", "_").replace(".", "")
+                    comp_uri = f"<{SNOWKAP_NS}competitor_{comp_slug}>"
+                    competitor_triples.append((comp_uri, "a", f"<{SNOWKAP_NS}Company>"))
+                    competitor_triples.append((comp_uri, "rdfs:label", f'"{comp["name"]}"'))
+                    if comp.get("domain"):
+                        competitor_triples.append((comp_uri, f"<{SNOWKAP_NS}domain>", f'"{comp["domain"]}"'))
+                    competitor_triples.append((company_uri, f"<{SNOWKAP_NS}competessWith>", comp_uri))
+                    rel_type = comp.get("relationship", "direct")
+                    competitor_triples.append((company_uri, f"<{SNOWKAP_NS}competitorRelationship>", f'"{rel_type}"'))
+                    # Link to same industry
+                    if industry:
+                        ind_slug = industry.lower().replace(" ", "_").replace("&", "and")
+                        competitor_triples.append((comp_uri, f"<{SNOWKAP_NS}belongsToIndustry>", f"<{SNOWKAP_NS}industry_{ind_slug}>"))
+
+                if competitor_triples:
+                    await jena_client.insert_triples(competitor_triples, tenant_id)
+                    logger.info("competitors_seeded", count=len(company_obj.competitors), tenant_id=tenant_id)
+    except Exception as e:
+        logger.warning("competitor_seeding_failed", error=str(e))
+
     return success
 
 

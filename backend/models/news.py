@@ -6,7 +6,9 @@ Per MASTER_BUILD_PLAN:
 - Layer 4: Impact Propagation (CausalChain)
 """
 
-from sqlalchemy import Float, ForeignKey, Integer, String, Text
+from datetime import datetime
+
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -32,6 +34,61 @@ class Article(Base, TenantMixin):
     topics: Mapped[list[str] | None] = mapped_column(ARRAY(String), default=list)
     esg_pillar: Mapped[str | None] = mapped_column(String(50))
 
+    # Phase 1C: Sentiment depth
+    sentiment_confidence: Mapped[float | None] = mapped_column(Float)
+    aspect_sentiments: Mapped[dict | None] = mapped_column(JSONB)
+
+    # Phase 1C: Content classification
+    content_type: Mapped[str | None] = mapped_column(String(50))
+
+    # Phase 1C: Criticality assessment
+    urgency: Mapped[str | None] = mapped_column(String(20))
+    time_horizon: Mapped[str | None] = mapped_column(String(20))
+    reversibility: Mapped[str | None] = mapped_column(String(20))
+    stakeholder_impact: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+
+    # Phase 1C: Structured financial signal
+    financial_signal: Mapped[dict | None] = mapped_column(JSONB)
+    regulatory_deadline: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    # Phase 1E: Composite priority
+    priority_score: Mapped[float | None] = mapped_column(Float, index=True)
+    priority_level: Mapped[str | None] = mapped_column(String(20))
+
+    # Phase B1: AI-generated executive insight
+    executive_insight: Mapped[str | None] = mapped_column(Text)
+
+    # Phase 4: Climate events detected in article
+    climate_events: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+
+    # Advanced Intelligence: 5D relevance scoring (Phase 1)
+    relevance_score: Mapped[float | None] = mapped_column(Float)
+    relevance_breakdown: Mapped[dict | None] = mapped_column(JSONB)
+
+    # Advanced Intelligence: 7-section deep insight (Phase 2)
+    deep_insight: Mapped[dict | None] = mapped_column(JSONB)
+
+    # Advanced Intelligence: REREACT validated recommendations (Phase 3)
+    rereact_recommendations: Mapped[dict | None] = mapped_column(JSONB)
+
+    # v2.0 Module 1: NLP Narrative & Tone Extraction
+    nlp_extraction: Mapped[dict | None] = mapped_column(JSONB)
+
+    # v2.0 Module 3: ESG Theme Tags (primary + secondary themes with sub-metrics)
+    esg_themes: Mapped[dict | None] = mapped_column(JSONB)
+
+    # v2.0 Module 4: Framework RAG matches (applicable frameworks with section citations)
+    framework_matches: Mapped[dict | None] = mapped_column(JSONB)
+
+    # v2.0 Module 6: 10-Category Risk Taxonomy (probability × exposure matrix)
+    risk_matrix: Mapped[dict | None] = mapped_column(JSONB)
+
+    # v2.0 Module 2: Geographic Intelligence (structured geo signal)
+    geographic_signal: Mapped[dict | None] = mapped_column(JSONB)
+
+    # GAP 8: Event deduplication — cluster metadata (primary article, related IDs, consolidated scores)
+    scoring_metadata: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+
 
 class ArticleScore(Base, TenantMixin):
     """Relevance score of an article to a specific company."""
@@ -46,6 +103,9 @@ class ArticleScore(Base, TenantMixin):
     causal_hops: Mapped[int] = mapped_column(Integer, default=0)
     frameworks: Mapped[list[str] | None] = mapped_column(ARRAY(String), default=list)
     scoring_metadata: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+
+    # Phase 2C: Role-based relevance scoring
+    role_relevance_score: Mapped[float | None] = mapped_column(Float)
 
 
 class CausalChain(Base, TenantMixin):

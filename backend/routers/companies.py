@@ -40,7 +40,8 @@ class CompanyList(BaseModel):
     total: int
 
 
-@router.get("/", response_model=CompanyList)
+@router.get("", response_model=CompanyList)
+@router.get("/", response_model=CompanyList, include_in_schema=False)
 async def list_companies(
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> CompanyList:
@@ -61,7 +62,8 @@ async def list_companies(
     )
 
 
-@router.post("/", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED, include_in_schema=False)
 async def create_company(
     req: CompanyCreate,
     ctx: TenantContext = Depends(get_tenant_context),

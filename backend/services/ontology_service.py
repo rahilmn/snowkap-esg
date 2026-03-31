@@ -152,6 +152,18 @@ def validate_sparql_query(query: str) -> bool:
         if keyword in query_upper:
             return False
 
+    # BUG-16: Block FILTER injection — disallow function calls and nested subqueries
+    # that could be abused via unescaped user-provided FILTER content
+    dangerous_filter_keywords = {"BIND", "SERVICE"}
+    for keyword in dangerous_filter_keywords:
+        if keyword in query_upper:
+            return False
+
+    # Block nested subqueries within FILTER clauses (SELECT inside FILTER)
+    import re
+    if re.search(r'FILTER\s*\(.*\bSELECT\b', query_upper):
+        return False
+
     return True
 
 
@@ -195,11 +207,76 @@ async def analyze_article_impact(
     if not article:
         return []
 
-    # Step 1+2: Extract and classify
-    extraction = await extract_and_classify(article.title, article.content or article.summary or "")
+    # ── v2.0 Module 1: NLP Pipeline (MUST run before any scoring) ──
+    nlp_data = None
+    try:
+        from backend.services.nlp_pipeline import run_nlp_pipeline, _is_non_english, _translate_if_needed
+
+        # Translate non-English content BEFORE NLP analysis and store translation
+        article_title = article.title
+        article_content = article.content or article.summary or ""
+        if _is_non_english(article_title) or _is_non_english(article_content):
+            translated_content, translated_title = await _translate_if_needed(
+                article_title, article_content,
+            )
+            # Store original as metadata, replace with English for all downstream processing
+            article.nlp_extraction = article.nlp_extraction or {}
+            if isinstance(article.nlp_extraction, dict):
+                article.nlp_extraction["original_language_title"] = article.title
+                article.nlp_extraction["original_language_content"] = (article.content or "")[:500]
+            article.title = translated_title
+            article.content = translated_content
+            article.summary = translated_title  # Update summary too
+            article_title = translated_title
+            article_content = translated_content
+
+        nlp_result = await run_nlp_pipeline(
+            article_title=article_title,
+            article_content=article_content,
+            article_source=article.source,
+        )
+        nlp_data = nlp_result.to_dict()
+        article.nlp_extraction = nlp_data
+    except Exception as e:
+        logger.warning("v2_nlp_pipeline_skipped", error=str(e))
+
+    # Step 1+2: Extract and classify (existing entity extraction)
+    try:
+        extraction = await extract_and_classify(article.title, article.content or article.summary or "")
+    except Exception as e:
+        logger.error("entity_extraction_crashed", article_id=article_id, error=str(e))
+        extraction = ExtractionResult(entities=[])  # Empty fallback — pipeline continues
 
     # Resolve entities against Jena
-    resolved_entities = await resolve_entities_against_graph(extraction.entities, tenant_id)
+    try:
+        resolved_entities = await resolve_entities_against_graph(extraction.entities, tenant_id)
+    except Exception as e:
+        logger.error("entity_resolution_crashed", article_id=article_id, error=str(e))
+        resolved_entities = []
+
+    # ── v2.0 Module 3: ESG Theme Tagging ──
+    esg_themes_data = None
+    try:
+        from backend.services.esg_theme_tagger import tag_esg_themes
+        # Fetch company industry for sector-aware theme tagging
+        _comp_industry = None
+        try:
+            _comp_q = await db.execute(select(Company).where(Company.tenant_id == tenant_id).limit(1))
+            _comp = _comp_q.scalar_one_or_none()
+            _comp_industry = _comp.industry if _comp else None
+        except Exception as exc:
+            logger.warning("esg_theme_tag_company_lookup_failed", tenant_id=tenant_id, error=str(exc))
+        esg_tags = await tag_esg_themes(
+            title=article.title,
+            content=article.content or article.summary or "",
+            esg_pillar=extraction.esg_pillar,
+            topics=extraction.esg_topics,
+            company_industry=_comp_industry,
+        )
+        esg_themes_data = esg_tags.to_dict()
+        article.esg_themes = esg_themes_data
+    except Exception as e:
+        logger.warning("v2_esg_theme_tagging_skipped", error=str(e))
 
     # Stage 3.1: Capture frameworks from extraction
     extraction_frameworks = extraction.frameworks_mentioned or []
@@ -228,6 +305,89 @@ async def analyze_article_impact(
     article.sentiment = extraction.sentiment
     article.esg_pillar = extraction.esg_pillar
 
+    # Phase 1C: Populate enhanced sentiment + criticality fields
+    article.sentiment_score = extraction.sentiment_score
+    article.sentiment_confidence = extraction.sentiment_confidence
+    article.aspect_sentiments = extraction.aspect_sentiments
+
+    # Fix sentiment label in nlp_extraction to match the float score from entity extractor
+    # NLP pipeline uses integer -2 to +2, entity extractor uses float -1.0 to +1.0
+    if nlp_data and extraction.sentiment_score is not None:
+        s = extraction.sentiment_score
+        if s <= -0.7:
+            label = "STRONGLY_NEGATIVE"
+        elif s <= -0.3:
+            label = "NEGATIVE"
+        elif s >= 0.7:
+            label = "STRONGLY_POSITIVE"
+        elif s >= 0.3:
+            label = "POSITIVE"
+        else:
+            label = "NEUTRAL"
+        nlp_data["sentiment"]["label"] = label
+        nlp_data["sentiment"]["score"] = round(s, 2)
+        article.nlp_extraction = nlp_data
+    article.content_type = extraction.content_type
+    article.urgency = extraction.urgency
+    article.time_horizon = extraction.time_horizon
+    article.reversibility = extraction.reversibility
+    article.stakeholder_impact = extraction.stakeholder_impact
+    if extraction.financial_signal_detail:
+        article.financial_signal = extraction.financial_signal_detail
+    if extraction.climate_events:
+        article.climate_events = extraction.climate_events
+
+    # Phase 1: 5D Relevance Scoring + Content Quality Gate
+    from backend.services.relevance_scorer import parse_relevance_from_llm
+    relevance = parse_relevance_from_llm({"relevance": extraction.relevance_data}) if extraction.relevance_data else None
+    if relevance:
+        article.relevance_score = relevance.total
+        article.relevance_breakdown = relevance.to_dict()
+
+        # Enhancement 6: SASB-aligned materiality adjustment
+        # Adjusts relevance score based on how material the article's ESG theme
+        # is for the company's industry. Runs AFTER base scoring, BEFORE tier classification.
+        try:
+            from backend.services.materiality_map import apply_materiality_adjustment
+
+            _mat_industry = _comp_industry  # Already fetched during ESG theme tagging
+            _mat_theme = (
+                esg_themes_data.get("primary_theme") if isinstance(esg_themes_data, dict) else None
+            )
+            if _mat_industry and _mat_theme:
+                adjusted_score = apply_materiality_adjustment(
+                    relevance.total, _mat_industry, _mat_theme,
+                )
+                article.relevance_score = adjusted_score
+                # Preserve original score in breakdown for transparency
+                if isinstance(article.relevance_breakdown, dict):
+                    article.relevance_breakdown["pre_materiality_score"] = relevance.total
+                    article.relevance_breakdown["materiality_industry"] = _mat_industry
+                    article.relevance_breakdown["materiality_theme"] = _mat_theme
+                    article.relevance_breakdown["materiality_adjusted_score"] = adjusted_score
+                logger.info(
+                    "materiality_adjustment",
+                    article_id=article_id,
+                    industry=_mat_industry,
+                    theme=_mat_theme,
+                    original=relevance.total,
+                    adjusted=adjusted_score,
+                )
+        except Exception as e:
+            logger.warning("materiality_adjustment_skipped", error=str(e))
+
+        if relevance.tier == "REJECTED":
+            article.priority_level = "REJECTED"
+            article.priority_score = 0.0
+            logger.info("article_rejected_low_relevance", score=relevance.total, title=article.title[:50])
+            await db.flush()
+            return []
+
+    # Step 2b: Build geographic signal (Module 1 — jurisdictional mapping)
+    from backend.ontology.jurisdictional_mapper import build_geographic_signal
+    entity_locations = [e.text for e in resolved_entities if e.entity_type == "location"]
+    geographic_signal = build_geographic_signal(entity_locations) if entity_locations else None
+
     # Step 3: Get all companies for this tenant
     companies_result = await db.execute(
         select(Company).where(Company.tenant_id == tenant_id)
@@ -238,16 +398,72 @@ async def analyze_article_impact(
     all_impacts: list[dict] = []
     locations = [e.text for e in resolved_entities if e.entity_type == "location"]
 
+    # Phase 4: Climate event → facility risk zone mapping
+    CLIMATE_EVENT_TO_RISK_ZONE: dict[str, set[str]] = {
+        "water_scarcity": {"water_stress", "drought_prone"},
+        "drought": {"water_stress", "drought_prone"},
+        "monsoon_failure": {"water_stress", "drought_prone"},
+        "heatwave": {"heat_stress"},
+        "heat_stress": {"heat_stress"},
+        "flood": {"coastal_flood", "flood_prone"},
+        "cyclone": {"coastal_flood", "cyclone_prone"},
+        "typhoon": {"coastal_flood"},
+        "coastal_flood": {"coastal_flood"},
+        "sea_level_rise": {"coastal_flood"},
+    }
+    article_risk_zones: set[str] = set()
+    for event in (extraction.climate_events or []):
+        article_risk_zones.update(CLIMATE_EVENT_TO_RISK_ZONE.get(event, set()))
+
+    # QA Fix: Batch-load all facilities once to avoid N+1 query per company
+    all_facilities_by_company: dict[str, list] = {}
+    if article_risk_zones:
+        from backend.models.company import Facility
+        all_fac_result = await db.execute(
+            select(Facility).where(
+                Facility.tenant_id == tenant_id,
+                Facility.climate_risk_zone.isnot(None),
+            )
+        )
+        for f in all_fac_result.scalars().all():
+            all_facilities_by_company.setdefault(f.company_id, []).append(f)
+
+    # QA Fix: Run geo_matches once, not per company
+    geo_matches = await find_geographic_matches(locations, tenant_id, db)
+
     for company in companies:
-        # Geographic proximity check
-        geo_matches = await find_geographic_matches(locations, tenant_id, db)
+        # Geographic proximity check (using pre-fetched geo_matches)
         geo_boost = 0.0
         for match in geo_matches:
             if match.company_id == company.id:
                 geo_boost = 0.2 if match.match_type == "exact_city" else 0.1
 
-        # Find causal chains from resolved entities
         best_chains: list[CausalPath] = []
+
+        # Phase 4: Climate risk intelligence — check if article's climate events
+        # match any facility's climate_risk_zone (using batch-loaded facilities)
+        if article_risk_zones:
+            company_facilities = all_facilities_by_company.get(company.id, [])
+            at_risk_facilities = [
+                f for f in company_facilities
+                if f.climate_risk_zone in article_risk_zones
+            ]
+            for facility in at_risk_facilities:
+                best_chains.append(CausalPath(
+                    nodes=[article.title[:50], facility.city or facility.name, company.name],
+                    hops=0,
+                    relationship_type="climateRiskExposure",
+                    impact_score=calculate_impact(0),
+                    explanation=(
+                        f"Climate risk: {', '.join(extraction.climate_events or [])} "
+                        f"directly affects facility '{facility.name}' in {facility.city} "
+                        f"(zone: {facility.climate_risk_zone})"
+                    ),
+                    frameworks=extraction_frameworks,
+                ))
+                geo_boost = max(geo_boost, 0.3)  # Climate risk boost higher than proximity
+
+        # Find causal chains from resolved entities
         for entity in resolved_entities:
             if entity.resolved_uri:
                 chains = await find_causal_chains(
@@ -256,14 +472,40 @@ async def analyze_article_impact(
                 best_chains.extend(chains)
 
         # Fallback: direct company name matching when Jena is unavailable
+        # GAP-7 fix: tighter matching to prevent cross-entity article leakage
         if not best_chains:
             company_name_lower = company.name.lower()
+            # Also check known competitors for competitive intelligence labeling
+            raw_competitors = getattr(company, 'competitors', None) or []
+            competitor_names = {
+                (c["name"].lower() if isinstance(c, dict) else str(c).lower())
+                for c in raw_competitors
+            }
             for entity in resolved_entities:
                 entity_lower = entity.text.lower()
-                # Check if entity name matches or contains company name (or vice versa)
-                if (entity_lower in company_name_lower
-                        or company_name_lower in entity_lower
-                        or any(w in company_name_lower for w in entity_lower.split() if len(w) > 3)):
+
+                # GAP-7: Require minimum entity confidence before any fallback matching
+                if entity.confidence < 0.7:
+                    continue
+
+                # Check if entity IS the tracked company (exact/substring match)
+                is_tracked_company = (
+                    entity_lower in company_name_lower
+                    or company_name_lower in entity_lower
+                )
+                # Check if entity is a named competitor
+                is_named_competitor = any(
+                    entity_lower in comp or comp in entity_lower
+                    for comp in competitor_names
+                )
+                # Loose word match — only for the tracked company, not random sector peers
+                is_word_match = (
+                    not is_tracked_company
+                    and not is_named_competitor
+                    and any(w in company_name_lower for w in entity_lower.split() if len(w) > 3)
+                )
+
+                if is_tracked_company:
                     rel_type = "directOperational" if entity.entity_type == "company" else "industrySpillover"
                     best_chains.append(CausalPath(
                         nodes=[article.title[:50], entity.text, company.name],
@@ -271,6 +513,32 @@ async def analyze_article_impact(
                         relationship_type=rel_type,
                         impact_score=calculate_impact(0 if entity.entity_type == "company" else 1),
                         explanation=f"Direct match: '{entity.text}' linked to {company.name}",
+                        frameworks=extraction_frameworks,
+                    ))
+                    break
+                elif is_named_competitor:
+                    # GAP-7: Competitor article — label as competitiveIntelligence, cap impact at 0.3
+                    raw_impact = calculate_impact(1) * 0.7
+                    capped_impact = min(raw_impact, 0.3)
+                    best_chains.append(CausalPath(
+                        nodes=[article.title[:50], entity.text, company.name],
+                        hops=1,
+                        relationship_type="competitiveIntelligence",
+                        impact_score=capped_impact,
+                        explanation=f"Competitive Intelligence: '{entity.text}' is a named competitor of {company.name}",
+                        frameworks=extraction_frameworks,
+                    ))
+                    break
+                elif is_word_match and entity.confidence >= 0.8:
+                    # GAP-7: Loose word match requires even higher confidence (0.8) and capped impact
+                    raw_impact = calculate_impact(1) * 0.5
+                    capped_impact = min(raw_impact, 0.3)  # Cap industrySpillover at 0.3
+                    best_chains.append(CausalPath(
+                        nodes=[article.title[:50], entity.text, company.name],
+                        hops=1,
+                        relationship_type="industrySpillover",
+                        impact_score=capped_impact,
+                        explanation=f"Sector News: '{entity.text}' loosely linked to {company.name}",
                         frameworks=extraction_frameworks,
                     ))
                     break
@@ -315,6 +583,17 @@ async def analyze_article_impact(
         )
         db.add(chain)
 
+        # GAP-7: Derive content_label from relationship_type for feed labeling
+        _rel_type = best.relationship_type
+        if _rel_type in ("directOperational", "geographicProximity", "climateRiskExposure"):
+            content_label = "direct_impact"
+        elif _rel_type == "competitiveIntelligence":
+            content_label = "competitive_intelligence"
+        elif _rel_type == "industrySpillover":
+            content_label = "sector_news"
+        else:
+            content_label = "direct_impact"  # Default for graph-resolved chains
+
         # Persist article score (Stage 3.3: populate frameworks field)
         score = ArticleScore(
             tenant_id=tenant_id,
@@ -325,6 +604,7 @@ async def analyze_article_impact(
             causal_hops=best.hops,
             frameworks=all_frameworks,
             scoring_metadata={
+                "content_label": content_label,
                 "geo_boost": geo_boost,
                 "extraction_sentiment": extraction.sentiment,
                 "esg_topics": extraction.esg_topics,
@@ -348,11 +628,226 @@ async def analyze_article_impact(
 
     await db.flush()
 
+    # Phase 1E: Calculate composite priority score
+    from backend.services.priority_engine import calculate_priority_score as calc_priority
+    from backend.services.regulatory_calendar import (
+        detect_deadline_language,
+        find_nearest_deadline,
+    )
+
+    # Enhancement 2: Regulatory deadline detection
+    days_to_deadline: int | None = None
+    try:
+        nearest_deadline = find_nearest_deadline(extraction_frameworks)
+        if nearest_deadline:
+            days_to_deadline = nearest_deadline["days_until"]
+            article.regulatory_deadline = nearest_deadline
+            logger.info(
+                "regulatory_deadline_detected",
+                article_id=article_id,
+                framework=nearest_deadline["framework"],
+                days_until=days_to_deadline,
+            )
+
+        # Also scan article text for deadline-related language
+        article_text = " ".join(filter(None, [article.title, article.summary, article.content]))
+        deadline_phrases = detect_deadline_language(article_text)
+        if deadline_phrases:
+            if not hasattr(article, "regulatory_deadline") or article.regulatory_deadline is None:
+                article.regulatory_deadline = {}
+            if isinstance(article.regulatory_deadline, dict):
+                article.regulatory_deadline["deadline_language"] = deadline_phrases
+    except Exception as e:
+        logger.warning("regulatory_calendar_skipped", article_id=article_id, error=str(e))
+
+    best_impact = max((i["impact_score"] for i in all_impacts), default=0.0)
+    priority_score, priority_level = calc_priority(
+        sentiment_score=extraction.sentiment_score,
+        urgency=extraction.urgency,
+        impact_score=best_impact * 100,  # convert 0-1 to 0-100
+        has_financial_signal=bool(extraction.financial_signal_detail),
+        reversibility=extraction.reversibility,
+        framework_count=len(extraction_frameworks),
+        days_to_deadline=days_to_deadline,
+    )
+    article.priority_score = priority_score
+    article.priority_level = priority_level
+
+    # Phase B1: Generate AI executive insight for significant articles
+    if priority_score >= 40 and all_impacts:
+        from backend.services.insight_generator import generate_executive_insight
+        best_impact = max(all_impacts, key=lambda x: x["impact_score"])
+        try:
+            insight = await generate_executive_insight(
+                article_title=article.title,
+                article_summary=article.summary or "",
+                company_name=best_impact["company_name"],
+                relationship_type=best_impact["relationship_type"],
+                causal_hops=best_impact["hops"],
+                frameworks=extraction_frameworks,
+                sentiment_score=extraction.sentiment_score,
+                urgency=extraction.urgency,
+                content_type=extraction.content_type,
+                article_content=article.content,
+                esg_pillar=extraction.esg_pillar,
+            )
+            if insight:
+                article.executive_insight = insight
+        except Exception as e:
+            logger.warning("insight_generation_skipped", error=str(e))
+
+    # ── v2.0 Risk Spotlight for ALL non-rejected articles (Tier 2: FEED) ──
+    # Cheap gpt-4o-mini call — top 3 risks only. Overwritten by full matrix for HOME articles.
+    if all_impacts and not article.risk_matrix:
+        best_impact_obj = max(all_impacts, key=lambda x: x["impact_score"])
+        try:
+            from backend.services.risk_spotlight import run_risk_spotlight
+            spotlight = await run_risk_spotlight(
+                article_title=article.title,
+                article_content=article.content or article.summary,
+                company_name=best_impact_obj["company_name"],
+            )
+            if spotlight:
+                article.risk_matrix = spotlight
+        except Exception as e:
+            logger.warning("v2_risk_spotlight_skipped", error=str(e))
+
+    # Phase 2+3: Deep Insight + REREACT for high-relevance articles (≥7)
+    if relevance and relevance.qualified_for_home and all_impacts:
+        best_impact = max(all_impacts, key=lambda x: x["impact_score"])
+        # Get company competitors for context
+        company_obj = next((c for c in companies if c.id == best_impact["company_id"]), None)
+        competitor_names = [c.get("name", "") for c in (company_obj.competitors or [])] if company_obj and company_obj.competitors else []
+
+        # ── v2.0 Module 4: Framework RAG ──
+        framework_matches_data = None
+        try:
+            from backend.services.framework_rag import retrieve_applicable_frameworks
+            # Build theme name list from esg_themes_data dict
+            theme_names = None
+            if esg_themes_data:
+                theme_names = [esg_themes_data["primary_theme"]]
+                for st in esg_themes_data.get("secondary_themes", []):
+                    if isinstance(st, dict) and st.get("theme"):
+                        theme_names.append(st["theme"])
+            fm = await retrieve_applicable_frameworks(
+                esg_themes=theme_names,
+                article_content=article.content or article.summary or article.title,
+                article_title=article.title,
+            )
+            framework_matches_data = [m.to_dict() if hasattr(m, "to_dict") else m for m in fm]
+            article.framework_matches = framework_matches_data
+        except Exception as e:
+            logger.warning("v2_framework_rag_skipped", error=str(e))
+
+        # ── v2.0 Module 6: Risk Taxonomy (10 categories × P×E) ──
+        risk_matrix_data = None
+        try:
+            from backend.services.risk_taxonomy import assess_risk_matrix
+            risk_result = await assess_risk_matrix(
+                article_title=article.title,
+                article_content=article.content or article.summary,
+                company_name=best_impact["company_name"],
+                nlp_extraction=nlp_data,
+                esg_themes=esg_themes_data,
+                frameworks=extraction_frameworks,
+            )
+            risk_matrix_data = risk_result.to_dict()
+            risk_matrix_data["mode"] = "full"  # distinguishes from spotlight
+            article.risk_matrix = risk_matrix_data
+        except Exception as e:
+            logger.warning("v2_risk_taxonomy_skipped", error=str(e))
+
+        # ── v2.0 Module 2: Store geographic signal ──
+        if geographic_signal:
+            article.geographic_signal = geographic_signal
+
+        try:
+            from backend.services.deep_insight_generator import generate_deep_insight
+            deep = await generate_deep_insight(
+                article_title=article.title,
+                article_content=article.content,
+                article_summary=article.summary,
+                company_name=best_impact["company_name"],
+                frameworks=extraction_frameworks,
+                sentiment_score=extraction.sentiment_score,
+                urgency=extraction.urgency,
+                content_type=extraction.content_type,
+                esg_pillar=extraction.esg_pillar,
+                competitors=competitor_names,
+                # v2.0 module data
+                nlp_extraction=nlp_data,
+                esg_themes=esg_themes_data,
+                framework_matches=framework_matches_data,
+                risk_matrix=risk_matrix_data,
+                geographic_signal=article.geographic_signal,
+            )
+            if deep:
+                article.deep_insight = deep
+                logger.info("deep_insight_v2_stored", article=article.title[:40])
+        except Exception as e:
+            logger.warning("deep_insight_skipped", error=str(e))
+
+        # REREACT 3-agent recommendations — runs in BACKGROUND via Celery
+        if article.deep_insight:
+            try:
+                from backend.tasks.news_tasks import run_rereact_background
+                run_rereact_background.delay(
+                    article.id, tenant_id, best_impact["company_name"],
+                    extraction_frameworks, extraction.content_type,
+                    list(competitor_names),  # Convert set to list for JSON serialization
+                )
+                logger.info("rereact_queued_background", article=article.title[:40])
+            except Exception as e:
+                logger.warning("rereact_queue_failed", error=str(e))
+
+    # Populate financial_exposure on the highest-impact ArticleScore
+    if extraction.financial_signal_detail and extraction.financial_signal_detail.get("amount"):
+        for impact in all_impacts:
+            if impact["impact_score"] == best_impact:
+                # Update the ArticleScore we just created
+                from sqlalchemy import update
+                await db.execute(
+                    update(ArticleScore).where(
+                        ArticleScore.article_id == article_id,
+                        ArticleScore.company_id == impact["company_id"],
+                        ArticleScore.tenant_id == tenant_id,
+                    ).values(financial_exposure=extraction.financial_signal_detail["amount"])
+                )
+                break
+
+    await db.flush()
+
+    # ── GAP 8: Event Deduplication ──
+    # After scoring, check if this article is part of a duplicate event cluster.
+    # Consolidates risk scores (highest wins) and links related coverage.
+    if all_impacts:
+        try:
+            from backend.services.event_deduplication import apply_deduplication
+            for impact in all_impacts:
+                dedup_count = await apply_deduplication(
+                    tenant_id=tenant_id,
+                    company_id=impact["company_id"],
+                    db=db,
+                )
+                if dedup_count:
+                    logger.info(
+                        "event_deduplication_applied",
+                        article_id=article_id,
+                        company_id=impact["company_id"],
+                        articles_updated=dedup_count,
+                    )
+            await db.flush()
+        except Exception as e:
+            logger.warning("event_deduplication_skipped", article_id=article_id, error=str(e))
+
     logger.info(
         "article_impact_analyzed",
         article_id=article_id,
         tenant_id=tenant_id,
         impacts=len(all_impacts),
+        priority_score=priority_score,
+        priority_level=priority_level,
     )
     return all_impacts
 

@@ -45,6 +45,134 @@ export interface Article {
   predictions: ArticlePrediction[];
   frameworks: string[];
   framework_hits: FrameworkHit[];
+
+  // Phase 1C: Enhanced sentiment + criticality
+  sentiment_score: number | null;
+  sentiment_confidence: number | null;
+  aspect_sentiments: Record<string, number> | null;
+  content_type: string | null;
+  urgency: string | null;
+  time_horizon: string | null;
+  reversibility: string | null;
+  priority_score: number | null;
+  priority_level: string | null;
+  financial_signal: {
+    type: string;
+    amount: number;
+    currency: string;
+    confidence: number;
+  } | null;
+  executive_insight: string | null;
+
+  // Advanced Intelligence
+  relevance_score: number | null;
+  relevance_breakdown: Record<string, number> | null;
+  deep_insight: Record<string, unknown> | null;
+  scoring_metadata: Record<string, unknown> | null;
+  rereact_recommendations: {
+    validated_recommendations: Array<{
+      type: string;
+      title: string;
+      description: string;
+      framework?: string;
+      framework_section?: string;
+      responsible_party?: string;
+      deadline?: string;
+      estimated_budget?: string;
+      success_criterion?: string;
+      urgency: string;
+      confidence: string;
+      validation_notes?: string;
+    }>;
+    rejected: string[];
+    validation_summary: string;
+  } | null;
+
+  // v2.0 Intelligence Modules
+  nlp_extraction: NlpExtraction | null;
+  esg_themes: EsgThemes | null;
+  framework_matches: FrameworkMatchV2[] | null;
+  risk_matrix: RiskMatrix | null;
+  geographic_signal: GeographicSignal | null;
+}
+
+// v2.0 Module Types
+export interface NlpExtraction {
+  sentiment: { score: number; label: string };
+  tone: { primary: string; secondary: string | null };
+  narrative_arc: {
+    core_claim: string;
+    supporting_evidence: string[];
+    implied_causation: string;
+    stakeholder_framing: { protagonist?: string; antagonist?: string; affected?: string };
+    temporal_framing: string;
+  };
+  source_credibility: { tier: number; rationale: string };
+  esg_signals: {
+    named_entities: Array<{ text: string; type: string }>;
+    quantitative_claims: string[];
+    regulatory_references: string[];
+    supply_chain_references: string[];
+  };
+}
+
+export interface EsgThemes {
+  primary_theme: string;
+  primary_pillar: string;
+  primary_sub_metrics: string[];
+  secondary_themes: Array<{
+    theme: string;
+    pillar: string;
+    sub_metrics: string[];
+  }>;
+  confidence: number;
+  method: string;
+}
+
+export interface FrameworkMatchV2 {
+  framework_id: string;
+  framework_name: string;
+  triggered_sections: string[];
+  compliance_implications: string[];
+  alignment_notes: string[];
+  relevance_score: number;
+  cross_industry_metrics?: string[];
+}
+
+export interface RiskCategory {
+  category_id: string;
+  category_name: string;
+  probability: number;
+  probability_label: string;
+  exposure: number;
+  exposure_label: string;
+  risk_score: number;
+  classification: string;
+  rationale: string;
+}
+
+export interface RiskMatrix {
+  categories: RiskCategory[];
+  top_risks: RiskCategory[];
+  total_score: number;
+  aggregate_score: number;
+}
+
+export interface GeographicSignal {
+  locations_detected?: string[];
+  regulatory_jurisdictions?: Record<string, string[]>;
+  supply_chain_overlap?: string;
+  geo_risk_flags?: string[];
+}
+
+export interface UserPreference {
+  preferred_frameworks: string[];
+  preferred_pillars: string[];
+  preferred_topics: string[];
+  alert_threshold: number;
+  content_depth: string;
+  companies_of_interest: string[];
+  dismissed_topics: string[];
 }
 
 export interface FrameworkHit {
@@ -65,6 +193,10 @@ export interface ArticleScore {
   financial_exposure: number | null;
   frameworks: string[];
   framework_hits: FrameworkHit[];
+  // Causal chain data for visualization
+  chain_path: Array<{ nodes?: string[]; edges?: string[] }> | null;
+  confidence: number | null;
+  framework_alignment: string[];
 }
 
 export interface ArticlePrediction {

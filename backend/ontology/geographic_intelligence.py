@@ -33,14 +33,14 @@ CLIMATE_RISK_ZONES: dict[str, list[str]] = {
     ],
     "drought_prone": [
         "marathwada", "vidarbha", "bundelkhand", "rayalaseema", "kutch",
-        "anantapur", "kurnool",
+        "anantapur", "kurnool", "barmer", "baran",
     ],
     "cyclone_belt": [
         "odisha", "andhra pradesh", "tamil nadu", "west bengal", "gujarat",
     ],
     "heat_stress": [
         "rajasthan", "madhya pradesh", "telangana", "chhattisgarh", "vidarbha",
-        "nagpur", "jaisalmer",
+        "nagpur", "jaisalmer", "kutch", "mundra", "gondia", "barmer", "baran",
     ],
     "flood_prone": [
         "assam", "bihar", "uttar pradesh", "kerala", "karnataka",
@@ -49,7 +49,7 @@ CLIMATE_RISK_ZONES: dict[str, list[str]] = {
     "seismic": ["himalayan belt", "kutch", "northeast india", "uttarakhand"],
     "industrial_pollution": [
         "delhi", "kanpur", "ludhiana", "vapi", "ankleshwar",
-        "noida", "ghaziabad", "faridabad",
+        "noida", "ghaziabad", "faridabad", "surat",
     ],
     # Stage 2.3: New risk types
     "water_stress": [
@@ -130,6 +130,14 @@ CITY_COORDINATES: dict[str, tuple[float, float]] = {
     "tokyo": (35.6762, 139.6503), "shanghai": (31.2304, 121.4737),
     "hong kong": (22.3193, 114.1694), "sydney": (-33.8688, 151.2093),
     "cape town": (-33.9249, 18.4241), "sao paulo": (-23.5505, -46.6333),
+    # Beta company facility locations
+    "mundra": (22.8333, 69.7167), "vijayanagar": (15.4289, 76.6172),
+    "ratnagiri": (16.9944, 73.3), "barmer": (25.7522, 71.3967),
+    "gondia": (21.4559, 80.1962), "baran": (25.1, 76.5167),
+    "tumb": (20.5, 72.7), "chikhli": (20.7581, 73.0614),
+    "salboni": (22.35, 87.05), "udupi": (13.3409, 74.7421),
+    "beaverton": (45.4871, -122.8037), "laakdal": (51.0833, 4.9833),
+    "gurugram": (28.4595, 77.0266),
 }
 
 
@@ -248,12 +256,16 @@ async def seed_facilities_to_jena(
         triples.append((fac_uri, "a", f"<{SNOWKAP_NS}Facility>"))
         triples.append((fac_uri, "rdfs:label", f'"{facility.name}"'))
         triples.append((comp_uri, f"<{SNOWKAP_NS}hasFacility>", fac_uri))
+        # Reverse edge: facility belongs to company (enables BFS from facility to company)
+        triples.append((fac_uri, f"<{SNOWKAP_NS}belongsToCompany>", comp_uri))
 
         if facility.city:
             region_uri = f"<{SNOWKAP_NS}region_{facility.city.lower().replace(' ', '_')}>"
             triples.append((region_uri, "a", f"<{SNOWKAP_NS}GeographicRegion>"))
             triples.append((region_uri, "rdfs:label", f'"{facility.city}"'))
             triples.append((fac_uri, f"<{SNOWKAP_NS}locatedIn>", region_uri))
+            # Reverse: region has facility (enables BFS from region to company)
+            triples.append((region_uri, f"<{SNOWKAP_NS}hasFacilityIn>", fac_uri))
 
             # Seed climate risks for the city
             risks = _get_climate_risks(facility.city)
@@ -267,8 +279,8 @@ async def seed_facilities_to_jena(
             triples.append((fac_uri, f"<{SNOWKAP_NS}locatedIn>", state_uri))
 
         if facility.latitude and facility.longitude:
-            triples.append((fac_uri, f"<{SNOWKAP_NS}latitude>", f'"{facility.latitude}"^^xsd:float'))
-            triples.append((fac_uri, f"<{SNOWKAP_NS}longitude>", f'"{facility.longitude}"^^xsd:float'))
+            triples.append((fac_uri, f"<{SNOWKAP_NS}latitude>", f'"{facility.latitude}"^^<http://www.w3.org/2001/XMLSchema#float>'))
+            triples.append((fac_uri, f"<{SNOWKAP_NS}longitude>", f'"{facility.longitude}"^^<http://www.w3.org/2001/XMLSchema#float>'))
 
         if facility.climate_risk_zone:
             triples.append((fac_uri, f"<{SNOWKAP_NS}climateRiskZone>", f'"{facility.climate_risk_zone}"'))

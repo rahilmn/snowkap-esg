@@ -29,4 +29,5 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run migrations before starting the server
+CMD ["sh", "-c", "python -m alembic -c backend/migrations/alembic.ini upgrade head && uvicorn backend.main:app --host 0.0.0.0 --port 8000"]

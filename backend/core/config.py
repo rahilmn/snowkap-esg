@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     # --- Apache Jena Fuseki ---
     JENA_FUSEKI_URL: str = "http://localhost:3030"
     JENA_DATASET: str = "esg"
+    JENA_ADMIN_USER: str = "admin"
+    JENA_ADMIN_PASSWORD: str = ""
 
     # --- MinIO ---
     MINIO_ENDPOINT: str = "localhost:9000"
@@ -45,6 +47,9 @@ class Settings(BaseSettings):
     # --- AI / LLM ---
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
+
+    # --- NewsAPI ---
+    NEWSAPI_KEY: str = ""
 
     # --- Zep Cloud ---
     ZEP_API_KEY: str = ""
