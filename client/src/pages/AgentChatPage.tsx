@@ -46,8 +46,10 @@ export function AgentChatPage() {
   } | null;
   const [input, setInput] = useState("");
   const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
-  const [conversationId] = useState(() => `conv_${Date.now()}`);
+  const currentArticleId = articleContext?.articleId ?? null;
+  const [conversationId, setConversationId] = useState(() => `conv_${Date.now()}`);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevArticleIdRef = useRef<string | null>(currentArticleId);
   const {
     messages,
     isLoading,
@@ -59,6 +61,16 @@ export function AgentChatPage() {
     setAgents,
     clearMessages,
   } = useChatStore();
+
+  // Reset chat when article changes
+  useEffect(() => {
+    if (prevArticleIdRef.current !== currentArticleId) {
+      clearMessages();
+      setPendingActions([]);
+      setConversationId(`conv_${Date.now()}`);
+      prevArticleIdRef.current = currentArticleId;
+    }
+  }, [currentArticleId, clearMessages]);
 
   // Load available agents
   const agentsQuery = useQuery({
@@ -80,7 +92,7 @@ export function AgentChatPage() {
       agent.chat(prompt, selectedAgent ?? undefined, conversationId, articleContext?.articleId)
         .then((result) => {
           addMessage({ role: "assistant", content: result.response, agent: result.agent });
-          if (result.pending_actions?.length) setPendingActions((prev) => [...prev, ...result.pending_actions!]);
+          if (result.pending_actions && result.pending_actions.length > 0) setPendingActions((prev) => [...prev, ...result.pending_actions]);
         })
         .catch((e) => {
           addMessage({ role: "assistant", content: `Error: ${e instanceof Error ? e.message : "Unknown"}` });
@@ -117,8 +129,8 @@ export function AgentChatPage() {
       });
 
       // Check for pending actions that need confirmation
-      if (result.pending_actions?.length) {
-        setPendingActions((prev) => [...prev, ...result.pending_actions!]);
+      if (result.pending_actions && result.pending_actions.length > 0) {
+        setPendingActions((prev) => [...prev, ...result.pending_actions]);
       }
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : "Failed to get response";

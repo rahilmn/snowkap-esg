@@ -65,13 +65,17 @@ class StorageService:
             size = data.tell()
             data.seek(0)
 
-        client.put_object(
-            settings.MINIO_BUCKET,
-            key,
-            data,
-            length=size,
-            content_type=content_type,
-        )
+        try:
+            client.put_object(
+                settings.MINIO_BUCKET,
+                key,
+                data,
+                length=size,
+                content_type=content_type,
+            )
+        except Exception as e:
+            logger.error("minio_upload_failed", key=key, error=str(e), tenant_id=tenant_id)
+            raise
 
         logger.info("file_uploaded", key=key, size=size, tenant_id=tenant_id)
 
@@ -85,7 +89,11 @@ class StorageService:
     async def download_file(self, key: str) -> bytes:
         """Download a file from MinIO."""
         client = self._get_client()
-        response = client.get_object(settings.MINIO_BUCKET, key)
+        try:
+            response = client.get_object(settings.MINIO_BUCKET, key)
+        except Exception as e:
+            logger.error("minio_download_failed", key=key, error=str(e))
+            raise
         try:
             return response.read()
         finally:
@@ -105,8 +113,12 @@ class StorageService:
     async def delete_file(self, key: str) -> None:
         """Delete a file from MinIO."""
         client = self._get_client()
-        client.remove_object(settings.MINIO_BUCKET, key)
-        logger.info("file_deleted", key=key)
+        try:
+            client.remove_object(settings.MINIO_BUCKET, key)
+            logger.info("file_deleted", key=key)
+        except Exception as e:
+            logger.error("minio_delete_failed", key=key, error=str(e))
+            raise
 
 
 # Singleton

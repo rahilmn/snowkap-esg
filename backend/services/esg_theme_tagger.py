@@ -555,7 +555,7 @@ async def tag_esg_themes(
             system=_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],
             max_tokens=500,
-            model="gpt-4o",
+            model="gpt-4.1-mini",
         )
         raw = raw.strip()
 

@@ -29,14 +29,26 @@ export default function OnboardingPage() {
   useEffect(() => {
     const pendingRaw = sessionStorage.getItem("pending_login");
     if (pendingRaw && !isAuthenticated) {
-      const pending = JSON.parse(pendingRaw);
-      auth.login(pending).then((result) => {
-        loginStore(result);
-        sessionStorage.removeItem("pending_login");
-      }).catch(() => {
+      try {
+        const pending = JSON.parse(pendingRaw);
+        // Only attempt re-login if we have actual credentials (not just a completion flag)
+        if (pending.email && pending.domain) {
+          auth.login(pending).then((result) => {
+            loginStore(result);
+            sessionStorage.removeItem("pending_login");
+          }).catch(() => {
+            sessionStorage.removeItem("pending_login");
+            navigate("/login", { replace: true });
+          });
+        } else {
+          // No credentials stored — redirect to login
+          sessionStorage.removeItem("pending_login");
+          navigate("/login", { replace: true });
+        }
+      } catch {
         sessionStorage.removeItem("pending_login");
         navigate("/login", { replace: true });
-      });
+      }
     }
   }, [isAuthenticated, loginStore, navigate]);
 
@@ -50,7 +62,7 @@ export default function OnboardingPage() {
         );
         return () => clearTimeout(timer);
       } else {
-        const timer = setTimeout(() => setStep("complete"), 0);
+        const timer = setTimeout(() => setStep("complete"), 500);
         return () => clearTimeout(timer);
       }
     }

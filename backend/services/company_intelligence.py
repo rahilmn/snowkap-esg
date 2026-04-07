@@ -100,7 +100,7 @@ Rules:
         raw_text = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1500,
-            model="gpt-4o-mini",  # Cost: ~$0.002 per company
+            model="gpt-4.1-nano",  # Cost: ~$0.001 per company
         )
         raw_text = raw_text.strip()
         if raw_text.startswith("```"):

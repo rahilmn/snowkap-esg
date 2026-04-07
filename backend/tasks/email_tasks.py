@@ -20,5 +20,11 @@ logger = structlog.get_logger()
 def send_magic_link_task(email: str, token: str, domain: str) -> dict:
     """Send magic link email as background task."""
     logger.info("email_magic_link_task", email=email, domain=domain)
-    # TODO: Phase 2C — call email_service.send_magic_link_email (sync wrapper)
-    return {"status": "sent", "email": email}
+    try:
+        from asgiref.sync import async_to_sync
+        from backend.services.email_service import send_magic_link_email
+        async_to_sync(send_magic_link_email)(email, token, domain)
+        return {"status": "sent", "email": email}
+    except Exception as e:
+        logger.error("email_magic_link_failed", email=email, error=str(e))
+        raise

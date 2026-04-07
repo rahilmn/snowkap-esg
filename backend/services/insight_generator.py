@@ -130,7 +130,7 @@ Rules:
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
             max_tokens=300,
-            model="gpt-4o-mini",
+            model="gpt-4.1-nano",
         )
         insight = insight.strip()
         if len(insight) < 30:

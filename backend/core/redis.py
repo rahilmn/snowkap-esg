@@ -19,7 +19,7 @@ logger = structlog.get_logger()
 CACHE_TTL_CONFIG = 300       # 5 minutes
 CACHE_TTL_NEWS = 900         # 15 minutes
 CACHE_TTL_COMPANY = 600      # 10 minutes
-CACHE_TTL_ANALYSIS = 1800    # 30 minutes
+CACHE_TTL_ANALYSIS = 86400   # 24 hours — deep insight, causal chains, risk matrix
 CACHE_TTL_PREDICTION = 3600  # 1 hour
 
 _redis_pool: aioredis.Redis | None = None
@@ -44,6 +44,11 @@ def _tenant_key(tenant_id: str, namespace: str, key: str) -> str:
     Per MASTER_BUILD_PLAN: tenant-namespaced caching.
     """
     return f"tenant:{tenant_id}:{namespace}:{key}"
+
+
+def make_cache_key(tenant_id: str, namespace: str, key: str) -> str:
+    """Public alias for _tenant_key — use outside of redis.py."""
+    return _tenant_key(tenant_id, namespace, key)
 
 
 async def cache_get(tenant_id: str, namespace: str, key: str) -> Any | None:

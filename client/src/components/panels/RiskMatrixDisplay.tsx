@@ -51,8 +51,12 @@ export function RiskMatrixDisplay({ riskMatrix }: RiskMatrixDisplayProps) {
   }
 
   const sorted = [...riskMatrix.categories].sort(
-    (a, b) => b.risk_score - a.risk_score
+    (a, b) => (b.adjusted_score ?? b.risk_score) - (a.adjusted_score ?? a.risk_score)
   );
+
+  // Hide categories with score 0 or 1 (LOW noise)
+  const visible = sorted.filter((cat) => (cat.adjusted_score ?? cat.risk_score) >= 2);
+  const hiddenCount = sorted.length - visible.length;
 
   const topRiskIds = new Set(
     (riskMatrix.top_risks || []).slice(0, 3).map((r) => r.category_id)
@@ -144,7 +148,7 @@ export function RiskMatrixDisplay({ riskMatrix }: RiskMatrixDisplayProps) {
       </div>
 
       {/* Category rows */}
-      {sorted.map((cat) => {
+      {visible.map((cat) => {
         const isTopRisk = topRiskIds.has(cat.category_id);
         const isExpanded = expandedId === cat.category_id;
         const cls = (cat.classification in CLASSIFICATION_STYLES
@@ -202,11 +206,11 @@ export function RiskMatrixDisplay({ riskMatrix }: RiskMatrixDisplayProps) {
                 style={{
                   fontSize: "13px",
                   fontWeight: 700,
-                  color: cat.risk_score >= 20 ? "#ff4044" : cat.risk_score >= 12 ? COLORS.brand : COLORS.textPrimary,
+                  color: (cat.adjusted_score ?? cat.risk_score) >= 20 ? "#ff4044" : (cat.adjusted_score ?? cat.risk_score) >= 12 ? COLORS.brand : COLORS.textPrimary,
                   textAlign: "center",
                 }}
               >
-                {cat.risk_score}
+                {cat.adjusted_score ?? cat.risk_score}
               </span>
 
               {/* Classification badge */}
@@ -248,11 +252,29 @@ export function RiskMatrixDisplay({ riskMatrix }: RiskMatrixDisplayProps) {
                 >
                   {cat.rationale}
                 </p>
+                {cat.profitability_note && (
+                    <p style={{ fontSize: "12px", color: "#dc2626", fontWeight: 500, marginTop: "6px" }}>
+                        Financial Impact: {cat.profitability_note}
+                    </p>
+                )}
               </div>
             )}
           </div>
         );
       })}
+
+      {/* Hidden low-risk categories note */}
+      {hiddenCount > 0 && (
+        <p style={{
+          fontSize: "11px",
+          color: COLORS.textMuted,
+          textAlign: "center",
+          margin: "12px 0 0",
+          fontStyle: "italic",
+        }}>
+          {hiddenCount} low-risk categor{hiddenCount === 1 ? "y" : "ies"} not shown
+        </p>
+      )}
     </div>
   );
 }

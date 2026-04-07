@@ -51,6 +51,9 @@ async def generate_deep_insight(
     framework_matches: list[dict] | None = None,
     risk_matrix: dict | None = None,
     geographic_signal: dict | None = None,
+    # v2.1 financial calibration context
+    market_cap: float | None = None,
+    revenue: float | None = None,
 ) -> dict | None:
     """Generate v2.0 deep insight brief with all module data assembled.
 
@@ -63,6 +66,10 @@ async def generate_deep_insight(
     if not llm.is_configured():
         return None
 
+    # Track C2: Pre-classify event type for score guard rails
+    from backend.services.event_classifier import classify_event, has_financial_quantum
+    event_classification = classify_event(article_title, article_content)
+
     # Load specialist personality
     agent_key = CONTENT_TYPE_TO_AGENT.get(content_type or "", "executive")
     personality_path = PERSONALITIES_DIR / f"{agent_key}.md"
@@ -73,7 +80,10 @@ async def generate_deep_insight(
     comp_list = ", ".join(competitors[:4]) if competitors else "industry peers"
 
     # Build context block from v2.0 module outputs
-    context_parts = [f"Company: {company_name}", f"Frameworks: {fw_list}", f"Competitors: {comp_list}"]
+    context_parts = [f"Company: {company_name}"]
+    if competitors:
+        context_parts.append(f"Competitors: {comp_list}")
+    context_parts.append(f"Frameworks: {fw_list}")
     if nlp_extraction:
         s = nlp_extraction.get("sentiment", {})
         t = nlp_extraction.get("tone", {})
@@ -97,6 +107,19 @@ async def generate_deep_insight(
         context_parts.append(f"Top Risks: {[r.get('name','') + '=' + str(r.get('score',0)) for r in top]}")
 
     context_block = "\n".join(f"- {p}" for p in context_parts)
+
+    # Financial calibration display values
+    market_cap_display = f"₹{market_cap:,.0f} Cr" if market_cap else "Unknown"
+    revenue_display = f"₹{revenue:,.0f} Cr" if revenue else "Unknown"
+
+    # Track C2: Build score bound instruction from event classifier
+    score_bound_lines = [f"EVENT TYPE DETECTED: {event_classification.event_type}"]
+    score_bound_lines.append(f"CALIBRATION: {event_classification.calibration_hint}")
+    if event_classification.score_ceiling is not None:
+        score_bound_lines.append(f"SCORE CEILING: {event_classification.score_ceiling} — do NOT score above this for this event type")
+    if event_classification.score_floor is not None:
+        score_bound_lines.append(f"SCORE FLOOR: {event_classification.score_floor} — do NOT score below this for this event type")
+    score_bound_block = "\n".join(score_bound_lines)
 
     system_prompt = f"""{personality}
 
@@ -124,42 +147,100 @@ IMPACT SCORE CALIBRATION (use these anchors — score MUST reflect financial mat
 A systemic regulatory change affecting an entire sector (e.g., RBI climate disclosure pause) should score 8+.
 Routine capex or expansion announcements should score 3-5, not 7-8.
 
+EVENT-SPECIFIC SCORE CONSTRAINT (MANDATORY — override general anchors if they conflict):
+{score_bound_block}
+
 Return ONLY valid JSON (no markdown):
 {{
   "headline": "One-line impact headline (not the article title — the IMPACT)",
   "impact_score": 0.0-10.0,
   "core_mechanism": "2-3 sentences: what structural shift is happening beneath the surface.",
+  "profitability_connection": "1 sentence: how this structural shift directly connects to {company_name}'s revenue, margins, or valuation.",
   "translation": "One-line plain-language summary for {company_name}.",
   "impact_analysis": {{
-    "esg_positioning": "How this shifts {company_name}'s relative ESG attractiveness (1-2 sentences)",
-    "capital_allocation": "Effect on institutional capital flows, cost of capital, equity risk premium (1-2 sentences)",
-    "valuation_cashflow": "Impact on P/E, EV/EBITDA, margin structure, demand effects (1-2 sentences)",
-    "compliance_regulatory": "Specific frameworks triggered, disclosure obligations. Cite codes from context. (1-2 sentences)",
-    "supply_chain_transmission": "Tier 1/2/3 impact pathway, amplification or dampening (1-2 sentences)",
-    "people_demand": "Employee, customer, community impact. Consumer demand trajectory. (1-2 sentences)"
+    "esg_positioning": "2-3 pipe-separated keywords with numbers (e.g., 'ESG score gap -8pts | peer benchmark pressure | index exclusion risk')",
+    "capital_allocation": "2-3 keywords (e.g., 'cost of capital +30bps | ₹500Cr green bond blocked | FII outflow risk 3%')",
+    "valuation_cashflow": "2-3 keywords (e.g., 'P/E compression 5% | margin erosion 200bps | revenue at risk ₹120Cr')",
+    "compliance_regulatory": "2-3 keywords with framework codes (e.g., 'BRSR:P6 non-compliance | SEBI penalty ₹5Cr | filing gap Jun 2027')",
+    "supply_chain_transmission": "2-3 keywords or 'N/A - no supply chain nexus'",
+    "people_demand": "2-3 keywords or 'N/A' (e.g., 'talent attrition +15% | consumer trust -20% | community opposition')"
   }},
-  "time_horizon": {{
-    "short_term": "0-6 months: immediate effects",
-    "medium_term": "6-24 months: structural shifts, compliance timelines",
-    "long_term": "2-5+ years: secular trends, market redefinition"
+  "financial_timeline": {{
+    "immediate": {{
+        "headline": "1-line impact headline with ₹ amount (e.g., '₹120 Cr margin pressure from compliance costs')",
+        "profitability_pathway": "ESG Event → Business Mechanism → Financial Line Item → ₹ Amount",
+        "cost_of_capital_impact": "+Xbps on next bond issuance or 'No direct impact'",
+        "margin_pressure": "EBITDA margin compression X-Ybps or 'No margin impact'",
+        "cash_flow_impact": "₹X Cr capex/opex or 'No cash flow impact'",
+        "revenue_at_risk": "₹X Cr or 'No direct revenue exposure'"
+    }},
+    "structural": {{
+        "headline": "1-line structural shift headline",
+        "profitability_pathway": "ESG trend → Market mechanism → Valuation impact",
+        "valuation_rerating": "P/E change X-Y% or 'Neutral'",
+        "investor_flow_impact": "FII/DII flow ₹X Cr or 'No significant flow impact'",
+        "competitive_position": "Market share shift or peer positioning change",
+        "credit_rating_risk": "Rating outlook change or 'Stable'"
+    }},
+    "long_term": {{
+        "headline": "1-line secular trajectory headline",
+        "profitability_pathway": "Secular trend → Business model impact → Revenue opportunity/risk",
+        "secular_trajectory": "Green revenue ₹X Cr by FY29/FY30 or growth direction (use realistic future fiscal years)",
+        "stranded_asset_risk": "₹X Cr at risk or 'No stranded asset exposure'",
+        "green_revenue_opportunity": "₹X Cr new revenue potential or 'Limited opportunity'",
+        "market_share_shift": "X% shift by FY29/FY30 or direction (use realistic future fiscal years)"
+    }}
+  }},
+  "esg_relevance_score": {{
+    "environment": {{
+      "score": 0-10,
+      "rationale": "1 sentence: how this article connects to {company_name}'s environmental exposure"
+    }},
+    "social": {{
+      "score": 0-10,
+      "rationale": "1 sentence: social / human capital / community dimension"
+    }},
+    "governance": {{
+      "score": 0-10,
+      "rationale": "1 sentence: board oversight, ethics, compliance, control weaknesses"
+    }},
+    "financial_materiality": {{
+      "score": 0-10,
+      "rationale": "1 sentence: how directly this flows to P&L, balance sheet or cost of capital"
+    }},
+    "regulatory_exposure": {{
+      "score": 0-10,
+      "rationale": "1 sentence: applicable regulatory frameworks, mandates, or enforcement risk"
+    }},
+    "stakeholder_impact": {{
+      "score": 0-10,
+      "rationale": "1 sentence: investors, customers, employees, community exposure"
+    }}
   }},
   "net_impact_summary": "3-4 sentences: the structural significance. Not just good/bad — what this means for the ESG capital landscape and where {company_name} sits."
 }}
 
+FINANCIAL CALIBRATION (CRITICAL):
+- Company: {company_name}, Market Cap: {market_cap_display}, Revenue: {revenue_display}
+- If Market Cap and Revenue are BOTH "Unknown": Do NOT invent specific ₹ amounts. Use directional language instead (e.g., "margin pressure 50-100bps", "revenue at risk: moderate", "cost of capital: +20-40bps"). Use percentages and basis points, NOT fabricated ₹ figures.
+- If Market Cap / Revenue ARE known: All ₹ amounts must be PROPORTIONAL to company size. Express as "X% of FY revenue" or "X% of net worth" for context.
+
 Rules:
+- impact_analysis MUST be SHORT KEYWORD PHRASES separated by | pipes. NOT sentences. NOT paragraphs. MAX 15 words per dimension.
+- financial_timeline is MANDATORY — never omit it. Use percentages/bps when company financials are unknown; use ₹ amounts only when you can calibrate against known revenue/market cap.
 - Ground analysis in the pre-computed context data above
 - Reference specific framework codes from the Framework RAG context
-- Include quantified impacts where the article provides numbers
-- Be specific to {company_name}, not generic ESG advice
-- Distinguish direct vs. indirect impact explicitly
-- If a section is not applicable, set it to null"""
+- Be specific to {company_name}, not generic ESG advice. Explain HOW the article's subject/event specifically affects {company_name}'s business — through supply chain, regulation, competitive dynamics, market conditions, etc. If the connection is weak, say so honestly.
+- If a section is not applicable, set it to "N/A"
+- The financial_timeline replaces the old time_horizon — focus on FINANCIAL impact at each time scale
+- profitability_connection MUST explain the specific causal mechanism linking the article event to {company_name}'s P&L. Not vague hand-waving."""
 
     try:
         raw = await llm.chat(
             system=system_prompt,
             messages=[{"role": "user", "content": user_prompt}],
-            max_tokens=1500,
-            model="gpt-4o",
+            max_tokens=2400,
+            model="gpt-4.1",
         )
         raw = raw.strip()
         if raw.startswith("```"):
@@ -168,6 +249,23 @@ Rules:
         insight = json.loads(raw)
         if not isinstance(insight, dict) or "core_mechanism" not in insight:
             return None
+
+        # Track C2: Post-score enforcement — clamp LLM score to event classification bounds
+        from backend.services.event_classifier import enforce_score_bounds
+        raw_score = float(insight.get("impact_score", 5.0))
+        full_text = article_title + " " + (article_content or "")
+        article_has_quantum = has_financial_quantum(full_text)
+        adjusted_score, score_warning = enforce_score_bounds(
+            raw_score, event_classification, article_has_quantum
+        )
+        if adjusted_score != raw_score:
+            insight["impact_score"] = adjusted_score
+            insight["_score_adjusted"] = {
+                "original": raw_score,
+                "adjusted": adjusted_score,
+                "reason": score_warning,
+                "event_type": event_classification.event_code,
+            }
 
         # Assemble the full v2.0 brief by merging LLM output with pre-computed module data
         if nlp_extraction:
@@ -202,9 +300,14 @@ Rules:
             insight["risk_mapping"] = risk_matrix or {}
             insight["final_synthesis"] = insight.get("net_impact_summary", "")
 
+        # Pass through financial_timeline (merged field from v2.1 prompt)
+        # Already in LLM output if present — no extra assembly needed
+
+
+
         logger.info(
             "deep_insight_v2_generated",
-            article=article_title[:50],
+            article=article_title[:50].encode("ascii", "replace").decode(),
             company=company_name,
             impact_score=insight.get("impact_score"),
             specialist=agent_key,
@@ -215,5 +318,5 @@ Rules:
         )
         return insight
     except Exception as e:
-        logger.error("deep_insight_failed", error=str(e))
+        logger.error("deep_insight_failed", error=str(e).encode("ascii", "replace").decode())
         return None

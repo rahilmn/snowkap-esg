@@ -38,12 +38,19 @@ celery_app.autodiscover_tasks([
     "backend.tasks.media_tasks",
 ])
 
-# Periodic task: refresh news for all tenants every 24 hours
+# Periodic task schedules — Track B1: increased from 24h → 4h
 celery_app.conf.beat_schedule = {
-    "refresh-all-tenant-news-daily": {
+    # Full refresh every 4 hours (was: every 24 hours)
+    "refresh-all-tenant-news-4h": {
         "task": "news.refresh_all_tenants",
-        "schedule": 86400.0,  # 24 hours in seconds
+        "schedule": 14400.0,  # 4 hours in seconds
     },
+    # RSS-only poll every hour — lightweight, no LLM
+    "poll-rss-feeds-1h": {
+        "task": "news.poll_rss_feeds",
+        "schedule": 3600.0,  # 1 hour in seconds
+    },
+    # Article decay check unchanged
     "decay-home-articles-6h": {
         "task": "news.decay_home_articles",
         "schedule": 21600.0,  # 6 hours in seconds

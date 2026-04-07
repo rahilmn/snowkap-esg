@@ -140,8 +140,8 @@ class UserAgentContext:
         elif action_type == "create_ontology_rule":
             from backend.ontology.rule_compiler import compile_and_deploy_rule
             result = await compile_and_deploy_rule(
+                rule=action["data"],
                 tenant_id=self.tenant_id,
-                rule_definition=action["data"],
             )
             return {"status": "created", "result": result}
 

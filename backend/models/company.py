@@ -5,7 +5,7 @@ Per CLAUDE.md:
 - Every table has tenant_id via TenantMixin
 """
 
-from sqlalchemy import Float, ForeignKey, String, Text
+from sqlalchemy import Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -28,6 +28,13 @@ class Company(Base, TenantMixin):
     status: Mapped[str] = mapped_column(String(50), default="active")
     profile_data: Mapped[dict | None] = mapped_column(JSONB, default=dict)
     competitors: Mapped[dict | None] = mapped_column(JSONB)  # [{name, domain, relationship, sub_sector}]
+    market_cap: Mapped[str | None] = mapped_column(String, nullable=True)  # "Large Cap", "Mid Cap", "Small Cap"
+    listing_exchange: Mapped[str | None] = mapped_column(String, nullable=True)  # "NSE", "BSE", "NYSE", "NSE/BSE"
+    headquarter_country: Mapped[str | None] = mapped_column(String, nullable=True)
+    headquarter_region: Mapped[str | None] = mapped_column(String, nullable=True)  # "Asia-Pacific", "Europe", "North America"
+    market_cap_value: Mapped[float | None] = mapped_column(Float, nullable=True)  # numeric ₹ Cr
+    revenue_last_fy: Mapped[float | None] = mapped_column(Float, nullable=True)  # ₹ Cr
+    employee_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Relationships
     facilities: Mapped[list["Facility"]] = relationship(back_populates="company")

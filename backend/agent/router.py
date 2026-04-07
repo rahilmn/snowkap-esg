@@ -129,7 +129,7 @@ async def agent_chat(
         # Return a graceful error response instead of 500
         return ChatResponse(
             response=f"I'm sorry, I encountered an issue processing your request. Please try again. (Error: {str(e)[:100]})",
-            agent={"id": "analytics", "name": "ESG Analytics Agent"},
+            agent={"id": req.agent_id or "unknown", "name": "ESG Agent"},
             classification={"error": True},
             tools_used=[],
             conversation_id=req.conversation_id,
@@ -152,7 +152,7 @@ async def agent_chat(
             "conversation_id": req.conversation_id,
         })
     except Exception as exc:
-        logger.debug("socketio_emit_failed", emit_event="agent_response", error=str(exc))
+        logger.warning("socketio_emit_failed", emit_event="agent_response", error=str(exc))
 
     return ChatResponse(
         response=result.get("response", ""),

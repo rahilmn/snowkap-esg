@@ -18,6 +18,7 @@ interface UserPreference {
 interface PreferenceState {
   preferences: UserPreference | null;
   isLoading: boolean;
+  error: string | null;
   fetchPreferences: () => Promise<void>;
   updatePreferences: (data: Partial<UserPreference>) => Promise<void>;
 }
@@ -25,24 +26,25 @@ interface PreferenceState {
 export const usePreferenceStore = create<PreferenceState>((set) => ({
   preferences: null,
   isLoading: false,
+  error: null,
 
   fetchPreferences: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const data = await prefApi.get();
       set({ preferences: data, isLoading: false });
-    } catch {
-      set({ isLoading: false });
+    } catch (e) {
+      set({ isLoading: false, error: e instanceof Error ? e.message : "Failed to load preferences" });
     }
   },
 
   updatePreferences: async (data) => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
       const updated = await prefApi.update(data);
       set({ preferences: updated, isLoading: false });
-    } catch {
-      set({ isLoading: false });
+    } catch (e) {
+      set({ isLoading: false, error: e instanceof Error ? e.message : "Failed to update preferences" });
     }
   },
 }));

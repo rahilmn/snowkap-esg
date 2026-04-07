@@ -291,7 +291,7 @@ climate_events: If the article discusses weather, climate, or environmental even
         raw_text = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2500,
-            model="gpt-4o-mini",  # Phase 3b: 90% cheaper, sufficient for extraction
+            model="gpt-4.1-nano",  # Cheapest tier, sufficient for NER extraction
         )
         raw_text = raw_text.strip()
         if raw_text.startswith("```"):

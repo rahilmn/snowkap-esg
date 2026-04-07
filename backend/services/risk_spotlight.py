@@ -56,7 +56,7 @@ Return JSON array of exactly 3:
   {{"category_name": "<exact name from list>", "classification": "HIGH|MODERATE|LOW", "rationale": "<1 sentence>"}}
 ]"""}],
             max_tokens=300,
-            model="gpt-4o-mini",
+            model="gpt-4.1-nano",
         )
         raw = raw.strip()
         if raw.startswith("```"):

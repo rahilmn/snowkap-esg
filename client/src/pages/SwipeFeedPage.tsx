@@ -148,6 +148,7 @@ export function SwipeFeedPage() {
 
       {/* Unified detail sheet */}
       <ArticleDetailSheet
+        key={selectedArticle?.id}
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />

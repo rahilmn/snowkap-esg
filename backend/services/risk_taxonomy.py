@@ -165,6 +165,175 @@ _CLASSIFICATION_THRESHOLDS: list[tuple[int, str]] = [
 ]
 
 
+# ---------------------------------------------------------------------------
+# Industry risk weight matrix (10 categories × 15 industries)
+# Values >1.0 amplify risk; <1.0 dampen; 1.0 = neutral
+# ---------------------------------------------------------------------------
+
+INDUSTRY_RISK_WEIGHTS: dict[str, dict[str, float]] = {
+    "Financials/Banking": {
+        "physical": 0.6, "supply_chain": 0.5, "reputational": 1.4, "regulatory": 1.6,
+        "litigation": 1.5, "transition": 1.2, "human_capital": 0.9, "technological": 1.4,
+        "manpower_employee": 0.8, "market_uncertainty": 1.5,
+    },
+    "Infrastructure/Power": {
+        "physical": 1.5, "supply_chain": 1.3, "reputational": 1.0, "regulatory": 1.4,
+        "litigation": 1.2, "transition": 1.5, "human_capital": 1.1, "technological": 1.0,
+        "manpower_employee": 1.2, "market_uncertainty": 1.1,
+    },
+    "Consumer Goods/Apparel": {
+        "physical": 0.8, "supply_chain": 1.5, "reputational": 1.6, "regulatory": 1.0,
+        "litigation": 1.1, "transition": 0.9, "human_capital": 1.3, "technological": 0.8,
+        "manpower_employee": 1.3, "market_uncertainty": 1.0,
+    },
+    "Renewable Energy": {
+        "physical": 1.3, "supply_chain": 1.4, "reputational": 0.8, "regulatory": 1.3,
+        "litigation": 0.8, "transition": 0.6, "human_capital": 1.0, "technological": 1.4,
+        "manpower_employee": 1.0, "market_uncertainty": 1.2,
+    },
+    "Technology": {
+        "physical": 0.5, "supply_chain": 1.0, "reputational": 1.3, "regulatory": 1.2,
+        "litigation": 1.2, "transition": 0.7, "human_capital": 1.4, "technological": 1.6,
+        "manpower_employee": 1.2, "market_uncertainty": 1.1,
+    },
+    "Healthcare": {
+        "physical": 0.7, "supply_chain": 1.3, "reputational": 1.4, "regulatory": 1.5,
+        "litigation": 1.5, "transition": 0.8, "human_capital": 1.3, "technological": 1.2,
+        "manpower_employee": 1.1, "market_uncertainty": 1.0,
+    },
+    "Oil & Gas": {
+        "physical": 1.4, "supply_chain": 1.2, "reputational": 1.5, "regulatory": 1.5,
+        "litigation": 1.5, "transition": 1.8, "human_capital": 1.1, "technological": 1.0,
+        "manpower_employee": 1.1, "market_uncertainty": 1.4,
+    },
+    "Mining": {
+        "physical": 1.5, "supply_chain": 1.1, "reputational": 1.4, "regulatory": 1.4,
+        "litigation": 1.4, "transition": 1.5, "human_capital": 1.3, "technological": 0.8,
+        "manpower_employee": 1.3, "market_uncertainty": 1.2,
+    },
+    "Real Estate": {
+        "physical": 1.6, "supply_chain": 0.8, "reputational": 1.1, "regulatory": 1.3,
+        "litigation": 1.2, "transition": 1.3, "human_capital": 0.8, "technological": 0.9,
+        "manpower_employee": 0.8, "market_uncertainty": 1.3,
+    },
+    "Transportation": {
+        "physical": 1.3, "supply_chain": 1.4, "reputational": 1.1, "regulatory": 1.3,
+        "litigation": 1.1, "transition": 1.4, "human_capital": 1.2, "technological": 1.1,
+        "manpower_employee": 1.3, "market_uncertainty": 1.1,
+    },
+    "Automobiles": {
+        "physical": 0.9, "supply_chain": 1.5, "reputational": 1.3, "regulatory": 1.3,
+        "litigation": 1.3, "transition": 1.6, "human_capital": 1.2, "technological": 1.3,
+        "manpower_employee": 1.2, "market_uncertainty": 1.2,
+    },
+    "Agriculture": {
+        "physical": 1.7, "supply_chain": 1.3, "reputational": 1.0, "regulatory": 1.1,
+        "litigation": 0.9, "transition": 1.1, "human_capital": 1.1, "technological": 0.7,
+        "manpower_employee": 1.4, "market_uncertainty": 1.3,
+    },
+    "Chemicals": {
+        "physical": 1.2, "supply_chain": 1.2, "reputational": 1.3, "regulatory": 1.5,
+        "litigation": 1.5, "transition": 1.3, "human_capital": 1.1, "technological": 1.0,
+        "manpower_employee": 1.1, "market_uncertainty": 1.1,
+    },
+    "Telecommunications": {
+        "physical": 0.7, "supply_chain": 0.9, "reputational": 1.2, "regulatory": 1.3,
+        "litigation": 1.1, "transition": 0.8, "human_capital": 1.2, "technological": 1.5,
+        "manpower_employee": 1.1, "market_uncertainty": 1.0,
+    },
+    "General/Default": {
+        "physical": 1.0, "supply_chain": 1.0, "reputational": 1.0, "regulatory": 1.0,
+        "litigation": 1.0, "transition": 1.0, "human_capital": 1.0, "technological": 1.0,
+        "manpower_employee": 1.0, "market_uncertainty": 1.0,
+    },
+}
+
+# Mapping from common SASB/industry names to the matrix keys above
+_INDUSTRY_ALIAS_MAP: dict[str, str] = {
+    "financials": "Financials/Banking",
+    "banking": "Financials/Banking",
+    "banks": "Financials/Banking",
+    "commercial banks": "Financials/Banking",
+    "investment banking": "Financials/Banking",
+    "insurance": "Financials/Banking",
+    "asset management": "Financials/Banking",
+    "infrastructure": "Infrastructure/Power",
+    "power": "Infrastructure/Power",
+    "electric utilities": "Infrastructure/Power",
+    "utilities": "Infrastructure/Power",
+    "consumer goods": "Consumer Goods/Apparel",
+    "apparel": "Consumer Goods/Apparel",
+    "textiles": "Consumer Goods/Apparel",
+    "footwear": "Consumer Goods/Apparel",
+    "household products": "Consumer Goods/Apparel",
+    "renewable": "Renewable Energy",
+    "solar": "Renewable Energy",
+    "wind": "Renewable Energy",
+    "clean energy": "Renewable Energy",
+    "technology": "Technology",
+    "software": "Technology",
+    "hardware": "Technology",
+    "semiconductors": "Technology",
+    "internet": "Technology",
+    "healthcare": "Healthcare",
+    "pharmaceuticals": "Healthcare",
+    "biotechnology": "Healthcare",
+    "medical devices": "Healthcare",
+    "oil": "Oil & Gas",
+    "gas": "Oil & Gas",
+    "petroleum": "Oil & Gas",
+    "exploration": "Oil & Gas",
+    "mining": "Mining",
+    "metals": "Mining",
+    "steel": "Mining",
+    "coal": "Mining",
+    "real estate": "Real Estate",
+    "reit": "Real Estate",
+    "property": "Real Estate",
+    "transportation": "Transportation",
+    "logistics": "Transportation",
+    "airlines": "Transportation",
+    "shipping": "Transportation",
+    "automobiles": "Automobiles",
+    "auto parts": "Automobiles",
+    "ev": "Automobiles",
+    "agriculture": "Agriculture",
+    "food": "Agriculture",
+    "agribusiness": "Agriculture",
+    "chemicals": "Chemicals",
+    "specialty chemicals": "Chemicals",
+    "petrochemicals": "Chemicals",
+    "telecommunications": "Telecommunications",
+    "telecom": "Telecommunications",
+    "wireless": "Telecommunications",
+}
+
+
+def get_industry_weights(industry: str | None, sasb_category: str | None = None) -> dict[str, float]:
+    """Resolve a company's industry/SASB category to the risk weight vector.
+
+    Tries exact match first, then substring matching via alias map.
+    Falls back to General/Default weights (all 1.0).
+    """
+    default = INDUSTRY_RISK_WEIGHTS["General/Default"]
+    search_terms = [t for t in [industry, sasb_category] if t]
+    if not search_terms:
+        return default
+
+    for term in search_terms:
+        # Exact match on matrix key
+        for key in INDUSTRY_RISK_WEIGHTS:
+            if key.lower() == term.lower():
+                return INDUSTRY_RISK_WEIGHTS[key]
+        # Alias match
+        term_lower = term.lower()
+        for alias, matrix_key in _INDUSTRY_ALIAS_MAP.items():
+            if alias in term_lower or term_lower in alias:
+                return INDUSTRY_RISK_WEIGHTS[matrix_key]
+
+    return default
+
+
 def classify_risk(score: int) -> str:
     """Classify a single risk priority score (1-25) into a level.
 
@@ -190,14 +359,21 @@ class CategoryScore:
     probability: int  # 1-5
     exposure: int  # 1-5
     rationale: str = ""
+    industry_weight: float = 1.0
+    profitability_note: str = ""
 
     @property
     def risk_score(self) -> int:
         return self.probability * self.exposure
 
     @property
+    def adjusted_score(self) -> float:
+        """Risk score adjusted by industry weight."""
+        return round(self.risk_score * self.industry_weight, 2)
+
+    @property
     def classification(self) -> str:
-        return classify_risk(self.risk_score)
+        return classify_risk(round(self.adjusted_score))
 
     @property
     def probability_label(self) -> str:
@@ -216,8 +392,11 @@ class CategoryScore:
             "exposure": self.exposure,
             "exposure_label": self.exposure_label,
             "risk_score": self.risk_score,
+            "industry_weight": self.industry_weight,
+            "adjusted_score": self.adjusted_score,
             "classification": self.classification,
             "rationale": self.rationale,
+            "profitability_note": self.profitability_note,
         }
 
 
@@ -233,20 +412,32 @@ class RiskAssessment:
         return sum(c.risk_score for c in self.categories)
 
     @property
+    def total_adjusted_score(self) -> float:
+        """Sum of all industry-adjusted category scores."""
+        return round(sum(c.adjusted_score for c in self.categories), 2)
+
+    @property
     def aggregate_score(self) -> float:
         """Normalised aggregate score: total / 250 (0.0 – 1.0)."""
         return round(self.total_score / 250, 4) if self.categories else 0.0
 
     @property
+    def aggregate_adjusted_score(self) -> float:
+        """Normalised adjusted aggregate: total_adjusted / 250 (0.0 – 1.0+)."""
+        return round(self.total_adjusted_score / 250, 4) if self.categories else 0.0
+
+    @property
     def top_risks(self) -> list[CategoryScore]:
-        """Top 3 categories by risk score (descending)."""
-        return sorted(self.categories, key=lambda c: c.risk_score, reverse=True)[:3]
+        """Top 3 categories by adjusted score (descending)."""
+        return sorted(self.categories, key=lambda c: c.adjusted_score, reverse=True)[:3]
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "categories": [c.to_dict() for c in self.categories],
             "total_score": self.total_score,
+            "total_adjusted_score": self.total_adjusted_score,
             "aggregate_score": self.aggregate_score,
+            "aggregate_adjusted_score": self.aggregate_adjusted_score,
             "top_risks": [c.to_dict() for c in self.top_risks],
         }
 
@@ -263,6 +454,11 @@ For each category you must provide:
 - rationale: one-sentence justification
 
 Be precise and evidence-based. If the article has no relevance to a category, assign probability=1 and exposure=1.
+
+For each risk category, also add a profitability_note: 1 sentence explaining the specific financial consequence
+(e.g., "SEBI penalty ₹25L-2Cr + potential F&O trading restriction → liquidity risk").
+If the category scores probability=1 and exposure=1, set profitability_note to an empty string.
+
 Return ONLY valid JSON, no markdown fences."""
 
 _CATEGORY_BLOCK = "\n".join(
@@ -303,10 +499,11 @@ Return a JSON object with a single key "categories" containing an array of 10 ob
   "category_id": string (matching the IDs above),
   "probability": integer 1-5,
   "exposure": integer 1-5,
-  "rationale": string (one sentence)
+  "rationale": string (one sentence),
+  "profitability_note": string (one sentence on specific financial consequence, or "" if P=1 and E=1)
 
 Example element:
-{{"category_id": "physical", "probability": 3, "exposure": 4, "rationale": "Facility is in a high-flood-risk coastal zone."}}
+{{"category_id": "physical", "probability": 3, "exposure": 4, "rationale": "Facility is in a high-flood-risk coastal zone.", "profitability_note": "Flood damage to coastal plant could cause ₹50-200Cr repair costs + 2-month production halt."}}
 """
 
 
@@ -369,6 +566,7 @@ def _parse_llm_response(raw: str) -> RiskAssessment:
                 probability=_clamp(item.get("probability")),
                 exposure=_clamp(item.get("exposure")),
                 rationale=str(item.get("rationale", ""))[:300],
+                profitability_note=str(item.get("profitability_note", ""))[:300],
             )
         )
 
@@ -415,11 +613,13 @@ async def assess_risk_matrix(
     nlp_extraction: dict[str, Any],
     esg_themes: dict[str, Any],
     frameworks: list[str],
+    industry: str | None = None,
+    sasb_category: str | None = None,
 ) -> RiskAssessment:
     """Assess an article against the 10-category risk taxonomy.
 
     Makes a single LLM call (gpt-4o) that scores all 10 categories
-    on probability (1-5) and exposure (1-5).
+    on probability (1-5) and exposure (1-5), then applies industry weights.
 
     Args:
         article_title: Headline of the article.
@@ -428,6 +628,8 @@ async def assess_risk_matrix(
         nlp_extraction: Dict of entities/facts extracted by NLP pipeline.
         esg_themes: Dict of detected ESG themes and sub-themes.
         frameworks: List of applicable ESG framework codes (e.g. ["BRSR", "GRI"]).
+        industry: Company industry string for weight lookup.
+        sasb_category: SASB category string for weight lookup.
 
     Returns:
         RiskAssessment with per-category scores, aggregate, and top 3 risks.
@@ -449,8 +651,8 @@ async def assess_risk_matrix(
         raw_response = await llm.chat(
             messages=[{"role": "user", "content": user_prompt}],
             system=_SYSTEM_PROMPT,
-            max_tokens=2000,
-            model="gpt-4o",
+            max_tokens=2500,
+            model="gpt-4.1-mini",
             temperature=0.2,
         )
     except Exception:
@@ -459,13 +661,21 @@ async def assess_risk_matrix(
 
     assessment = _parse_llm_response(raw_response)
 
+    # Apply industry weights to each category score
+    weights = get_industry_weights(industry, sasb_category)
+    for cat_score in assessment.categories:
+        cat_score.industry_weight = weights.get(cat_score.category_id, 1.0)
+
     logger.info(
         "risk_taxonomy_assessed",
         company=company_name,
+        industry=industry,
         aggregate_score=assessment.aggregate_score,
+        aggregate_adjusted_score=assessment.aggregate_adjusted_score,
         total_score=assessment.total_score,
+        total_adjusted_score=assessment.total_adjusted_score,
         top_risks=[
-            {"id": r.category_id, "score": r.risk_score, "class": r.classification}
+            {"id": r.category_id, "score": r.risk_score, "adjusted": r.adjusted_score, "class": r.classification}
             for r in assessment.top_risks
         ],
     )

@@ -19,6 +19,111 @@ logger = structlog.get_logger()
 
 GOOGLE_NEWS_RSS_BASE = "https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
 
+# Domains capped at 1 article per fetch cycle to avoid feed flooding
+ONE_PER_DOMAIN = {
+    "linkedin.com",
+    "facebook.com",
+    "twitter.com",
+    "x.com",
+    "instagram.com",
+    "youtube.com",
+    "tiktok.com",
+    "reddit.com",
+    "quora.com",
+    "medium.com",
+    "substack.com",
+    "whatsapp.com",
+    "telegram.org",
+    "pinterest.com",
+}
+
+# ---------------------------------------------------------------------------
+# Track A2: Query matrix — expand coverage beyond a single sustainability query
+# ---------------------------------------------------------------------------
+
+# Indian regulatory terms to always append to financial/industrial queries
+INDIA_REGULATORY_TERMS = (
+    "SEBI OR RBI OR BRSR OR MoEFCC OR MCA OR CPCB OR POSH OR DPDP"
+)
+
+# Industry-specific ESG angle terms
+INDUSTRY_ESG_ANGLES: dict[str, list[str]] = {
+    "banking": [
+        '"{company}" financed emissions climate risk',
+        '"{company}" green bond sustainable finance disclosure',
+        '"{company}" ESG lending climate portfolio',
+    ],
+    "finance": [
+        '"{company}" ESG investing sustainable fund',
+        '"{company}" climate risk disclosure portfolio',
+    ],
+    "energy": [
+        '"{company}" renewable transition emissions',
+        '"{company}" carbon net zero fossil fuel',
+    ],
+    "manufacturing": [
+        '"{company}" supply chain emissions carbon footprint',
+        '"{company}" waste water pollution compliance',
+    ],
+    "technology": [
+        '"{company}" data privacy governance cybersecurity ESG',
+        '"{company}" e-waste carbon footprint sustainability',
+    ],
+    "pharmaceutical": [
+        '"{company}" access medicines pricing governance',
+        '"{company}" waste disposal emissions compliance',
+    ],
+    "retail": [
+        '"{company}" supply chain labour standards',
+        '"{company}" packaging waste sustainability',
+    ],
+    "real_estate": [
+        '"{company}" green building energy efficiency',
+        '"{company}" water conservation sustainability certification',
+    ],
+}
+
+# Regulatory/framework-specific queries (run for all tenants)
+REGULATORY_QUERIES = [
+    "BRSR mandatory disclosure India listed companies",
+    "SEBI ESG rating framework India",
+    "RBI climate risk disclosure banks India",
+    "India carbon market net zero 2070",
+    "CSRD India supply chain due diligence",
+]
+
+
+def build_query_matrix(company_name: str, industry: str | None = None) -> list[str]:
+    """Build a list of search queries for broader coverage.
+
+    Returns 3-6 queries covering:
+    1. Company-specific ESG (sustainability + general)
+    2. Company + Indian regulatory terms
+    3. Industry-specific ESG angles (if industry known)
+    4. Sector-level regulatory queries
+    """
+    queries = []
+    name_quoted = f'"{company_name}"'
+
+    # Core company queries
+    queries.append(f"{name_quoted} ESG sustainability climate disclosure")
+    queries.append(f"{name_quoted} governance compliance SEBI penalty regulation")
+
+    # Company + Indian regulatory overlay
+    queries.append(f"{name_quoted} ({INDIA_REGULATORY_TERMS})")
+
+    # Industry-specific angles
+    if industry:
+        industry_lower = industry.lower()
+        for key, templates in INDUSTRY_ESG_ANGLES.items():
+            if key in industry_lower:
+                # Add first two industry-specific queries
+                for tmpl in templates[:2]:
+                    queries.append(tmpl.format(company=company_name))
+                break
+
+    return queries[:6]  # Max 6 queries to keep API calls bounded
+
 
 async def fetch_google_news(query: str, max_results: int = 20) -> list[dict]:
     """Fetch articles from Google News RSS for a given search query."""
@@ -113,18 +218,27 @@ async def curate_domain_news(
     company_name: str,
     sustainability_query: str | None,
     general_query: str | None,
+    industry: str | None = None,
 ) -> list[dict]:
     """Fetch domain-driven news from BOTH Google News RSS and NewsAPI.
 
+    Track A2: Expanded query matrix for broader coverage.
     Combines ESG-specific and general news, deduplicates by URL.
     """
     articles = []
 
-    # Source 1: Google News RSS
+    # Source 1: Google News RSS — primary user-configured queries
     if sustainability_query:
         articles.extend(await fetch_google_news(sustainability_query, max_results=15))
     if general_query:
         articles.extend(await fetch_google_news(general_query, max_results=10))
+
+    # Source 1b: Track A2 — Query matrix for additional coverage angles
+    matrix_queries = build_query_matrix(company_name, industry)
+    seen_base = {sustainability_query, general_query}
+    for q in matrix_queries:
+        if q not in seen_base:
+            articles.extend(await fetch_google_news(q, max_results=8))
 
     # Source 2: NewsAPI (Bloomberg, Reuters, etc.)
     newsapi_query = f"{company_name} ESG sustainability"
@@ -179,11 +293,18 @@ async def curate_domain_news(
 
     two_months_ago = datetime.now(timezone.utc) - timedelta(days=60)
     seen_urls: set[str] = set()
+    seen_capped_domains: set[str] = set()
     unique = []
     for a in articles:
         url = a.get("url", "")
         if not url or url in seen_urls:
             continue
+        # Cap at one article per social/blog domain to avoid feed flooding
+        capped_domain = next((d for d in ONE_PER_DOMAIN if d in url), None)
+        if capped_domain:
+            if capped_domain in seen_capped_domains:
+                continue
+            seen_capped_domains.add(capped_domain)
         # Skip old articles
         pub = a.get("published_at")
         if pub:

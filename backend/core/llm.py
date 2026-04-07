@@ -21,8 +21,9 @@ from backend.core.config import settings
 logger = structlog.get_logger()
 
 # Default model for all LLM calls
-DEFAULT_MODEL = "gpt-4o"
-FAST_MODEL = "gpt-4o-mini"
+DEFAULT_MODEL = "gpt-4.1"
+FAST_MODEL = "gpt-4.1-mini"
+NANO_MODEL = "gpt-4.1-nano"
 
 # Retry config
 MAX_RETRIES = 3
@@ -67,7 +68,7 @@ async def chat(
         messages: List of {"role": "user"|"assistant", "content": "..."}
         system: Optional system prompt (prepended as system message)
         max_tokens: Max response tokens
-        model: Override model (default: gpt-4o)
+        model: Override model (default: gpt-4.1)
         temperature: Sampling temperature
         timeout: Per-call timeout in seconds (default: 30s)
 

@@ -609,9 +609,10 @@ def _resolve_industry(industry: str) -> str | None:
         return _INDUSTRY_ALIASES[industry_lower]
 
     # 3. Word-boundary match — check if any alias appears as a whole word
-    # BUG-21: Avoid greedy substring matching that causes false positives
+    # BUG-21 fix: Use regex word boundaries instead of space-padding
+    import re
     for alias, canonical in _INDUSTRY_ALIASES.items():
-        if industry_lower == alias or f" {alias} " in f" {industry_lower} ":
+        if re.search(r'\b' + re.escape(alias) + r'\b', industry_lower):
             return canonical
 
     return None

@@ -291,7 +291,7 @@ async def _bfs_paths(
                     ?mid1 ?rel2 ?mid2 .
                     ?mid2 ?rel3 ?mid3 .
                     ?mid3 ?rel4 <{target_uri}> .
-                    FILTER(?mid1 != ?mid2 && ?mid2 != ?mid3)
+                    FILTER(?mid1 != ?mid2 && ?mid2 != ?mid3 && ?mid1 != ?mid3)
                     FILTER(?mid1 != <{source_uri}> && ?mid3 != <{target_uri}>)
                 }}
             }}
@@ -309,7 +309,7 @@ async def _bfs_paths(
                     ?mid2 ?rel3 ?mid3 .
                     ?mid3 ?rel4 ?mid4 .
                     ?mid4 ?rel5 <{target_uri}> .
-                    FILTER(?mid1 != ?mid2 && ?mid2 != ?mid3 && ?mid3 != ?mid4)
+                    FILTER(?mid1 != ?mid2 && ?mid2 != ?mid3 && ?mid3 != ?mid4 && ?mid1 != ?mid3 && ?mid1 != ?mid4 && ?mid2 != ?mid4)
                     FILTER(?mid1 != <{source_uri}> && ?mid4 != <{target_uri}>)
                 }}
             }}

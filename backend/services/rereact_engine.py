@@ -8,11 +8,80 @@ Agent 3 (Validator): Independent critic — checks confidence, hallucinations, a
 """
 
 import json
+import re
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 import structlog
 
 from backend.core import llm
+
+
+def _post_process_recommendations(result: dict, today_str: str) -> dict:
+    """Fix past dates and flag weak profitability links — safety net after LLM output."""
+    try:
+        today = date.fromisoformat(today_str)
+    except (ValueError, TypeError):
+        today = datetime.now(timezone.utc).date()
+
+    for rec in result.get("validated_recommendations", []):
+        # Fix past dates
+        deadline = rec.get("deadline", "")
+        if deadline:
+            try:
+                d = date.fromisoformat(str(deadline)[:10])
+                if d < today:
+                    rec["deadline"] = f"{today.year + 1}-{str(deadline)[5:10]}"
+            except (ValueError, TypeError):
+                rec["deadline"] = f"{today.year}-12-31"
+
+        # Flag weak profitability links (no numbers)
+        pl = rec.get("profitability_link", "")
+        if pl and not re.search(r"[₹$%]|\d+\s*(Cr|Lakh|bps|crore)", str(pl), re.IGNORECASE):
+            rec["profitability_link"] = pl + f" [Quantify: estimate ₹ impact for {today.year}]"
+
+        # ROI and payback computation (Phase 5D)
+        budget_str = rec.get("estimated_budget", "")
+        profit_str = rec.get("profitability_link", "")
+        budget_num = None
+        profit_num = None
+        # Try to extract numeric budget (e.g., "₹20 Cr" → 20)
+        budget_match = re.search(r"[₹$]\s*(\d+(?:\.\d+)?)", str(budget_str))
+        if budget_match:
+            budget_num = float(budget_match.group(1))
+        # Try to extract numeric profitability (e.g., "₹18 Cr annually" → 18)
+        profit_match = re.search(r"[₹$]\s*(\d+(?:\.\d+)?)", str(profit_str))
+        if profit_match:
+            profit_num = float(profit_match.group(1))
+        if budget_num and profit_num and budget_num > 0:
+            rec["roi_percentage"] = round((profit_num / budget_num - 1) * 100, 1)
+            rec["payback_months"] = round(budget_num / (profit_num / 12), 1)
+
+        # Priority derivation (Phase 5E)
+        urgency = rec.get("urgency", "")
+        impact = rec.get("estimated_impact", "")
+        if urgency == "immediate" or impact == "High":
+            rec["priority"] = "CRITICAL"
+        elif urgency == "short_term" or impact == "Medium":
+            rec["priority"] = "HIGH"
+        else:
+            rec["priority"] = "MEDIUM"
+
+        # Risk of inaction score (1-10): combines priority level + ROI magnitude
+        # CRITICAL priority → base 7; HIGH → base 5; MEDIUM → base 3
+        # Boosted by ROI (higher return foregone = higher inaction risk)
+        base_inaction = {"CRITICAL": 7, "HIGH": 5, "MEDIUM": 3}.get(rec.get("priority", "MEDIUM"), 3)
+        roi = rec.get("roi_percentage")
+        if roi is not None:
+            if roi > 500:
+                base_inaction = min(10, base_inaction + 3)
+            elif roi > 200:
+                base_inaction = min(10, base_inaction + 2)
+            elif roi > 100:
+                base_inaction = min(10, base_inaction + 1)
+        rec["risk_of_inaction"] = base_inaction
+
+    return result
 
 logger = structlog.get_logger()
 
@@ -43,6 +112,9 @@ async def rereact_recommendations(
     content_type: str | None,
     user_role: str | None = None,
     competitors: list[str] | None = None,
+    market_cap: str | None = None,
+    listing_exchange: str | None = None,
+    headquarter_country: str | None = None,
 ) -> dict | None:
     """3-agent REREACT recommendation pipeline.
 
@@ -66,58 +138,94 @@ async def rereact_recommendations(
 
     comp_list = ", ".join(competitors[:5]) if competitors else "industry peers"
 
-    from datetime import datetime, timezone
+    from datetime import datetime, timezone, date as _date_type
     today = datetime.now(timezone.utc).date().isoformat()
+    max_date = (datetime.now(timezone.utc).date().replace(year=datetime.now(timezone.utc).year + 2)).isoformat()
 
-    generator_prompt = f"""You are analyzing an ESG news event for {company_name}. Produce a 6-dimension impact analysis followed by 3-5 actionable recommendations.
+    # Get company context
+    _mc = market_cap or "Unknown"
+    _le = listing_exchange or "Unknown"
+    _hc = headquarter_country or "Unknown"
 
-TODAY'S DATE: {today}
-ALL DEADLINES MUST BE AFTER {today}. Never use dates before {today[:4]}.
+    generator_prompt = f"""You are analyzing an ESG news event for {company_name}. Produce actionable recommendations.
+
+╔══════════════════════════════════════════════════╗
+║  ⚠️  CRITICAL DATE RULE — READ BEFORE ANYTHING   ║
+║  Today is {today}. The year is {today[:4]}.              ║
+║  EVERY deadline MUST be between {today} and {max_date}. ║
+║  Dates before {today[:4]} will CRASH the system.         ║
+║  Safe default: {today[:4]}-12-31                        ║
+╚══════════════════════════════════════════════════╝
+
+COMPANY PROFILE:
+- {company_name} | {_mc} | Listed: {_le} | HQ: {_hc}
+- Budget calibration: {"₹10-100 Cr, board-level owners" if "Large" in _mc else "₹1-10 Cr, CXO-level owners" if "Mid" in _mc else "₹10L-1 Cr, department heads"}
 
 ARTICLE: "{article_title}"
-COMPANY: {company_name}
 COMPETITORS: {comp_list}
 FRAMEWORKS: {fw_list}
 
 DEEP INSIGHT:
 {insight_summary}
 
-Return a JSON object with exactly this structure:
+DATA GROUNDING RULES (CRITICAL):
+- Every recommendation MUST reference a SPECIFIC fact from the article (a number, name, or event)
+- If the article mentions a specific amount (e.g., ₹590 Cr), your recommendation must cite it
+- Generic recommendations that could apply to ANY company will be REJECTED by the Validator
+- The profitability_link MUST contain specific numbers (₹ amounts, %, bps)
+  BAD: "reduces risk" or "improves ESG score"
+  GOOD: "reduces cost of capital by 25-50 bps, saving ₹15-30 Cr annually on ₹6,000 Cr debt"
+  GOOD: "avoids ₹5 Cr SEBI penalty for BRSR non-compliance"
+
+Return a JSON object:
 {{
-  "impact_analysis": {{
-    "esg_positioning": "How this shifts the company's relative ESG attractiveness (1-2 sentences)",
-    "capital_allocation": "Effect on institutional capital flows, cost of capital, equity risk premium (1-2 sentences)",
-    "valuation_cashflow": "Impact on P/E, EV/EBITDA, margin structure, demand effects (1-2 sentences)",
-    "compliance_regulatory": "Specific frameworks triggered or modified, disclosure obligations (1-2 sentences)",
-    "supply_chain_transmission": "Tier 1/2/3 impact pathway, amplification or dampening (1-2 sentences)",
-    "demand_macro": "Second-order effects on consumer demand, market sizing (1-2 sentences)"
-  }},
   "recommendations": [
     {{
       "type": "strategic|financial|esg_positioning|operational|compliance",
-      "title": "Action-oriented title (10 words max)",
-      "responsible_party": "Specific role (e.g., 'Chief Risk Officer', 'Audit Committee', 'Head of Sustainability')",
-      "description": "Specific steps with timeline (40 words max)",
-      "framework_section": "Exact framework:section code (e.g., BRSR:P1:Q5, GRI:205-2, ESRS:G1-3, IFRS:S2:para18)",
-      "deadline": "MUST be after {today}. Use format YYYY-MM-DD (e.g., '{today[:4]}-09-30'). NEVER use dates before {today[:4]}. NEVER use 'Q2' or 'short_term'.",
-      "estimated_budget": "Budget range if applicable (e.g., '₹2-5 Cr for forensic audit') or 'Internal resources only'",
-      "success_criterion": "Measurable outcome (e.g., 'Zero material findings in next BRSR assurance', 'Green portfolio reaches 7% by FY27')",
+      "title": "Action-oriented title referencing specific article data (10 words max)",
+      "responsible_party": "Specific role (e.g., 'Chief Risk Officer', 'Audit Committee')",
+      "description": "Specific steps grounded in article facts (40 words max)",
+      "framework_section": "Exact code (e.g., BRSR:P1:Q5, GRI:205-2)",
+      "deadline": "YYYY-MM-DD format, MUST be after {today}, e.g., {today[:4]}-09-30",
+      "estimated_budget": "Calibrated for {_mc}: {'₹10-100 Cr' if 'Large' in _mc else '₹1-10 Cr' if 'Mid' in _mc else '₹10L-1 Cr'}",
+      "success_criterion": "Measurable outcome with numbers",
       "urgency": "immediate|short_term|ongoing",
-      "estimated_impact": "High/Medium/Low"
+      "estimated_impact": "High/Medium/Low",
+      "profitability_link": "MUST contain ₹/% — how this saves money or generates revenue (1 sentence)"
     }}
   ]
 }}
 
-RECOMMENDATION LANGUAGE RULES:
-- DO NOT use vague verbs: "enhance", "strengthen", "improve", "develop", "bolster", "foster"
-- USE specific verbs: "commission", "file", "appoint", "allocate", "disclose", "audit", "terminate", "reclassify", "ring-fence"
-- Every recommendation MUST name the responsible party, a framework section code, and a calendar deadline
-- Recommendations without measurable success criteria will be rejected by the Validator agent
+LANGUAGE RULES:
+- BANNED verbs: "enhance", "strengthen", "improve", "develop", "bolster", "foster"
+- REQUIRED verbs: "commission", "file", "appoint", "allocate", "disclose", "audit", "terminate"
+- Every recommendation needs: named owner + framework code + calendar deadline after {today} + measurable criterion
 
-PEER BENCHMARKING: Recommendations MUST reference specific competitor actions when available.
-Instead of generic advice, cite what named competitors are doing and frame the recommendation
-as closing or extending the gap. Example: "SBI targets 10% green portfolio by 2030 — allocate
-₹500 Cr to green lending to close the current 7% gap by FY28."
+PEER BENCHMARKING: Reference specific competitor actions when available. Frame as closing or extending gaps.
+
+FRAMEWORK CITATION GUIDE — use ONLY the section that matches the article topic:
+┌─────────────────────────────────┬──────────────────────────────────────────────────────┐
+│ Article Topic                   │ Correct framework_section                            │
+├─────────────────────────────────┼──────────────────────────────────────────────────────┤
+│ Fraud / corruption / bribery    │ BRSR:P1:Q5 (ethics & penalties)                      │
+│ Employee safety / LTIFR         │ BRSR:P3:Q18 (safety incidents)                       │
+│ Parental leave / HR benefits    │ BRSR:P3:Q14 (parental leave retention)               │
+│ Worker rights / wages           │ BRSR:P5:Q26 (minimum wages) or BRSR:P5:Q29          │
+│ GHG / carbon emissions          │ BRSR:P6:Q38 (Scope 1&2) or BRSR:P6:Q48 (Scope 3)   │
+│ Water / effluent discharge      │ BRSR:P6:Q34 / Q36 (withdrawal & discharge)           │
+│ Waste / pollution               │ BRSR:P6:Q41 / Q47 (waste & compliance notices)       │
+│ Energy / PAT scheme             │ BRSR:P6:Q31 / Q33 (energy & PAT)                    │
+│ Consumer complaints / data      │ BRSR:P9:Q61 / Q63 (complaints & cybersecurity)       │
+│ Trade finance / policy advocacy │ BRSR:P7:Q50 (policy advocacy positions)              │
+│ CSR / community investment      │ BRSR:P8:Q54 / Q59 (CSR projects & spend)             │
+│ Greenwashing / ESG disclosure   │ GRI:2-22 (sustainability reporting) or BRSR:SectionB │
+│ Climate risk / TCFD             │ TCFD:Strategy or TCFD:Risk_Management                │
+│ Scope 3 / supply chain          │ BRSR:P6:Q48 + GRI:305-3                              │
+│ Banking / credit risk ESG       │ SASB:FN-CB-410a.2 (ESG integration in lending)       │
+│ Regulatory compliance notice    │ BRSR:P1:Q5 + applicable framework penalty section    │
+└─────────────────────────────────┴──────────────────────────────────────────────────────┘
+RULE: If the topic is NOT in this table, use GRI:2-6 (activities & value chain) as default.
+NEVER cite BRSR:P3 for trade/tariff/policy topics. NEVER cite GHG_PROTOCOL for governance events.
 
 """
 
@@ -215,8 +323,8 @@ as closing or extending the gap. Example: "SBI targets 10% green portfolio by 20
         raw_gen = await llm.chat(
             system=generator_personality,
             messages=[{"role": "user", "content": generator_prompt}],
-            max_tokens=800,
-            model="gpt-4o",
+            max_tokens=1200,
+            model="gpt-4.1",
         )
         raw_gen = raw_gen.strip()
         if raw_gen.startswith("```"):
@@ -229,7 +337,9 @@ as closing or extending the gap. Example: "SBI targets 10% green portfolio by 20
     # === AGENT 2: ANALYZER ===
     analyzer_personality = _load_personality("analytics") + "\n\n" + _load_personality("compliance")
 
-    analyzer_prompt = f"""You are a senior ESG analyst stress-testing recommendations for {company_name}.
+    analyzer_prompt = f"""You are a senior ESG analyst stress-testing recommendations for {company_name} ({market_cap or 'Unknown'} cap, {listing_exchange or 'Unknown'}).
+
+TODAY: {today}. All deadlines must be AFTER {today}.
 
 GENERATOR OUTPUT:
 {raw_gen}
@@ -237,26 +347,27 @@ GENERATOR OUTPUT:
 ARTICLE: "{article_title}"
 FRAMEWORKS: {fw_list}
 
-Perform a rigorous review:
+QUANTITATIVE STRESS TEST:
+1. Does the budget make sense for a {market_cap or 'Unknown'} company? (Large Cap: ₹10-100 Cr, Mid: ₹1-10 Cr, Small: ₹10L-1 Cr)
+2. Is the timeline realistic? (forensic audit = 3-6 months, board restructuring = 6-12 months, not 2 weeks)
+3. Does EVERY profitability_link have SPECIFIC NUMBERS (₹, %, bps)?
+   - REJECT if generic: "reduces risk" or "improves ESG score"
+   - REQUIRE: "saves ₹X Cr annually" or "reduces CoC by Y bps" or "avoids ₹Z Cr penalty"
+4. Does the framework code match the recommendation? (BRSR:P6 = environmental, not governance)
+5. Is the responsible_party the RIGHT person? (CRO for risk, CFO for finance, not generic "CEO")
+6. Does each recommendation reference SPECIFIC data from the article? (amounts, names, events)
+7. Is EVERY deadline after {today}? Fix any that aren't.
 
-1. VERIFY CAUSAL CHAINS: Is each impact pathway logically sound? Are there leaps in reasoning?
-2. CHECK MISSING DIMENSIONS: Are there second-order effects missed? Overlooked stakeholders or geographies?
-3. VALIDATE PROPORTIONALITY: Is the assessed impact magnitude appropriate? Flag overstatement or understatement.
-4. ENRICH WITH CONTEXT: Add relevant precedents, comparable events, sector benchmarks, or regulatory timelines.
-5. CHALLENGE FRAMING: If the analysis conflates direct vs indirect impact, correct it.
-6. REFINE RECOMMENDATIONS: Make them more specific, time-bound, and role-appropriate.
+Remove weak recommendations. Quantify vague profitability links. Fix wrong framework codes.
 
-If the generator output contains "impact_analysis", review it for accuracy.
-Improve weak recommendations. Remove any that lack substance.
-
-Return the IMPROVED JSON (same structure as input — recommendations array, optionally with impact_analysis)."""
+Return the IMPROVED JSON (same recommendations array structure)."""
 
     try:
         raw_analyzed = await llm.chat(
             system=analyzer_personality,
             messages=[{"role": "user", "content": analyzer_prompt}],
-            max_tokens=800,
-            model="gpt-4o",
+            max_tokens=1000,
+            model="gpt-4.1-mini",
         )
         raw_analyzed = raw_analyzed.strip()
         if raw_analyzed.startswith("```"):
@@ -276,6 +387,8 @@ RECOMMENDATIONS TO VALIDATE:
 ARTICLE: "{article_title}"
 COMPANY: {company_name}
 
+TODAY: {today}. The year is {today[:4]}.
+
 For each recommendation, check ALL of these:
 1. Is data grounding solid? (does it reference verifiable facts from the article?)
 2. Is it actionable within the stated timeline?
@@ -283,15 +396,16 @@ For each recommendation, check ALL of these:
 4. Are there any hallucinated facts or fabricated figures?
 5. Does it name a SPECIFIC responsible party (not "management" or "the company")?
 6. Does it include a framework:section code (e.g., BRSR:P1, GRI:205-2)?
-7. Does it have an absolute calendar deadline (not "Q2" or "short_term")?
+7. Is the deadline a YYYY-MM-DD date AFTER {today}? REJECT if before {today[:4]}.
 8. Does it have a measurable success criterion?
-9. Does the description use specific action verbs (not "enhance", "strengthen", "improve")?
+9. Does the description use specific action verbs (not "enhance", "strengthen")?
+10. Does profitability_link contain SPECIFIC NUMBERS (₹, %, bps)? If generic, mark LOW confidence.
 
 REJECT any recommendation that:
+- Has a deadline before {today}
 - Uses vague language ("enhance governance", "strengthen controls")
-- Lacks a named responsible party
-- Lacks a framework section code
-- Has no measurable success criterion
+- Lacks a named responsible party or framework code
+- Has a profitability_link without numbers (₹, %, bps)
 
 For surviving recommendations, assign confidence: HIGH/MEDIUM/LOW.
 
@@ -309,6 +423,7 @@ Return JSON:
       "success_criterion": "...",
       "urgency": "...",
       "confidence": "HIGH|MEDIUM|LOW",
+      "profitability_link": "...",
       "validation_notes": "Why this passed validation"
     }}
   ],
@@ -320,8 +435,8 @@ Return JSON:
         raw_validated = await llm.chat(
             system=validator_personality or "You are an independent ESG recommendation validator.",
             messages=[{"role": "user", "content": validator_prompt}],
-            max_tokens=1000,
-            model="gpt-4o",
+            max_tokens=1200,
+            model="gpt-4.1-mini",
         )
         raw_validated = raw_validated.strip()
         if raw_validated.startswith("```"):
@@ -331,6 +446,18 @@ Return JSON:
         # BUG-19: Validate required keys exist in parsed JSON
         if not isinstance(result, dict) or "validated_recommendations" not in result:
             result = {"validated_recommendations": [], "rejected": [], "validation_summary": "Invalid validator response"}
+        # Post-process: fix any remaining past dates and flag weak profitability links
+        result = _post_process_recommendations(result, today)
+
+        # Generate suggested questions (Phase 5B)
+        top_risks = deep_insight.get("risk_matrix", {}).get("top_risks", [])
+        top_risk_name = top_risks[0].get("category_name", "risk") if top_risks else "risk"
+        result["suggested_questions"] = [
+            f"What's the total cost of inaction on {top_risk_name}?",
+            "Which recommendation has the highest ROI?",
+            f"How do these risks compare to {company_name}'s industry peers?",
+        ]
+
         logger.info(
             "rereact_completed",
             article=article_title[:50],

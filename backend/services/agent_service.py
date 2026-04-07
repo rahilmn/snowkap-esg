@@ -968,7 +968,7 @@ async def _generate_response(
             system=system_prompt,
             messages=messages,
             max_tokens=1000,
-            model="gpt-4o",
+            model="gpt-4.1",
         )
 
     except Exception as e:

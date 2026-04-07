@@ -641,22 +641,24 @@ async def analyze_article_impact(
         nearest_deadline = find_nearest_deadline(extraction_frameworks)
         if nearest_deadline:
             days_to_deadline = nearest_deadline["days_until"]
-            article.regulatory_deadline = nearest_deadline
+            # Store the date in the DateTime column, full details in scoring_metadata
+            from datetime import date as _date
+            deadline_date_str = nearest_deadline.get("deadline_date")
+            if deadline_date_str:
+                try:
+                    from datetime import datetime as _dt, timezone as _tz
+                    if isinstance(deadline_date_str, str):
+                        article.regulatory_deadline = _dt.fromisoformat(deadline_date_str).replace(tzinfo=_tz.utc)
+                    elif isinstance(deadline_date_str, _date):
+                        article.regulatory_deadline = _dt.combine(deadline_date_str, _dt.min.time(), tzinfo=_tz.utc)
+                except Exception:
+                    pass
             logger.info(
                 "regulatory_deadline_detected",
                 article_id=article_id,
                 framework=nearest_deadline["framework"],
                 days_until=days_to_deadline,
             )
-
-        # Also scan article text for deadline-related language
-        article_text = " ".join(filter(None, [article.title, article.summary, article.content]))
-        deadline_phrases = detect_deadline_language(article_text)
-        if deadline_phrases:
-            if not hasattr(article, "regulatory_deadline") or article.regulatory_deadline is None:
-                article.regulatory_deadline = {}
-            if isinstance(article.regulatory_deadline, dict):
-                article.regulatory_deadline["deadline_language"] = deadline_phrases
     except Exception as e:
         logger.warning("regulatory_calendar_skipped", article_id=article_id, error=str(e))
 
@@ -730,11 +732,26 @@ async def analyze_article_impact(
                 for st in esg_themes_data.get("secondary_themes", []):
                     if isinstance(st, dict) and st.get("theme"):
                         theme_names.append(st["theme"])
+            # Pass company region for region-based framework boosting
+            _company_region = company_obj.headquarter_region if company_obj else None
             fm = await retrieve_applicable_frameworks(
                 esg_themes=theme_names,
                 article_content=article.content or article.summary or article.title,
                 article_title=article.title,
+                company_region=_company_region,
+                company_market_cap=company_obj.market_cap if company_obj else None,
             )
+            # Enrich with is_mandatory field from mandatory_frameworks module
+            _company_market_cap = company_obj.market_cap if company_obj else None
+            try:
+                from backend.services.mandatory_frameworks import is_framework_mandatory
+                for match in fm:
+                    match.is_mandatory = is_framework_mandatory(
+                        match.framework_id, _company_region, _company_market_cap,
+                        country=getattr(company_obj, 'headquarter_country', None) if company_obj else None,
+                    )
+            except Exception:
+                pass  # graceful degradation if mandatory_frameworks unavailable
             framework_matches_data = [m.to_dict() if hasattr(m, "to_dict") else m for m in fm]
             article.framework_matches = framework_matches_data
         except Exception as e:
@@ -744,6 +761,7 @@ async def analyze_article_impact(
         risk_matrix_data = None
         try:
             from backend.services.risk_taxonomy import assess_risk_matrix
+            _risk_company = next((c for c in companies if c.id == best_impact["company_id"]), None)
             risk_result = await assess_risk_matrix(
                 article_title=article.title,
                 article_content=article.content or article.summary,
@@ -751,6 +769,8 @@ async def analyze_article_impact(
                 nlp_extraction=nlp_data,
                 esg_themes=esg_themes_data,
                 frameworks=extraction_frameworks,
+                industry=_risk_company.industry if _risk_company else None,
+                sasb_category=_risk_company.sasb_category if _risk_company else None,
             )
             risk_matrix_data = risk_result.to_dict()
             risk_matrix_data["mode"] = "full"  # distinguishes from spotlight
@@ -781,6 +801,9 @@ async def analyze_article_impact(
                 framework_matches=framework_matches_data,
                 risk_matrix=risk_matrix_data,
                 geographic_signal=article.geographic_signal,
+                # v2.1 financial calibration context
+                market_cap=company_obj.market_cap_value if company_obj else None,
+                revenue=company_obj.revenue_last_fy if company_obj else None,
             )
             if deep:
                 article.deep_insight = deep
@@ -788,18 +811,28 @@ async def analyze_article_impact(
         except Exception as e:
             logger.warning("deep_insight_skipped", error=str(e))
 
-        # REREACT 3-agent recommendations — runs in BACKGROUND via Celery
+        # REREACT 3-agent recommendations — runs INLINE (no Celery)
         if article.deep_insight:
             try:
-                from backend.tasks.news_tasks import run_rereact_background
-                run_rereact_background.delay(
-                    article.id, tenant_id, best_impact["company_name"],
-                    extraction_frameworks, extraction.content_type,
-                    list(competitor_names),  # Convert set to list for JSON serialization
+                from backend.services.rereact_engine import rereact_recommendations
+                rereact = await rereact_recommendations(
+                    article_title=article.title,
+                    article_content=article.content,
+                    deep_insight=article.deep_insight,
+                    company_name=best_impact["company_name"],
+                    frameworks=extraction_frameworks,
+                    content_type=extraction.content_type,
+                    competitors=list(competitor_names),
+                    market_cap=getattr(company_obj, 'market_cap', None) if company_obj else None,
+                    listing_exchange=getattr(company_obj, 'listing_exchange', None) if company_obj else None,
+                    headquarter_country=getattr(company_obj, 'headquarter_country', None) if company_obj else None,
                 )
-                logger.info("rereact_queued_background", article=article.title[:40])
+                if rereact:
+                    article.rereact_recommendations = rereact
+                    logger.info("rereact_generated_inline", article=article.title[:40],
+                        recs=len(rereact.get("validated_recommendations", [])))
             except Exception as e:
-                logger.warning("rereact_queue_failed", error=str(e))
+                logger.warning("rereact_inline_failed", error=str(e))
 
     # Populate financial_exposure on the highest-impact ArticleScore
     if extraction.financial_signal_detail and extraction.financial_signal_detail.get("amount"):
@@ -849,6 +882,44 @@ async def analyze_article_impact(
         priority_score=priority_score,
         priority_level=priority_level,
     )
+
+    # Cache the article's analysis fields for 24h so repeated reads skip the DB
+    try:
+        from backend.core.redis import CACHE_TTL_ANALYSIS, cache_set
+        analysis_snapshot = {
+            "deep_insight": article.deep_insight,
+            "rereact_recommendations": article.rereact_recommendations,
+            "risk_matrix": article.risk_matrix,
+            "framework_matches": article.framework_matches,
+            "priority_score": article.priority_score,
+            "priority_level": article.priority_level,
+        }
+        await cache_set(tenant_id, "article_analysis", article_id, analysis_snapshot, ttl=CACHE_TTL_ANALYSIS)
+    except Exception:
+        pass  # Cache failure must never break the pipeline
+
+    # Notify connected frontend clients via Socket.IO
+    try:
+        from backend.core.socketio import emit_to_tenant
+        await emit_to_tenant(
+            tenant_id,
+            "article_analysis_complete",
+            {
+                "article_id": article_id,
+                "priority_score": article.priority_score,
+                "priority_level": article.priority_level,
+            },
+        )
+    except Exception:
+        pass
+
+    # Clear in-progress status key so polling returns "idle" if cache missed
+    try:
+        from backend.core.redis import cache_delete
+        await cache_delete(tenant_id, "article_analysis_status", article_id)
+    except Exception:
+        pass
+
     return all_impacts
 
 

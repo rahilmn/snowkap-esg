@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { news } from "../lib/api";
 import { useAuthStore } from "../stores/authStore";
 import { COLORS, SHADOWS, RADII } from "../lib/designTokens";
@@ -24,9 +24,11 @@ function getGreeting(): string {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const name = useAuthStore((s) => s.name) || "there";
   const firstName = name.split(" ")[0];
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [scanResult, setScanResult] = useState<string | null>(null);
 
   const { data: feedData, isLoading } = useQuery({
     queryKey: ["home-articles"],
@@ -36,6 +38,20 @@ export default function HomePage() {
   const { data: statsData } = useQuery({
     queryKey: ["news-stats"],
     queryFn: () => news.stats(),
+  });
+
+  const refreshMutation = useMutation({
+    mutationFn: () => news.refresh(),
+    onSuccess: (data) => {
+      setScanResult(`+${data.articles_stored} new articles`);
+      queryClient.invalidateQueries({ queryKey: ["home-articles"] });
+      queryClient.invalidateQueries({ queryKey: ["news-stats"] });
+      setTimeout(() => setScanResult(null), 5000);
+    },
+    onError: () => {
+      setScanResult("Scan failed — try again");
+      setTimeout(() => setScanResult(null), 3000);
+    },
   });
 
   const topArticle = feedData?.[0] as Article | undefined;
@@ -62,30 +78,58 @@ export default function HomePage() {
         </p>
       </div>
 
-      {/* FOMO Stats */}
-      {statsData && (
-        <div
-          className="flex items-center justify-between"
-          style={{
-            margin: "16px 24px 0",
-            padding: "10px 14px",
-            backgroundColor: COLORS.bgLight,
-            borderRadius: RADII.card,
-          }}
-        >
-          {[
-            { value: statsData.total, label: "Articles", color: COLORS.textPrimary },
-            { value: statsData.high_impact_count, label: "High Impact", color: COLORS.riskHigh },
-            { value: statsData.new_last_24h, label: "New Today", color: COLORS.brand },
-            { value: statsData.predictions_count, label: "Predictions", color: COLORS.framework },
-          ].map((stat, i) => (
-            <div key={i} className="text-center">
-              <p style={{ fontSize: "18px", fontWeight: 700, color: stat.color }}>{stat.value}</p>
-              <p style={{ fontSize: "10px", color: COLORS.textMuted }}>{stat.label}</p>
-            </div>
-          ))}
+      {/* FOMO Stats + Scan Now */}
+      <div style={{ margin: "16px 24px 0" }}>
+        {statsData && (
+          <div
+            className="flex items-center justify-between"
+            style={{
+              padding: "10px 14px",
+              backgroundColor: COLORS.bgLight,
+              borderRadius: RADII.card,
+            }}
+          >
+            {[
+              { value: statsData.total, label: "Articles", color: COLORS.textPrimary },
+              { value: statsData.high_impact_count, label: "High Impact", color: COLORS.riskHigh },
+              { value: statsData.new_last_24h, label: "New Today", color: COLORS.brand },
+              { value: statsData.predictions_count, label: "Predictions", color: COLORS.framework },
+            ].map((stat, i) => (
+              <div key={i} className="text-center">
+                <p style={{ fontSize: "18px", fontWeight: 700, color: stat.color }}>{stat.value}</p>
+                <p style={{ fontSize: "10px", color: COLORS.textMuted }}>{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Scan Now button */}
+        <div className="flex items-center justify-between" style={{ marginTop: "8px" }}>
+          <button
+            onClick={() => refreshMutation.mutate()}
+            disabled={refreshMutation.isPending}
+            style={{
+              fontSize: "12px",
+              fontWeight: 600,
+              color: refreshMutation.isPending ? COLORS.textMuted : COLORS.brand,
+              background: "none",
+              border: `1px solid ${refreshMutation.isPending ? COLORS.textDisabled : COLORS.brand}`,
+              borderRadius: "16px",
+              padding: "4px 12px",
+              cursor: refreshMutation.isPending ? "not-allowed" : "pointer",
+              opacity: refreshMutation.isPending ? 0.6 : 1,
+              transition: "opacity 0.2s",
+            }}
+          >
+            {refreshMutation.isPending ? "Scanning..." : "⟳ Scan Now"}
+          </button>
+          {scanResult && (
+            <span style={{ fontSize: "12px", color: scanResult.startsWith("+") ? COLORS.brand : COLORS.riskHigh, fontWeight: 600 }}>
+              {scanResult}
+            </span>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Loading state */}
       {isLoading && (
@@ -102,6 +146,26 @@ export default function HomePage() {
             <p style={{ fontSize: "13px", color: COLORS.textMuted, marginTop: "8px" }}>
               Articles are being analyzed. This usually takes 1-2 minutes.
             </p>
+            <button
+              onClick={() => refreshMutation.mutate()}
+              disabled={refreshMutation.isPending}
+              style={{
+                marginTop: "12px",
+                fontSize: "13px",
+                fontWeight: 600,
+                color: "#fff",
+                backgroundColor: refreshMutation.isPending ? COLORS.textMuted : COLORS.brand,
+                border: "none",
+                borderRadius: "20px",
+                padding: "8px 20px",
+                cursor: refreshMutation.isPending ? "not-allowed" : "pointer",
+              }}
+            >
+              {refreshMutation.isPending ? "Scanning..." : "⟳ Scan for News Now"}
+            </button>
+            {scanResult && (
+              <p style={{ fontSize: "12px", color: COLORS.brand, marginTop: "8px", fontWeight: 600 }}>{scanResult}</p>
+            )}
           </div>
 
           {/* How Snowkap Works */}
@@ -247,6 +311,7 @@ export default function HomePage() {
 
       {/* Unified detail sheet */}
       <ArticleDetailSheet
+        key={selectedArticle?.id}
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />

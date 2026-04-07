@@ -89,3 +89,27 @@
 .touch-pan-y {
   touch-action: pan-y;
 }
+
+/* On-demand analysis loading animations */
+.analysis-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(223, 89, 0, 0.25);
+  border-top-color: #DF5900;
+  animation: analysis-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+.analysis-skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f2f2f2 25%, #e8e8e8 50%, #f2f2f2 75%);
+  background-size: 200% 100%;
+  animation: analysis-shimmer 1.5s ease-in-out infinite;
+}
+@keyframes analysis-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes analysis-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

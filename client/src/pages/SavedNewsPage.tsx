@@ -231,6 +231,7 @@ export function SavedNewsPage() {
       )}
 
       <ArticleDetailSheet
+        key={selectedArticle?.id}
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />

@@ -2,6 +2,9 @@
 
 Stage 8.1: Use asgiref.sync.async_to_sync instead of creating new event loops.
 Stage 8.2: Idempotency — skip articles whose URL already exists in tenant scope.
+
+Track B1: Refresh frequency 24h → 4h.
+Track A1: poll_rss_feeds task for direct publication RSS polling (1h cycle).
 """
 
 import structlog
@@ -10,6 +13,138 @@ from asgiref.sync import async_to_sync
 from backend.tasks.celery_app import celery_app
 
 logger = structlog.get_logger()
+
+
+import re as _re
+
+
+def _title_fingerprint(title: str) -> str:
+    """Normalize title to a dedup fingerprint.
+
+    Strips punctuation, lowercases, collapses whitespace, takes first 80 chars.
+    Catches same story from different sources with slightly different wording.
+    """
+    normalized = _re.sub(r"[^a-z0-9\s]", "", title.lower())
+    normalized = _re.sub(r"\s+", " ", normalized).strip()
+    return normalized[:80]
+
+
+async def _store_articles_for_tenant(tenant_id: str, articles_data: list[dict]) -> list[str]:
+    """Shared helper: deduplicate + store article dicts for a tenant.
+
+    Deduplication is two-layer:
+    1. URL exact match (catches same article re-fetched)
+    2. Title fingerprint match (catches same story from different sources)
+
+    Used by both Celery tasks and the APScheduler jobs (scheduler.py).
+    Returns list of stored article IDs.
+    """
+    from sqlalchemy import select
+    from backend.core.database import async_session_factory
+    from backend.models.news import Article
+    from backend.services.content_extractor import extract_article_content
+
+    async with async_session_factory() as db:
+        # Layer 1: existing URLs
+        existing_result = await db.execute(
+            select(Article.url).where(
+                Article.tenant_id == tenant_id,
+                Article.url.isnot(None),
+            )
+        )
+        existing_urls = {row[0] for row in existing_result.all()}
+
+        # Layer 2: existing title fingerprints (last 7 days only — avoids full table scan)
+        from datetime import datetime, timedelta, timezone
+        cutoff = datetime.now(timezone.utc) - timedelta(days=7)
+        title_result = await db.execute(
+            select(Article.title).where(
+                Article.tenant_id == tenant_id,
+                Article.created_at >= cutoff,
+                Article.title.isnot(None),
+            )
+        )
+        existing_fingerprints = {_title_fingerprint(row[0]) for row in title_result.all()}
+
+        stored_ids = []
+        for a in articles_data:
+            url = a.get("url")
+            title = a.get("title", "")
+
+            # Layer 1: URL dedup
+            if url and url in existing_urls:
+                continue
+
+            # Layer 2: title fingerprint dedup
+            fp = _title_fingerprint(title)
+            if fp and fp in existing_fingerprints:
+                logger.debug("title_dedup_skipped", fingerprint=fp[:50])
+                continue
+
+            article = Article(
+                tenant_id=tenant_id,
+                title=title,
+                url=url,
+                source=a.get("source"),
+                published_at=a.get("published_at"),
+                summary=a.get("summary"),
+                image_url=a.get("image_url"),
+            )
+
+            if url:
+                try:
+                    extracted = await extract_article_content(url)
+                    if extracted.content:
+                        article.content = extracted.content
+                    if not article.image_url and extracted.image_url:
+                        article.image_url = extracted.image_url
+                except Exception:
+                    pass
+
+            db.add(article)
+            try:
+                await db.flush()
+                stored_ids.append(article.id)
+                if url:
+                    existing_urls.add(url)
+                existing_fingerprints.add(fp)
+            except Exception:
+                await db.rollback()
+
+        await db.commit()
+
+    # Trigger impact analysis for each new article.
+    # If we're already inside a running event loop (APScheduler, FastAPI endpoint),
+    # run inline as background tasks — no Celery worker needed.
+    # Otherwise fall back to Celery .delay().
+    import asyncio as _asyncio
+
+    async def _analyze_inline(aid: str, tid: str) -> None:
+        try:
+            from backend.core.database import async_session_factory
+            from backend.services.ontology_service import analyze_article_impact
+            async with async_session_factory() as db:
+                await analyze_article_impact(aid, tid, db)
+                await db.commit()
+            logger.info("article_impact_analyzed_inline", article_id=aid)
+        except Exception as exc:
+            logger.warning("article_impact_inline_failed", article_id=aid, error=str(exc))
+
+    try:
+        loop = _asyncio.get_running_loop()
+        # We're inside an async context — schedule as background tasks
+        for article_id in stored_ids:
+            loop.create_task(_analyze_inline(article_id, tenant_id))
+    except RuntimeError:
+        # No running event loop — use Celery
+        from backend.tasks.ontology_tasks import analyze_article_impact_task
+        for article_id in stored_ids:
+            try:
+                analyze_article_impact_task.delay(article_id, tenant_id)
+            except Exception:
+                pass
+
+    return stored_ids
 
 
 @celery_app.task(
@@ -28,87 +163,35 @@ def ingest_news_for_tenant(
     """Fetch and score news articles for a tenant's company.
 
     Pipeline:
-    1. Fetch articles via Google News RSS
+    1. Fetch articles via Google News RSS + NewsAPI + publication RSS feeds
     2. Deduplicate by URL (Stage 8.2)
     3. Store in articles table
     4. Trigger entity extraction + impact analysis for each article
     """
     async def _ingest():
-        from sqlalchemy import select
-        from backend.core.database import create_worker_session_factory
-        from backend.models.news import Article
         from backend.services.news_service import curate_domain_news
+        from backend.services.rss_feed_service import fetch_publication_feeds_for_company
 
+        # Source 1+2: Google News RSS + NewsAPI
         articles_data = await curate_domain_news(
             company_name, sustainability_query, general_query,
         )
 
-        session_factory = create_worker_session_factory()
-        async with session_factory() as db:
-            # Stage 8.2: Load existing URLs for this tenant to skip duplicates
-            existing_result = await db.execute(
-                select(Article.url).where(
-                    Article.tenant_id == tenant_id,
-                    Article.url.isnot(None),
-                )
-            )
-            existing_urls = {row[0] for row in existing_result.all()}
+        # Source 3: Direct publication RSS feeds (Mint, ET, Business Standard, etc.)
+        rss_articles = await fetch_publication_feeds_for_company(
+            company_name=company_name,
+            max_age_hours=48,
+            max_per_feed=15,
+        )
+        # Merge, dedup by URL
+        existing_urls_in_batch = {a["url"] for a in articles_data if a.get("url")}
+        for a in rss_articles:
+            if a.get("url") and a["url"] not in existing_urls_in_batch:
+                articles_data.append(a)
+                existing_urls_in_batch.add(a["url"])
 
-            # Phase 1B: Import content extractor
-            from backend.services.content_extractor import extract_article_content
-
-            stored_ids = []
-            skipped = 0
-            for a in articles_data:
-                url = a.get("url")
-                if url and url in existing_urls:
-                    skipped += 1
-                    continue
-
-                article = Article(
-                    tenant_id=tenant_id,
-                    title=a["title"],
-                    url=url,
-                    source=a.get("source"),
-                    published_at=a.get("published_at"),
-                    summary=a.get("summary"),
-                    image_url=a.get("image_url"),
-                )
-
-                # Phase 1B: Extract full article content + image via trafilatura
-                if url:
-                    try:
-                        extracted = await extract_article_content(url)
-                        if extracted.content:
-                            article.content = extracted.content
-                        # Phase 1: Update image_url from og:image if RSS didn't provide one
-                        if not article.image_url and extracted.image_url:
-                            article.image_url = extracted.image_url
-                        if extracted.content or extracted.image_url:
-                            logger.debug(
-                                "content_extracted",
-                                url=url[:80],
-                                chars=len(extracted.content) if extracted.content else 0,
-                                has_image=bool(extracted.image_url),
-                            )
-                    except Exception as exc:
-                        logger.debug("content_extraction_skipped", url=url[:80], error=str(exc))
-
-                db.add(article)
-                try:
-                    await db.flush()
-                    stored_ids.append(article.id)
-                    if url:
-                        existing_urls.add(url)
-                except Exception as flush_err:
-                    # QA: Catch duplicate URL from unique index (race condition between concurrent tasks)
-                    await db.rollback()
-                    logger.debug("article_insert_skipped", url=(url or "")[:80], error=str(flush_err))
-                    skipped += 1
-                    continue
-
-            await db.commit()
-            return stored_ids, skipped
+        stored_ids = await _store_articles_for_tenant(tenant_id, articles_data)
+        return stored_ids, len(articles_data) - len(stored_ids)
 
     try:
         article_ids, skipped = async_to_sync(_ingest)()
@@ -119,12 +202,6 @@ def ingest_news_for_tenant(
             articles=len(article_ids),
             skipped_duplicates=skipped,
         )
-
-        # Trigger impact analysis for each article (background)
-        from backend.tasks.ontology_tasks import analyze_article_impact_task
-        for article_id in article_ids:
-            analyze_article_impact_task.delay(article_id, tenant_id)
-
         return {
             "tenant_id": tenant_id,
             "articles_ingested": len(article_ids),
@@ -133,6 +210,69 @@ def ingest_news_for_tenant(
     except Exception as e:
         logger.error("news_ingest_failed", tenant_id=tenant_id, error=str(e))
         return {"tenant_id": tenant_id, "error": str(e)}
+
+
+@celery_app.task(
+    name="news.poll_rss_feeds",
+    soft_time_limit=300,
+    time_limit=360,
+    max_retries=1,
+)
+def poll_rss_feeds() -> dict:
+    """Hourly: Poll direct publication RSS feeds for all active tenants.
+
+    Lightweight — no LLM calls, just fetch + dedup + store.
+    Track A1: Guarantees Mint, ET, Business Standard coverage every hour.
+    """
+    async def _poll():
+        from sqlalchemy import select
+        from backend.core.database import create_worker_session_factory
+        from backend.models.tenant import Tenant
+        from backend.models.company import Company
+        from backend.services.rss_feed_service import fetch_publication_feeds_for_company
+
+        session_factory = create_worker_session_factory()
+        total_stored = 0
+        async with session_factory() as db:
+            tenants_result = await db.execute(
+                select(Tenant).where(Tenant.is_active.is_(True))
+            )
+            tenants = tenants_result.scalars().all()
+
+            for tenant in tenants:
+                comp_result = await db.execute(
+                    select(Company).where(Company.tenant_id == tenant.id).limit(1)
+                )
+                company = comp_result.scalars().first()
+                company_name = company.name if company else tenant.name
+
+                try:
+                    articles = await fetch_publication_feeds_for_company(
+                        company_name=company_name,
+                        max_age_hours=6,
+                        max_per_feed=10,
+                    )
+                    if articles:
+                        stored = await _store_articles_for_tenant(tenant.id, articles)
+                        total_stored += len(stored)
+                        logger.info(
+                            "rss_poll_stored",
+                            tenant_id=tenant.id,
+                            company=company_name,
+                            stored=len(stored),
+                        )
+                except Exception as err:
+                    logger.warning("rss_poll_tenant_failed", tenant_id=tenant.id, error=str(err))
+
+        return total_stored
+
+    try:
+        count = async_to_sync(_poll)()
+        logger.info("rss_poll_complete", articles_stored=count)
+        return {"status": "ok", "articles_stored": count}
+    except Exception as e:
+        logger.error("rss_poll_failed", error=str(e))
+        return {"status": "error", "error": str(e)}
 
 
 @celery_app.task(
@@ -149,6 +289,9 @@ def run_rereact_background(
     frameworks: list[str],
     content_type: str | None,
     competitors: list[str] | None = None,
+    market_cap: str | None = None,
+    listing_exchange: str | None = None,
+    headquarter_country: str | None = None,
 ) -> dict:
     """Run REREACT 3-agent recommendation pipeline in background."""
     async def _run():
@@ -174,6 +317,9 @@ def run_rereact_background(
                 frameworks=frameworks,
                 content_type=content_type,
                 competitors=competitors,
+                market_cap=market_cap,
+                listing_exchange=listing_exchange,
+                headquarter_country=headquarter_country,
             )
             if rereact:
                 article.rereact_recommendations = rereact

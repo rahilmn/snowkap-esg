@@ -83,9 +83,14 @@ export interface Article {
       urgency: string;
       confidence: string;
       validation_notes?: string;
+      profitability_link?: string;
+      roi_percentage?: number;
+      payback_months?: number;
+      priority?: string;
     }>;
     rejected: string[];
     validation_summary: string;
+    suggested_questions?: string[];
   } | null;
 
   // v2.0 Intelligence Modules
@@ -133,10 +138,13 @@ export interface FrameworkMatchV2 {
   framework_id: string;
   framework_name: string;
   triggered_sections: string[];
+  triggered_questions?: string[];  // question-level citations e.g. ["Q14 (Water discharge)", "Q15 (Air emissions)"]
   compliance_implications: string[];
   alignment_notes: string[];
   relevance_score: number;
   cross_industry_metrics?: string[];
+  profitability_link?: string;
+  is_mandatory?: boolean;
 }
 
 export interface RiskCategory {
@@ -149,6 +157,9 @@ export interface RiskCategory {
   risk_score: number;
   classification: string;
   rationale: string;
+  industry_weight?: number;
+  adjusted_score?: number;
+  profitability_note?: string;
 }
 
 export interface RiskMatrix {

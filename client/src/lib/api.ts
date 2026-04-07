@@ -122,6 +122,31 @@ export const news = {
 
   bookmark: (articleId: string) =>
     request<{ status: string }>(`/news/${articleId}/bookmark`, { method: "POST" }),
+
+  refresh: () =>
+    request<{ status: string; articles_fetched: number; articles_stored: number; sources: string[] }>(
+      "/news/refresh",
+      { method: "POST" }
+    ),
+
+  triggerAnalysis: (articleId: string) =>
+    request<{ status: "triggered" | "already_running" | "cached"; message: string }>(
+      `/news/${articleId}/trigger-analysis`,
+      { method: "POST" }
+    ),
+
+  getAnalysisStatus: (articleId: string) =>
+    request<{
+      status: "done" | "pending" | "idle";
+      analysis: {
+        deep_insight: Record<string, unknown> | null;
+        rereact_recommendations: Record<string, unknown> | null;
+        risk_matrix: Record<string, unknown> | null;
+        framework_matches: unknown[] | null;
+        priority_score: number | null;
+        priority_level: string | null;
+      } | null;
+    }>(`/news/${articleId}/analysis`),
 };
 
 // ---- Preferences (Phase 2D) ----
@@ -228,6 +253,18 @@ export const agent = {
     }>("/agent/ask-about-news", {
       method: "POST",
       body: JSON.stringify({ article_id, question }),
+    }),
+
+  askAboutInsights: (
+    article_id: string,
+    company_id: string,
+    message: string,
+    conversation_history: Array<{ role: string; content: string }> = [],
+    context_sections: string[] = ["recommendations", "framework_alignment", "financial_impact", "risk_matrix"],
+  ) =>
+    request<{ response: string; article_id: string }>(`/news/${article_id}/chat`, {
+      method: "POST",
+      body: JSON.stringify({ company_id, message, conversation_history, context_sections }),
     }),
 
   confirmAction: (action_id: string, conversation_id: string) =>

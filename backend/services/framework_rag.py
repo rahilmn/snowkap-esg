@@ -29,6 +29,62 @@ logger = structlog.get_logger()
 
 
 # ---------------------------------------------------------------------------
+# Region-based framework relevance boosts
+# ---------------------------------------------------------------------------
+
+REGION_FRAMEWORK_BOOST: dict[str, dict[str, float]] = {
+    # Keys normalised to uppercase — matches company.headquarter_region values (INDIA, EU, US, UK, APAC, OTHER)
+    "INDIA": {"BRSR": 0.6, "SEBI": 0.6, "GRI": 0.1, "CDP": 0.1, "TCFD": 0.1},
+    "APAC": {"BRSR": 0.4, "GRI": 0.1, "CDP": 0.1, "TCFD": 0.1},
+    "EU": {"CSRD_ESRS": 0.6, "ESRS": 0.6, "EU_TAXONOMY": 0.6, "SFDR": 0.4, "GRI": 0.1, "TCFD": 0.1},
+    "US": {"SEC_CLIMATE": 0.6, "SEC": 0.6, "SASB": 0.4, "GRI": 0.1, "TCFD": 0.1},
+    "UK": {"TCFD": 0.4, "GRI": 0.2, "SASB": 0.1, "CDP": 0.1},
+    # Legacy aliases (case-insensitive lookup below handles these)
+    "Asia-Pacific": {"BRSR": 0.4, "GRI": 0.1, "CDP": 0.1, "TCFD": 0.1},
+    "India": {"BRSR": 0.6, "SEBI": 0.6, "GRI": 0.1, "CDP": 0.1, "TCFD": 0.1},
+    "Europe": {"CSRD_ESRS": 0.6, "ESRS": 0.6, "EU_TAXONOMY": 0.6, "SFDR": 0.4, "GRI": 0.1, "TCFD": 0.1},
+    "North America": {"SEC_CLIMATE": 0.6, "SEC": 0.6, "SASB": 0.4, "GRI": 0.1, "TCFD": 0.1},
+}
+
+# Frameworks that get PENALIZED when shown to wrong region
+REGION_FRAMEWORK_PENALTY: dict[str, dict[str, float]] = {
+    "INDIA": {"SEC_CLIMATE": -0.2, "SEC": -0.2, "CSRD_ESRS": -0.15, "EU_TAXONOMY": -0.15, "SFDR": -0.15},
+    "APAC": {"SEC_CLIMATE": -0.2, "SEC": -0.2, "CSRD_ESRS": -0.15, "EU_TAXONOMY": -0.15, "SFDR": -0.15},
+    "EU": {"BRSR": -0.2, "SEBI": -0.2, "SEC_CLIMATE": -0.15},
+    "US": {"BRSR": -0.2, "SEBI": -0.2, "CSRD_ESRS": -0.15, "EU_TAXONOMY": -0.15},
+    "UK": {"BRSR": -0.2, "SEBI": -0.2, "CSRD_ESRS": -0.1},
+    # Legacy aliases
+    "Asia-Pacific": {"SEC_CLIMATE": -0.2, "SEC": -0.2, "CSRD_ESRS": -0.15, "EU_TAXONOMY": -0.15, "SFDR": -0.15},
+    "India": {"SEC_CLIMATE": -0.2, "SEC": -0.2, "CSRD_ESRS": -0.15, "EU_TAXONOMY": -0.15, "SFDR": -0.15},
+    "Europe": {"BRSR": -0.2, "SEBI": -0.2, "SEC_CLIMATE": -0.15},
+    "North America": {"BRSR": -0.2, "SEBI": -0.2, "CSRD_ESRS": -0.15, "EU_TAXONOMY": -0.15},
+}
+
+# Global frameworks always get a small boost
+GLOBAL_FRAMEWORKS: dict[str, float] = {
+    "TCFD": 0.1, "GRI": 0.1, "CDP": 0.1, "ISSB": 0.1,
+    "GHG_PROTOCOL": 0.05, "SBTi": 0.05, "TNFD": 0.05,
+}
+
+# Framework → profitability consequence mapping
+FRAMEWORK_PROFITABILITY: dict[str, str] = {
+    "BRSR": "Non-disclosure → SEBI scrutiny → potential trading restrictions → liquidity risk + ESG rating downgrade → cost of capital +20-40bps",
+    "CSRD_ESRS": "Non-compliance → EU market access restriction → revenue loss from EU operations + fines up to 2% of global turnover",
+    "TCFD": "Non-disclosure → institutional investor exclusion → FII outflow → P/E compression 5-10%",
+    "GRI": "Incomplete reporting → ESG fund screening exclusion → reduced institutional ownership",
+    "SASB": "Non-alignment → poor MSCI/Sustainalytics rating → index exclusion → passive fund outflow",
+    "CDP": "Non-response → climate leadership exclusion → lost procurement contracts from CDP-mandating buyers",
+    "SEC_CLIMATE": "Non-compliance → SEC enforcement action → litigation risk + investor lawsuits",
+    "SFDR": "Non-alignment → EU fund managers cannot invest → capital access restriction",
+    "EU_TAXONOMY": "Non-alignment → green bond ineligibility → higher borrowing costs",
+    "ISSB": "Non-alignment → global investor benchmarking exclusion → reduced cross-border capital access",
+    "GHG_PROTOCOL": "Non-adoption → emissions data not credible → carbon credit rejection + supply chain exclusion",
+    "SBTi": "No validated target → net-zero credibility gap → greenwashing accusation risk",
+    "TNFD": "Non-disclosure → nature-related risk opacity → biodiversity-sensitive investor exclusion",
+}
+
+
+# ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
 
@@ -39,20 +95,26 @@ class FrameworkMatch:
     framework_id: str
     framework_name: str
     triggered_sections: list[str] = field(default_factory=list)
+    triggered_questions: list[str] = field(default_factory=list)  # question-level (e.g. Q14, Q15)
     compliance_implications: list[str] = field(default_factory=list)
     cross_industry_metrics: list[str] = field(default_factory=list)  # TCFD cross-industry
     relevance_score: float = 0.0  # 0-1 confidence of the match
     alignment_notes: list[str] = field(default_factory=list)
+    profitability_link: str = ""  # profitability consequence chain
+    is_mandatory: bool = False  # whether framework is mandatory for the company
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "framework_id": self.framework_id,
             "framework_name": self.framework_name,
             "triggered_sections": self.triggered_sections,
+            "triggered_questions": self.triggered_questions,
             "compliance_implications": self.compliance_implications,
             "cross_industry_metrics": self.cross_industry_metrics,
             "relevance_score": self.relevance_score,
             "alignment_notes": self.alignment_notes,
+            "profitability_link": self.profitability_link,
+            "is_mandatory": self.is_mandatory,
         }
 
 
@@ -1023,6 +1085,9 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P1": {
                 "title": "Principle 1 — Ethics, Transparency and Accountability",
                 "description": "NGRBC Principle 1 — ethical conduct, anti-corruption, responsible advocacy.",
+                "questions": ["Q1 (Ethics/bribery policy coverage)", "Q2 (Conflicts of interest cases)",
+                              "Q3 (Training on ethics — employees/workers %)", "Q4 (Complaints on ethics/corruption)",
+                              "Q5 (Fines/penalties from regulators on P1 matters)"],
                 "metrics": [
                     "Training on ethics/integrity/conflicts of interest (employees/workers %)",
                     "Complaints on ethics/bribery/corruption and their status",
@@ -1040,6 +1105,11 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P2": {
                 "title": "Principle 2 — Products Lifecycle Sustainability",
                 "description": "NGRBC Principle 2 — sustainable goods/services across lifecycle.",
+                "questions": ["Q6 (R&D/CapEx on environmental/social product improvements)",
+                              "Q7 (Sustainable sourcing procedures — % of inputs)",
+                              "Q8 (Recycled/reused input material as % of total)",
+                              "Q9 (Extended Producer Responsibility — plastic, e-waste, battery)",
+                              "Q10 (Life Cycle Assessments conducted)"],
                 "metrics": [
                     "R&D and CapEx on improving environmental/social impacts of products",
                     "Procedures for sustainable sourcing (% of inputs sustainably sourced)",
@@ -1057,6 +1127,15 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P3": {
                 "title": "Principle 3 — Employee Wellbeing",
                 "description": "NGRBC Principle 3 — promote wellbeing of all employees and workers.",
+                "questions": ["Q11 (PF/gratuity/ESI/maternity coverage — permanent/non-permanent %)",
+                              "Q12 (Benefits to contract/temporary workers)",
+                              "Q13 (Accessibility for differently-abled workers)",
+                              "Q14 (Parental leave return-to-work and retention rate, gender-wise)",
+                              "Q15 (Grievance redressal — harassment, discrimination, child labour, wages)",
+                              "Q16 (Trade union/association membership %)",
+                              "Q17 (Training on health & safety, skill upgradation — gender/category)",
+                              "Q18 (Safety incidents — LTIFR, fatalities, injuries, employees/workers separate)",
+                              "Q19 (Assessments on health & safety practices and working conditions)"],
                 "metrics": [
                     "Employees/workers covered by PF, gratuity, ESI, maternity (% permanent/non-permanent)",
                     "Benefits to contract/temporary workers",
@@ -1080,6 +1159,11 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P4": {
                 "title": "Principle 4 — Stakeholder Engagement",
                 "description": "NGRBC Principle 4 — responsive to all stakeholders.",
+                "questions": ["Q20 (Identified material stakeholder groups)",
+                              "Q21 (Channels and frequency of engagement per group)",
+                              "Q22 (Key concerns identified per stakeholder group)",
+                              "Q23 (Vulnerable/marginalised stakeholder engagement)",
+                              "Q24 (Special initiatives for marginalised groups)"],
                 "metrics": [
                     "Identified material stakeholder groups",
                     "Channels/frequency of engagement per group",
@@ -1094,6 +1178,12 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P5": {
                 "title": "Principle 5 — Human Rights",
                 "description": "NGRBC Principle 5 — respect and promote human rights.",
+                "questions": ["Q25 (Training on human rights — employees/workers %)",
+                              "Q26 (Minimum wages paid — permanent/non-permanent, gender-wise %)",
+                              "Q27 (Median/mean remuneration male vs female employees)",
+                              "Q28 (Gross wages paid to women as % of total wages)",
+                              "Q29 (Complaints on harassment, discrimination, child/forced labour, wages)",
+                              "Q30 (Human rights due diligence and value chain assessment)"],
                 "metrics": [
                     "Training on human rights (employees/workers % and scope)",
                     "Minimum wages paid to all permanent/non-permanent (gender-wise %)",
@@ -1114,6 +1204,25 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P6": {
                 "title": "Principle 6 — Environment",
                 "description": "NGRBC Principle 6 — protect and restore the environment.",
+                "questions": [
+                    "Q31 (Total energy consumption — renewable & non-renewable, GJ)",
+                    "Q32 (Energy intensity per rupee of turnover)",
+                    "Q33 (PAT scheme compliance status)",
+                    "Q34 (Water withdrawal by source — surface, ground, third-party, seawater)",
+                    "Q35 (Total water consumption and intensity per turnover)",
+                    "Q36 (Water discharged — destination and treatment level)",
+                    "Q37 (Zero Liquid Discharge status)",
+                    "Q38 (Scope 1 & 2 GHG emissions in tCO2e and intensity)",
+                    "Q39 (Scope 1 & 2 emission details per BRSR Core / LODR 2023)",
+                    "Q40 (Air emissions — NOx, SOx, PM, VOC, HAP)",
+                    "Q41 (Total waste generated — hazardous and non-hazardous, MT)",
+                    "Q42 (Waste recycled, reused, recovered, incinerated, landfilled)",
+                    "Q43 (Waste intensity per rupee of turnover)",
+                    "Q44 (Waste management practices and disposal methods)",
+                    "Q45 (Ecologically sensitive areas — operations near protected zones)",
+                    "Q46 (Environmental Impact Assessments conducted)",
+                    "Q47 (Environmental compliance — notices, fines, penalties)",
+                    "Q48 (Scope 3 emissions — upstream/downstream per BRSR Core)"],
                 "metrics": [
                     # Energy
                     "Total energy consumption (GJ) — renewable & non-renewable",
@@ -1151,6 +1260,9 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P7": {
                 "title": "Principle 7 — Responsible Policy Advocacy",
                 "description": "NGRBC Principle 7 — responsible and transparent policy influence.",
+                "questions": ["Q49 (Membership in trade/industry chambers/associations)",
+                              "Q50 (Policy advocacy positions on ESG topics)",
+                              "Q51 (Anti-competitive conduct cases and corrective actions)"],
                 "metrics": [
                     "Membership in trade/industry chambers/associations",
                     "Policy advocacy positions on ESG topics",
@@ -1163,6 +1275,15 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P8": {
                 "title": "Principle 8 — Inclusive Growth and Equitable Development",
                 "description": "NGRBC Principle 8 — promote inclusive growth, equitable development.",
+                "questions": ["Q52 (Social Impact Assessments conducted)",
+                              "Q53 (Community rehabilitation and resettlement programs)",
+                              "Q54 (CSR projects — beneficiaries and spend by geography)",
+                              "Q55 (Input material sourced from MSMEs/small producers %)",
+                              "Q56 (Procurement from MSMEs %)",
+                              "Q57 (Job creation in smaller towns — Tier 2/3)",
+                              "Q58 (Preferential procurement from disadvantaged groups)",
+                              "Q59 (CSR spend as % of PAT — Companies Act Section 135)",
+                              "Q60 (Direct community investments and outcomes)"],
                 "metrics": [
                     "Social Impact Assessments (SIA) conducted",
                     "Community rehabilitation and resettlement programs",
@@ -1181,6 +1302,12 @@ FRAMEWORK_KNOWLEDGE: dict[str, FrameworkKB] = {
             "BRSR:P9": {
                 "title": "Principle 9 — Consumer / Customer Value",
                 "description": "NGRBC Principle 9 — engage with and provide value to consumers responsibly.",
+                "questions": ["Q61 (Consumer complaints — data privacy, advertising, quality, unfair trade)",
+                              "Q62 (Product recalls — voluntary and forced)",
+                              "Q63 (Cybersecurity and data privacy policy)",
+                              "Q64 (Information on products for responsible consumption)",
+                              "Q65 (Mechanisms for safe, informed sustainable product choices)",
+                              "Q66 (Consumer satisfaction survey results)"],
                 "metrics": [
                     "Consumer complaints on data privacy, advertising, delivery, quality, unfair trade",
                     "Product recalls — voluntary and forced",
@@ -1428,6 +1555,7 @@ def get_framework_provisions(
             "section_code": section_code,
             "title": prov["title"],
             "description": prov["description"],
+            "questions": prov.get("questions", []),
             "metrics": prov.get("metrics", []),
             "triggers": prov.get("triggers", []),
         })
@@ -1438,6 +1566,7 @@ def get_framework_provisions(
 def _match_frameworks_by_triggers(
     text: str,
     esg_themes: list[str] | None = None,
+    company_region: str | None = None,
 ) -> list[FrameworkMatch]:
     """Rule-based framework matching using retrieval triggers and theme map.
 
@@ -1451,6 +1580,7 @@ def _match_frameworks_by_triggers(
     text_lower = text.lower()
     scores: dict[str, float] = {}
     triggered_sections: dict[str, list[str]] = {}
+    triggered_questions: dict[str, list[str]] = {}
     cross_metrics: dict[str, list[str]] = {}
 
     # Step 1: Match from ESG themes (highest signal)
@@ -1466,7 +1596,7 @@ def _match_frameworks_by_triggers(
             if trigger in text_lower:
                 scores[fid] = scores.get(fid, 0.0) + 0.15
 
-        # Step 3: Match individual provision triggers
+        # Step 3: Match individual provision triggers; collect question-level citations
         for section_code, prov in kb["provisions"].items():
             for trigger in prov.get("triggers", []):
                 if trigger in text_lower:
@@ -1474,10 +1604,36 @@ def _match_frameworks_by_triggers(
                     triggered_sections.setdefault(fid, [])
                     if section_code not in triggered_sections[fid]:
                         triggered_sections[fid].append(section_code)
+                    # Collect question-level citations for this provision (BRSR + others)
+                    for q in prov.get("questions", []):
+                        triggered_questions.setdefault(fid, [])
+                        if q not in triggered_questions[fid]:
+                            triggered_questions[fid].append(q)
+                    break  # one trigger match is enough to cite questions
 
         # Capture cross-industry metrics for TCFD
         if fid == "TCFD" and fid in scores:
             cross_metrics[fid] = kb.get("cross_industry_metrics", [])
+
+    # Apply region-based boosts, penalties, and global framework boosts
+    for fid in list(scores.keys()):
+        if company_region:
+            # Regional boost
+            regional_boosts = REGION_FRAMEWORK_BOOST.get(company_region, {})
+            for fw_id, boost in regional_boosts.items():
+                if fw_id.upper() in fid.upper() or fid.upper() in fw_id.upper():
+                    scores[fid] += boost
+            # Regional penalty (wrong-region frameworks)
+            regional_penalties = REGION_FRAMEWORK_PENALTY.get(company_region, {})
+            for fw_id, penalty in regional_penalties.items():
+                if fw_id.upper() in fid.upper() or fid.upper() in fw_id.upper():
+                    scores[fid] += penalty  # penalty is negative
+        # Always add global boost
+        for fw_id, boost in GLOBAL_FRAMEWORKS.items():
+            if fw_id.upper() in fid.upper():
+                scores[fid] += boost
+        # Clamp to [0, 1]
+        scores[fid] = max(0.0, min(scores[fid], 1.0))
 
     # Build FrameworkMatch objects
     matches: list[FrameworkMatch] = []
@@ -1502,18 +1658,28 @@ def _match_frameworks_by_triggers(
                 if fid in entry["frameworks"] or kb["name"] in entry["frameworks"]:
                     alignment.append(entry["note"])
 
+        # Profitability link from static mapping
+        prof_link = ""
+        for prof_key, prof_val in FRAMEWORK_PROFITABILITY.items():
+            if prof_key.upper() in fid.upper() or fid.upper() in prof_key.upper():
+                prof_link = prof_val
+                break
+
         matches.append(FrameworkMatch(
             framework_id=fid,
             framework_name=kb["name"],
             triggered_sections=triggered_sections.get(fid, []),
+            triggered_questions=triggered_questions.get(fid, []),
             compliance_implications=implications,
             cross_industry_metrics=cross_metrics.get(fid, []),
             relevance_score=capped_score,
             alignment_notes=alignment,
+            profitability_link=prof_link,
         ))
 
     matches.sort(key=lambda m: m.relevance_score, reverse=True)
-    return matches
+    # Drop truly irrelevant matches (below 0.15) before returning — prevents noise in stored data
+    return [m for m in matches if m.relevance_score >= 0.15]
 
 
 async def _llm_fallback_matching(
@@ -1612,6 +1778,8 @@ async def retrieve_applicable_frameworks(
     article_content: str = "",
     article_title: str = "",
     use_llm_fallback: bool = True,
+    company_region: str | None = None,
+    company_market_cap: str | None = None,
 ) -> list[FrameworkMatch]:
     """Main entry point — retrieve applicable frameworks for an article.
 
@@ -1625,6 +1793,10 @@ async def retrieve_applicable_frameworks(
         article_title: Article headline.
         use_llm_fallback: Whether to invoke LLM when rule-based matching
             returns fewer than 2 matches. Default True.
+        company_region: Company headquarter region for region-based framework
+            boosting (e.g. "INDIA", "EU", "US", "UK", "APAC").
+        company_market_cap: Cap category string (e.g. "Large Cap", "Mid Cap")
+            used for mandatory framework detection.
 
     Returns:
         List of FrameworkMatch objects, sorted by relevance_score descending.
@@ -1636,10 +1808,11 @@ async def retrieve_applicable_frameworks(
         themes=esg_themes,
         title_len=len(article_title),
         content_len=len(article_content),
+        company_region=company_region,
     )
 
-    # Step 1: Rule-based matching
-    matches = _match_frameworks_by_triggers(combined_text, esg_themes)
+    # Step 1: Rule-based matching (with regional boost)
+    matches = _match_frameworks_by_triggers(combined_text, esg_themes, company_region=company_region)
 
     logger.info(
         "framework_rag_rule_matches",
@@ -1669,6 +1842,17 @@ async def retrieve_applicable_frameworks(
             count=len(matches),
             frameworks=[m.framework_id for m in matches],
         )
+
+    # Step 2b: Apply mandatory framework detection using company region + market cap
+    if company_region or company_market_cap:
+        try:
+            from backend.services.mandatory_frameworks import is_framework_mandatory
+            for match in matches:
+                match.is_mandatory = is_framework_mandatory(
+                    match.framework_id, company_region, company_market_cap
+                )
+        except Exception:
+            pass  # mandatory detection is best-effort
 
     # Step 3: Enrich with cross-framework alignment notes
     matched_ids = {m.framework_id for m in matches}

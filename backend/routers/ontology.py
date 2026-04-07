@@ -16,6 +16,7 @@ from pydantic import BaseModel
 from sqlalchemy import func, select
 
 from backend.core.dependencies import TenantContext, get_tenant_context
+from backend.core.redis import CACHE_TTL_ANALYSIS, cache_get, cache_set
 from backend.models.ontology import Assertion, InferenceLog, OntologyRule
 from backend.ontology.rule_compiler import compile_and_deploy_rule, deploy_assertion
 from backend.services.ontology_service import (
@@ -380,17 +381,21 @@ async def analyze_impact(
     req: ArticleImpactRequest,
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> dict:
-    """Run full impact analysis pipeline on an article.
+    """Run full impact analysis pipeline on an article. Result cached 24h per tenant."""
+    cache_key = f"impact:{req.article_id}"
+    cached = await cache_get(ctx.tenant_id, "analysis", cache_key)
+    if cached is not None:
+        return cached
 
-    Extracts entities, resolves against Jena, finds causal chains,
-    scores impacts, stores results.
-    """
     impacts = await analyze_article_impact(req.article_id, ctx.tenant_id, ctx.db)
-    return {
+    result = {
         "article_id": req.article_id,
         "impacts": impacts,
         "total_companies_affected": len(impacts),
     }
+    if impacts:
+        await cache_set(ctx.tenant_id, "analysis", cache_key, result, ttl=CACHE_TTL_ANALYSIS)
+    return result
 
 
 # --- Inference Dashboard ---

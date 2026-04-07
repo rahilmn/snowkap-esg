@@ -129,6 +129,20 @@ class Settings(BaseSettings):
                 )
         return v
 
+    @field_validator("ANTHROPIC_API_KEY", mode="after")
+    @classmethod
+    def validate_anthropic_key_in_production(cls, v: str) -> str:
+        """Warn if ANTHROPIC_API_KEY is empty in production."""
+        if not v:
+            import os
+            env = os.environ.get("ENVIRONMENT", "development").lower()
+            if env == "production":
+                raise ValueError(
+                    "FATAL: ANTHROPIC_API_KEY is required in production. "
+                    "LLM-powered features (entity extraction, agent chat, recommendations) will fail."
+                )
+        return v
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: str | List[str]) -> List[str]:

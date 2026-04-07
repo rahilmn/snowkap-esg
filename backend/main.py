@@ -21,6 +21,8 @@ from slowapi.errors import RateLimitExceeded
 from fastapi.staticfiles import StaticFiles
 from starlette.types import Scope
 
+from sqlalchemy import text
+
 from backend.core.config import settings
 from backend.core.database import engine
 from backend.core.socketio import sio_app
@@ -57,8 +59,23 @@ if settings.SENTRY_DSN:
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application startup and shutdown lifecycle."""
     logger.info("snowkap_starting", version=settings.APP_VERSION, environment=settings.ENVIRONMENT)
+
+    # Start embedded APScheduler — ensures RSS polling + news refresh fire
+    # even when no Celery worker is running (dev / single-server deployments).
+    try:
+        from backend.core.scheduler import start_scheduler
+        start_scheduler()
+    except Exception as sched_err:
+        logger.warning("apscheduler_start_failed", error=str(sched_err))
+
     yield
+
     # Cleanup persistent connections
+    try:
+        from backend.core.scheduler import stop_scheduler
+        stop_scheduler()
+    except Exception:
+        pass
     from backend.ontology.jena_client import jena_client
     await jena_client.close()
     await engine.dispose()
@@ -145,8 +162,61 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.get("/api/health")
 async def health_check() -> dict:
-    """Health check endpoint for Docker and monitoring."""
-    return {"status": "healthy", "service": "esg-api", "version": settings.APP_VERSION}
+    """Health check endpoint with dependency verification.
+
+    Checks: PostgreSQL, Redis, Jena Fuseki, MinIO connectivity.
+    Returns degraded status if any dependency is unreachable.
+    """
+    deps: dict[str, str] = {}
+    healthy = True
+
+    # PostgreSQL
+    try:
+        from backend.core.database import async_session_factory
+        async with async_session_factory() as db:
+            await db.execute(text("SELECT 1"))
+        deps["postgres"] = "ok"
+    except Exception as e:
+        deps["postgres"] = f"error: {str(e)[:80]}"
+        healthy = False
+
+    # Redis
+    try:
+        from backend.core.redis import get_redis
+        r = await get_redis()
+        await r.ping()
+        deps["redis"] = "ok"
+    except Exception as e:
+        deps["redis"] = f"error: {str(e)[:80]}"
+        healthy = False
+
+    # Jena Fuseki
+    try:
+        from backend.ontology.jena_client import jena_client
+        jena_ok = await jena_client.health_check()
+        deps["jena"] = "ok" if jena_ok else "unreachable"
+        if not jena_ok:
+            healthy = False
+    except Exception as e:
+        deps["jena"] = f"error: {str(e)[:80]}"
+        healthy = False
+
+    # MinIO
+    try:
+        from backend.services.storage_service import storage_service
+        client = storage_service._get_client()
+        client.bucket_exists(settings.MINIO_BUCKET)
+        deps["minio"] = "ok"
+    except Exception as e:
+        deps["minio"] = f"error: {str(e)[:80]}"
+        healthy = False
+
+    return {
+        "status": "healthy" if healthy else "degraded",
+        "service": "esg-api",
+        "version": settings.APP_VERSION,
+        "dependencies": deps,
+    }
 
 
 # --- Serve frontend SPA from built Vite output (for Replit / production) ---

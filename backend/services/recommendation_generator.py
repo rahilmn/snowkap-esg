@@ -64,7 +64,7 @@ Rules:
         raw = await llm.chat(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=500,
-            model="gpt-4o-mini",
+            model="gpt-4.1-nano",
         )
         raw = raw.strip()
         if raw.startswith("```"):

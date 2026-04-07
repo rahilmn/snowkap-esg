@@ -183,7 +183,7 @@ CONTENT: {content[:3000]}
 Return JSON:
 {{"translated_title": "<English title>", "translated_content": "<English translation of the full content>", "original_language": "<detected language>"}}"""}],
             max_tokens=2000,
-            model="gpt-4o",
+            model="gpt-4.1-mini",
         )
         raw = raw.strip()
         if raw.startswith("```"):
@@ -260,7 +260,7 @@ Return JSON:
   "supply_chain_references": ["<supplier names, tiers, supply chain geographies>"]
 }}"""}],
             max_tokens=800,
-            model="gpt-4o",
+            model="gpt-4.1-mini",
         )
         raw = raw.strip()
         # Strip markdown code fences

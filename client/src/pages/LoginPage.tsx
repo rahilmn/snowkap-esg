@@ -98,7 +98,8 @@ export function LoginPage() {
     try {
       const result = await auth.login({ email, domain, designation, company_name: companyName, name });
       loginStore(result);
-      sessionStorage.setItem("pending_login", JSON.stringify({ completed: true }));
+      // Store actual credentials so OnboardingPage can re-login on page refresh
+      sessionStorage.setItem("pending_login", JSON.stringify({ email, domain, designation, company_name: companyName, name }));
       navigate("/welcome", { replace: true });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to sign in");
