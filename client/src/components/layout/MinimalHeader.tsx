@@ -80,6 +80,14 @@ export function MinimalHeader() {
                 Preferences
               </button>
 
+              <button
+                onClick={() => { setMenuOpen(false); navigate("/campaigns"); }}
+                className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                style={{ fontSize: "14px", color: COLORS.textPrimary }}
+              >
+                Campaigns
+              </button>
+
               {hasPermission("platform_admin") && (
                 <button
                   onClick={() => { setMenuOpen(false); navigate("/admin"); }}

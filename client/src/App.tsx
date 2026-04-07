@@ -17,6 +17,7 @@ import IntroPage from "@/pages/IntroPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import HomePage from "@/pages/HomePage";
 import PreferencesPage from "@/pages/PreferencesPage";
+import { CampaignsPage } from "@/pages/CampaignsPage";
 
 /** Entry point — decides where to send the user */
 function EntryRedirect() {
@@ -92,6 +93,7 @@ export function App() {
                 <Route path="/saved" element={<SavedNewsPage />} />
                 <Route path="/agent" element={<AgentChatPage />} />
                 <Route path="/admin" element={<AdminPage />} />
+                <Route path="/campaigns" element={<CampaignsPage />} />
                 <Route path="/preferences" element={<PreferencesPage />} />
                 {/* Catch any unknown route → home */}
                 <Route path="*" element={<Navigate to="/home" replace />} />

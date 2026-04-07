@@ -24,8 +24,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # pgvector extension — only create if available (not on all Postgres installs)
-    # op.execute("CREATE EXTENSION IF NOT EXISTS vector")
+    # pgvector extension — required for semantic search (embedding_service.py)
+    op.execute("CREATE EXTENSION IF NOT EXISTS vector")
 
     # --- Tenants (root multi-tenant entity) ---
     op.create_table(

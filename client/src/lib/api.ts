@@ -218,13 +218,34 @@ export const ontology = {
     }),
 };
 
-// ---- Campaigns (Fix 3) ----
+// ---- Campaigns ----
+export interface CampaignItem {
+  id: string;
+  type: string;
+  title: string;
+  content: string;
+  topic: string | null;
+  status: string;
+  frameworks_referenced: string[];
+  articles_used: number;
+  created_at: string | null;
+}
+
 export const campaigns = {
+  list: (type?: string) =>
+    request<{ campaigns: CampaignItem[]; total: number }>(`/campaigns/${type ? `?type=${type}` : ""}`),
+
+  get: (id: string) =>
+    request<CampaignItem>(`/campaigns/${id}`),
+
   generate: (type: string, topic?: string, frameworks?: string[]) =>
-    request<{ type: string; title: string; content: string; frameworks_referenced: string[]; articles_used: number }>("/campaigns/generate", {
+    request<CampaignItem>("/campaigns/generate", {
       method: "POST",
       body: JSON.stringify({ type, topic, frameworks }),
     }),
+
+  delete: (id: string) =>
+    request<void>(`/campaigns/${id}`, { method: "DELETE" }),
 };
 
 // ---- Agent Chat ----

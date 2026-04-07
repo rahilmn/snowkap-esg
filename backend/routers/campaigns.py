@@ -1,22 +1,27 @@
 """Campaigns router — newsletter, peer comparison, leadership content generation.
 
-Fix 3: Implements /generate endpoint that wires Content + Competitive agents
-to produce campaign content, peer reports, and leadership communications.
+Full CRUD: list, get, generate (create), delete campaigns.
+Content is persisted to the campaigns table for history and editing.
 """
 
+import re
+
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from backend.core import llm
 from backend.core.dependencies import TenantContext, get_tenant_context
+from backend.models.campaign import ContentCampaign as Campaign
 from backend.models.company import Company
 from backend.models.news import Article
 
 logger = structlog.get_logger()
 router = APIRouter()
 
+
+# --- Request / Response schemas ---
 
 class CampaignGenerateRequest(BaseModel):
     type: str  # "newsletter", "peer_comparison", "leadership_brief", "disclosure_draft"
@@ -25,19 +30,102 @@ class CampaignGenerateRequest(BaseModel):
 
 
 class CampaignResponse(BaseModel):
+    id: str
     type: str
     title: str
     content: str
+    topic: str | None
+    status: str
     frameworks_referenced: list[str]
     articles_used: int
+    created_at: str | None = None
 
 
-@router.get("/")
+class CampaignListResponse(BaseModel):
+    campaigns: list[CampaignResponse]
+    total: int
+
+
+# --- Endpoints ---
+
+@router.get("/", response_model=CampaignListResponse)
 async def list_campaigns(
+    type: str | None = None,
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     ctx: TenantContext = Depends(get_tenant_context),
-) -> dict:
+) -> CampaignListResponse:
     """List campaigns for this tenant."""
-    return {"campaigns": [], "total": 0}
+    query = select(Campaign).where(Campaign.tenant_id == ctx.tenant_id)
+    if type:
+        query = query.where(Campaign.type == type)
+    query = query.order_by(Campaign.created_at.desc()).limit(limit).offset(offset)
+
+    result = await ctx.db.execute(query)
+    campaigns = result.scalars().all()
+
+    count_q = select(func.count(Campaign.id)).where(Campaign.tenant_id == ctx.tenant_id)
+    if type:
+        count_q = count_q.where(Campaign.type == type)
+    total = (await ctx.db.execute(count_q)).scalar() or 0
+
+    return CampaignListResponse(
+        campaigns=[
+            CampaignResponse(
+                id=c.id, type=c.type, title=c.title, content=c.content,
+                topic=c.topic, status=c.status,
+                frameworks_referenced=c.frameworks_referenced or [],
+                articles_used=c.articles_used or 0,
+                created_at=c.created_at.isoformat() if c.created_at else None,
+            )
+            for c in campaigns
+        ],
+        total=total,
+    )
+
+
+@router.get("/{campaign_id}", response_model=CampaignResponse)
+async def get_campaign(
+    campaign_id: str,
+    ctx: TenantContext = Depends(get_tenant_context),
+) -> CampaignResponse:
+    """Get a single campaign by ID."""
+    result = await ctx.db.execute(
+        select(Campaign).where(
+            Campaign.id == campaign_id,
+            Campaign.tenant_id == ctx.tenant_id,
+        )
+    )
+    c = result.scalar_one_or_none()
+    if not c:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+
+    return CampaignResponse(
+        id=c.id, type=c.type, title=c.title, content=c.content,
+        topic=c.topic, status=c.status,
+        frameworks_referenced=c.frameworks_referenced or [],
+        articles_used=c.articles_used or 0,
+        created_at=c.created_at.isoformat() if c.created_at else None,
+    )
+
+
+@router.delete("/{campaign_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_campaign(
+    campaign_id: str,
+    ctx: TenantContext = Depends(get_tenant_context),
+) -> None:
+    """Delete a campaign."""
+    result = await ctx.db.execute(
+        select(Campaign).where(
+            Campaign.id == campaign_id,
+            Campaign.tenant_id == ctx.tenant_id,
+        )
+    )
+    c = result.scalar_one_or_none()
+    if not c:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    await ctx.db.delete(c)
+    await ctx.db.flush()
 
 
 @router.post("/generate", response_model=CampaignResponse)
@@ -45,7 +133,7 @@ async def generate_campaign(
     req: CampaignGenerateRequest,
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> CampaignResponse:
-    """Generate campaign content using specialist AI agents.
+    """Generate campaign content using specialist AI agents and persist it.
 
     Types:
     - newsletter: ESG newsletter draft from recent high-priority articles
@@ -136,15 +224,37 @@ Format: Engaging headline, introduction (2 sentences), 3-4 key stories with brie
         )
 
         # Extract frameworks referenced
-        import re
         fw_refs = list(set(re.findall(r'(?:BRSR|GRI|TCFD|ESRS|CDP|IFRS|CSRD|SASB)[:\s]?\w*', content)))
 
-        return CampaignResponse(
+        title = f"{req.type.replace('_', ' ').title()} — {company_name}"
+
+        # Persist to database
+        campaign = Campaign(
+            tenant_id=ctx.tenant_id,
             type=req.type,
-            title=f"{req.type.replace('_', ' ').title()} — {company_name}",
+            title=title,
             content=content.strip(),
+            topic=req.topic,
+            status="draft",
             frameworks_referenced=fw_refs[:10],
             articles_used=len(articles),
+            created_by=ctx.user.id if ctx.user else None,
+        )
+        ctx.db.add(campaign)
+        await ctx.db.flush()
+
+        logger.info("campaign_generated", id=campaign.id, type=req.type, tenant_id=ctx.tenant_id)
+
+        return CampaignResponse(
+            id=campaign.id,
+            type=campaign.type,
+            title=campaign.title,
+            content=campaign.content,
+            topic=campaign.topic,
+            status=campaign.status,
+            frameworks_referenced=fw_refs[:10],
+            articles_used=len(articles),
+            created_at=campaign.created_at.isoformat() if campaign.created_at else None,
         )
     except Exception as e:
         logger.error("campaign_generation_failed", error=str(e))
