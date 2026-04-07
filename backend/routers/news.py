@@ -470,8 +470,12 @@ async def get_home_articles(
     articles = await _load_articles_with_scores(
         ctx, limit=5, offset=0, sort_by="priority",
     )
-    # Filter to HOME-tier only (relevance >= 7)
-    home_articles = [a for a in articles if (a.relevance_score or 0) >= 7]
+    # Filter to HOME-tier only (relevance >= 7), skip secondary dedup articles
+    home_articles = [
+        a for a in articles
+        if (a.relevance_score or 0) >= 7
+        and not ((getattr(a, 'scoring_metadata', None) or {}).get('event_cluster', {}).get('is_primary') is False)
+    ]
     # Sort: priority desc, then negative sentiment first on ties
     home_articles.sort(
         key=lambda a: (-(a.priority_score or 0), (a.sentiment_score or 0)),
@@ -520,6 +524,11 @@ async def get_news_feed(
             # Unscored articles (NULL relevance) with no priority are likely unanalyzed noise
             # Only include them if they have a priority_score (were at least partially analyzed)
             if rel_score is None and pri_score is None:
+                continue
+            # GAP-8: Skip secondary articles from dedup clusters — show primary only
+            sm = getattr(a, 'scoring_metadata', None) or {}
+            ec = sm.get('event_cluster', {}) if isinstance(sm, dict) else {}
+            if ec.get('is_primary') is False:
                 continue
             filtered.append(a)
         articles = filtered

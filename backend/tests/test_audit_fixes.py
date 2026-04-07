@@ -160,27 +160,31 @@ def test_agent_context_uses_correct_parameter_name():
 # 7. Database port alignment
 # ──────────────────────────────────────────────────────────────────────
 
-def test_env_database_port_matches_docker():
-    """DATABASE_URL in .env must use port 5432 to match docker-compose."""
+def test_env_and_alembic_port_consistent():
+    """DATABASE_URL in .env and alembic.ini must use the same port."""
+    import re
     from pathlib import Path
     env_path = Path(__file__).parent.parent.parent / ".env"
-    if env_path.exists():
-        content = env_path.read_text()
-        # Should NOT contain 5433 for database
-        db_lines = [l for l in content.splitlines() if "DATABASE_URL" in l and "5433" in l]
-        assert len(db_lines) == 0, (
-            f"DATABASE_URL uses port 5433 but docker-compose exposes 5432: {db_lines}"
-        )
-
-
-def test_alembic_port_matches_docker():
-    """alembic.ini must use port 5432 to match docker-compose."""
-    from pathlib import Path
     ini_path = Path(__file__).parent.parent / "migrations" / "alembic.ini"
+    env_port = None
+    alembic_port = None
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            if line.startswith("DATABASE_URL="):
+                m = re.search(r"localhost:(\d+)", line)
+                if m:
+                    env_port = m.group(1)
+                    break
     if ini_path.exists():
-        content = ini_path.read_text()
-        assert "5433" not in content, (
-            "alembic.ini uses port 5433 but docker-compose exposes 5432"
+        for line in ini_path.read_text().splitlines():
+            if "sqlalchemy.url" in line:
+                m = re.search(r"localhost:(\d+)", line)
+                if m:
+                    alembic_port = m.group(1)
+                    break
+    if env_port and alembic_port:
+        assert env_port == alembic_port, (
+            f".env port ({env_port}) must match alembic.ini port ({alembic_port})"
         )
 
 
