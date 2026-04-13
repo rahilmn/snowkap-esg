@@ -56,14 +56,26 @@ def enrich_on_demand(
     pipeline_data = payload.get("pipeline") or {}
     existing_insight = payload.get("insight") or {}
 
-    # 3. Skip if already enriched (unless force=True for re-analysis with new prompts)
-    if not force and existing_insight.get("headline") and existing_insight.get("core_mechanism"):
-        logger.info("enrich_on_demand: %s already enriched, returning cached", article_id)
+    # 3. Check if already enriched with CURRENT engine version
+    CURRENT_SCHEMA_VERSION = "2.0-primitives-l2"
+    stored_version = (payload.get("meta") or {}).get("schema_version", "")
+    is_current = stored_version == CURRENT_SCHEMA_VERSION
+
+    if not force and is_current and existing_insight.get("headline") and existing_insight.get("core_mechanism"):
+        logger.info("enrich_on_demand: %s already enriched (v%s), returning cached", article_id, stored_version)
         return payload
 
-    # 4. Reconstruct PipelineResult from stored pipeline data
+    # 4. Get company and build PipelineResult
     company = get_company(company_slug)
-    result = _reconstruct_pipeline_result(pipeline_data)
+
+    # 4a. Always re-run full pipeline (stages 1-9) from raw input article
+    #     to pick up latest event keywords, ontology edges, and primitive mappings.
+    result = _rerun_full_pipeline(article_id, company_slug, company)
+
+    # 4b. Fall back to reconstructing from stored pipeline data if input not found
+    if result is None:
+        result = _reconstruct_pipeline_result(pipeline_data)
+
     if result.rejected:
         logger.info("enrich_on_demand: %s is rejected, skipping", article_id)
         return payload
@@ -107,6 +119,55 @@ def enrich_on_demand(
         len(recs.recommendations) if recs and not recs.do_nothing else 0,
     )
     return payload
+
+
+def _rerun_full_pipeline(
+    article_id: str, company_slug: str, company: Company
+) -> Any | None:
+    """Re-run stages 1-9 from the raw input article for fresh analysis.
+
+    Looks up the article in data/inputs/news/{company_slug}/ and runs
+    process_article() to get updated event classification, relevance,
+    causal chains, etc. with latest ontology keywords.
+
+    Returns PipelineResult or None if input article not found.
+    """
+    from engine.analysis.pipeline import process_article
+
+    inputs_dir = get_data_path("inputs", "news", company_slug)
+    if not inputs_dir.exists():
+        logger.warning("_rerun_full_pipeline: no inputs dir for %s", company_slug)
+        return None
+
+    # Find the raw input article by ID
+    candidates = list(inputs_dir.glob(f"*{article_id}*"))
+    if not candidates:
+        logger.warning("_rerun_full_pipeline: no input file for %s/%s", company_slug, article_id)
+        return None
+
+    import json as _json
+    raw = _json.loads(candidates[0].read_text(encoding="utf-8"))
+    article = {
+        "id": raw.get("id", article_id),
+        "title": raw.get("title", ""),
+        "content": raw.get("content", ""),
+        "summary": raw.get("summary", ""),
+        "source": raw.get("source", ""),
+        "url": raw.get("url", ""),
+        "published_at": raw.get("published_at", ""),
+        "metadata": raw.get("metadata", {}),
+    }
+
+    logger.info("_rerun_full_pipeline: re-running stages 1-9 for %s", article_id)
+    result = process_article(article, company)
+    logger.info(
+        "_rerun_full_pipeline: %s → tier=%s, event=%s, score=%.1f",
+        article_id,
+        result.tier,
+        result.event.label if result.event else "none",
+        result.relevance.adjusted_total if result.relevance else 0,
+    )
+    return result
 
 
 def _run_intelligence_layers(

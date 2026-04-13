@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 50,
-    "elapsed_seconds": 8.743,
+    "elapsed_seconds": 13.675,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -32,13 +32,13 @@
     ],
     "nlp": {
       "sentiment": 0,
-      "sentiment_confidence": 0.8,
+      "sentiment_confidence": 0.7,
       "tone": [
         "neutral",
         "analytical"
       ],
-      "narrative_core_claim": "Adani's Raipur coal-power plant has received approval for a large-scale expansion.",
-      "narrative_implied_causation": "The approval enables Adani to expand its coal-power plant capacity in Raipur.",
+      "narrative_core_claim": "Adani’s Raipur coal-power plant has received approval for a large-scale expansion.",
+      "narrative_implied_causation": "The approval enables the plant to increase its capacity, potentially impacting energy production and emissions.",
       "narrative_stakeholder_framing": "Adani is the protagonist expanding operations; local communities and environment are affected stakeholders.",
       "entities": [
         "Adani",
@@ -58,6 +58,7 @@
       "esg_topics": [
         "coal power",
         "energy expansion",
+        "emissions",
         "environmental impact"
       ],
       "content_type": "operational",
@@ -87,7 +88,7 @@
           "pillar": "E",
           "sub_metrics": [
             "air_quality",
-            "water_pollution"
+            "chemical_release"
           ]
         }
       ],
@@ -722,11 +723,357 @@
       "Climate Action"
     ]
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "Adani Power's Raipur coal plant expansion approved, raising regulatory and transition risk exposure",
+    "impact_score": 3.0,
+    "core_mechanism": "The regulatory approval allows Adani Power to increase coal-based generation capacity at its Raipur plant. This expansion heightens fossil fuel dependency and energy intensity, triggering enhanced ESG disclosure obligations and scrutiny under BRSR, GRI, and TCFD frameworks. The event is a routine capex with no immediate ESG rating impact but increases long-term transition and regulatory risk.",
+    "profitability_connection": "The ₹45.0 Cr direct exposure reflects capex allocation, with a 10.0 bps margin impact on annual revenue. While immediate P&L effects are limited, future cost of capital could rise by 20-40 bps if ESG disclosures lag or regulatory scrutiny intensifies.",
+    "translation": "Adani Power is expanding its Raipur coal plant, which means more coal power and higher emissions. This move could make it harder to attract green investors and may increase future borrowing costs if ESG regulations tighten.",
+    "impact_analysis": {
+      "esg_positioning": "ESG score gap may widen versus peers like JSW Energy if fossil fuel dependency increases and disclosure lags.",
+      "capital_allocation": "Potential 20-40 bps increase in cost of capital if BRSR/TCFD disclosures are inadequate; green financing eligibility reduced.",
+      "valuation_cashflow": "Possible P/E compression of 0.05-0.1x if ESG fund outflows accelerate; ₹45.0 Cr direct capex exposure.",
+      "compliance_regulatory": "BRSR mandatory disclosure triggered; GRI/TCFD/ESRS relevance for future reporting cycles; no immediate penalty but increased scrutiny.",
+      "supply_chain_transmission": "No supply chain transmission; expansion is direct operational, not value chain linked.",
+      "people_demand": "No immediate talent or consumer impact; local community concerns may rise if pollution increases."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹45.0 Cr direct capex exposure from Raipur plant expansion",
+        "profitability_pathway": "Routine capex for coal plant expansion → balance sheet growth → ₹45.0 Cr direct exposure",
+        "margin_pressure": "10.0 bps",
+        "revenue_at_risk": "No direct revenue at risk; only capex allocation"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.05-0.1x possible if ESG fund outflows materialize due to fossil fuel expansion",
+        "competitive_position": "Potential ESG score gap vs JSW Energy, which is diversifying into renewables"
+      },
+      "long_term": {
+        "secular_trajectory": "Increased transition and regulatory risk over 3-5 years as global and domestic policy shifts away from coal",
+        "green_revenue_opportunity": "No green revenue opportunity; expansion is fossil-based"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 7,
+        "rationale": "Significant increase in fossil fuel dependency and emissions; primary environmental impact"
+      },
+      "social": {
+        "score": 2,
+        "rationale": "Limited immediate social impact; potential for future community concerns over pollution"
+      },
+      "governance": {
+        "score": 4,
+        "rationale": "Triggers mandatory BRSR/GRI/TCFD disclosures; moderate governance exposure"
+      },
+      "financial_materiality": {
+        "score": 3,
+        "rationale": "Routine capex; direct exposure ₹45.0 Cr, low immediate P&L risk"
+      },
+      "regulatory_exposure": {
+        "score": 6,
+        "rationale": "Expansion increases scrutiny under BRSR and TCFD; risk of higher future compliance costs"
+      },
+      "stakeholder_impact": {
+        "score": 3,
+        "rationale": "Stakeholder impact is secondary; local communities may be affected by pollution"
+      }
+    },
+    "net_impact_summary": "The Raipur coal plant expansion exposes Adani Power to ₹45.0 Cr in direct capex and a 10.0 bps margin impact, with no immediate revenue at risk. While the event is routine, it increases fossil fuel dependency and triggers mandatory ESG disclosures under BRSR and GRI, raising long-term transition and regulatory risks. If ESG fund outflows accelerate, a P/E compression of up to 0.1x could occur. No supply chain or green revenue effects are present.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor regulatory and ESG disclosure developments for future risk.",
+      "financial_exposure": "₹45.0 Cr direct capex exposure; no immediate revenue at risk",
+      "key_risk": "Potential 20-40 bps cost of capital increase if ESG disclosure lags and regulatory scrutiny intensifies",
+      "top_opportunity": "None; expansion is fossil-based and does not unlock green financing",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Regulatory approval for Raipur coal plant expansion",
+      "mechanism": "Expansion increases fossil fuel dependency, triggering mandatory ESG disclosures and raising transition/regulatory risk",
+      "company_impact": "₹45.0 Cr direct capex exposure, 10.0 bps margin impact, potential future cost of capital increase",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Enhance BRSR and GRI ESG Disclosure for FY26",
+        "description": "Commission third-party assurance for BRSR and GRI disclosures to meet SEBI FY26 deadlines by 2026-05-30, mitigating risk of ₹150-300 Cr cost of capital increase due to regulatory scrutiny and trading restrictions.",
+        "type": "compliance",
+        "responsible_party": "Head of Sustainability Reporting",
+        "framework_section": "BRSR:P6:Q14, GRI:102-16",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "Avoid ₹150-300 Cr annual cost of capital increase from +20-40 bps rise",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 10,
+        "roi_percentage": 500.0,
+        "payback_months": 1.0,
+        "peer_benchmark": "Tata Power enhanced ESG disclosures leading to P/E rerating"
+      },
+      {
+        "title": "Monitor Regulatory Mandates and Energy Price Shocks",
+        "description": "Implement a monitoring system to track regulatory mandates with compliance deadlines ≤24 months and energy price shocks ≥25% YoY; escalate to board if thresholds breached within 6 months to proactively manage transition risks.",
+        "type": "operational",
+        "responsible_party": "Chief Risk Officer",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-10-13",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Mitigate potential ₹50-100 Cr losses from unanticipated regulatory penalties or energy cost spikes",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": "Competitors maintain active regulatory and market risk monitoring to avoid penalties"
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 2,
+    "validated_count": 2,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Enhance BRSR and GRI ESG Disclosure for FY26",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹1-2 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 1,
+          "title": "Monitor Regulatory Mandates and Energy Price Shocks",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.5-1 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        1
+      ],
+      "ceo": [
+        1,
+        0
+      ],
+      "esg-analyst": [
+        0,
+        1
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power's Raipur coal plant expansion approved, raising regulatory and transition risk exposure",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "ESG score gap may widen versus peers like JSW Energy if fossil fuel dependency increases and disclosure lags.",
+        "No immediate talent or consumer impact; local community concerns may rise if pollution increases.",
+        "BRSR mandatory disclosure triggered; GRI/TCFD/ESRS relevance for future reporting cycles; no immediate penalty but increased scrutiny."
+      ],
+      "action": [
+        "No immediate action required; monitor regulatory and ESG disclosure developments for future risk.",
+        "Key risk: Potential 20-40 bps cost of capital increase if ESG disclosure lags and regulatory scrutiny intensifies",
+        "Opportunity: None; expansion is fossil-based and does not unlock green financing"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power's Raipur coal plant expansion approved, raising regulatory and transition risk exposure",
+        "impact_score": 3.0,
+        "core_mechanism": "The regulatory approval allows Adani Power to increase coal-based generation capacity at its Raipur plant. This expansion heightens fossil fuel dependency and energy intensity, triggering enhanced ESG disclosure obligations and scrutiny under BRSR, GRI, and TCFD frameworks. The event is a routine capex with no immediate ESG rating impact but increases long-term transition and regulatory risk.",
+        "profitability_connection": "The ₹45.0 Cr direct exposure reflects capex allocation, with a 10.0 bps margin impact on annual revenue. While immediate P&L effects are limited, future cost of capital could rise by 20-40 bps if ESG disclosures lag or regulatory scrutiny intensifies.",
+        "translation": "Adani Power is expanding its Raipur coal plant, which means more coal power and higher emissions. This move could make it harder to attract green investors and may increase future borrowing costs if ESG regulations tighten.",
+        "impact_analysis": {
+          "esg_positioning": "ESG score gap may widen versus peers like JSW Energy if fossil fuel dependency increases and disclosure lags.",
+          "capital_allocation": "Potential 20-40 bps increase in cost of capital if BRSR/TCFD disclosures are inadequate; green financing eligibility reduced.",
+          "valuation_cashflow": "Possible P/E compression of 0.05-0.1x if ESG fund outflows accelerate; ₹45.0 Cr direct capex exposure.",
+          "compliance_regulatory": "BRSR mandatory disclosure triggered; GRI/TCFD/ESRS relevance for future reporting cycles; no immediate penalty but increased scrutiny.",
+          "supply_chain_transmission": "No supply chain transmission; expansion is direct operational, not value chain linked.",
+          "people_demand": "No immediate talent or consumer impact; local community concerns may rise if pollution increases."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹45.0 Cr direct capex exposure from Raipur plant expansion",
+            "profitability_pathway": "Routine capex for coal plant expansion → balance sheet growth → ₹45.0 Cr direct exposure",
+            "margin_pressure": "10.0 bps",
+            "revenue_at_risk": "No direct revenue at risk; only capex allocation"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.05-0.1x possible if ESG fund outflows materialize due to fossil fuel expansion",
+            "competitive_position": "Potential ESG score gap vs JSW Energy, which is diversifying into renewables"
+          },
+          "long_term": {
+            "secular_trajectory": "Increased transition and regulatory risk over 3-5 years as global and domestic policy shifts away from coal",
+            "green_revenue_opportunity": "No green revenue opportunity; expansion is fossil-based"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 7,
+            "rationale": "Significant increase in fossil fuel dependency and emissions; primary environmental impact"
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Limited immediate social impact; potential for future community concerns over pollution"
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Triggers mandatory BRSR/GRI/TCFD disclosures; moderate governance exposure"
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "Routine capex; direct exposure ₹45.0 Cr, low immediate P&L risk"
+          },
+          "regulatory_exposure": {
+            "score": 6,
+            "rationale": "Expansion increases scrutiny under BRSR and TCFD; risk of higher future compliance costs"
+          },
+          "stakeholder_impact": {
+            "score": 3,
+            "rationale": "Stakeholder impact is secondary; local communities may be affected by pollution"
+          }
+        },
+        "net_impact_summary": "The Raipur coal plant expansion exposes Adani Power to ₹45.0 Cr in direct capex and a 10.0 bps margin impact, with no immediate revenue at risk. While the event is routine, it increases fossil fuel dependency and triggers mandatory ESG disclosures under BRSR and GRI, raising long-term transition and regulatory risks. If ESG fund outflows accelerate, a P/E compression of up to 0.1x could occur. No supply chain or green revenue effects are present.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor regulatory and ESG disclosure developments for future risk.",
+          "financial_exposure": "₹45.0 Cr direct capex exposure; no immediate revenue at risk",
+          "key_risk": "Potential 20-40 bps cost of capital increase if ESG disclosure lags and regulatory scrutiny intensifies",
+          "top_opportunity": "None; expansion is fossil-based and does not unlock green financing",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Regulatory approval for Raipur coal plant expansion",
+          "mechanism": "Expansion increases fossil fuel dependency, triggering mandatory ESG disclosures and raising transition/regulatory risk",
+          "company_impact": "₹45.0 Cr direct capex exposure, 10.0 bps margin impact, potential future cost of capital increase",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹45.0 Cr direct capex exposure; no immediate revenue at risk",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "BRSR mandatory disclosure triggered; GRI/TCFD/ESRS relevance for future reporting cycles; no immediate penalty but increased scrutiny.",
+        "No supply chain transmission; expansion is direct operational, not value chain linked.",
+        "Possible P/E compression of 0.05-0.1x if ESG fund outflows accelerate; ₹45.0 Cr direct capex exposure."
+      ],
+      "action": [
+        "Quantify exposure: ₹45.0 Cr direct capex exposure; no immediate revenue at risk",
+        "Revenue at risk: No direct revenue at risk; only capex allocation"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — None; expansion is fossil-based and does not unlock green financing",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "BRSR mandatory disclosure triggered; GRI/TCFD/ESRS relevance for future reporting cycles; no immediate penalty but increased scrutiny.",
+        "ESG score gap may widen versus peers like JSW Energy if fossil fuel dependency increases and disclosure lags.",
+        "No immediate talent or consumer impact; local community concerns may rise if pollution increases."
+      ],
+      "action": [
+        "Strategic opportunity: None; expansion is fossil-based and does not unlock green financing",
+        "Competitive position: Potential ESG score gap vs JSW Energy, which is diversifying into renewables"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
   "meta": {
-    "written_at": "2026-04-12T09:07:23.184203+00:00",
-    "schema_version": "1.0"
+    "written_at": "2026-04-13T11:39:24.862299+00:00",
+    "schema_version": "2.0-primitives-l2"
+  },
+  "intelligence": {
+    "competitive_brief": "Adani Power’s approval to expand its Raipur coal plant signals increased regulatory and transition risk exposure due to heightened environmental scrutiny and India’s push for cleaner energy. For JSW Energy, a key competitor with a diversified portfolio including thermal and renewable assets, this development presents both challenges and opportunities.\n\nJSW Energy may face intensified regulatory pressure to justify its coal-based operations, especially as ESG investors and policymakers prioritize decarbonization. To maintain competitive advantage and investor confidence, JSW is likely to accelerate its renewable energy investments—currently over 1,200 MW—and enhance transparency on ESG metrics. This aligns with industry trends where companies like Tata Power and NTPC have pivoted towards renewables and committed to net-zero targets to mitigate transition risks.\n\nHistorically, when competitors expand coal capacity, industry players respond by emphasizing cleaner energy portfolios and engaging proactively with regulators to shape sustainable policies. JSW Energy might also leverage this moment to highlight its lower carbon footprint per unit of power generated compared to pure coal players, positioning itself favorably among ESG-conscious stakeholders.\n\nIn summary, Adani’s coal expansion raises the bar on regulatory risk, prompting JSW Energy to reinforce its renewable strategy and ESG commitments to safeguard market positioning and comply with evolving environmental norms.",
+    "causal_narrative": "The approval of Adani Power's Raipur coal plant expansion directly increases the company's operational exposure to coal-based energy, intensifying its carbon footprint and associated emissions. This expansion heightens regulatory risk as stricter environmental policies and carbon pricing mechanisms could impose higher compliance costs or penalties, potentially increasing operating expenses by an estimated 5-10% annually. Additionally, the event triggers enhanced ESG disclosure requirements under frameworks such as BRSR, GRI, and TCFD, increasing administrative burdens and exposing the company to greater scrutiny from investors and regulators. Collectively, these factors elevate transition risk, potentially impacting Adani Power's valuation and access to capital in a market increasingly favoring low-carbon energy sources.",
+    "anticipated_qa": [
+      {
+        "question": "How does the Raipur coal plant expansion affect Adani Power's ESG risk profile?",
+        "answer": "The expansion increases fossil fuel dependency and energy intensity, raising long-term transition and regulatory risks. It triggers enhanced ESG disclosure requirements under frameworks like BRSR, GRI, and TCFD, potentially widening the ESG score gap versus peers."
+      },
+      {
+        "question": "What is the immediate financial impact of this expansion on Adani Power?",
+        "answer": "The company faces a direct capital expenditure of ₹45.0 Cr with a minor margin impact of 10 basis points on annual revenue. There is no immediate revenue risk, but the balance sheet will grow due to this routine capex."
+      },
+      {
+        "question": "Could this expansion influence Adani Power's cost of capital or investor perception?",
+        "answer": "Yes, if ESG disclosures lag or regulatory scrutiny intensifies, the cost of capital could increase by 20-40 basis points. Additionally, fossil fuel expansion may deter green investors, potentially causing P/E multiple compression."
+      },
+      {
+        "question": "Are there any compliance or regulatory implications tied to this expansion?",
+        "answer": "The expansion triggers mandatory BRSR disclosures and increases the relevance of GRI, TCFD, and ESRS reporting frameworks. While no immediate penalties are expected, regulatory scrutiny will likely intensify over time."
+      },
+      {
+        "question": "Does this expansion present any opportunities for green revenue or social benefits?",
+        "answer": "No green revenue opportunities arise from this fossil fuel-based expansion. Social impacts are limited in the short term, though local community concerns about pollution may increase."
+      }
+    ],
+    "sentiment_trajectory": {
+      "direction": "stable",
+      "summary": "Sentiment around Adani Power remains mixed with positive developments in joint ventures and acquisitions balanced by regulatory concerns and subdued demand growth.",
+      "emerging_themes": [
+        "joint ventures and acquisitions",
+        "regulatory and transition risks",
+        "subdued demand growth"
+      ]
+    }
   }
 }

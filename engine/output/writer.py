@@ -100,7 +100,7 @@ def write_insight(
         "perspectives": {k: v.to_dict() for k, v in perspectives.items()},
         "meta": {
             "written_at": datetime.now(timezone.utc).isoformat(),
-            "schema_version": "1.0",
+            "schema_version": "2.0-primitives-l2",
         },
     }
     written.insight = _write(base / "insights" / name, insight_payload)
