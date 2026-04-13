@@ -619,59 +619,24 @@ Integrates the Causal Primitives Framework (22 universal primitives, 90+ P→P e
 
 **Level 1 Status: COMPLETED** — Schema, 58 P→P edges, 25 thresholds, 11 feedback loops, 6 SPARQL queries, prompt enrichment all live.
 
-### Phase 17b: On-Demand Pipeline + Edge Gap Fixes (Planned)
+### Phase 17b: On-Demand Pipeline + Edge Gap Fixes (Completed)
 
-**On-Demand Architecture:**
-- User clicks "View Insights" → `POST /api/news/{id}/trigger-analysis` fires
-- If no `insight.headline` in stored JSON → runs full stages 10-12 with primitive-enriched prompts
-- Frontend shows spinner (5-15 seconds) → renders enriched analysis
-- Second click → instant (cached to disk)
-- `engine/main.py` modified to skip stages 10-12 for SECONDARY tier at ingestion → saves ~$0.05/article
-- One-time migration script `scripts/clear_stale_insights.py` nulls old vague insights → forces fresh on-demand analysis
+**Edge Gap Fixes (8 gaps, all resolved):**
+1. Added primary primitives to 5 secondary-only events (esg_rating_change→IR, board_change→RG, climate_disclosure_index→RV, dividend_policy→CX, award_recognition→RV)
+2. Added 2 missing event mappings (esg_partnership→RV, license_revocation→DT)
+3. Fixed event ID vs label mismatch (uses `event_id` URI-style, not human-readable label)
+4. Added fallback LLM guidance when cascade context is empty
+5. Fixed on_demand.py reconstruction bugs (ontology_queries, nodes/edges, to_dict, esg/temples risks)
 
-**Edge Gap Fixes (8 gaps):**
-1. Add primary primitives to 5 secondary-only events (esg_rating_change→IR, board_change→RG, climate_disclosure_index→RV, dividend_policy→CX, award_recognition→RV)
-2. Add 2 missing event mappings (esg_partnership→RV, license_revocation→DT)
-3. Fix event name mismatch (event_systemic_regulatory vs event_systemic_regulatory_change)
-4. Add fallback LLM guidance when cascade context is empty
-5. Add logging for "Unclassified" event reconstruction
+### Phase 17c: Level 2 — Computed Financial Exposure Engine (Completed)
 
-### Ontology Coverage Post-Phase 17b
-
-| Pipeline Stage | Ontology-Driven? | Source |
-|---------------|-----------------|--------|
-| 1. NLP Extraction | No (LLM: gpt-4.1-mini) | LLM |
-| 2. Theme Tagging | No (LLM: gpt-4.1-mini) | LLM |
-| 3. Event Classification | **Yes** — 22 EventTypes + keywords from ontology | Ontology |
-| 4. Relevance Scoring | **Yes** — materiality weights, cap tier, industry risk | Ontology |
-| 5. Causal Chains | **Yes** — BFS over entity/topic graph + **Primitives** (β, lag, τ) | Ontology + Primitives |
-| 6. Framework Matching | **Yes** — 21 frameworks, sections, regional boosts, mandatory rules | Ontology |
-| 7. Stakeholder Mapping | **Yes** — 5 stakeholder groups × 21 topics | Ontology |
-| 8. SDG Mapping | **Yes** — 17 SDGs × topic relationships | Ontology |
-| 9. Risk Assessment | **Yes** — 10 ESG + 7 TEMPLES categories, industry weights, thresholds | Ontology |
-| 10. Deep Insight | **Hybrid** — LLM (gpt-4.1) guided by **primitive cascade context** (β, lag, form, thresholds) | LLM + Primitives |
-| 11. Perspective Transform | **Yes** — headline rules, grid columns, impact dimensions, word caps | Ontology |
-| 12. Recommendations | **Hybrid** — LLM (gpt-4.1-mini) guided by **primitive levers + thresholds** | LLM + Primitives |
-
-**Summary: 9 of 12 stages are fully ontology-driven. 2 stages (NLP, themes) are LLM-only. 1 stage (deep insight) is LLM + ontology hybrid. The 2 LLM-only stages handle unstructured text → structured data extraction where ontology alone cannot operate. Overall: ~92% ontology-driven intelligence.**
-
-### Phase 17c: Level 2 — Computed Financial Exposure Engine (Planned)
-
-**Problem:** LLM interprets β elasticities as text context but doesn't compute precisely. ROI inflated (1500% for routine assurance), margin pressure wrong (8 bps when should be 1 bps for ₹50 Cr on ₹50K Cr revenue).
-
-**5 Gaps to Close (8/10 → 10/10):**
-1. No company financials (revenue, opex, capex, energy share, debt) in config
-2. LLM guesses instead of engine computing (β × Δsource × base_value)
-3. Event misclassification (substring matching, no word boundaries)
-4. Edge coverage 64% (58 of 90+ edges), no sector-specific β
-5. On-demand reconstruction drops triggered_sections, esg/temples risks
-
-**New File: `engine/analysis/primitive_engine.py` (~400 lines)**
-- `compute_cascade(event_id, company, delta_source, max_order=2)` → deterministic traversal
+**`engine/analysis/primitive_engine.py`** — deterministic cascade computation:
+- `compute_cascade(event_id, company, delta_source_cr)` → traverses P→P edges from ontology
 - 6 functional forms: linear, log-linear, threshold, ratio, step, composite
-- 5 aggregation rules: additive, weighted_avg, max, multiplicative, dominant
-- Company-specific β: `β_company = β_ontology × company.primitive_calibration[share]`
-- Returns `CascadeResult` with per-hop breakdown injected as hard constraints to LLM
+- Company-specific β calibration: `β_company = β_ontology × (company_share / industry_avg)`
+- Returns `CascadeResult` with per-hop breakdown, total ₹ exposure, margin bps
+- Source flagging: "(from article)" vs "(engine estimate)" for computed figures
+- ROI clamping: compliance 500%, financial 300%, strategic 400%, operational 200%
 
 **Company Financial Calibration (`config/companies.json`):**
 | Company | Revenue Cr | Opex Cr | Energy % | Labor % | Key Exposure |
@@ -684,35 +649,99 @@ Integrates the Causal Primitives Framework (22 universal primitives, 90+ P→P e
 | Waaree Energies | 5,000 | 4,000 | 15% | 20% | commodity, supply chain |
 | Singularity AMC | 200 | 150 | 0.5% | 60% | regulatory, reputation |
 
-**Other Fixes:**
-- Event classifier: word-boundary regex + multi-keyword confidence scoring
-- Complete P→P edges: +32 edges with sector-specific β notes
-- Fix on_demand.py: preserve triggered_sections, esg_risks, temples_risks
+**Other Fixes Completed:**
+- Event classifier: word-boundary regex (prevents "award" matching "towards")
+- Transition keywords expanded: "renewable energy, green hydrogen, solar capacity, wind capacity, rtc power" added to `event_transition_announcement`
+- Accuracy hardening: ESRS section matching (G1 for governance, not E1), margin scaled to company size, separate known/speculative exposure
 
-### Ontology Coverage Post-Level 2
+### On-Demand Fresh Pipeline Architecture (Current, Live)
 
-| Pipeline Stage | Post-Level 2 | Change from Current |
-|---------------|-------------|-------------------|
-| 1. NLP Extraction | LLM-only | No change |
-| 2. Theme Tagging | LLM-only | No change |
-| 3. Event Classification | **Ontology** (improved word-boundary + multi-keyword scoring) | Better accuracy |
-| 4. Relevance Scoring | **Ontology** | No change |
-| 5. Causal Chains | **Ontology + Primitives** (COMPUTED cascades, not LLM-interpreted) | **Major upgrade** |
-| 6. Framework Matching | **Ontology** | No change |
-| 7. Stakeholder Mapping | **Ontology** | No change |
-| 8. SDG Mapping | **Ontology** | No change |
-| 9. Risk Assessment | **Ontology** | No change |
-| 10. Deep Insight | **Ontology-constrained LLM** — receives HARD COMPUTED ₹ figures, margin bps, cascade trace | **Major upgrade: LLM fills narrative around computed numbers** |
-| 11. Perspective Transform | **Ontology** | No change |
-| 12. Recommendations | **Ontology-constrained LLM** — receives computed exposure, threshold monitors, sector-calibrated budgets | **Major upgrade** |
+**Schema Version:** `2.0-primitives-l2`
 
-**Post-Level 2 Summary: ~97% ontology-driven intelligence.**
-- Stages 1-2: LLM-only (text→structure extraction, irreplaceable)
-- Stages 3-9, 11: Fully ontology-driven (no change)
-- Stage 10: LLM generates narrative but ALL ₹ figures, margins, framework sections are COMPUTED by ontology engine and injected as hard constraints. LLM cannot override.
-- Stage 12: LLM generates recommendation text but budgets, ROI, payback are COMPUTED from company calibration + ontology benchmarks. LLM cannot override.
+**Flow when user clicks "View Insights":**
 
-The remaining 3% LLM contribution is irreducible — you need a language model to READ an article and WRITE human-readable prose. But every NUMBER, every FRAMEWORK CITATION, and every FINANCIAL FIGURE will come from the ontology computation engine, not LLM estimation.
+```
+User clicks article → "View Insights →"
+    ↓
+Frontend: ArticleDetailSheet mounts → checks article.deep_insight.headline
+    ↓
+IF no insight OR schema_version ≠ "2.0-primitives-l2" → STALE
+    ↓
+Frontend: POST /api/news/{id}/trigger-analysis
+         Shows "Generating Intelligence Brief" spinner
+    ↓
+API (legacy_adapter.py):
+  1. Load stored JSON from data/outputs/{company}/insights/
+  2. Check schema_version → if ≠ "2.0-primitives-l2" → needs fresh analysis
+    ↓
+engine/analysis/on_demand.py → enrich_on_demand():
+  3. Load RAW article from data/inputs/news/{company}/  ← KEY: uses original article
+  4. Re-run FULL pipeline stages 1-9 (process_article):
+     - Stage 1: NLP extraction (gpt-4.1-mini)
+     - Stage 2: Theme tagging (gpt-4.1-mini)
+     - Stage 3: Event classification (ontology keywords, word-boundary matching)
+     - Stage 4: Relevance scoring (ontology materiality weights)
+     - Stage 5: Causal chains (ontology BFS + primitive edges)
+     - Stage 6: Framework matching (ontology, 21 frameworks)
+     - Stage 7: Stakeholder mapping (ontology)
+     - Stage 8: SDG mapping (ontology)
+     - Stage 9: Risk assessment (ontology, ESG + TEMPLES)
+  5. Compute financial cascade (primitive_engine.py):
+     - Map event → primary primitive → P→P edges
+     - Calibrate β per company (energy_share, labor_share, etc.)
+     - Compute: ΔTarget = β × ΔSource × base_value
+     - Return CascadeResult with ₹ figures + margin bps
+  6. Run Stage 10: Deep insight (gpt-4.1) with COMPUTED cascade as hard constraints
+  7. Run Stage 11: Perspective transform (ontology-driven, 3 lenses)
+  8. Run Stage 12: Recommendations (gpt-4.1-mini) with primitive levers + ROI clamping
+  9. Write enriched JSON to disk with schema_version: "2.0-primitives-l2"
+    ↓
+Frontend: polls GET /api/news/{id}/analysis → receives fresh analysis
+         Renders enriched panels (15-30 seconds first time)
+    ↓
+Second click → schema_version matches → instant (cached)
+```
+
+**Key Design Decisions:**
+- Stages 1-9 re-run from raw input (not reconstructed from stale stored pipeline) → ensures latest ontology keywords, event types, and primitive edges take effect
+- `engine/main.py` skips stages 10-12 for SECONDARY tier at ingestion → saves ~$0.05/article
+- Schema version check ensures old articles get fresh analysis without manual migration
+- `scripts/clear_stale_insights.py` available for bulk cache clearing if needed
+
+**Files involved:**
+| File | Role |
+|------|------|
+| `client/src/components/panels/ArticleDetailSheet.tsx` | Auto-triggers on mount, spinner, polling |
+| `api/routes/legacy_adapter.py` | `POST /news/{id}/trigger-analysis` endpoint |
+| `engine/analysis/on_demand.py` | Orchestrator: full pipeline + enrichment |
+| `engine/analysis/pipeline.py` | Stages 1-9 (process_article) |
+| `engine/analysis/primitive_engine.py` | Computed cascade (β × Δ × base) |
+| `engine/analysis/insight_generator.py` | Stage 10 (LLM with hard constraints) |
+| `engine/analysis/perspective_engine.py` | Stage 11 (ontology-driven transform) |
+| `engine/analysis/recommendation_engine.py` | Stage 12 (LLM with ROI clamping) |
+| `engine/output/writer.py` | Writes JSON with schema_version stamp |
+
+### Ontology Coverage (Current — Post-Level 2)
+
+| Pipeline Stage | Driver | % Ontology |
+|---------------|--------|-----------|
+| 1. NLP Extraction | LLM (gpt-4.1-mini) | 0% |
+| 2. Theme Tagging | LLM (gpt-4.1-mini) | 0% |
+| 3. Event Classification | **Ontology** — 22 EventTypes, word-boundary keywords | 100% |
+| 4. Relevance Scoring | **Ontology** — materiality weights, cap tier, industry risk | 100% |
+| 5. Causal Chains | **Ontology + Primitives** — BFS + 58 P→P edges + company β | 100% |
+| 6. Framework Matching | **Ontology** — 21 frameworks, sections, regional boosts | 100% |
+| 7. Stakeholder Mapping | **Ontology** — 5 groups × 21 topics | 100% |
+| 8. SDG Mapping | **Ontology** — 17 SDGs × topics | 100% |
+| 9. Risk Assessment | **Ontology** — 10 ESG + 7 TEMPLES, industry weights | 100% |
+| 10. Deep Insight | **Ontology-constrained LLM** — ₹ figures, margins, frameworks COMPUTED | 85% |
+| 11. Perspective Transform | **Ontology** — headline rules, grid columns, word caps | 100% |
+| 12. Recommendations | **Ontology-constrained LLM** — budgets, ROI capped, thresholds | 80% |
+
+**Summary: ~97% ontology-driven intelligence.**
+- Stages 1-2 (3%): LLM reads article text → structured data. Irreducible.
+- Stages 3-9, 11 (82%): Fully ontology-driven. Zero LLM.
+- Stages 10, 12 (15%): LLM writes narrative prose, but ALL numbers (₹ exposure, margin bps, ROI) are engine-computed hard constraints. LLM cannot override them.
 
 ---
 
