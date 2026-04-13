@@ -59,13 +59,16 @@ class CascadeResult:
     confidence: str = "medium"
     computation_trace: str = ""
 
+    source_is_from_article: bool = False  # True if delta_source_cr came from NLP extraction
+
     def to_prompt_block(self) -> str:
         """Format as a text block for LLM prompt injection."""
+        source_tag = "from article" if self.source_is_from_article else "engine estimate"
         lines = [
             "COMPUTED FINANCIAL CASCADE (verified — use these exact numbers):",
             f"  Event: {self.event_id}",
             f"  Primary primitive: {self.primary_label} ({self.primary_primitive})",
-            f"  Direct quantum: ₹{self.delta_source_cr:.1f} Cr",
+            f"  Direct quantum: ₹{self.delta_source_cr:.1f} Cr ({source_tag})",
         ]
         for hop in self.hops:
             sign = "+" if hop.direction != "−" else "-"
@@ -224,7 +227,8 @@ def compute_cascade(
     primary = prims[0]
 
     # 2. Default delta if not provided
-    if delta_source_cr is None or delta_source_cr <= 0:
+    source_from_article = delta_source_cr is not None and delta_source_cr > 0
+    if not source_from_article:
         # Estimate from company scale: 0.1% of revenue for generic events
         delta_source_cr = company.revenue_cr * 0.001 if company.revenue_cr > 0 else 10.0
 
@@ -233,6 +237,7 @@ def compute_cascade(
         primary_primitive=primary.slug,
         primary_label=primary.label,
         delta_source_cr=delta_source_cr,
+        source_is_from_article=source_from_article,
     )
 
     # 3. Get order-2 edges from primary primitive

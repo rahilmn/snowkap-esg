@@ -275,11 +275,25 @@ def _generate_recommendations(
             _peer = r.get("peer_benchmark")
             peer = str(_peer)[:300] if _peer and _peer != "null" else None
 
+            # Phase 17c: Clamp ROI to reasonable bounds per recommendation type
+            rec_type = str(r.get("type", "operational") or "operational")
+            roi_caps = {
+                "compliance": 500.0,     # Max: avoid ₹50 Cr fine with ₹2 Cr = 2400%, cap at 500%
+                "financial": 300.0,      # Max: cost of capital reduction, hedging
+                "strategic": 400.0,      # Max: market positioning, green bond access
+                "esg_positioning": 400.0,
+                "operational": 200.0,    # Max: monitoring, process improvement
+            }
+            max_roi = roi_caps.get(rec_type, 300.0)
+            if roi is not None and roi > max_roi:
+                logger.info("ROI clamped: %s from %.0f%% to %.0f%%", r.get("title", "")[:40], roi, max_roi)
+                roi = max_roi
+
             recommendations.append(
                 Recommendation(
                     title=str(r.get("title", "") or "")[:200],
                     description=str(r.get("description", "") or "")[:500],
-                    type=str(r.get("type", "operational") or "operational"),
+                    type=rec_type,
                     responsible_party=str(r.get("responsible_party", "") or ""),
                     framework_section=str(r.get("framework_section", "") or ""),
                     deadline=str(r.get("deadline", "") or ""),
