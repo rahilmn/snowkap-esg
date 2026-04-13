@@ -400,23 +400,26 @@ def _reconstruct_pipeline_result(pipeline_data: dict[str, Any]) -> Any:
     if risk_data:
         from engine.analysis.risk_assessor import RiskAssessment, RiskScore
 
-        top_risks = []
-        for r in risk_data.get("top_risks") or []:
-            top_risks.append(RiskScore(
-                category=r.get("category", ""),
-                probability=r.get("probability", 0),
-                exposure=r.get("exposure", 0),
-                raw_score=r.get("raw_score", 0),
-                industry_weight=r.get("industry_weight", 1.0),
-                adjusted_score=r.get("adjusted_score", 0),
-                level=r.get("level", "LOW"),
-                lead_indicators=r.get("lead_indicators", []),
-                lag_indicators=r.get("lag_indicators", []),
-            ))
+        def _rebuild_risks(risk_list: list[dict]) -> list[RiskScore]:
+            return [
+                RiskScore(
+                    category=r.get("category", ""),
+                    probability=r.get("probability", 0),
+                    exposure=r.get("exposure", 0),
+                    raw_score=r.get("raw_score", 0),
+                    industry_weight=r.get("industry_weight", 1.0),
+                    adjusted_score=r.get("adjusted_score", 0),
+                    level=r.get("level", "LOW"),
+                    lead_indicators=r.get("lead_indicators", []),
+                    lag_indicators=r.get("lag_indicators", []),
+                )
+                for r in risk_list
+            ]
+
         risk = RiskAssessment(
-            esg_risks=[],
-            temples_risks=[],
-            top_risks=top_risks,
+            esg_risks=_rebuild_risks(risk_data.get("esg_risks") or []),
+            temples_risks=_rebuild_risks(risk_data.get("temples_risks") or []),
+            top_risks=_rebuild_risks(risk_data.get("top_risks") or []),
             aggregate_score=risk_data.get("aggregate_score", 0),
             ontology_queries=risk_data.get("ontology_queries", 0),
         )

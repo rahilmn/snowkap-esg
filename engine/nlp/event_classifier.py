@@ -56,10 +56,24 @@ def _cached_rules() -> list[EventRule]:
 
 
 def _match_keywords(text: str, rules: list[EventRule]) -> list[tuple[EventRule, list[str]]]:
+    import re
     lowered = text.lower()
     matches: list[tuple[EventRule, list[str]]] = []
     for rule in rules:
-        hit = [kw for kw in rule.keywords if kw.lower() in lowered]
+        hit = []
+        for kw in rule.keywords:
+            kw_lower = kw.lower().strip()
+            if not kw_lower:
+                continue
+            # Use word-boundary matching to avoid false positives
+            # (e.g., "award" matching inside "towards")
+            try:
+                if re.search(r'\b' + re.escape(kw_lower) + r'\b', lowered):
+                    hit.append(kw)
+            except re.error:
+                # Fallback to substring if regex fails
+                if kw_lower in lowered:
+                    hit.append(kw)
         if hit:
             matches.append((rule, hit))
     return matches

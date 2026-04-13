@@ -43,6 +43,42 @@ class Company:
     headquarter_country: str
     headquarter_region: str
     news_queries: list[str]
+    primitive_calibration: dict[str, Any] | None = None
+
+    @property
+    def revenue_cr(self) -> float:
+        """Annual revenue in ₹ Crores (from primitive_calibration)."""
+        return float((self.primitive_calibration or {}).get("revenue_cr", 0))
+
+    @property
+    def opex_cr(self) -> float:
+        """Annual opex in ₹ Crores."""
+        return float((self.primitive_calibration or {}).get("opex_cr", 0))
+
+    @property
+    def capex_cr(self) -> float:
+        """Annual capex in ₹ Crores."""
+        return float((self.primitive_calibration or {}).get("capex_cr", 0))
+
+    def get_cost_share(self, primitive_slug: str) -> float:
+        """Return the company-specific cost share for a primitive (0.0-1.0).
+
+        Maps primitive slugs to calibration fields:
+        EP/EU → energy_share_of_opex, LC/WF → labor_share_of_opex,
+        FR/LT → freight_intensity, WA → water_intensity.
+        """
+        cal = self.primitive_calibration or {}
+        mapping = {
+            "EP": "energy_share_of_opex",
+            "EU": "energy_share_of_opex",
+            "LC": "labor_share_of_opex",
+            "WF": "labor_share_of_opex",
+            "FR": "freight_intensity",
+            "LT": "freight_intensity",
+            "WA": "water_intensity",
+        }
+        field = mapping.get(primitive_slug.upper(), "")
+        return float(cal.get(field, 0.1))  # default 10% if unknown
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Company":
@@ -58,6 +94,7 @@ class Company:
             headquarter_country=data["headquarter_country"],
             headquarter_region=data["headquarter_region"],
             news_queries=list(data.get("news_queries", [])),
+            primitive_calibration=data.get("primitive_calibration"),
         )
 
 

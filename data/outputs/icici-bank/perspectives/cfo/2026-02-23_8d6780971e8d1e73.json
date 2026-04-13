@@ -1,21 +1,21 @@
 {
   "perspective": "cfo",
-  "headline": "P&L exposure: ₹50.38 Cr direct demand; precedent risk if similar GST cases arise (speculative, not quantified due to lack of data).",
+  "headline": "P&L exposure: ₹50.38 Cr direct demand + ₹20.12 Cr compliance/operational/revenue risk (computed via β elasticities)",
   "impact_grid": {
-    "financial": "MEDIUM",
+    "financial": "HIGH",
     "regulatory": "HIGH",
     "strategic": "HIGH"
   },
   "what_matters": [
-    "P/E compression of ~0.05x possible if event is seen as recurring; immediate margin erosion of 1 bps; direct revenue at risk is ₹50.38 Cr, with precedent risk if similar demands follow.",
-    "Potential for marginal increase in cost of capital if event triggers fund outflows from ESG-sensitive investors; bond spread impact likely negligible for single event but could rise if repeated.",
-    "Triggers GRI:207 (Tax) and ESRS G1 (Business Conduct); no immediate regulatory deadline, but adverse outcome could lead to penalties and mandatory disclosure upgrades."
+    "Triggers GRI:207 (Tax) and ESRS G1 (Business Conduct); non-compliance could lead to further penalties and scrutiny under CSRD for EU operations.",
+    "Minor P/E compression (0.05x) possible; margin erosion of 10.1 bps; direct revenue at risk: ₹6.3 Cr (computed via β elasticity).",
+    "Potential for higher cost of capital if ESG ratings drop; risk of fund outflows from ESG-sensitive investors due to weak GRI disclosure."
   ],
   "action": [
-    "Quantify exposure: ₹50.38 Cr direct demand; precedent risk if similar GST cases arise (speculative, not quantified due to lack of data).",
-    "Revenue at risk: ₹50.38 Cr direct; precedent risk if similar cases arise"
+    "Quantify exposure: ₹50.38 Cr direct demand + ₹20.12 Cr compliance/operational/revenue risk (computed via β elasticities)",
+    "Revenue at risk: ₹6.3 Cr (β=0.125, lag 1–4q)"
   ],
-  "materiality": "HIGH",
+  "materiality": "CRITICAL",
   "do_nothing": false,
   "active_impact_dimensions": [
     "cost",

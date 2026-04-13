@@ -655,6 +655,65 @@ Integrates the Causal Primitives Framework (22 universal primitives, 90+ P→P e
 
 **Summary: 9 of 12 stages are fully ontology-driven. 2 stages (NLP, themes) are LLM-only. 1 stage (deep insight) is LLM + ontology hybrid. The 2 LLM-only stages handle unstructured text → structured data extraction where ontology alone cannot operate. Overall: ~92% ontology-driven intelligence.**
 
+### Phase 17c: Level 2 — Computed Financial Exposure Engine (Planned)
+
+**Problem:** LLM interprets β elasticities as text context but doesn't compute precisely. ROI inflated (1500% for routine assurance), margin pressure wrong (8 bps when should be 1 bps for ₹50 Cr on ₹50K Cr revenue).
+
+**5 Gaps to Close (8/10 → 10/10):**
+1. No company financials (revenue, opex, capex, energy share, debt) in config
+2. LLM guesses instead of engine computing (β × Δsource × base_value)
+3. Event misclassification (substring matching, no word boundaries)
+4. Edge coverage 64% (58 of 90+ edges), no sector-specific β
+5. On-demand reconstruction drops triggered_sections, esg/temples risks
+
+**New File: `engine/analysis/primitive_engine.py` (~400 lines)**
+- `compute_cascade(event_id, company, delta_source, max_order=2)` → deterministic traversal
+- 6 functional forms: linear, log-linear, threshold, ratio, step, composite
+- 5 aggregation rules: additive, weighted_avg, max, multiplicative, dominant
+- Company-specific β: `β_company = β_ontology × company.primitive_calibration[share]`
+- Returns `CascadeResult` with per-hop breakdown injected as hard constraints to LLM
+
+**Company Financial Calibration (`config/companies.json`):**
+| Company | Revenue Cr | Opex Cr | Energy % | Labor % | Key Exposure |
+|---------|-----------|---------|----------|---------|-------------|
+| ICICI Bank | 50,000 | 35,000 | 1% | 35% | regulatory, credit |
+| YES Bank | 12,000 | 9,000 | 1% | 30% | regulatory, credit |
+| IDFC First Bank | 8,000 | 6,000 | 1% | 32% | regulatory, credit |
+| Adani Power | 45,000 | 35,000 | 40% | 8% | energy, coal, climate |
+| JSW Energy | 15,000 | 10,000 | 30% | 10% | energy, transition |
+| Waaree Energies | 5,000 | 4,000 | 15% | 20% | commodity, supply chain |
+| Singularity AMC | 200 | 150 | 0.5% | 60% | regulatory, reputation |
+
+**Other Fixes:**
+- Event classifier: word-boundary regex + multi-keyword confidence scoring
+- Complete P→P edges: +32 edges with sector-specific β notes
+- Fix on_demand.py: preserve triggered_sections, esg_risks, temples_risks
+
+### Ontology Coverage Post-Level 2
+
+| Pipeline Stage | Post-Level 2 | Change from Current |
+|---------------|-------------|-------------------|
+| 1. NLP Extraction | LLM-only | No change |
+| 2. Theme Tagging | LLM-only | No change |
+| 3. Event Classification | **Ontology** (improved word-boundary + multi-keyword scoring) | Better accuracy |
+| 4. Relevance Scoring | **Ontology** | No change |
+| 5. Causal Chains | **Ontology + Primitives** (COMPUTED cascades, not LLM-interpreted) | **Major upgrade** |
+| 6. Framework Matching | **Ontology** | No change |
+| 7. Stakeholder Mapping | **Ontology** | No change |
+| 8. SDG Mapping | **Ontology** | No change |
+| 9. Risk Assessment | **Ontology** | No change |
+| 10. Deep Insight | **Ontology-constrained LLM** — receives HARD COMPUTED ₹ figures, margin bps, cascade trace | **Major upgrade: LLM fills narrative around computed numbers** |
+| 11. Perspective Transform | **Ontology** | No change |
+| 12. Recommendations | **Ontology-constrained LLM** — receives computed exposure, threshold monitors, sector-calibrated budgets | **Major upgrade** |
+
+**Post-Level 2 Summary: ~97% ontology-driven intelligence.**
+- Stages 1-2: LLM-only (text→structure extraction, irreplaceable)
+- Stages 3-9, 11: Fully ontology-driven (no change)
+- Stage 10: LLM generates narrative but ALL ₹ figures, margins, framework sections are COMPUTED by ontology engine and injected as hard constraints. LLM cannot override.
+- Stage 12: LLM generates recommendation text but budgets, ROI, payback are COMPUTED from company calibration + ontology benchmarks. LLM cannot override.
+
+The remaining 3% LLM contribution is irreducible — you need a language model to READ an article and WRITE human-readable prose. But every NUMBER, every FRAMEWORK CITATION, and every FINANCIAL FIGURE will come from the ontology computation engine, not LLM estimation.
+
 ---
 
 ## CLI Commands

@@ -256,29 +256,51 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
             )
         lines.append("")
 
-    # Phase 17: Causal Primitives context — quantitative cascade parameters
+    # Phase 17c (Level 2): Computed financial cascade — deterministic ₹ figures
     try:
-        from engine.ontology.intelligence import query_cascade_context
-        # Use event_id (e.g. "event_heavy_penalty") not label ("Heavy Regulatory Penalty")
+        from engine.analysis.primitive_engine import compute_cascade
         event_id = event.event_id if event and hasattr(event, "event_id") else ""
+        # Extract financial quantum from NLP if available
+        delta_cr = None
+        if nlp.financial_signal and nlp.financial_signal.get("amount"):
+            try:
+                delta_cr = float(nlp.financial_signal["amount"])
+            except (ValueError, TypeError):
+                pass
+
         if event_id:
-            cascade_ctx = query_cascade_context(event_id)
-            if cascade_ctx:
-                lines.append(f"=== {cascade_ctx} ===")
+            cascade_result = compute_cascade(event_id, company, delta_source_cr=delta_cr)
+            if cascade_result and cascade_result.hops:
+                lines.append(f"=== {cascade_result.to_prompt_block()} ===")
+                lines.append("")
+            elif cascade_result:
+                # Has primary primitive but no cascade edges
+                lines.append(
+                    f"=== COMPUTED: Direct exposure ₹{cascade_result.delta_source_cr:.1f} Cr, "
+                    f"margin impact {cascade_result.margin_bps:.1f} bps. "
+                    f"No cascade edges for {cascade_result.primary_primitive}. ==="
+                )
                 lines.append("")
             else:
-                logger.warning(
-                    "No cascade context for event '%s' — possible unmapped event type",
-                    event_id,
-                )
-                lines.append(
-                    "=== NOTE: No causal primitives mapped for this event type. "
-                    "Estimate financial impact conservatively using company scale and "
-                    "industry benchmarks. Do not claim precision without edge parameters. ==="
-                )
-                lines.append("")
-    except Exception:
-        pass
+                # Fallback: pass qualitative context from ontology
+                from engine.ontology.intelligence import query_cascade_context
+                cascade_ctx = query_cascade_context(event_id)
+                if cascade_ctx:
+                    lines.append(f"=== {cascade_ctx} ===")
+                    lines.append("")
+                else:
+                    logger.warning(
+                        "No cascade context for event '%s' — unmapped event type",
+                        event_id,
+                    )
+                    lines.append(
+                        "=== NOTE: No causal primitives mapped for this event type. "
+                        "Estimate financial impact conservatively using company scale and "
+                        "industry benchmarks. Do not claim precision without edge parameters. ==="
+                    )
+                    lines.append("")
+    except Exception as exc:
+        logger.warning("Primitive cascade computation failed: %s", exc)
 
     lines.append("=== INSTRUCTIONS ===")
     lines.append(
