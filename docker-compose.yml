@@ -125,24 +125,23 @@ services:
       - esg-network
 
   # ---------------------------------------------------------------------------
-  # 6. jena-fuseki — Apache Jena Fuseki (port 3030)
-  # Per CLAUDE.md: OWL2 ontology, SPARQL endpoint, tenant named graphs
+  # 6. jena-fuseki — REPLACED by rdflib (in-process). Kept for reference.
   # ---------------------------------------------------------------------------
-  jena-fuseki:
-    image: stain/jena-fuseki:5.2.0
-    container_name: esg-jena
-    restart: unless-stopped
-    environment:
-      ADMIN_PASSWORD: admin123
-      FUSEKI_DATASET_1: esg
-    volumes:
-      - jena-data:/fuseki
-    ports:
-      - "3030:3030"
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3030/$/ping"]
-      interval: 15s
-      timeout: 5s
+  # jena-fuseki:
+  #   image: stain/jena-fuseki:5.2.0
+  #   container_name: esg-jena
+  #   restart: unless-stopped
+  #   environment:
+  #     ADMIN_PASSWORD: admin123
+  #     FUSEKI_DATASET_1: esg
+  #   volumes:
+  #     - jena-data:/fuseki
+  #   ports:
+  #     - "3030:3030"
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3030/$/ping"]
+  #     interval: 15s
+  #     timeout: 5s
       retries: 5
       start_period: 20s
     networks:
@@ -198,5 +197,5 @@ networks:
 volumes:
   postgres-data:
   redis-data:
-  jena-data:
+  # jena-data:  # replaced by rdflib in-process
   minio-data:

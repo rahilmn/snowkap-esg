@@ -1,0 +1,1209 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# SNOWKAP ESG — Phase 7 Knowledge Expansion
+#
+# Additive triples that deepen the ontology:
+#   - Framework sections for 8 new frameworks
+#   - Financial transmission (Event × CapTier × P&L)
+#   - Double materiality (financial vs impact)
+#   - SDG targets (key targets per SDG)
+#   - ESG metric metadata (unit, method, benchmark)
+#   - Stakeholder communication detail
+#   - Commodity risk profiles
+#   - Time horizon + reversibility rules
+#   - Additional materiality weights for target-company industries
+#   - Penalty precedents (SEBI / CSRD / SEC / RBI)
+#
+# NO company-specific risks from MSSSPL / TMW Excel files are copied here.
+# =============================================================================
+
+# =============================================================================
+# FRAMEWORK SECTIONS
+# =============================================================================
+
+# --- Porter 5 Forces (strategy) ---
+snowkap:porter_competitive_rivalry a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:PORTER_5_FORCES ;
+    snowkap:sectionCode "P5F:Force1" ;
+    snowkap:sectionTitle "Competitive Rivalry" ;
+    rdfs:comment "Intensity of direct competition within the industry" .
+
+snowkap:porter_supplier_power a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:PORTER_5_FORCES ;
+    snowkap:sectionCode "P5F:Force2" ;
+    snowkap:sectionTitle "Bargaining Power of Suppliers" .
+
+snowkap:porter_buyer_power a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:PORTER_5_FORCES ;
+    snowkap:sectionCode "P5F:Force3" ;
+    snowkap:sectionTitle "Bargaining Power of Buyers" .
+
+snowkap:porter_new_entrants a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:PORTER_5_FORCES ;
+    snowkap:sectionCode "P5F:Force4" ;
+    snowkap:sectionTitle "Threat of New Entrants" .
+
+snowkap:porter_substitutes a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:PORTER_5_FORCES ;
+    snowkap:sectionCode "P5F:Force5" ;
+    snowkap:sectionTitle "Threat of Substitutes" .
+
+snowkap:PORTER_5_FORCES snowkap:hasSection snowkap:porter_competitive_rivalry,
+    snowkap:porter_supplier_power, snowkap:porter_buyer_power,
+    snowkap:porter_new_entrants, snowkap:porter_substitutes .
+
+# --- McKinsey Three Horizons ---
+snowkap:mckinsey_h1 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:MCKINSEY_3_HORIZONS ;
+    snowkap:sectionCode "M3H:H1" ;
+    snowkap:sectionTitle "Horizon 1 — Defend & Extend Core Business" .
+
+snowkap:mckinsey_h2 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:MCKINSEY_3_HORIZONS ;
+    snowkap:sectionCode "M3H:H2" ;
+    snowkap:sectionTitle "Horizon 2 — Build Emerging Businesses" .
+
+snowkap:mckinsey_h3 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:MCKINSEY_3_HORIZONS ;
+    snowkap:sectionCode "M3H:H3" ;
+    snowkap:sectionTitle "Horizon 3 — Create Viable Options for Transformative Growth" .
+
+snowkap:MCKINSEY_3_HORIZONS snowkap:hasSection snowkap:mckinsey_h1,
+    snowkap:mckinsey_h2, snowkap:mckinsey_h3 .
+
+# --- BCG Matrix ---
+snowkap:bcg_stars a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BCG_MATRIX ;
+    snowkap:sectionCode "BCG:Stars" ;
+    snowkap:sectionTitle "Stars (High Growth, High Market Share)" .
+snowkap:bcg_cash_cows a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BCG_MATRIX ;
+    snowkap:sectionCode "BCG:CashCows" ;
+    snowkap:sectionTitle "Cash Cows (Low Growth, High Market Share)" .
+snowkap:bcg_question_marks a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BCG_MATRIX ;
+    snowkap:sectionCode "BCG:QuestionMarks" ;
+    snowkap:sectionTitle "Question Marks (High Growth, Low Market Share)" .
+snowkap:bcg_dogs a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BCG_MATRIX ;
+    snowkap:sectionCode "BCG:Dogs" ;
+    snowkap:sectionTitle "Dogs (Low Growth, Low Market Share)" .
+snowkap:BCG_MATRIX snowkap:hasSection snowkap:bcg_stars, snowkap:bcg_cash_cows,
+    snowkap:bcg_question_marks, snowkap:bcg_dogs .
+
+# --- COSO ERM ---
+snowkap:coso_governance a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:COSO_ERM ;
+    snowkap:sectionCode "COSO:Gov" ;
+    snowkap:sectionTitle "Governance & Culture" .
+snowkap:coso_strategy a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:COSO_ERM ;
+    snowkap:sectionCode "COSO:Strategy" ;
+    snowkap:sectionTitle "Strategy & Objective-Setting" .
+snowkap:coso_performance a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:COSO_ERM ;
+    snowkap:sectionCode "COSO:Perf" ;
+    snowkap:sectionTitle "Performance (Risk Identification, Assessment, Response)" .
+snowkap:coso_review a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:COSO_ERM ;
+    snowkap:sectionCode "COSO:Rev" ;
+    snowkap:sectionTitle "Review & Revision" .
+snowkap:coso_information a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:COSO_ERM ;
+    snowkap:sectionCode "COSO:Info" ;
+    snowkap:sectionTitle "Information, Communication & Reporting" .
+snowkap:COSO_ERM snowkap:hasSection snowkap:coso_governance, snowkap:coso_strategy,
+    snowkap:coso_performance, snowkap:coso_review, snowkap:coso_information .
+
+# --- CFA ESG Integration ---
+snowkap:cfa_materiality a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:CFA_ESG ;
+    snowkap:sectionCode "CFA:Materiality" ;
+    snowkap:sectionTitle "ESG Materiality Assessment" .
+snowkap:cfa_valuation a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:CFA_ESG ;
+    snowkap:sectionCode "CFA:Valuation" ;
+    snowkap:sectionTitle "ESG Factor Integration into Valuation Models" .
+snowkap:cfa_cost_of_capital a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:CFA_ESG ;
+    snowkap:sectionCode "CFA:WACC" ;
+    snowkap:sectionTitle "ESG Adjustment to WACC / Cost of Capital" .
+snowkap:CFA_ESG snowkap:hasSection snowkap:cfa_materiality, snowkap:cfa_valuation,
+    snowkap:cfa_cost_of_capital .
+
+# --- DJSI ---
+snowkap:djsi_economic a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:DJSI ;
+    snowkap:sectionCode "DJSI:Econ" ;
+    snowkap:sectionTitle "Economic Dimension (Corporate Governance, Risk Mgmt, Compliance)" .
+snowkap:djsi_environmental a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:DJSI ;
+    snowkap:sectionCode "DJSI:Env" ;
+    snowkap:sectionTitle "Environmental Dimension (Climate, Water, Biodiversity)" .
+snowkap:djsi_social a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:DJSI ;
+    snowkap:sectionCode "DJSI:Social" ;
+    snowkap:sectionTitle "Social Dimension (Human Rights, Labour Practices, Community)" .
+snowkap:DJSI snowkap:hasSection snowkap:djsi_economic, snowkap:djsi_environmental, snowkap:djsi_social .
+
+# --- S&P Global ESG ---
+snowkap:spg_csa a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:SP_GLOBAL_ESG ;
+    snowkap:sectionCode "SPG:CSA" ;
+    snowkap:sectionTitle "Corporate Sustainability Assessment" .
+snowkap:spg_esg_score a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:SP_GLOBAL_ESG ;
+    snowkap:sectionCode "SPG:ESGScore" ;
+    snowkap:sectionTitle "S&P Global ESG Score (0-100)" .
+snowkap:SP_GLOBAL_ESG snowkap:hasSection snowkap:spg_csa, snowkap:spg_esg_score .
+
+# --- Edelman Trust Barometer ---
+snowkap:edelman_trust_index a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:EDELMAN ;
+    snowkap:sectionCode "EDEL:TrustIndex" ;
+    snowkap:sectionTitle "Trust Index (Business, Government, NGO, Media)" .
+snowkap:edelman_ethics a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:EDELMAN ;
+    snowkap:sectionCode "EDEL:Ethics" ;
+    snowkap:sectionTitle "Ethical Business Behavior" .
+snowkap:EDELMAN snowkap:hasSection snowkap:edelman_trust_index, snowkap:edelman_ethics .
+
+# Core ESG framework sections (BRSR, GRI, TCFD, CSRD)
+snowkap:brsr_p1 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P1" ; snowkap:sectionTitle "Principle 1 — Ethical Conduct" .
+snowkap:brsr_p2 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P2" ; snowkap:sectionTitle "Principle 2 — Product Lifecycle Sustainability" .
+snowkap:brsr_p3 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P3" ; snowkap:sectionTitle "Principle 3 — Employee Wellbeing" .
+snowkap:brsr_p4 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P4" ; snowkap:sectionTitle "Principle 4 — Stakeholder Engagement" .
+snowkap:brsr_p5 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P5" ; snowkap:sectionTitle "Principle 5 — Human Rights" .
+snowkap:brsr_p6 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P6" ; snowkap:sectionTitle "Principle 6 — Environmental Protection" .
+snowkap:brsr_p7 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P7" ; snowkap:sectionTitle "Principle 7 — Public Policy Advocacy" .
+snowkap:brsr_p8 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P8" ; snowkap:sectionTitle "Principle 8 — Inclusive Development" .
+snowkap:brsr_p9 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:BRSR ;
+    snowkap:sectionCode "BRSR:P9" ; snowkap:sectionTitle "Principle 9 — Consumer Responsibility" .
+snowkap:BRSR snowkap:hasSection snowkap:brsr_p1, snowkap:brsr_p2, snowkap:brsr_p3,
+    snowkap:brsr_p4, snowkap:brsr_p5, snowkap:brsr_p6, snowkap:brsr_p7,
+    snowkap:brsr_p8, snowkap:brsr_p9 .
+
+# GRI key standards
+snowkap:gri_205 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:205" ; snowkap:sectionTitle "Anti-corruption" .
+snowkap:gri_302 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:302" ; snowkap:sectionTitle "Energy" .
+snowkap:gri_303 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:303" ; snowkap:sectionTitle "Water and Effluents" .
+snowkap:gri_305 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:305" ; snowkap:sectionTitle "Emissions" .
+snowkap:gri_306 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:306" ; snowkap:sectionTitle "Waste" .
+snowkap:gri_401 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:401" ; snowkap:sectionTitle "Employment" .
+snowkap:gri_403 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:403" ; snowkap:sectionTitle "Occupational Health & Safety" .
+snowkap:gri_405 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:405" ; snowkap:sectionTitle "Diversity and Equal Opportunity" .
+snowkap:gri_413 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:413" ; snowkap:sectionTitle "Local Communities" .
+snowkap:gri_414 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:414" ; snowkap:sectionTitle "Supplier Social Assessment" .
+snowkap:GRI snowkap:hasSection snowkap:gri_205, snowkap:gri_302, snowkap:gri_303,
+    snowkap:gri_305, snowkap:gri_306, snowkap:gri_401, snowkap:gri_403,
+    snowkap:gri_405, snowkap:gri_413, snowkap:gri_414 .
+
+# TCFD pillars
+snowkap:tcfd_governance a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:TCFD ;
+    snowkap:sectionCode "TCFD:Gov" ; snowkap:sectionTitle "Governance" .
+snowkap:tcfd_strategy a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:TCFD ;
+    snowkap:sectionCode "TCFD:Strategy" ; snowkap:sectionTitle "Strategy" .
+snowkap:tcfd_risk_mgmt a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:TCFD ;
+    snowkap:sectionCode "TCFD:RM" ; snowkap:sectionTitle "Risk Management" .
+snowkap:tcfd_metrics a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:TCFD ;
+    snowkap:sectionCode "TCFD:Metrics" ; snowkap:sectionTitle "Metrics & Targets" .
+snowkap:TCFD snowkap:hasSection snowkap:tcfd_governance, snowkap:tcfd_strategy,
+    snowkap:tcfd_risk_mgmt, snowkap:tcfd_metrics .
+
+# ESRS standards
+snowkap:esrs_e1 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:E1" ; snowkap:sectionTitle "Climate Change" .
+snowkap:esrs_e2 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:E2" ; snowkap:sectionTitle "Pollution" .
+snowkap:esrs_e3 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:E3" ; snowkap:sectionTitle "Water & Marine Resources" .
+snowkap:esrs_e4 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:E4" ; snowkap:sectionTitle "Biodiversity & Ecosystems" .
+snowkap:esrs_e5 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:E5" ; snowkap:sectionTitle "Resource Use & Circular Economy" .
+snowkap:esrs_s1 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:S1" ; snowkap:sectionTitle "Own Workforce" .
+snowkap:esrs_s2 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:S2" ; snowkap:sectionTitle "Workers in Value Chain" .
+snowkap:esrs_s3 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:S3" ; snowkap:sectionTitle "Affected Communities" .
+snowkap:esrs_s4 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:S4" ; snowkap:sectionTitle "Consumers & End-Users" .
+snowkap:esrs_g1 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:ESRS ;
+    snowkap:sectionCode "ESRS:G1" ; snowkap:sectionTitle "Business Conduct" .
+snowkap:ESRS snowkap:hasSection snowkap:esrs_e1, snowkap:esrs_e2, snowkap:esrs_e3,
+    snowkap:esrs_e4, snowkap:esrs_e5, snowkap:esrs_s1, snowkap:esrs_s2,
+    snowkap:esrs_s3, snowkap:esrs_s4, snowkap:esrs_g1 .
+
+# =============================================================================
+# DOUBLE MATERIALITY (financial vs impact) — CSRD/ESRS requirement
+# =============================================================================
+
+snowkap:mat_financial a snowkap:MaterialityType ; rdfs:label "Financial Materiality" ;
+    rdfs:comment "Outside-in: ESG issue affects company P&L, cash flow, valuation" .
+snowkap:mat_impact a snowkap:MaterialityType ; rdfs:label "Impact Materiality" ;
+    rdfs:comment "Inside-out: Company activity impacts environment/society independent of financial effect" .
+
+# --- Banking double materiality ---
+snowkap:dm_climate_banking_fin rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 0.7 .
+snowkap:dm_climate_banking_imp rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 0.9 .
+snowkap:dm_risk_banking_fin rdf:subject snowkap:topic_risk_management ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 1.0 .
+snowkap:dm_dp_banking_fin rdf:subject snowkap:topic_data_privacy ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 1.0 .
+snowkap:dm_dp_banking_imp rdf:subject snowkap:topic_data_privacy ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 0.8 .
+snowkap:dm_ethics_banking_fin rdf:subject snowkap:topic_ethics_compliance ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 1.0 .
+snowkap:dm_ethics_banking_imp rdf:subject snowkap:topic_ethics_compliance ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_banking ; snowkap:materialityWeight 0.9 .
+
+# --- Asset Management ---
+snowkap:dm_climate_asset_fin rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_asset_mgmt ; snowkap:materialityWeight 0.9 .
+snowkap:dm_climate_asset_imp rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_asset_mgmt ; snowkap:materialityWeight 0.7 .
+snowkap:dm_risk_asset_fin rdf:subject snowkap:topic_risk_management ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_asset_mgmt ; snowkap:materialityWeight 1.0 .
+snowkap:dm_transparency_asset_fin rdf:subject snowkap:topic_transparency ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_asset_mgmt ; snowkap:materialityWeight 1.0 .
+snowkap:dm_transparency_asset_imp rdf:subject snowkap:topic_transparency ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_asset_mgmt ; snowkap:materialityWeight 0.9 .
+
+# --- Power & Energy ---
+snowkap:dm_climate_power_fin rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+snowkap:dm_climate_power_imp rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+snowkap:dm_emissions_power_fin rdf:subject snowkap:topic_emissions ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+snowkap:dm_emissions_power_imp rdf:subject snowkap:topic_emissions ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+snowkap:dm_water_power_fin rdf:subject snowkap:topic_water ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 0.9 .
+snowkap:dm_water_power_imp rdf:subject snowkap:topic_water ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+snowkap:dm_comm_power_fin rdf:subject snowkap:topic_community ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 0.6 .
+snowkap:dm_comm_power_imp rdf:subject snowkap:topic_community ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+snowkap:dm_hs_power_fin rdf:subject snowkap:topic_health_safety ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 0.8 .
+snowkap:dm_hs_power_imp rdf:subject snowkap:topic_health_safety ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_power ; snowkap:materialityWeight 1.0 .
+
+# --- Renewable Energy ---
+snowkap:dm_climate_renew_fin rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_renewable ; snowkap:materialityWeight 1.0 .
+snowkap:dm_climate_renew_imp rdf:subject snowkap:topic_climate ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_renewable ; snowkap:materialityWeight 0.8 .
+snowkap:dm_sc_renew_fin rdf:subject snowkap:topic_supply_chain_labor ; rdf:predicate snowkap:hasFinancialMateriality ;
+    rdf:object snowkap:industry_renewable ; snowkap:materialityWeight 0.7 .
+snowkap:dm_sc_renew_imp rdf:subject snowkap:topic_supply_chain_labor ; rdf:predicate snowkap:hasImpactMateriality ;
+    rdf:object snowkap:industry_renewable ; snowkap:materialityWeight 0.9 .
+
+# =============================================================================
+# SDG TARGETS (key sub-targets per goal)
+# =============================================================================
+
+snowkap:sdg_target_6_3 rdfs:label "SDG 6.3 — Improve water quality & reduce pollution" ;
+    snowkap:contributesToSDG snowkap:sdg_6 .
+snowkap:sdg_target_6_4 rdfs:label "SDG 6.4 — Substantially increase water-use efficiency" ;
+    snowkap:contributesToSDG snowkap:sdg_6 .
+snowkap:sdg_target_7_2 rdfs:label "SDG 7.2 — Increase share of renewable energy" ;
+    snowkap:contributesToSDG snowkap:sdg_7 .
+snowkap:sdg_target_7_3 rdfs:label "SDG 7.3 — Double rate of energy efficiency improvement" ;
+    snowkap:contributesToSDG snowkap:sdg_7 .
+snowkap:sdg_target_8_8 rdfs:label "SDG 8.8 — Protect labour rights, safe working environments" ;
+    snowkap:contributesToSDG snowkap:sdg_8 .
+snowkap:sdg_target_12_6 rdfs:label "SDG 12.6 — Encourage companies to adopt sustainable practices" ;
+    snowkap:contributesToSDG snowkap:sdg_12 .
+snowkap:sdg_target_13_2 rdfs:label "SDG 13.2 — Integrate climate measures into policy & strategy" ;
+    snowkap:contributesToSDG snowkap:sdg_13 .
+snowkap:sdg_target_13_3 rdfs:label "SDG 13.3 — Improve education on climate change mitigation" ;
+    snowkap:contributesToSDG snowkap:sdg_13 .
+snowkap:sdg_target_16_5 rdfs:label "SDG 16.5 — Substantially reduce corruption & bribery" ;
+    snowkap:contributesToSDG snowkap:sdg_16 .
+snowkap:sdg_target_16_6 rdfs:label "SDG 16.6 — Develop effective, accountable, transparent institutions" ;
+    snowkap:contributesToSDG snowkap:sdg_16 .
+
+# =============================================================================
+# ESG METRIC METADATA
+# =============================================================================
+
+snowkap:metric_scope1 a snowkap:ESGMetric ; rdfs:label "Scope 1 GHG Emissions" ;
+    snowkap:unit "tCO2e" ;
+    snowkap:calculationMethod "Direct emissions from owned/controlled sources" ;
+    rdfs:comment "Benchmark: industry median from CDP Climate Disclosures" .
+
+snowkap:metric_scope2 a snowkap:ESGMetric ; rdfs:label "Scope 2 GHG Emissions" ;
+    snowkap:unit "tCO2e" ;
+    snowkap:calculationMethod "Indirect emissions from purchased electricity/heat/steam" .
+
+snowkap:metric_scope3 a snowkap:ESGMetric ; rdfs:label "Scope 3 GHG Emissions" ;
+    snowkap:unit "tCO2e" ;
+    snowkap:calculationMethod "Indirect emissions in value chain (15 categories)" .
+
+snowkap:metric_energy_intensity a snowkap:ESGMetric ; rdfs:label "Energy Intensity" ;
+    snowkap:unit "MWh per ₹ Cr revenue" ;
+    snowkap:calculationMethod "Total energy consumed / revenue in ₹ Cr" .
+
+snowkap:metric_water_withdrawal a snowkap:ESGMetric ; rdfs:label "Water Withdrawal" ;
+    snowkap:unit "megalitres" ;
+    snowkap:calculationMethod "Total water withdrawn from surface, ground, sea, municipal sources" .
+
+snowkap:metric_water_recycling a snowkap:ESGMetric ; rdfs:label "Water Recycling Rate" ;
+    snowkap:unit "%" ;
+    snowkap:calculationMethod "(Water recycled / water withdrawn) × 100" .
+
+snowkap:metric_ltifr a snowkap:ESGMetric ; rdfs:label "Lost Time Injury Frequency Rate (LTIFR)" ;
+    snowkap:unit "injuries per million hours worked" ;
+    snowkap:calculationMethod "(Lost-time injuries × 1,000,000) / total hours worked" .
+
+snowkap:metric_fatality_rate a snowkap:ESGMetric ; rdfs:label "Fatality Rate" ;
+    snowkap:unit "fatalities per 100,000 employees" .
+
+snowkap:metric_attrition a snowkap:ESGMetric ; rdfs:label "Employee Attrition" ;
+    snowkap:unit "%" ;
+    snowkap:calculationMethod "(Employees leaving / average headcount) × 100 (annualised)" .
+
+snowkap:metric_gender_pay_gap a snowkap:ESGMetric ; rdfs:label "Gender Pay Gap" ;
+    snowkap:unit "%" ;
+    snowkap:calculationMethod "(Male median pay − female median pay) / male median pay × 100" .
+
+snowkap:metric_women_in_leadership a snowkap:ESGMetric ; rdfs:label "Women in Leadership" ;
+    snowkap:unit "%" ;
+    snowkap:calculationMethod "Female headcount in senior mgmt / total senior mgmt × 100" .
+
+snowkap:metric_board_independence a snowkap:ESGMetric ; rdfs:label "Board Independence" ;
+    snowkap:unit "%" ;
+    snowkap:calculationMethod "Independent directors / total board size × 100" .
+
+snowkap:metric_ceo_pay_ratio a snowkap:ESGMetric ; rdfs:label "CEO Pay Ratio" ;
+    snowkap:unit "×" ;
+    snowkap:calculationMethod "CEO total compensation / median employee compensation" .
+
+snowkap:metric_data_breaches a snowkap:ESGMetric ; rdfs:label "Material Data Breaches" ;
+    snowkap:unit "count" ;
+    snowkap:calculationMethod "Count of incidents triggering DPDP / GDPR notification" .
+
+snowkap:metric_green_revenue a snowkap:ESGMetric ; rdfs:label "Green Revenue" ;
+    snowkap:unit "₹ Cr" ;
+    snowkap:calculationMethod "Revenue from EU Taxonomy-aligned activities" .
+
+snowkap:metric_renewable_share a snowkap:ESGMetric ; rdfs:label "Renewable Energy Share" ;
+    snowkap:unit "%" ;
+    snowkap:calculationMethod "Renewable MWh / total MWh × 100" .
+
+# =============================================================================
+# STAKEHOLDER COMMUNICATION DETAIL
+# =============================================================================
+
+snowkap:stakeholder_investors rdfs:comment "Communication channels: annual report, investor day, ESG ratings, quarterly results, roadshows" ;
+    snowkap:careAbout snowkap:topic_risk_management, snowkap:topic_tax_transparency .
+
+snowkap:stakeholder_employees rdfs:comment "Communication channels: town halls, engagement surveys, internal newsletter, grievance mechanism" ;
+    snowkap:careAbout snowkap:topic_ethics_compliance .
+
+snowkap:stakeholder_community rdfs:comment "Communication channels: public meetings, grievance redressal, CSR reports, village panchayat dialogues" ;
+    snowkap:careAbout snowkap:topic_biodiversity, snowkap:topic_health_safety .
+
+snowkap:stakeholder_regulators rdfs:comment "Communication channels: disclosure filings, compliance reports, official consultations" ;
+    snowkap:careAbout snowkap:topic_climate, snowkap:topic_risk_management .
+
+snowkap:stakeholder_customers rdfs:comment "Communication channels: product labelling, customer portals, sustainability marketing" ;
+    snowkap:careAbout snowkap:topic_ethics_compliance .
+
+# =============================================================================
+# COMMODITY RISK PROFILES
+# =============================================================================
+
+snowkap:commodity_coal rdfs:comment "Price volatility: high. Climate exposure: transition risk (phase-out). CBAM: applicable for EU-bound coal-intensive exports." .
+snowkap:commodity_natural_gas rdfs:comment "Price volatility: very high (Ukraine war effects). Climate exposure: transition risk (methane). CBAM: partial." .
+snowkap:commodity_solar_panels rdfs:comment "Supply concentration: China >80% polysilicon. Geopolitical risk: high. Labour risk: Xinjiang concerns." .
+snowkap:commodity_wind_turbines rdfs:comment "Supply concentration: China + EU. Rare earth dependency: medium. CBAM: partial." .
+snowkap:commodity_steel rdfs:comment "Price volatility: high. Climate exposure: Scope 1 intensive. CBAM: applicable." .
+snowkap:commodity_water rdfs:comment "Stress zones: 20% Indian districts. Not traded but scarcity risk high for power/mining/chemicals." .
+snowkap:commodity_polysilicon rdfs:comment "China >80% supply. Labour concerns. Input to solar PV." .
+snowkap:commodity_lithium rdfs:comment "Supply concentration: Australia, Chile, China. ESG concerns: water use, community." .
+
+# =============================================================================
+# TIME HORIZON + REVERSIBILITY RULES (per event type)
+# =============================================================================
+
+snowkap:event_criminal_indictment rdfs:comment "Default urgency: immediate. Reversibility: irreversible. Time horizon: days." .
+snowkap:event_license_revocation rdfs:comment "Default urgency: immediate. Reversibility: irreversible. Time horizon: days." .
+snowkap:event_systemic_regulatory rdfs:comment "Default urgency: high. Reversibility: difficult. Time horizon: months." .
+snowkap:event_heavy_penalty rdfs:comment "Default urgency: high. Reversibility: difficult. Time horizon: weeks." .
+snowkap:event_esg_rating_change rdfs:comment "Default urgency: medium. Reversibility: moderate. Time horizon: weeks." .
+snowkap:event_green_bond rdfs:comment "Default urgency: medium. Reversibility: moderate. Time horizon: months." .
+snowkap:event_climate_event rdfs:comment "Default urgency: high. Reversibility: depends on magnitude. Time horizon: immediate." .
+snowkap:event_routine_capex rdfs:comment "Default urgency: low. Reversibility: easy. Time horizon: months." .
+snowkap:event_award_recognition rdfs:comment "Default urgency: low. Reversibility: easy. Time horizon: months." .
+
+# =============================================================================
+# ADDITIONAL MATERIALITY WEIGHTS (target-company industries)
+# =============================================================================
+
+# Ethics + banking depth
+snowkap:mat_ethics_asset_deep snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_ethics_compliance ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_asset_mgmt .
+
+snowkap:mat_rm_asset_deep snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_risk_management ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_asset_mgmt .
+
+snowkap:mat_transparency_banking snowkap:materialityWeight 0.9 ;
+    rdf:subject snowkap:topic_transparency ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_banking .
+
+snowkap:mat_transparency_asset snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_transparency ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_asset_mgmt .
+
+snowkap:mat_tax_banking snowkap:materialityWeight 0.8 ;
+    rdf:subject snowkap:topic_tax_transparency ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_banking .
+
+snowkap:mat_stakeholder_banking snowkap:materialityWeight 0.8 ;
+    rdf:subject snowkap:topic_stakeholder_governance ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_banking .
+
+snowkap:mat_board_banking snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_board_leadership ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_banking .
+
+snowkap:mat_dei_banking snowkap:materialityWeight 0.8 ;
+    rdf:subject snowkap:topic_dei ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_banking .
+
+snowkap:mat_hc_asset snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_human_capital ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_asset_mgmt .
+
+snowkap:mat_board_asset snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_board_leadership ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_asset_mgmt .
+
+# Power: community, energy, waste, biodiversity
+snowkap:mat_energy_power snowkap:materialityWeight 0.9 ;
+    rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_power .
+
+snowkap:mat_waste_power snowkap:materialityWeight 0.8 ;
+    rdf:subject snowkap:topic_waste ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_power .
+
+snowkap:mat_biodiversity_power snowkap:materialityWeight 0.7 ;
+    rdf:subject snowkap:topic_biodiversity ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_power .
+
+snowkap:mat_pollution_power snowkap:materialityWeight 0.9 ;
+    rdf:subject snowkap:topic_pollution ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_power .
+
+snowkap:mat_climate_adaptation_power snowkap:materialityWeight 0.9 ;
+    rdf:subject snowkap:topic_climate_adaptation ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_power .
+
+# Renewable: supply chain labour (polysilicon), community, biodiversity (land)
+snowkap:mat_sc_renewable snowkap:materialityWeight 0.8 ;
+    rdf:subject snowkap:topic_supply_chain_labor ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_renewable .
+
+snowkap:mat_biodiv_renewable snowkap:materialityWeight 0.7 ;
+    rdf:subject snowkap:topic_biodiversity ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_renewable .
+
+snowkap:mat_energy_renewable snowkap:materialityWeight 1.0 ;
+    rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_renewable .
+
+snowkap:mat_waste_renewable snowkap:materialityWeight 0.7 ;
+    rdf:subject snowkap:topic_waste ; rdf:predicate snowkap:materialFor ;
+    rdf:object snowkap:industry_renewable .
+
+# =============================================================================
+# PENALTY PRECEDENTS (more cases)
+# =============================================================================
+
+snowkap:penalty_sebi_lodr a snowkap:RegulatoryPenalty ;
+    rdfs:label "SEBI LODR Violation (Listing Regulations)" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹5-25 Lakh" ;
+    snowkap:precedent "SEBI routinely fines listed entities for delayed disclosures under LODR Reg 30" .
+
+snowkap:penalty_sebi_poa a snowkap:RegulatoryPenalty ;
+    rdfs:label "SEBI Prohibition of Unfair Trade Practices (PFUTP)" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹10 Lakh - ₹25 Cr" ;
+    snowkap:precedent "PFUTP used for market manipulation, fraudulent disclosures, disgorgement orders" .
+
+snowkap:penalty_rbi_kyc a snowkap:RegulatoryPenalty ;
+    rdfs:label "RBI KYC/AML Violation" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹1-10 Cr" ;
+    snowkap:precedent "RBI has fined multiple banks for lapses in Customer Due Diligence and PMLA compliance" .
+
+snowkap:penalty_rbi_prudential a snowkap:RegulatoryPenalty ;
+    rdfs:label "RBI Prudential Norms Violation" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹50 Lakh - ₹5 Cr" ;
+    snowkap:precedent "Penalties on banks for NPA classification, provisioning, and exposure norm breaches" .
+
+snowkap:penalty_moef_env a snowkap:RegulatoryPenalty ;
+    rdfs:label "MoEFCC / CPCB Environmental Violation" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "Variable — shutdown orders, bank guarantees, remediation costs" ;
+    snowkap:precedent "Closure notices and compensation orders issued for emission / effluent exceedances" .
+
+snowkap:penalty_csrd_noncompliance a snowkap:RegulatoryPenalty ;
+    rdfs:label "CSRD Non-Compliance" ;
+    snowkap:jurisdiction "EU" ;
+    snowkap:medianFineRange "Up to 2% of global turnover" ;
+    snowkap:precedent "CSRD penalty regime mirrors GDPR structure; member states enforce" .
+
+snowkap:penalty_sec_climate a snowkap:RegulatoryPenalty ;
+    rdfs:label "SEC Climate Disclosure Rule Enforcement" ;
+    snowkap:jurisdiction "US" ;
+    snowkap:medianFineRange "$ millions + litigation exposure" ;
+    snowkap:precedent "SEC enforcement actions for misleading climate claims (greenwashing)" .
+
+snowkap:penalty_dpdp a snowkap:RegulatoryPenalty ;
+    rdfs:label "DPDP Act Personal Data Violation" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹50 Lakh - ₹250 Cr" ;
+    snowkap:precedent "Maximum penalty ₹250 Cr under DPDP Act 2023 for significant data fiduciary lapses" .
+
+snowkap:penalty_posh a snowkap:RegulatoryPenalty ;
+    rdfs:label "POSH Act Non-Compliance (India)" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹50,000 - ₹1 Lakh (repeat: 2x + licence cancellation)" ;
+    snowkap:precedent "Failure to form Internal Committees or file annual reports triggers penalties" .
+
+snowkap:penalty_factories_act a snowkap:RegulatoryPenalty ;
+    rdfs:label "Factories Act Safety Violation" ;
+    snowkap:jurisdiction "India" ;
+    snowkap:medianFineRange "₹1 Lakh + imprisonment for severe violations" ;
+    snowkap:precedent "Applied after fatal accidents or serious occupational health breaches" .
+
+# =============================================================================
+# ADDITIONAL RISK WEIGHTS (target industries)
+# =============================================================================
+
+snowkap:rw_banking_hc snowkap:riskWeight 1.2 ;
+    rdf:subject snowkap:industry_banking ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_human_capital .
+
+snowkap:rw_banking_supply snowkap:riskWeight 0.7 ;
+    rdf:subject snowkap:industry_banking ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_supply_chain .
+
+snowkap:rw_asset_hc snowkap:riskWeight 1.5 ;
+    rdf:subject snowkap:industry_asset_mgmt ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_human_capital .
+
+snowkap:rw_asset_lit snowkap:riskWeight 1.4 ;
+    rdf:subject snowkap:industry_asset_mgmt ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_litigation .
+
+snowkap:rw_power_hc snowkap:riskWeight 1.3 ;
+    rdf:subject snowkap:industry_power ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_human_capital .
+
+snowkap:rw_power_manpower snowkap:riskWeight 1.3 ;
+    rdf:subject snowkap:industry_power ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_manpower .
+
+snowkap:rw_power_tech snowkap:riskWeight 1.1 ;
+    rdf:subject snowkap:industry_power ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_technological .
+
+snowkap:rw_renew_reg snowkap:riskWeight 1.3 ;
+    rdf:subject snowkap:industry_renewable ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_regulatory .
+
+snowkap:rw_renew_transition snowkap:riskWeight 0.8 ;
+    rdf:subject snowkap:industry_renewable ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_transition .
+
+snowkap:rw_renew_mu snowkap:riskWeight 1.2 ;
+    rdf:subject snowkap:industry_renewable ; rdf:predicate snowkap:amplifiesRisk ;
+    rdf:object snowkap:risk_market_uncertainty .
+
+# =============================================================================
+# MORE TOPIC → FRAMEWORK TRIGGER CHAINS
+# =============================================================================
+
+snowkap:topic_climate snowkap:triggersFramework snowkap:PORTER_5_FORCES, snowkap:COSO_ERM, snowkap:CFA_ESG, snowkap:EDELMAN .
+snowkap:topic_risk_management snowkap:triggersFramework snowkap:PORTER_5_FORCES, snowkap:MCKINSEY_3_HORIZONS, snowkap:BCG_MATRIX .
+snowkap:topic_board_leadership snowkap:triggersFramework snowkap:DJSI, snowkap:SP_GLOBAL_ESG, snowkap:CFA_ESG .
+snowkap:topic_ethics_compliance snowkap:triggersFramework snowkap:DJSI, snowkap:SP_GLOBAL_ESG, snowkap:EDELMAN, snowkap:COSO_ERM .
+snowkap:topic_transparency snowkap:triggersFramework snowkap:DJSI, snowkap:SP_GLOBAL_ESG, snowkap:EDELMAN .
+snowkap:topic_stakeholder_governance snowkap:triggersFramework snowkap:DJSI, snowkap:EDELMAN .
+snowkap:topic_community snowkap:triggersFramework snowkap:EDELMAN, snowkap:DJSI .
+snowkap:topic_dei snowkap:triggersFramework snowkap:DJSI, snowkap:SP_GLOBAL_ESG .
+
+# =============================================================================
+# STRONG TOPIC → IMPACT CROSS-LINKS (ensures all perspectives have coverage)
+# =============================================================================
+
+snowkap:topic_ethics_compliance snowkap:hasImpactOn snowkap:impact_strategic, snowkap:impact_brand, snowkap:impact_growth .
+snowkap:topic_board_leadership snowkap:hasImpactOn snowkap:impact_regulatory, snowkap:impact_operational, snowkap:impact_cost, snowkap:impact_growth .
+snowkap:topic_risk_management snowkap:hasImpactOn snowkap:impact_regulatory, snowkap:impact_reputational, snowkap:impact_cost, snowkap:impact_brand .
+snowkap:topic_transparency snowkap:hasImpactOn snowkap:impact_cost, snowkap:impact_brand, snowkap:impact_strategic .
+snowkap:topic_data_privacy snowkap:hasImpactOn snowkap:impact_strategic, snowkap:impact_operational, snowkap:impact_cost .
+snowkap:topic_climate snowkap:hasImpactOn snowkap:impact_brand, snowkap:impact_growth, snowkap:impact_value, snowkap:impact_volume .
+snowkap:topic_emissions snowkap:hasImpactOn snowkap:impact_operational, snowkap:impact_financial, snowkap:impact_strategic, snowkap:impact_brand, snowkap:impact_growth .
+snowkap:topic_energy snowkap:hasImpactOn snowkap:impact_strategic, snowkap:impact_brand, snowkap:impact_growth, snowkap:impact_regulatory, snowkap:impact_volume .
+snowkap:topic_pollution snowkap:hasImpactOn snowkap:impact_operational, snowkap:impact_financial, snowkap:impact_strategic, snowkap:impact_growth, snowkap:impact_cost .
+snowkap:topic_supply_chain_labor snowkap:hasImpactOn snowkap:impact_cost, snowkap:impact_strategic, snowkap:impact_financial, snowkap:impact_growth, snowkap:impact_volume .
+snowkap:topic_community snowkap:hasImpactOn snowkap:impact_regulatory, snowkap:impact_financial, snowkap:impact_strategic, snowkap:impact_growth, snowkap:impact_cost .
+snowkap:topic_health_safety snowkap:hasImpactOn snowkap:impact_brand, snowkap:impact_growth, snowkap:impact_strategic, snowkap:impact_volume .
+snowkap:topic_dei snowkap:hasImpactOn snowkap:impact_operational, snowkap:impact_cost, snowkap:impact_strategic .
+snowkap:topic_biodiversity snowkap:hasImpactOn snowkap:impact_strategic, snowkap:impact_brand, snowkap:impact_growth, snowkap:impact_cost .
+snowkap:topic_climate_adaptation snowkap:hasImpactOn snowkap:impact_brand, snowkap:impact_regulatory, snowkap:impact_cost .
+snowkap:topic_waste snowkap:hasImpactOn snowkap:impact_operational, snowkap:impact_brand, snowkap:impact_strategic, snowkap:impact_volume .
+snowkap:topic_tax_transparency snowkap:hasImpactOn snowkap:impact_strategic, snowkap:impact_brand, snowkap:impact_cost .
+snowkap:topic_stakeholder_governance snowkap:hasImpactOn snowkap:impact_regulatory, snowkap:impact_brand, snowkap:impact_growth .
+
+# =============================================================================
+# ESG METRIC → TOPIC + FRAMEWORK LINKS
+# =============================================================================
+
+snowkap:metric_scope1 snowkap:relatesToTopic snowkap:topic_emissions ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:CDP, snowkap:BRSR, snowkap:TCFD .
+snowkap:metric_scope2 snowkap:relatesToTopic snowkap:topic_emissions ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:CDP, snowkap:BRSR, snowkap:TCFD .
+snowkap:metric_scope3 snowkap:relatesToTopic snowkap:topic_emissions ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:CDP, snowkap:SBTI .
+snowkap:metric_energy_intensity snowkap:relatesToTopic snowkap:topic_energy ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR .
+snowkap:metric_water_withdrawal snowkap:relatesToTopic snowkap:topic_water ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR, snowkap:CDP .
+snowkap:metric_water_recycling snowkap:relatesToTopic snowkap:topic_water ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR .
+snowkap:metric_ltifr snowkap:relatesToTopic snowkap:topic_health_safety ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR .
+snowkap:metric_fatality_rate snowkap:relatesToTopic snowkap:topic_health_safety ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR .
+snowkap:metric_attrition snowkap:relatesToTopic snowkap:topic_human_capital ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR, snowkap:SASB .
+snowkap:metric_gender_pay_gap snowkap:relatesToTopic snowkap:topic_dei ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR .
+snowkap:metric_women_in_leadership snowkap:relatesToTopic snowkap:topic_dei ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR, snowkap:SASB .
+snowkap:metric_board_independence snowkap:relatesToTopic snowkap:topic_board_leadership ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR, snowkap:DJSI .
+snowkap:metric_ceo_pay_ratio snowkap:relatesToTopic snowkap:topic_board_leadership ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR .
+snowkap:metric_data_breaches snowkap:relatesToTopic snowkap:topic_data_privacy ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:BRSR, snowkap:SASB .
+snowkap:metric_green_revenue snowkap:relatesToTopic snowkap:topic_climate ;
+    snowkap:measuresUnder snowkap:EU_TAXONOMY, snowkap:CDP, snowkap:BRSR .
+snowkap:metric_renewable_share snowkap:relatesToTopic snowkap:topic_energy ;
+    snowkap:measuresUnder snowkap:GRI, snowkap:CDP, snowkap:BRSR .
+
+# =============================================================================
+# ADDITIONAL COMPLIANCE DEADLINES
+# =============================================================================
+
+snowkap:deadline_cdp_water_2026 a snowkap:ComplianceDeadline ;
+    rdfs:label "CDP Water 2026" ;
+    snowkap:appliesFramework snowkap:CDP ;
+    snowkap:jurisdiction "Global" ;
+    snowkap:deadlineDate "2026-07-31"^^xsd:date ;
+    snowkap:recurrence "annual" ;
+    snowkap:applicabilityCondition "Companies in water-stressed sectors" ;
+    snowkap:penaltyForNonCompliance "No direct penalty; investor perception risk" .
+
+snowkap:deadline_sebi_quarterly a snowkap:ComplianceDeadline ;
+    rdfs:label "SEBI Quarterly Corporate Governance Report" ;
+    snowkap:appliesFramework snowkap:BRSR ;
+    snowkap:jurisdiction "India" ;
+    snowkap:deadlineDate "2026-07-15"^^xsd:date ;
+    snowkap:recurrence "quarterly" ;
+    snowkap:applicabilityCondition "All listed companies" ;
+    snowkap:penaltyForNonCompliance "LODR Reg 27 — fines per day of delay" .
+
+snowkap:deadline_sbti_submission a snowkap:ComplianceDeadline ;
+    rdfs:label "SBTi Target Submission (24 months from commitment)" ;
+    snowkap:appliesFramework snowkap:SBTI ;
+    snowkap:jurisdiction "Global" ;
+    snowkap:deadlineDate "2026-12-31"^^xsd:date ;
+    snowkap:recurrence "one-time" ;
+    snowkap:applicabilityCondition "Companies with SBTi commitments" ;
+    snowkap:penaltyForNonCompliance "De-listing from SBTi dashboard" .
+
+snowkap:deadline_rbi_climate a snowkap:ComplianceDeadline ;
+    rdfs:label "RBI Climate Risk Disclosure (Banks)" ;
+    snowkap:appliesFramework snowkap:TCFD ;
+    snowkap:jurisdiction "India" ;
+    snowkap:deadlineDate "2026-09-30"^^xsd:date ;
+    snowkap:recurrence "annual" ;
+    snowkap:applicabilityCondition "All scheduled commercial banks" ;
+    snowkap:penaltyForNonCompliance "RBI supervisory action" .
+
+snowkap:deadline_eu_taxonomy_2026 a snowkap:ComplianceDeadline ;
+    rdfs:label "EU Taxonomy Alignment Reporting 2026" ;
+    snowkap:appliesFramework snowkap:EU_TAXONOMY ;
+    snowkap:jurisdiction "EU" ;
+    snowkap:deadlineDate "2026-03-31"^^xsd:date ;
+    snowkap:recurrence "annual" ;
+    snowkap:applicabilityCondition "All CSRD reporters with EU activities" ;
+    snowkap:penaltyForNonCompliance "Part of CSRD penalties — 2% global turnover" .
+
+# =============================================================================
+# Phase 14 — Peer Actions (industry benchmarks for recommendations)
+# =============================================================================
+
+snowkap:peer_action_jsw_netzero a snowkap:PeerAction ;
+    snowkap:company "JSW Energy" ;
+    snowkap:topic "Climate Change" ;
+    snowkap:action "Announced 2030 net-zero target with science-based pathway" ;
+    snowkap:outcome "15% ESG score uplift, issued ₹2000 Cr green bond at 50bps discount" ;
+    snowkap:year 2024 .
+
+snowkap:peer_action_hdfc_csr a snowkap:PeerAction ;
+    snowkap:company "HDFC Bank" ;
+    snowkap:topic "Community Impact" ;
+    snowkap:action "Raised CSR to 2.5% of net profit (above statutory 2%)" ;
+    snowkap:outcome "DJSI inclusion, improved stakeholder trust score, talent retention improved 8%" ;
+    snowkap:year 2024 .
+
+snowkap:peer_action_tata_power_transition a snowkap:PeerAction ;
+    snowkap:company "Tata Power" ;
+    snowkap:topic "Energy" ;
+    snowkap:action "Committed to 80% renewable portfolio by 2030, divesting coal assets" ;
+    snowkap:outcome "P/E rerating from 12x to 18x, ₹5000 Cr green bond issued" ;
+    snowkap:year 2025 .
+
+snowkap:peer_action_sbi_disclosure a snowkap:PeerAction ;
+    snowkap:company "State Bank of India" ;
+    snowkap:topic "Transparency & Disclosure" ;
+    snowkap:action "Published India's first bank-level TCFD report with Scope 3 financed emissions" ;
+    snowkap:outcome "CDP B rating (from C), attracted ₹3000 Cr in ESG-mandated FII inflows" ;
+    snowkap:year 2025 .
+
+snowkap:peer_action_axis_data a snowkap:PeerAction ;
+    snowkap:company "Axis Bank" ;
+    snowkap:topic "Data Privacy" ;
+    snowkap:action "Implemented ISO 27701 privacy framework across all digital banking channels" ;
+    snowkap:outcome "Zero data breach incidents in FY25, RBI commendation for cyber resilience" ;
+    snowkap:year 2025 .
+
+# =============================================================================
+# Phase 14 — ROI Benchmarks by Industry + Action Type
+# =============================================================================
+
+snowkap:roi_compliance_banking a snowkap:ROIBenchmark ;
+    snowkap:forIndustry "Financials/Banking" ;
+    snowkap:forActionType "compliance" ;
+    snowkap:typicalROI "15-25%" ;
+    snowkap:typicalPayback "12-18 months" .
+
+snowkap:roi_esg_positioning_banking a snowkap:ROIBenchmark ;
+    snowkap:forIndustry "Financials/Banking" ;
+    snowkap:forActionType "esg_positioning" ;
+    snowkap:typicalROI "8-15%" ;
+    snowkap:typicalPayback "18-36 months" .
+
+snowkap:roi_compliance_power a snowkap:ROIBenchmark ;
+    snowkap:forIndustry "Power/Energy" ;
+    snowkap:forActionType "compliance" ;
+    snowkap:typicalROI "10-20%" ;
+    snowkap:typicalPayback "18-24 months" .
+
+snowkap:roi_strategic_power a snowkap:ROIBenchmark ;
+    snowkap:forIndustry "Power/Energy" ;
+    snowkap:forActionType "strategic" ;
+    snowkap:typicalROI "20-40%" ;
+    snowkap:typicalPayback "24-48 months" .
+
+snowkap:roi_esg_positioning_renewable a snowkap:ROIBenchmark ;
+    snowkap:forIndustry "Renewable Energy" ;
+    snowkap:forActionType "esg_positioning" ;
+    snowkap:typicalROI "25-50%" ;
+    snowkap:typicalPayback "12-24 months" .
+
+snowkap:roi_compliance_asset_mgmt a snowkap:ROIBenchmark ;
+    snowkap:forIndustry "Asset Management" ;
+    snowkap:forActionType "compliance" ;
+    snowkap:typicalROI "12-20%" ;
+    snowkap:typicalPayback "6-12 months" .
+
+# =============================================================================
+# PHASE 15: ONTOLOGY-DRIVEN CONFIGURATION
+# Replaces all hardcoded Python dicts with SPARQL-queryable triples
+# =============================================================================
+
+# =============================================================================
+# THEME → RISK CATEGORY MAPPING (replaces _THEME_RISK_MAP in risk_assessor.py)
+# =============================================================================
+
+snowkap:topic_climate snowkap:triggersRiskCategory snowkap:risk_transition, snowkap:risk_physical, snowkap:risk_reputational, snowkap:risk_regulatory .
+snowkap:topic_emissions snowkap:triggersRiskCategory snowkap:risk_transition, snowkap:risk_regulatory, snowkap:risk_reputational .
+snowkap:topic_energy snowkap:triggersRiskCategory snowkap:risk_transition, snowkap:risk_regulatory .
+snowkap:topic_water snowkap:triggersRiskCategory snowkap:risk_physical, snowkap:risk_supply_chain, snowkap:risk_regulatory .
+snowkap:topic_waste snowkap:triggersRiskCategory snowkap:risk_regulatory, snowkap:risk_reputational .
+snowkap:topic_biodiversity snowkap:triggersRiskCategory snowkap:risk_regulatory, snowkap:risk_reputational, snowkap:risk_litigation .
+snowkap:topic_climate_adaptation snowkap:triggersRiskCategory snowkap:risk_physical, snowkap:risk_transition .
+snowkap:topic_pollution snowkap:triggersRiskCategory snowkap:risk_regulatory, snowkap:risk_litigation, snowkap:risk_reputational .
+snowkap:topic_human_capital snowkap:triggersRiskCategory snowkap:risk_human_capital, snowkap:risk_manpower .
+snowkap:topic_health_safety snowkap:triggersRiskCategory snowkap:risk_human_capital, snowkap:risk_litigation, snowkap:risk_reputational .
+snowkap:topic_community snowkap:triggersRiskCategory snowkap:risk_reputational, snowkap:risk_litigation .
+snowkap:topic_supply_chain_labor snowkap:triggersRiskCategory snowkap:risk_supply_chain, snowkap:risk_reputational, snowkap:risk_litigation .
+snowkap:topic_dei snowkap:triggersRiskCategory snowkap:risk_human_capital, snowkap:risk_reputational .
+snowkap:topic_product_safety snowkap:triggersRiskCategory snowkap:risk_litigation, snowkap:risk_reputational, snowkap:risk_regulatory .
+snowkap:topic_data_privacy snowkap:triggersRiskCategory snowkap:risk_technological, snowkap:risk_regulatory, snowkap:risk_litigation .
+snowkap:topic_board_leadership snowkap:triggersRiskCategory snowkap:risk_reputational, snowkap:risk_litigation .
+snowkap:topic_ethics_compliance snowkap:triggersRiskCategory snowkap:risk_regulatory, snowkap:risk_litigation, snowkap:risk_reputational .
+snowkap:topic_risk_management snowkap:triggersRiskCategory snowkap:risk_market_uncertainty, snowkap:risk_regulatory .
+snowkap:topic_transparency snowkap:triggersRiskCategory snowkap:risk_regulatory, snowkap:risk_reputational .
+snowkap:topic_tax_transparency snowkap:triggersRiskCategory snowkap:risk_regulatory, snowkap:risk_reputational .
+snowkap:topic_stakeholder_governance snowkap:triggersRiskCategory snowkap:risk_reputational, snowkap:risk_market_uncertainty .
+
+# =============================================================================
+# THEME → TEMPLES MAPPING (replaces _THEME_TEMPLES_MAP in risk_assessor.py)
+# =============================================================================
+
+snowkap:topic_climate snowkap:triggersTEMPLES snowkap:temples_environmental, snowkap:temples_economic .
+snowkap:topic_emissions snowkap:triggersTEMPLES snowkap:temples_environmental, snowkap:temples_legal .
+snowkap:topic_energy snowkap:triggersTEMPLES snowkap:temples_environmental, snowkap:temples_economic .
+snowkap:topic_water snowkap:triggersTEMPLES snowkap:temples_environmental .
+snowkap:topic_waste snowkap:triggersTEMPLES snowkap:temples_environmental, snowkap:temples_legal .
+snowkap:topic_biodiversity snowkap:triggersTEMPLES snowkap:temples_environmental .
+snowkap:topic_climate_adaptation snowkap:triggersTEMPLES snowkap:temples_environmental, snowkap:temples_economic .
+snowkap:topic_pollution snowkap:triggersTEMPLES snowkap:temples_environmental, snowkap:temples_legal, snowkap:temples_media .
+snowkap:topic_human_capital snowkap:triggersTEMPLES snowkap:temples_social .
+snowkap:topic_health_safety snowkap:triggersTEMPLES snowkap:temples_social, snowkap:temples_legal .
+snowkap:topic_community snowkap:triggersTEMPLES snowkap:temples_social, snowkap:temples_media .
+snowkap:topic_supply_chain_labor snowkap:triggersTEMPLES snowkap:temples_social, snowkap:temples_legal .
+snowkap:topic_dei snowkap:triggersTEMPLES snowkap:temples_social .
+snowkap:topic_product_safety snowkap:triggersTEMPLES snowkap:temples_legal, snowkap:temples_media .
+snowkap:topic_data_privacy snowkap:triggersTEMPLES snowkap:temples_technological, snowkap:temples_legal .
+snowkap:topic_board_leadership snowkap:triggersTEMPLES snowkap:temples_legal, snowkap:temples_political .
+snowkap:topic_ethics_compliance snowkap:triggersTEMPLES snowkap:temples_legal, snowkap:temples_political .
+snowkap:topic_risk_management snowkap:triggersTEMPLES snowkap:temples_economic .
+snowkap:topic_transparency snowkap:triggersTEMPLES snowkap:temples_legal .
+snowkap:topic_tax_transparency snowkap:triggersTEMPLES snowkap:temples_legal, snowkap:temples_political .
+snowkap:topic_stakeholder_governance snowkap:triggersTEMPLES snowkap:temples_political, snowkap:temples_social .
+
+# =============================================================================
+# RISK LEVEL THRESHOLDS (replaces _classify_level() magic numbers)
+# =============================================================================
+
+snowkap:risk_threshold_critical a snowkap:RiskLevelThreshold ;
+    rdfs:label "CRITICAL threshold" ;
+    snowkap:riskLevel "CRITICAL" ;
+    snowkap:minScore 20.0 .
+
+snowkap:risk_threshold_high a snowkap:RiskLevelThreshold ;
+    rdfs:label "HIGH threshold" ;
+    snowkap:riskLevel "HIGH" ;
+    snowkap:minScore 12.0 .
+
+snowkap:risk_threshold_moderate a snowkap:RiskLevelThreshold ;
+    rdfs:label "MODERATE threshold" ;
+    snowkap:riskLevel "MODERATE" ;
+    snowkap:minScore 6.0 .
+
+snowkap:risk_threshold_low a snowkap:RiskLevelThreshold ;
+    rdfs:label "LOW threshold" ;
+    snowkap:riskLevel "LOW" ;
+    snowkap:minScore 0.0 .
+
+# =============================================================================
+# REGIONAL FRAMEWORK BOOSTS (replaces REGION_BOOSTS dict)
+# =============================================================================
+
+# India
+snowkap:boost_india_brsr a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "INDIA" ; snowkap:boostsFramework snowkap:BRSR ; snowkap:boostValue 0.6 .
+snowkap:boost_india_gri a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "INDIA" ; snowkap:boostsFramework snowkap:GRI ; snowkap:boostValue 0.1 .
+snowkap:boost_india_cdp a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "INDIA" ; snowkap:boostsFramework snowkap:CDP ; snowkap:boostValue 0.1 .
+snowkap:boost_india_tcfd a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "INDIA" ; snowkap:boostsFramework snowkap:TCFD ; snowkap:boostValue 0.1 .
+
+# EU
+snowkap:boost_eu_csrd a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "EU" ; snowkap:boostsFramework snowkap:CSRD ; snowkap:boostValue 0.6 .
+snowkap:boost_eu_esrs a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "EU" ; snowkap:boostsFramework snowkap:ESRS ; snowkap:boostValue 0.6 .
+snowkap:boost_eu_taxonomy a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "EU" ; snowkap:boostsFramework snowkap:EU_TAXONOMY ; snowkap:boostValue 0.5 .
+snowkap:boost_eu_sfdr a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "EU" ; snowkap:boostsFramework snowkap:SFDR ; snowkap:boostValue 0.4 .
+
+# US
+snowkap:boost_us_sec a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "US" ; snowkap:boostsFramework snowkap:SEC_CLIMATE ; snowkap:boostValue 0.6 .
+snowkap:boost_us_sasb a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "US" ; snowkap:boostsFramework snowkap:SASB ; snowkap:boostValue 0.4 .
+
+# Global
+snowkap:boost_global_tcfd a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "GLOBAL" ; snowkap:boostsFramework snowkap:TCFD ; snowkap:boostValue 0.1 .
+snowkap:boost_global_gri a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "GLOBAL" ; snowkap:boostsFramework snowkap:GRI ; snowkap:boostValue 0.1 .
+snowkap:boost_global_cdp a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "GLOBAL" ; snowkap:boostsFramework snowkap:CDP ; snowkap:boostValue 0.1 .
+snowkap:boost_global_issb a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "GLOBAL" ; snowkap:boostsFramework snowkap:ISSB ; snowkap:boostValue 0.1 .
+
+# =============================================================================
+# MANDATORY FRAMEWORK RULES (replaces hardcoded if-else in framework_matcher.py)
+# =============================================================================
+
+snowkap:mandatory_india_brsr_large a snowkap:MandatoryRule ;
+    rdfs:label "BRSR mandatory for India Large Cap" ;
+    snowkap:mandatoryFramework snowkap:BRSR ;
+    snowkap:mandatoryRegion "INDIA" ;
+    snowkap:mandatoryCapTier "Large Cap" .
+
+snowkap:mandatory_eu_csrd a snowkap:MandatoryRule ;
+    rdfs:label "CSRD mandatory for EU" ;
+    snowkap:mandatoryFramework snowkap:CSRD ;
+    snowkap:mandatoryRegion "EU" ;
+    snowkap:mandatoryCapTier "ALL" .
+
+snowkap:mandatory_eu_esrs a snowkap:MandatoryRule ;
+    rdfs:label "ESRS mandatory for EU" ;
+    snowkap:mandatoryFramework snowkap:ESRS ;
+    snowkap:mandatoryRegion "EU" ;
+    snowkap:mandatoryCapTier "ALL" .
+
+snowkap:mandatory_eu_taxonomy a snowkap:MandatoryRule ;
+    rdfs:label "EU Taxonomy mandatory for EU" ;
+    snowkap:mandatoryFramework snowkap:EU_TAXONOMY ;
+    snowkap:mandatoryRegion "EU" ;
+    snowkap:mandatoryCapTier "ALL" .
+
+snowkap:mandatory_us_sec a snowkap:MandatoryRule ;
+    rdfs:label "SEC Climate mandatory for US" ;
+    snowkap:mandatoryFramework snowkap:SEC_CLIMATE ;
+    snowkap:mandatoryRegion "US" ;
+    snowkap:mandatoryCapTier "ALL" .
+
+# =============================================================================
+# PRIORITY RULES (replaces _derive_priority() in recommendation_engine.py)
+# =============================================================================
+
+snowkap:priority_rule_1 a snowkap:PriorityRule ; snowkap:ifUrgency "immediate" ; snowkap:ifImpact "High" ; snowkap:thenPriority "CRITICAL" .
+snowkap:priority_rule_2 a snowkap:PriorityRule ; snowkap:ifUrgency "immediate" ; snowkap:ifImpact "Medium" ; snowkap:thenPriority "CRITICAL" .
+snowkap:priority_rule_3 a snowkap:PriorityRule ; snowkap:ifUrgency "immediate" ; snowkap:ifImpact "Low" ; snowkap:thenPriority "HIGH" .
+snowkap:priority_rule_4 a snowkap:PriorityRule ; snowkap:ifUrgency "short_term" ; snowkap:ifImpact "High" ; snowkap:thenPriority "CRITICAL" .
+snowkap:priority_rule_5 a snowkap:PriorityRule ; snowkap:ifUrgency "short_term" ; snowkap:ifImpact "Medium" ; snowkap:thenPriority "HIGH" .
+snowkap:priority_rule_6 a snowkap:PriorityRule ; snowkap:ifUrgency "short_term" ; snowkap:ifImpact "Low" ; snowkap:thenPriority "MEDIUM" .
+snowkap:priority_rule_7 a snowkap:PriorityRule ; snowkap:ifUrgency "medium_term" ; snowkap:ifImpact "High" ; snowkap:thenPriority "HIGH" .
+snowkap:priority_rule_8 a snowkap:PriorityRule ; snowkap:ifUrgency "medium_term" ; snowkap:ifImpact "Medium" ; snowkap:thenPriority "MEDIUM" .
+snowkap:priority_rule_9 a snowkap:PriorityRule ; snowkap:ifUrgency "medium_term" ; snowkap:ifImpact "Low" ; snowkap:thenPriority "LOW" .
+snowkap:priority_rule_10 a snowkap:PriorityRule ; snowkap:ifUrgency "long_term" ; snowkap:ifImpact "High" ; snowkap:thenPriority "MEDIUM" .
+snowkap:priority_rule_11 a snowkap:PriorityRule ; snowkap:ifUrgency "long_term" ; snowkap:ifImpact "Medium" ; snowkap:thenPriority "LOW" .
+snowkap:priority_rule_12 a snowkap:PriorityRule ; snowkap:ifUrgency "long_term" ; snowkap:ifImpact "Low" ; snowkap:thenPriority "LOW" .
+
+# =============================================================================
+# RISK OF INACTION CONFIG (replaces _compute_risk_of_inaction())
+# =============================================================================
+
+snowkap:roi_config_critical a snowkap:RiskOfInactionConfig ; snowkap:forPriority "CRITICAL" ; snowkap:baseRiskScore 8 .
+snowkap:roi_config_high a snowkap:RiskOfInactionConfig ; snowkap:forPriority "HIGH" ; snowkap:baseRiskScore 6 .
+snowkap:roi_config_medium a snowkap:RiskOfInactionConfig ; snowkap:forPriority "MEDIUM" ; snowkap:baseRiskScore 4 .
+snowkap:roi_config_low a snowkap:RiskOfInactionConfig ; snowkap:forPriority "LOW" ; snowkap:baseRiskScore 2 .
+
+snowkap:roi_type_compliance a snowkap:RiskOfInactionConfig ;
+    rdfs:label "Compliance type bonus" ;
+    snowkap:forRecType "compliance" ;
+    snowkap:recTypeBonus 2 .
+
+snowkap:roi_type_esg a snowkap:RiskOfInactionConfig ;
+    rdfs:label "ESG positioning type bonus" ;
+    snowkap:forRecType "esg_positioning" ;
+    snowkap:recTypeBonus 1 .
+
+snowkap:roi_escalation_keywords a snowkap:RiskOfInactionConfig ;
+    rdfs:label "Escalation keywords" ;
+    snowkap:escalationKeyword "penalty, fine, enforcement, litigation, prosecution, ban, suspension, blacklist" .
+
+# =============================================================================
+# GRID COLUMN MAPPING (replaces GRID_COLUMN_MAP dict in perspective_engine.py)
+# Impact dimensions → 3-column grid (financial | regulatory | strategic)
+# =============================================================================
+
+snowkap:impact_financial snowkap:gridColumn "financial" .
+snowkap:impact_cost snowkap:gridColumn "financial" .
+snowkap:impact_value snowkap:gridColumn "financial" .
+snowkap:impact_volume snowkap:gridColumn "financial" .
+snowkap:impact_regulatory snowkap:gridColumn "regulatory" .
+snowkap:impact_operational snowkap:gridColumn "regulatory" .
+snowkap:impact_strategic snowkap:gridColumn "strategic" .
+snowkap:impact_reputational snowkap:gridColumn "strategic" .
+snowkap:impact_brand snowkap:gridColumn "strategic" .
+snowkap:impact_growth snowkap:gridColumn "strategic" .
+
+# =============================================================================
+# DIM → INSIGHT KEY MAPPING (replaces dim_to_key dict in perspective_engine.py)
+# =============================================================================
+
+snowkap:impact_financial snowkap:insightKey "valuation_cashflow, capital_allocation" .
+snowkap:impact_cost snowkap:insightKey "valuation_cashflow" .
+snowkap:impact_value snowkap:insightKey "valuation_cashflow" .
+snowkap:impact_volume snowkap:insightKey "supply_chain_transmission" .
+snowkap:impact_regulatory snowkap:insightKey "compliance_regulatory" .
+snowkap:impact_operational snowkap:insightKey "supply_chain_transmission" .
+snowkap:impact_reputational snowkap:insightKey "esg_positioning, people_demand" .
+snowkap:impact_brand snowkap:insightKey "esg_positioning, people_demand" .
+snowkap:impact_strategic snowkap:insightKey "esg_positioning" .
+snowkap:impact_growth snowkap:insightKey "esg_positioning, people_demand" .
+
+# =============================================================================
+# HEADLINE RULES (replaces _perspective_headline() cascading logic)
+# =============================================================================
+
+# CFO headline rules
+snowkap:headline_cfo_1 a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:headlinePriority 1 ;
+    snowkap:sourceField "decision_summary.financial_exposure" ;
+    snowkap:headlineTemplate "{value} — {base}" ;
+    snowkap:isFallback false .
+
+snowkap:headline_cfo_2 a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:headlinePriority 2 ;
+    snowkap:sourceField "financial_timeline.immediate.revenue_at_risk" ;
+    snowkap:headlineTemplate "{value} revenue exposure — {base}" ;
+    snowkap:isFallback false .
+
+snowkap:headline_cfo_3 a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:headlinePriority 3 ;
+    snowkap:sourceField "decision_summary.key_risk" ;
+    snowkap:headlineTemplate "Financial risk: {value}" ;
+    snowkap:isFallback false .
+
+snowkap:headline_cfo_fallback a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:headlinePriority 99 ;
+    snowkap:sourceField "" ;
+    snowkap:headlineTemplate "P&L signal — {base}" ;
+    snowkap:isFallback true .
+
+# CEO headline rules
+snowkap:headline_ceo_1 a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_ceo ;
+    snowkap:headlinePriority 1 ;
+    snowkap:sourceField "decision_summary.top_opportunity" ;
+    snowkap:headlineTemplate "Strategic angle — {value}" ;
+    snowkap:isFallback false .
+
+snowkap:headline_ceo_2 a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_ceo ;
+    snowkap:headlinePriority 2 ;
+    snowkap:sourceField "financial_timeline.structural.competitive_position" ;
+    snowkap:headlineTemplate "Competitive signal — {value}" ;
+    snowkap:isFallback false .
+
+snowkap:headline_ceo_fallback a snowkap:HeadlineRule ;
+    snowkap:forPerspective snowkap:lens_ceo ;
+    snowkap:headlinePriority 99 ;
+    snowkap:sourceField "" ;
+    snowkap:headlineTemplate "Board-level signal — {base}" ;
+    snowkap:isFallback true .
+
+# =============================================================================
+# PERSPECTIVE RANKING SORT KEYS (replaces hardcoded sort in recommendation_engine.py)
+# =============================================================================
+
+# CFO: ROI DESC, then payback ASC
+snowkap:rank_cfo_1 a snowkap:PerspectiveLens ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:sortKey "roi_percentage" ;
+    snowkap:sortDirection "DESC" ;
+    snowkap:sortPriority 1 .
+
+snowkap:rank_cfo_2 a snowkap:PerspectiveLens ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:sortKey "payback_months" ;
+    snowkap:sortDirection "ASC" ;
+    snowkap:sortPriority 2 .
+
+# CEO: impact DESC, then urgency ASC
+snowkap:rank_ceo_1 a snowkap:PerspectiveLens ;
+    snowkap:forPerspective snowkap:lens_ceo ;
+    snowkap:sortKey "estimated_impact" ;
+    snowkap:sortDirection "DESC" ;
+    snowkap:sortPriority 1 .
+
+snowkap:rank_ceo_2 a snowkap:PerspectiveLens ;
+    snowkap:forPerspective snowkap:lens_ceo ;
+    snowkap:sortKey "urgency" ;
+    snowkap:sortDirection "ASC" ;
+    snowkap:sortPriority 2 .
+
+# ESG Analyst: compliance-first, then urgency ASC
+snowkap:rank_analyst_1 a snowkap:PerspectiveLens ;
+    snowkap:forPerspective snowkap:lens_esg_analyst ;
+    snowkap:sortKey "type" ;
+    snowkap:sortDirection "ASC" ;
+    snowkap:sortPriority 1 .
+
+snowkap:rank_analyst_2 a snowkap:PerspectiveLens ;
+    snowkap:forPerspective snowkap:lens_esg_analyst ;
+    snowkap:sortKey "urgency" ;
+    snowkap:sortDirection "ASC" ;
+    snowkap:sortPriority 2 .
+
+# ─── Perspective Recommendation Type Preferences ───
+# Which recommendation types each perspective should see (and in what emphasis order).
+# Types not listed are hidden for that perspective.
+snowkap:lens_cfo snowkap:showsRecType "financial", "compliance", "operational" .
+snowkap:lens_ceo snowkap:showsRecType "strategic", "esg_positioning", "operational" .
+snowkap:lens_esg_analyst snowkap:showsRecType "compliance", "esg_positioning", "strategic", "operational", "financial" .

@@ -5,7 +5,7 @@ Per CLAUDE.md: Pydantic v2 for all schemas, strict type hints.
 
 from typing import List
 
-from pydantic import field_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # --- Database (PostgreSQL 16 + pgvector + asyncpg) ---
     DATABASE_URL: str = "postgresql+asyncpg://esg_user:esg_password@localhost:5432/esg_platform"
     DATABASE_URL_SYNC: str = "postgresql://esg_user:esg_password@localhost:5432/esg_platform"
+
+    # --- Supabase (production PostgreSQL) ---
+    SUPABASE_DATABASE_URL: str = ""
 
     # --- Redis 7 ---
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -82,6 +85,7 @@ class Settings(BaseSettings):
     def ensure_asyncpg_driver(cls, v: str) -> str:
         if v.startswith("postgresql://"):
             v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        # Strip sslmode query param — asyncpg handles SSL via connect_args
         if "sslmode=" in v:
             v = v.split("?")[0]
         return v
@@ -96,6 +100,30 @@ class Settings(BaseSettings):
         if not db_url.startswith("postgresql://"):
             db_url = "postgresql://" + db_url.split("://", 1)[-1]
         return db_url
+
+    @model_validator(mode="after")
+    def use_supabase_if_configured(self) -> "Settings":
+        """Override DATABASE_URL with Supabase when SUPABASE_DATABASE_URL is set."""
+        if self.SUPABASE_DATABASE_URL:
+            url = self.SUPABASE_DATABASE_URL
+            # Async URL: ensure asyncpg driver, strip sslmode (handled via connect_args)
+            if url.startswith("postgresql://"):
+                url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            if url.startswith("postgresql+asyncpg://"):
+                async_url = url.split("?")[0] if "?" in url else url
+            else:
+                async_url = url
+            self.DATABASE_URL = async_url
+            # Sync URL: ensure plain postgresql driver, add sslmode for psycopg2
+            sync_url = self.SUPABASE_DATABASE_URL
+            if sync_url.startswith("postgresql+asyncpg://"):
+                sync_url = sync_url.replace("postgresql+asyncpg://", "postgresql://", 1)
+            if not sync_url.startswith("postgresql://"):
+                sync_url = "postgresql://" + sync_url.split("://", 1)[-1]
+            # Ensure sslmode=require for Supabase
+            base_url = sync_url.split("?")[0]
+            self.DATABASE_URL_SYNC = base_url + "?sslmode=require"
+        return self
 
     @field_validator("JWT_SECRET", mode="after")
     @classmethod

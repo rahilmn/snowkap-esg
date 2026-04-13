@@ -52,6 +52,7 @@ async def _poll_rss_feeds() -> None:
                         company_name=company_name,
                         max_age_hours=6,   # Only very fresh articles on hourly poll
                         max_per_feed=10,
+                        industry=company.industry if company else None,
                     )
                     if articles:
                         await _store_articles_for_tenant(tenant.id, articles)

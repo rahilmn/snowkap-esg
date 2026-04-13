@@ -1,0 +1,64 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Climate Change",
+        "Power/Energy",
+        "JSW Energy"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Climate Change is material for Power/Energy → impacts JSW Energy"
+    },
+    {
+      "nodes": [
+        "Climate Change",
+        "BRSR",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Change triggers BRSR disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Climate Change",
+        "GRI",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Change triggers GRI disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Climate Change",
+        "TCFD",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Change triggers TCFD disclosure obligation for JSW Energy"
+    }
+  ]
+}

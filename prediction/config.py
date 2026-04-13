@@ -12,6 +12,7 @@ class MiroFishSettings(BaseSettings):
         env_file_encoding="utf-8",
         case_sensitive=True,
         env_prefix="MIROFISH_",
+        extra="ignore",
     )
 
     # Service

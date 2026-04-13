@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "snowkap-api",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "uvicorn", "api.main:app", "--host", "127.0.0.1", "--port", "8000", "--reload"],
+      "port": 8000
+    },
+    {
+      "name": "vite-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5500"],
+      "port": 5500,
+      "cwd": "client"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "llm": {
+    "provider": "openai",
+    "model_heavy": "gpt-4.1",
+    "model_light": "gpt-4.1-mini",
+    "temperature": 0.2,
+    "max_tokens_extraction": 800,
+    "max_tokens_insight": 2400,
+    "max_tokens_recommendation": 1500
+  },
+  "pipeline": {
+    "relevance_reject_threshold": 4,
+    "relevance_home_threshold": 7,
+    "max_causal_hops": 4,
+    "max_frameworks_per_article": 6,
+    "max_tokens_per_article": 10000
+  },
+  "ingestion": {
+    "news_sources": ["google_news_rss", "newsapi"],
+    "max_articles_per_company_per_run": 20,
+    "dedup_via_url_hash": true,
+    "dedup_file": "data/processed/article_hashes.json"
+  },
+  "output": {
+    "format": "json",
+    "perspective_lenses": ["cfo", "ceo", "esg-analyst"],
+    "crisp_output_max_words_cfo": 100,
+    "crisp_output_max_words_ceo": 150
+  },
+  "ontology": {
+    "schema_path": "data/ontology/schema.ttl",
+    "knowledge_path": "data/ontology/knowledge_base.ttl",
+    "companies_path": "data/ontology/companies.ttl",
+    "fallback_to_python_dicts": false
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "json"
+  }
+}

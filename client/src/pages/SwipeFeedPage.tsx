@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { news } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 import { useNewsStore } from "@/stores/newsStore";
 import { useSavedStore } from "@/stores/savedStore";
 import { useFeedStore } from "@/stores/feedStore";
@@ -18,6 +19,7 @@ const PAGE_SIZE = 20;
 
 export function SwipeFeedPage() {
   const { articles, setArticles } = useNewsStore();
+  const companyId = useAuthStore((s) => s.companyId);
 
   // Clear stale data on mount
   React.useEffect(() => {
@@ -29,9 +31,14 @@ export function SwipeFeedPage() {
   const [offset, setOffset] = useState(0);
 
   const { isLoading, refetch } = useQuery({
-    queryKey: ["news-feed", offset],
+    queryKey: ["news-feed", companyId, offset],
     queryFn: async () => {
-      const result = await news.list({ limit: PAGE_SIZE, offset, sort_by: "priority" });
+      const result = await news.list({
+        limit: PAGE_SIZE,
+        offset,
+        sort_by: "priority",
+        company_id: companyId || undefined,
+      });
       if (offset === 0) {
         setArticles(result);
         // Clear dismissed cards on fresh load so new articles show

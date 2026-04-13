@@ -1,0 +1,66 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Climate Adaptation",
+        "TCFD",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Adaptation triggers TCFD disclosure obligation for ICICI Bank"
+    },
+    {
+      "nodes": [
+        "Climate Adaptation",
+        "ESRS",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Adaptation triggers ESRS disclosure obligation for ICICI Bank"
+    },
+    {
+      "nodes": [
+        "Climate Adaptation",
+        "ISSB / IFRS S1 S2",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Adaptation triggers ISSB / IFRS S1 S2 disclosure obligation for ICICI Bank"
+    },
+    {
+      "nodes": [
+        "RBI Climate Risk Disclosure (Banks)",
+        "TCFD",
+        "Financials/Banking",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "RBI Climate Risk Disclosure (Banks) -> TCFD -> Financials/Banking -> ICICI Bank"
+    }
+  ]
+}

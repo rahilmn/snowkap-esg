@@ -1,0 +1,642 @@
+{
+  "article": {
+    "id": "a90f6ac856a7e599",
+    "title": "SBI Approves Rs 1,760 Crore Investment in Yes Bank's Further Public Offering - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQRU5pQUR3ZEhGcEJkZWo3ZXM0c0R2Z3UtSTVKcUh5QXE1Qlludi1qamNoaV9VS1dJbVh3a010UDNmMy14ZmlWVmF5ZktlbjF0alJ4bWtrM3g1ZzVBMHpHNkZydUdnNGZSZVJ0TzFlXzJFNkRsQnZIUjdWVUxwSnVSaVFYSGNhZWxLaUVTMkFxSlV3OTRxQjhVbnJlTlVBZGxxSElZMllESm82bUJieW1aVy1QcXhEdW1uaXU3QU1ST2NzOFpSVDlYc1BpREZWSEtDN2txX0tFT0I?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2025-09-05T07:00:00+00:00",
+    "company_slug": "yes-bank"
+  },
+  "pipeline": {
+    "article_id": "a90f6ac856a7e599",
+    "title": "SBI Approves Rs 1,760 Crore Investment in Yes Bank's Further Public Offering - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQRU5pQUR3ZEhGcEJkZWo3ZXM0c0R2Z3UtSTVKcUh5QXE1Qlludi1qamNoaV9VS1dJbVh3a010UDNmMy14ZmlWVmF5ZktlbjF0alJ4bWtrM3g1ZzVBMHpHNkZydUdnNGZSZVJ0TzFlXzJFNkRsQnZIUjdWVUxwSnVSaVFYSGNhZWxLaUVTMkFxSlV3OTRxQjhVbnJlTlVBZGxxSElZMllESm82bUJieW1aVy1QcXhEdW1uaXU3QU1ST2NzOFpSVDlYc1BpREZWSEtDN2txX0tFT0I?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2025-09-05T07:00:00+00:00",
+    "company_slug": "yes-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 6.944,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "analytical",
+        "neutral",
+        "optimistic"
+      ],
+      "narrative_core_claim": "SBI has approved a Rs 1,760 crore investment in Yes Bank's further public offering.",
+      "narrative_implied_causation": "SBI's investment supports Yes Bank's capital raising through the public offering.",
+      "narrative_stakeholder_framing": "SBI is the investor protagonist, Yes Bank is the beneficiary affected by the capital infusion.",
+      "entities": [
+        "SBI",
+        "Yes Bank",
+        "Rs 1,760 Crore"
+      ],
+      "entity_types": {
+        "SBI": "company",
+        "Yes Bank": "company",
+        "Rs 1,760 Crore": "financial amount"
+      },
+      "financial_signal": {
+        "amount": 1760,
+        "unit": "crore",
+        "context": "investment in Yes Bank's further public offering"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "governance",
+        "capital raising"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Stakeholder Governance",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "shareholder_rights",
+        "engagement_programs",
+        "voting_rights"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_board_change",
+      "label": "Board / Senior Leadership Change",
+      "score_floor": 3,
+      "score_ceiling": 7,
+      "financial_transmission": "governance signal -> share price volatility",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 1760.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.8,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "YES Bank"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "YES Bank"
+      },
+      {
+        "nodes": [
+          "YES Bank Delhi Branch",
+          "YES Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "YES Bank Delhi Branch -> YES Bank"
+      },
+      {
+        "nodes": [
+          "YES Bank HQ",
+          "YES Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "YES Bank HQ -> YES Bank"
+      },
+      {
+        "nodes": [
+          "Stakeholder Governance",
+          "BRSR",
+          "YES Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Stakeholder Governance triggers BRSR disclosure obligation for YES Bank"
+      },
+      {
+        "nodes": [
+          "Stakeholder Governance",
+          "GRI",
+          "YES Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Stakeholder Governance triggers GRI disclosure obligation for YES Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Stakeholder Governance"
+        ],
+        "applicable_deadlines": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Stakeholder Governance"
+        ],
+        "applicable_deadlines": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Stakeholder Governance"
+        ],
+        "applicable_deadlines": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Stakeholder Governance"
+        ],
+        "applicable_deadlines": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Stakeholder Governance"
+        ],
+        "applicable_deadlines": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.4,
+          "adjusted_score": 8.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.4,
+          "adjusted_score": 5.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.4,
+          "adjusted_score": 8.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.4,
+          "adjusted_score": 5.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        }
+      ],
+      "aggregate_score": 0.096,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Employees",
+      "Investors"
+    ],
+    "sdgs": []
+  },
+  "insight": {
+    "headline": "SBI's ₹1,760 Cr investment in Yes Bank signals improved governance confidence and capital strength.",
+    "impact_score": 4.0,
+    "core_mechanism": "SBI's substantial investment in Yes Bank's further public offering directly boosts Yes Bank's capital base and signals institutional confidence in its governance. This move is likely to stabilize Yes Bank's financial position and may enhance stakeholder trust, though it does not fundamentally alter competitive dynamics in the sector.",
+    "profitability_connection": "The capital infusion reduces immediate solvency concerns and may lower Yes Bank's cost of capital, but the event is not expected to materially impact near-term profitability or valuation multiples.",
+    "translation": "SBI is investing a large sum in Yes Bank, which helps Yes Bank strengthen its finances and shows that big investors trust its management. This should reassure customers and investors, but it doesn't change Yes Bank's overall market position right now.",
+    "impact_analysis": {
+      "esg_positioning": "Marginal improvement in governance perception; peer pressure limited as similar recapitalizations are common.",
+      "capital_allocation": "Potential for modest reduction in cost of capital (20-40bps), but no immediate bond spread impact detected.",
+      "valuation_cashflow": "No clear P/E rerating; limited margin or revenue impact as event is capital-raising, not operational.",
+      "compliance_regulatory": "Triggers BRSR, GRI, DJSI, ESRS frameworks; no regulatory penalties or deadlines triggered.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Minor positive for customer trust and talent retention, but not a major driver."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹1,760 Cr capital infusion strengthens Yes Bank's balance sheet.",
+        "profitability_pathway": "SBI investment → increased CET1 ratio → improved solvency and risk buffer.",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Stable; no immediate P/E change as event is governance/capital signal, not earnings-driven.",
+        "competitive_position": "Neutral vs ICICI Bank, IDFC First Bank; similar recapitalizations have occurred sector-wide."
+      },
+      "long_term": {
+        "secular_trajectory": "Enhanced governance and capital base may support gradual recovery, but no step-change expected.",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 1,
+        "rationale": "No environmental dimension to capital infusion."
+      },
+      "social": {
+        "score": 2,
+        "rationale": "Marginal positive for trust, but not a direct social impact."
+      },
+      "governance": {
+        "score": 6,
+        "rationale": "Directly strengthens stakeholder governance and signals board/investor confidence."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "Moderate financial materiality due to capital base improvement, but not transformative."
+      },
+      "regulatory_exposure": {
+        "score": 3,
+        "rationale": "Triggers disclosure frameworks, but no penalty or urgent compliance risk."
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Improves perception among investors and customers, but limited broader effect."
+      }
+    },
+    "net_impact_summary": "SBI's investment provides Yes Bank with a significant capital buffer and signals improved governance confidence, which may modestly enhance stakeholder trust and reduce cost of capital. However, the event is structurally neutral for sector competition and does not trigger major valuation or operational shifts. The primary significance lies in reinforcing Yes Bank's stability rather than driving new growth or ESG leadership.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor for further governance or capital structure developments.",
+      "financial_exposure": "₹1,000-2,000 Cr at risk (capital base context, not direct P&L impact)",
+      "key_risk": "Reputational risk if capital raise fails to translate into operational turnaround.",
+      "top_opportunity": "ESG narrative differentiation via visible board/investor support.",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "SBI approves ₹1,760 Cr investment in Yes Bank's further public offering.",
+      "mechanism": "Capital infusion improves Yes Bank's balance sheet and signals governance confidence to the market.",
+      "company_impact": "Stabilizes solvency and may marginally lower cost of capital, but limited direct P&L effect.",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "SBI's ₹1,760 Cr investment in Yes Bank signals improved governance confidence and capital strength.",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "LOW",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Marginal improvement in governance perception; peer pressure limited as similar recapitalizations are common.",
+        "Minor positive for customer trust and talent retention, but not a major driver.",
+        "No clear P/E rerating; limited margin or revenue impact as event is capital-raising, not operational."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "financial",
+        "growth",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": {
+        "headline": "SBI's ₹1,760 Cr investment in Yes Bank signals improved governance confidence and capital strength.",
+        "impact_score": 4.0,
+        "core_mechanism": "SBI's substantial investment in Yes Bank's further public offering directly boosts Yes Bank's capital base and signals institutional confidence in its governance. This move is likely to stabilize Yes Bank's financial position and may enhance stakeholder trust, though it does not fundamentally alter competitive dynamics in the sector.",
+        "profitability_connection": "The capital infusion reduces immediate solvency concerns and may lower Yes Bank's cost of capital, but the event is not expected to materially impact near-term profitability or valuation multiples.",
+        "translation": "SBI is investing a large sum in Yes Bank, which helps Yes Bank strengthen its finances and shows that big investors trust its management. This should reassure customers and investors, but it doesn't change Yes Bank's overall market position right now.",
+        "impact_analysis": {
+          "esg_positioning": "Marginal improvement in governance perception; peer pressure limited as similar recapitalizations are common.",
+          "capital_allocation": "Potential for modest reduction in cost of capital (20-40bps), but no immediate bond spread impact detected.",
+          "valuation_cashflow": "No clear P/E rerating; limited margin or revenue impact as event is capital-raising, not operational.",
+          "compliance_regulatory": "Triggers BRSR, GRI, DJSI, ESRS frameworks; no regulatory penalties or deadlines triggered.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Minor positive for customer trust and talent retention, but not a major driver."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹1,760 Cr capital infusion strengthens Yes Bank's balance sheet.",
+            "profitability_pathway": "SBI investment → increased CET1 ratio → improved solvency and risk buffer.",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Stable; no immediate P/E change as event is governance/capital signal, not earnings-driven.",
+            "competitive_position": "Neutral vs ICICI Bank, IDFC First Bank; similar recapitalizations have occurred sector-wide."
+          },
+          "long_term": {
+            "secular_trajectory": "Enhanced governance and capital base may support gradual recovery, but no step-change expected.",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 1,
+            "rationale": "No environmental dimension to capital infusion."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Marginal positive for trust, but not a direct social impact."
+          },
+          "governance": {
+            "score": 6,
+            "rationale": "Directly strengthens stakeholder governance and signals board/investor confidence."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "Moderate financial materiality due to capital base improvement, but not transformative."
+          },
+          "regulatory_exposure": {
+            "score": 3,
+            "rationale": "Triggers disclosure frameworks, but no penalty or urgent compliance risk."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Improves perception among investors and customers, but limited broader effect."
+          }
+        },
+        "net_impact_summary": "SBI's investment provides Yes Bank with a significant capital buffer and signals improved governance confidence, which may modestly enhance stakeholder trust and reduce cost of capital. However, the event is structurally neutral for sector competition and does not trigger major valuation or operational shifts. The primary significance lies in reinforcing Yes Bank's stability rather than driving new growth or ESG leadership.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for further governance or capital structure developments.",
+          "financial_exposure": "₹1,000-2,000 Cr at risk (capital base context, not direct P&L impact)",
+          "key_risk": "Reputational risk if capital raise fails to translate into operational turnaround.",
+          "top_opportunity": "ESG narrative differentiation via visible board/investor support.",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "SBI approves ₹1,760 Cr investment in Yes Bank's further public offering.",
+          "mechanism": "Capital infusion improves Yes Bank's balance sheet and signals governance confidence to the market.",
+          "company_impact": "Stabilizes solvency and may marginally lower cost of capital, but limited direct P&L effect.",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹1,000-2,000 Cr at risk (capital base context, not direct P&L impact) at stake — SBI's ₹1,760 Cr investment in Yes Bank signals improved governance confidence and capital strength.",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "LOW",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Triggers BRSR, GRI, DJSI, ESRS frameworks; no regulatory penalties or deadlines triggered.",
+        "No clear P/E rerating; limited margin or revenue impact as event is capital-raising, not operational.",
+        "Potential for modest reduction in cost of capital (20-40bps), but no immediate bond spread impact detected."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "financial",
+        "regulatory"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic opportunity: ESG narrative differentiation via visible board/investor support.",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "LOW",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Marginal improvement in governance perception; peer pressure limited as similar recapitalizations are common.",
+        "Minor positive for customer trust and talent retention, but not a major driver.",
+        "Triggers BRSR, GRI, DJSI, ESRS frameworks; no regulatory penalties or deadlines triggered."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T08:25:42.084108+00:00",
+    "schema_version": "1.0"
+  }
+}

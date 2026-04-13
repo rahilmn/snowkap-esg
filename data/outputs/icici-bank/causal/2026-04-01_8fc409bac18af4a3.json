@@ -1,0 +1,49 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "BRSR",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for ICICI Bank"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "GRI",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for ICICI Bank"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "ESRS",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for ICICI Bank"
+    }
+  ]
+}

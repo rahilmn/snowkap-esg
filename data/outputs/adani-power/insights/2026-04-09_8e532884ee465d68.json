@@ -1,0 +1,649 @@
+{
+  "article": {
+    "id": "8e532884ee465d68",
+    "title": "Adani Energy, Coal India, NTPC In Focus Ahead Of Q4 Results — Check PL Capital's Rating, Target Prices And More - NDTV Profit",
+    "url": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxPMHJiNDhDcjhBaFlMNUNSR1pTZnFLX002czZGbjViYkx2eG5ZS0RTWXRCV0NMYnUyQk14TVNUMGw3NnRTM3JhVXVNVWFVd1Q1WnVXNHRNbndpaGw5T0RkbVpiUExqRVFmUkpwVlZrbnptVnhPaFlvU1ZMTUEtUk9YbDZTM3NVNUJnbWFfWnJ4NV9nOUhNaXRBVkpHVW1HcmpVU2I2ZG5tN2hvNlg3MS14ZFFZZlNOblJROGUzdmVTV1pjYjFFR1RmSWpUZWhmemlXZldsaENHUVNFSkhva1Vad2h5TUJvdVdpMTZwQ19Oc3lrUQ?oc=5",
+    "source": "NDTV Profit",
+    "published_at": "2026-04-09T05:11:03+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "8e532884ee465d68",
+    "title": "Adani Energy, Coal India, NTPC In Focus Ahead Of Q4 Results — Check PL Capital's Rating, Target Prices And More - NDTV Profit",
+    "url": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxPMHJiNDhDcjhBaFlMNUNSR1pTZnFLX002czZGbjViYkx2eG5ZS0RTWXRCV0NMYnUyQk14TVNUMGw3NnRTM3JhVXVNVWFVd1Q1WnVXNHRNbndpaGw5T0RkbVpiUExqRVFmUkpwVlZrbnptVnhPaFlvU1ZMTUEtUk9YbDZTM3NVNUJnbWFfWnJ4NV9nOUhNaXRBVkpHVW1HcmpVU2I2ZG5tN2hvNlg3MS14ZFFZZlNOblJROGUzdmVTV1pjYjFFR1RmSWpUZWhmemlXZldsaENHUVNFSkhva1Vad2h5TUJvdVdpMTZwQ19Oc3lrUQ?oc=5",
+    "source": "NDTV Profit",
+    "published_at": "2026-04-09T05:11:03+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 6.35,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "neutral",
+        "analytical"
+      ],
+      "narrative_core_claim": "Adani Energy, Coal India, and NTPC are under focus ahead of their Q4 financial results.",
+      "narrative_implied_causation": "The upcoming Q4 results are causing increased attention and analysis of these companies.",
+      "narrative_stakeholder_framing": "The companies are protagonists; investors and market analysts are affected stakeholders.",
+      "entities": [
+        "Adani Energy",
+        "Coal India",
+        "NTPC",
+        "PL Capital",
+        "NDTV Profit"
+      ],
+      "entity_types": {
+        "Adani Energy": "company",
+        "Coal India": "company",
+        "NTPC": "company",
+        "PL Capital": "financial institution",
+        "NDTV Profit": "media"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "financial performance",
+        "energy sector"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.8,
+          "adjusted_score": 10.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.8,
+          "adjusted_score": 10.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.157,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Power faces routine investor scrutiny ahead of Q4 results with minor ESG disclosure implications.",
+    "impact_score": 2.5,
+    "core_mechanism": "The upcoming Q4 results have placed Adani Power under routine market and analyst focus, typical for large-cap energy companies. This triggers standard ESG disclosure obligations under BRSR, GRI, and TCFD frameworks, but does not indicate any new material event or controversy.",
+    "profitability_connection": "No immediate P&L impact is expected from this event; however, ongoing ESG disclosure quality can influence long-term cost of capital and investor sentiment.",
+    "translation": "Investors and analysts are watching Adani Power's Q4 results, but there are no new ESG risks or financial shocks. The main effect is routine compliance with reporting standards.",
+    "impact_analysis": {
+      "esg_positioning": "No significant ESG score gap; peer pressure remains routine as per sector norms.",
+      "capital_allocation": "No immediate impact; minor potential for cost of capital increase (20-40bps) if disclosures lag.",
+      "valuation_cashflow": "No current P/E compression or revenue at risk; only long-term effects if disclosure weakens.",
+      "compliance_regulatory": "BRSR, GRI, TCFD triggered; no new deadlines or penalties announced.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "N/A"
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No immediate ₹ impact from routine Q4 scrutiny.",
+        "profitability_pathway": "Routine ESG event → standard disclosure obligations → no direct ₹ impact.",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Stable P/E; no rerating expected absent disclosure lapses.",
+        "competitive_position": "No change vs JSW Energy or sector peers; all face similar scrutiny."
+      },
+      "long_term": {
+        "secular_trajectory": "Continued compliance maintains access to capital and investor trust.",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 4,
+        "rationale": "Event is routine; no new environmental disclosures or risks."
+      },
+      "social": {
+        "score": 2,
+        "rationale": "No social impact or stakeholder controversy identified."
+      },
+      "governance": {
+        "score": 4,
+        "rationale": "Standard governance obligations triggered; no new governance event."
+      },
+      "financial_materiality": {
+        "score": 2,
+        "rationale": "No direct financial exposure or materiality from this event."
+      },
+      "regulatory_exposure": {
+        "score": 4,
+        "rationale": "Routine BRSR/GRI/TCFD obligations; no new regulatory action."
+      },
+      "stakeholder_impact": {
+        "score": 3,
+        "rationale": "Investors and analysts are attentive, but no stakeholder escalation."
+      }
+    },
+    "net_impact_summary": "This is a routine event reflecting standard investor and analyst attention ahead of quarterly results. ESG disclosure obligations are triggered as per regulatory norms, but there is no evidence of non-compliance or material risk. The company's ESG and financial positioning remain stable relative to peers. No immediate or structural business impact is expected.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No action required; continue monitoring for any disclosure lapses or regulatory updates.",
+      "financial_exposure": "₹0-50 Cr at risk (only if future disclosure lapses occur)",
+      "key_risk": "Potential cost of capital increase if ESG disclosures are inadequate",
+      "top_opportunity": "ESG narrative differentiation via proactive disclosure",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Power is under focus ahead of Q4 results, triggering routine ESG disclosure obligations.",
+      "mechanism": "Regulatory frameworks (BRSR, GRI, TCFD) require standard disclosures; no new incidents or lapses reported.",
+      "company_impact": "No immediate P&L effect; long-term cost of capital and investor sentiment depend on ongoing compliance.",
+      "transmission_type": "regulatory"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power faces routine investor scrutiny ahead of Q4 results with minor ESG disclosure implications.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No significant ESG score gap; peer pressure remains routine as per sector norms.",
+        "BRSR, GRI, TCFD triggered; no new deadlines or penalties announced.",
+        "No current P/E compression or revenue at risk; only long-term effects if disclosure weakens."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power faces routine investor scrutiny ahead of Q4 results with minor ESG disclosure implications.",
+        "impact_score": 2.5,
+        "core_mechanism": "The upcoming Q4 results have placed Adani Power under routine market and analyst focus, typical for large-cap energy companies. This triggers standard ESG disclosure obligations under BRSR, GRI, and TCFD frameworks, but does not indicate any new material event or controversy.",
+        "profitability_connection": "No immediate P&L impact is expected from this event; however, ongoing ESG disclosure quality can influence long-term cost of capital and investor sentiment.",
+        "translation": "Investors and analysts are watching Adani Power's Q4 results, but there are no new ESG risks or financial shocks. The main effect is routine compliance with reporting standards.",
+        "impact_analysis": {
+          "esg_positioning": "No significant ESG score gap; peer pressure remains routine as per sector norms.",
+          "capital_allocation": "No immediate impact; minor potential for cost of capital increase (20-40bps) if disclosures lag.",
+          "valuation_cashflow": "No current P/E compression or revenue at risk; only long-term effects if disclosure weakens.",
+          "compliance_regulatory": "BRSR, GRI, TCFD triggered; no new deadlines or penalties announced.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "N/A"
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No immediate ₹ impact from routine Q4 scrutiny.",
+            "profitability_pathway": "Routine ESG event → standard disclosure obligations → no direct ₹ impact.",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Stable P/E; no rerating expected absent disclosure lapses.",
+            "competitive_position": "No change vs JSW Energy or sector peers; all face similar scrutiny."
+          },
+          "long_term": {
+            "secular_trajectory": "Continued compliance maintains access to capital and investor trust.",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 4,
+            "rationale": "Event is routine; no new environmental disclosures or risks."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "No social impact or stakeholder controversy identified."
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Standard governance obligations triggered; no new governance event."
+          },
+          "financial_materiality": {
+            "score": 2,
+            "rationale": "No direct financial exposure or materiality from this event."
+          },
+          "regulatory_exposure": {
+            "score": 4,
+            "rationale": "Routine BRSR/GRI/TCFD obligations; no new regulatory action."
+          },
+          "stakeholder_impact": {
+            "score": 3,
+            "rationale": "Investors and analysts are attentive, but no stakeholder escalation."
+          }
+        },
+        "net_impact_summary": "This is a routine event reflecting standard investor and analyst attention ahead of quarterly results. ESG disclosure obligations are triggered as per regulatory norms, but there is no evidence of non-compliance or material risk. The company's ESG and financial positioning remain stable relative to peers. No immediate or structural business impact is expected.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No action required; continue monitoring for any disclosure lapses or regulatory updates.",
+          "financial_exposure": "₹0-50 Cr at risk (only if future disclosure lapses occur)",
+          "key_risk": "Potential cost of capital increase if ESG disclosures are inadequate",
+          "top_opportunity": "ESG narrative differentiation via proactive disclosure",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Power is under focus ahead of Q4 results, triggering routine ESG disclosure obligations.",
+          "mechanism": "Regulatory frameworks (BRSR, GRI, TCFD) require standard disclosures; no new incidents or lapses reported.",
+          "company_impact": "No immediate P&L effect; long-term cost of capital and investor sentiment depend on ongoing compliance.",
+          "transmission_type": "regulatory"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹0-50 Cr at risk (only if future disclosure lapses occur) — Adani Power faces routine investor scrutiny ahead of Q4 results with minor ESG disclosure implications.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR, GRI, TCFD triggered; no new deadlines or penalties announced.",
+        "No current P/E compression or revenue at risk; only long-term effects if disclosure weakens.",
+        "No immediate impact; minor potential for cost of capital increase (20-40bps) if disclosures lag."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via proactive disclosure",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR, GRI, TCFD triggered; no new deadlines or penalties announced.",
+        "No significant ESG score gap; peer pressure remains routine as per sector norms."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:48:37.958552+00:00",
+    "schema_version": "1.0"
+  }
+}

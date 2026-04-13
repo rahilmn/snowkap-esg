@@ -1,0 +1,31 @@
+# Snowkap ESG Intelligence Engine — minimal dependencies (~10 packages)
+# This is separate from the legacy FastAPI requirements.txt at project root.
+# Install with: pip install -r engine/requirements.txt
+
+# LLM
+openai>=1.58.0
+
+# Ontology
+rdflib>=7.1.1
+
+# News ingestion
+feedparser>=6.0.11
+requests>=2.32.3
+
+# File parsing (multimodal ingestion)
+pdfplumber>=0.11.4
+openpyxl>=3.1.5
+xlrd>=2.0.1            # legacy .xls support
+Pillow>=10.4.0
+
+# NLP utilities
+python-dateutil>=2.9.0
+
+# Scheduling (optional, for periodic ingestion)
+APScheduler>=3.10.4
+
+# Logging
+structlog>=24.4.0
+
+# Env loading
+python-dotenv>=1.0.1

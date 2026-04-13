@@ -1,0 +1,868 @@
+{
+  "article": {
+    "id": "615d7277ef6ce793",
+    "title": "₹550 Cr Haryana Fraud Probe Hits IDFC First, AU Small Finance Bank - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQTndmY1ZnUk9jNGxvZmRwSU1Od1dJdnpGdnZMR290TGNDOHBVbHl3eGZENEhUamIzOFAtNmUwNkU2N3VCVm05NGQ2bHJmN3pRLXFZSXh6WjlhZXNUSlE2VDlkbk1yNWs4ZkJMbEJ6aDBlN1MxY3BBSVRLamJ3MFphQ29LM21mNTVUZnZaS0NOc2JWakE1X1Nhb3hBNXRtT0RVX3pud0IxbWM3azNlUVVCUThoQmZuamZ5VHFUYlkyTkJVZHlaaVQ4MWlCU3FhY01zMldpR3FyTlBMc1NoaVhDU3MyU0s0SVFiQW1SVA?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-04-09T15:55:12+00:00",
+    "company_slug": "idfc-first-bank"
+  },
+  "pipeline": {
+    "article_id": "615d7277ef6ce793",
+    "title": "₹550 Cr Haryana Fraud Probe Hits IDFC First, AU Small Finance Bank - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxQTndmY1ZnUk9jNGxvZmRwSU1Od1dJdnpGdnZMR290TGNDOHBVbHl3eGZENEhUamIzOFAtNmUwNkU2N3VCVm05NGQ2bHJmN3pRLXFZSXh6WjlhZXNUSlE2VDlkbk1yNWs4ZkJMbEJ6aDBlN1MxY3BBSVRLamJ3MFphQ29LM21mNTVUZnZaS0NOc2JWakE1X1Nhb3hBNXRtT0RVX3pud0IxbWM3azNlUVVCUThoQmZuamZ5VHFUYlkyTkJVZHlaaVQ4MWlCU3FhY01zMldpR3FyTlBMc1NoaVhDU3MyU0s0SVFiQW1SVA?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-04-09T15:55:12+00:00",
+    "company_slug": "idfc-first-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 33,
+    "elapsed_seconds": 8.506,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "alarmist",
+        "cautionary",
+        "analytical"
+      ],
+      "narrative_core_claim": "A ₹550 crore fraud probe in Haryana implicates IDFC First and AU Small Finance Bank.",
+      "narrative_implied_causation": "The fraud probe has caused reputational and operational risks for the banks involved.",
+      "narrative_stakeholder_framing": "IDFC First and AU Small Finance Bank are protagonists facing investigation; stakeholders and customers are affected.",
+      "entities": [
+        "Haryana",
+        "IDFC First",
+        "AU Small Finance Bank",
+        "Whalesbook"
+      ],
+      "entity_types": {
+        "Haryana": "location",
+        "IDFC First": "company",
+        "AU Small Finance Bank": "company",
+        "Whalesbook": "source"
+      },
+      "financial_signal": {
+        "amount": 550,
+        "unit": "crore",
+        "context": "amount involved in the fraud probe"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "fraud",
+        "governance",
+        "financial crime"
+      ],
+      "content_type": "reputational",
+      "urgency": "high",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Ethics & Compliance",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "anti_corruption",
+        "whistleblower_protection",
+        "fines",
+        "code_of_conduct"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_criminal_indictment",
+      "label": "Criminal Indictment",
+      "score_floor": 8,
+      "score_ceiling": 10,
+      "financial_transmission": "brand destruction → share price → cost of capital spike",
+      "matched_keywords": [
+        "fraud"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 550.0
+    },
+    "relevance": {
+      "total": 5,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 1,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 5.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "IDFC First Bank"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "IDFC First Bank Chennai",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "IDFC First Bank Chennai -> IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "IDFC First Bank HQ",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "IDFC First Bank HQ -> IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "Financials/Banking",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Ethics & Compliance is material for Financials/Banking → impacts IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "BRSR",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Ethics & Compliance triggers BRSR disclosure obligation for IDFC First Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.5,
+          "adjusted_score": 30.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.6,
+          "adjusted_score": 24.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.4,
+          "adjusted_score": 21.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.0,
+          "adjusted_score": 20.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.5,
+          "adjusted_score": 30.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.6,
+          "adjusted_score": 24.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.4,
+          "adjusted_score": 21.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.0,
+          "adjusted_score": 20.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        }
+      ],
+      "aggregate_score": 0.44,
+      "ontology_queries": 10
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [
+      "Peace, Justice and Strong Institutions"
+    ]
+  },
+  "insight": {
+    "headline": "₹550 Cr Haryana fraud probe triggers severe governance and reputational risk for IDFC First Bank",
+    "impact_score": 9.2,
+    "core_mechanism": "A large-scale fraud probe implicating IDFC First Bank has triggered direct operational, legal, and reputational risks. The event undermines stakeholder trust, exposes the bank to regulatory scrutiny, and may result in penalties, trading restrictions, and increased cost of capital.",
+    "profitability_connection": "The probe can lead to immediate legal costs, potential fines, and a spike in cost of capital, while also risking customer attrition and fund outflows due to negative ESG perception. This threatens both near-term profitability and long-term valuation.",
+    "translation": "IDFC First Bank is under investigation for a ₹550 crore fraud in Haryana, which could damage its reputation, lead to regulatory penalties, and make it more expensive for the bank to borrow money. This may also drive away customers and investors, hurting the bank’s profits and market value.",
+    "impact_analysis": {
+      "esg_positioning": "Significant ESG score gap likely versus peers; risk of index exclusion and negative ratings action.",
+      "capital_allocation": "Cost of capital expected to rise by 20-40bps; possible FII outflow due to ESG fund mandates.",
+      "valuation_cashflow": "P/E compression likely; margin erosion from legal costs and revenue at risk from customer churn.",
+      "compliance_regulatory": "BRSR, GRI, COSO ERM, DJSI, ESRS triggered; SEBI scrutiny and potential trading restrictions.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Talent attraction and retention at risk; customer trust and retention threatened."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹550 Cr under investigation; legal and operational costs imminent",
+        "profitability_pathway": "Fraud probe → legal/regulatory action → direct legal costs and potential fines up to ₹550 Cr",
+        "margin_pressure": "Up to 40bps",
+        "revenue_at_risk": "₹550 Cr"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression due to heightened risk and negative sentiment",
+        "competitive_position": "Loss vs ICICI Bank and YES Bank, which are not implicated in similar probes"
+      },
+      "long_term": {
+        "secular_trajectory": "Sustained trust deficit and higher cost of capital unless governance reforms are enacted",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 1,
+        "rationale": "No environmental dimension in this event"
+      },
+      "social": {
+        "score": 4,
+        "rationale": "Customer and community trust at risk, but not primary driver"
+      },
+      "governance": {
+        "score": 10,
+        "rationale": "Core governance failure—fraud, compliance, and anti-corruption"
+      },
+      "financial_materiality": {
+        "score": 10,
+        "rationale": "₹550 Cr quantum, direct P&L and valuation impact"
+      },
+      "regulatory_exposure": {
+        "score": 9,
+        "rationale": "SEBI, BRSR, and other frameworks triggered; high penalty risk"
+      },
+      "stakeholder_impact": {
+        "score": 8,
+        "rationale": "Material impact on customers, investors, and employees"
+      }
+    },
+    "net_impact_summary": "The Haryana fraud probe represents a critical governance and compliance failure for IDFC First Bank, with direct financial exposure of ₹550 Cr and severe reputational damage. The event will likely increase the bank’s cost of capital, trigger ESG fund outflows, and compress valuation multiples relative to peers. Unless swiftly addressed, the trust deficit may persist, affecting long-term competitiveness and stakeholder confidence.",
+    "decision_summary": {
+      "materiality": "CRITICAL",
+      "action": "ACT",
+      "verdict": "Immediate board-level response required to mitigate legal, regulatory, and reputational fallout; initiate governance overhaul.",
+      "financial_exposure": "₹550 Cr at risk",
+      "key_risk": "₹550 Cr fraud exposure plus precedent risk for future regulatory action",
+      "top_opportunity": "First-mover advantage in governance reform and proactive ESG disclosure",
+      "timeline": "within 4 weeks"
+    },
+    "causal_chain": {
+      "event": "₹550 Cr fraud probe implicates IDFC First Bank in Haryana",
+      "mechanism": "Direct operational and governance failure triggers regulatory scrutiny, legal costs, and reputational damage",
+      "company_impact": "Legal costs, potential fines, increased cost of capital, customer and investor attrition, and P/E compression",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Implement Comprehensive Governance Overhaul",
+        "description": "Initiate a board-level governance reform to address fraud exposure and strengthen internal controls, aligning with COSO ERM framework to improve risk management and credit rating.",
+        "type": "compliance",
+        "responsible_party": "Chief Risk Officer & Board Governance Committee",
+        "framework_section": "COSO ERM",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹15-25 Cr",
+        "profitability_link": "Avoid potential regulatory penalties estimated at ₹100 Cr and reduce cost of capital by 20-40 bps, saving approximately ₹30 Cr annually.",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 10,
+        "roi_percentage": 20.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Peer banks enhanced ERM frameworks post-fraud incidents, improving credit ratings and reducing borrowing costs."
+      },
+      {
+        "title": "Enhance ESG and Corporate Governance Disclosures",
+        "description": "Upgrade ESG disclosures to meet BRSR and GRI standards by FY26 filing to regain investor confidence and avoid SEBI scrutiny and trading restrictions.",
+        "type": "esg_positioning",
+        "responsible_party": "Head of Sustainability & Investor Relations",
+        "framework_section": "BRSR:P6, GRI:102-48",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹5-8 Cr",
+        "profitability_link": "Improved ESG ratings can reduce fund outflows by 5%, preserving ₹50 Cr in market capitalization.",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 9,
+        "roi_percentage": 18.0,
+        "payback_months": 14.0,
+        "peer_benchmark": "AU Small Finance Bank enhanced ESG disclosures post-fraud, attracting ESG fund inflows."
+      },
+      {
+        "title": "Launch Proactive Public ESG Communication Campaign",
+        "description": "Leverage first-mover advantage by publicly communicating governance reforms and ESG initiatives to improve reputation and target DJSI inclusion for valuation premium.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Communications Officer",
+        "framework_section": "Dow Jones Sustainability Index",
+        "deadline": "2026-06-30",
+        "estimated_budget": "₹3-5 Cr",
+        "profitability_link": "Achieving DJSI inclusion can yield a 5-10% valuation premium, potentially increasing market cap by ₹200-400 Cr.",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 7,
+        "roi_percentage": 25.0,
+        "payback_months": 18.0,
+        "peer_benchmark": "Competitors secured DJSI inclusion post governance reforms, attracting ESG-focused investments."
+      },
+      {
+        "title": "Strengthen Fraud Detection and Monitoring Systems",
+        "description": "Invest in advanced fraud detection technologies and staff training to prevent recurrence and mitigate litigation risk.",
+        "type": "operational",
+        "responsible_party": "Chief Technology Officer & Head of Compliance",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-09-30",
+        "estimated_budget": "₹10-15 Cr",
+        "profitability_link": "Preventing future frauds could save ₹550 Cr exposure plus avoid litigation costs estimated at ₹50 Cr.",
+        "priority": "HIGH",
+        "urgency": "medium_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 7,
+        "roi_percentage": 25.0,
+        "payback_months": 18.0,
+        "peer_benchmark": "Peer banks implemented AI-based fraud systems post incidents, reducing fraud losses by over 70%."
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Implement Comprehensive Governance Overhaul",
+          "type": "compliance",
+          "roi": 20.0,
+          "budget": "₹15-25 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Enhance ESG and Corporate Governance Disclosures",
+          "type": "esg_positioning",
+          "roi": 18.0,
+          "budget": "₹5-8 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 2,
+          "title": "Launch Proactive Public ESG Communication Campaign",
+          "type": "esg_positioning",
+          "roi": 25.0,
+          "budget": "₹3-5 Cr"
+        }
+      ],
+      "deferred_high": [
+        {
+          "index": 3,
+          "title": "Strengthen Fraud Detection and Monitoring Systems",
+          "type": "operational",
+          "roi": 25.0,
+          "budget": "₹10-15 Cr"
+        }
+      ],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "ceo": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "esg-analyst": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "₹550 Cr Haryana fraud probe triggers severe governance and reputational risk for IDFC First Bank",
+      "impact_grid": {
+        "financial": "HIGH",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Significant ESG score gap likely versus peers; risk of index exclusion and negative ratings action.",
+        "BRSR, GRI, COSO ERM, DJSI, ESRS triggered; SEBI scrutiny and potential trading restrictions.",
+        "Talent attraction and retention at risk; customer trust and retention threatened."
+      ],
+      "action": [
+        "Immediate board-level response required to mitigate legal, regulatory, and reputational fallout; initiate governance overhaul.",
+        "Opportunity: First-mover advantage in governance reform and proactive ESG disclosure"
+      ],
+      "materiality": "CRITICAL",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "financial",
+        "growth",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": {
+        "headline": "₹550 Cr Haryana fraud probe triggers severe governance and reputational risk for IDFC First Bank",
+        "impact_score": 9.2,
+        "core_mechanism": "A large-scale fraud probe implicating IDFC First Bank has triggered direct operational, legal, and reputational risks. The event undermines stakeholder trust, exposes the bank to regulatory scrutiny, and may result in penalties, trading restrictions, and increased cost of capital.",
+        "profitability_connection": "The probe can lead to immediate legal costs, potential fines, and a spike in cost of capital, while also risking customer attrition and fund outflows due to negative ESG perception. This threatens both near-term profitability and long-term valuation.",
+        "translation": "IDFC First Bank is under investigation for a ₹550 crore fraud in Haryana, which could damage its reputation, lead to regulatory penalties, and make it more expensive for the bank to borrow money. This may also drive away customers and investors, hurting the bank’s profits and market value.",
+        "impact_analysis": {
+          "esg_positioning": "Significant ESG score gap likely versus peers; risk of index exclusion and negative ratings action.",
+          "capital_allocation": "Cost of capital expected to rise by 20-40bps; possible FII outflow due to ESG fund mandates.",
+          "valuation_cashflow": "P/E compression likely; margin erosion from legal costs and revenue at risk from customer churn.",
+          "compliance_regulatory": "BRSR, GRI, COSO ERM, DJSI, ESRS triggered; SEBI scrutiny and potential trading restrictions.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Talent attraction and retention at risk; customer trust and retention threatened."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹550 Cr under investigation; legal and operational costs imminent",
+            "profitability_pathway": "Fraud probe → legal/regulatory action → direct legal costs and potential fines up to ₹550 Cr",
+            "margin_pressure": "Up to 40bps",
+            "revenue_at_risk": "₹550 Cr"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression due to heightened risk and negative sentiment",
+            "competitive_position": "Loss vs ICICI Bank and YES Bank, which are not implicated in similar probes"
+          },
+          "long_term": {
+            "secular_trajectory": "Sustained trust deficit and higher cost of capital unless governance reforms are enacted",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 1,
+            "rationale": "No environmental dimension in this event"
+          },
+          "social": {
+            "score": 4,
+            "rationale": "Customer and community trust at risk, but not primary driver"
+          },
+          "governance": {
+            "score": 10,
+            "rationale": "Core governance failure—fraud, compliance, and anti-corruption"
+          },
+          "financial_materiality": {
+            "score": 10,
+            "rationale": "₹550 Cr quantum, direct P&L and valuation impact"
+          },
+          "regulatory_exposure": {
+            "score": 9,
+            "rationale": "SEBI, BRSR, and other frameworks triggered; high penalty risk"
+          },
+          "stakeholder_impact": {
+            "score": 8,
+            "rationale": "Material impact on customers, investors, and employees"
+          }
+        },
+        "net_impact_summary": "The Haryana fraud probe represents a critical governance and compliance failure for IDFC First Bank, with direct financial exposure of ₹550 Cr and severe reputational damage. The event will likely increase the bank’s cost of capital, trigger ESG fund outflows, and compress valuation multiples relative to peers. Unless swiftly addressed, the trust deficit may persist, affecting long-term competitiveness and stakeholder confidence.",
+        "decision_summary": {
+          "materiality": "CRITICAL",
+          "action": "ACT",
+          "verdict": "Immediate board-level response required to mitigate legal, regulatory, and reputational fallout; initiate governance overhaul.",
+          "financial_exposure": "₹550 Cr at risk",
+          "key_risk": "₹550 Cr fraud exposure plus precedent risk for future regulatory action",
+          "top_opportunity": "First-mover advantage in governance reform and proactive ESG disclosure",
+          "timeline": "within 4 weeks"
+        },
+        "causal_chain": {
+          "event": "₹550 Cr fraud probe implicates IDFC First Bank in Haryana",
+          "mechanism": "Direct operational and governance failure triggers regulatory scrutiny, legal costs, and reputational damage",
+          "company_impact": "Legal costs, potential fines, increased cost of capital, customer and investor attrition, and P/E compression",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹550 Cr at risk — ₹550 Cr Haryana fraud probe triggers severe governance and reputational risk for IDFC First Bank",
+      "impact_grid": {
+        "financial": "HIGH",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "BRSR, GRI, COSO ERM, DJSI, ESRS triggered; SEBI scrutiny and potential trading restrictions.",
+        "P/E compression likely; margin erosion from legal costs and revenue at risk from customer churn.",
+        "Cost of capital expected to rise by 20-40bps; possible FII outflow due to ESG fund mandates."
+      ],
+      "action": [
+        "Immediate board-level response required to mitigate legal, regulatory, and reputational fallout; initiate governance overhaul.",
+        "Opportunity: First-mover advantage in governance reform and proactive ESG disclosure"
+      ],
+      "materiality": "CRITICAL",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "financial",
+        "regulatory"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — First-mover advantage in governance reform and proactive ESG disclosure",
+      "impact_grid": {
+        "financial": "HIGH",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Significant ESG score gap likely versus peers; risk of index exclusion and negative ratings action.",
+        "BRSR, GRI, COSO ERM, DJSI, ESRS triggered; SEBI scrutiny and potential trading restrictions.",
+        "Talent attraction and retention at risk; customer trust and retention threatened."
+      ],
+      "action": [
+        "Immediate board-level response required to mitigate legal, regulatory, and reputational fallout; initiate governance overhaul.",
+        "Opportunity: First-mover advantage in governance reform and proactive ESG disclosure"
+      ],
+      "materiality": "CRITICAL",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T10:13:54.568816+00:00",
+    "schema_version": "1.0"
+  }
+}

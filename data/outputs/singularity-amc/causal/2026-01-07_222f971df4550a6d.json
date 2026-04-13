@@ -1,0 +1,72 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Singularity AMC"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "Singularity AMC"
+    },
+    {
+      "nodes": [
+        "Singularity AMC HQ",
+        "Singularity AMC"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "Singularity AMC HQ -> Singularity AMC"
+    },
+    {
+      "nodes": [
+        "Supply Chain Labor",
+        "BRSR",
+        "Singularity AMC"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Supply Chain Labor triggers BRSR disclosure obligation for Singularity AMC"
+    },
+    {
+      "nodes": [
+        "Supply Chain Labor",
+        "GRI",
+        "Singularity AMC"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Supply Chain Labor triggers GRI disclosure obligation for Singularity AMC"
+    },
+    {
+      "nodes": [
+        "Supply Chain Labor",
+        "ESRS",
+        "Singularity AMC"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Supply Chain Labor triggers ESRS disclosure obligation for Singularity AMC"
+    }
+  ]
+}

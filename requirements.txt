@@ -31,9 +31,8 @@ langgraph==0.2.60
 langchain-core==0.3.28
 langchain-anthropic==0.3.4
 
-# --- Knowledge Graph (rdflib for dev, Jena via HTTP for prod) ---
+# --- Knowledge Graph (rdflib in-process, replaces Apache Jena Fuseki) ---
 rdflib==7.1.1
-SPARQLWrapper==2.0.0
 
 # --- Agent Memory ---
 zep-cloud==2.8.0

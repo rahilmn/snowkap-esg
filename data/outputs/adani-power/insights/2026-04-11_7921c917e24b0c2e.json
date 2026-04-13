@@ -1,0 +1,898 @@
+{
+  "article": {
+    "id": "7921c917e24b0c2e",
+    "title": "Adani Green Energy forms JV, takes 20% stake to scale renewable capacity in India - Manufacturing Today India",
+    "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNZE04OUZyRzEweFozUlhCVWZzTGZWMURBZnNVUHlZSnhjcHdIOEJnZGcyNmRxQWlSZzFtTi1TMEhPSkU4ZHdzenV5OHNtMjRxVzJBTnQtZ3FyNDR5ekZSRFlPZkRDbEl5c0w4dUV5MTFIZHJaTUtXdG5weExvOUQtaW01TmZGWVl3TDJ1RHRJdHJXU1pFdUdhdjJneUxobkp0dHl6WWRIeXIxWmVONXM3ZGd2NHQxRUpMMnNN?oc=5",
+    "source": "Manufacturing Today India",
+    "published_at": "2026-04-11T12:52:00+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "7921c917e24b0c2e",
+    "title": "Adani Green Energy forms JV, takes 20% stake to scale renewable capacity in India - Manufacturing Today India",
+    "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNZE04OUZyRzEweFozUlhCVWZzTGZWMURBZnNVUHlZSnhjcHdIOEJnZGcyNmRxQWlSZzFtTi1TMEhPSkU4ZHdzenV5OHNtMjRxVzJBTnQtZ3FyNDR5ekZSRFlPZkRDbEl5c0w4dUV5MTFIZHJaTUtXdG5weExvOUQtaW01TmZGWVl3TDJ1RHRJdHJXU1pFdUdhdjJneUxobkp0dHl6WWRIeXIxWmVONXM3ZGd2NHQxRUpMMnNN?oc=5",
+    "source": "Manufacturing Today India",
+    "published_at": "2026-04-11T12:52:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 43,
+    "elapsed_seconds": 9.578,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.85,
+      "tone": [
+        "optimistic",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "Adani Green Energy forms a joint venture and acquires a 20% stake to expand renewable energy capacity in India.",
+      "narrative_implied_causation": "By forming a JV and taking a stake, Adani Green Energy aims to scale up renewable capacity, promoting clean energy growth.",
+      "narrative_stakeholder_framing": "Adani Green Energy is the protagonist driving renewable expansion; Indian energy consumers and environment are positively affected.",
+      "entities": [
+        "Adani Green Energy",
+        "India"
+      ],
+      "entity_types": {
+        "Adani Green Energy": "company",
+        "India": "location"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "renewable energy",
+        "clean energy capacity",
+        "sustainable development"
+      ],
+      "content_type": "operational",
+      "urgency": "medium",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "power_purchase_agreements",
+        "fossil_fuel_dependency"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Climate Change",
+          "pillar": "E",
+          "sub_metrics": [
+            "scope_1_direct",
+            "scope_2_indirect",
+            "ghg_reduction_targets"
+          ]
+        }
+      ],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "BRSR mandatory for India Large Cap",
+          "BRSR",
+          "Power/Energy",
+          "Adani Power"
+        ],
+        "edges": [
+          "indirectImpact",
+          "indirectImpact",
+          "industrySpillover"
+        ],
+        "hops": 3,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.2,
+        "explanation": "BRSR mandatory for India Large Cap -> BRSR -> Power/Energy -> Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.15,
+      "ontology_queries": 12
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Green Energy's JV to scale renewables signals sector momentum but limited direct impact for Adani Power",
+    "impact_score": 3.0,
+    "core_mechanism": "Adani Green Energy's formation of a joint venture and acquisition of a 20% stake aims to expand renewable energy capacity in India. This move reinforces sector-wide momentum toward clean energy, indirectly pressuring peers like Adani Power to accelerate their own renewable transition. However, the event is a routine capex announcement with no immediate balance sheet or ESG signal for Adani Power.",
+    "profitability_connection": "While sectoral renewable expansion can influence long-term capital allocation and investor sentiment, there is no direct P&L or valuation impact for Adani Power from this event.",
+    "translation": "Adani Green Energy is investing in renewables, which is good for the sector and the environment, but it doesn't directly affect Adani Power's finances or operations right now.",
+    "impact_analysis": {
+      "esg_positioning": "Minor ESG score gap may emerge if Adani Power lags in renewables, but no immediate peer pressure or index exclusion.",
+      "capital_allocation": "No direct change in cost of capital or bond spreads for Adani Power; sector green financing trends reinforced.",
+      "valuation_cashflow": "No P/E compression or margin erosion; revenue at risk is N/A.",
+      "compliance_regulatory": "Triggers BRSR, GRI, TCFD disclosure obligations for Adani Power; no immediate penalties or deadlines.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "N/A"
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No immediate ₹ impact for Adani Power",
+        "profitability_pathway": "Sector renewable capex → indirect peer signal → no direct financial effect",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Stable P/E; no direct rerating for Adani Power due to this event",
+        "competitive_position": "No immediate gain or loss vs JSW Energy; sectoral renewable momentum reinforced"
+      },
+      "long_term": {
+        "secular_trajectory": "Peer renewable investments may increase pressure on Adani Power to accelerate transition over 3-5 years",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 3,
+        "rationale": "Event is sectoral and routine; minor indirect pressure on Adani Power's environmental positioning"
+      },
+      "social": {
+        "score": 1,
+        "rationale": "No direct social impact for Adani Power"
+      },
+      "governance": {
+        "score": 2,
+        "rationale": "Triggers disclosure obligations but no governance controversy"
+      },
+      "financial_materiality": {
+        "score": 2,
+        "rationale": "No direct financial transmission to Adani Power"
+      },
+      "regulatory_exposure": {
+        "score": 3,
+        "rationale": "Triggers disclosure frameworks (BRSR, GRI, TCFD)"
+      },
+      "stakeholder_impact": {
+        "score": 2,
+        "rationale": "No immediate impact on Adani Power's stakeholders"
+      }
+    },
+    "net_impact_summary": "This event signals ongoing sectoral momentum toward renewables, indirectly increasing long-term transition pressure on Adani Power. However, as a routine capex move by a group affiliate, it does not directly affect Adani Power's financials, ESG ratings, or regulatory standing in the short term. Disclosure obligations are reinforced, but no penalties or index actions are triggered. The event is low materiality for Adani Power, meriting monitoring rather than action.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor sector transition pace and disclosure requirements.",
+      "financial_exposure": "₹0-50 Cr at risk (indirect, long-term sectoral transition pressure only)",
+      "key_risk": "Disclosure lag triggering BRSR/TCFD scrutiny if Adani Power does not keep pace",
+      "top_opportunity": "ESG narrative differentiation via proactive renewable disclosure",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Green Energy forms JV and acquires 20% stake to scale renewables",
+      "mechanism": "Sector peer invests in renewables, reinforcing disclosure and transition expectations for Adani Power",
+      "company_impact": "No direct P&L effect; indirect long-term pressure to accelerate renewable transition and ESG disclosure",
+      "transmission_type": "regulatory"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Green Energy's JV to scale renewables signals sector momentum but limited direct impact for Adani Power",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "Minor ESG score gap may emerge if Adani Power lags in renewables, but no immediate peer pressure or index exclusion.",
+        "Triggers BRSR, GRI, TCFD disclosure obligations for Adani Power; no immediate penalties or deadlines.",
+        "No P/E compression or margin erosion; revenue at risk is N/A."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Green Energy's JV to scale renewables signals sector momentum but limited direct impact for Adani Power",
+        "impact_score": 3.0,
+        "core_mechanism": "Adani Green Energy's formation of a joint venture and acquisition of a 20% stake aims to expand renewable energy capacity in India. This move reinforces sector-wide momentum toward clean energy, indirectly pressuring peers like Adani Power to accelerate their own renewable transition. However, the event is a routine capex announcement with no immediate balance sheet or ESG signal for Adani Power.",
+        "profitability_connection": "While sectoral renewable expansion can influence long-term capital allocation and investor sentiment, there is no direct P&L or valuation impact for Adani Power from this event.",
+        "translation": "Adani Green Energy is investing in renewables, which is good for the sector and the environment, but it doesn't directly affect Adani Power's finances or operations right now.",
+        "impact_analysis": {
+          "esg_positioning": "Minor ESG score gap may emerge if Adani Power lags in renewables, but no immediate peer pressure or index exclusion.",
+          "capital_allocation": "No direct change in cost of capital or bond spreads for Adani Power; sector green financing trends reinforced.",
+          "valuation_cashflow": "No P/E compression or margin erosion; revenue at risk is N/A.",
+          "compliance_regulatory": "Triggers BRSR, GRI, TCFD disclosure obligations for Adani Power; no immediate penalties or deadlines.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "N/A"
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No immediate ₹ impact for Adani Power",
+            "profitability_pathway": "Sector renewable capex → indirect peer signal → no direct financial effect",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Stable P/E; no direct rerating for Adani Power due to this event",
+            "competitive_position": "No immediate gain or loss vs JSW Energy; sectoral renewable momentum reinforced"
+          },
+          "long_term": {
+            "secular_trajectory": "Peer renewable investments may increase pressure on Adani Power to accelerate transition over 3-5 years",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 3,
+            "rationale": "Event is sectoral and routine; minor indirect pressure on Adani Power's environmental positioning"
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No direct social impact for Adani Power"
+          },
+          "governance": {
+            "score": 2,
+            "rationale": "Triggers disclosure obligations but no governance controversy"
+          },
+          "financial_materiality": {
+            "score": 2,
+            "rationale": "No direct financial transmission to Adani Power"
+          },
+          "regulatory_exposure": {
+            "score": 3,
+            "rationale": "Triggers disclosure frameworks (BRSR, GRI, TCFD)"
+          },
+          "stakeholder_impact": {
+            "score": 2,
+            "rationale": "No immediate impact on Adani Power's stakeholders"
+          }
+        },
+        "net_impact_summary": "This event signals ongoing sectoral momentum toward renewables, indirectly increasing long-term transition pressure on Adani Power. However, as a routine capex move by a group affiliate, it does not directly affect Adani Power's financials, ESG ratings, or regulatory standing in the short term. Disclosure obligations are reinforced, but no penalties or index actions are triggered. The event is low materiality for Adani Power, meriting monitoring rather than action.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor sector transition pace and disclosure requirements.",
+          "financial_exposure": "₹0-50 Cr at risk (indirect, long-term sectoral transition pressure only)",
+          "key_risk": "Disclosure lag triggering BRSR/TCFD scrutiny if Adani Power does not keep pace",
+          "top_opportunity": "ESG narrative differentiation via proactive renewable disclosure",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Green Energy forms JV and acquires 20% stake to scale renewables",
+          "mechanism": "Sector peer invests in renewables, reinforcing disclosure and transition expectations for Adani Power",
+          "company_impact": "No direct P&L effect; indirect long-term pressure to accelerate renewable transition and ESG disclosure",
+          "transmission_type": "regulatory"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹0-50 Cr at risk (indirect, long-term sectoral transition pressure only) — Adani Green Energy's JV to scale renewables signals sector momentum but limited direct impact for Adani Power",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "Triggers BRSR, GRI, TCFD disclosure obligations for Adani Power; no immediate penalties or deadlines.",
+        "No P/E compression or margin erosion; revenue at risk is N/A.",
+        "No direct change in cost of capital or bond spreads for Adani Power; sector green financing trends reinforced."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via proactive renewable disclosure",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "Triggers BRSR, GRI, TCFD disclosure obligations for Adani Power; no immediate penalties or deadlines.",
+        "Minor ESG score gap may emerge if Adani Power lags in renewables, but no immediate peer pressure or index exclusion."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:50:15.033007+00:00",
+    "schema_version": "1.0"
+  }
+}

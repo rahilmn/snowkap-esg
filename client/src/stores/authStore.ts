@@ -40,6 +40,7 @@ interface AuthState {
     domain: string;
     name: string | null;
   }) => void;
+  setCompanyId: (id: string | null) => void;
   logout: () => void;
   hasPermission: (perm: string) => boolean;
 }
@@ -73,6 +74,8 @@ export const useAuthStore = create<AuthState>()(
           useSavedStore.getState().setTenant(data.tenant_id);
         });
       },
+
+      setCompanyId: (id) => set({ companyId: id }),
 
       logout: () => {
         _writeToken(null);

@@ -117,8 +117,10 @@ export const news = {
     return res.articles;
   },
 
-  stats: () =>
-    request<{ total: number; high_impact_count: number; predictions_count: number; new_last_24h: number }>("/news/stats"),
+  stats: (companyId?: string) => {
+    const q = companyId ? `?company_id=${encodeURIComponent(companyId)}` : "";
+    return request<{ total: number; high_impact_count: number; predictions_count: number; new_last_24h: number }>(`/news/stats${q}`);
+  },
 
   bookmark: (articleId: string) =>
     request<{ status: string }>(`/news/${articleId}/bookmark`, { method: "POST" }),

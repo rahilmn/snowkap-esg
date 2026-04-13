@@ -230,7 +230,7 @@ export function FrameworkAlignmentV2({ frameworkMatches }: FrameworkAlignmentV2P
                   textOverflow: "ellipsis",
                 }}
               >
-                {q.split("(")[0].trim()}
+                {(q.split("(")[0] ?? "").trim()}
               </span>
             ))}
             {match.triggered_questions.length > 6 && (

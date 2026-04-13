@@ -1,0 +1,81 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "Financials/Banking",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Ethics & Compliance is material for Financials/Banking → impacts IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "BRSR",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers BRSR disclosure obligation for IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "GRI",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers GRI disclosure obligation for IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "ESRS",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers ESRS disclosure obligation for IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "BRSR mandatory for India Large Cap",
+        "BRSR",
+        "Financials/Banking",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "BRSR mandatory for India Large Cap -> BRSR -> Financials/Banking -> IDFC First Bank"
+    }
+  ]
+}

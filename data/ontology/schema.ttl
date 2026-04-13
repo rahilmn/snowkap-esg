@@ -1,0 +1,486 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# SNOWKAP ESG Intelligence Engine — Schema (5-Layer Ontology)
+#
+# Layer 1: Entity        — Company, Facility, Supplier, Industry, Geography
+# Layer 2: ESG Topics    — 21 themes (Environmental, Social, Governance)
+# Layer 3: Impact        — Financial, Regulatory, Operational, Reputational, TEMPLES
+# Layer 4: Perspectives  — ESG Analyst, CFO, CEO (cognitive lenses)
+# Layer 5: Frameworks    — 21 frameworks (ESG + Strategy + Risk + Finance + Indices)
+# =============================================================================
+
+<http://snowkap.com/ontology/esg> a owl:Ontology ;
+    rdfs:label "SNOWKAP ESG Intelligence Ontology" ;
+    rdfs:comment "Ontology-driven ESG intelligence schema for Snowkap Intelligence Engine" ;
+    owl:versionInfo "2.0.0" .
+
+# =============================================================================
+# LAYER 1: ENTITY CLASSES
+# =============================================================================
+
+snowkap:Company a owl:Class ;
+    rdfs:label "Company" ;
+    rdfs:comment "An organization tracked for ESG analysis" .
+
+snowkap:Facility a owl:Class ;
+    rdfs:label "Facility" ;
+    rdfs:comment "A physical facility (plant, office, data center)" .
+
+snowkap:Supplier a owl:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "Supply chain node providing goods or services" .
+
+snowkap:Competitor a owl:Class ;
+    rdfs:subClassOf snowkap:Company ;
+    rdfs:label "Competitor" ;
+    rdfs:comment "A company in competitive relationship with a target company" .
+
+snowkap:Industry a owl:Class ;
+    rdfs:label "Industry" ;
+    rdfs:comment "Industry sector (SASB classification)" .
+
+snowkap:GeographicRegion a owl:Class ;
+    rdfs:label "Geographic Region" ;
+    rdfs:comment "Country, state, district, city" .
+
+snowkap:ClimateZone a owl:Class ;
+    rdfs:label "Climate Zone" ;
+    rdfs:comment "Climate risk classification (coastal_flood, drought, etc.)" .
+
+snowkap:Commodity a owl:Class ;
+    rdfs:label "Commodity" ;
+    rdfs:comment "Raw material in supply chains (steel, coal, water, lithium)" .
+
+snowkap:Regulation a owl:Class ;
+    rdfs:label "Regulation" ;
+    rdfs:comment "Regulatory instrument (SEBI notice, CSRD rule)" .
+
+snowkap:WorkforceSegment a owl:Class ;
+    rdfs:label "Workforce Segment" ;
+    rdfs:comment "Category of workers" .
+
+snowkap:Stakeholder a owl:Class ;
+    rdfs:label "Stakeholder" ;
+    rdfs:comment "Entity with interest in company's ESG performance (investors, community, etc.)" .
+
+snowkap:CapitalizationTier a owl:Class ;
+    rdfs:label "Capitalization Tier" ;
+    rdfs:comment "Large Cap, Mid Cap, Small Cap — drives financial sensitivity" .
+
+# =============================================================================
+# LAYER 2: ESG TOPIC CLASSES
+# =============================================================================
+
+snowkap:ESGTopic a owl:Class ;
+    rdfs:label "ESG Topic" ;
+    rdfs:comment "An ESG theme covering environmental, social, or governance issues" .
+
+snowkap:EnvironmentalTopic a owl:Class ;
+    rdfs:subClassOf snowkap:ESGTopic ;
+    rdfs:label "Environmental Topic" .
+
+snowkap:SocialTopic a owl:Class ;
+    rdfs:subClassOf snowkap:ESGTopic ;
+    rdfs:label "Social Topic" .
+
+snowkap:GovernanceTopic a owl:Class ;
+    rdfs:subClassOf snowkap:ESGTopic ;
+    rdfs:label "Governance Topic" .
+
+snowkap:SDG a owl:Class ;
+    rdfs:label "Sustainable Development Goal" ;
+    rdfs:comment "UN Sustainable Development Goal (1-17)" .
+
+snowkap:ESGMetric a owl:Class ;
+    rdfs:label "ESG Metric" ;
+    rdfs:comment "Standardized ESG KPI (Scope 1 emissions, water withdrawal, etc.)" .
+
+# =============================================================================
+# LAYER 3: IMPACT DIMENSION CLASSES
+# =============================================================================
+
+snowkap:ImpactDimension a owl:Class ;
+    rdfs:label "Impact Dimension" ;
+    rdfs:comment "A dimension along which ESG events transmit business impact" .
+
+snowkap:MaterialityType a owl:Class ;
+    rdfs:label "Materiality Type" ;
+    rdfs:comment "Financial materiality (outside-in) or Impact materiality (inside-out, CSRD)" .
+
+# =============================================================================
+# LAYER 4: PERSPECTIVE LENS CLASSES
+# =============================================================================
+
+snowkap:PerspectiveLens a owl:Class ;
+    rdfs:label "Perspective Lens" ;
+    rdfs:comment "A cognitive lens through which an executive views ESG intelligence" .
+
+# =============================================================================
+# LAYER 5: FRAMEWORK + RISK CLASSES
+# =============================================================================
+
+snowkap:ESGFramework a owl:Class ;
+    rdfs:label "ESG Framework" ;
+    rdfs:comment "An ESG reporting or strategic framework" .
+
+snowkap:FrameworkSection a owl:Class ;
+    rdfs:label "Framework Section" ;
+    rdfs:comment "A specific section/disclosure within a framework (e.g., BRSR:P6, GRI:305)" .
+
+snowkap:RiskCategory a owl:Class ;
+    rdfs:label "Risk Category" ;
+    rdfs:comment "ESG risk category (physical, regulatory, reputational, etc.)" .
+
+snowkap:TEMPLESCategory a owl:Class ;
+    rdfs:label "TEMPLES Category" ;
+    rdfs:comment "Enterprise risk category from TEMPLES framework (Tech, Economic, Media, Political, Legal, Environmental, Social)" .
+
+snowkap:EventType a owl:Class ;
+    rdfs:label "Event Type" ;
+    rdfs:comment "News event classification with score bounds and financial transmission" .
+
+snowkap:ComplianceDeadline a owl:Class ;
+    rdfs:label "Compliance Deadline" ;
+    rdfs:comment "A regulatory filing deadline with applicability conditions" .
+
+snowkap:RegulatoryPenalty a owl:Class ;
+    rdfs:label "Regulatory Penalty" ;
+    rdfs:comment "Historical enforcement precedent for a regulation" .
+
+snowkap:MaterialIssue a owl:Class ;
+    rdfs:label "Material Issue" ;
+    rdfs:comment "SASB material issue for an industry" .
+
+snowkap:NewsEvent a owl:Class ;
+    rdfs:label "News Event" ;
+    rdfs:comment "A news event with potential ESG impact" .
+
+snowkap:CausalChain a owl:Class ;
+    rdfs:label "Causal Chain" ;
+    rdfs:comment "Causal path from news event to company impact" .
+
+# =============================================================================
+# OBJECT PROPERTIES — The Intelligence Graph Edges
+# =============================================================================
+
+# ---------- Entity structure ----------
+snowkap:belongsToIndustry a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:Industry .
+
+snowkap:hasFacility a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:Facility .
+
+snowkap:suppliesTo a owl:ObjectProperty ;
+    rdfs:domain snowkap:Supplier ; rdfs:range snowkap:Company ;
+    rdfs:comment "Supply chain upstream (1-hop)" .
+
+snowkap:sourcesFrom a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:Supplier ;
+    rdfs:comment "Supply chain downstream (1-hop)" .
+
+snowkap:locatedIn a owl:ObjectProperty ;
+    rdfs:range snowkap:GeographicRegion ;
+    rdfs:comment "Physical location relationship" .
+
+snowkap:competessWith a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:Company ;
+    rdfs:comment "Competitive relationship (industry spillover, 1-hop)" .
+
+snowkap:defaultEventForTheme a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:EventType ;
+    rdfs:comment "Fallback event type when keyword matching fails for a themed article" .
+
+snowkap:dependsOnCommodity a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:Commodity .
+
+snowkap:inClimateZone a owl:ObjectProperty ;
+    rdfs:domain snowkap:GeographicRegion ; rdfs:range snowkap:ClimateZone ;
+    rdfs:comment "Geographic region exposed to a climate risk zone" .
+
+snowkap:hasCapitalization a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:CapitalizationTier .
+
+# ---------- Topic → Framework (replaces _TOPIC_FRAMEWORK_MAP dict) ----------
+snowkap:triggersFramework a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:ESGFramework ;
+    rdfs:comment "An ESG topic triggers disclosure under a framework" .
+
+snowkap:hasSection a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGFramework ; rdfs:range snowkap:FrameworkSection .
+
+snowkap:belongsToFramework a owl:ObjectProperty ;
+    rdfs:domain snowkap:FrameworkSection ; rdfs:range snowkap:ESGFramework .
+
+# ---------- Topic → Impact (drives perspective-specific output) ----------
+snowkap:hasImpactOn a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:ImpactDimension ;
+    rdfs:comment "ESG topic affects this impact dimension" .
+
+# ---------- Impact → Perspective (drives perspective transformation) ----------
+snowkap:relevantTo a owl:ObjectProperty ;
+    rdfs:domain snowkap:ImpactDimension ; rdfs:range snowkap:PerspectiveLens ;
+    rdfs:comment "Impact dimension is prioritized by this executive perspective" .
+
+# ---------- Topic × Industry materiality (replaces MATERIALITY_MAP) ----------
+snowkap:materialFor a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:Industry ;
+    rdfs:comment "ESG topic is material for this industry (with weight)" .
+
+# ---------- Industry × Risk weights (replaces INDUSTRY_RISK_WEIGHTS) ----------
+snowkap:amplifiesRisk a owl:ObjectProperty ;
+    rdfs:domain snowkap:Industry ; rdfs:range snowkap:RiskCategory ;
+    rdfs:comment "Industry amplifies this risk category (with weight)" .
+
+# ---------- TEMPLES ↔ ESG risk overlap ----------
+snowkap:overlaps a owl:ObjectProperty ;
+    rdfs:comment "TEMPLES category overlaps with ESG risk category" .
+
+# ---------- Event type rules ----------
+snowkap:hasEventRule a owl:ObjectProperty ;
+    rdfs:domain snowkap:EventType ;
+    rdfs:comment "Event type has score floor/ceiling rule" .
+
+# ---------- SDG mapping ----------
+snowkap:contributesToSDG a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:SDG .
+
+# ---------- Stakeholder relevance ----------
+snowkap:careAbout a owl:ObjectProperty ;
+    rdfs:domain snowkap:Stakeholder ; rdfs:range snowkap:ESGTopic .
+
+# ---------- Compliance deadline applicability ----------
+snowkap:appliesFramework a owl:ObjectProperty ;
+    rdfs:domain snowkap:ComplianceDeadline ; rdfs:range snowkap:ESGFramework .
+
+snowkap:enforcementAgency a owl:ObjectProperty ;
+    rdfs:domain snowkap:RegulatoryPenalty ;
+    rdfs:comment "Agency that enforces this penalty" .
+
+# ---------- Causal chain relationships (17 types) ----------
+snowkap:directlyImpacts a owl:ObjectProperty ;
+    rdfs:domain snowkap:NewsEvent ; rdfs:range snowkap:Company ;
+    rdfs:comment "directOperational (0-hop)" .
+
+snowkap:indirectlyImpacts a owl:ObjectProperty ;
+    rdfs:range snowkap:Company ;
+    rdfs:comment "Indirect impact through causal chain" .
+
+snowkap:regulatedBy a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:Regulation ;
+    rdfs:comment "regulatoryContagion (1-hop)" .
+
+snowkap:employsWorkforce a owl:ObjectProperty ;
+    rdfs:domain snowkap:Company ; rdfs:range snowkap:WorkforceSegment ;
+    rdfs:comment "workforceIndirect (2-hop)" .
+
+snowkap:sharesWaterBasin a owl:ObjectProperty ;
+    rdfs:comment "waterSharedBasin (1-hop)" .
+
+snowkap:pollutionPathway a owl:ObjectProperty ;
+    rdfs:comment "pollutionDispersion (1-hop)" .
+
+snowkap:climateExposure a owl:ObjectProperty ;
+    rdfs:comment "climateRiskExposure (0-hop)" .
+
+snowkap:laborContractedBy a owl:ObjectProperty ;
+    rdfs:comment "laborContractor (2-hop)" .
+
+snowkap:affectsCommunity a owl:ObjectProperty ;
+    rdfs:comment "communityAffected (1-hop)" .
+
+snowkap:sameJurisdiction a owl:ObjectProperty ;
+    rdfs:comment "regulatoryJurisdiction (1-hop)" .
+
+snowkap:ownedBy a owl:ObjectProperty ;
+    rdfs:comment "ownershipChain (2-hop)" .
+
+snowkap:investedIn a owl:ObjectProperty ;
+    rdfs:comment "investorExposure (1-hop)" .
+
+snowkap:customerOf a owl:ObjectProperty ;
+    rdfs:comment "customerConcentration (1-hop)" .
+
+# =============================================================================
+# DATA PROPERTIES
+# =============================================================================
+
+snowkap:label a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:slug a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:esgPillar a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "E (Environmental), S (Social), or G (Governance)" .
+snowkap:subMetric a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Sub-metric attached to an ESG topic" .
+snowkap:sasbCategory a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# Framework section metadata
+snowkap:sectionCode a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "e.g. BRSR:P6:Q14, GRI:305-1" .
+snowkap:sectionTitle a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:profitabilityLink a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "How non-compliance transmits to P&L" .
+
+# Weights
+snowkap:materialityWeight a owl:DatatypeProperty ; rdfs:range xsd:float ;
+    rdfs:comment "Industry × Topic materiality weight (0.0-1.0)" .
+snowkap:riskWeight a owl:DatatypeProperty ; rdfs:range xsd:float ;
+    rdfs:comment "Industry × RiskCategory multiplier (typically 0.5-2.0)" .
+snowkap:decayFactor a owl:DatatypeProperty ; rdfs:range xsd:float ;
+    rdfs:comment "Causal chain hop decay (e.g., 1.0, 0.7, 0.4, 0.2, 0.1)" .
+snowkap:impactScore a owl:DatatypeProperty ; rdfs:range xsd:float .
+snowkap:hopCount a owl:DatatypeProperty ; rdfs:range xsd:integer .
+snowkap:financialExposure a owl:DatatypeProperty ; rdfs:range xsd:float .
+
+# Event classification
+snowkap:scoreFloor a owl:DatatypeProperty ; rdfs:range xsd:integer .
+snowkap:scoreCeiling a owl:DatatypeProperty ; rdfs:range xsd:integer .
+snowkap:eventKeyword a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:financialTransmission a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "How event type transmits to financial statements" .
+
+# Capitalization tier
+snowkap:financialImpactFloor a owl:DatatypeProperty ; rdfs:range xsd:float ;
+    rdfs:comment "Minimum ₹ Cr for material impact" .
+snowkap:investorSensitivity a owl:DatatypeProperty ; rdfs:range xsd:float .
+snowkap:regulatoryScrutiny a owl:DatatypeProperty ; rdfs:range xsd:float .
+
+# Risk indicators (from TEMPLES Excel files)
+snowkap:hasLeadIndicator a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Early warning signal for a risk category" .
+snowkap:hasLagIndicator a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Confirmation signal (after-the-fact)" .
+
+# Compliance deadline metadata
+snowkap:deadlineDate a owl:DatatypeProperty ; rdfs:range xsd:date .
+snowkap:jurisdiction a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:recurrence a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:applicabilityCondition a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:penaltyForNonCompliance a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# Penalty precedent metadata
+snowkap:medianFineRange a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:precedent a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# Perspective lens metadata
+snowkap:outputDepth a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "brief | standard | detailed" .
+snowkap:financialFraming a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "pnl | strategic | esg_scoring" .
+snowkap:maxWords a owl:DatatypeProperty ; rdfs:range xsd:integer .
+
+# Geographic
+snowkap:latitude a owl:DatatypeProperty ; rdfs:range xsd:float .
+snowkap:longitude a owl:DatatypeProperty ; rdfs:range xsd:float .
+snowkap:country a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:region a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# ESG metric metadata
+snowkap:unit a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:calculationMethod a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# =============================================================================
+# PHASE 15: Ontology-Driven Configuration (replaces hardcoded Python dicts)
+# =============================================================================
+
+# --- Theme → Risk mapping (replaces _THEME_RISK_MAP dict) ---
+snowkap:triggersRiskCategory a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:RiskCategory ;
+    rdfs:comment "ESG topic activates this risk category for lite assessment" .
+
+snowkap:triggersTEMPLES a owl:ObjectProperty ;
+    rdfs:domain snowkap:ESGTopic ; rdfs:range snowkap:TEMPLESCategory ;
+    rdfs:comment "ESG topic activates this TEMPLES category for lite assessment" .
+
+# --- Risk level thresholds (replaces _classify_level() magic numbers) ---
+snowkap:RiskLevelThreshold a owl:Class ;
+    rdfs:label "Risk Level Threshold" ;
+    rdfs:comment "Maps adjusted score ranges to risk levels (CRITICAL/HIGH/MODERATE/LOW)" .
+
+snowkap:riskLevel a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "CRITICAL | HIGH | MODERATE | LOW" .
+snowkap:minScore a owl:DatatypeProperty ; rdfs:range xsd:float ;
+    rdfs:comment "Minimum adjusted score for this level (inclusive)" .
+
+# --- Framework regional boosts (replaces REGION_BOOSTS dict) ---
+snowkap:RegionalFrameworkBoost a owl:Class ;
+    rdfs:label "Regional Framework Boost" ;
+    rdfs:comment "Region-specific relevance boost for a framework" .
+
+snowkap:forRegion a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "INDIA | EU | US | GLOBAL" .
+snowkap:boostValue a owl:DatatypeProperty ; rdfs:range xsd:float ;
+    rdfs:comment "Relevance boost amount (0.0-1.0)" .
+snowkap:boostsFramework a owl:ObjectProperty ;
+    rdfs:domain snowkap:RegionalFrameworkBoost ; rdfs:range snowkap:ESGFramework .
+
+# --- Framework mandatory rules (replaces hardcoded if-else) ---
+snowkap:MandatoryRule a owl:Class ;
+    rdfs:label "Mandatory Rule" ;
+    rdfs:comment "Framework is mandatory for a region + market cap combination" .
+
+snowkap:mandatoryFramework a owl:ObjectProperty ;
+    rdfs:domain snowkap:MandatoryRule ; rdfs:range snowkap:ESGFramework .
+snowkap:mandatoryRegion a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:mandatoryCapTier a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Large Cap | Mid Cap | Small Cap | ALL (any cap tier)" .
+
+# --- Recommendation priority rules (replaces _derive_priority()) ---
+snowkap:PriorityRule a owl:Class ;
+    rdfs:label "Priority Rule" ;
+    rdfs:comment "Maps urgency + impact to priority level" .
+
+snowkap:ifUrgency a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:ifImpact a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:thenPriority a owl:DatatypeProperty ; rdfs:range xsd:string .
+
+# --- Risk of inaction weights (replaces _compute_risk_of_inaction()) ---
+snowkap:RiskOfInactionConfig a owl:Class ;
+    rdfs:label "Risk Of Inaction Config" ;
+    rdfs:comment "Base score and modifiers for risk-of-inaction calculation" .
+
+snowkap:forPriority a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:baseRiskScore a owl:DatatypeProperty ; rdfs:range xsd:integer .
+snowkap:recTypeBonus a owl:DatatypeProperty ; rdfs:range xsd:integer ;
+    rdfs:comment "Bonus score when recommendation type matches" .
+snowkap:forRecType a owl:DatatypeProperty ; rdfs:range xsd:string .
+snowkap:escalationKeyword a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Keywords in profitability_link that escalate risk" .
+
+# --- Perspective grid column mapping (replaces GRID_COLUMN_MAP dict) ---
+snowkap:gridColumn a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Maps an impact dimension to a grid column: financial | regulatory | strategic" .
+
+# --- Perspective dim-to-key mapping (replaces dim_to_key dict) ---
+snowkap:insightKey a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Maps an impact dimension to insight analysis keys (comma-separated)" .
+
+# --- Perspective headline rules (replaces _perspective_headline() cascades) ---
+snowkap:HeadlineRule a owl:Class ;
+    rdfs:label "Headline Rule" ;
+    rdfs:comment "Perspective-specific headline reframing rule with priority ordering" .
+
+snowkap:forPerspective a owl:ObjectProperty ;
+    rdfs:domain snowkap:HeadlineRule ; rdfs:range snowkap:PerspectiveLens .
+snowkap:headlinePriority a owl:DatatypeProperty ; rdfs:range xsd:integer ;
+    rdfs:comment "Priority order (1=highest). Lower number tried first." .
+snowkap:sourceField a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Dot-path to source field (e.g. decision_summary.financial_exposure)" .
+snowkap:headlineTemplate a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Template with {value} and {base} placeholders" .
+snowkap:isFallback a owl:DatatypeProperty ; rdfs:range xsd:boolean ;
+    rdfs:comment "True if this rule always fires (no field check)" .
+
+# --- Perspective ranking sort keys (replaces hardcoded sort logic) ---
+snowkap:sortKey a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "Sort field for perspective-specific recommendation ranking" .
+snowkap:sortDirection a owl:DatatypeProperty ; rdfs:range xsd:string ;
+    rdfs:comment "ASC or DESC" .
+snowkap:sortPriority a owl:DatatypeProperty ; rdfs:range xsd:integer ;
+    rdfs:comment "Sort precedence (1=primary, 2=secondary)" .
+snowkap:showsRecType a owl:DatatypeProperty ; rdfs:domain snowkap:PerspectiveLens ;
+    rdfs:range xsd:string ;
+    rdfs:comment "Recommendation types visible for this perspective lens" .

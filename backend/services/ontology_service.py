@@ -415,6 +415,32 @@ async def analyze_article_impact(
     for event in (extraction.climate_events or []):
         article_risk_zones.update(CLIMATE_EVENT_TO_RISK_ZONE.get(event, set()))
 
+    # Guard: Only inject facility-climate chains if article is genuinely about
+    # physical/climate risk — NOT for commodity price, market volatility, or
+    # financial articles that incidentally mention weather/water keywords.
+    _primary_theme = (esg_themes_data.get("primary_theme", "") if isinstance(esg_themes_data, dict) else "").lower()
+    _title_lower = (article.title or "").lower()
+    _article_is_physical_climate = (
+        _primary_theme in (
+            "climate change", "physical risk", "water stress", "natural disaster",
+            "extreme weather", "biodiversity", "land use", "water management",
+            "pollution", "waste management", "environmental compliance",
+        )
+        or any(kw in _title_lower for kw in (
+            "flood", "drought", "cyclone", "wildfire", "water scarcity",
+            "sea level", "heatwave", "monsoon failure", "climate disaster",
+            "water crisis", "deforestation", "pollution spill",
+        ))
+    )
+    if not _article_is_physical_climate:
+        article_risk_zones = set()  # Skip facility matching for non-climate articles
+        logger.debug(
+            "climate_facility_guard_skipped",
+            title=article.title[:60],
+            primary_theme=_primary_theme,
+            climate_events=extraction.climate_events,
+        )
+
     # QA Fix: Batch-load all facilities once to avoid N+1 query per company
     all_facilities_by_company: dict[str, list] = {}
     if article_risk_zones:
@@ -833,6 +859,34 @@ async def analyze_article_impact(
                         recs=len(rereact.get("validated_recommendations", [])))
             except Exception as e:
                 logger.warning("rereact_inline_failed", error=str(e))
+
+        # ── Priority override: reconcile rule-based priority with LLM materiality ──
+        # The rule-based priority_engine scores urgency/sentiment/frameworks but
+        # ignores financial materiality. The LLM's decision_summary provides the
+        # true materiality assessment. When they conflict (e.g. CRITICAL priority +
+        # MONITOR action), the materiality gate must win — otherwise executives see
+        # "CRITICAL" next to "No immediate board action needed", which is misleading.
+        if article.deep_insight and isinstance(article.deep_insight, dict):
+            ds = article.deep_insight.get("decision_summary") or {}
+            materiality = (ds.get("materiality") or "").upper()
+            action = (ds.get("action") or "").upper()
+            if materiality and action:
+                if materiality in ("CRITICAL",) and action in ("ACT",):
+                    article.priority_level = "CRITICAL"
+                elif materiality in ("HIGH",) or action in ("ACT",):
+                    article.priority_level = "HIGH"
+                elif action == "MONITOR":
+                    # MONITOR signal = at most MEDIUM priority, regardless of urgency score
+                    article.priority_level = "MEDIUM"
+                elif action == "IGNORE" or materiality in ("NON-MATERIAL",):
+                    article.priority_level = "LOW"
+                logger.info(
+                    "priority_level_reconciled",
+                    original=priority_level,
+                    reconciled=article.priority_level,
+                    materiality=materiality,
+                    action=action,
+                )
 
     # Populate financial_exposure on the highest-impact ArticleScore
     if extraction.financial_signal_detail and extraction.financial_signal_detail.get("amount"):

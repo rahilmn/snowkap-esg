@@ -33,19 +33,31 @@ LONG_TIMEOUT = 60.0     # for deep insight, REREACT
 
 # Client singleton
 _client: AsyncOpenAI | None = None
+_client_loop_id: int | None = None  # Track which event loop the client was created for
 
 
 def _get_client() -> AsyncOpenAI | None:
-    """Get the OpenAI async client, or None if not configured."""
-    global _client
+    """Get the OpenAI async client, or None if not configured.
+
+    Creates a new client if called from a different event loop (e.g., worker thread).
+    AsyncOpenAI's httpx transport is bound to the event loop it was created on.
+    """
+    global _client, _client_loop_id
     if not settings.OPENAI_API_KEY:
         return None
-    if _client is None:
+    # Check if we need a new client for this event loop
+    try:
+        import asyncio
+        current_loop_id = id(asyncio.get_running_loop())
+    except RuntimeError:
+        current_loop_id = None
+    if _client is None or _client_loop_id != current_loop_id:
         _client = AsyncOpenAI(
             api_key=settings.OPENAI_API_KEY,
             timeout=DEFAULT_TIMEOUT,
             max_retries=0,  # We handle retries ourselves
         )
+        _client_loop_id = current_loop_id
     return _client
 
 

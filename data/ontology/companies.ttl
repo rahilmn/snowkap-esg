@@ -1,0 +1,164 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+snowkap:company_adani_power a snowkap:Company ;
+    rdfs:label "Adani Power" ;
+    snowkap:belongsToIndustry snowkap:industry_power ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_large_cap ;
+    snowkap:hasFacility snowkap:facility_adani_power_hq_ahmedabad,
+        snowkap:facility_adani_power_mundra_plant,
+        snowkap:facility_adani_power_tiroda_plant ;
+    snowkap:locatedIn snowkap:region_ahmedabad ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Electric Utilities & Power Generators" ;
+    snowkap:slug "adani-power" .
+
+snowkap:company_icici_bank a snowkap:Company ;
+    rdfs:label "ICICI Bank" ;
+    snowkap:belongsToIndustry snowkap:industry_banking ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_large_cap ;
+    snowkap:hasFacility snowkap:facility_icici_bank_bangalore_ops,
+        snowkap:facility_icici_bank_hq_mumbai,
+        snowkap:facility_icici_bank_hyderabad_ops ;
+    snowkap:locatedIn snowkap:region_mumbai ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Commercial Banks" ;
+    snowkap:slug "icici-bank" .
+
+snowkap:company_idfc_first_bank a snowkap:Company ;
+    rdfs:label "IDFC First Bank" ;
+    snowkap:belongsToIndustry snowkap:industry_banking ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_mid_cap ;
+    snowkap:hasFacility snowkap:facility_idfc_first_bank_chennai_ops,
+        snowkap:facility_idfc_first_bank_hq_mumbai ;
+    snowkap:locatedIn snowkap:region_mumbai ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Commercial Banks" ;
+    snowkap:slug "idfc-first-bank" .
+
+snowkap:company_jsw_energy a snowkap:Company ;
+    rdfs:label "JSW Energy" ;
+    snowkap:belongsToIndustry snowkap:industry_power ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_large_cap ;
+    snowkap:hasFacility snowkap:facility_jsw_energy_hq_mumbai,
+        snowkap:facility_jsw_energy_ratnagiri_plant,
+        snowkap:facility_jsw_energy_vijayanagar_plant ;
+    snowkap:locatedIn snowkap:region_mumbai ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Electric Utilities & Power Generators" ;
+    snowkap:slug "jsw-energy" .
+
+snowkap:company_singularity_amc a snowkap:Company ;
+    rdfs:label "Singularity AMC" ;
+    snowkap:belongsToIndustry snowkap:industry_asset_mgmt ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_small_cap ;
+    snowkap:hasFacility snowkap:facility_singularity_amc_hq_mumbai ;
+    snowkap:locatedIn snowkap:region_mumbai ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Asset Management & Custody Activities" ;
+    snowkap:slug "singularity-amc" .
+
+snowkap:company_waaree_energies a snowkap:Company ;
+    rdfs:label "Waaree Energies" ;
+    snowkap:belongsToIndustry snowkap:industry_renewable ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_mid_cap ;
+    snowkap:hasFacility snowkap:facility_waaree_energies_chikhli_plant,
+        snowkap:facility_waaree_energies_hq_mumbai ;
+    snowkap:locatedIn snowkap:region_mumbai ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Solar Technology & Project Developers" ;
+    snowkap:slug "waaree-energies" .
+
+snowkap:company_yes_bank a snowkap:Company ;
+    rdfs:label "YES Bank" ;
+    snowkap:belongsToIndustry snowkap:industry_banking ;
+    snowkap:country "India" ;
+    snowkap:hasCapitalization snowkap:tier_mid_cap ;
+    snowkap:hasFacility snowkap:facility_yes_bank_delhi_ops,
+        snowkap:facility_yes_bank_hq_mumbai ;
+    snowkap:locatedIn snowkap:region_mumbai ;
+    snowkap:region "Asia-Pacific" ;
+    snowkap:sasbCategory "Commercial Banks" ;
+    snowkap:slug "yes-bank" .
+
+snowkap:facility_adani_power_hq_ahmedabad a snowkap:Facility ;
+    rdfs:label "Adani Power HQ" ;
+    snowkap:locatedIn snowkap:region_ahmedabad .
+
+snowkap:facility_adani_power_mundra_plant a snowkap:Facility ;
+    rdfs:label "Mundra Power Plant" ;
+    snowkap:locatedIn snowkap:region_mundra .
+
+snowkap:facility_adani_power_tiroda_plant a snowkap:Facility ;
+    rdfs:label "Tiroda Thermal Power" ;
+    snowkap:locatedIn snowkap:region_tiroda .
+
+snowkap:facility_icici_bank_bangalore_ops a snowkap:Facility ;
+    rdfs:label "ICICI Bank Bangalore Ops" ;
+    snowkap:locatedIn snowkap:region_bangalore .
+
+snowkap:facility_icici_bank_hq_mumbai a snowkap:Facility ;
+    rdfs:label "ICICI Bank HQ" ;
+    snowkap:locatedIn snowkap:region_mumbai .
+
+snowkap:facility_icici_bank_hyderabad_ops a snowkap:Facility ;
+    rdfs:label "ICICI Bank Hyderabad Ops" ;
+    snowkap:locatedIn snowkap:region_hyderabad .
+
+snowkap:facility_idfc_first_bank_chennai_ops a snowkap:Facility ;
+    rdfs:label "IDFC First Bank Chennai" ;
+    snowkap:locatedIn snowkap:region_chennai .
+
+snowkap:facility_idfc_first_bank_hq_mumbai a snowkap:Facility ;
+    rdfs:label "IDFC First Bank HQ" ;
+    snowkap:locatedIn snowkap:region_mumbai .
+
+snowkap:facility_jsw_energy_hq_mumbai a snowkap:Facility ;
+    rdfs:label "JSW Energy HQ" ;
+    snowkap:locatedIn snowkap:region_mumbai .
+
+snowkap:facility_jsw_energy_ratnagiri_plant a snowkap:Facility ;
+    rdfs:label "Ratnagiri Power Plant" ;
+    snowkap:locatedIn snowkap:region_ratnagiri .
+
+snowkap:facility_jsw_energy_vijayanagar_plant a snowkap:Facility ;
+    rdfs:label "Vijayanagar Captive Power" ;
+    snowkap:locatedIn snowkap:region_vijayanagar .
+
+snowkap:facility_singularity_amc_hq_mumbai a snowkap:Facility ;
+    rdfs:label "Singularity AMC HQ" ;
+    snowkap:locatedIn snowkap:region_mumbai .
+
+snowkap:facility_waaree_energies_chikhli_plant a snowkap:Facility ;
+    rdfs:label "Waaree Chikhli Manufacturing" ;
+    snowkap:locatedIn snowkap:region_ahmedabad .
+
+snowkap:facility_waaree_energies_hq_mumbai a snowkap:Facility ;
+    rdfs:label "Waaree HQ" ;
+    snowkap:locatedIn snowkap:region_mumbai .
+
+snowkap:facility_yes_bank_delhi_ops a snowkap:Facility ;
+    rdfs:label "YES Bank Delhi Branch" ;
+    snowkap:locatedIn snowkap:region_delhi .
+
+snowkap:facility_yes_bank_hq_mumbai a snowkap:Facility ;
+    rdfs:label "YES Bank HQ" ;
+    snowkap:locatedIn snowkap:region_mumbai .
+
+# =============================================================================
+# Phase 14 — Competitor relationships
+# =============================================================================
+
+snowkap:company_adani_power snowkap:competessWith snowkap:company_jsw_energy .
+snowkap:company_jsw_energy snowkap:competessWith snowkap:company_adani_power .
+snowkap:company_icici_bank snowkap:competessWith snowkap:company_yes_bank, snowkap:company_idfc_first_bank .
+snowkap:company_yes_bank snowkap:competessWith snowkap:company_icici_bank, snowkap:company_idfc_first_bank .
+snowkap:company_idfc_first_bank snowkap:competessWith snowkap:company_icici_bank, snowkap:company_yes_bank .
+snowkap:company_waaree_energies snowkap:competessWith snowkap:company_adani_power, snowkap:company_jsw_energy .
+

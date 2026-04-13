@@ -12,7 +12,25 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+import sys
+import io
 import structlog
+
+# Fix Windows cp1252 encoding crash: structlog's PrintLogger writes to sys.stdout
+# which uses cp1252 on Windows. ₹ and → characters crash it. Redirect to UTF-8.
+if sys.platform == "win32":
+    try:
+        sys.stdout = io.TextIOWrapper(
+            sys.stdout.buffer, encoding="utf-8", errors="replace",
+            line_buffering=True, write_through=True,
+        )
+        sys.stderr = io.TextIOWrapper(
+            sys.stderr.buffer, encoding="utf-8", errors="replace",
+            line_buffering=True, write_through=True,
+        )
+    except Exception:
+        pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -68,6 +86,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     except Exception as sched_err:
         logger.warning("apscheduler_start_failed", error=str(sched_err))
 
+    # Load persisted RDF graphs from Supabase into rdflib
+    try:
+        from backend.ontology.jena_client import jena_client
+        await jena_client.load_all_graphs()
+    except Exception as e:
+        logger.warning("rdflib_graph_load_skipped", error=str(e)[:100])
+
     yield
 
     # Cleanup persistent connections
@@ -76,6 +101,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         stop_scheduler()
     except Exception:
         pass
+    # Persist dirty RDF graphs before shutdown
     from backend.ontology.jena_client import jena_client
     await jena_client.close()
     await engine.dispose()
@@ -190,26 +216,11 @@ async def health_check() -> dict:
         deps["redis"] = f"error: {str(e)[:80]}"
         healthy = False
 
-    # Jena Fuseki
-    try:
-        from backend.ontology.jena_client import jena_client
-        jena_ok = await jena_client.health_check()
-        deps["jena"] = "ok" if jena_ok else "unreachable"
-        if not jena_ok:
-            healthy = False
-    except Exception as e:
-        deps["jena"] = f"error: {str(e)[:80]}"
-        healthy = False
+    # rdflib (in-process — always healthy)
+    deps["rdflib"] = "ok"
 
-    # MinIO
-    try:
-        from backend.services.storage_service import storage_service
-        client = storage_service._get_client()
-        client.bucket_exists(settings.MINIO_BUCKET)
-        deps["minio"] = "ok"
-    except Exception as e:
-        deps["minio"] = f"error: {str(e)[:80]}"
-        healthy = False
+    # MinIO — skipped (not needed for core pipeline)
+    deps["minio"] = "skipped"
 
     return {
         "status": "healthy" if healthy else "degraded",

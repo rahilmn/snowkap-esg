@@ -1678,8 +1678,8 @@ def _match_frameworks_by_triggers(
         ))
 
     matches.sort(key=lambda m: m.relevance_score, reverse=True)
-    # Drop truly irrelevant matches (below 0.15) before returning — prevents noise in stored data
-    return [m for m in matches if m.relevance_score >= 0.15]
+    # Drop truly irrelevant matches (below 0.2) before returning — aligns with frontend LOW_THRESHOLD
+    return [m for m in matches if m.relevance_score >= 0.2]
 
 
 async def _llm_fallback_matching(
@@ -1705,8 +1705,8 @@ section codes that are triggered.
 
 ESG Themes detected: {', '.join(esg_themes or ['none'])}
 
-Article content (first 3000 chars):
-{article_content[:3000]}
+Article content (first 6000 chars):
+{article_content[:6000]}
 
 Available frameworks:
 {framework_list}

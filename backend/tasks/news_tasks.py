@@ -29,6 +29,26 @@ def _title_fingerprint(title: str) -> str:
     return normalized[:80]
 
 
+def _entity_amount_key(title: str) -> tuple[frozenset, frozenset]:
+    """Extract key entities + financial amounts for semantic duplicate detection.
+
+    Two articles about "IDFC First Bank" + "590" within the same week = same event,
+    regardless of how differently each source words the headline.
+
+    Returns (entity_tokens, amount_tokens).
+    """
+    # Financial figures: digits that appear in isolation or with crore/lakh/million/% etc.
+    amounts = frozenset(
+        _re.findall(r"\b\d[\d,]*(?:\.\d+)?\b", title.lower())
+    )
+    # Proper-noun runs: 2+ consecutive Title-Case words OR sequences of ALL-CAPS words
+    caps_runs = _re.findall(
+        r"(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)|(?:[A-Z]{2,}(?:\s+[A-Z]{2,})*)", title
+    )
+    entities = frozenset(r.strip().lower() for r in caps_runs if len(r.strip()) > 4)
+    return entities, amounts
+
+
 async def _store_articles_for_tenant(tenant_id: str, articles_data: list[dict]) -> list[str]:
     """Shared helper: deduplicate + store article dicts for a tenant.
 
@@ -54,7 +74,7 @@ async def _store_articles_for_tenant(tenant_id: str, articles_data: list[dict]) 
         )
         existing_urls = {row[0] for row in existing_result.all()}
 
-        # Layer 2: existing title fingerprints (last 7 days only — avoids full table scan)
+        # Layer 2: existing title fingerprints + entity+amount keys (last 7 days)
         from datetime import datetime, timedelta, timezone
         cutoff = datetime.now(timezone.utc) - timedelta(days=7)
         title_result = await db.execute(
@@ -64,7 +84,12 @@ async def _store_articles_for_tenant(tenant_id: str, articles_data: list[dict]) 
                 Article.title.isnot(None),
             )
         )
-        existing_fingerprints = {_title_fingerprint(row[0]) for row in title_result.all()}
+        existing_titles = [row[0] for row in title_result.all()]
+        existing_fingerprints = {_title_fingerprint(t) for t in existing_titles}
+        # Build entity+amount index for semantic dedup
+        existing_entity_keys: list[tuple[frozenset, frozenset]] = [
+            _entity_amount_key(t) for t in existing_titles
+        ]
 
         stored_ids = []
         for a in articles_data:
@@ -75,11 +100,27 @@ async def _store_articles_for_tenant(tenant_id: str, articles_data: list[dict]) 
             if url and url in existing_urls:
                 continue
 
-            # Layer 2: title fingerprint dedup
+            # Layer 2a: title fingerprint dedup (exact near-match)
             fp = _title_fingerprint(title)
             if fp and fp in existing_fingerprints:
                 logger.debug("title_dedup_skipped", fingerprint=fp[:50])
                 continue
+
+            # Layer 2b: entity+amount dedup — same company + same figure = same event
+            new_entities, new_amounts = _entity_amount_key(title)
+            if new_entities and new_amounts:
+                is_semantic_dup = False
+                for ex_ent, ex_amt in existing_entity_keys:
+                    # Require shared entity AND shared amount (non-trivially small numbers)
+                    shared_ent = new_entities & ex_ent
+                    shared_amt = new_amounts & ex_amt
+                    meaningful_amounts = {v for v in shared_amt if int(v.replace(",", "")) >= 10}
+                    if shared_ent and meaningful_amounts:
+                        is_semantic_dup = True
+                        break
+                if is_semantic_dup:
+                    logger.debug("entity_amount_dedup_skipped", title=title[:60])
+                    continue
 
             article = Article(
                 tenant_id=tenant_id,
@@ -108,6 +149,7 @@ async def _store_articles_for_tenant(tenant_id: str, articles_data: list[dict]) 
                 if url:
                     existing_urls.add(url)
                 existing_fingerprints.add(fp)
+                existing_entity_keys.append((new_entities, new_amounts))
             except Exception:
                 await db.rollback()
 
@@ -178,10 +220,24 @@ def ingest_news_for_tenant(
         )
 
         # Source 3: Direct publication RSS feeds (Mint, ET, Business Standard, etc.)
+        # Look up company industry for industry-specific filtering
+        _task_industry: str | None = None
+        try:
+            from sqlalchemy import select as _sel
+            from backend.core.database import create_worker_session_factory
+            from backend.models.company import Company as _Comp
+            _sf = create_worker_session_factory()
+            async with _sf() as _db:
+                _cr = await _db.execute(_sel(_Comp).where(_Comp.tenant_id == tenant_id).limit(1))
+                _c = _cr.scalars().first()
+                _task_industry = _c.industry if _c else None
+        except Exception:
+            pass
         rss_articles = await fetch_publication_feeds_for_company(
             company_name=company_name,
             max_age_hours=48,
             max_per_feed=15,
+            industry=_task_industry,
         )
         # Merge, dedup by URL
         existing_urls_in_batch = {a["url"] for a in articles_data if a.get("url")}
@@ -251,6 +307,7 @@ def poll_rss_feeds() -> dict:
                         company_name=company_name,
                         max_age_hours=6,
                         max_per_feed=10,
+                        industry=company.industry if company else None,
                     )
                     if articles:
                         stored = await _store_articles_for_tenant(tenant.id, articles)

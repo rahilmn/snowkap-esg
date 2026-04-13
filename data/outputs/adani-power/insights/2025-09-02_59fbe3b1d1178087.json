@@ -1,0 +1,668 @@
+{
+  "article": {
+    "id": "59fbe3b1d1178087",
+    "title": "Adani Power receives approval to commence Dhirauli Mine operations; shares up over 1% - Upstox",
+    "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOaVFDbUtub1Z2XzZNYzlNcFZaVmVzVXJ0MHc4M095cFl5cWd5dmtOQ190eWVfVnhaUnR5OUlHQzVtSUJjYU1rX3R3RVJCaFZ1MWVmQWg3Tkl4d1J3T2pyTndFNzZ5Q25vdk50TTd1cXJqWDlxTUpselJOcWM4WkxlZTJUZ2t3WE9RYWZrWm5kaUtSd2NjSkxyVS1TNFNvZE5raDZxaGw2ZDR6OE9jWmJ4RzNNVFE2MkxKMnJiRHpaZFNGSVVBXy1oaUNFXzhobkZlTmY4NkttazMyQQ?oc=5",
+    "source": "Upstox",
+    "published_at": "2025-09-02T07:00:00+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "59fbe3b1d1178087",
+    "title": "Adani Power receives approval to commence Dhirauli Mine operations; shares up over 1% - Upstox",
+    "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxOaVFDbUtub1Z2XzZNYzlNcFZaVmVzVXJ0MHc4M095cFl5cWd5dmtOQ190eWVfVnhaUnR5OUlHQzVtSUJjYU1rX3R3RVJCaFZ1MWVmQWg3Tkl4d1J3T2pyTndFNzZ5Q25vdk50TTd1cXJqWDlxTUpselJOcWM4WkxlZTJUZ2t3WE9RYWZrWm5kaUtSd2NjSkxyVS1TNFNvZE5raDZxaGw2ZDR6OE9jWmJ4RzNNVFE2MkxKMnJiRHpaZFNGSVVBXy1oaUNFXzhobkZlTmY4NkttazMyQQ?oc=5",
+    "source": "Upstox",
+    "published_at": "2025-09-02T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 7.04,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "neutral",
+        "optimistic",
+        "analytical"
+      ],
+      "narrative_core_claim": "Adani Power has received approval to start operations at Dhirauli Mine.",
+      "narrative_implied_causation": "Approval to commence mine operations has led to a positive share price movement.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist benefiting from regulatory approval; shareholders are positively affected.",
+      "entities": [
+        "Adani Power",
+        "Dhirauli Mine",
+        "Upstox"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "Dhirauli Mine": "location",
+        "Upstox": "source"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "operational expansion",
+        "energy production"
+      ],
+      "content_type": "operational",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "fossil_fuel_dependency",
+        "renewable_energy_use",
+        "energy_intensity"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.062,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Power gains regulatory approval for Dhirauli Mine, modest share uptick signals routine capex impact",
+    "impact_score": 3.0,
+    "core_mechanism": "Regulatory approval enables Adani Power to commence operations at the Dhirauli Mine, expanding its coal sourcing and operational capacity. This is a standard capex event, reflecting business-as-usual growth in fossil fuel-based generation assets.",
+    "profitability_connection": "The approval may incrementally improve fuel security and operational efficiency, but does not materially alter P&L or valuation in the near term. Share price movement reflects routine market optimism rather than a structural shift.",
+    "translation": "Adani Power got the green light to start mining at Dhirauli, which is expected for a power company. This helps them secure coal for their plants, but doesn't change their financial outlook in a big way right now.",
+    "impact_analysis": {
+      "esg_positioning": "No significant ESG score change; fossil fuel dependency remains high relative to peers like JSW Energy.",
+      "capital_allocation": "No immediate impact on cost of capital; routine capex event.",
+      "valuation_cashflow": "No P/E rerating or margin impact; revenue at risk is N/A.",
+      "compliance_regulatory": "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalties or deadlines breached.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "N/A"
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No material immediate P&L impact; share price up ~1%",
+        "profitability_pathway": "Mine approval → operational readiness → improved fuel security; no quantifiable ₹ impact disclosed.",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "No P/E change; event is routine and already priced in.",
+        "competitive_position": "Neutral vs JSW Energy; both maintain similar fossil fuel exposure."
+      },
+      "long_term": {
+        "secular_trajectory": "Continued reliance on coal may increase transition risk over 3-5 years as ESG pressures mount.",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 3,
+        "rationale": "Event increases fossil fuel dependency, minor negative ESG signal."
+      },
+      "social": {
+        "score": 2,
+        "rationale": "No direct social impact or controversy reported."
+      },
+      "governance": {
+        "score": 3,
+        "rationale": "Regulatory compliance maintained; routine disclosure obligations triggered."
+      },
+      "financial_materiality": {
+        "score": 2,
+        "rationale": "No immediate or structural financial materiality."
+      },
+      "regulatory_exposure": {
+        "score": 4,
+        "rationale": "Triggers standard BRSR and TCFD disclosures; no breach or penalty."
+      },
+      "stakeholder_impact": {
+        "score": 2,
+        "rationale": "Shareholders see minor positive sentiment; no broader stakeholder effect."
+      }
+    },
+    "net_impact_summary": "The Dhirauli Mine approval is a routine operational milestone for Adani Power, supporting its coal supply chain but not shifting its ESG or financial risk profile. The event triggers standard regulatory disclosures without introducing new compliance or transition risks. Peer positioning remains unchanged, and the company's fossil fuel dependency persists. No immediate or structural financial impact is expected.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No action required; event is routine and does not alter risk or opportunity profile.",
+      "financial_exposure": "₹50-200 Cr at risk (routine capex scale, not event-specific)",
+      "key_risk": "Increased fossil fuel dependency may heighten future transition risk under ESG frameworks.",
+      "top_opportunity": "ESG narrative differentiation via proactive disclosure and transition planning.",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Power receives approval to commence Dhirauli Mine operations.",
+      "mechanism": "Regulatory approval enables operational expansion, supporting coal supply for power generation.",
+      "company_impact": "No immediate P&L effect; supports long-term operational stability but increases fossil fuel exposure.",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power gains regulatory approval for Dhirauli Mine, modest share uptick signals routine capex impact",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No significant ESG score change; fossil fuel dependency remains high relative to peers like JSW Energy.",
+        "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalties or deadlines breached.",
+        "No P/E rerating or margin impact; revenue at risk is N/A."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power gains regulatory approval for Dhirauli Mine, modest share uptick signals routine capex impact",
+        "impact_score": 3.0,
+        "core_mechanism": "Regulatory approval enables Adani Power to commence operations at the Dhirauli Mine, expanding its coal sourcing and operational capacity. This is a standard capex event, reflecting business-as-usual growth in fossil fuel-based generation assets.",
+        "profitability_connection": "The approval may incrementally improve fuel security and operational efficiency, but does not materially alter P&L or valuation in the near term. Share price movement reflects routine market optimism rather than a structural shift.",
+        "translation": "Adani Power got the green light to start mining at Dhirauli, which is expected for a power company. This helps them secure coal for their plants, but doesn't change their financial outlook in a big way right now.",
+        "impact_analysis": {
+          "esg_positioning": "No significant ESG score change; fossil fuel dependency remains high relative to peers like JSW Energy.",
+          "capital_allocation": "No immediate impact on cost of capital; routine capex event.",
+          "valuation_cashflow": "No P/E rerating or margin impact; revenue at risk is N/A.",
+          "compliance_regulatory": "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalties or deadlines breached.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "N/A"
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No material immediate P&L impact; share price up ~1%",
+            "profitability_pathway": "Mine approval → operational readiness → improved fuel security; no quantifiable ₹ impact disclosed.",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "No P/E change; event is routine and already priced in.",
+            "competitive_position": "Neutral vs JSW Energy; both maintain similar fossil fuel exposure."
+          },
+          "long_term": {
+            "secular_trajectory": "Continued reliance on coal may increase transition risk over 3-5 years as ESG pressures mount.",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 3,
+            "rationale": "Event increases fossil fuel dependency, minor negative ESG signal."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "No direct social impact or controversy reported."
+          },
+          "governance": {
+            "score": 3,
+            "rationale": "Regulatory compliance maintained; routine disclosure obligations triggered."
+          },
+          "financial_materiality": {
+            "score": 2,
+            "rationale": "No immediate or structural financial materiality."
+          },
+          "regulatory_exposure": {
+            "score": 4,
+            "rationale": "Triggers standard BRSR and TCFD disclosures; no breach or penalty."
+          },
+          "stakeholder_impact": {
+            "score": 2,
+            "rationale": "Shareholders see minor positive sentiment; no broader stakeholder effect."
+          }
+        },
+        "net_impact_summary": "The Dhirauli Mine approval is a routine operational milestone for Adani Power, supporting its coal supply chain but not shifting its ESG or financial risk profile. The event triggers standard regulatory disclosures without introducing new compliance or transition risks. Peer positioning remains unchanged, and the company's fossil fuel dependency persists. No immediate or structural financial impact is expected.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No action required; event is routine and does not alter risk or opportunity profile.",
+          "financial_exposure": "₹50-200 Cr at risk (routine capex scale, not event-specific)",
+          "key_risk": "Increased fossil fuel dependency may heighten future transition risk under ESG frameworks.",
+          "top_opportunity": "ESG narrative differentiation via proactive disclosure and transition planning.",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Power receives approval to commence Dhirauli Mine operations.",
+          "mechanism": "Regulatory approval enables operational expansion, supporting coal supply for power generation.",
+          "company_impact": "No immediate P&L effect; supports long-term operational stability but increases fossil fuel exposure.",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹50-200 Cr at risk (routine capex scale, not event-specific) — Adani Power gains regulatory approval for Dhirauli Mine, modest share uptick signals routine capex impact",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalties or deadlines breached.",
+        "No P/E rerating or margin impact; revenue at risk is N/A.",
+        "No immediate impact on cost of capital; routine capex event."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via proactive disclosure and transition planning.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalties or deadlines breached.",
+        "No significant ESG score change; fossil fuel dependency remains high relative to peers like JSW Energy."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:14:20.879163+00:00",
+    "schema_version": "1.0"
+  }
+}

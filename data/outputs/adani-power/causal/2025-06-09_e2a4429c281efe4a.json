@@ -1,0 +1,66 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "BRSR",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "GRI",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "ESRS",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "McKinsey Three Horizons",
+        "Risk Management",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "McKinsey Three Horizons -> Risk Management -> Power/Energy -> Adani Power"
+    }
+  ]
+}

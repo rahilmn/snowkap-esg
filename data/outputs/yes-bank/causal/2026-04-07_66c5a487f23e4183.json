@@ -1,0 +1,70 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "YES Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank Delhi Branch",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank Delhi Branch -> YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank HQ",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank HQ -> YES Bank"
+    },
+    {
+      "nodes": [
+        "Board & Leadership",
+        "BRSR",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Board & Leadership triggers BRSR disclosure obligation for YES Bank"
+    },
+    {
+      "nodes": [
+        "Board & Leadership",
+        "GRI",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Board & Leadership triggers GRI disclosure obligation for YES Bank"
+    }
+  ]
+}

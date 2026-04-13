@@ -1,0 +1,72 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Adani Power"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "Adani Power"
+    },
+    {
+      "nodes": [
+        "Adani Power HQ",
+        "Adani Power"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "Adani Power HQ -> Adani Power"
+    },
+    {
+      "nodes": [
+        "Community Impact",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Community Impact is material for Power/Energy → impacts Adani Power"
+    },
+    {
+      "nodes": [
+        "Community Impact",
+        "BRSR",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Community Impact triggers BRSR disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Community Impact",
+        "GRI",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Community Impact triggers GRI disclosure obligation for Adani Power"
+    }
+  ]
+}

@@ -400,7 +400,7 @@ class TestRegulatoryCalendar:
     def test_no_deadline_language(self):
         from backend.services.regulatory_calendar import detect_deadline_language
 
-        phrases = detect_deadline_language("Nike reported strong quarterly earnings")
+        phrases = detect_deadline_language("Adani reported strong quarterly earnings")
         assert len(phrases) == 0
 
     def test_multiple_phrases_detected(self):
@@ -501,7 +501,7 @@ class TestLanguageDetection:
         return _is_non_english(text)
 
     def test_english_text_returns_false(self):
-        assert self._detect("Nike reports strong quarterly earnings in sustainability") is False
+        assert self._detect("Adani reports strong quarterly earnings in sustainability") is False
 
     def test_marathi_text_returns_true(self):
         assert self._detect("बंधन बँकेची ESG मध्ये मोठी झेप") is True
@@ -510,7 +510,7 @@ class TestLanguageDetection:
         assert self._detect("आरबीआई ने जलवायु जोखिम प्रकटीकरण रोका") is True
 
     def test_mixed_mostly_english_returns_false(self):
-        assert self._detect("Nike Inc reported ₹500 Cr revenue growth in Q3 2026") is False
+        assert self._detect("Adani Power reported ₹500 Cr revenue growth in Q3 2026") is False
 
     def test_empty_string_returns_false(self):
         assert self._detect("") is False
@@ -667,7 +667,7 @@ class TestEventDeduplication:
         from backend.services.event_deduplication import _jaccard_similarity, _word_set as _title_words
 
         a = _title_words("IDFC First Bank reports Rs 590 crore fraud")
-        b = _title_words("Nike appoints new Chief Sustainability Officer")
+        b = _title_words("Adani appoints new Chief Sustainability Officer")
         sim = _jaccard_similarity(a, b)
         assert sim < 0.35
 
@@ -796,8 +796,8 @@ class TestDataModels:
     def test_extracted_entity_construction(self):
         from backend.ontology.entity_extractor import ExtractedEntity
 
-        e = ExtractedEntity(text="Nike", entity_type="company", confidence=0.95)
-        assert e.text == "Nike"
+        e = ExtractedEntity(text="Adani", entity_type="company", confidence=0.95)
+        assert e.text == "Adani"
         assert e.entity_type == "company"
         assert e.confidence == 0.95
         assert e.resolved_uri is None

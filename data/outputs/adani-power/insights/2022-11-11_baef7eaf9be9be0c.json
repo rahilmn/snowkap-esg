@@ -1,0 +1,1007 @@
+{
+  "article": {
+    "id": "baef7eaf9be9be0c",
+    "title": "Adani high up on Oxfam list of world’s carbon-emitting billionaires - Adani Watch",
+    "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNajJhcmYyYlF6OC1CTGRNYTVNSS1QZ2g3Q2k5Y1pZbWxGRjNUSFpDZHM3MnI3cEtkUmFNMVo4SDRlVl9uTEpodnlvN2M4WHNfSjN6bHo4Y1BKZm9rcHhMYXltRlFzMnBIQXRkN3FfWkRwYTdaeE9EeVhiUkZRa0xPaTQ4dW1ySXJoZGZPWm1BOGVTZUJObDR4aTJ3?oc=5",
+    "source": "Adani Watch",
+    "published_at": "2022-11-11T08:00:00+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "baef7eaf9be9be0c",
+    "title": "Adani high up on Oxfam list of world’s carbon-emitting billionaires - Adani Watch",
+    "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNajJhcmYyYlF6OC1CTGRNYTVNSS1QZ2g3Q2k5Y1pZbWxGRjNUSFpDZHM3MnI3cEtkUmFNMVo4SDRlVl9uTEpodnlvN2M4WHNfSjN6bHo4Y1BKZm9rcHhMYXltRlFzMnBIQXRkN3FfWkRwYTdaeE9EeVhiUkZRa0xPaTQ4dW1ySXJoZGZPWm1BOGVTZUJObDR4aTJ3?oc=5",
+    "source": "Adani Watch",
+    "published_at": "2022-11-11T08:00:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 41,
+    "elapsed_seconds": 8.389,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "alarmist",
+        "cautionary",
+        "analytical"
+      ],
+      "narrative_core_claim": "Adani is ranked high on Oxfam's list of the world's top carbon-emitting billionaires.",
+      "narrative_implied_causation": "Adani's business activities contribute significantly to carbon emissions, leading to its high ranking on Oxfam's list.",
+      "narrative_stakeholder_framing": "Adani is the protagonist; the global community and environment are affected by its carbon emissions.",
+      "entities": [
+        "Adani",
+        "Oxfam"
+      ],
+      "entity_types": {
+        "Adani": "company",
+        "Oxfam": "NGO"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "carbon emissions",
+        "climate impact",
+        "environmental responsibility"
+      ],
+      "content_type": "reputational",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Climate Change",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "scope_1_direct",
+        "scope_2_indirect",
+        "scope_3_value_chain",
+        "ghg_reduction_targets"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_ngo_report",
+      "label": "NGO Report / Civil Society Ranking",
+      "score_floor": 4,
+      "score_ceiling": 7,
+      "financial_transmission": "narrative shift -> ESG fund outflow -> cost of capital uplift -> peer pressure",
+      "matched_keywords": [
+        "oxfam",
+        "carbon-emitting"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 5,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 1,
+      "supply_chain_impact": 0,
+      "people_impact": 1,
+      "materiality_weight": 1.0,
+      "adjusted_total": 5.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Climate Change",
+          "Power/Energy",
+          "Adani Power"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Climate Change is material for Power/Energy → impacts Adani Power"
+      },
+      {
+        "nodes": [
+          "Climate Change",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Climate Change triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Climate Change",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Climate Change triggers GRI disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1"
+        ]
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Env"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Physical Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.5,
+          "adjusted_score": 22.5,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.5,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.3,
+          "adjusted_score": 13.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.8,
+          "adjusted_score": 18.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.0,
+          "adjusted_score": 10.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Physical Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.5,
+          "adjusted_score": 22.5,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.8,
+          "adjusted_score": 18.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.5,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.3,
+          "adjusted_score": 13.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.374,
+      "ontology_queries": 12
+    },
+    "stakeholders": [
+      "Customers",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Power's high ranking on Oxfam's carbon-emitting billionaires list raises ESG and reputational risks",
+    "impact_score": 5.5,
+    "core_mechanism": "Oxfam's report highlights Adani Power's significant carbon emissions, drawing attention from ESG-focused investors and civil society. This narrative shift increases scrutiny on the company's climate impact and disclosure practices, potentially affecting its ESG ratings and access to capital.",
+    "profitability_connection": "Negative ESG perception can lead to fund outflows, higher cost of capital, and P/E compression, impacting valuation and future profitability. Peer pressure may force accelerated decarbonization investments, affecting margins.",
+    "translation": "Adani Power has been named by Oxfam as one of the world's top carbon-emitting billionaire-owned companies, which could make investors and regulators more cautious about supporting the company.",
+    "impact_analysis": {
+      "esg_positioning": "ESG score gap vs. peers; increased peer pressure to improve climate disclosures and targets.",
+      "capital_allocation": "Potential cost of capital uplift (20-40bps); risk of ESG fund outflows.",
+      "valuation_cashflow": "Possible P/E compression (5-10%) and margin erosion if transition costs rise.",
+      "compliance_regulatory": "BRSR [MANDATORY], CDP, GRI, TCFD frameworks triggered; risk of SEBI scrutiny and trading restrictions.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Potential negative impact on talent attraction and community perception."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No immediate ₹ impact but negative sentiment may trigger ESG fund outflows",
+        "profitability_pathway": "Oxfam report → negative ESG narrative → potential fund outflows and cost of capital increase",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression likely due to ESG narrative and potential FII outflows",
+        "competitive_position": "At risk of lagging JSW Energy if peers accelerate decarbonization or improve disclosures"
+      },
+      "long_term": {
+        "secular_trajectory": "Sustained ESG scrutiny may require accelerated decarbonization, impacting long-term margins and capital needs",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 8,
+        "rationale": "Direct link to high GHG emissions and climate change risk"
+      },
+      "social": {
+        "score": 4,
+        "rationale": "Indirect impact on community and talent attraction"
+      },
+      "governance": {
+        "score": 5,
+        "rationale": "Disclosure and board oversight under scrutiny"
+      },
+      "financial_materiality": {
+        "score": 6,
+        "rationale": "Potential impact on cost of capital and valuation"
+      },
+      "regulatory_exposure": {
+        "score": 7,
+        "rationale": "BRSR and SEBI compliance risks triggered"
+      },
+      "stakeholder_impact": {
+        "score": 6,
+        "rationale": "Civil society and investor pressure likely to increase"
+      }
+    },
+    "net_impact_summary": "The Oxfam report amplifies reputational and ESG risks for Adani Power, increasing the likelihood of investor scrutiny and regulatory attention. While there is no immediate financial loss, the event could drive up the cost of capital and compress valuation multiples if not addressed. Peer pressure from competitors like JSW Energy may force Adani Power to accelerate its decarbonization strategy. The company faces a moderate but rising risk of capital outflow and negative market sentiment.",
+    "decision_summary": {
+      "materiality": "MODERATE",
+      "action": "MONITOR",
+      "verdict": "Monitor for fund outflows and regulatory signals; consider proactive disclosure to mitigate risk.",
+      "financial_exposure": "₹500-1,500 Cr at risk (valuation and cost of capital sensitivity)",
+      "key_risk": "ESG fund outflows and cost of capital uplift due to negative climate narrative",
+      "top_opportunity": "ESG narrative differentiation via proactive climate disclosure and target-setting",
+      "timeline": "within 8-12 weeks"
+    },
+    "causal_chain": {
+      "event": "Oxfam ranks Adani Power among top carbon-emitting billionaire-owned companies",
+      "mechanism": "Negative ESG narrative triggers investor scrutiny and potential fund outflows, raising cost of capital",
+      "company_impact": "Higher cost of capital, possible P/E compression, and increased pressure for decarbonization investments",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Enhance Climate Risk Disclosure in BRSR FY26",
+        "description": "Proactively disclose detailed climate risk management and transition plans in BRSR FY26 filing to avoid SEBI scrutiny and potential trading restrictions.",
+        "type": "compliance",
+        "responsible_party": "Head of ESG Reporting",
+        "framework_section": "BRSR:P6, GRI:305-1, TCFD",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹5-8 Cr",
+        "profitability_link": "Avoid potential cost of capital increase by 20-40 bps, preventing ₹50-100 Cr in additional financing costs",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 10,
+        "roi_percentage": null,
+        "payback_months": null,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Set and Announce 2030 Net-Zero Target",
+        "description": "Adani Power should publicly commit to a 2030 net-zero emissions target with a science-based pathway to improve ESG scores and investor confidence, following JSW Energy's lead.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Sustainability Officer",
+        "framework_section": "BRSR:P6:Q14, TCFD",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹20-30 Cr",
+        "profitability_link": "Improved ESG rating could reduce cost of capital by 20-40 bps, saving ₹50-100 Cr annually in interest expenses",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 9,
+        "roi_percentage": 15.0,
+        "payback_months": 24.0,
+        "peer_benchmark": "JSW Energy announced 2030 net-zero target with science-based pathway, leading to 15% ESG score uplift"
+      },
+      {
+        "title": "Issue Green Bond to Fund Clean Energy Projects",
+        "description": "Raise ₹2000 Cr via green bonds to finance renewable energy capacity expansion, leveraging lower interest rates due to improved ESG positioning.",
+        "type": "financial",
+        "responsible_party": "CFO",
+        "framework_section": "BRSR:P6, CDP",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹1-2 Cr (issuance cost)",
+        "profitability_link": "Expected interest rate discount of 50 bps on ₹2000 Cr saves ₹10 Cr annually in interest costs",
+        "priority": "HIGH",
+        "urgency": "medium_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 6,
+        "roi_percentage": 20.0,
+        "payback_months": 24.0,
+        "peer_benchmark": "JSW Energy issued ₹2000 Cr green bond at 50bps discount"
+      },
+      {
+        "title": "Integrate ESG Factors into Valuation Models",
+        "description": "Incorporate ESG risks and opportunities into DCF and cost of capital models to better reflect climate transition risks and attract ESG-focused investors.",
+        "type": "strategic",
+        "responsible_party": "Head of Investor Relations",
+        "framework_section": "CFA ESG Integration",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹2-4 Cr",
+        "profitability_link": "Improved investor confidence could reduce P/E compression by 5-10%, enhancing market cap by ₹500-1000 Cr",
+        "priority": "MEDIUM",
+        "urgency": "medium_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 4,
+        "roi_percentage": 10.0,
+        "payback_months": 18.0,
+        "peer_benchmark": null
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 1,
+          "title": "Set and Announce 2030 Net-Zero Target",
+          "type": "esg_positioning",
+          "roi": 15.0,
+          "budget": "₹20-30 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 0,
+          "title": "Enhance Climate Risk Disclosure in BRSR FY26",
+          "type": "compliance",
+          "roi": null,
+          "budget": "₹5-8 Cr"
+        }
+      ],
+      "deferred_high": [
+        {
+          "index": 2,
+          "title": "Issue Green Bond to Fund Clean Energy Projects",
+          "type": "financial",
+          "roi": 20.0,
+          "budget": "₹1-2 Cr (issuance cost)"
+        }
+      ],
+      "deferred_low": [
+        {
+          "index": 3,
+          "title": "Integrate ESG Factors into Valuation Models",
+          "type": "strategic",
+          "roi": 10.0,
+          "budget": "₹2-4 Cr"
+        }
+      ]
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        2,
+        1,
+        3,
+        0
+      ],
+      "ceo": [
+        0,
+        3,
+        1,
+        2
+      ],
+      "esg-analyst": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power's high ranking on Oxfam's carbon-emitting billionaires list raises ESG and reputational risks",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Possible P/E compression (5-10%) and margin erosion if transition costs rise.",
+        "ESG score gap vs. peers; increased peer pressure to improve climate disclosures and targets.",
+        "BRSR [MANDATORY], CDP, GRI, TCFD frameworks triggered; risk of SEBI scrutiny and trading restrictions."
+      ],
+      "action": [
+        "Monitor for fund outflows and regulatory signals; consider proactive disclosure to mitigate risk.",
+        "Opportunity: ESG narrative differentiation via proactive climate disclosure and target-setting"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "value",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power's high ranking on Oxfam's carbon-emitting billionaires list raises ESG and reputational risks",
+        "impact_score": 5.5,
+        "core_mechanism": "Oxfam's report highlights Adani Power's significant carbon emissions, drawing attention from ESG-focused investors and civil society. This narrative shift increases scrutiny on the company's climate impact and disclosure practices, potentially affecting its ESG ratings and access to capital.",
+        "profitability_connection": "Negative ESG perception can lead to fund outflows, higher cost of capital, and P/E compression, impacting valuation and future profitability. Peer pressure may force accelerated decarbonization investments, affecting margins.",
+        "translation": "Adani Power has been named by Oxfam as one of the world's top carbon-emitting billionaire-owned companies, which could make investors and regulators more cautious about supporting the company.",
+        "impact_analysis": {
+          "esg_positioning": "ESG score gap vs. peers; increased peer pressure to improve climate disclosures and targets.",
+          "capital_allocation": "Potential cost of capital uplift (20-40bps); risk of ESG fund outflows.",
+          "valuation_cashflow": "Possible P/E compression (5-10%) and margin erosion if transition costs rise.",
+          "compliance_regulatory": "BRSR [MANDATORY], CDP, GRI, TCFD frameworks triggered; risk of SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Potential negative impact on talent attraction and community perception."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No immediate ₹ impact but negative sentiment may trigger ESG fund outflows",
+            "profitability_pathway": "Oxfam report → negative ESG narrative → potential fund outflows and cost of capital increase",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression likely due to ESG narrative and potential FII outflows",
+            "competitive_position": "At risk of lagging JSW Energy if peers accelerate decarbonization or improve disclosures"
+          },
+          "long_term": {
+            "secular_trajectory": "Sustained ESG scrutiny may require accelerated decarbonization, impacting long-term margins and capital needs",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 8,
+            "rationale": "Direct link to high GHG emissions and climate change risk"
+          },
+          "social": {
+            "score": 4,
+            "rationale": "Indirect impact on community and talent attraction"
+          },
+          "governance": {
+            "score": 5,
+            "rationale": "Disclosure and board oversight under scrutiny"
+          },
+          "financial_materiality": {
+            "score": 6,
+            "rationale": "Potential impact on cost of capital and valuation"
+          },
+          "regulatory_exposure": {
+            "score": 7,
+            "rationale": "BRSR and SEBI compliance risks triggered"
+          },
+          "stakeholder_impact": {
+            "score": 6,
+            "rationale": "Civil society and investor pressure likely to increase"
+          }
+        },
+        "net_impact_summary": "The Oxfam report amplifies reputational and ESG risks for Adani Power, increasing the likelihood of investor scrutiny and regulatory attention. While there is no immediate financial loss, the event could drive up the cost of capital and compress valuation multiples if not addressed. Peer pressure from competitors like JSW Energy may force Adani Power to accelerate its decarbonization strategy. The company faces a moderate but rising risk of capital outflow and negative market sentiment.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "MONITOR",
+          "verdict": "Monitor for fund outflows and regulatory signals; consider proactive disclosure to mitigate risk.",
+          "financial_exposure": "₹500-1,500 Cr at risk (valuation and cost of capital sensitivity)",
+          "key_risk": "ESG fund outflows and cost of capital uplift due to negative climate narrative",
+          "top_opportunity": "ESG narrative differentiation via proactive climate disclosure and target-setting",
+          "timeline": "within 8-12 weeks"
+        },
+        "causal_chain": {
+          "event": "Oxfam ranks Adani Power among top carbon-emitting billionaire-owned companies",
+          "mechanism": "Negative ESG narrative triggers investor scrutiny and potential fund outflows, raising cost of capital",
+          "company_impact": "Higher cost of capital, possible P/E compression, and increased pressure for decarbonization investments",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹500-1,500 Cr at risk (valuation and cost of capital sensitivity) — Adani Power's high ranking on Oxfam's carbon-emitting billionaires list raises ESG and reputational risks",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Possible P/E compression (5-10%) and margin erosion if transition costs rise.",
+        "BRSR [MANDATORY], CDP, GRI, TCFD frameworks triggered; risk of SEBI scrutiny and trading restrictions.",
+        "Potential cost of capital uplift (20-40bps); risk of ESG fund outflows."
+      ],
+      "action": [
+        "Monitor for fund outflows and regulatory signals; consider proactive disclosure to mitigate risk.",
+        "Opportunity: ESG narrative differentiation via proactive climate disclosure and target-setting"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "value",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via proactive climate disclosure and target-setting",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], CDP, GRI, TCFD frameworks triggered; risk of SEBI scrutiny and trading restrictions.",
+        "ESG score gap vs. peers; increased peer pressure to improve climate disclosures and targets.",
+        "Potential negative impact on talent attraction and community perception."
+      ],
+      "action": [
+        "Monitor for fund outflows and regulatory signals; consider proactive disclosure to mitigate risk.",
+        "Opportunity: ESG narrative differentiation via proactive climate disclosure and target-setting"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:04:07.271044+00:00",
+    "schema_version": "1.0"
+  }
+}

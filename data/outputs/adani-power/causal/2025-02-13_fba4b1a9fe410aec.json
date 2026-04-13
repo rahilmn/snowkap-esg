@@ -1,0 +1,72 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Adani Power"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "Adani Power"
+    },
+    {
+      "nodes": [
+        "Adani Power HQ",
+        "Adani Power"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "Adani Power HQ -> Adani Power"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Risk Management is material for Power/Energy → impacts Adani Power"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "TCFD",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers TCFD disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "COSO ERM",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers COSO ERM disclosure obligation for Adani Power"
+    }
+  ]
+}

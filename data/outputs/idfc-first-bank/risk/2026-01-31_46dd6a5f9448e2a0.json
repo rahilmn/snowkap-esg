@@ -1,0 +1,124 @@
+{
+  "esg_risks": [
+    {
+      "category": "Regulatory Risk",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.6,
+      "adjusted_score": 9.6,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
+    {
+      "category": "Reputational Risk",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.4,
+      "adjusted_score": 4.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "social media sentiment",
+        "NGO campaigns",
+        "whistleblower reports"
+      ],
+      "lag_indicators": [
+        "brand score decline",
+        "customer churn",
+        "boycotts"
+      ]
+    }
+  ],
+  "temples_risks": [
+    {
+      "category": "Legal",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.0,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "enforcement priorities",
+        "litigation precedents"
+      ],
+      "lag_indicators": [
+        "fines",
+        "lawsuits",
+        "settlements"
+      ]
+    }
+  ],
+  "top_risks": [
+    {
+      "category": "Regulatory Risk",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.6,
+      "adjusted_score": 9.6,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
+    {
+      "category": "Legal",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.0,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "enforcement priorities",
+        "litigation precedents"
+      ],
+      "lag_indicators": [
+        "fines",
+        "lawsuits",
+        "settlements"
+      ]
+    },
+    {
+      "category": "Reputational Risk",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.4,
+      "adjusted_score": 4.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "social media sentiment",
+        "NGO campaigns",
+        "whistleblower reports"
+      ],
+      "lag_indicators": [
+        "brand score decline",
+        "customer churn",
+        "boycotts"
+      ]
+    }
+  ],
+  "aggregate_score": 0.079,
+  "ontology_queries": 6
+}

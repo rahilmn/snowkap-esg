@@ -1,0 +1,905 @@
+{
+  "article": {
+    "id": "f0f3fe68742f1a6c",
+    "title": "JSW Commissions 3,800 TPA Green Hydrogen Facility in Karnataka - Mercomindia.com",
+    "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNM3YtaDRFNUpUU05GVmFpN2NsalRoWXVCLXZXbUFLcFdLQjhHNkc4ZXExYWtrZTRkamtaS002bk55RjZtR1RiTE41NlM1VE5NSDh4ejJsSkRIeFRIMktnVVZVMDNRUjYyZld5Q0dJVFo3bkF5NzhvQnZ6UTVwTmNoTGZydHozbE0zaGhTaTJ3?oc=5",
+    "source": "Mercomindia.com",
+    "published_at": "2025-11-11T08:00:00+00:00",
+    "company_slug": "jsw-energy"
+  },
+  "pipeline": {
+    "article_id": "f0f3fe68742f1a6c",
+    "title": "JSW Commissions 3,800 TPA Green Hydrogen Facility in Karnataka - Mercomindia.com",
+    "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNM3YtaDRFNUpUU05GVmFpN2NsalRoWXVCLXZXbUFLcFdLQjhHNkc4ZXExYWtrZTRkamtaS002bk55RjZtR1RiTE41NlM1VE5NSDh4ejJsSkRIeFRIMktnVVZVMDNRUjYyZld5Q0dJVFo3bkF5NzhvQnZ6UTVwTmNoTGZydHozbE0zaGhTaTJ3?oc=5",
+    "source": "Mercomindia.com",
+    "published_at": "2025-11-11T08:00:00+00:00",
+    "company_slug": "jsw-energy",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 43,
+    "elapsed_seconds": 9.082,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "optimistic",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "JSW has commissioned a 3,800 TPA green hydrogen facility in Karnataka.",
+      "narrative_implied_causation": "Commissioning the green hydrogen facility will advance JSW's sustainable energy capabilities.",
+      "narrative_stakeholder_framing": "JSW is the protagonist advancing green energy; the environment and local community are positively affected.",
+      "entities": [
+        "JSW",
+        "Karnataka"
+      ],
+      "entity_types": {
+        "JSW": "company",
+        "Karnataka": "location"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "green hydrogen",
+        "renewable energy",
+        "climate"
+      ],
+      "content_type": "operational",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "fossil_fuel_dependency",
+        "energy_intensity"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Climate Change",
+          "pillar": "E",
+          "sub_metrics": [
+            "ghg_reduction_targets",
+            "scope_1_direct",
+            "scope_2_indirect"
+          ]
+        }
+      ],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 1,
+      "materiality_weight": 0.9,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "JSW Energy"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "JSW Energy"
+      },
+      {
+        "nodes": [
+          "JSW Energy HQ",
+          "JSW Energy"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "JSW Energy HQ -> JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for JSW Energy"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.15,
+      "ontology_queries": 12
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "JSW Energy commissions 3,800 TPA green hydrogen facility, enhancing renewable energy profile",
+    "impact_score": 4.0,
+    "core_mechanism": "JSW Energy's commissioning of a green hydrogen facility in Karnataka marks a routine capex move to expand its sustainable energy portfolio. This strengthens its alignment with global decarbonization trends and regulatory expectations for renewable energy adoption.",
+    "profitability_connection": "While the facility supports long-term positioning for green revenue streams and potential cost of capital benefits, there is no immediate material impact on P&L or valuation. The move may incrementally improve ESG scores, aiding future access to green financing.",
+    "translation": "JSW Energy has started operating a new green hydrogen plant in Karnataka. This helps the company move towards cleaner energy, but it doesn't have a big effect on profits or share price right now.",
+    "impact_analysis": {
+      "esg_positioning": "Narrowing ESG score gap with peers; positive signal for index inclusion but not a differentiator yet.",
+      "capital_allocation": "Potential for lower cost of capital via green financing; no immediate bond spread impact.",
+      "valuation_cashflow": "No current P/E rerating; future green revenue could support margin expansion.",
+      "compliance_regulatory": "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalty or deadline risk.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Positive for talent attraction and community perception; no immediate consumer impact."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "N/A",
+        "profitability_pathway": "Green hydrogen facility commissioning → ESG narrative boost → no immediate ₹ impact",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Stable P/E; future upside if green hydrogen scales commercially",
+        "competitive_position": "Maintains parity with Adani Power and sector peers on green transition"
+      },
+      "long_term": {
+        "secular_trajectory": "Supports 3-5 year decarbonization and green revenue growth ambitions",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 6,
+        "rationale": "Directly advances renewable energy use and climate transition"
+      },
+      "social": {
+        "score": 3,
+        "rationale": "Minor positive for local community and talent brand"
+      },
+      "governance": {
+        "score": 2,
+        "rationale": "Routine capex; no governance shift"
+      },
+      "financial_materiality": {
+        "score": 3,
+        "rationale": "No immediate P&L impact; long-term optionality"
+      },
+      "regulatory_exposure": {
+        "score": 4,
+        "rationale": "Triggers disclosure frameworks but no penalty risk"
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Positive for investors tracking ESG, limited immediate effect"
+      }
+    },
+    "net_impact_summary": "The commissioning of JSW Energy's green hydrogen facility is a routine but strategically aligned capex step, reinforcing its renewable energy credentials. While it positions the company for future green revenue and regulatory alignment, there is no immediate material impact on financials or competitive standing. The move supports long-term ESG narrative and may facilitate access to green capital, but remains a secondary event in terms of current business impact.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "Do nothing; monitor for scale-up or commercial offtake developments.",
+      "financial_exposure": "₹50-200 Cr at risk (routine capex, no immediate downside)",
+      "key_risk": "Disclosure compliance under BRSR and CDP frameworks",
+      "top_opportunity": "First-mover advantage in green hydrogen narrative and future green financing eligibility",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Commissioning of 3,800 TPA green hydrogen facility in Karnataka",
+      "mechanism": "Direct operational expansion into green hydrogen; triggers ESG disclosure obligations",
+      "company_impact": "No immediate P&L effect; supports long-term green revenue and ESG positioning",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "JSW Energy commissions 3,800 TPA green hydrogen facility, enhancing renewable energy profile",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Narrowing ESG score gap with peers; positive signal for index inclusion but not a differentiator yet.",
+        "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalty or deadline risk.",
+        "Positive for talent attraction and community perception; no immediate consumer impact."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "JSW Energy commissions 3,800 TPA green hydrogen facility, enhancing renewable energy profile",
+        "impact_score": 4.0,
+        "core_mechanism": "JSW Energy's commissioning of a green hydrogen facility in Karnataka marks a routine capex move to expand its sustainable energy portfolio. This strengthens its alignment with global decarbonization trends and regulatory expectations for renewable energy adoption.",
+        "profitability_connection": "While the facility supports long-term positioning for green revenue streams and potential cost of capital benefits, there is no immediate material impact on P&L or valuation. The move may incrementally improve ESG scores, aiding future access to green financing.",
+        "translation": "JSW Energy has started operating a new green hydrogen plant in Karnataka. This helps the company move towards cleaner energy, but it doesn't have a big effect on profits or share price right now.",
+        "impact_analysis": {
+          "esg_positioning": "Narrowing ESG score gap with peers; positive signal for index inclusion but not a differentiator yet.",
+          "capital_allocation": "Potential for lower cost of capital via green financing; no immediate bond spread impact.",
+          "valuation_cashflow": "No current P/E rerating; future green revenue could support margin expansion.",
+          "compliance_regulatory": "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalty or deadline risk.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Positive for talent attraction and community perception; no immediate consumer impact."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "N/A",
+            "profitability_pathway": "Green hydrogen facility commissioning → ESG narrative boost → no immediate ₹ impact",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Stable P/E; future upside if green hydrogen scales commercially",
+            "competitive_position": "Maintains parity with Adani Power and sector peers on green transition"
+          },
+          "long_term": {
+            "secular_trajectory": "Supports 3-5 year decarbonization and green revenue growth ambitions",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Directly advances renewable energy use and climate transition"
+          },
+          "social": {
+            "score": 3,
+            "rationale": "Minor positive for local community and talent brand"
+          },
+          "governance": {
+            "score": 2,
+            "rationale": "Routine capex; no governance shift"
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "No immediate P&L impact; long-term optionality"
+          },
+          "regulatory_exposure": {
+            "score": 4,
+            "rationale": "Triggers disclosure frameworks but no penalty risk"
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Positive for investors tracking ESG, limited immediate effect"
+          }
+        },
+        "net_impact_summary": "The commissioning of JSW Energy's green hydrogen facility is a routine but strategically aligned capex step, reinforcing its renewable energy credentials. While it positions the company for future green revenue and regulatory alignment, there is no immediate material impact on financials or competitive standing. The move supports long-term ESG narrative and may facilitate access to green capital, but remains a secondary event in terms of current business impact.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "Do nothing; monitor for scale-up or commercial offtake developments.",
+          "financial_exposure": "₹50-200 Cr at risk (routine capex, no immediate downside)",
+          "key_risk": "Disclosure compliance under BRSR and CDP frameworks",
+          "top_opportunity": "First-mover advantage in green hydrogen narrative and future green financing eligibility",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Commissioning of 3,800 TPA green hydrogen facility in Karnataka",
+          "mechanism": "Direct operational expansion into green hydrogen; triggers ESG disclosure obligations",
+          "company_impact": "No immediate P&L effect; supports long-term green revenue and ESG positioning",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹50-200 Cr at risk (routine capex, no immediate downside) — JSW Energy commissions 3,800 TPA green hydrogen facility, enhancing renewable energy profile",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalty or deadline risk.",
+        "No current P/E rerating; future green revenue could support margin expansion.",
+        "Potential for lower cost of capital via green financing; no immediate bond spread impact."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — First-mover advantage in green hydrogen narrative and future green financing eligibility",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Triggers BRSR, CDP, GRI, TCFD disclosure obligations; no penalty or deadline risk.",
+        "Narrowing ESG score gap with peers; positive signal for index inclusion but not a differentiator yet.",
+        "Positive for talent attraction and community perception; no immediate consumer impact."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T10:25:52.083898+00:00",
+    "schema_version": "1.0"
+  }
+}

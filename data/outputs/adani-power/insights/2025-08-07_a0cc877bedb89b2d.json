@@ -1,0 +1,667 @@
+{
+  "article": {
+    "id": "a0cc877bedb89b2d",
+    "title": "Adani Power receives LoI to develop and operate 2,400 MW greenfield thermal power plant in Bihar - Adani",
+    "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNNFQxX3ZZaHU2Tlp0MGZIRExhaDg0SzluNGJZcENEQjYxZEg4NHFWd1VjaG5tNldXSHJGNXFERW85ai1WRmlqYmdONl8wTDhHNkJOc2gya29LS0VUYmNYRHdSTTkxX21lVi1lZlF0U1NZNGx1N2ZFdTRoaTFrZW9DU1BIX0I0R1ZpU2hNVWd5RW9DN2NyNmhGVTNTdTR1NUtKTmtITTVpZVhWM2JqdkEwLTJMTzM3bkxYTFlQOWQ0WXZPRnZTN0NUQk1CX2ZsX3B1Sy1oN0RtanQ?oc=5",
+    "source": "Adani",
+    "published_at": "2025-08-07T05:13:29+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "a0cc877bedb89b2d",
+    "title": "Adani Power receives LoI to develop and operate 2,400 MW greenfield thermal power plant in Bihar - Adani",
+    "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNNFQxX3ZZaHU2Tlp0MGZIRExhaDg0SzluNGJZcENEQjYxZEg4NHFWd1VjaG5tNldXSHJGNXFERW85ai1WRmlqYmdONl8wTDhHNkJOc2gya29LS0VUYmNYRHdSTTkxX21lVi1lZlF0U1NZNGx1N2ZFdTRoaTFrZW9DU1BIX0I0R1ZpU2hNVWd5RW9DN2NyNmhGVTNTdTR1NUtKTmtITTVpZVhWM2JqdkEwLTJMTzM3bkxYTFlQOWQ0WXZPRnZTN0NUQk1CX2ZsX3B1Sy1oN0RtanQ?oc=5",
+    "source": "Adani",
+    "published_at": "2025-08-07T05:13:29+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 7.52,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "neutral",
+        "analytical"
+      ],
+      "narrative_core_claim": "Adani Power has received a Letter of Intent to develop and operate a 2,400 MW greenfield thermal power plant in Bihar.",
+      "narrative_implied_causation": "Receiving the LoI enables Adani Power to proceed with the development and operation of the new thermal power plant.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist developing the plant; the Bihar region and its residents are the affected stakeholders.",
+      "entities": [
+        "Adani Power",
+        "Bihar"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "Bihar": "location"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "energy production",
+        "thermal power",
+        "infrastructure development"
+      ],
+      "content_type": "operational",
+      "urgency": "medium",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "fossil_fuel_dependency",
+        "renewable_energy_use",
+        "energy_intensity"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "greenfield"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.8,
+          "adjusted_score": 10.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.8,
+          "adjusted_score": 10.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.157,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Power secures LoI for 2,400 MW thermal plant in Bihar, raising fossil fuel exposure amid ESG scrutiny",
+    "impact_score": 3.0,
+    "core_mechanism": "The receipt of the Letter of Intent enables Adani Power to proceed with a large-scale greenfield thermal power project, increasing its fossil fuel-based generation capacity. This structural move heightens the company's exposure to transition and regulatory risks, as global and domestic ESG frameworks intensify scrutiny on new coal-based assets.",
+    "profitability_connection": "While the project may drive long-term revenue growth through expanded generation, it could also elevate the cost of capital and compress valuation multiples due to negative ESG perceptions and potential regulatory tightening.",
+    "translation": "Adani Power is set to build a new coal power plant in Bihar. This could boost business in the short term but may attract more regulatory attention and investor concerns about environmental impact, possibly affecting future profits and funding costs.",
+    "impact_analysis": {
+      "esg_positioning": "Wider ESG score gap vs. peers with higher renewables mix; risk of index exclusion if fossil fuel share rises.",
+      "capital_allocation": "Potential 20-40bps increase in cost of capital due to BRSR/TCFD scrutiny; risk of FII outflow.",
+      "valuation_cashflow": "Possible P/E compression (5-10%) if ESG ratings decline; margin pressure from higher compliance costs.",
+      "compliance_regulatory": "BRSR [MANDATORY], TCFD, CDP, GRI triggered; risk of SEBI scrutiny and trading restrictions.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Potential community and talent attraction challenges due to fossil fuel focus."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No immediate P&L impact; capex commitment increases balance sheet exposure",
+        "profitability_pathway": "LoI → project initiation → capex outflow; no near-term revenue or margin impact",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Potential P/E compression due to increased fossil fuel exposure and ESG downgrades",
+        "competitive_position": "Likely loss vs. JSW Energy, which has a higher renewables share and better ESG narrative"
+      },
+      "long_term": {
+        "secular_trajectory": "3-5 year risk of stranded asset, higher transition costs, and regulatory headwinds as India accelerates decarbonization",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 6,
+        "rationale": "Significant increase in fossil fuel capacity; negative for decarbonization trajectory"
+      },
+      "social": {
+        "score": 3,
+        "rationale": "Potential local employment but offset by community and public health concerns"
+      },
+      "governance": {
+        "score": 4,
+        "rationale": "Routine capex with regulatory disclosure obligations; no governance breach"
+      },
+      "financial_materiality": {
+        "score": 3,
+        "rationale": "Secondary event; no immediate P&L impact but long-term risk"
+      },
+      "regulatory_exposure": {
+        "score": 6,
+        "rationale": "Triggers multiple ESG frameworks and increases SEBI scrutiny risk"
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Moderate impact on investors, communities, and talent pool"
+      }
+    },
+    "net_impact_summary": "The LoI for a new thermal power plant expands Adani Power's fossil fuel portfolio at a time of intensifying ESG and regulatory scrutiny. While the project may support near-term growth, it structurally increases transition and compliance risks, potentially eroding valuation and investor appeal relative to renewables-focused peers. The event is not immediately material to financials but signals a strategic direction that may challenge long-term competitiveness.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor for regulatory developments and investor sentiment shifts.",
+      "financial_exposure": "₹500-2,000 Cr at risk over project lifecycle if regulatory or ESG headwinds materialize",
+      "key_risk": "Elevated cost of capital and P/E compression due to increased fossil fuel exposure",
+      "top_opportunity": "ESG narrative differentiation via proactive disclosure and transition planning",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Power receives LoI to develop and operate a 2,400 MW thermal power plant in Bihar",
+      "mechanism": "Increases fossil fuel-based generation capacity, triggering mandatory ESG disclosures and scrutiny under BRSR, TCFD, and other frameworks",
+      "company_impact": "Potential for higher cost of capital, valuation compression, and reputational risk; no immediate revenue impact",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power secures LoI for 2,400 MW thermal plant in Bihar, raising fossil fuel exposure amid ESG scrutiny",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Wider ESG score gap vs. peers with higher renewables mix; risk of index exclusion if fossil fuel share rises.",
+        "BRSR [MANDATORY], TCFD, CDP, GRI triggered; risk of SEBI scrutiny and trading restrictions.",
+        "Potential community and talent attraction challenges due to fossil fuel focus."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power secures LoI for 2,400 MW thermal plant in Bihar, raising fossil fuel exposure amid ESG scrutiny",
+        "impact_score": 3.0,
+        "core_mechanism": "The receipt of the Letter of Intent enables Adani Power to proceed with a large-scale greenfield thermal power project, increasing its fossil fuel-based generation capacity. This structural move heightens the company's exposure to transition and regulatory risks, as global and domestic ESG frameworks intensify scrutiny on new coal-based assets.",
+        "profitability_connection": "While the project may drive long-term revenue growth through expanded generation, it could also elevate the cost of capital and compress valuation multiples due to negative ESG perceptions and potential regulatory tightening.",
+        "translation": "Adani Power is set to build a new coal power plant in Bihar. This could boost business in the short term but may attract more regulatory attention and investor concerns about environmental impact, possibly affecting future profits and funding costs.",
+        "impact_analysis": {
+          "esg_positioning": "Wider ESG score gap vs. peers with higher renewables mix; risk of index exclusion if fossil fuel share rises.",
+          "capital_allocation": "Potential 20-40bps increase in cost of capital due to BRSR/TCFD scrutiny; risk of FII outflow.",
+          "valuation_cashflow": "Possible P/E compression (5-10%) if ESG ratings decline; margin pressure from higher compliance costs.",
+          "compliance_regulatory": "BRSR [MANDATORY], TCFD, CDP, GRI triggered; risk of SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Potential community and talent attraction challenges due to fossil fuel focus."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No immediate P&L impact; capex commitment increases balance sheet exposure",
+            "profitability_pathway": "LoI → project initiation → capex outflow; no near-term revenue or margin impact",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Potential P/E compression due to increased fossil fuel exposure and ESG downgrades",
+            "competitive_position": "Likely loss vs. JSW Energy, which has a higher renewables share and better ESG narrative"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year risk of stranded asset, higher transition costs, and regulatory headwinds as India accelerates decarbonization",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Significant increase in fossil fuel capacity; negative for decarbonization trajectory"
+          },
+          "social": {
+            "score": 3,
+            "rationale": "Potential local employment but offset by community and public health concerns"
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Routine capex with regulatory disclosure obligations; no governance breach"
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "Secondary event; no immediate P&L impact but long-term risk"
+          },
+          "regulatory_exposure": {
+            "score": 6,
+            "rationale": "Triggers multiple ESG frameworks and increases SEBI scrutiny risk"
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Moderate impact on investors, communities, and talent pool"
+          }
+        },
+        "net_impact_summary": "The LoI for a new thermal power plant expands Adani Power's fossil fuel portfolio at a time of intensifying ESG and regulatory scrutiny. While the project may support near-term growth, it structurally increases transition and compliance risks, potentially eroding valuation and investor appeal relative to renewables-focused peers. The event is not immediately material to financials but signals a strategic direction that may challenge long-term competitiveness.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for regulatory developments and investor sentiment shifts.",
+          "financial_exposure": "₹500-2,000 Cr at risk over project lifecycle if regulatory or ESG headwinds materialize",
+          "key_risk": "Elevated cost of capital and P/E compression due to increased fossil fuel exposure",
+          "top_opportunity": "ESG narrative differentiation via proactive disclosure and transition planning",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Power receives LoI to develop and operate a 2,400 MW thermal power plant in Bihar",
+          "mechanism": "Increases fossil fuel-based generation capacity, triggering mandatory ESG disclosures and scrutiny under BRSR, TCFD, and other frameworks",
+          "company_impact": "Potential for higher cost of capital, valuation compression, and reputational risk; no immediate revenue impact",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹500-2,000 Cr at risk over project lifecycle if regulatory or ESG headwinds materialize — Adani Power secures LoI for 2,400 MW thermal plant in Bihar, raising fossil fuel exposure amid ESG scrutiny",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], TCFD, CDP, GRI triggered; risk of SEBI scrutiny and trading restrictions.",
+        "Possible P/E compression (5-10%) if ESG ratings decline; margin pressure from higher compliance costs.",
+        "Potential 20-40bps increase in cost of capital due to BRSR/TCFD scrutiny; risk of FII outflow."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via proactive disclosure and transition planning",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], TCFD, CDP, GRI triggered; risk of SEBI scrutiny and trading restrictions.",
+        "Wider ESG score gap vs. peers with higher renewables mix; risk of index exclusion if fossil fuel share rises.",
+        "Potential community and talent attraction challenges due to fossil fuel focus."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:12:09.389855+00:00",
+    "schema_version": "1.0"
+  }
+}

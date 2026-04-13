@@ -1,0 +1,53 @@
+{
+  "perspectives": {
+    "esg-analyst": {
+      "label": "ESG Analyst",
+      "output_depth": "detailed",
+      "financial_framing": "esg_scoring",
+      "max_words": null,
+      "priority_impact_dimensions": [
+        "financial",
+        "regulatory",
+        "operational",
+        "reputational",
+        "volume",
+        "value",
+        "cost",
+        "growth",
+        "brand"
+      ],
+      "priority_frameworks": ["BRSR", "GRI", "TCFD", "ESRS", "CSRD", "CDP", "SASB", "ISSB", "SFDR"],
+      "system_prompt_suffix": "Provide detailed framework references, section codes, sub-metrics, and disclosure gap analysis. Longer responses acceptable."
+    },
+    "cfo": {
+      "label": "CFO",
+      "output_depth": "brief",
+      "financial_framing": "pnl",
+      "max_words": 100,
+      "priority_impact_dimensions": [
+        "financial",
+        "cost",
+        "value",
+        "regulatory",
+        "volume"
+      ],
+      "priority_frameworks": ["TCFD", "IFRS_S1", "IFRS_S2", "SASB", "COSO_ERM", "CFA_ESG"],
+      "system_prompt_suffix": "Frame all responses in financial terms. Use ₹ amounts in Crore, basis points, EBITDA impact. Keep responses under 100 words. CFOs want 10-second verdicts, not ESG analytics."
+    },
+    "ceo": {
+      "label": "CEO",
+      "output_depth": "brief",
+      "financial_framing": "strategic",
+      "max_words": 150,
+      "priority_impact_dimensions": [
+        "brand",
+        "growth",
+        "reputational",
+        "strategic",
+        "regulatory"
+      ],
+      "priority_frameworks": ["TCFD", "IFRS_S1", "IFRS_S2", "PORTER_5_FORCES", "MCKINSEY_3_HORIZONS", "DJSI", "SP_GLOBAL_ESG", "EDELMAN"],
+      "system_prompt_suffix": "Frame responses as strategic intelligence. Focus on competitive positioning, brand narrative, long-term trajectory, market signal. Keep responses under 150 words. No raw ₹ amounts in headlines."
+    }
+  }
+}

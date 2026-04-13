@@ -105,7 +105,7 @@ async def extract_entities(article_title: str, article_content: str) -> list[Ext
     prompt = f"""Extract all ESG-relevant entities from this news article. Return ONLY a JSON array.
 
 Title: {article_title}
-Content: {article_content[:3000]}
+Content: {article_content[:6000]}
 
 For each entity, provide:
 - "text": the entity name as it appears
@@ -184,7 +184,7 @@ async def extract_and_classify(
     prompt = f"""Analyze this news article for ESG intelligence. Return a JSON object.
 
 Title: {article_title}
-Content: {article_content[:3000]}
+Content: {article_content[:6000]}
 
 Return exactly this structure (no markdown, pure JSON):
 {{

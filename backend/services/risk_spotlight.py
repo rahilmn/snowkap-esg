@@ -30,6 +30,8 @@ async def run_risk_spotlight(
     article_title: str,
     article_content: str | None,
     company_name: str,
+    industry: str | None = None,
+    market_cap_value: float | None = None,
 ) -> dict | None:
     """Quick top-3 risk scan for FEED-tier articles.
 
@@ -44,7 +46,7 @@ async def run_risk_spotlight(
     try:
         raw = await llm.chat(
             system="You are an ESG risk classifier. Return ONLY valid JSON.",
-            messages=[{"role": "user", "content": f"""Given this article affecting {company_name}, identify the top 3 most relevant ESG risk categories.
+            messages=[{"role": "user", "content": f"""Given this article affecting {company_name} ({industry or 'general'} sector{f', ₹{market_cap_value:,.0f} Cr market cap' if market_cap_value else ''}), identify the top 3 most relevant ESG risk categories.
 
 ARTICLE: "{article_title}"
 CONTENT: {text}

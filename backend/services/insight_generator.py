@@ -108,21 +108,47 @@ ESG Pillar: {esg_pillar or 'unclassified'}"""
     from datetime import datetime, timezone
     today = datetime.now(timezone.utc).date().isoformat()
 
+    # Detect macro/sentiment signals — these should not recommend "immediate action"
+    _article_lower = (article_content or article_title or "").lower()
+    _is_macro = any(kw in _article_lower for kw in [
+        "ceasefire", "geopolit", "commodity price", "gold price", "silver price",
+        "oil price", "crude", "brent", "wti", "market rally", "market sentiment",
+        "inflation worr", "tariff", "trade war", "sector rotation",
+        "nifty", "sensex", "equity rally", "stock market",
+        "bond yield", "interest rate", "fed rate", "rbi rate",
+    ])
+    _macro_qualifier = ""
+    if _is_macro:
+        _macro_qualifier = (
+            "\n\nCRITICAL — MACRO/SENTIMENT SIGNAL DETECTED:\n"
+            "This article is about a macro-level event (geopolitical, commodity, sentiment).\n"
+            "- Do NOT recommend 'immediate action' — this is a monitoring signal only\n"
+            "- Do NOT force compliance/disclosure actions for indirect market signals\n"
+            "- If the signal doesn't directly affect the company's operations, say so clearly\n"
+            "- Use qualifying language: 'potential', 'directional', 'if sustained'\n"
+            "- The correct conclusion may be: 'Monitor quarterly; no ESG action triggered'\n"
+        )
+
     user_prompt = f"""Analyze this article as a {agent_key.replace('_', ' ')} specialist.
 
 TODAY'S DATE: {today}. All dates/deadlines in your response MUST be after {today}.
 
 Write 3-4 sentences of expert insight:
 1. What is the SPECIFIC business impact on {company_name}? (not generic ESG advice)
-2. Which framework obligations are affected? (use specific codes: BRSR:P6, GRI:305, etc.)
+2. Which framework obligations are affected? Use CORRECT framework codes — match the topic precisely:
+   BRSR principles: P1=Ethics, P2=Sustainable goods, P3=Employee wellbeing, P4=Stakeholders, P5=Human rights, P6=Environment, P7=Policy advocacy, P8=Inclusive growth, P9=Consumer responsibility
+   GRI: 201-2=financial climate risk, 302=energy, 305=emissions, 3-3=material topics
+   TCFD sections: Strategy, Risk_Management, Metrics_Targets
+   DO NOT default to BRSR:P6 unless the article is specifically about environmental/pollution topics.
 3. What is the recommended action with timeline?
-
+{_macro_qualifier}
 Rules:
 - Read the full article content above, not just the headline
 - Reference specific data points from the article
 - If the article mentions financial figures, include them
 - Be specific to {company_name}'s situation
 - DO NOT use vague verbs: "enhance", "strengthen", "improve". Use: "commission", "file", "appoint", "allocate", "audit"
+- NEVER mention specific company names (e.g., "Oil India", "ONGC") unless they appear in the article text above. Use "sector peers" or "industry" instead.
 - Maximum 120 words"""
 
     try:

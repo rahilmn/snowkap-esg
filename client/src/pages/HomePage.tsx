@@ -26,18 +26,25 @@ export default function HomePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const name = useAuthStore((s) => s.name) || "there";
+  const companyId = useAuthStore((s) => s.companyId);
   const firstName = name.split(" ")[0];
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
 
   const { data: feedData, isLoading } = useQuery({
-    queryKey: ["home-articles"],
-    queryFn: () => news.list({ limit: 5, offset: 0, sort_by: "priority" }),
+    queryKey: ["home-articles", companyId],
+    queryFn: () =>
+      news.list({
+        limit: 5,
+        offset: 0,
+        sort_by: "priority",
+        company_id: companyId || undefined,
+      }),
   });
 
   const { data: statsData } = useQuery({
-    queryKey: ["news-stats"],
-    queryFn: () => news.stats(),
+    queryKey: ["news-stats", companyId],
+    queryFn: () => news.stats(companyId || undefined),
   });
 
   const refreshMutation = useMutation({

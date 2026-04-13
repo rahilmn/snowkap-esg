@@ -24,12 +24,12 @@ TIMEOUT = 15
 
 # --- Tenant login payloads ---
 
-NIKE_LOGIN = {
-    "email": "integration@nike.com",
+ADANI_LOGIN = {
+    "email": "integration@adanipower.com",
     "name": "Integration Tester",
     "designation": "CEO",
-    "company_name": "Nike, Inc.",
-    "domain": "nike.com",
+    "company_name": "Adani Power",
+    "domain": "adanipower.com",
 }
 
 ICICI_LOGIN = {
@@ -54,30 +54,30 @@ def event_loop():
 
 
 @pytest.fixture(scope="module")
-def nike_token(event_loop):
-    """Obtain a Nike tenant JWT for authenticated tests."""
+def adani_token(event_loop):
+    """Obtain an Adani Power tenant JWT for authenticated tests."""
 
     async def _get():
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/auth/login", json=NIKE_LOGIN)
-            assert r.status_code == 200, f"Nike login failed: {r.text[:300]}"
+            r = await c.post("/api/auth/login", json=ADANI_LOGIN)
+            assert r.status_code == 200, f"Adani login failed: {r.text[:300]}"
             return r.json()["token"]
 
     return event_loop.run_until_complete(_get())
 
 
 @pytest.fixture(scope="module")
-def nike_headers(nike_token):
-    return {"Authorization": f"Bearer {nike_token}"}
+def adani_headers(adani_token):
+    return {"Authorization": f"Bearer {adani_token}"}
 
 
 @pytest.fixture(scope="module")
-def nike_login_data(event_loop):
-    """Full login response payload for Nike."""
+def adani_login_data(event_loop):
+    """Full login response payload for Adani Power."""
 
     async def _get():
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/auth/login", json=NIKE_LOGIN)
+            r = await c.post("/api/auth/login", json=ADANI_LOGIN)
             assert r.status_code == 200
             return r.json()
 
@@ -111,11 +111,11 @@ def analyst_headers(event_loop):
             r = await c.post(
                 "/api/auth/login",
                 json={
-                    "email": "analyst-int@nike.com",
+                    "email": "analyst-int@adanipower.com",
                     "name": "Analyst Int",
                     "designation": "ESG Analyst",
-                    "company_name": "Nike, Inc.",
-                    "domain": "nike.com",
+                    "company_name": "Adani Power",
+                    "domain": "adanipower.com",
                 },
             )
             assert r.status_code == 200
@@ -137,10 +137,10 @@ class TestAPIContracts:
     @pytest.mark.asyncio
     async def test_resolve_domain_valid(self):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/auth/resolve-domain", json={"domain": "nike.com"})
+            r = await c.post("/api/auth/resolve-domain", json={"domain": "adanipower.com"})
             assert r.status_code == 200
             data = r.json()
-            assert data["domain"] == "nike.com"
+            assert data["domain"] == "adanipower.com"
             assert "is_existing" in data
 
     @pytest.mark.asyncio
@@ -160,7 +160,7 @@ class TestAPIContracts:
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post(
                 "/api/auth/resolve-domain",
-                json={"domain": "nike.com", "extra_field": "should_be_ignored"},
+                json={"domain": "adanipower.com", "extra_field": "should_be_ignored"},
             )
             assert r.status_code == 200
 
@@ -176,7 +176,7 @@ class TestAPIContracts:
     @pytest.mark.asyncio
     async def test_login_valid(self):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/auth/login", json=NIKE_LOGIN)
+            r = await c.post("/api/auth/login", json=ADANI_LOGIN)
             assert r.status_code == 200
             data = r.json()
             assert "token" in data
@@ -185,14 +185,14 @@ class TestAPIContracts:
 
     @pytest.mark.asyncio
     async def test_login_missing_email(self):
-        payload = {k: v for k, v in NIKE_LOGIN.items() if k != "email"}
+        payload = {k: v for k, v in ADANI_LOGIN.items() if k != "email"}
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post("/api/auth/login", json=payload)
             assert r.status_code == 422
 
     @pytest.mark.asyncio
     async def test_login_missing_domain(self):
-        payload = {k: v for k, v in NIKE_LOGIN.items() if k != "domain"}
+        payload = {k: v for k, v in ADANI_LOGIN.items() if k != "domain"}
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post("/api/auth/login", json=payload)
             assert r.status_code == 422
@@ -221,8 +221,8 @@ class TestAPIContracts:
                     "email": "user@other.com",
                     "name": "Test",
                     "designation": "CEO",
-                    "company_name": "Nike",
-                    "domain": "nike.com",
+                    "company_name": "Adani Power",
+                    "domain": "adanipower.com",
                 },
             )
             assert r.status_code == 400
@@ -235,11 +235,11 @@ class TestAPIContracts:
         """Returning user login for an email that has already been created."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             # First ensure the user exists via full login
-            await c.post("/api/auth/login", json=NIKE_LOGIN)
+            await c.post("/api/auth/login", json=ADANI_LOGIN)
             # Then returning-user login
             r = await c.post(
                 "/api/auth/returning-user",
-                json={"email": NIKE_LOGIN["email"]},
+                json={"email": ADANI_LOGIN["email"]},
             )
             assert r.status_code == 200
             assert "token" in r.json()
@@ -263,9 +263,9 @@ class TestAPIContracts:
     # --- GET /api/news/home ---
 
     @pytest.mark.asyncio
-    async def test_news_home_valid(self, nike_headers):
+    async def test_news_home_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/home", headers=nike_headers)
+            r = await c.get("/api/news/home", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             assert "articles" in data
@@ -280,37 +280,37 @@ class TestAPIContracts:
     # --- GET /api/news/feed ---
 
     @pytest.mark.asyncio
-    async def test_news_feed_valid(self, nike_headers):
+    async def test_news_feed_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed", headers=nike_headers)
+            r = await c.get("/api/news/feed", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             assert "articles" in data
             assert "total" in data
 
     @pytest.mark.asyncio
-    async def test_news_feed_filter_pillar_E(self, nike_headers):
+    async def test_news_feed_filter_pillar_E(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?pillar=E", headers=nike_headers)
+            r = await c.get("/api/news/feed?pillar=E", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_news_feed_sort_by_priority(self, nike_headers):
+    async def test_news_feed_sort_by_priority(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?sort_by=priority", headers=nike_headers)
+            r = await c.get("/api/news/feed?sort_by=priority", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_news_feed_sort_by_recency(self, nike_headers):
+    async def test_news_feed_sort_by_recency(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?sort_by=recency", headers=nike_headers)
+            r = await c.get("/api/news/feed?sort_by=recency", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_news_feed_content_type_regulatory(self, nike_headers):
+    async def test_news_feed_content_type_regulatory(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.get(
-                "/api/news/feed?content_type=regulatory", headers=nike_headers
+                "/api/news/feed?content_type=regulatory", headers=adani_headers
             )
             assert r.status_code == 200
 
@@ -323,9 +323,9 @@ class TestAPIContracts:
     # --- GET /api/news/stats ---
 
     @pytest.mark.asyncio
-    async def test_news_stats_valid(self, nike_headers):
+    async def test_news_stats_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/stats", headers=nike_headers)
+            r = await c.get("/api/news/stats", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -337,9 +337,9 @@ class TestAPIContracts:
     # --- GET /api/companies ---
 
     @pytest.mark.asyncio
-    async def test_companies_valid(self, nike_headers):
+    async def test_companies_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/companies", headers=nike_headers)
+            r = await c.get("/api/companies", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -351,9 +351,9 @@ class TestAPIContracts:
     # --- GET /api/predictions/stats ---
 
     @pytest.mark.asyncio
-    async def test_predictions_stats_valid(self, nike_headers):
+    async def test_predictions_stats_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/predictions/stats", headers=nike_headers)
+            r = await c.get("/api/predictions/stats", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -365,9 +365,9 @@ class TestAPIContracts:
     # --- GET /api/preferences ---
 
     @pytest.mark.asyncio
-    async def test_preferences_get_valid(self, nike_headers):
+    async def test_preferences_get_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/preferences", headers=nike_headers)
+            r = await c.get("/api/preferences", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -379,11 +379,11 @@ class TestAPIContracts:
     # --- PUT /api/preferences ---
 
     @pytest.mark.asyncio
-    async def test_preferences_put_valid_update(self, nike_headers):
+    async def test_preferences_put_valid_update(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.put(
                 "/api/preferences",
-                headers=nike_headers,
+                headers=adani_headers,
                 json={
                     "preferred_frameworks": ["BRSR", "GRI"],
                     "preferred_pillars": ["E"],
@@ -395,21 +395,21 @@ class TestAPIContracts:
             assert "BRSR" in data["preferred_frameworks"]
 
     @pytest.mark.asyncio
-    async def test_preferences_put_invalid_types(self, nike_headers):
+    async def test_preferences_put_invalid_types(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.put(
                 "/api/preferences",
-                headers=nike_headers,
+                headers=adani_headers,
                 json={"preferred_frameworks": "not_a_list"},
             )
             assert r.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_preferences_put_oversized_lists(self, nike_headers):
+    async def test_preferences_put_oversized_lists(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.put(
                 "/api/preferences",
-                headers=nike_headers,
+                headers=adani_headers,
                 json={"preferred_pillars": [f"pillar_{i}" for i in range(100)]},
             )
             # Should reject: max_length=10 on preferred_pillars
@@ -418,9 +418,9 @@ class TestAPIContracts:
     # --- GET /api/ontology/stats ---
 
     @pytest.mark.asyncio
-    async def test_ontology_stats_valid(self, nike_headers):
+    async def test_ontology_stats_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/ontology/stats", headers=nike_headers)
+            r = await c.get("/api/ontology/stats", headers=adani_headers)
             assert r.status_code == 200
 
     # --- GET /api/admin/tenants ---
@@ -440,9 +440,9 @@ class TestAPIContracts:
     # --- GET /api/auth/me ---
 
     @pytest.mark.asyncio
-    async def test_auth_me_valid(self, nike_headers):
+    async def test_auth_me_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/auth/me", headers=nike_headers)
+            r = await c.get("/api/auth/me", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -454,9 +454,9 @@ class TestAPIContracts:
     # --- GET /api/ftux/state ---
 
     @pytest.mark.asyncio
-    async def test_ftux_state_valid(self, nike_headers):
+    async def test_ftux_state_valid(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/ftux/state", headers=nike_headers)
+            r = await c.get("/api/ftux/state", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -468,26 +468,26 @@ class TestAPIContracts:
     # --- POST /api/news/{article_id}/bookmark ---
 
     @pytest.mark.asyncio
-    async def test_bookmark_nonexistent_article(self, nike_headers):
+    async def test_bookmark_nonexistent_article(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post(
                 "/api/news/nonexistent-article-id-xyz/bookmark",
-                headers=nike_headers,
+                headers=adani_headers,
                 json={"bookmarked": True},
             )
             assert r.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_bookmark_valid_article(self, nike_headers):
+    async def test_bookmark_valid_article(self, adani_headers):
         """Bookmark an actual article if one exists; otherwise verify 404 handling."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            feed = await c.get("/api/news/feed?limit=1", headers=nike_headers)
+            feed = await c.get("/api/news/feed?limit=1", headers=adani_headers)
             articles = feed.json().get("articles", [])
             if articles:
                 article_id = articles[0]["id"]
                 r = await c.post(
                     f"/api/news/{article_id}/bookmark",
-                    headers=nike_headers,
+                    headers=adani_headers,
                     json={"bookmarked": True},
                 )
                 assert r.status_code == 200
@@ -496,7 +496,7 @@ class TestAPIContracts:
                 # No articles to bookmark — just verify the 404 case works
                 r = await c.post(
                     "/api/news/no-article/bookmark",
-                    headers=nike_headers,
+                    headers=adani_headers,
                     json={"bookmarked": True},
                 )
                 assert r.status_code == 404
@@ -511,17 +511,17 @@ class TestAPIContracts:
             assert r.status_code in (404, 405)
 
     @pytest.mark.asyncio
-    async def test_post_to_feed_endpoint_returns_405(self, nike_headers):
+    async def test_post_to_feed_endpoint_returns_405(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post(
-                "/api/news/feed", headers=nike_headers, json={}
+                "/api/news/feed", headers=adani_headers, json={}
             )
             assert r.status_code == 405
 
     @pytest.mark.asyncio
-    async def test_delete_to_feed_endpoint_returns_405(self, nike_headers):
+    async def test_delete_to_feed_endpoint_returns_405(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.delete("/api/news/feed", headers=nike_headers)
+            r = await c.delete("/api/news/feed", headers=adani_headers)
             assert r.status_code == 405
 
 
@@ -540,7 +540,7 @@ class TestEdgeCases:
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post(
                 "/api/auth/login",
-                json={**NIKE_LOGIN, "email": "longname@nike.com", "name": long_name},
+                json={**ADANI_LOGIN, "email": "longname@adanipower.com", "name": long_name},
             )
             assert r.status_code == 200
             # Name should be stored (possibly truncated but no crash)
@@ -551,7 +551,7 @@ class TestEdgeCases:
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.post(
                 "/api/auth/login",
-                json={**NIKE_LOGIN, "email": "emoji@nike.com", "name": "Test User \U0001F600\U0001F680"},
+                json={**ADANI_LOGIN, "email": "emoji@adanipower.com", "name": "Test User \U0001F600\U0001F680"},
             )
             assert r.status_code == 200
             assert "token" in r.json()
@@ -562,42 +562,42 @@ class TestEdgeCases:
             r = await c.post(
                 "/api/auth/login",
                 json={
-                    **NIKE_LOGIN,
-                    "email": "special-desig@nike.com",
+                    **ADANI_LOGIN,
+                    "email": "special-desig@adanipower.com",
                     "designation": "VP, Strategy & Operations (Global)",
                 },
             )
             assert r.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_feed_with_limit_1_minimum(self, nike_headers):
+    async def test_feed_with_limit_1_minimum(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?limit=1", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=1", headers=adani_headers)
             assert r.status_code == 200
             articles = r.json()["articles"]
             assert len(articles) <= 1
 
     @pytest.mark.asyncio
-    async def test_feed_with_limit_200_maximum(self, nike_headers):
+    async def test_feed_with_limit_200_maximum(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?limit=200", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=200", headers=adani_headers)
             assert r.status_code == 200
             assert len(r.json()["articles"]) <= 200
 
     @pytest.mark.asyncio
-    async def test_feed_with_offset_beyond_all_articles(self, nike_headers):
+    async def test_feed_with_offset_beyond_all_articles(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?offset=99999", headers=nike_headers)
+            r = await c.get("/api/news/feed?offset=99999", headers=adani_headers)
             assert r.status_code == 200
             # Should return empty articles list, not an error
             assert r.json()["articles"] == []
 
     @pytest.mark.asyncio
-    async def test_feed_with_all_filter_combinations(self, nike_headers):
+    async def test_feed_with_all_filter_combinations(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.get(
                 "/api/news/feed?pillar=E&sort_by=recency&content_type=regulatory",
-                headers=nike_headers,
+                headers=adani_headers,
             )
             assert r.status_code == 200
 
@@ -626,17 +626,17 @@ class TestEdgeCases:
             r = await c.post(
                 "/api/auth/login",
                 json={
-                    **NIKE_LOGIN,
-                    "email": "user+test@nike.com",
+                    **ADANI_LOGIN,
+                    "email": "user+test@adanipower.com",
                 },
             )
             assert r.status_code == 200
             assert "token" in r.json()
 
     @pytest.mark.asyncio
-    async def test_stats_returns_correct_counts(self, nike_headers):
+    async def test_stats_returns_correct_counts(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/stats", headers=nike_headers)
+            r = await c.get("/api/news/stats", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             assert isinstance(data["total"], int)
@@ -646,15 +646,15 @@ class TestEdgeCases:
             assert isinstance(data["predictions_count"], int)
 
     @pytest.mark.asyncio
-    async def test_feed_limit_exceeds_maximum_returns_422(self, nike_headers):
+    async def test_feed_limit_exceeds_maximum_returns_422(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?limit=999", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=999", headers=adani_headers)
             assert r.status_code == 422
 
     @pytest.mark.asyncio
-    async def test_feed_negative_offset_returns_422(self, nike_headers):
+    async def test_feed_negative_offset_returns_422(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?offset=-1", headers=nike_headers)
+            r = await c.get("/api/news/feed?offset=-1", headers=adani_headers)
             assert r.status_code == 422
 
 
@@ -674,10 +674,10 @@ class TestErrorResilience:
             assert r.json()["status"] == "healthy"
 
     @pytest.mark.asyncio
-    async def test_multiple_rapid_requests_no_crash(self, nike_headers):
+    async def test_multiple_rapid_requests_no_crash(self, adani_headers):
         """Fire 20 rapid requests and verify none return 500."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            tasks = [c.get("/api/news/feed?limit=5", headers=nike_headers) for _ in range(20)]
+            tasks = [c.get("/api/news/feed?limit=5", headers=adani_headers) for _ in range(20)]
             results = await asyncio.gather(*tasks, return_exceptions=True)
             for r in results:
                 if isinstance(r, Exception):
@@ -687,10 +687,10 @@ class TestErrorResilience:
 
     @pytest.mark.asyncio
     async def test_concurrent_logins_different_tenants(self):
-        """Concurrent logins from Nike and ICICI should both succeed."""
+        """Concurrent logins from Adani and ICICI should both succeed."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r1, r2 = await asyncio.gather(
-                c.post("/api/auth/login", json=NIKE_LOGIN),
+                c.post("/api/auth/login", json=ADANI_LOGIN),
                 c.post("/api/auth/login", json=ICICI_LOGIN),
             )
             assert r1.status_code == 200
@@ -699,13 +699,13 @@ class TestErrorResilience:
             assert r1.json()["token"] != r2.json()["token"]
 
     @pytest.mark.asyncio
-    async def test_valid_request_after_invalid_request_still_works(self, nike_headers):
+    async def test_valid_request_after_invalid_request_still_works(self, adani_headers):
         """Server state should not be corrupted by a bad request."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             # Bad request
-            await c.get("/api/news/feed?offset=-1", headers=nike_headers)
+            await c.get("/api/news/feed?offset=-1", headers=adani_headers)
             # Good request should still work
-            r = await c.get("/api/news/feed?limit=5", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=5", headers=adani_headers)
             assert r.status_code == 200
 
     @pytest.mark.asyncio
@@ -724,9 +724,9 @@ class TestErrorResilience:
             assert r.status_code in (200, 204)
 
     @pytest.mark.asyncio
-    async def test_post_to_get_endpoint_returns_405_not_500(self, nike_headers):
+    async def test_post_to_get_endpoint_returns_405_not_500(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/news/stats", headers=nike_headers, json={})
+            r = await c.post("/api/news/stats", headers=adani_headers, json={})
             assert r.status_code in (405, 422), f"Expected 405 or 422, got {r.status_code}"
 
     @pytest.mark.asyncio
@@ -778,7 +778,7 @@ class TestResponseShapes:
     @pytest.mark.asyncio
     async def test_login_response_shape(self):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/auth/login", json=NIKE_LOGIN)
+            r = await c.post("/api/auth/login", json=ADANI_LOGIN)
             assert r.status_code == 200
             data = r.json()
             required_keys = {
@@ -794,9 +794,9 @@ class TestResponseShapes:
             assert isinstance(data["domain"], str)
 
     @pytest.mark.asyncio
-    async def test_news_feed_response_shape(self, nike_headers):
+    async def test_news_feed_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?limit=5", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=5", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             assert "articles" in data
@@ -805,9 +805,9 @@ class TestResponseShapes:
             assert isinstance(data["total"], int)
 
     @pytest.mark.asyncio
-    async def test_article_shape_in_feed(self, nike_headers):
+    async def test_article_shape_in_feed(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?limit=5", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=5", headers=adani_headers)
             articles = r.json().get("articles", [])
             if articles:
                 article = articles[0]
@@ -823,9 +823,9 @@ class TestResponseShapes:
                     assert key in article, f"Missing optional key '{key}' in article"
 
     @pytest.mark.asyncio
-    async def test_news_stats_response_shape(self, nike_headers):
+    async def test_news_stats_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/stats", headers=nike_headers)
+            r = await c.get("/api/news/stats", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             required = {"total", "high_impact_count", "new_last_24h", "predictions_count"}
@@ -834,9 +834,9 @@ class TestResponseShapes:
                 assert isinstance(data[key], int), f"'{key}' should be int"
 
     @pytest.mark.asyncio
-    async def test_me_response_shape(self, nike_headers):
+    async def test_me_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/auth/me", headers=nike_headers)
+            r = await c.get("/api/auth/me", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             required = {"user_id", "email", "domain", "tenant_id"}
@@ -847,9 +847,9 @@ class TestResponseShapes:
             assert "designation" in data
 
     @pytest.mark.asyncio
-    async def test_companies_response_shape(self, nike_headers):
+    async def test_companies_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/companies", headers=nike_headers)
+            r = await c.get("/api/companies", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             assert "companies" in data
@@ -862,9 +862,9 @@ class TestResponseShapes:
                     assert key in company, f"Missing '{key}' in company"
 
     @pytest.mark.asyncio
-    async def test_preferences_response_shape(self, nike_headers):
+    async def test_preferences_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/preferences", headers=nike_headers)
+            r = await c.get("/api/preferences", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             expected_keys = {
@@ -877,9 +877,9 @@ class TestResponseShapes:
                 assert key in data, f"Missing '{key}' in preferences response"
 
     @pytest.mark.asyncio
-    async def test_ontology_stats_response_shape(self, nike_headers):
+    async def test_ontology_stats_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/ontology/stats", headers=nike_headers)
+            r = await c.get("/api/ontology/stats", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             expected = {
@@ -891,9 +891,9 @@ class TestResponseShapes:
                 assert isinstance(data[key], int)
 
     @pytest.mark.asyncio
-    async def test_predictions_stats_response_shape(self, nike_headers):
+    async def test_predictions_stats_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/predictions/stats", headers=nike_headers)
+            r = await c.get("/api/predictions/stats", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             for key in (
@@ -903,9 +903,9 @@ class TestResponseShapes:
                 assert key in data, f"Missing '{key}' in prediction stats"
 
     @pytest.mark.asyncio
-    async def test_ftux_state_response_shape(self, nike_headers):
+    async def test_ftux_state_response_shape(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/ftux/state", headers=nike_headers)
+            r = await c.get("/api/ftux/state", headers=adani_headers)
             assert r.status_code == 200
             data = r.json()
             for key in ("is_active", "completed_steps", "current_step", "total_steps"):
@@ -924,7 +924,7 @@ class TestResponseShapes:
     @pytest.mark.asyncio
     async def test_resolve_domain_response_shape(self):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.post("/api/auth/resolve-domain", json={"domain": "nike.com"})
+            r = await c.post("/api/auth/resolve-domain", json={"domain": "adanipower.com"})
             data = r.json()
             for key in ("domain", "is_existing"):
                 assert key in data, f"Missing '{key}' in resolve-domain response"
@@ -939,90 +939,90 @@ class TestTenantIsolation:
     """Phase 2.7a — Cross-tenant security."""
 
     @pytest.mark.asyncio
-    async def test_nike_user_cannot_see_icici_articles(self, nike_headers):
-        """Nike tenant feed should contain no ICICI-specific articles."""
+    async def test_adani_user_cannot_see_icici_articles(self, adani_headers):
+        """Adani tenant feed should contain no ICICI-specific articles."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            r = await c.get("/api/news/feed?limit=100", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=100", headers=adani_headers)
             assert r.status_code == 200
             articles = r.json()["articles"]
             for article in articles:
                 title = (article.get("title") or "").lower()
-                # An article mentioning ICICI should not appear in Nike's feed
-                # unless it also mentions Nike (cross-industry news)
+                # An article mentioning ICICI should not appear in Adani's feed
+                # unless it also mentions Adani (cross-industry news)
                 if "icici" in title:
-                    assert "nike" in title, (
-                        f"ICICI article leaked to Nike feed: {article['title']}"
+                    assert "adani" in title, (
+                        f"ICICI article leaked to Adani feed: {article['title']}"
                     )
 
     @pytest.mark.asyncio
-    async def test_icici_user_cannot_see_nike_articles(self, icici_headers):
-        """ICICI tenant feed should contain no Nike-specific articles."""
+    async def test_icici_user_cannot_see_adani_articles(self, icici_headers):
+        """ICICI tenant feed should contain no Adani-specific articles."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             r = await c.get("/api/news/feed?limit=100", headers=icici_headers)
             assert r.status_code == 200
             articles = r.json()["articles"]
             for article in articles:
                 title = (article.get("title") or "").lower()
-                if "nike" in title:
+                if "adani" in title:
                     assert "icici" in title, (
-                        f"Nike article leaked to ICICI feed: {article['title']}"
+                        f"Adani article leaked to ICICI feed: {article['title']}"
                     )
 
     @pytest.mark.asyncio
     async def test_each_tenant_companies_returns_only_own_company(
-        self, nike_headers, icici_headers
+        self, adani_headers, icici_headers
     ):
         """Each tenant's /api/companies should return only their own companies."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            nike_r = await c.get("/api/companies", headers=nike_headers)
+            adani_r = await c.get("/api/companies", headers=adani_headers)
             icici_r = await c.get("/api/companies", headers=icici_headers)
 
-            assert nike_r.status_code == 200
+            assert adani_r.status_code == 200
             assert icici_r.status_code == 200
 
-            nike_ids = {co["id"] for co in nike_r.json()["companies"]}
+            adani_ids = {co["id"] for co in adani_r.json()["companies"]}
             icici_ids = {co["id"] for co in icici_r.json()["companies"]}
 
             # No overlap in company IDs
-            overlap = nike_ids & icici_ids
+            overlap = adani_ids & icici_ids
             assert not overlap, f"Company IDs shared across tenants: {overlap}"
 
     @pytest.mark.asyncio
     async def test_article_ids_not_accessible_cross_tenant(
-        self, nike_headers, icici_headers
+        self, adani_headers, icici_headers
     ):
         """Article IDs from one tenant should not be bookmarkable by another."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            # Get a Nike article ID
-            nike_feed = await c.get("/api/news/feed?limit=1", headers=nike_headers)
-            nike_articles = nike_feed.json().get("articles", [])
-            if nike_articles:
-                nike_article_id = nike_articles[0]["id"]
+            # Get an Adani article ID
+            adani_feed = await c.get("/api/news/feed?limit=1", headers=adani_headers)
+            adani_articles = adani_feed.json().get("articles", [])
+            if adani_articles:
+                adani_article_id = adani_articles[0]["id"]
                 # Try to bookmark it with ICICI token
                 r = await c.post(
-                    f"/api/news/{nike_article_id}/bookmark",
+                    f"/api/news/{adani_article_id}/bookmark",
                     headers=icici_headers,
                     json={"bookmarked": True},
                 )
                 # Should be 404 because tenant filtering prevents access
                 assert r.status_code == 404, (
-                    f"ICICI was able to access Nike article {nike_article_id}"
+                    f"ICICI was able to access Adani article {adani_article_id}"
                 )
 
     @pytest.mark.asyncio
-    async def test_nike_and_icici_stats_are_independent(
-        self, nike_headers, icici_headers
+    async def test_adani_and_icici_stats_are_independent(
+        self, adani_headers, icici_headers
     ):
         """Stats for each tenant should be independently computed."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
-            nike_stats = await c.get("/api/news/stats", headers=nike_headers)
+            adani_stats = await c.get("/api/news/stats", headers=adani_headers)
             icici_stats = await c.get("/api/news/stats", headers=icici_headers)
 
-            assert nike_stats.status_code == 200
+            assert adani_stats.status_code == 200
             assert icici_stats.status_code == 200
 
             # Both should return valid stats (may differ)
-            assert isinstance(nike_stats.json()["total"], int)
+            assert isinstance(adani_stats.json()["total"], int)
             assert isinstance(icici_stats.json()["total"], int)
 
 
@@ -1035,10 +1035,10 @@ class TestPerformance:
     """Phase 2.7b — Basic performance checks."""
 
     @pytest.mark.asyncio
-    async def test_feed_endpoint_responds_under_2_seconds(self, nike_headers):
+    async def test_feed_endpoint_responds_under_2_seconds(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             start = time.monotonic()
-            r = await c.get("/api/news/feed?limit=50", headers=nike_headers)
+            r = await c.get("/api/news/feed?limit=50", headers=adani_headers)
             elapsed = time.monotonic() - start
             assert r.status_code == 200
             assert elapsed < 2.0, f"Feed took {elapsed:.2f}s (limit: 2s)"
@@ -1047,25 +1047,25 @@ class TestPerformance:
     async def test_login_endpoint_responds_under_3_seconds(self):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             start = time.monotonic()
-            r = await c.post("/api/auth/login", json=NIKE_LOGIN)
+            r = await c.post("/api/auth/login", json=ADANI_LOGIN)
             elapsed = time.monotonic() - start
             assert r.status_code == 200
             assert elapsed < 3.0, f"Login took {elapsed:.2f}s (limit: 3s)"
 
     @pytest.mark.asyncio
-    async def test_stats_endpoint_responds_under_1_second(self, nike_headers):
+    async def test_stats_endpoint_responds_under_1_second(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             start = time.monotonic()
-            r = await c.get("/api/news/stats", headers=nike_headers)
+            r = await c.get("/api/news/stats", headers=adani_headers)
             elapsed = time.monotonic() - start
             assert r.status_code == 200
             assert elapsed < 1.0, f"Stats took {elapsed:.2f}s (limit: 1s)"
 
     @pytest.mark.asyncio
-    async def test_10_concurrent_feed_requests_all_succeed(self, nike_headers):
+    async def test_10_concurrent_feed_requests_all_succeed(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             tasks = [
-                c.get("/api/news/feed?limit=10", headers=nike_headers)
+                c.get("/api/news/feed?limit=10", headers=adani_headers)
                 for _ in range(10)
             ]
             start = time.monotonic()
@@ -1087,10 +1087,10 @@ class TestPerformance:
             )
 
     @pytest.mark.asyncio
-    async def test_home_endpoint_responds_under_2_seconds(self, nike_headers):
+    async def test_home_endpoint_responds_under_2_seconds(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             start = time.monotonic()
-            r = await c.get("/api/news/home", headers=nike_headers)
+            r = await c.get("/api/news/home", headers=adani_headers)
             elapsed = time.monotonic() - start
             assert r.status_code == 200
             assert elapsed < 2.0, f"Home took {elapsed:.2f}s (limit: 2s)"
@@ -1105,19 +1105,19 @@ class TestPerformance:
             assert elapsed < 0.5, f"Health check took {elapsed:.2f}s (limit: 0.5s)"
 
     @pytest.mark.asyncio
-    async def test_companies_endpoint_responds_under_1_second(self, nike_headers):
+    async def test_companies_endpoint_responds_under_1_second(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             start = time.monotonic()
-            r = await c.get("/api/companies", headers=nike_headers)
+            r = await c.get("/api/companies", headers=adani_headers)
             elapsed = time.monotonic() - start
             assert r.status_code == 200
             assert elapsed < 1.0, f"Companies took {elapsed:.2f}s (limit: 1s)"
 
     @pytest.mark.asyncio
-    async def test_preferences_endpoint_responds_under_1_second(self, nike_headers):
+    async def test_preferences_endpoint_responds_under_1_second(self, adani_headers):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=TIMEOUT) as c:
             start = time.monotonic()
-            r = await c.get("/api/preferences", headers=nike_headers)
+            r = await c.get("/api/preferences", headers=adani_headers)
             elapsed = time.monotonic() - start
             assert r.status_code == 200
             assert elapsed < 1.0, f"Preferences took {elapsed:.2f}s (limit: 1s)"

@@ -10,16 +10,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { auth } from "@/lib/api";
 import { COLORS, RADII } from "@/lib/designTokens";
 
-const DESIGNATIONS = [
-  "CEO", "CFO", "CTO", "COO",
-  "Head of Sustainability", "Sustainability Manager",
-  "ESG Manager", "ESG Analyst", "Data Analyst",
-  "Consultant", "Managing Director",
-];
-
-
-
-type Step = "domain" | "designation" | "confirm" | "returning";
+type Step = "domain" | "confirm" | "returning";
 
 /* Underline-only input matching UX Create Account design */
 function UnderlineInput({
@@ -69,11 +60,10 @@ export function LoginPage() {
 
   const [step, setStep] = useState<Step>("domain");
   const [domain, setDomain] = useState("");
-  const [designation, setDesignation] = useState("");
+  const [designation, setDesignation] = useState("ESG Analyst");
   const [companyName, setCompanyName] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
   const [returningEmail, setReturningEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -84,7 +74,11 @@ export function LoginPage() {
     try {
       const result = await auth.resolveDomain(domain);
       if (result.company_name) setCompanyName(result.company_name);
-      setStep("designation");
+      // Designation step removed — default everyone to ESG Analyst and skip
+      // straight to the confirm step. Users switch cognitive lens in-app via
+      // the PerspectiveSwitcher, not via a static role at login.
+      setDesignation("ESG Analyst");
+      setStep("confirm");
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : typeof e === "string" ? e : "Failed to resolve domain");
     } finally {
@@ -193,99 +187,15 @@ export function LoginPage() {
             </div>
           )}
 
-          {/* Step 2: Designation */}
-          {step === "designation" && (
-            <div className="space-y-4">
-              <p style={{ fontSize: "16px", color: COLORS.textSecondary, marginBottom: "12px" }}>
-                Select your designation at {companyName || domain}
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {DESIGNATIONS.map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => { setDesignation(d); setStep("confirm"); }}
-                    style={{
-                      padding: "12px",
-                      borderRadius: RADII.card,
-                      fontSize: "14px",
-                      textAlign: "left",
-                      border: `1px solid ${designation === d ? COLORS.brand : COLORS.textDisabled}`,
-                      backgroundColor: designation === d ? COLORS.brandLight : COLORS.bgWhite,
-                      color: designation === d ? COLORS.brand : COLORS.textPrimary,
-                      cursor: "pointer",
-                    }}
-                  >
-                    {d}
-                  </button>
-                ))}
-              </div>
+          {/* Step 2 (designation) removed — login goes domain → confirm. */}
 
-              {/* Custom role input */}
-              <div style={{ marginTop: "16px" }}>
-                <label
-                  htmlFor="custom-role"
-                  style={{ fontSize: "14px", color: COLORS.textSecondary, display: "block", marginBottom: "6px" }}
-                >
-                  Don&apos;t see your role? Type it here:
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    id="custom-role"
-                    name="custom-role"
-                    type="text"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    placeholder="e.g. VP of ESG, Climate Officer, CSO"
-                    style={{
-                      flex: 1,
-                      border: "none",
-                      borderBottom: `1px solid ${COLORS.textMuted}`,
-                      outline: "none",
-                      fontSize: "14px",
-                      padding: "8px 0",
-                      background: "transparent",
-                      color: COLORS.textPrimary,
-                    }}
-                  />
-                  <button
-                    onClick={() => {
-                      if (role.trim()) {
-                        setDesignation(role.trim());
-                        setStep("confirm");
-                      }
-                    }}
-                    disabled={!role.trim()}
-                    style={{
-                      padding: "8px 16px",
-                      borderRadius: RADII.button,
-                      fontSize: "14px",
-                      fontWeight: 500,
-                      backgroundColor: role.trim() ? COLORS.darkCard : COLORS.textDisabled,
-                      color: COLORS.bgWhite,
-                      border: "none",
-                      cursor: role.trim() ? "pointer" : "not-allowed",
-                    }}
-                  >
-                    Continue
-                  </button>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setStep("domain")}
-                style={{ fontSize: "14px", color: COLORS.textSecondary, background: "none", border: "none", cursor: "pointer", marginTop: "8px" }}
-              >
-                &larr; Back
-              </button>
-            </div>
-          )}
-
-          {/* Step 3: Confirm — matches UX "Create Account" form */}
+          {/* Step 3: Confirm — Name + Company + Email only. Designation is
+              no longer collected at login; users switch cognitive lens in-app
+              via the PerspectiveSwitcher. */}
           {step === "confirm" && (
             <div className="space-y-6">
               <UnderlineInput label="Full Name" name="fullname" value={name} onChange={setName} placeholder="e.g. John Smith" />
               <UnderlineInput label="Company Name" name="company" value={companyName} onChange={setCompanyName} placeholder="e.g. Acme Corporation" />
-              <UnderlineInput label="Designation" name="designation" value={designation} onChange={setDesignation} placeholder="e.g. Head of Sustainability" />
 
               <UnderlineInput
                 label="Email"
@@ -320,7 +230,7 @@ export function LoginPage() {
               </button>
 
               <button
-                onClick={() => setStep("designation")}
+                onClick={() => setStep("domain")}
                 style={{ fontSize: "14px", color: COLORS.textSecondary, background: "none", border: "none", cursor: "pointer", marginTop: "8px" }}
               >
                 &larr; Back

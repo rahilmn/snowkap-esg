@@ -1,0 +1,912 @@
+{
+  "article": {
+    "id": "91215f7206ab72ae",
+    "title": "Assam Gov’t Agrees to Pay the Adani Group for Excessive Power it Cannot Consume in Coming Years. Potentially Rs 12,500 Crore over Five Years - The Reporters' Collective",
+    "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPMjZRZGxEZFczdU05UTJ5cEg1TkVXbTVCcnlKV20zOHlHc0FVbDJSaUpCdWhvazk5T2hSMEg0ZlRHWTZ5U3VtS2FjdktJNDN0MUk5QzhQM2J0SXVjeGVSWWl2d0U1VU5sZmlCbnMtVmFlNld3a29lTFpoaWRHUThYeEdDUTBqVE9CUGZXMk10akhRSHhtcnR1d295MVY2aGM?oc=5",
+    "source": "The Reporters' Collective",
+    "published_at": "2026-03-17T07:00:00+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "91215f7206ab72ae",
+    "title": "Assam Gov’t Agrees to Pay the Adani Group for Excessive Power it Cannot Consume in Coming Years. Potentially Rs 12,500 Crore over Five Years - The Reporters' Collective",
+    "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPMjZRZGxEZFczdU05UTJ5cEg1TkVXbTVCcnlKV20zOHlHc0FVbDJSaUpCdWhvazk5T2hSMEg0ZlRHWTZ5U3VtS2FjdktJNDN0MUk5QzhQM2J0SXVjeGVSWWl2d0U1VU5sZmlCbnMtVmFlNld3a29lTFpoaWRHUThYeEdDUTBqVE9CUGZXMk10akhRSHhtcnR1d295MVY2aGM?oc=5",
+    "source": "The Reporters' Collective",
+    "published_at": "2026-03-17T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 48,
+    "elapsed_seconds": 6.97,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "cautionary",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "Assam government agrees to pay Adani Group for excess power it cannot consume over the next five years.",
+      "narrative_implied_causation": "Because Assam cannot consume all the power generated, it will pay Adani Group for the surplus capacity.",
+      "narrative_stakeholder_framing": "Assam government is the protagonist agreeing to pay; Adani Group is the affected party receiving payment.",
+      "entities": [
+        "Assam Gov’t",
+        "Adani Group",
+        "Rs 12,500 Crore"
+      ],
+      "entity_types": {
+        "Assam Gov’t": "government",
+        "Adani Group": "company",
+        "Rs 12,500 Crore": "financial amount"
+      },
+      "financial_signal": {
+        "amount": 12500,
+        "unit": "crore",
+        "context": "payment for excessive power over five years"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "energy consumption",
+        "financial risk",
+        "power supply"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "years",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "fossil_fuel_dependency",
+        "energy_intensity",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Risk Management",
+          "pillar": "G",
+          "sub_metrics": [
+            "business_continuity",
+            "erm_maturity"
+          ]
+        },
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
+        }
+      ],
+      "confidence": 0.85,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 12500.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "BCG:CashCows",
+          "BCG:Dogs",
+          "BCG:QuestionMarks"
+        ]
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "M3H:H1",
+          "M3H:H2",
+          "M3H:H3"
+        ]
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.5,
+          "adjusted_score": 18.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.8,
+          "adjusted_score": 14.4,
+          "level": "HIGH",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.2,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.3,
+          "adjusted_score": 10.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.5,
+          "adjusted_score": 18.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.8,
+          "adjusted_score": 14.4,
+          "level": "HIGH",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.3,
+          "adjusted_score": 10.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.2,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "aggregate_score": 0.322,
+      "ontology_queries": 14
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Power to receive ₹12,500 Cr from Assam for unutilized power, raising ESG and regulatory scrutiny",
+    "impact_score": 4.0,
+    "core_mechanism": "The Assam government has contractually agreed to pay Adani Power for surplus electricity it cannot consume over five years. This arrangement secures predictable cash flows for Adani Power but exposes both parties to scrutiny over resource allocation and transparency, especially under evolving ESG disclosure norms.",
+    "profitability_connection": "Guaranteed payments bolster Adani Power's revenue stability and cash flow, but may attract negative investor sentiment and regulatory attention, potentially impacting valuation multiples.",
+    "translation": "Assam will pay Adani Power for electricity it doesn't use, ensuring steady income for Adani but possibly drawing criticism over fairness and transparency.",
+    "impact_analysis": {
+      "esg_positioning": "Potential ESG score gap due to fossil fuel dependency and lack of proactive disclosure; peer pressure from more transparent competitors.",
+      "capital_allocation": "Possible increase in cost of capital (20-40bps) if disclosure is inadequate; risk of FII outflow.",
+      "valuation_cashflow": "Short-term cash flow boost; risk of P/E compression (5-10%) if ESG ratings fall or regulatory scrutiny intensifies.",
+      "compliance_regulatory": "BRSR [MANDATORY], GRI, TCFD triggered; risk of SEBI scrutiny and trading restrictions if non-disclosure persists.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "N/A"
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹12,500 Cr contracted inflow over five years",
+        "profitability_pathway": "Assam's payment obligation → Adani Power receives fixed revenue → ₹12,500 Cr inflow",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Potential P/E compression if ESG/regulatory risks materialize",
+        "competitive_position": "JSW Energy and peers with stronger ESG disclosures may attract more favorable investor sentiment"
+      },
+      "long_term": {
+        "secular_trajectory": "Continued reliance on such contracts may limit green transition and expose Adani Power to future regulatory and reputational risks",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 5,
+        "rationale": "Event highlights fossil fuel dependency and inefficient energy allocation"
+      },
+      "social": {
+        "score": 2,
+        "rationale": "Limited direct social impact; public funds usage may raise concerns"
+      },
+      "governance": {
+        "score": 5,
+        "rationale": "Transparency and disclosure risks under BRSR/GRI frameworks"
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "Material for cash flow, but not transformative for large-cap Adani Power"
+      },
+      "regulatory_exposure": {
+        "score": 6,
+        "rationale": "Triggers mandatory ESG disclosures and potential SEBI scrutiny"
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Potential reputational risk among investors and civil society"
+      }
+    },
+    "net_impact_summary": "While the contract secures significant revenue for Adani Power, it exposes the company to heightened ESG and regulatory scrutiny due to inefficient energy allocation and limited transparency. The event is not transformative but may pressure valuation if disclosure gaps persist. Peer companies with better ESG practices could gain a relative advantage. The structural significance lies in the growing importance of transparent, sustainable power agreements in the sector.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required, but monitor for regulatory or reputational escalation.",
+      "financial_exposure": "₹500-2,000 Cr at risk if regulatory or reputational risks crystallize",
+      "key_risk": "SEBI scrutiny and potential trading restrictions due to BRSR non-disclosure",
+      "top_opportunity": "ESG narrative differentiation via proactive disclosure and transition planning",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Assam government agrees to pay Adani Power for unutilized electricity over five years",
+      "mechanism": "Contractual payment secures revenue but triggers mandatory ESG disclosures and potential regulatory scrutiny",
+      "company_impact": "Stable cash inflow, but risk of valuation pressure if ESG or regulatory issues arise",
+      "transmission_type": "regulatory"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power to receive ₹12,500 Cr from Assam for unutilized power, raising ESG and regulatory scrutiny",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Potential ESG score gap due to fossil fuel dependency and lack of proactive disclosure; peer pressure from more transparent competitors.",
+        "BRSR [MANDATORY], GRI, TCFD triggered; risk of SEBI scrutiny and trading restrictions if non-disclosure persists.",
+        "Short-term cash flow boost; risk of P/E compression (5-10%) if ESG ratings fall or regulatory scrutiny intensifies."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power to receive ₹12,500 Cr from Assam for unutilized power, raising ESG and regulatory scrutiny",
+        "impact_score": 4.0,
+        "core_mechanism": "The Assam government has contractually agreed to pay Adani Power for surplus electricity it cannot consume over five years. This arrangement secures predictable cash flows for Adani Power but exposes both parties to scrutiny over resource allocation and transparency, especially under evolving ESG disclosure norms.",
+        "profitability_connection": "Guaranteed payments bolster Adani Power's revenue stability and cash flow, but may attract negative investor sentiment and regulatory attention, potentially impacting valuation multiples.",
+        "translation": "Assam will pay Adani Power for electricity it doesn't use, ensuring steady income for Adani but possibly drawing criticism over fairness and transparency.",
+        "impact_analysis": {
+          "esg_positioning": "Potential ESG score gap due to fossil fuel dependency and lack of proactive disclosure; peer pressure from more transparent competitors.",
+          "capital_allocation": "Possible increase in cost of capital (20-40bps) if disclosure is inadequate; risk of FII outflow.",
+          "valuation_cashflow": "Short-term cash flow boost; risk of P/E compression (5-10%) if ESG ratings fall or regulatory scrutiny intensifies.",
+          "compliance_regulatory": "BRSR [MANDATORY], GRI, TCFD triggered; risk of SEBI scrutiny and trading restrictions if non-disclosure persists.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "N/A"
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹12,500 Cr contracted inflow over five years",
+            "profitability_pathway": "Assam's payment obligation → Adani Power receives fixed revenue → ₹12,500 Cr inflow",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Potential P/E compression if ESG/regulatory risks materialize",
+            "competitive_position": "JSW Energy and peers with stronger ESG disclosures may attract more favorable investor sentiment"
+          },
+          "long_term": {
+            "secular_trajectory": "Continued reliance on such contracts may limit green transition and expose Adani Power to future regulatory and reputational risks",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 5,
+            "rationale": "Event highlights fossil fuel dependency and inefficient energy allocation"
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Limited direct social impact; public funds usage may raise concerns"
+          },
+          "governance": {
+            "score": 5,
+            "rationale": "Transparency and disclosure risks under BRSR/GRI frameworks"
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "Material for cash flow, but not transformative for large-cap Adani Power"
+          },
+          "regulatory_exposure": {
+            "score": 6,
+            "rationale": "Triggers mandatory ESG disclosures and potential SEBI scrutiny"
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Potential reputational risk among investors and civil society"
+          }
+        },
+        "net_impact_summary": "While the contract secures significant revenue for Adani Power, it exposes the company to heightened ESG and regulatory scrutiny due to inefficient energy allocation and limited transparency. The event is not transformative but may pressure valuation if disclosure gaps persist. Peer companies with better ESG practices could gain a relative advantage. The structural significance lies in the growing importance of transparent, sustainable power agreements in the sector.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required, but monitor for regulatory or reputational escalation.",
+          "financial_exposure": "₹500-2,000 Cr at risk if regulatory or reputational risks crystallize",
+          "key_risk": "SEBI scrutiny and potential trading restrictions due to BRSR non-disclosure",
+          "top_opportunity": "ESG narrative differentiation via proactive disclosure and transition planning",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Assam government agrees to pay Adani Power for unutilized electricity over five years",
+          "mechanism": "Contractual payment secures revenue but triggers mandatory ESG disclosures and potential regulatory scrutiny",
+          "company_impact": "Stable cash inflow, but risk of valuation pressure if ESG or regulatory issues arise",
+          "transmission_type": "regulatory"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹500-2,000 Cr at risk if regulatory or reputational risks crystallize — Adani Power to receive ₹12,500 Cr from Assam for unutilized power, raising ESG and regulatory scrutiny",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], GRI, TCFD triggered; risk of SEBI scrutiny and trading restrictions if non-disclosure persists.",
+        "Short-term cash flow boost; risk of P/E compression (5-10%) if ESG ratings fall or regulatory scrutiny intensifies.",
+        "Possible increase in cost of capital (20-40bps) if disclosure is inadequate; risk of FII outflow."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via proactive disclosure and transition planning",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], GRI, TCFD triggered; risk of SEBI scrutiny and trading restrictions if non-disclosure persists.",
+        "Potential ESG score gap due to fossil fuel dependency and lack of proactive disclosure; peer pressure from more transparent competitors."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:33:32.470225+00:00",
+    "schema_version": "1.0"
+  }
+}

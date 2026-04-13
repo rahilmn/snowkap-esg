@@ -91,6 +91,9 @@ export interface Article {
     rejected: string[];
     validation_summary: string;
     suggested_questions?: string[];
+    recommendation_rankings?: Record<string, number[]>;
+    priority_matrix?: Record<string, Array<{ index: number; title: string; type: string; roi?: number; budget?: string }>>;
+    perspective_type_filters?: Record<string, string[]>;
   } | null;
 
   // v2.0 Intelligence Modules
@@ -99,6 +102,26 @@ export interface Article {
   framework_matches: FrameworkMatchV2[] | null;
   risk_matrix: RiskMatrix | null;
   geographic_signal: GeographicSignal | null;
+
+  // Phase 12: Ontology-driven perspective views (CFO / CEO / ESG Analyst)
+  perspectives?: Record<"cfo" | "ceo" | "esg-analyst", CrispView> | null;
+}
+
+/** Bloomberg-style perspective view produced by the ontology-driven pipeline. */
+export interface CrispView {
+  perspective: "cfo" | "ceo" | "esg-analyst";
+  headline: string;
+  impact_grid: {
+    financial: "HIGH" | "MEDIUM" | "LOW";
+    regulatory: "HIGH" | "MEDIUM" | "LOW";
+    strategic: "HIGH" | "MEDIUM" | "LOW";
+  };
+  what_matters: string[];
+  action: string[];
+  materiality: string;
+  do_nothing: boolean;
+  active_impact_dimensions: string[];
+  full_insight?: Record<string, unknown> | null;
 }
 
 // v2.0 Module Types

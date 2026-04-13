@@ -1,0 +1,70 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "IDFC First Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "IDFC First Bank Chennai",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "IDFC First Bank Chennai -> IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "IDFC First Bank HQ",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "IDFC First Bank HQ -> IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Data Privacy & Security",
+        "Financials/Banking",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Data Privacy & Security is material for Financials/Banking → impacts IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Data Privacy & Security",
+        "BRSR",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Data Privacy & Security triggers BRSR disclosure obligation for IDFC First Bank"
+    }
+  ]
+}

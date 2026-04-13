@@ -1,0 +1,64 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Risk Management",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Risk Management is material for Power/Energy → impacts Adani Power"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "TCFD",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers TCFD disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "COSO ERM",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers COSO ERM disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "ISSB / IFRS S1 S2",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers ISSB / IFRS S1 S2 disclosure obligation for Adani Power"
+    }
+  ]
+}

@@ -1,0 +1,790 @@
+{
+  "article": {
+    "id": "13083298fea7b228",
+    "title": "Adani Power Receives Strong ESG Rating of 80 (ESG 1+) from CareEdge-ESG - InvestyWise",
+    "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5CT1BRb3A2SHBOTGpaSjZ2SkZBS3BSTVBHdVg4SFNTNloxcURGa1FqUWhkTjVPa2M4ZS1VUmpna3k0MDZxQVdBLWViUVVZMzdKcnhEc0N0M3VoR3dOcThvNjFoNWx4TEJQdU5seHcwaXVtcWJJVVE?oc=5",
+    "source": "InvestyWise",
+    "published_at": "2026-03-24T10:29:22+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "13083298fea7b228",
+    "title": "Adani Power Receives Strong ESG Rating of 80 (ESG 1+) from CareEdge-ESG - InvestyWise",
+    "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE5CT1BRb3A2SHBOTGpaSjZ2SkZBS3BSTVBHdVg4SFNTNloxcURGa1FqUWhkTjVPa2M4ZS1VUmpna3k0MDZxQVdBLWViUVVZMzdKcnhEc0N0M3VoR3dOcThvNjFoNWx4TEJQdU5seHcwaXVtcWJJVVE?oc=5",
+    "source": "InvestyWise",
+    "published_at": "2026-03-24T10:29:22+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 7.241,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "optimistic",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "Adani Power received a strong ESG rating of 80 (ESG 1+) from CareEdge-ESG.",
+      "narrative_implied_causation": "Adani Power's ESG practices led to a high ESG rating by CareEdge-ESG.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist benefiting from the ESG rating; investors and stakeholders are positively affected.",
+      "entities": [
+        "Adani Power",
+        "CareEdge-ESG",
+        "InvestyWise"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "CareEdge-ESG": "rating agency",
+        "InvestyWise": "media outlet"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "ESG rating",
+        "sustainability performance"
+      ],
+      "content_type": "reputational",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness",
+        "audit_quality"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_esg_rating_change",
+      "label": "ESG Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 7,
+      "financial_transmission": "passive fund rebalancing → ~5% share price impact",
+      "matched_keywords": [
+        "esg rating"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.8,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "ESRS",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.3,
+          "adjusted_score": 3.9,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.3,
+          "adjusted_score": 3.9,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.076,
+      "ontology_queries": 6
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": []
+  },
+  "insight": {
+    "headline": "Adani Power secures strong ESG 1+ rating from CareEdge-ESG, enhancing disclosure credibility",
+    "impact_score": 6.0,
+    "core_mechanism": "Adani Power's improved ESG practices and transparency have resulted in a high ESG rating (80, ESG 1+) from CareEdge-ESG. This rating signals robust governance and disclosure, positioning the company favorably for passive ESG fund inclusion and regulatory compliance.",
+    "profitability_connection": "A higher ESG rating can attract ESG-focused investors, potentially lowering the cost of capital and supporting share price stability. Enhanced disclosure reduces regulatory risk and may lead to a valuation premium relative to sector peers.",
+    "translation": "Adani Power's strong ESG rating means it is recognized for good governance and transparency, making it more attractive to investors and less likely to face regulatory penalties.",
+    "impact_analysis": {
+      "esg_positioning": "Positive ESG score gap vs sector peers; potential for index inclusion and peer pressure on laggards.",
+      "capital_allocation": "Lower cost of capital likely; improved access to ESG funds; reduced bond spread risk.",
+      "valuation_cashflow": "Potential P/E expansion; margin stability; revenue at risk minimized.",
+      "compliance_regulatory": "BRSR [MANDATORY], GRI, DJSI, ESRS frameworks triggered; no immediate penalties.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Improved talent attraction and stakeholder trust."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "Potential 5% share price uplift from passive ESG fund rebalancing",
+        "profitability_pathway": "ESG rating upgrade → passive fund inflows → share price support",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "P/E expansion likely due to ESG premium and improved investor perception",
+        "competitive_position": "Gain vs JSW Energy and other peers with lower ESG ratings"
+      },
+      "long_term": {
+        "secular_trajectory": "Sustained ESG leadership supports long-term capital access and regulatory resilience",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 2,
+        "rationale": "Event is governance-focused, not directly environmental"
+      },
+      "social": {
+        "score": 3,
+        "rationale": "Improved trust and stakeholder engagement, but not core to event"
+      },
+      "governance": {
+        "score": 8,
+        "rationale": "Strong governance and disclosure are central to the rating"
+      },
+      "financial_materiality": {
+        "score": 6,
+        "rationale": "Potential for fund inflows and cost of capital reduction"
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "Meets BRSR and other disclosure mandates, reducing risk"
+      },
+      "stakeholder_impact": {
+        "score": 5,
+        "rationale": "Positive for investors, employees, and community perception"
+      }
+    },
+    "net_impact_summary": "Adani Power's strong ESG rating from CareEdge-ESG materially enhances its governance profile and disclosure credibility. This positions the company for potential inclusion in ESG indices and passive funds, supporting share price and reducing regulatory scrutiny. While the immediate financial impact is moderate, the structural benefits include improved access to capital and a competitive edge over sector peers. The event signals a positive trajectory for long-term stakeholder trust and market positioning.",
+    "decision_summary": {
+      "materiality": "HIGH",
+      "action": "ACT",
+      "verdict": "Leverage ESG rating in investor communications and pursue index inclusion to maximize capital inflows.",
+      "financial_exposure": "₹500-1,500 Cr at risk/opportunity via fund flows and valuation premium",
+      "key_risk": "Loss of ESG premium if disclosure standards slip or rating is downgraded",
+      "top_opportunity": "First-mover advantage in ESG index inclusion and narrative differentiation",
+      "timeline": "within 8 weeks"
+    },
+    "causal_chain": {
+      "event": "Adani Power receives ESG 1+ rating (score 80) from CareEdge-ESG",
+      "mechanism": "High ESG rating triggers passive fund rebalancing, improves investor perception, and reduces regulatory risk",
+      "company_impact": "Potential share price uplift, lower cost of capital, and enhanced stakeholder trust",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Enhance BRSR Disclosure Quality",
+        "description": "Improve and fully align BRSR disclosures ahead of the FY26 filing deadline to maintain strong ESG ratings and avoid SEBI scrutiny and trading restrictions.",
+        "type": "compliance",
+        "responsible_party": "Head of Sustainability Reporting",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹5-7 Cr",
+        "profitability_link": "Avoids potential cost of capital increase by 20-40 bps on ₹20,000 Cr debt, saving ₹40-80 Cr annually.",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 10,
+        "roi_percentage": 800.0,
+        "payback_months": 1.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Publish TCFD-Aligned Scope 3 Emissions Report",
+        "description": "Develop and publish a TCFD-aligned report including Scope 3 emissions to enhance transparency and attract ESG-mandated foreign institutional investments.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Sustainability Officer",
+        "framework_section": "GRI:305-3",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹8-10 Cr",
+        "profitability_link": "Following SBI’s example, could attract ₹3000 Cr in ESG FII inflows, potentially increasing valuation by 5-10%, equating to ₹1500-3000 Cr uplift.",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 9,
+        "roi_percentage": 15000.0,
+        "payback_months": 18.0,
+        "peer_benchmark": "State Bank of India published TCFD report and gained ₹3000 Cr ESG inflows"
+      },
+      {
+        "title": "Leverage ESG Rating in Investor Communications",
+        "description": "Integrate the strong ESG 1+ rating prominently in investor presentations and disclosures to differentiate from peers and support inclusion in ESG indices.",
+        "type": "strategic",
+        "responsible_party": "Head of Investor Relations",
+        "framework_section": "Dow Jones Sustainability Index",
+        "deadline": "2026-06-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "Potential 5-10% valuation premium on ₹30,000 Cr market cap, adding ₹1500-3000 Cr in market value.",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 1500.0,
+        "payback_months": 6.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Prepare for ESRS Compliance for EU Operations",
+        "description": "Initiate ESRS-aligned reporting processes to ensure compliance with upcoming CSRD requirements for any EU-related operations or financing.",
+        "type": "compliance",
+        "responsible_party": "Compliance Officer",
+        "framework_section": "ESRS",
+        "deadline": "2026-12-31",
+        "estimated_budget": "₹3-5 Cr",
+        "profitability_link": "Avoids regulatory penalties and potential financing restrictions estimated at ₹50 Cr annually.",
+        "priority": "MEDIUM",
+        "urgency": "medium_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 1000.0,
+        "payback_months": 12.0,
+        "peer_benchmark": null
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Enhance BRSR Disclosure Quality",
+          "type": "compliance",
+          "roi": 800.0,
+          "budget": "₹5-7 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Publish TCFD-Aligned Scope 3 Emissions Report",
+          "type": "esg_positioning",
+          "roi": 15000.0,
+          "budget": "₹8-10 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 2,
+          "title": "Leverage ESG Rating in Investor Communications",
+          "type": "strategic",
+          "roi": 1500.0,
+          "budget": "₹1-2 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": [
+        {
+          "index": 3,
+          "title": "Prepare for ESRS Compliance for EU Operations",
+          "type": "compliance",
+          "roi": 1000.0,
+          "budget": "₹3-5 Cr"
+        }
+      ]
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "ceo": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "esg-analyst": [
+        0,
+        3,
+        1,
+        2
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power secures strong ESG 1+ rating from CareEdge-ESG, enhancing disclosure credibility",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Positive ESG score gap vs sector peers; potential for index inclusion and peer pressure on laggards.",
+        "BRSR [MANDATORY], GRI, DJSI, ESRS frameworks triggered; no immediate penalties.",
+        "Improved talent attraction and stakeholder trust."
+      ],
+      "action": [
+        "Leverage ESG rating in investor communications and pursue index inclusion to maximize capital inflows.",
+        "Opportunity: First-mover advantage in ESG index inclusion and narrative differentiation"
+      ],
+      "materiality": "HIGH",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": {
+        "headline": "Adani Power secures strong ESG 1+ rating from CareEdge-ESG, enhancing disclosure credibility",
+        "impact_score": 6.0,
+        "core_mechanism": "Adani Power's improved ESG practices and transparency have resulted in a high ESG rating (80, ESG 1+) from CareEdge-ESG. This rating signals robust governance and disclosure, positioning the company favorably for passive ESG fund inclusion and regulatory compliance.",
+        "profitability_connection": "A higher ESG rating can attract ESG-focused investors, potentially lowering the cost of capital and supporting share price stability. Enhanced disclosure reduces regulatory risk and may lead to a valuation premium relative to sector peers.",
+        "translation": "Adani Power's strong ESG rating means it is recognized for good governance and transparency, making it more attractive to investors and less likely to face regulatory penalties.",
+        "impact_analysis": {
+          "esg_positioning": "Positive ESG score gap vs sector peers; potential for index inclusion and peer pressure on laggards.",
+          "capital_allocation": "Lower cost of capital likely; improved access to ESG funds; reduced bond spread risk.",
+          "valuation_cashflow": "Potential P/E expansion; margin stability; revenue at risk minimized.",
+          "compliance_regulatory": "BRSR [MANDATORY], GRI, DJSI, ESRS frameworks triggered; no immediate penalties.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Improved talent attraction and stakeholder trust."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "Potential 5% share price uplift from passive ESG fund rebalancing",
+            "profitability_pathway": "ESG rating upgrade → passive fund inflows → share price support",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "P/E expansion likely due to ESG premium and improved investor perception",
+            "competitive_position": "Gain vs JSW Energy and other peers with lower ESG ratings"
+          },
+          "long_term": {
+            "secular_trajectory": "Sustained ESG leadership supports long-term capital access and regulatory resilience",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 2,
+            "rationale": "Event is governance-focused, not directly environmental"
+          },
+          "social": {
+            "score": 3,
+            "rationale": "Improved trust and stakeholder engagement, but not core to event"
+          },
+          "governance": {
+            "score": 8,
+            "rationale": "Strong governance and disclosure are central to the rating"
+          },
+          "financial_materiality": {
+            "score": 6,
+            "rationale": "Potential for fund inflows and cost of capital reduction"
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Meets BRSR and other disclosure mandates, reducing risk"
+          },
+          "stakeholder_impact": {
+            "score": 5,
+            "rationale": "Positive for investors, employees, and community perception"
+          }
+        },
+        "net_impact_summary": "Adani Power's strong ESG rating from CareEdge-ESG materially enhances its governance profile and disclosure credibility. This positions the company for potential inclusion in ESG indices and passive funds, supporting share price and reducing regulatory scrutiny. While the immediate financial impact is moderate, the structural benefits include improved access to capital and a competitive edge over sector peers. The event signals a positive trajectory for long-term stakeholder trust and market positioning.",
+        "decision_summary": {
+          "materiality": "HIGH",
+          "action": "ACT",
+          "verdict": "Leverage ESG rating in investor communications and pursue index inclusion to maximize capital inflows.",
+          "financial_exposure": "₹500-1,500 Cr at risk/opportunity via fund flows and valuation premium",
+          "key_risk": "Loss of ESG premium if disclosure standards slip or rating is downgraded",
+          "top_opportunity": "First-mover advantage in ESG index inclusion and narrative differentiation",
+          "timeline": "within 8 weeks"
+        },
+        "causal_chain": {
+          "event": "Adani Power receives ESG 1+ rating (score 80) from CareEdge-ESG",
+          "mechanism": "High ESG rating triggers passive fund rebalancing, improves investor perception, and reduces regulatory risk",
+          "company_impact": "Potential share price uplift, lower cost of capital, and enhanced stakeholder trust",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹500-1,500 Cr at risk/opportunity via fund flows and valuation premium — Adani Power secures strong ESG 1+ rating from CareEdge-ESG, enhancing disclosure credibility",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Potential P/E expansion; margin stability; revenue at risk minimized.",
+        "BRSR [MANDATORY], GRI, DJSI, ESRS frameworks triggered; no immediate penalties.",
+        "Lower cost of capital likely; improved access to ESG funds; reduced bond spread risk."
+      ],
+      "action": [
+        "Leverage ESG rating in investor communications and pursue index inclusion to maximize capital inflows.",
+        "Opportunity: First-mover advantage in ESG index inclusion and narrative differentiation"
+      ],
+      "materiality": "HIGH",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "regulatory"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — First-mover advantage in ESG index inclusion and narrative differentiation",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], GRI, DJSI, ESRS frameworks triggered; no immediate penalties.",
+        "Positive ESG score gap vs sector peers; potential for index inclusion and peer pressure on laggards.",
+        "Improved talent attraction and stakeholder trust."
+      ],
+      "action": [
+        "Leverage ESG rating in investor communications and pursue index inclusion to maximize capital inflows.",
+        "Opportunity: First-mover advantage in ESG index inclusion and narrative differentiation"
+      ],
+      "materiality": "HIGH",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:34:20.453355+00:00",
+    "schema_version": "1.0"
+  }
+}

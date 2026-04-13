@@ -156,27 +156,80 @@ async def fetch_publication_feeds(
     return results
 
 
+# Industry-specific keywords — articles must match the company's sector to be relevant
+INDUSTRY_KEYWORDS: dict[str, set[str]] = {
+    "financials": {
+        "bank", "banking", "rbi", "npa", "lending", "credit", "nbfc", "fintech",
+        "loan", "deposit", "interest rate", "monetary policy", "insurance", "mutual fund",
+        "amc", "asset management", "sebi", "stock exchange", "capital market", "ipo",
+        "microfinance", "upi", "payment", "fraud", "default", "restructuring",
+    },
+    "infrastructure": {
+        "power", "energy", "electricity", "coal", "thermal", "grid", "transmission",
+        "generation", "distribution", "tariff", "discom", "megawatt", "plant",
+        "infrastructure", "construction", "highway", "port", "logistics",
+        "capacity addition", "power purchase", "cerc", "serc",
+    },
+    "renewable": {
+        "solar", "wind", "renewable", "green energy", "module", "panel", "inverter",
+        "photovoltaic", "turbine", "clean energy", "hydrogen", "battery", "storage",
+        "ev", "electric vehicle", "charging", "sustainability transition",
+        "green hydrogen", "electrolyser", "rooftop", "utility scale",
+    },
+}
+
+
+def _get_industry_keywords(industry: str | None) -> set[str]:
+    """Get industry-specific keywords for filtering. Returns empty set if no match."""
+    if not industry:
+        return set()
+    ind_lower = industry.lower()
+    for key, keywords in INDUSTRY_KEYWORDS.items():
+        if key in ind_lower or ind_lower in key:
+            return keywords
+    return set()
+
+
+def _is_industry_relevant(title: str, summary: str, industry_keywords: set[str]) -> bool:
+    """Return True if the article matches the company's industry keywords."""
+    if not industry_keywords:
+        return False
+    text = (title + " " + (summary or "")).lower()
+    # Require at least one industry keyword AND one ESG keyword
+    has_industry = any(kw in text for kw in industry_keywords)
+    has_esg = any(kw in text for kw in ESG_KEYWORDS)
+    return has_industry and has_esg
+
+
 async def fetch_publication_feeds_for_company(
     company_name: str,
     max_age_hours: int = 48,
     max_per_feed: int = 20,
+    industry: str | None = None,
 ) -> list[dict]:
-    """Fetch publication feeds and additionally filter for company relevance.
+    """Fetch publication feeds and filter for company + industry relevance.
 
     Articles pass if they either:
     - Mention the company name (case-insensitive), OR
-    - Pass the ESG keyword filter (sector-level news)
+    - Match the company's INDUSTRY keywords AND contain ESG keywords
 
-    This returns a broader set — the downstream relevance scorer will rank them.
+    Generic ESG articles (not industry-specific) are excluded to prevent
+    the same news appearing across all companies.
     """
     all_articles = await fetch_publication_feeds(
         max_age_hours=max_age_hours,
         max_per_feed=max_per_feed,
     )
     company_lower = company_name.lower()
-    # Keep company-specific articles plus general ESG articles
+    ind_keywords = _get_industry_keywords(industry)
+
+    # Also match competitor names if they appear in company_name variants
+    # e.g., "ICICI" matches "ICICI Bank", "ICICI Prudential", etc.
+    company_short = company_lower.split()[0] if company_lower else ""
+
     return [
         a for a in all_articles
         if company_lower in (a["title"] + " " + (a.get("summary") or "")).lower()
-        or _passes_esg_filter(a["title"], a.get("summary") or "")
+        or (company_short and len(company_short) > 3 and company_short in (a["title"] + " " + (a.get("summary") or "")).lower())
+        or _is_industry_relevant(a["title"], a.get("summary") or "", ind_keywords)
     ]

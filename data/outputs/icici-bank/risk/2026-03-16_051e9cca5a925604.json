@@ -1,0 +1,238 @@
+{
+  "esg_risks": [
+    {
+      "category": "Litigation Risk",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.5,
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "class action pre-filings",
+        "activist investor campaigns",
+        "regulatory investigations"
+      ],
+      "lag_indicators": [
+        "lawsuits filed",
+        "settlements",
+        "penalties"
+      ]
+    },
+    {
+      "category": "Reputational Risk",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.4,
+      "adjusted_score": 4.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "social media sentiment",
+        "NGO campaigns",
+        "whistleblower reports"
+      ],
+      "lag_indicators": [
+        "brand score decline",
+        "customer churn",
+        "boycotts"
+      ]
+    },
+    {
+      "category": "Market & Uncertainty",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.4,
+      "adjusted_score": 4.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "VIX",
+        "FX volatility",
+        "geopolitical tensions"
+      ],
+      "lag_indicators": [
+        "valuation compression",
+        "capital flight",
+        "downgrades"
+      ]
+    },
+    {
+      "category": "Regulatory Risk",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.6,
+      "adjusted_score": 4.8,
+      "level": "LOW",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    }
+  ],
+  "temples_risks": [
+    {
+      "category": "Legal",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.0,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "enforcement priorities",
+        "litigation precedents"
+      ],
+      "lag_indicators": [
+        "fines",
+        "lawsuits",
+        "settlements"
+      ]
+    },
+    {
+      "category": "Political",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.0,
+      "adjusted_score": 3.0,
+      "level": "LOW",
+      "lead_indicators": [
+        "election cycles",
+        "policy white papers",
+        "diplomatic tensions"
+      ],
+      "lag_indicators": [
+        "policy changes",
+        "license restrictions",
+        "trade barriers"
+      ]
+    },
+    {
+      "category": "Economic",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.0,
+      "adjusted_score": 3.0,
+      "level": "LOW",
+      "lead_indicators": [
+        "commodity price trends",
+        "FX volatility",
+        "customer order pipeline"
+      ],
+      "lag_indicators": [
+        "revenue decline",
+        "margin erosion",
+        "write-downs"
+      ]
+    }
+  ],
+  "top_risks": [
+    {
+      "category": "Litigation Risk",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.5,
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "class action pre-filings",
+        "activist investor campaigns",
+        "regulatory investigations"
+      ],
+      "lag_indicators": [
+        "lawsuits filed",
+        "settlements",
+        "penalties"
+      ]
+    },
+    {
+      "category": "Legal",
+      "probability": 2,
+      "exposure": 3,
+      "raw_score": 6,
+      "industry_weight": 1.0,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "enforcement priorities",
+        "litigation precedents"
+      ],
+      "lag_indicators": [
+        "fines",
+        "lawsuits",
+        "settlements"
+      ]
+    },
+    {
+      "category": "Regulatory Risk",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.6,
+      "adjusted_score": 4.8,
+      "level": "LOW",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
+    {
+      "category": "Reputational Risk",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.4,
+      "adjusted_score": 4.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "social media sentiment",
+        "NGO campaigns",
+        "whistleblower reports"
+      ],
+      "lag_indicators": [
+        "brand score decline",
+        "customer churn",
+        "boycotts"
+      ]
+    },
+    {
+      "category": "Market & Uncertainty",
+      "probability": 1,
+      "exposure": 3,
+      "raw_score": 3,
+      "industry_weight": 1.4,
+      "adjusted_score": 4.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "VIX",
+        "FX volatility",
+        "geopolitical tensions"
+      ],
+      "lag_indicators": [
+        "valuation compression",
+        "capital flight",
+        "downgrades"
+      ]
+    }
+  ],
+  "aggregate_score": 0.137,
+  "ontology_queries": 14
+}

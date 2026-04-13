@@ -6,7 +6,7 @@ Stage 8.5: Added /stats and /bookmark endpoints for frontend IntroCard + SavedNe
 from datetime import datetime, timedelta, timezone
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
@@ -101,6 +101,12 @@ class ArticleResponse(BaseModel):
     framework_matches: list | None = None
     risk_matrix: dict | None = None
     geographic_signal: dict | None = None
+
+    # Company context for cap-calibrated intelligence
+    company_context: dict | None = None
+
+    # Deduplication cluster metadata (needed for is_primary filter)
+    scoring_metadata: dict | None = None
 
     # Internal fields for scoring (not serialized to JSON, used in-memory)
     _content_type: str | None = None
@@ -214,6 +220,17 @@ class NewsFeedResponse(BaseModel):
     total: int
 
 
+def _pick_company_context(
+    scores: list[ArticleScoreResponse],
+    company_contexts: dict[str, dict],
+) -> dict | None:
+    """Pick company context from the highest-impact score's company."""
+    if not scores:
+        return None
+    top = max(scores, key=lambda s: s.impact_score)
+    return company_contexts.get(top.company_id)
+
+
 async def _load_articles_with_scores(
     ctx: TenantContext,
     limit: int = 50,  # capped at 200 in endpoint
@@ -283,14 +300,26 @@ async def _load_articles_with_scores(
     # Load company names
     company_ids = list({s.company_id for s in all_scores})
     company_names: dict[str, str] = {}
+    company_contexts: dict[str, dict] = {}
     if company_ids:
         companies_result = await ctx.db.execute(
-            select(Company.id, Company.name).where(
+            select(Company).where(
                 Company.id.in_(company_ids),
                 Company.tenant_id == ctx.tenant_id,
             )
         )
-        company_names = {row[0]: row[1] for row in companies_result.all()}
+        company_rows = companies_result.scalars().all()
+        company_names = {c.id: c.name for c in company_rows}
+        for c in company_rows:
+            company_contexts[c.id] = {
+                "name": c.name,
+                "market_cap": getattr(c, "market_cap", None),
+                "listing_exchange": getattr(c, "listing_exchange", None),
+                "headquarter_country": getattr(c, "headquarter_country", None),
+                "headquarter_region": getattr(c, "headquarter_region", None),
+                "industry": getattr(c, "industry", None),
+                "sasb_category": getattr(c, "sasb_category", None),
+            }
 
     # Load causal chains for relationship_type + explanation
     chains_result = await ctx.db.execute(
@@ -447,6 +476,10 @@ async def _load_articles_with_scores(
             framework_matches=cached_a.get("framework_matches") or a.framework_matches,
             risk_matrix=cached_a.get("risk_matrix") or a.risk_matrix,
             geographic_signal=a.geographic_signal,
+            # Company context for cap-calibrated intelligence
+            company_context=_pick_company_context(scores_by_article.get(a.id, []), company_contexts),
+            # Deduplication cluster metadata
+            scoring_metadata=a.scoring_metadata if isinstance(a.scoring_metadata, dict) else None,
             # Internal fields for role-based scoring (not in JSON response)
             _content_type=a.content_type,
             _esg_pillar=a.esg_pillar,
@@ -532,6 +565,57 @@ async def get_news_feed(
                 continue
             filtered.append(a)
         articles = filtered
+
+    # Runtime deduplication fallback — catches same-event articles not yet processed
+    # by event_deduplication.py. Uses two signals:
+    #   1. Title Jaccard >= 0.30 (same headline, different source)
+    #   2. Entity+amount overlap (same company + same ₹ figure = same event)
+    # Articles are sorted by priority, so the first in a cluster is always kept.
+    if articles:
+        import re as _re
+
+        def _title_tokens(title: str) -> set[str]:
+            stop = {"the", "a", "an", "in", "on", "at", "to", "for", "of", "and",
+                    "is", "are", "was", "were", "be", "been", "by", "from", "with"}
+            words = _re.findall(r"[a-z0-9]+", title.lower())
+            return {w for w in words if w not in stop and len(w) > 2}
+
+        def _entity_amount(title: str) -> tuple[frozenset, frozenset]:
+            amounts = frozenset(_re.findall(r"\b\d[\d,]*(?:\.\d+)?\b", title.lower()))
+            caps = _re.findall(
+                r"(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)|(?:[A-Z]{2,}(?:\s+[A-Z]{2,})*)",
+                title,
+            )
+            entities = frozenset(c.strip().lower() for c in caps if len(c.strip()) > 4)
+            return entities, amounts
+
+        seen_token_sets: list[set[str]] = []
+        seen_entity_keys: list[tuple[frozenset, frozenset]] = []
+        deduped: list = []
+        for a in articles:
+            tokens = _title_tokens(a.title or "")
+            ents, amts = _entity_amount(a.title or "")
+            duplicate = False
+
+            for i, seen_tokens in enumerate(seen_token_sets):
+                # Signal 1: Jaccard >= 0.30
+                union = seen_tokens | tokens
+                if union and len(seen_tokens & tokens) / len(union) >= 0.30:
+                    duplicate = True
+                    break
+                # Signal 2: same entity + meaningful shared amount
+                seen_ent, seen_amt = seen_entity_keys[i]
+                if ents and amts and (ents & seen_ent):
+                    meaningful = {v for v in amts & seen_amt if v.replace(",", "").isdigit() and int(v.replace(",", "")) >= 10}
+                    if meaningful:
+                        duplicate = True
+                        break
+
+            if not duplicate:
+                seen_token_sets.append(tokens)
+                seen_entity_keys.append((ents, amts))
+                deduped.append(a)
+        articles = deduped
 
     # Phase 2C: Apply role-based re-scoring for personalized feed
     if sort_by == "priority" and articles:
@@ -760,6 +844,7 @@ async def refresh_news(
             company_name=company_name,
             max_age_hours=72,
             max_per_feed=20,
+            industry=industry,
         )
         existing_urls = {a["url"] for a in articles if a.get("url")}
         fresh_rss = [a for a in rss_articles if a.get("url") not in existing_urls]
@@ -805,6 +890,9 @@ class TriggerAnalysisResponse(BaseModel):
 class AnalysisStatusResponse(BaseModel):
     status: str   # "done" | "pending" | "idle"
     analysis: dict | None = None
+    # Progressive pipeline feedback — populated while status="pending"
+    step: str | None = None       # "risk_spotlight" | "deep_insight" | "rereact"
+    step_num: int | None = None   # 1-4
 
 
 @router.post(
@@ -814,19 +902,22 @@ class AnalysisStatusResponse(BaseModel):
 )
 async def trigger_article_analysis(
     article_id: str,
+    force: bool = False,
     ctx: TenantContext = Depends(get_tenant_context),
 ) -> TriggerAnalysisResponse:
     """Non-blocking on-demand analysis trigger (HTTP 202).
 
     Guards against duplicate runs via Redis SETNX.
-    Returns 'cached' immediately if analysis already exists.
+    Returns 'cached' immediately if analysis already exists (unless force=true).
+    Pass force=true to regenerate old-format deep_insight (pre-v2.0 articles).
     """
     from backend.core.redis import CACHE_TTL_ANALYSIS, cache_get, get_redis, make_cache_key
 
-    # Guard 1: cached result exists — return immediately
-    cached = await cache_get(ctx.tenant_id, "article_analysis", article_id)
-    if cached:
-        return TriggerAnalysisResponse(status="cached", message="Analysis already available")
+    # Guard 1: cached result exists — return immediately (skip if force=true)
+    if not force:
+        cached = await cache_get(ctx.tenant_id, "article_analysis", article_id)
+        if cached:
+            return TriggerAnalysisResponse(status="cached", message="Analysis already available")
 
     # Guard 2: article must exist for this tenant
     art_result = await ctx.db.execute(
@@ -850,27 +941,76 @@ async def trigger_article_analysis(
     import asyncio as _asyncio
 
     tenant_id_captured = ctx.tenant_id
+    # Capture user designation for role-aware REREACT recommendations
+    from backend.core.permissions import map_designation_to_role as _map_d2r
+    _user_role_captured = _map_d2r(ctx.user.designation or "")
 
-    async def _analyze_direct() -> None:
+    async def _analyze_direct(force_regen: bool = force) -> None:
         from sqlalchemy import select as _select
-        from backend.core.database import create_worker_session_factory
+        from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+        from sqlalchemy.pool import NullPool
         from backend.core.redis import CACHE_TTL_ANALYSIS
         from backend.models.news import Article as _Article
         from backend.models.company import Company as _Company
         import json as _json
         import redis.asyncio as _aioredis
 
-        # Create fresh DB + Redis connections for this thread's event loop
-        # (the main pool is bound to FastAPI's loop and can't be reused here)
-        worker_session_factory = create_worker_session_factory()
+        # Thread has its own event loop — must create its own DB engine + Redis.
+        # NullPool: let pgbouncer do the pooling (Transaction mode, port 6543).
+        # Both cache sizes=0: pgbouncer rotates backends, can't persist prepared stmts.
+        # Separate application_name so pg_stat_activity shows worker vs web.
+        _engine_kwargs: dict = {"echo": False, "poolclass": NullPool}
+        if settings.SUPABASE_DATABASE_URL:
+            import ssl as _ssl
+            _ctx = _ssl.create_default_context()
+            _ctx.check_hostname = False
+            _ctx.verify_mode = _ssl.CERT_NONE
+            _engine_kwargs["connect_args"] = {
+                "ssl": _ctx,
+                "statement_cache_size": 0,
+                "prepared_statement_cache_size": 0,
+                "server_settings": {"application_name": "snowkap-worker"},
+            }
+        _worker_engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
+        worker_session_factory = async_sessionmaker(
+            _worker_engine, class_=AsyncSession, expire_on_commit=False,
+        )
         thread_redis = _aioredis.from_url(
             settings.REDIS_URL, encoding="utf-8", decode_responses=True,
         )
 
+        # Thread-safe logger: catches Windows encoding crashes on ₹ symbols
+        class _SafeLog:
+            @staticmethod
+            def info(msg, **kw):
+                try:
+                    logger.info(msg, **kw)
+                except (ValueError, UnicodeEncodeError, OSError):
+                    pass  # Encoding crash on Windows — swallow silently
+            @staticmethod
+            def warning(msg, **kw):
+                try:
+                    logger.warning(msg, **kw)
+                except (ValueError, UnicodeEncodeError, OSError):
+                    pass
+            @staticmethod
+            def error(msg, **kw):
+                try:
+                    logger.error(msg, **kw)
+                except (ValueError, UnicodeEncodeError, OSError):
+                    pass
+            @staticmethod
+            def debug(msg, **kw):
+                try:
+                    logger.debug(msg, **kw)
+                except (ValueError, UnicodeEncodeError, OSError):
+                    pass
+        _log = _SafeLog()
+
         try:
-            logger.info("on_demand_step1_opening_db", article_id=article_id)
+            _log.info("on_demand_step1_opening_db", article_id=article_id)
             async with worker_session_factory() as db:
-                logger.info("on_demand_step2_loading_article", article_id=article_id)
+                _log.info("on_demand_step2_loading_article", article_id=article_id)
                 # Load article
                 art_res = await db.execute(
                     _select(_Article).where(
@@ -880,7 +1020,7 @@ async def trigger_article_analysis(
                 )
                 art = art_res.scalar_one_or_none()
                 if not art:
-                    logger.warning("on_demand_article_not_found", article_id=article_id)
+                    _log.warning("on_demand_article_not_found", article_id=article_id)
                     return
 
                 # Load company with full context for LLM
@@ -897,42 +1037,70 @@ async def trigger_article_analysis(
                 company_hq_country = comp.headquarter_country if comp else None
                 company_exchange = comp.listing_exchange if comp else None
                 company_market_cap_str = comp.market_cap if comp else None
-                logger.info("on_demand_step3_company_loaded", company=company_name, industry=company_industry, article_id=article_id)
+                _log.info("on_demand_step3_company_loaded", company=company_name, industry=company_industry, article_id=article_id)
 
                 content = art.content or art.summary or art.title or ""
 
-                # 1. Risk spotlight (fast — single LLM call)
-                logger.info("on_demand_step4_risk_spotlight_start", article_id=article_id, has_risk_matrix=bool(art.risk_matrix))
-                if not art.risk_matrix:
+                # Helper: write current pipeline step to Redis for frontend progress UI
+                _step_key = f"tenant:{tenant_id_captured}:article_analysis_step:{article_id}"
+                _partial_key = f"tenant:{tenant_id_captured}:article_analysis_partial:{article_id}"
+
+                async def _write_step(step: str, step_num: int) -> None:
                     try:
-                        from backend.services.risk_spotlight import run_risk_spotlight
-                        spotlight = await run_risk_spotlight(
+                        await thread_redis.set(
+                            _step_key,
+                            _json.dumps({"step": step, "step_num": step_num}),
+                            ex=600,
+                        )
+                    except Exception:
+                        pass
+
+                # ── PHASE 1: Risk spotlight + Deep insight in PARALLEL ──────────────────
+                # These two calls are independent — risk_spotlight only needs the article
+                # text; deep_insight can run against the existing art.risk_matrix (if any)
+                # and both finish much faster when fired concurrently.
+                await _write_step("deep_insight", 1)
+                _log.info("on_demand_phase1_parallel_start", article_id=article_id)
+
+                import asyncio as _asyncio_inner
+                from backend.services.risk_spotlight import run_risk_spotlight
+                from backend.services.deep_insight_generator import generate_deep_insight
+
+                # Derive framework names + competitor list (needed by deep_insight)
+                _fm = art.framework_matches
+                fw_names: list[str] = []
+                if isinstance(_fm, list):
+                    fw_names = [f.get("framework_id", "") for f in _fm if isinstance(f, dict)]
+                elif isinstance(_fm, dict):
+                    fw_names = [_fm.get("framework_id", "")]
+                comp_names: list[str] = []
+                if isinstance(company_competitors, list):
+                    comp_names = [c.get("name", c) if isinstance(c, dict) else str(c) for c in company_competitors[:5]]
+
+                insight_is_v2 = isinstance(art.deep_insight, dict) and art.deep_insight.get("_pipeline_version") == "2.2"
+                needs_deep = not art.deep_insight or (force_regen and not insight_is_v2)
+                needs_spotlight = not art.risk_matrix
+
+                async def _spotlight_task() -> dict | None:
+                    if not needs_spotlight:
+                        return art.risk_matrix
+                    try:
+                        return await run_risk_spotlight(
                             article_title=art.title,
                             article_content=content,
                             company_name=company_name,
+                            industry=company_industry,
+                            market_cap_value=company_market_cap,
                         )
-                        if spotlight:
-                            art.risk_matrix = spotlight
                     except Exception as e:
-                        logger.warning("on_demand_risk_spotlight_failed", error=str(e))
+                        _log.warning("on_demand_risk_spotlight_failed", error=str(e))
+                        return None
 
-                logger.info("on_demand_step5_deep_insight_start", article_id=article_id, has_deep_insight=bool(art.deep_insight))
-                # 2. Deep insight (main LLM brief) — pass full company context
-                if not art.deep_insight:
+                async def _deep_insight_task() -> dict | None:
+                    if not needs_deep:
+                        return art.deep_insight
                     try:
-                        from backend.services.deep_insight_generator import generate_deep_insight
-                        # Derive framework names from framework_matches JSONB if available
-                        fm = art.framework_matches
-                        fw_names: list[str] = []
-                        if isinstance(fm, list):
-                            fw_names = [f.get("framework_id", "") for f in fm if isinstance(f, dict)]
-                        elif isinstance(fm, dict):
-                            fw_names = [fm.get("framework_id", "")]
-                        # Parse competitors list
-                        comp_names: list[str] = []
-                        if isinstance(company_competitors, list):
-                            comp_names = [c.get("name", c) if isinstance(c, dict) else str(c) for c in company_competitors[:5]]
-                        deep = await generate_deep_insight(
+                        return await generate_deep_insight(
                             article_title=art.title,
                             article_content=content,
                             article_summary=art.summary,
@@ -945,18 +1113,53 @@ async def trigger_article_analysis(
                             competitors=comp_names or None,
                             nlp_extraction=art.nlp_extraction,
                             esg_themes=art.esg_themes,
+                            # Pass existing risk_matrix as context if available;
+                            # new spotlight result will be merged after gather()
                             risk_matrix=art.risk_matrix,
                             market_cap=company_market_cap,
                             revenue=company_revenue,
+                            industry=company_industry,
+                            region=comp.headquarter_region if comp else None,
                         )
-                        if deep:
-                            art.deep_insight = deep
                     except Exception as e:
-                        logger.warning("on_demand_deep_insight_failed", error=str(e))
+                        _log.warning("on_demand_deep_insight_failed", error=str(e))
+                        import traceback; open("deep_insight_error.log","a",encoding="utf-8").write(f"\n{article_id}\n{traceback.format_exc()}\n")
+                        return None
 
-                # 3. REREACT recommendations (3-agent validation pipeline)
-                logger.info("on_demand_step5b_rereact_start", article_id=article_id, has_rereact=bool(art.rereact_recommendations))
-                if not art.rereact_recommendations and art.deep_insight:
+                spotlight_result, deep_result = await _asyncio_inner.gather(
+                    _spotlight_task(), _deep_insight_task(),
+                )
+
+                if spotlight_result:
+                    art.risk_matrix = spotlight_result
+                if deep_result:
+                    art.deep_insight = deep_result
+
+                _log.info("on_demand_phase1_complete", article_id=article_id,
+                            has_risk=bool(art.risk_matrix), has_deep=bool(art.deep_insight))
+
+                # After deep_insight: write partial snapshot so frontend can render analysis
+                # immediately while REREACT (3 more LLM calls) is still running.
+                if art.deep_insight:
+                    partial_snapshot = {
+                        "deep_insight": art.deep_insight,
+                        "rereact_recommendations": None,  # not yet
+                        "risk_matrix": art.risk_matrix,
+                        "framework_matches": art.framework_matches,
+                        "priority_score": art.priority_score,
+                        "priority_level": art.priority_level,
+                    }
+                    try:
+                        await thread_redis.set(
+                            _partial_key, _json.dumps(partial_snapshot), ex=600,
+                        )
+                    except Exception:
+                        pass
+
+                # ── PHASE 2: REREACT recommendations (now 2-agent pipeline) ─────────
+                await _write_step("rereact", 2)
+                _log.info("on_demand_step5b_rereact_start", article_id=article_id, has_rereact=bool(art.rereact_recommendations))
+                if (not art.rereact_recommendations or force_regen) and art.deep_insight:
                     try:
                         from backend.services.rereact_engine import rereact_recommendations
                         rr = await rereact_recommendations(
@@ -966,17 +1169,20 @@ async def trigger_article_analysis(
                             company_name=company_name,
                             frameworks=fw_names,
                             content_type=art.content_type,
+                            user_role=_user_role_captured,
                             competitors=comp_names or None,
                             market_cap=company_market_cap_str,
                             listing_exchange=company_exchange,
                             headquarter_country=company_hq_country,
+                            revenue=company_revenue,
+                            industry=company_industry,
                         )
                         if rr:
                             art.rereact_recommendations = rr
                     except Exception as e:
-                        logger.warning("on_demand_rereact_failed", error=str(e))
+                        _log.warning("on_demand_rereact_failed", error=str(e))
 
-                logger.info("on_demand_step6_committing", article_id=article_id)
+                _log.info("on_demand_step6_committing", article_id=article_id)
                 await db.commit()
 
                 # Write to cache so polling GET returns "done" immediately
@@ -988,40 +1194,93 @@ async def trigger_article_analysis(
                     "priority_score": art.priority_score,
                     "priority_level": art.priority_level,
                 }
-                cache_key = f"tenant:{tenant_id_captured}:article_analysis:{article_id}"
-                await thread_redis.set(
-                    cache_key, _json.dumps(analysis_snapshot), ex=CACHE_TTL_ANALYSIS,
-                )
+                # Only cache when deep_insight was successfully generated.
+                # Storing null-filled snapshots causes stale "cached" responses that
+                # block regeneration — guard prevents that class of bug entirely.
+                if analysis_snapshot.get("deep_insight") is not None:
+                    cache_key = f"tenant:{tenant_id_captured}:article_analysis:{article_id}"
+                    await thread_redis.set(
+                        cache_key, _json.dumps(analysis_snapshot), ex=CACHE_TTL_ANALYSIS,
+                    )
 
-            logger.info("on_demand_analysis_complete", article_id=article_id, tenant_id=tenant_id_captured)
+            _log.info("on_demand_analysis_complete", article_id=article_id, tenant_id=tenant_id_captured)
+
+            # If deep_insight was NOT generated, treat as failure so frontend shows Retry
+            if not art.deep_insight or not isinstance(art.deep_insight, dict) or art.deep_insight.get("_pipeline_version") != "2.2":
+                try:
+                    status_key = f"tenant:{tenant_id_captured}:article_analysis_status:{article_id}"
+                    await thread_redis.set(status_key, "failed", ex=60)
+                except Exception:
+                    pass
 
         except Exception as exc:
-            logger.warning("on_demand_analysis_failed", article_id=article_id, error=str(exc))
-        finally:
-            # Always clear the status key so polling won't hang
+            err_msg = str(exc).encode("ascii", "replace").decode()
+            _log.warning("on_demand_analysis_failed", article_id=article_id, error=err_msg)
+            # Set status to "failed" so frontend shows error instead of spinning forever
             try:
                 status_key = f"tenant:{tenant_id_captured}:article_analysis_status:{article_id}"
-                await thread_redis.delete(status_key)
+                await thread_redis.set(status_key, "failed", ex=60)
             except Exception:
                 pass
-            # Close thread-local connections
+        else:
+            # SUCCESS: clear ephemeral keys — analysis is stored in DB/cache
+            try:
+                status_key = f"tenant:{tenant_id_captured}:article_analysis_status:{article_id}"
+                step_key_cleanup = f"tenant:{tenant_id_captured}:article_analysis_step:{article_id}"
+                partial_key_cleanup = f"tenant:{tenant_id_captured}:article_analysis_partial:{article_id}"
+                await thread_redis.delete(status_key, step_key_cleanup, partial_key_cleanup)
+            except Exception:
+                pass
+        finally:
+            # ALWAYS close thread-local connections to prevent Supabase pool exhaustion
             try:
                 await thread_redis.aclose()
             except Exception:
                 pass
-
-    import threading as _threading
-
-    def _run_in_thread() -> None:
-        """Run analysis in a fresh event loop so it never blocks FastAPI's loop."""
-        try:
-            _asyncio.run(_analyze_direct())
-        except Exception as exc:
-            logger.warning("on_demand_thread_failed", article_id=article_id, error=str(exc))
-
-    _threading.Thread(target=_run_in_thread, daemon=True, name=f"analysis-{article_id[:8]}").start()
+            try:
+                await _worker_engine.dispose()
+            except Exception:
+                pass
 
     logger.info("on_demand_analysis_triggered", article_id=article_id, tenant_id=ctx.tenant_id)
+
+    # Use a module-level thread pool to dispatch analysis.
+    # Thread creates its own event loop + DB engine + Redis.
+    import concurrent.futures as _cf
+
+    if not hasattr(trigger_article_analysis, "_pool"):
+        # max_workers=2: NullPool + Transaction mode (6543) has ~200 client limit.
+        # Each worker opens/closes connections per query via pgbouncer.
+        trigger_article_analysis._pool = _cf.ThreadPoolExecutor(max_workers=2)
+
+    def _sync_runner():
+        import asyncio as _aio
+        import logging as _logging
+        import sys as _sys
+        _logging.getLogger("sqlalchemy.engine").setLevel(_logging.WARNING)
+        _sys.stderr.write(f"[EXECUTOR] {article_id[:12]} starting\n")
+        _sys.stderr.flush()
+        loop = _aio.new_event_loop()
+        _aio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_analyze_direct())
+            _sys.stderr.write(f"[EXECUTOR] {article_id[:12]} done\n")
+            _sys.stderr.flush()
+        except Exception as exc:
+            _sys.stderr.write(f"[EXECUTOR-ERR] {article_id[:12]}: {str(exc)[:100]}\n")
+            _sys.stderr.flush()
+            try:
+                import redis as _sr
+                _r = _sr.from_url(settings.REDIS_URL)
+                _r.set(f"tenant:{tenant_id_captured}:article_analysis_status:{article_id}", "failed", ex=120)
+                _r.close()
+            except Exception:
+                pass
+        finally:
+            loop.close()
+
+    trigger_article_analysis._pool.submit(_sync_runner)
+
     return TriggerAnalysisResponse(status="triggered", message="Analysis started")
 
 
@@ -1043,15 +1302,32 @@ async def get_article_analysis_status(
 
     # Redis checks — wrapped so a Redis outage falls through to DB
     try:
-        cached = await cache_get(ctx.tenant_id, "article_analysis", article_id)
-        if cached is not None:
-            return AnalysisStatusResponse(status="done", analysis=cached)
-
+        # IMPORTANT: read status key FIRST — if pipeline is "pending", we must
+        # return "pending" regardless of stale cache or DB state.
         r = await get_redis()
         status_key = make_cache_key(ctx.tenant_id, "article_analysis_status", article_id)
         status_from_redis = await r.get(status_key)
-    except Exception:
-        pass  # Redis unavailable — fall through to DB
+        print(f"[DEBUG] status_key={status_key}, status_from_redis={status_from_redis!r}", flush=True)
+
+        # If pipeline is actively running, skip cache/DB checks and go straight to pending handler
+        if status_from_redis == "pending":
+            pass  # Fall through to pending handler below
+        else:
+            cached = await cache_get(ctx.tenant_id, "article_analysis", article_id)
+            if cached is not None:
+                _cached_di = cached.get("deep_insight")
+                _cached_is_v2 = isinstance(_cached_di, dict) and _cached_di.get("_pipeline_version") == "2.2"
+                if not _cached_di or not _cached_is_v2:
+                    try:
+                        stale_key = make_cache_key(ctx.tenant_id, "article_analysis", article_id)
+                        await r.delete(stale_key)
+                    except Exception:
+                        pass
+                    return AnalysisStatusResponse(status="idle", analysis=None)
+                else:
+                    return AnalysisStatusResponse(status="done", analysis=cached)
+    except Exception as _redis_exc:
+        logger.warning("analysis_status_redis_error", article_id=article_id[:12], error=str(_redis_exc)[:100])
 
     # Always check DB — catches: analysis complete but cache missed, Redis down
     art_result = await ctx.db.execute(
@@ -1061,22 +1337,56 @@ async def get_article_analysis_status(
         )
     )
     art = art_result.scalar_one_or_none()
-    if art and (art.deep_insight or art.risk_matrix):
+    if art and art.deep_insight:
+        # Guard: only return "done" if deep_insight is v2.2 format (has _pipeline_version).
+        insight_is_v2 = (
+            isinstance(art.deep_insight, dict) and art.deep_insight.get("_pipeline_version") == "2.2"
+        )
+        if insight_is_v2:
+            return AnalysisStatusResponse(
+                status="done",
+                analysis={
+                    "deep_insight": art.deep_insight,
+                    "rereact_recommendations": art.rereact_recommendations,
+                    "risk_matrix": art.risk_matrix,
+                    "framework_matches": art.framework_matches,
+                    "priority_score": art.priority_score,
+                    "priority_level": art.priority_level,
+                },
+            )
+        # Old-format deep_insight — fall through to check if pipeline is pending
+
+    # If Redis said pending and DB has nothing/stale data, analysis is still running.
+    # Read step progress + partial snapshot (written after deep_insight completes)
+    # so the frontend can progressively reveal analysis before REREACT finishes.
+    if status_from_redis == "pending":
+        step_info: dict = {}
+        partial_analysis: dict | None = None
+        try:
+            import json as _json_poll
+            r_poll = await get_redis()
+            step_raw = await r_poll.get(
+                make_cache_key(ctx.tenant_id, "article_analysis_step", article_id)
+            )
+            partial_raw = await r_poll.get(
+                f"tenant:{ctx.tenant_id}:article_analysis_partial:{article_id}"
+            )
+            if step_raw:
+                step_info = _json_poll.loads(step_raw)
+            if partial_raw:
+                partial_analysis = _json_poll.loads(partial_raw)
+        except Exception:
+            pass
         return AnalysisStatusResponse(
-            status="done",
-            analysis={
-                "deep_insight": art.deep_insight,
-                "rereact_recommendations": art.rereact_recommendations,
-                "risk_matrix": art.risk_matrix,
-                "framework_matches": art.framework_matches,
-                "priority_score": art.priority_score,
-                "priority_level": art.priority_level,
-            },
+            status="pending",
+            analysis=partial_analysis,
+            step=step_info.get("step"),
+            step_num=step_info.get("step_num"),
         )
 
-    # If Redis said pending and DB has nothing yet, analysis is still running
-    if status_from_redis == "pending":
-        return AnalysisStatusResponse(status="pending")
+    # If pipeline explicitly failed, tell the frontend
+    if status_from_redis == "failed":
+        return AnalysisStatusResponse(status="failed")
 
     return AnalysisStatusResponse(status="idle")
 
@@ -1220,6 +1530,18 @@ async def insight_chat(
     fm: list = getattr(article, "framework_matches", None) or []
     rm: dict = getattr(article, "risk_matrix", None) or {}
 
+    # Always include core analysis fields so the LLM has the key findings
+    if di.get("core_mechanism"):
+        context_parts.append(f"\n=== Core Mechanism ===\n{di['core_mechanism']}")
+    if di.get("impact_score") is not None:
+        context_parts.append(f"Impact Score: {di['impact_score']}/10")
+    if di.get("profitability_connection"):
+        context_parts.append(f"Profitability Connection: {di['profitability_connection']}")
+    if di.get("net_impact_summary"):
+        context_parts.append(f"\n=== Net Impact Summary ===\n{di['net_impact_summary']}")
+    if di.get("esg_relevance_score"):
+        context_parts.append(f"\n=== ESG Relevance Score ===\n{_compact_json(di['esg_relevance_score'])}")
+
     requested = set(req.context_sections)
 
     if "financial_impact" in requested:
@@ -1255,24 +1577,51 @@ async def insight_chat(
             rec_lines = []
             for i, r in enumerate(recs[:4], 1):
                 rec_lines.append(
-                    f"  {i}. [{r.get('priority', '')}] {r.get('action', r.get('recommendation', ''))}"
-                    f" — Budget: {r.get('estimated_budget', 'N/A')}"
+                    f"  {i}. [{r.get('priority', r.get('confidence', ''))}] "
+                    f"{r.get('title', r.get('action', r.get('recommendation', '')))}"
+                    f"\n     Description: {r.get('description', '')}"
+                    f"\n     Budget: {r.get('estimated_budget', 'N/A')}"
                     f" | Impact: {r.get('profitability_link', r.get('estimated_impact', 'N/A'))}"
                     f" | Deadline: {r.get('deadline', 'N/A')}"
                     f" | ROI: {r.get('roi_percentage', 'N/A')}%"
                     f" | Risk of inaction: {r.get('risk_of_inaction', 'N/A')}/10"
+                    f" | Responsible: {r.get('responsible_party', 'N/A')}"
                 )
             context_parts.append("\n=== AI Recommendations ===\n" + "\n".join(rec_lines))
 
     full_context = "\n".join(context_parts)
 
+    # Resolve user role for role-aware persona
+    from backend.core.permissions import map_designation_to_role as _map_role
+    _user_role = _map_role(ctx.user.designation or "")
+    _role_lens = {
+        "ceo": (
+            "\nYou are addressing a CEO. Focus on competitive positioning, stakeholder narrative, and market perception. "
+            "Frame everything as strategic moves. Be decisive and forward-looking."
+        ),
+        "cfo": (
+            "\nYou are addressing a CFO. Focus on financial materiality, cost of capital impact, ROI, and P&L implications. "
+            "Use specific ₹ figures and basis points. Every answer must connect to the balance sheet."
+        ),
+        "cso": (
+            "\nYou are addressing an ESG Analyst. Focus on framework alignment, disclosure gaps, and benchmark positioning. "
+            "Reference specific framework sections (BRSR:P6, GRI:305-1, etc.) and score impacts."
+        ),
+        "data_entry_analyst": (
+            "\nYou are addressing an ESG Analyst. Focus on framework alignment, disclosure gaps, and benchmark positioning. "
+            "Reference specific framework sections (BRSR:P6, GRI:305-1, etc.) and score impacts."
+        ),
+    }
+    _role_persona = _role_lens.get(_user_role, "")
+
     # Build system prompt
     system_prompt = (
         f"You are an ESG intelligence analyst answering questions about a specific article "
-        f"and its impact on {company_name} ({cap_label}, headquartered in {hq_region}).\n\n"
+        f"and its impact on {company_name} ({cap_label}, headquartered in {hq_region}).{_role_persona}\n\n"
         f"Use ONLY the following pre-computed insight context to answer. "
         f"Calibrate all financial figures to {cap_label} scale. "
-        f"Be specific, cite the data provided, and quantify impacts in ₹ or % wherever possible.\n\n"
+        f"Be specific, cite the data provided, and quantify impacts in ₹ or % wherever possible.\n"
+        f"End each response with one thought-provoking follow-up question the user hasn't asked yet.\n\n"
         f"INSIGHT CONTEXT:\n{full_context}"
     )
 

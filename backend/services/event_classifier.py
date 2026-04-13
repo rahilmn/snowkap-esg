@@ -275,3 +275,105 @@ def has_financial_quantum(text: str) -> bool:
         r"(?:revenue|margin|profit|loss|valuation)\s+(?:of|at|by)\s+₹",
     ]
     return any(re.search(p, text_lower) for p in patterns)
+
+
+def extract_financial_amount(text: str) -> float | None:
+    """Extract the largest ₹ amount from article text, normalized to ₹ Cr.
+
+    Handles: "₹50 Cr", "Rs 100 crore", "₹500 lakh", "Rs. 2,000 crore", "INR 300 Cr"
+    Returns amount in ₹ Cr, or None if no amount found.
+    """
+    amounts: list[float] = []
+    text_lower = text.lower()
+
+    # Pattern: ₹/Rs/INR followed by number, optionally followed by unit
+    for m in re.finditer(
+        r"(?:₹|rs\.?|inr)\s*([\d,]+(?:\.\d+)?)\s*(cr|crore|lakh|million|billion|k)?",
+        text_lower,
+    ):
+        raw_num = m.group(1).replace(",", "").strip()
+        if not raw_num:
+            continue
+        try:
+            num = float(raw_num)
+        except ValueError:
+            continue
+        unit = (m.group(2) or "").strip()
+        if unit in ("cr", "crore"):
+            amounts.append(num)
+        elif unit == "lakh":
+            amounts.append(num / 100)  # lakh → Cr
+        elif unit == "million":
+            amounts.append(num * 0.83)  # ~approx USD M → ₹ Cr
+        elif unit == "billion":
+            amounts.append(num * 830)  # ~approx USD B → ₹ Cr
+        elif unit == "k":
+            amounts.append(num / 100_000)  # thousands → Cr
+        else:
+            # Bare number after ₹ — assume Cr if > 100, else lakhs
+            if num >= 100:
+                amounts.append(num)
+            else:
+                amounts.append(num / 100)
+
+    return max(amounts) if amounts else None
+
+
+def materiality_adjusted_bounds(
+    classification: EventClassification,
+    article_text: str,
+    market_cap_value: float | None = None,
+    revenue_last_fy: float | None = None,
+) -> EventClassification:
+    """Adjust score bounds based on financial materiality relative to company size.
+
+    A ₹50 Cr fine is existential for a ₹500 Cr company but noise for ₹8,75,000 Cr ICICI.
+    This adjusts the floor/ceiling proportionally.
+    """
+    amount = extract_financial_amount(article_text)
+    if amount is None or amount <= 0:
+        return classification  # No amount found → no adjustment
+
+    # Use revenue first (more relevant for impact), fall back to market cap
+    denominator = revenue_last_fy or market_cap_value
+    if not denominator or denominator <= 0:
+        return classification  # No company financials → no adjustment
+
+    ratio = amount / denominator
+
+    # Adjust bounds based on materiality ratio
+    new_ceiling = classification.score_ceiling
+    new_floor = classification.score_floor
+
+    if ratio > 0.10:  # > 10% of revenue — existential
+        new_floor = max(new_floor or 0, 8)
+    elif ratio > 0.05:  # 5-10% — highly material
+        new_floor = max(new_floor or 0, 7)
+    elif ratio < 0.001:  # < 0.1% — noise
+        new_ceiling = min(new_ceiling or 10, 4)
+    elif ratio < 0.01:  # < 1% — minor
+        new_ceiling = min(new_ceiling or 10, 5)
+
+    if new_ceiling == classification.score_ceiling and new_floor == classification.score_floor:
+        return classification  # No change
+
+    try:
+        logger.info(
+            "materiality_adjustment",
+            amount=amount,
+            denominator=denominator,
+            ratio=f"{ratio:.4%}",
+            floor=f"{classification.score_floor}->{new_floor}",
+            ceiling=f"{classification.score_ceiling}->{new_ceiling}",
+        )
+    except (ValueError, UnicodeEncodeError, OSError):
+        pass  # Windows console encoding crash — swallow
+
+    return EventClassification(
+        event_type=classification.event_type,
+        event_code=classification.event_code,
+        score_ceiling=new_ceiling,
+        score_floor=new_floor,
+        calibration_hint=classification.calibration_hint
+        + f" [Materiality: {ratio:.2%} of company revenue — adjusted bounds]",
+    )

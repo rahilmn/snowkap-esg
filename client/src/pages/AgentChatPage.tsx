@@ -92,7 +92,7 @@ export function AgentChatPage() {
       agent.chat(prompt, selectedAgent ?? undefined, conversationId, articleContext?.articleId)
         .then((result) => {
           addMessage({ role: "assistant", content: result.response, agent: result.agent });
-          if (result.pending_actions && result.pending_actions.length > 0) setPendingActions((prev) => [...prev, ...result.pending_actions]);
+          if (result.pending_actions && result.pending_actions.length > 0) setPendingActions((prev) => [...prev, ...(result.pending_actions ?? [])]);
         })
         .catch((e) => {
           addMessage({ role: "assistant", content: `Error: ${e instanceof Error ? e.message : "Unknown"}` });
@@ -130,7 +130,7 @@ export function AgentChatPage() {
 
       // Check for pending actions that need confirmation
       if (result.pending_actions && result.pending_actions.length > 0) {
-        setPendingActions((prev) => [...prev, ...result.pending_actions]);
+        setPendingActions((prev) => [...prev, ...(result.pending_actions ?? [])]);
       }
     } catch (e) {
       const errMsg = e instanceof Error ? e.message : "Failed to get response";

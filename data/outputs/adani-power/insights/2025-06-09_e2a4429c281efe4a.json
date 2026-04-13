@@ -1,0 +1,949 @@
+{
+  "article": {
+    "id": "e2a4429c281efe4a",
+    "title": "Adani Ports Scores 69, Adani Green Gets 74 in NSE ESG Ratings - HDFC Sky",
+    "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOWnhXVDlpSFlZN1B2bkFwUmtLNERjZ2lXOHgtek1FQTR3Nm5HQ1BYNEJJOXotWHV0OHhma0o2Tl9saDE4RFB4NDlDZkxBOWMzU2hXYkUwZklEc0FmQ24xdzVKejhuc0hhREJlZ2VrbGp4TGxhbEh0YkZFWk96UlhBQk1aVWxmQVJUT3JDMGZB?oc=5",
+    "source": "HDFC Sky",
+    "published_at": "2025-06-09T07:00:00+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "e2a4429c281efe4a",
+    "title": "Adani Ports Scores 69, Adani Green Gets 74 in NSE ESG Ratings - HDFC Sky",
+    "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOWnhXVDlpSFlZN1B2bkFwUmtLNERjZ2lXOHgtek1FQTR3Nm5HQ1BYNEJJOXotWHV0OHhma0o2Tl9saDE4RFB4NDlDZkxBOWMzU2hXYkUwZklEc0FmQ24xdzVKejhuc0hhREJlZ2VrbGp4TGxhbEh0YkZFWk96UlhBQk1aVWxmQVJUT3JDMGZB?oc=5",
+    "source": "HDFC Sky",
+    "published_at": "2025-06-09T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 49,
+    "elapsed_seconds": 8.722,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "neutral",
+        "analytical",
+        "optimistic"
+      ],
+      "narrative_core_claim": "Adani Ports and Adani Green received NSE ESG ratings of 69 and 74 respectively.",
+      "narrative_implied_causation": "Higher ESG scores indicate better environmental, social, and governance practices by the companies.",
+      "narrative_stakeholder_framing": "Adani Ports and Adani Green are the protagonists; investors and regulators are the affected stakeholders.",
+      "entities": [
+        "Adani Ports",
+        "Adani Green",
+        "NSE",
+        "HDFC Sky"
+      ],
+      "entity_types": {
+        "Adani Ports": "company",
+        "Adani Green": "company",
+        "NSE": "regulator",
+        "HDFC Sky": "media"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [
+        "NSE"
+      ],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "ESG ratings",
+        "corporate governance",
+        "sustainability performance"
+      ],
+      "content_type": "narrative",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness",
+        "audit_quality"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Energy",
+          "pillar": "E",
+          "sub_metrics": [
+            "renewable_energy_use",
+            "energy_intensity",
+            "fossil_fuel_dependency"
+          ]
+        },
+        {
+          "theme": "Climate Change",
+          "pillar": "E",
+          "sub_metrics": [
+            "ghg_reduction_targets",
+            "scope_1_direct",
+            "scope_2_indirect"
+          ]
+        }
+      ],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_esg_rating_change",
+      "label": "ESG Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 7,
+      "financial_transmission": "passive fund rebalancing → ~5% share price impact",
+      "matched_keywords": [
+        "esg rating"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 0,
+      "compliance_risk": 2,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.8,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "ESRS",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "McKinsey Three Horizons",
+          "Risk Management",
+          "Power/Energy",
+          "Adani Power"
+        ],
+        "edges": [
+          "indirectImpact",
+          "indirectImpact",
+          "industrySpillover"
+        ],
+        "hops": 3,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.2,
+        "explanation": "McKinsey Three Horizons -> Risk Management -> Power/Energy -> Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.49,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.49,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.3,
+          "adjusted_score": 2.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.5,
+          "adjusted_score": 3.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.5,
+          "adjusted_score": 3.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.3,
+          "adjusted_score": 2.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.093,
+      "ontology_queries": 14
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": []
+  },
+  "insight": {
+    "headline": "Adani Ports and Adani Green's moderate NSE ESG ratings signal sector benchmarking pressure for Adani Power",
+    "impact_score": 5,
+    "core_mechanism": "Adani Ports and Adani Green's ESG scores of 69 and 74, respectively, set a sectoral benchmark for transparency and disclosure. This raises peer pressure on Adani Power to enhance its ESG reporting and governance practices to avoid regulatory scrutiny and potential fund outflows.",
+    "profitability_connection": "While there is no immediate P&L impact, lagging ESG scores could increase Adani Power's cost of capital and risk exclusion from ESG-focused indices, affecting long-term valuation.",
+    "translation": "Adani Power's group peers have received moderate ESG ratings, which may prompt investors and regulators to scrutinize Adani Power's own ESG disclosures. This could affect how easily the company raises money or attracts investors in the future.",
+    "impact_analysis": {
+      "esg_positioning": "Adani Power faces a moderate ESG score gap versus group peers, increasing peer pressure and risk of index exclusion.",
+      "capital_allocation": "Potential for marginal cost of capital increase (+20-40bps) if ESG scores lag, but no immediate bond spread impact.",
+      "valuation_cashflow": "Possible P/E compression if ESG funds rebalance away, but no current margin erosion or revenue at risk.",
+      "compliance_regulatory": "BRSR [MANDATORY], GRI, ESRS frameworks triggered; no immediate penalty but increased scrutiny.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Potential minor impact on talent attraction and customer trust if ESG narrative lags, but not material at present."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No direct ₹ impact; passive fund rebalancing risk if ESG scores lag",
+        "profitability_pathway": "ESG rating benchmarking → investor scrutiny → potential passive fund outflow → share price pressure",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Potential P/E compression if Adani Power underperforms peers on ESG and is excluded from indices",
+        "competitive_position": "Adani Power at risk of lagging JSW Energy and group peers in ESG-driven fund flows"
+      },
+      "long_term": {
+        "secular_trajectory": "3-5 year view: ESG benchmarking will drive disclosure upgrades; laggards face higher capital costs and index exclusion",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 3,
+        "rationale": "Event is primarily governance-focused; environmental impact is indirect."
+      },
+      "social": {
+        "score": 3,
+        "rationale": "Social dimension is secondary, via trust and stakeholder perception."
+      },
+      "governance": {
+        "score": 6,
+        "rationale": "Transparency & Disclosure is the core theme, directly relevant to governance."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "No immediate P&L impact, but moderate long-term risk via capital markets."
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "Triggers BRSR and GRI obligations; scrutiny risk but no penalty yet."
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Investors and regulators may increase scrutiny; limited immediate effect."
+      }
+    },
+    "net_impact_summary": "The moderate ESG ratings for Adani group peers create a benchmarking effect, increasing pressure on Adani Power to enhance its own ESG disclosures. While there is no direct financial impact at present, the risk of higher capital costs and index exclusion grows if Adani Power does not keep pace. Regulatory frameworks like BRSR and GRI are now more salient, and passive fund flows could shift over time. The event is structurally significant for governance positioning but not immediately material for P&L.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor ESG disclosure trends and peer benchmarking.",
+      "financial_exposure": "₹50-200 Cr at risk over medium term if ESG lag persists",
+      "key_risk": "ESG index exclusion leading to ₹50-200 Cr passive fund outflow risk",
+      "top_opportunity": "First-mover advantage in proactive ESG disclosure and governance upgrades",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Ports and Adani Green receive moderate NSE ESG ratings",
+      "mechanism": "Peer benchmarking increases investor and regulatory scrutiny on Adani Power's ESG disclosures",
+      "company_impact": "Potential for higher cost of capital and risk of exclusion from ESG indices, affecting long-term valuation",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Ports and Adani Green's moderate NSE ESG ratings signal sector benchmarking pressure for Adani Power",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Adani Power faces a moderate ESG score gap versus group peers, increasing peer pressure and risk of index exclusion.",
+        "BRSR [MANDATORY], GRI, ESRS frameworks triggered; no immediate penalty but increased scrutiny.",
+        "Potential minor impact on talent attraction and customer trust if ESG narrative lags, but not material at present."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": {
+        "headline": "Adani Ports and Adani Green's moderate NSE ESG ratings signal sector benchmarking pressure for Adani Power",
+        "impact_score": 5,
+        "core_mechanism": "Adani Ports and Adani Green's ESG scores of 69 and 74, respectively, set a sectoral benchmark for transparency and disclosure. This raises peer pressure on Adani Power to enhance its ESG reporting and governance practices to avoid regulatory scrutiny and potential fund outflows.",
+        "profitability_connection": "While there is no immediate P&L impact, lagging ESG scores could increase Adani Power's cost of capital and risk exclusion from ESG-focused indices, affecting long-term valuation.",
+        "translation": "Adani Power's group peers have received moderate ESG ratings, which may prompt investors and regulators to scrutinize Adani Power's own ESG disclosures. This could affect how easily the company raises money or attracts investors in the future.",
+        "impact_analysis": {
+          "esg_positioning": "Adani Power faces a moderate ESG score gap versus group peers, increasing peer pressure and risk of index exclusion.",
+          "capital_allocation": "Potential for marginal cost of capital increase (+20-40bps) if ESG scores lag, but no immediate bond spread impact.",
+          "valuation_cashflow": "Possible P/E compression if ESG funds rebalance away, but no current margin erosion or revenue at risk.",
+          "compliance_regulatory": "BRSR [MANDATORY], GRI, ESRS frameworks triggered; no immediate penalty but increased scrutiny.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Potential minor impact on talent attraction and customer trust if ESG narrative lags, but not material at present."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No direct ₹ impact; passive fund rebalancing risk if ESG scores lag",
+            "profitability_pathway": "ESG rating benchmarking → investor scrutiny → potential passive fund outflow → share price pressure",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Potential P/E compression if Adani Power underperforms peers on ESG and is excluded from indices",
+            "competitive_position": "Adani Power at risk of lagging JSW Energy and group peers in ESG-driven fund flows"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year view: ESG benchmarking will drive disclosure upgrades; laggards face higher capital costs and index exclusion",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 3,
+            "rationale": "Event is primarily governance-focused; environmental impact is indirect."
+          },
+          "social": {
+            "score": 3,
+            "rationale": "Social dimension is secondary, via trust and stakeholder perception."
+          },
+          "governance": {
+            "score": 6,
+            "rationale": "Transparency & Disclosure is the core theme, directly relevant to governance."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "No immediate P&L impact, but moderate long-term risk via capital markets."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Triggers BRSR and GRI obligations; scrutiny risk but no penalty yet."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Investors and regulators may increase scrutiny; limited immediate effect."
+          }
+        },
+        "net_impact_summary": "The moderate ESG ratings for Adani group peers create a benchmarking effect, increasing pressure on Adani Power to enhance its own ESG disclosures. While there is no direct financial impact at present, the risk of higher capital costs and index exclusion grows if Adani Power does not keep pace. Regulatory frameworks like BRSR and GRI are now more salient, and passive fund flows could shift over time. The event is structurally significant for governance positioning but not immediately material for P&L.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor ESG disclosure trends and peer benchmarking.",
+          "financial_exposure": "₹50-200 Cr at risk over medium term if ESG lag persists",
+          "key_risk": "ESG index exclusion leading to ₹50-200 Cr passive fund outflow risk",
+          "top_opportunity": "First-mover advantage in proactive ESG disclosure and governance upgrades",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Ports and Adani Green receive moderate NSE ESG ratings",
+          "mechanism": "Peer benchmarking increases investor and regulatory scrutiny on Adani Power's ESG disclosures",
+          "company_impact": "Potential for higher cost of capital and risk of exclusion from ESG indices, affecting long-term valuation",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹50-200 Cr at risk over medium term if ESG lag persists — Adani Ports and Adani Green's moderate NSE ESG ratings signal sector benchmarking pressure for Adani Power",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Possible P/E compression if ESG funds rebalance away, but no current margin erosion or revenue at risk.",
+        "BRSR [MANDATORY], GRI, ESRS frameworks triggered; no immediate penalty but increased scrutiny.",
+        "Potential for marginal cost of capital increase (+20-40bps) if ESG scores lag, but no immediate bond spread impact."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "regulatory"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — First-mover advantage in proactive ESG disclosure and governance upgrades",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "BRSR [MANDATORY], GRI, ESRS frameworks triggered; no immediate penalty but increased scrutiny.",
+        "Adani Power faces a moderate ESG score gap versus group peers, increasing peer pressure and risk of index exclusion.",
+        "Potential minor impact on talent attraction and customer trust if ESG narrative lags, but not material at present."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:09:41.954643+00:00",
+    "schema_version": "1.0"
+  }
+}

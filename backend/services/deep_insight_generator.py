@@ -54,6 +54,9 @@ async def generate_deep_insight(
     # v2.1 financial calibration context
     market_cap: float | None = None,
     revenue: float | None = None,
+    # v2.2 company context for richer analysis
+    industry: str | None = None,
+    region: str | None = None,
 ) -> dict | None:
     """Generate v2.0 deep insight brief with all module data assembled.
 
@@ -66,21 +69,42 @@ async def generate_deep_insight(
     if not llm.is_configured():
         return None
 
+    # Guard: coerce empty strings to None (some DB fields may be '' instead of NULL)
+    if market_cap is not None and not isinstance(market_cap, (int, float)):
+        try:
+            market_cap = float(market_cap) if market_cap else None
+        except (ValueError, TypeError):
+            market_cap = None
+    if revenue is not None and not isinstance(revenue, (int, float)):
+        try:
+            revenue = float(revenue) if revenue else None
+        except (ValueError, TypeError):
+            revenue = None
+
     # Track C2: Pre-classify event type for score guard rails
-    from backend.services.event_classifier import classify_event, has_financial_quantum
+    from backend.services.event_classifier import classify_event, has_financial_quantum, materiality_adjusted_bounds
     event_classification = classify_event(article_title, article_content)
+    # Apply market-cap-relative materiality adjustment
+    event_classification = materiality_adjusted_bounds(
+        event_classification, article_content or article_title,
+        market_cap_value=market_cap, revenue_last_fy=revenue,
+    )
 
     # Load specialist personality
     agent_key = CONTENT_TYPE_TO_AGENT.get(content_type or "", "executive")
     personality_path = PERSONALITIES_DIR / f"{agent_key}.md"
     personality = personality_path.read_text(encoding="utf-8") if personality_path.exists() else ""
 
-    article_text = article_content[:2500] if article_content else (article_summary[:500] if article_summary else article_title)
+    article_text = article_content[:6000] if article_content else (article_summary[:1000] if article_summary else article_title)
     fw_list = ", ".join(frameworks[:6]) if frameworks else "general ESG"
     comp_list = ", ".join(competitors[:4]) if competitors else "industry peers"
 
     # Build context block from v2.0 module outputs
     context_parts = [f"Company: {company_name}"]
+    if industry:
+        context_parts.append(f"Industry: {industry}")
+    if region:
+        context_parts.append(f"Region: {region}")
     if competitors:
         context_parts.append(f"Competitors: {comp_list}")
     context_parts.append(f"Frameworks: {fw_list}")
@@ -217,7 +241,22 @@ Return ONLY valid JSON (no markdown):
       "rationale": "1 sentence: investors, customers, employees, community exposure"
     }}
   }},
-  "net_impact_summary": "3-4 sentences: the structural significance. Not just good/bad — what this means for the ESG capital landscape and where {company_name} sits."
+  "net_impact_summary": "3-4 sentences: the structural significance. Not just good/bad — what this means for the ESG capital landscape and where {company_name} sits.",
+  "decision_summary": {{
+    "materiality": "CRITICAL|HIGH|MODERATE|LOW|NON-MATERIAL",
+    "action": "ACT|MONITOR|IGNORE — the executive decision signal",
+    "verdict": "1 sentence: should {company_name} act? Be direct and decisive. Example: 'Immediate board-level response required — ₹590 Cr at risk' or 'No action needed — include in quarterly monitoring'",
+    "financial_exposure": "1 line: the money at risk or opportunity in ₹. Example: '₹590 Cr direct loss + ₹50 Cr compliance cost' or 'No direct financial exposure'",
+    "key_risk": "1 line: the single biggest risk. Example: 'SEBI penalty if fraud not disclosed within 30 days'",
+    "top_opportunity": "1 line: the strategic opportunity (if any). Example: 'Early disclosure builds investor trust, +10bps cost of capital advantage' or 'None — defensive action only'",
+    "timeline": "When action is needed. Example: 'Within 4 weeks' or 'Next quarterly review' or 'No deadline pressure'"
+  }},
+  "causal_chain": {{
+    "event": "What happened — the specific trigger from the article (1 line, grounded in article facts)",
+    "mechanism": "How this transmits to {company_name} — the specific business mechanism (e.g., 'energy sector credit risk shifts loan book quality', NOT generic 'affects the company')",
+    "company_impact": "What this means for {company_name}'s P&L, operations, or ESG positioning (1 line with ₹/% if possible)",
+    "transmission_type": "direct|credit_risk|supply_chain|regulatory|market_sentiment|sector_spillover|competitive"
+  }}
 }}
 
 FINANCIAL CALIBRATION (CRITICAL):
@@ -241,6 +280,7 @@ Rules:
             messages=[{"role": "user", "content": user_prompt}],
             max_tokens=2400,
             model="gpt-4.1",
+            timeout=llm.LONG_TIMEOUT,  # 60s — prevents retry storms on the heaviest call
         )
         raw = raw.strip()
         if raw.startswith("```"):
@@ -303,7 +343,8 @@ Rules:
         # Pass through financial_timeline (merged field from v2.1 prompt)
         # Already in LLM output if present — no extra assembly needed
 
-
+        # Pipeline version stamp — frontend uses this to detect stale old-format data
+        insight["_pipeline_version"] = "2.2"
 
         logger.info(
             "deep_insight_v2_generated",

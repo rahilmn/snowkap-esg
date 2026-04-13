@@ -476,7 +476,7 @@ def _build_user_prompt(
     frameworks: list[str],
 ) -> str:
     """Build the user prompt for the risk assessment LLM call."""
-    content_truncated = article_content[:3000] if article_content else article_title
+    content_truncated = article_content[:6000] if article_content else article_title
     fw_list = ", ".join(frameworks[:8]) if frameworks else "general ESG"
     themes_str = json.dumps(esg_themes, default=str)[:500] if esg_themes else "{}"
     nlp_str = json.dumps(nlp_extraction, default=str)[:500] if nlp_extraction else "{}"

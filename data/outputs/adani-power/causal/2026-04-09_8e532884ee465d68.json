@@ -1,0 +1,49 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Energy",
+        "BRSR",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "GRI",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "TCFD",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+    }
+  ]
+}

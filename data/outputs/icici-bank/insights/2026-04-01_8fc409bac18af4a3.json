@@ -1,0 +1,634 @@
+{
+  "article": {
+    "id": "8fc409bac18af4a3",
+    "title": "ICICI Pru ESG Exclsnry Strtgy Reg IDCW-R - HDFC Sky",
+    "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxObmRiMnlFU1JQbkI0N0tnTmJ6U0xHZnVSQ1gwM1pPWmpHSWJZLXVtN1l4NC1MazBLdTJBYUFoaFBIeVFobXV1TjJBYUhlazNpYWt0d0xZOWYxOU9sTG5wWENPVDZVLVdqSWJEQ3dzVTR4WjdKX1NzXzBRdEFzQjlMYWZJbzZpaEpUSTZuUzVOWE5kbkhndEFvWkVmTzlicE13QXpBd1lPY0J4MjNrQjJRU1doX2RsVkFlVzc2RWZjbHk?oc=5",
+    "source": "HDFC Sky",
+    "published_at": "2026-04-01T07:00:00+00:00",
+    "company_slug": "icici-bank"
+  },
+  "pipeline": {
+    "article_id": "8fc409bac18af4a3",
+    "title": "ICICI Pru ESG Exclsnry Strtgy Reg IDCW-R - HDFC Sky",
+    "url": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxObmRiMnlFU1JQbkI0N0tnTmJ6U0xHZnVSQ1gwM1pPWmpHSWJZLXVtN1l4NC1MazBLdTJBYUFoaFBIeVFobXV1TjJBYUhlazNpYWt0d0xZOWYxOU9sTG5wWENPVDZVLVdqSWJEQ3dzVTR4WjdKX1NzXzBRdEFzQjlMYWZJbzZpaEpUSTZuUzVOWE5kbkhndEFvWkVmTzlicE13QXpBd1lPY0J4MjNrQjJRU1doX2RsVkFlVzc2RWZjbHk?oc=5",
+    "source": "HDFC Sky",
+    "published_at": "2026-04-01T07:00:00+00:00",
+    "company_slug": "icici-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 5.321,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "neutral"
+      ],
+      "narrative_core_claim": "ICICI Pru ESG Exclusionary Strategy Regular IDCW-R is listed on HDFC Sky.",
+      "narrative_implied_causation": "The fund is available on HDFC Sky, enabling investors to access ESG exclusionary strategies.",
+      "narrative_stakeholder_framing": "ICICI Pru is the fund provider; investors are the affected stakeholders accessing ESG investment options.",
+      "entities": [
+        "ICICI Pru ESG Exclsnry Strtgy Reg IDCW-R",
+        "HDFC Sky"
+      ],
+      "entity_types": {
+        "ICICI Pru ESG Exclsnry Strtgy Reg IDCW-R": "financial product",
+        "HDFC Sky": "platform"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "ESG investment",
+        "exclusionary strategy"
+      ],
+      "content_type": "financial",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.3,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_esg_rating_change",
+      "label": "ESG Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 7,
+      "financial_transmission": "passive fund rebalancing → ~5% share price impact",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 1,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "BRSR",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for ICICI Bank"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "GRI",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for ICICI Bank"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "ESRS",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for ICICI Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.4,
+          "adjusted_score": 4.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.4,
+          "adjusted_score": 4.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.079,
+      "ontology_queries": 6
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": []
+  },
+  "insight": {
+    "headline": "ICICI Pru ESG Exclusionary Fund listed on HDFC Sky, expanding ESG investment access but limited direct impact.",
+    "impact_score": 5,
+    "core_mechanism": "The listing of ICICI Pru ESG Exclusionary Strategy Regular IDCW-R on HDFC Sky increases investor access to ESG-focused funds. This event signals growing market infrastructure for ESG products but does not directly alter ICICI Bank's core operations or financials. The structural shift is toward greater transparency and disclosure expectations in the sector.",
+    "profitability_connection": "While the fund's listing may marginally influence passive fund flows and ESG ratings, there is no immediate or material impact on ICICI Bank's P&L or valuation. The event is more relevant for market signaling than for direct financial outcomes.",
+    "translation": "ICICI Pru's ESG fund is now available on HDFC Sky, making it easier for investors to choose ESG-focused investments. This doesn't directly affect ICICI Bank's profits or operations, but it shows that ESG investing is becoming more mainstream.",
+    "impact_analysis": {
+      "esg_positioning": "Minor ESG score improvement possible; no immediate peer pressure or index exclusion risk.",
+      "capital_allocation": "No material change in cost of capital or fund flows at this stage.",
+      "valuation_cashflow": "No P/E compression or revenue at risk; valuation impact is negligible.",
+      "compliance_regulatory": "BRSR, GRI, ESRS frameworks triggered, but no new deadlines or penalties.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "N/A"
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "No direct ₹ impact from fund listing.",
+        "profitability_pathway": "ESG fund listing → increased investor access → no direct financial effect.",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Stable; no P/E change expected from this event.",
+        "competitive_position": "No gain or loss vs YES Bank, IDFC First Bank; all peers face similar ESG disclosure trends."
+      },
+      "long_term": {
+        "secular_trajectory": "Gradual sector-wide shift toward ESG transparency; possible future fund inflows.",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 1,
+        "rationale": "No direct environmental impact from fund listing."
+      },
+      "social": {
+        "score": 1,
+        "rationale": "No material social dimension triggered."
+      },
+      "governance": {
+        "score": 3,
+        "rationale": "Marginal improvement in disclosure and transparency signaling."
+      },
+      "financial_materiality": {
+        "score": 2,
+        "rationale": "No direct financial transmission; secondary materiality only."
+      },
+      "regulatory_exposure": {
+        "score": 3,
+        "rationale": "Triggers disclosure frameworks but no new obligations or penalties."
+      },
+      "stakeholder_impact": {
+        "score": 2,
+        "rationale": "Investors gain access, but no significant stakeholder shift."
+      }
+    },
+    "net_impact_summary": "The listing of ICICI Pru ESG Exclusionary Strategy on HDFC Sky is a minor market development, reflecting increased accessibility of ESG products for investors. There is no direct impact on ICICI Bank's financials, operations, or regulatory standing. The event signals a gradual sectoral move toward ESG transparency but remains non-material for immediate business outcomes. Monitoring is sufficient unless further regulatory or fund flow developments arise.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor for future ESG fund flow or regulatory triggers.",
+      "financial_exposure": "N/A",
+      "key_risk": "Potential for future regulatory scrutiny if disclosure standards are not met.",
+      "top_opportunity": "ESG narrative differentiation via early adoption and proactive disclosure.",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "ICICI Pru ESG Exclusionary Strategy Regular IDCW-R listed on HDFC Sky.",
+      "mechanism": "Increases investor access to ESG funds, signaling sectoral transparency trends.",
+      "company_impact": "No direct P&L effect; possible future influence on ESG ratings and fund flows.",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "ICICI Pru ESG Exclusionary Fund listed on HDFC Sky, expanding ESG investment access but limited direct impact.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "Minor ESG score improvement possible; no immediate peer pressure or index exclusion risk.",
+        "BRSR, GRI, ESRS frameworks triggered, but no new deadlines or penalties.",
+        "No P/E compression or revenue at risk; valuation impact is negligible."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": {
+        "headline": "ICICI Pru ESG Exclusionary Fund listed on HDFC Sky, expanding ESG investment access but limited direct impact.",
+        "impact_score": 5,
+        "core_mechanism": "The listing of ICICI Pru ESG Exclusionary Strategy Regular IDCW-R on HDFC Sky increases investor access to ESG-focused funds. This event signals growing market infrastructure for ESG products but does not directly alter ICICI Bank's core operations or financials. The structural shift is toward greater transparency and disclosure expectations in the sector.",
+        "profitability_connection": "While the fund's listing may marginally influence passive fund flows and ESG ratings, there is no immediate or material impact on ICICI Bank's P&L or valuation. The event is more relevant for market signaling than for direct financial outcomes.",
+        "translation": "ICICI Pru's ESG fund is now available on HDFC Sky, making it easier for investors to choose ESG-focused investments. This doesn't directly affect ICICI Bank's profits or operations, but it shows that ESG investing is becoming more mainstream.",
+        "impact_analysis": {
+          "esg_positioning": "Minor ESG score improvement possible; no immediate peer pressure or index exclusion risk.",
+          "capital_allocation": "No material change in cost of capital or fund flows at this stage.",
+          "valuation_cashflow": "No P/E compression or revenue at risk; valuation impact is negligible.",
+          "compliance_regulatory": "BRSR, GRI, ESRS frameworks triggered, but no new deadlines or penalties.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "N/A"
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No direct ₹ impact from fund listing.",
+            "profitability_pathway": "ESG fund listing → increased investor access → no direct financial effect.",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Stable; no P/E change expected from this event.",
+            "competitive_position": "No gain or loss vs YES Bank, IDFC First Bank; all peers face similar ESG disclosure trends."
+          },
+          "long_term": {
+            "secular_trajectory": "Gradual sector-wide shift toward ESG transparency; possible future fund inflows.",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 1,
+            "rationale": "No direct environmental impact from fund listing."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No material social dimension triggered."
+          },
+          "governance": {
+            "score": 3,
+            "rationale": "Marginal improvement in disclosure and transparency signaling."
+          },
+          "financial_materiality": {
+            "score": 2,
+            "rationale": "No direct financial transmission; secondary materiality only."
+          },
+          "regulatory_exposure": {
+            "score": 3,
+            "rationale": "Triggers disclosure frameworks but no new obligations or penalties."
+          },
+          "stakeholder_impact": {
+            "score": 2,
+            "rationale": "Investors gain access, but no significant stakeholder shift."
+          }
+        },
+        "net_impact_summary": "The listing of ICICI Pru ESG Exclusionary Strategy on HDFC Sky is a minor market development, reflecting increased accessibility of ESG products for investors. There is no direct impact on ICICI Bank's financials, operations, or regulatory standing. The event signals a gradual sectoral move toward ESG transparency but remains non-material for immediate business outcomes. Monitoring is sufficient unless further regulatory or fund flow developments arise.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for future ESG fund flow or regulatory triggers.",
+          "financial_exposure": "N/A",
+          "key_risk": "Potential for future regulatory scrutiny if disclosure standards are not met.",
+          "top_opportunity": "ESG narrative differentiation via early adoption and proactive disclosure.",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "ICICI Pru ESG Exclusionary Strategy Regular IDCW-R listed on HDFC Sky.",
+          "mechanism": "Increases investor access to ESG funds, signaling sectoral transparency trends.",
+          "company_impact": "No direct P&L effect; possible future influence on ESG ratings and fund flows.",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "Financial risk: Potential for future regulatory scrutiny if disclosure standards are not met.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No P/E compression or revenue at risk; valuation impact is negligible.",
+        "BRSR, GRI, ESRS frameworks triggered, but no new deadlines or penalties.",
+        "No material change in cost of capital or fund flows at this stage."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "regulatory"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — ESG narrative differentiation via early adoption and proactive disclosure.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "BRSR, GRI, ESRS frameworks triggered, but no new deadlines or penalties.",
+        "Minor ESG score improvement possible; no immediate peer pressure or index exclusion risk."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "regulatory",
+        "reputational",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T10:02:35.834408+00:00",
+    "schema_version": "1.0"
+  }
+}

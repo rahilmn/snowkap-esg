@@ -42,8 +42,11 @@ import { NlpEvidencePanel } from "./NlpEvidencePanel";
 import { GeographicSignalPanel } from "./GeographicSignalPanel";
 import { RiskSpotlight } from "./RiskSpotlight";
 import { UnlockFullAnalysis } from "./UnlockFullAnalysis";
+import { CrispInsight } from "@/components/CrispInsight";
+import { usePerspective } from "@/stores/perspectiveStore";
 import { formatCurrency } from "../../lib/utils";
 import type { Article } from "../../types";
+import type { CrispView as NewCrispView } from "@/lib/snowkap-api";
 
 interface ArticleDetailSheetProps {
   article: Article | null;
@@ -524,6 +527,7 @@ function renderDeepDict(val: unknown): React.ReactNode {
 
 export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps) {
   const navigate = useNavigate();
+  const activePerspective = usePerspective((s) => s.active);
 
   // ── On-demand analysis state (hooks must be before early return) ──
   // Only skip trigger if deep_insight exists — risk_matrix alone means analysis is incomplete
@@ -605,6 +609,7 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         framework_matches: (article.framework_matches ?? liveAnalysis.framework_matches) as Article["framework_matches"],
         priority_score: article.priority_score ?? (liveAnalysis.priority_score as number | null),
         priority_level: article.priority_level ?? (liveAnalysis.priority_level as string | null),
+        perspectives: (article.perspectives ?? liveAnalysis.perspectives) as Article["perspectives"],
       }
     : article;
 
@@ -746,6 +751,18 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         {themes && (
           <div style={{ padding: "12px 24px 0" }}>
             <EsgThemeBar esgThemes={themes} />
+          </div>
+        )}
+
+        {/* ═══ ZONE B2: CRISP INSIGHT — ontology-driven perspective view ═══
+            Renders the CFO / CEO / ESG Analyst crisp card based on the
+            global PerspectiveSwitcher. Driven entirely from the new
+            ontology-backed pipeline's `perspectives` field. */}
+        {effectiveArticle.perspectives?.[activePerspective] && (
+          <div style={{ padding: "12px 24px 0" }}>
+            <CrispInsight
+              view={effectiveArticle.perspectives[activePerspective] as unknown as NewCrispView}
+            />
           </div>
         )}
 
@@ -992,7 +1009,7 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             <h3 style={{ fontSize: "14px", fontWeight: 600, color: COLORS.textSecondary, marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
               ESG Relevance Score
             </h3>
-            <ESGRelevanceScore6D score={di.esg_relevance_score as Record<string, { score: number; rationale: string }>} />
+            <ESGRelevanceScore6D score={di.esg_relevance_score as unknown as Record<string, { score: number; rationale: string }>} />
             <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
           </div>
         ) : article.relevance_breakdown ? (
@@ -1040,9 +1057,28 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             <p style={{ fontSize: "12px", color: COLORS.textMuted, marginBottom: "12px" }}>
               Validated by 3-agent RE³ pipeline
             </p>
-            {rr!.validated_recommendations.map((rec, i) => (
-              <RecommendationCard key={i} rec={rec} index={i} articleId={article.id} />
-            ))}
+            {(() => {
+              const recs = rr!.validated_recommendations;
+              const rankings = rr!.recommendation_rankings;
+              const typeFilters = rr!.perspective_type_filters;
+              const perspKey = activePerspective === "esg-analyst" ? "esg-analyst" : activePerspective;
+
+              // Step 1: Reorder by perspective-specific ranking
+              const order = rankings?.[perspKey];
+              const ordered = order && order.length > 0
+                ? order.filter((idx: number) => idx < recs.length).map((idx: number) => recs[idx])
+                : recs;
+
+              // Step 2: Filter by perspective-specific allowed types
+              const allowedTypes = typeFilters?.[perspKey];
+              const filtered = allowedTypes && allowedTypes.length > 0
+                ? ordered.filter((rec) => allowedTypes.includes(rec.type))
+                : ordered;
+
+              return filtered.map((rec: typeof recs[number], i: number) => (
+                <RecommendationCard key={i} rec={rec} index={i} articleId={article.id} />
+              ));
+            })()}
             {rr!.validation_summary && (
               <p style={{ fontSize: "12px", color: COLORS.textMuted, fontStyle: "italic", marginTop: "8px" }}>{rr!.validation_summary}</p>
             )}

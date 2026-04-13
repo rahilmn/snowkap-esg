@@ -1,0 +1,903 @@
+{
+  "article": {
+    "id": "08963a1d7cc82dfd",
+    "title": "Adani Power Up 3.2% After Winning Massive 2,500 MW Clean Energy Deal from MSEDCL - Trade Brains",
+    "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNdEtZMzlwYUxkWjI0b2FTTWtWVHpybkZLazdna3h2YmhIRERDWXBpdUxhU0ZELWh6TXVQRlVKWV9QODg0WnBsdXBnMVZrV3g1WkRjemFVc0tmdUtOTlh3RmlqUXRKTjZaT2lQTVZsemgxRWJSS2RwLUFoOWxRSHFYeUtmamt5SkwzbEdzWXhiREc0RzB1ZG5lMEJWSnVIZDJOb2poMg?oc=5",
+    "source": "Trade Brains",
+    "published_at": "2026-04-06T06:23:00+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "08963a1d7cc82dfd",
+    "title": "Adani Power Up 3.2% After Winning Massive 2,500 MW Clean Energy Deal from MSEDCL - Trade Brains",
+    "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxNdEtZMzlwYUxkWjI0b2FTTWtWVHpybkZLazdna3h2YmhIRERDWXBpdUxhU0ZELWh6TXVQRlVKWV9QODg0WnBsdXBnMVZrV3g1WkRjemFVc0tmdUtOTlh3RmlqUXRKTjZaT2lQTVZsemgxRWJSS2RwLUFoOWxRSHFYeUtmamt5SkwzbEdzWXhiREc0RzB1ZG5lMEJWSnVIZDJOb2poMg?oc=5",
+    "source": "Trade Brains",
+    "published_at": "2026-04-06T06:23:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 43,
+    "elapsed_seconds": 7.698,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.9,
+      "tone": [
+        "optimistic",
+        "promotional",
+        "analytical"
+      ],
+      "narrative_core_claim": "Adani Power's stock rose 3.2% after securing a 2,500 MW clean energy deal from MSEDCL.",
+      "narrative_implied_causation": "Winning the large clean energy contract caused a positive market reaction boosting Adani Power's stock price.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist benefiting from the deal; MSEDCL is the client enabling clean energy expansion.",
+      "entities": [
+        "Adani Power",
+        "MSEDCL"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "MSEDCL": "company"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": "2,500 MW clean energy deal"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "clean energy",
+        "renewable power capacity"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "power_purchase_agreements",
+        "fossil_fuel_dependency"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Climate Change",
+          "pillar": "E",
+          "sub_metrics": [
+            "ghg_reduction_targets",
+            "scope_2_indirect"
+          ]
+        }
+      ],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.15,
+      "ontology_queries": 12
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Adani Power secures 2,500 MW clean energy deal from MSEDCL, boosting stock and ESG positioning",
+    "impact_score": 4.0,
+    "core_mechanism": "Adani Power's win of a large-scale clean energy contract with MSEDCL signals a strategic shift towards renewables, strengthening its market position and aligning with climate transition trends. The deal demonstrates operational capability in clean energy, potentially improving ESG credentials and investor perception.",
+    "profitability_connection": "The contract supports revenue visibility and may lower cost of capital through improved ESG alignment, but immediate P&L impact is limited to routine capex growth. Stock price uptick reflects positive market sentiment rather than material near-term earnings change.",
+    "translation": "Adani Power landed a major clean energy contract, which boosted its stock and shows it is moving towards more sustainable power. This helps its reputation and could attract investors, but the financial impact will play out over time, not immediately.",
+    "impact_analysis": {
+      "esg_positioning": "Closes ESG score gap with peers by expanding renewables; may improve index inclusion prospects.",
+      "capital_allocation": "Potential for lower cost of capital via green financing; aligns with EU Taxonomy and CDP frameworks.",
+      "valuation_cashflow": "No immediate P/E rerating; structural upside if ESG disclosure and execution improve.",
+      "compliance_regulatory": "Triggers BRSR, CDP, GRI, TCFD reporting; non-disclosure risks SEBI scrutiny and trading restrictions.",
+      "supply_chain_transmission": "N/A",
+      "people_demand": "Positive for talent attraction and community perception due to clean energy focus."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "Stock up 3.2% on deal news; no immediate ₹ impact disclosed",
+        "profitability_pathway": "Clean energy contract win → market confidence → stock price increase; no direct earnings effect yet",
+        "margin_pressure": "N/A",
+        "revenue_at_risk": "N/A"
+      },
+      "structural": {
+        "valuation_rerating": "Potential P/E premium if ESG disclosures and execution are robust",
+        "competitive_position": "Improves vs JSW Energy by accelerating renewables portfolio"
+      },
+      "long_term": {
+        "secular_trajectory": "Strengthens transition to renewables over 3-5 years, supporting climate resilience and regulatory alignment",
+        "green_revenue_opportunity": "N/A"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 6,
+        "rationale": "Significant renewable energy addition, but routine for sector leaders"
+      },
+      "social": {
+        "score": 3,
+        "rationale": "Indirect community benefit; no direct social initiative"
+      },
+      "governance": {
+        "score": 4,
+        "rationale": "Triggers mandatory ESG disclosures, but no governance event"
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "Routine capex; limited immediate P&L impact"
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "BRSR, CDP, TCFD reporting triggered; moderate compliance risk"
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Positive for investors and talent, but not transformative"
+      }
+    },
+    "net_impact_summary": "The 2,500 MW clean energy contract marks a strategic win for Adani Power, reinforcing its renewables push and supporting its ESG narrative. While the deal boosts market sentiment and strengthens competitive positioning, the financial impact is routine and will materialize over the medium term. Regulatory disclosure obligations increase, but also open doors to green financing and improved investor perception. The event is structurally positive but not immediately material to earnings.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor execution and ESG disclosure for future upside.",
+      "financial_exposure": "₹200-500 Cr at risk (routine capex scale for large power contracts)",
+      "key_risk": "Delayed or inadequate ESG disclosure triggering SEBI scrutiny and trading restrictions",
+      "top_opportunity": "First-mover advantage in large-scale clean energy contracts and ESG narrative differentiation",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Power wins 2,500 MW clean energy contract from MSEDCL",
+      "mechanism": "Contract expands renewables portfolio, triggers mandatory ESG disclosures, and signals transition alignment",
+      "company_impact": "Improved market sentiment and ESG positioning; limited immediate P&L effect, but supports long-term valuation",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [],
+    "do_nothing": true,
+    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
+    "generator_count": 0,
+    "validated_count": 0,
+    "priority_matrix": null,
+    "recommendation_rankings": null
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power secures 2,500 MW clean energy deal from MSEDCL, boosting stock and ESG positioning",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Closes ESG score gap with peers by expanding renewables; may improve index inclusion prospects.",
+        "Triggers BRSR, CDP, GRI, TCFD reporting; non-disclosure risks SEBI scrutiny and trading restrictions.",
+        "Positive for talent attraction and community perception due to clean energy focus."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power secures 2,500 MW clean energy deal from MSEDCL, boosting stock and ESG positioning",
+        "impact_score": 4.0,
+        "core_mechanism": "Adani Power's win of a large-scale clean energy contract with MSEDCL signals a strategic shift towards renewables, strengthening its market position and aligning with climate transition trends. The deal demonstrates operational capability in clean energy, potentially improving ESG credentials and investor perception.",
+        "profitability_connection": "The contract supports revenue visibility and may lower cost of capital through improved ESG alignment, but immediate P&L impact is limited to routine capex growth. Stock price uptick reflects positive market sentiment rather than material near-term earnings change.",
+        "translation": "Adani Power landed a major clean energy contract, which boosted its stock and shows it is moving towards more sustainable power. This helps its reputation and could attract investors, but the financial impact will play out over time, not immediately.",
+        "impact_analysis": {
+          "esg_positioning": "Closes ESG score gap with peers by expanding renewables; may improve index inclusion prospects.",
+          "capital_allocation": "Potential for lower cost of capital via green financing; aligns with EU Taxonomy and CDP frameworks.",
+          "valuation_cashflow": "No immediate P/E rerating; structural upside if ESG disclosure and execution improve.",
+          "compliance_regulatory": "Triggers BRSR, CDP, GRI, TCFD reporting; non-disclosure risks SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "N/A",
+          "people_demand": "Positive for talent attraction and community perception due to clean energy focus."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "Stock up 3.2% on deal news; no immediate ₹ impact disclosed",
+            "profitability_pathway": "Clean energy contract win → market confidence → stock price increase; no direct earnings effect yet",
+            "margin_pressure": "N/A",
+            "revenue_at_risk": "N/A"
+          },
+          "structural": {
+            "valuation_rerating": "Potential P/E premium if ESG disclosures and execution are robust",
+            "competitive_position": "Improves vs JSW Energy by accelerating renewables portfolio"
+          },
+          "long_term": {
+            "secular_trajectory": "Strengthens transition to renewables over 3-5 years, supporting climate resilience and regulatory alignment",
+            "green_revenue_opportunity": "N/A"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Significant renewable energy addition, but routine for sector leaders"
+          },
+          "social": {
+            "score": 3,
+            "rationale": "Indirect community benefit; no direct social initiative"
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Triggers mandatory ESG disclosures, but no governance event"
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "Routine capex; limited immediate P&L impact"
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "BRSR, CDP, TCFD reporting triggered; moderate compliance risk"
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Positive for investors and talent, but not transformative"
+          }
+        },
+        "net_impact_summary": "The 2,500 MW clean energy contract marks a strategic win for Adani Power, reinforcing its renewables push and supporting its ESG narrative. While the deal boosts market sentiment and strengthens competitive positioning, the financial impact is routine and will materialize over the medium term. Regulatory disclosure obligations increase, but also open doors to green financing and improved investor perception. The event is structurally positive but not immediately material to earnings.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor execution and ESG disclosure for future upside.",
+          "financial_exposure": "₹200-500 Cr at risk (routine capex scale for large power contracts)",
+          "key_risk": "Delayed or inadequate ESG disclosure triggering SEBI scrutiny and trading restrictions",
+          "top_opportunity": "First-mover advantage in large-scale clean energy contracts and ESG narrative differentiation",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Power wins 2,500 MW clean energy contract from MSEDCL",
+          "mechanism": "Contract expands renewables portfolio, triggers mandatory ESG disclosures, and signals transition alignment",
+          "company_impact": "Improved market sentiment and ESG positioning; limited immediate P&L effect, but supports long-term valuation",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "₹200-500 Cr at risk (routine capex scale for large power contracts) — Adani Power secures 2,500 MW clean energy deal from MSEDCL, boosting stock and ESG positioning",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Triggers BRSR, CDP, GRI, TCFD reporting; non-disclosure risks SEBI scrutiny and trading restrictions.",
+        "No immediate P/E rerating; structural upside if ESG disclosure and execution improve.",
+        "Potential for lower cost of capital via green financing; aligns with EU Taxonomy and CDP frameworks."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — First-mover advantage in large-scale clean energy contracts and ESG narrative differentiation",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Triggers BRSR, CDP, GRI, TCFD reporting; non-disclosure risks SEBI scrutiny and trading restrictions.",
+        "Closes ESG score gap with peers by expanding renewables; may improve index inclusion prospects.",
+        "Positive for talent attraction and community perception due to clean energy focus."
+      ],
+      "action": [
+        "No action required — monitor quarterly"
+      ],
+      "materiality": "LOW",
+      "do_nothing": true,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-12T09:42:45.013325+00:00",
+    "schema_version": "1.0"
+  }
+}

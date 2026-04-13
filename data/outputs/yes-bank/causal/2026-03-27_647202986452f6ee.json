@@ -1,0 +1,40 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "YES Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank Delhi Branch",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank Delhi Branch -> YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank HQ",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank HQ -> YES Bank"
+    }
+  ]
+}

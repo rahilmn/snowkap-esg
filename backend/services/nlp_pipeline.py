@@ -74,7 +74,7 @@ class NLPExtraction:
     source_rationale: str = ""
 
     # Step 5: ESG Signals
-    named_entities: list[dict] = field(default_factory=list)  # [{"text": "", "type": "company|regulator|geography|framework"}]
+    named_entities: list[dict] = field(default_factory=list)  # [{"text": "", "type": "company|person|regulator|geography|framework|commodity"}]
     quantitative_claims: list[str] = field(default_factory=list)
     regulatory_references: list[str] = field(default_factory=list)
     supply_chain_references: list[str] = field(default_factory=list)
@@ -224,7 +224,7 @@ async def run_nlp_pipeline(
         result.core_claim = article_title
         return result
 
-    text = article_content[:3000] if article_content else article_title
+    text = article_content[:6000] if article_content else article_title
 
     # Step 0: Language detection and translation for non-English content
     text, article_title = await _translate_if_needed(article_title, text)
@@ -254,7 +254,7 @@ Return JSON:
   "implied_causation": "<the causal chain the article constructs, e.g. 'Policy X → Market shift Y → Company impact Z'>",
   "stakeholder_framing": {{"protagonist": "<who is positioned positively>", "antagonist": "<who is positioned negatively>", "affected": "<who is impacted>"}},
   "temporal_framing": "<backward (post-mortem) | present (breaking) | forward (predictive)>",
-  "named_entities": [{{"text": "<name>", "type": "<company|regulator|geography|framework|commodity>"}}],
+  "named_entities": [{{"text": "<name>", "type": "<company|person|regulator|geography|framework|commodity> — use 'person' for individual people, 'company' for organisations only"}}],
   "quantitative_claims": ["<any numbers, percentages, amounts mentioned>"],
   "regulatory_references": ["<specific laws, directives, standards mentioned>"],
   "supply_chain_references": ["<supplier names, tiers, supply chain geographies>"]

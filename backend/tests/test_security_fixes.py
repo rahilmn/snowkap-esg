@@ -24,11 +24,11 @@ import pytest
 
 BASE_URL = "http://localhost:8000"
 VALID_LOGIN = {
-    "email": "test@nike.com",
+    "email": "test@adanipower.com",
     "name": "Test User",
     "designation": "CEO",
-    "company_name": "Nike, Inc.",
-    "domain": "nike.com",
+    "company_name": "Adani Power",
+    "domain": "adanipower.com",
 }
 
 
@@ -219,9 +219,9 @@ class TestResolveDomainValidation:
     @pytest.mark.asyncio
     async def test_valid_domain_returns_200(self):
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=10) as c:
-            r = await c.post("/api/auth/resolve-domain", json={"domain": "nike.com"})
+            r = await c.post("/api/auth/resolve-domain", json={"domain": "adanipower.com"})
             assert r.status_code == 200
-            assert r.json()["domain"] == "nike.com"
+            assert r.json()["domain"] == "adanipower.com"
 
 
 # ──────────────────────────────────────────────
@@ -337,11 +337,11 @@ class TestConcurrentLogin:
     async def test_concurrent_login_same_email_no_crash(self):
         """Two simultaneous login requests with the same email should both succeed."""
         login_data = {
-            "email": "concurrent@nike.com",
+            "email": "concurrent@adanipower.com",
             "name": "Concurrent Test",
             "designation": "CEO",
-            "company_name": "Nike, Inc.",
-            "domain": "nike.com",
+            "company_name": "Adani Power",
+            "domain": "adanipower.com",
         }
 
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=15) as c:
@@ -370,24 +370,24 @@ class TestTenantIsolation:
     """Verify cross-tenant data isolation is maintained."""
 
     @pytest.mark.asyncio
-    async def test_nike_user_cannot_see_icici_articles(self):
-        """Nike user's feed should not contain ICICI Bank articles."""
+    async def test_adani_user_cannot_see_icici_articles(self):
+        """Adani user's feed should not contain ICICI Bank articles."""
         async with httpx.AsyncClient(base_url=BASE_URL, timeout=15) as c:
-            # Login as Nike
+            # Login as Adani
             r = await c.post("/api/auth/login", json=VALID_LOGIN)
-            nike_token = r.json()["token"]
-            h = {"Authorization": f"Bearer {nike_token}"}
+            adani_token = r.json()["token"]
+            h = {"Authorization": f"Bearer {adani_token}"}
 
             # Get feed
             r = await c.get("/api/news/feed", headers=h)
             assert r.status_code == 200
             articles = r.json().get("articles", [])
 
-            # No article should mention ICICI in a Nike tenant feed
+            # No article should mention ICICI in an Adani tenant feed
             for article in articles:
                 title = article.get("title", "").lower()
-                # Articles about ICICI should not appear in Nike's feed
-                assert "icici" not in title or "nike" in title
+                # Articles about ICICI should not appear in Adani's feed
+                assert "icici" not in title or "adani" in title
 
     @pytest.mark.asyncio
     async def test_admin_endpoint_requires_admin_role(self):
@@ -396,11 +396,11 @@ class TestTenantIsolation:
             r = await c.post(
                 "/api/auth/login",
                 json={
-                    "email": "analyst@nike.com",
+                    "email": "analyst@adanipower.com",
                     "name": "Analyst",
                     "designation": "ESG Analyst",
-                    "company_name": "Nike",
-                    "domain": "nike.com",
+                    "company_name": "Adani Power",
+                    "domain": "adanipower.com",
                 },
             )
             h = {"Authorization": f"Bearer {r.json()['token']}"}
