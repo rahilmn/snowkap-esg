@@ -1,0 +1,569 @@
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — Causal Edge Records (Order-2: P→P)
+# Source: "00 — Primitives" §7, §8 — complete P→P edge tables
+# =============================================================================
+
+# ---- Energy Price (EP) as source ----
+
+snw:edge_EP_OX a snw:CausalEdge ;
+    snw:edgeId "P2::EP→OX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔEP(t−k)" ;
+    snw:elasticityOrWeight "0.15–0.35" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Energy as % of opex varies 5–35% by sector; use sector-specific β" .
+
+snw:edge_EP_CX a snw:CausalEdge ;
+    snw:edgeId "P2::EP→CX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 2 ; snw:directionSign "mixed" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔCapex(t) = β · ΔEP(t−k) · 𝟙[|ΔEP| > τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Direction: − short-term (demand destruction suppresses capex); + long-term (energy transition investment). τ = sustained ΔEP ≥ 25% YoY triggers investment regime" .
+
+snw:edge_EP_EU a snw:CausalEdge ;
+    snw:edgeId "P2::EP→EU" ; snw:cause snw:prim_EP ; snw:effect snw:prim_EU ;
+    snw:edgeOrder 2 ; snw:directionSign "mixed" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔEU(t) = β₁·ΔEP(t−k₁) [destruction, 0–1q] + β₂·ΔEP(t−k₂) [investment, 2–6q]" ;
+    snw:elasticityOrWeight "0.05–0.15 (destruction) / 0.03–0.10 (investment)" ; snw:lagK "0–6q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Switching: sustained ΔEP ≥ 25% YoY triggers investment regime" .
+
+snw:edge_EP_RV a snw:CausalEdge ;
+    snw:edgeId "P2::EP→RV" ; snw:cause snw:prim_EP ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔRevenue(t) = −β · ln(1 + ΔEP(t−k))" ;
+    snw:elasticityOrWeight "0.03–0.15" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Demand destruction channel; price-elastic consumer-facing sectors at upper bound" .
+
+snw:edge_EP_FR a snw:CausalEdge ;
+    snw:edgeId "P2::EP→FR" ; snw:cause snw:prim_EP ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔFreightCost(t) = β · ΔEP(t−k)" ;
+    snw:elasticityOrWeight "0.15–0.35" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Fuel/bunker cost = 20–40% of carrier operating cost; pass-through via fuel surcharges" .
+
+snw:edge_EP_DT a snw:CausalEdge ;
+    snw:edgeId "P2::EP→DT" ; snw:cause snw:prim_EP ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔDowntime(t) = β · 𝟙[EP > τ_curtailment]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Energy curtailment mandates at extreme prices" .
+
+snw:edge_EP_SC a snw:CausalEdge ;
+    snw:edgeId "P2::EP→SC" ; snw:cause snw:prim_EP ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · 𝟙[ΔEP > τ_supplier_stress]" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Supplier stress at extreme energy prices" .
+
+# ---- Extreme Weather (XW) as source ----
+
+snw:edge_XW_DT a snw:CausalEdge ;
+    snw:edgeId "P2::XW→DT" ; snw:cause snw:prim_XW ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔDowntime(t) = β · HazardIndex(t−k) · 𝟙[HazardIndex > τ]" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "max" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "τ = asset-specific hazard intensity; max aggregation (worst hazard sets downtime)" .
+
+snw:edge_XW_OX a snw:CausalEdge ;
+    snw:edgeId "P2::XW→OX" ; snw:cause snw:prim_XW ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[HazardEvent ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Disaster response, emergency logistics" .
+
+snw:edge_XW_CX a snw:CausalEdge ;
+    snw:edgeId "P2::XW→CX" ; snw:cause snw:prim_XW ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔCapex(t) = β · 𝟙[HazardDamage ≥ τ]" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Rebuild/hardening capex" .
+
+snw:edge_XW_SC a snw:CausalEdge ;
+    snw:edgeId "P2::XW→SC" ; snw:cause snw:prim_XW ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · XWIndex(t−k) · 𝟙[XWIndex > τ]" ;
+    snw:elasticityOrWeight "0.15–0.40" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Infrastructure/logistics disruption from extreme weather" .
+
+snw:edge_XW_WA a snw:CausalEdge ;
+    snw:edgeId "P2::XW→WA" ; snw:cause snw:prim_XW ; snw:effect snw:prim_WA ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔWater(t) = −β · DroughtIndex(t−k) · 𝟙[DroughtIndex > τ]" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Drought reduces water availability; τ = PDSI ≤ −3.0 or SPI ≤ −1.5" .
+
+snw:edge_XW_HS a snw:CausalEdge ;
+    snw:edgeId "P2::XW→HS" ; snw:cause snw:prim_XW ; snw:effect snw:prim_HS ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔHSIncidents(t) = β · 𝟙[HazardEvent ≥ τ]" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Heat stress, flood hazard injuries" .
+
+snw:edge_XW_WF a snw:CausalEdge ;
+    snw:edgeId "P2::XW→WF" ; snw:cause snw:prim_XW ; snw:effect snw:prim_WF ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔWorkforceAvail(t) = −β · 𝟙[DisasterEvent ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Mass evacuation/displacement reduces workforce" .
+
+snw:edge_XW_EP a snw:CausalEdge ;
+    snw:edgeId "P2::XW→EP" ; snw:cause snw:prim_XW ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔEP(t) = β · XWIndex(t−k) · 𝟙[XWIndex > τ]" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "max" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Heat spikes power demand; drought cuts hydro supply" .
+
+# ---- Commodity Price (CM) as source ----
+
+snw:edge_CM_OX a snw:CausalEdge ;
+    snw:edgeId "P2::CM→OX" ; snw:cause snw:prim_CM ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔCM(t−k)" ;
+    snw:elasticityOrWeight "0.10–0.35" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Raw material COGS/opex line" .
+
+snw:edge_CM_SC a snw:CausalEdge ;
+    snw:edgeId "P2::CM→SC" ; snw:cause snw:prim_CM ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · 𝟙[ΔCM > τ_supplier_stress]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Supplier financial stress from commodity price shock" .
+
+snw:edge_CM_EP a snw:CausalEdge ;
+    snw:edgeId "P2::CM→EP" ; snw:cause snw:prim_CM ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔEP(t) = β · ΔCM(t−k)" ;
+    snw:elasticityOrWeight "0.60–0.90" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Oil/gas/coal ARE commodities; commodity shock IS energy price shock for fossil fuels" .
+
+# ---- Regulatory (RG) as source ----
+
+snw:edge_RG_OX a snw:CausalEdge ;
+    snw:edgeId "P2::RG→OX" ; snw:cause snw:prim_RG ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[NewRegulation enacted]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Compliance program costs 2–10% opex in regulated sectors" .
+
+snw:edge_RG_CL a snw:CausalEdge ;
+    snw:edgeId "P2::RG→CL" ; snw:cause snw:prim_RG ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔComplianceRisk(t) = β · ΔRG(t−k)" ;
+    snw:elasticityOrWeight "0.80–1.00" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "More obligations = more gaps = more enforcement risk; near-identity" .
+
+snw:edge_RG_CX a snw:CausalEdge ;
+    snw:edgeId "P2::RG→CX" ; snw:cause snw:prim_RG ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔCapex(t) = β · 𝟙[EnvironmentalMandate enacted]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Environmental mandates (emissions, CCUS, wastewater) force capex" .
+
+snw:edge_RG_GE a snw:CausalEdge ;
+    snw:edgeId "P2::RG→GE" ; snw:cause snw:prim_RG ; snw:effect snw:prim_GE ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔGHG(t) = −β · 𝟙[EmissionMandate enacted]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Emission reduction mandates trigger abatement; direction: −" .
+
+# ---- Compliance (CL) as source ----
+
+snw:edge_CL_OX a snw:CausalEdge ;
+    snw:edgeId "P2::CL→OX" ; snw:cause snw:prim_CL ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[ComplianceAction ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Fines, legal fees, remediation, compliance upgrades" .
+
+snw:edge_CL_RV a snw:CausalEdge ;
+    snw:edgeId "P2::CL→RV" ; snw:cause snw:prim_CL ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔRevenue(t) = −β · 𝟙[EnforcementAction ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Recalls, licence suspension, reputational damage" .
+
+snw:edge_CL_DT a snw:CausalEdge ;
+    snw:edgeId "P2::CL→DT" ; snw:cause snw:prim_CL ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔDowntime(t) = β · 𝟙[PermitSuspension ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Permit suspension/shutdown order" .
+
+# ---- Interest Rates (IR) as source ----
+
+snw:edge_IR_CX a snw:CausalEdge ;
+    snw:edgeId "P2::IR→CX" ; snw:cause snw:prim_IR ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔCapex(t) = −β · ln(1 + ΔIR(t−k))" ;
+    snw:elasticityOrWeight "0.20–0.50" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Rising spreads suppress capex; hurdle rate kills marginal projects" .
+
+snw:edge_IR_OX a snw:CausalEdge ;
+    snw:edgeId "P2::IR→OX" ; snw:cause snw:prim_IR ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔIR(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Financing cost component of opex; larger for leveraged firms" .
+
+snw:edge_IR_RV a snw:CausalEdge ;
+    snw:edgeId "P2::IR→RV" ; snw:cause snw:prim_IR ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔRevenue(t) = −β · ln(1 + ΔIR(t−k))" ;
+    snw:elasticityOrWeight "0.03–0.15" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Consumer credit-financed demand reduction" .
+
+# ---- Cyber (CY) as source ----
+
+snw:edge_CY_DT a snw:CausalEdge ;
+    snw:edgeId "P2::CY→DT" ; snw:cause snw:prim_CY ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔDowntime(t) = β · 𝟙[CyberBreach = destructive]" ;
+    snw:elasticityOrWeight "0.20–0.70" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Ransomware/destructive malware OT/IT shutdowns; dominant agg" .
+
+snw:edge_CY_CL a snw:CausalEdge ;
+    snw:edgeId "P2::CY→CL" ; snw:cause snw:prim_CY ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔComplianceRisk(t) = β · 𝟙[DataBreach ≥ τ_PII]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Data breach triggers regulatory violation risk" .
+
+snw:edge_CY_SC a snw:CausalEdge ;
+    snw:edgeId "P2::CY→SC" ; snw:cause snw:prim_CY ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · 𝟙[CyberBreach ≥ τ_supply_critical]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Supplier cyber risk propagation" .
+
+# ---- Labor Cost (LC) as source ----
+
+snw:edge_LC_OX a snw:CausalEdge ;
+    snw:edgeId "P2::LC→OX" ; snw:cause snw:prim_LC ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔLC(t−k)" ;
+    snw:elasticityOrWeight "0.80–1.00" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Payroll = direct opex; near-identity" .
+
+snw:edge_LC_WF a snw:CausalEdge ;
+    snw:edgeId "P2::LC→WF" ; snw:cause snw:prim_LC ; snw:effect snw:prim_WF ;
+    snw:edgeOrder 2 ; snw:directionSign "mixed" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔWF(t) = β · 𝟙[LC ≥ τ_above_market]" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Direction: + if LC ≥ 75th %ile (attracts talent), − if LC ≤ 25th %ile (attrition)" .
+
+# ---- Supply Chain (SC) as source ----
+
+snw:edge_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P2::SC→DT" ; snw:cause snw:prim_SC ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔDowntime(t) = β · 𝟙[SCDisruption ≥ τ_stockout]" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Critical input stockout forces halt; JIT manufacturers at upper bound" .
+
+snw:edge_SC_OX a snw:CausalEdge ;
+    snw:edgeId "P2::SC→OX" ; snw:cause snw:prim_SC ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[SCDisruption ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Expedite premiums, spot sourcing at above-contract" .
+
+snw:edge_SC_RV a snw:CausalEdge ;
+    snw:edgeId "P2::SC→RV" ; snw:cause snw:prim_SC ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔRevenue(t) = −β · 𝟙[Stockout ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Stockouts → lost sales" .
+
+# ---- Downtime (DT) as source ----
+
+snw:edge_DT_RV a snw:CausalEdge ;
+    snw:edgeId "P2::DT→RV" ; snw:cause snw:prim_DT ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔRevenue(t) = −β · ΔDowntime(t−k)" ;
+    snw:elasticityOrWeight "0.50–0.90" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Lost production hours → lost revenue; near-direct; dominant" .
+
+snw:edge_DT_SC a snw:CausalEdge ;
+    snw:edgeId "P2::DT→SC" ; snw:cause snw:prim_DT ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · 𝟙[Downtime ≥ τ]" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Facility outage creates supply disruption for downstream customers" .
+
+snw:edge_DT_OX a snw:CausalEdge ;
+    snw:edgeId "P2::DT→OX" ; snw:cause snw:prim_DT ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[Downtime ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Emergency response, temporary facilities cost" .
+
+# ---- Workforce (WF) as source ----
+
+snw:edge_WF_OX a snw:CausalEdge ;
+    snw:edgeId "P2::WF→OX" ; snw:cause snw:prim_WF ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔOpex(t) = −β · (WF_t / WF_base − 1)" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Direction: − (lower availability → higher cost from overtime, temp agencies)" .
+
+snw:edge_WF_DT a snw:CausalEdge ;
+    snw:edgeId "P2::WF→DT" ; snw:cause snw:prim_WF ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔDowntime(t) = β · 𝟙[WF < τ_min_staffing]" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Below-minimum staffing causes production halt" .
+
+snw:edge_WF_HS a snw:CausalEdge ;
+    snw:edgeId "P2::WF→HS" ; snw:cause snw:prim_WF ; snw:effect snw:prim_HS ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔHSIncidents(t) = −β · (WF_t / WF_base − 1)" ;
+    snw:elasticityOrWeight "0.10–0.25" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Direction: − availability → + incidents (fatigue, understaffing)" .
+
+# ---- Health & Safety (HS) as source ----
+
+snw:edge_HS_OX a snw:CausalEdge ;
+    snw:edgeId "P2::HS→OX" ; snw:cause snw:prim_HS ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[HSIncident ≥ τ]" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Workers comp, disability, legal defense, insurance premium step-ups" .
+
+snw:edge_HS_DT a snw:CausalEdge ;
+    snw:edgeId "P2::HS→DT" ; snw:cause snw:prim_HS ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔDowntime(t) = β · 𝟙[SevereIncident ≥ τ]" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Mandatory work stoppages after fatality/severe incident" .
+
+# ---- GHG Emissions (GE) as source ----
+
+snw:edge_GE_CL a snw:CausalEdge ;
+    snw:edgeId "P2::GE→CL" ; snw:cause snw:prim_GE ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔComplianceRisk(t) = β · GHG(t−k) · 𝟙[GHG > τ_ETS_cap]" ;
+    snw:elasticityOrWeight "0.15–0.45" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Exceeding ETS caps triggers compliance obligations, permit purchases, enforcement" .
+
+snw:edge_GE_OX a snw:CausalEdge ;
+    snw:edgeId "P2::GE→OX" ; snw:cause snw:prim_GE ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[CarbonPrice enacted]" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Carbon tax/ETS permit cost" .
+
+# ---- Energy Use (EU) as source ----
+
+snw:edge_EU_GE a snw:CausalEdge ;
+    snw:edgeId "P2::EU→GE" ; snw:cause snw:prim_EU ; snw:effect snw:prim_GE ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔGHG(t) = β · ΔEU(t−k)" ;
+    snw:elasticityOrWeight "0.70–0.95" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Near-linear: GHG = energy volume × emission factor; dominant signal" .
+
+snw:edge_EU_OX a snw:CausalEdge ;
+    snw:edgeId "P2::EU→OX" ; snw:cause snw:prim_EU ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔEU(t−k)" ;
+    snw:elasticityOrWeight "0.05–0.35" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Energy use × energy price = energy cost, direct opex component" .
+
+# ---- Freight (FR) as source ----
+
+snw:edge_FR_OX a snw:CausalEdge ;
+    snw:edgeId "P2::FR→OX" ; snw:cause snw:prim_FR ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔFR(t−k)" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Distribution cost" .
+
+snw:edge_FR_SC a snw:CausalEdge ;
+    snw:edgeId "P2::FR→SC" ; snw:cause snw:prim_FR ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · 𝟙[ΔFR > τ_extreme]" ;
+    snw:elasticityOrWeight "0.10–0.25" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Extreme freight spikes signal capacity constraints → supply risk" .
+
+# ---- FX (Currency) as source ----
+
+snw:edge_FX_OX a snw:CausalEdge ;
+    snw:edgeId "P2::FX→OX" ; snw:cause snw:prim_FX ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔFX(t−k)" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Direction: + for imported input COGS, − for local labor; mixed with switching" .
+
+snw:edge_FX_RV a snw:CausalEdge ;
+    snw:edgeId "P2::FX→RV" ; snw:cause snw:prim_FX ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 2 ; snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔRevenue(t) = β · ΔFX(t−k)" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Direction: + for exporters (depreciation helps), − for import-competing" .
+
+# ---- Water (WA) as source ----
+
+snw:edge_WA_CL a snw:CausalEdge ;
+    snw:edgeId "P2::WA→CL" ; snw:cause snw:prim_WA ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔComplianceRisk(t) = β · 𝟙[Withdrawal > PermitLimit]" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Permit exceedance triggers automatic violation" .
+
+snw:edge_WA_OX a snw:CausalEdge ;
+    snw:edgeId "P2::WA→OX" ; snw:cause snw:prim_WA ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔWaterCost(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Rising water tariffs, scarcity surcharges → direct opex" .
+
+# ---- Waste (WS) as source ----
+
+snw:edge_WS_CL a snw:CausalEdge ;
+    snw:edgeId "P2::WS→CL" ; snw:cause snw:prim_WS ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔComplianceRisk(t) = β · 𝟙[WasteDisposal ≥ τ]" ;
+    snw:elasticityOrWeight "0.15–0.50" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Improper hazardous waste disposal → enforcement action" .
+
+snw:edge_WS_OX a snw:CausalEdge ;
+    snw:edgeId "P2::WS→OX" ; snw:cause snw:prim_WS ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔOpex(t) = β · ΔWasteVolume(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Disposal costs scale with waste volume" .
+
+# ---- Lead Time (LT) as source ----
+
+snw:edge_LT_SC a snw:CausalEdge ;
+    snw:edgeId "P2::LT→SC" ; snw:cause snw:prim_LT ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔSCRisk(t) = β · 𝟙[ΔLT ≥ τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Extended lead times compound supply risk" .
+
+snw:edge_LT_OX a snw:CausalEdge ;
+    snw:edgeId "P2::LT→OX" ; snw:cause snw:prim_LT ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOpex(t) = β · 𝟙[LT_expedite_required]" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Expedite premiums, air freight substitution" .
+
+# =============================================================================
+# FEEDBACK ARCS (11 closed loops)
+# =============================================================================
+
+snw:loop_R1 a snw:FeedbackArc ;
+    snw:loopId "R1" ; snw:loopType "reinforcing" ;
+    snw:loopPath "EP→OX→GrossMargin→FCF→CreditRating→WACC→CX→EU→GE→RG→EP" ;
+    snw:edgeNotes "Master macro feedback; cost squeeze → credit deterioration → underinvestment → emission lock-in → regulatory escalation → energy cost" .
+
+snw:loop_R2 a snw:FeedbackArc ;
+    snw:loopId "R2" ; snw:loopType "reinforcing" ;
+    snw:loopPath "SC→DT→RV→OX→SC" ;
+    snw:edgeNotes "Supply chain failure spiral; stockout → downtime → revenue loss → cost cuts → more supply fragility" .
+
+snw:loop_R3 a snw:FeedbackArc ;
+    snw:loopId "R3" ; snw:loopType "reinforcing" ;
+    snw:loopPath "CY→DT→RV→CustomerChurn→RV" ;
+    snw:edgeNotes "Cyber-disruption churn spiral" .
+
+snw:loop_R4 a snw:FeedbackArc ;
+    snw:loopId "R4" ; snw:loopType "reinforcing" ;
+    snw:loopPath "SocialLicence→RG→CL→OX" ;
+    snw:edgeNotes "Regulatory escalation from community opposition" .
+
+snw:loop_R5 a snw:FeedbackArc ;
+    snw:loopId "R5" ; snw:loopType "reinforcing" ;
+    snw:loopPath "DT→MaintenanceBacklog→DT" ;
+    snw:edgeNotes "Capex/opex trap: deferred maintenance compounds downtime" .
+
+snw:loop_R6 a snw:FeedbackArc ;
+    snw:loopId "R6" ; snw:loopType "reinforcing" ;
+    snw:loopPath "HS→EmployerBrand→WF→HS" ;
+    snw:edgeNotes "Labor spiral: incidents → brand deterioration → talent loss → more incidents" .
+
+snw:loop_B1 a snw:FeedbackArc ;
+    snw:loopId "B1" ; snw:loopType "balancing" ;
+    snw:loopPath "CarbonCost→OX→EU→GE→CarbonCost" ;
+    snw:edgeNotes "Efficiency signal: carbon price incentivizes energy efficiency" .
+
+snw:loop_B2 a snw:FeedbackArc ;
+    snw:loopId "B2" ; snw:loopType "balancing" ;
+    snw:loopPath "IR→WACC→CX" ;
+    snw:edgeNotes "Hurdle rate: rising rates kill marginal projects" .
+
+snw:loop_B3 a snw:FeedbackArc ;
+    snw:loopId "B3" ; snw:loopType "balancing" ;
+    snw:loopPath "GE→RG→CX→GE" ;
+    snw:edgeNotes "Regulation-abatement: emissions trigger regulation → forced capex → emissions fall" .
+
+snw:loop_B4 a snw:FeedbackArc ;
+    snw:loopId "B4" ; snw:loopType "balancing" ;
+    snw:loopPath "IR→CX→EU→GE→RG→IR" ;
+    snw:edgeNotes "Interest→decarbonisation: rate hikes defer efficiency investment → emissions persist" .
+
+snw:loop_B5 a snw:FeedbackArc ;
+    snw:loopId "B5" ; snw:loopType "balancing" ;
+    snw:loopPath "AssetImpairment→CX→CapacityUtil→RV→FCF→AssetImpairment" ;
+    snw:edgeNotes "Asset replacement loop" .

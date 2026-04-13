@@ -1,0 +1,458 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# SNOWKAP ESG — Causal Primitives Schema (Layer 7)
+#
+# Defines the quantitative causal graph: 22 primitives, edge schema,
+# outcome nodes, societal nodes, and indicator relationships.
+# Source: "00 — Primitives (universal + most important)"
+# =============================================================================
+
+# =============================================================================
+# CLASSES
+# =============================================================================
+
+snw:Primitive a owl:Class ;
+    rdfs:label "Primitive"@en ;
+    rdfs:comment "Cross-industry measurable causal node used for SASB propagation. 22 canonical primitives."@en .
+
+snw:ImpactEdge a owl:Class ;
+    rdfs:label "Impact Edge"@en ;
+    rdfs:comment "Reified directed edge between two nodes in the causal graph, carrying full operator schema."@en .
+
+snw:CausalEdge a owl:Class ;
+    rdfs:subClassOf snw:ImpactEdge ;
+    rdfs:label "Causal Edge"@en ;
+    rdfs:comment "Order-2+ edge between two primitives (P→P) with mechanism, polarity, lag, confidence."@en .
+
+snw:IndicatorEdge a owl:Class ;
+    rdfs:subClassOf snw:ImpactEdge ;
+    rdfs:label "Indicator Edge"@en ;
+    rdfs:comment "Order-1 edge from observable indicator to canonical primitive."@en .
+
+snw:OutcomeEdge a owl:Class ;
+    rdfs:subClassOf snw:ImpactEdge ;
+    rdfs:label "Outcome Edge"@en ;
+    rdfs:comment "Edge from primitive/outcome to non-primitive outcome node (P→non-P or non-P→non-P)."@en .
+
+snw:OutcomeNode a owl:Class ;
+    rdfs:label "Outcome Node"@en ;
+    rdfs:comment "Non-primitive intermediate node: Financial (F::), Environmental (E::), Operational (O::), Reputational (R::)."@en .
+
+snw:SocietalNode a owl:Class ;
+    rdfs:label "Societal Node"@en ;
+    rdfs:comment "Terminal societal outcome (SW01-SW08) for ESRS double-materiality impact reporting."@en .
+
+snw:Indicator a owl:Class ;
+    rdfs:label "Indicator"@en ;
+    rdfs:comment "Observable signal (leading, lagging, or proxy) that maps to a primitive."@en .
+
+snw:FeedbackArc a owl:Class ;
+    rdfs:subClassOf snw:ImpactEdge ;
+    rdfs:label "Feedback Arc"@en ;
+    rdfs:comment "Edge that creates a reinforcing (R) or balancing (B) loop in the causal graph."@en .
+
+snw:ThresholdCategory a owl:Class ;
+    rdfs:label "Threshold Category"@en ;
+    rdfs:comment "Canonical τ threshold category with default range for threshold/step functional forms."@en .
+
+# =============================================================================
+# OBJECT PROPERTIES — Edge Endpoints
+# =============================================================================
+
+snw:cause a owl:ObjectProperty ;
+    rdfs:domain snw:ImpactEdge ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Source primitive of a causal edge."@en .
+
+snw:effect a owl:ObjectProperty ;
+    rdfs:domain snw:ImpactEdge ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Target primitive of a causal edge."@en .
+
+snw:directlyIncreases a owl:ObjectProperty ;
+    rdfs:subPropertyOf snw:cause ;
+    rdfs:comment "Positive polarity: dY/dX > 0."@en .
+
+snw:directlyDecreases a owl:ObjectProperty ;
+    rdfs:subPropertyOf snw:cause ;
+    rdfs:comment "Negative polarity: dY/dX < 0."@en .
+
+snw:directlyModulates a owl:ObjectProperty ;
+    rdfs:subPropertyOf snw:cause ;
+    rdfs:comment "Mixed/conditional polarity: sign depends on context."@en .
+
+snw:leadsPrimitive a owl:ObjectProperty ;
+    rdfs:domain snw:IndicatorEdge ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Leading indicator relationship."@en .
+
+snw:lagsPrimitive a owl:ObjectProperty ;
+    rdfs:domain snw:IndicatorEdge ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Lagging indicator relationship."@en .
+
+snw:proxiesPrimitive a owl:ObjectProperty ;
+    rdfs:domain snw:IndicatorEdge ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Proxy indicator relationship."@en .
+
+snw:outcomeSource a owl:ObjectProperty ;
+    rdfs:domain snw:OutcomeEdge ;
+    rdfs:comment "Source node of an outcome edge (primitive or outcome node)."@en .
+
+snw:outcomeTarget a owl:ObjectProperty ;
+    rdfs:domain snw:OutcomeEdge ;
+    rdfs:range snw:OutcomeNode ;
+    rdfs:comment "Target outcome node."@en .
+
+snw:affectsPrimitive a owl:ObjectProperty ;
+    rdfs:domain snowkap:EventType ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Maps a Snowkap EventType to the primary primitive it affects."@en .
+
+snw:affectsPrimitiveSecondary a owl:ObjectProperty ;
+    rdfs:domain snowkap:EventType ;
+    rdfs:range snw:Primitive ;
+    rdfs:comment "Maps a Snowkap EventType to secondary primitives it affects."@en .
+
+# =============================================================================
+# DATATYPE PROPERTIES — Impact Operation Schema (11 fields per edge)
+# =============================================================================
+
+snw:edgeId a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "Canonical edge identifier (e.g. 'P2::EP→OX', 'IND→OX::EnergyPriceIndex')."@en .
+
+snw:edgeOrder a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:integer ;
+    rdfs:comment "1=indicator→primitive, 2=P→P, 3=P→P→P, 4=P→P→P→P."@en .
+
+snw:sourceType a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "leading_indicator | lagging_indicator | proxy_indicator | primitive."@en .
+
+snw:directionSign a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "+, −, or mixed."@en .
+
+snw:functionalForm a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "linear | log-linear | threshold | ratio | step | composite."@en .
+
+snw:operatorExpression a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "Human-readable per-edge formula, e.g. 'ΔOpex(t) = β · ΔEnergyPriceIndex(t−k)'."@en .
+
+snw:elasticityOrWeight a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "Edge β coefficient or weight range, e.g. '0.15–0.35'."@en .
+
+snw:lagK a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "Lag window, e.g. '0–3m', '1–2q'."@en .
+
+snw:aggregationRule a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "additive | weighted_avg | max | multiplicative | dominant."@en .
+
+snw:confidenceLevel a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "high | medium | low."@en .
+
+snw:edgeNotes a owl:DatatypeProperty ;
+    rdfs:domain snw:ImpactEdge ; rdfs:range xsd:string ;
+    rdfs:comment "Caveats, sector exceptions, threshold conditions, regime-switching notes."@en .
+
+# Indicator-specific
+snw:indicatorType a owl:DatatypeProperty ;
+    rdfs:domain snw:Indicator ; rdfs:range xsd:string ;
+    rdfs:comment "quantitative | qualitative."@en .
+
+snw:monotonicity a owl:DatatypeProperty ;
+    rdfs:domain snw:IndicatorEdge ; rdfs:range xsd:string ;
+    rdfs:comment "increasing | decreasing | mixed."@en .
+
+# Threshold-specific
+snw:thresholdRange a owl:DatatypeProperty ;
+    rdfs:domain snw:ThresholdCategory ; rdfs:range xsd:string ;
+    rdfs:comment "Default τ range for this category."@en .
+
+snw:thresholdUnit a owl:DatatypeProperty ;
+    rdfs:domain snw:ThresholdCategory ; rdfs:range xsd:string ;
+    rdfs:comment "Unit/metric for this threshold (e.g. PDSI, %, CVSS score)."@en .
+
+snw:applicableEdges a owl:DatatypeProperty ;
+    rdfs:domain snw:ThresholdCategory ; rdfs:range xsd:string ;
+    rdfs:comment "Comma-separated list of edge families this threshold applies to."@en .
+
+# Feedback arc specific
+snw:loopId a owl:DatatypeProperty ;
+    rdfs:domain snw:FeedbackArc ; rdfs:range xsd:string ;
+    rdfs:comment "R1, R2, ..., B1, B2, ... loop identifier."@en .
+
+snw:loopType a owl:DatatypeProperty ;
+    rdfs:domain snw:FeedbackArc ; rdfs:range xsd:string ;
+    rdfs:comment "reinforcing | balancing."@en .
+
+snw:loopPath a owl:DatatypeProperty ;
+    rdfs:domain snw:FeedbackArc ; rdfs:range xsd:string ;
+    rdfs:comment "Full loop path, e.g. 'EP→OX→GrossMargin→FCF→CreditRating→WACC→CX→EU→GE→RG→EP'."@en .
+
+# Outcome node categorization
+snw:outcomeCategory a owl:DatatypeProperty ;
+    rdfs:domain snw:OutcomeNode ; rdfs:range xsd:string ;
+    rdfs:comment "F (financial) | E (environmental) | O (operational) | R (reputational)."@en .
+
+# Societal node
+snw:societalId a owl:DatatypeProperty ;
+    rdfs:domain snw:SocietalNode ; rdfs:range xsd:string ;
+    rdfs:comment "SW01 through SW08."@en .
+
+snw:frameworkAlignment a owl:DatatypeProperty ;
+    rdfs:domain snw:SocietalNode ; rdfs:range xsd:string ;
+    rdfs:comment "ESRS, GRI, TNFD, SDG references for this societal outcome."@en .
+
+# =============================================================================
+# PRIMITIVE INSTANCES (22 canonical primitives)
+# =============================================================================
+
+# --- Universal Primitives (13) ---
+
+snw:prim_OX a snw:Primitive ; rdfs:label "Operating cost (Opex)"@en ;
+    snw:slug "OX" ; rdfs:comment "Direct operational cost."@en .
+
+snw:prim_RV a snw:Primitive ; rdfs:label "Revenue / demand volume"@en ;
+    snw:slug "RV" ; rdfs:comment "Revenue and demand outcome."@en .
+
+snw:prim_CX a snw:Primitive ; rdfs:label "Capital expenditure (Capex)"@en ;
+    snw:slug "CX" ; rdfs:comment "Investment spending."@en .
+
+snw:prim_EU a snw:Primitive ; rdfs:label "Energy use"@en ;
+    snw:slug "EU" ; rdfs:comment "Absolute and intensity energy consumption."@en .
+
+snw:prim_GE a snw:Primitive ; rdfs:label "GHG emissions"@en ;
+    snw:slug "GE" ; rdfs:comment "Scope 1/2 (minimum) greenhouse gas emissions."@en .
+
+snw:prim_WA a snw:Primitive ; rdfs:label "Water withdrawal / consumption"@en ;
+    snw:slug "WA" ; rdfs:comment "Volume withdrawn and consumed."@en .
+
+snw:prim_WS a snw:Primitive ; rdfs:label "Waste generated / diversion"@en ;
+    snw:slug "WS" ; rdfs:comment "Total waste output including hazardous."@en .
+
+snw:prim_WF a snw:Primitive ; rdfs:label "Workforce availability"@en ;
+    snw:slug "WF" ; rdfs:comment "Headcount, absenteeism, labour supply."@en .
+
+snw:prim_HS a snw:Primitive ; rdfs:label "Workforce health & safety incidents"@en ;
+    snw:slug "HS" ; rdfs:comment "TRIR, fatalities, severe incidents."@en .
+
+snw:prim_CL a snw:Primitive ; rdfs:label "Compliance / legal risk"@en ;
+    snw:slug "CL" ; rdfs:comment "Violations, fines, enforcement actions."@en .
+
+snw:prim_SC a snw:Primitive ; rdfs:label "Supply chain disruption risk"@en ;
+    snw:slug "SC" ; rdfs:comment "Lead time, continuity, supplier stress."@en .
+
+snw:prim_DT a snw:Primitive ; rdfs:label "Business continuity / downtime"@en ;
+    snw:slug "DT" ; rdfs:comment "Outages, process failures, operational interruptions."@en .
+
+snw:prim_CY a snw:Primitive ; rdfs:label "Cyber / information security incidents"@en ;
+    snw:slug "CY" ; rdfs:comment "Data breaches, ransomware, IT/OT disruptions."@en .
+
+# --- Most Important Primitives (9, highest n-th order propagation) ---
+
+snw:prim_EP a snw:Primitive ; rdfs:label "Energy price"@en ;
+    snw:slug "EP" ; rdfs:comment "Fuel, electricity tariffs."@en .
+
+snw:prim_FR a snw:Primitive ; rdfs:label "Freight / logistics cost"@en ;
+    snw:slug "FR" ; rdfs:comment "Freight cost + lead time."@en .
+
+snw:prim_LT a snw:Primitive ; rdfs:label "Lead time"@en ;
+    snw:slug "LT" ; rdfs:comment "Supplier delivery lead time."@en .
+
+snw:prim_IR a snw:Primitive ; rdfs:label "Interest rates / credit availability"@en ;
+    snw:slug "IR" ; rdfs:comment "Cost of capital, working capital."@en .
+
+snw:prim_FX a snw:Primitive ; rdfs:label "FX / currency moves"@en ;
+    snw:slug "FX" ; rdfs:comment "Foreign exchange rate movements."@en .
+
+snw:prim_RG a snw:Primitive ; rdfs:label "Regulatory constraint / enforcement intensity"@en ;
+    snw:slug "RG" ; rdfs:comment "Regulatory obligations and enforcement pressure."@en .
+
+snw:prim_XW a snw:Primitive ; rdfs:label "Extreme weather hazard + asset exposure"@en ;
+    snw:slug "XW" ; rdfs:comment "Drought, flood, heat stress + asset vulnerability."@en .
+
+snw:prim_CM a snw:Primitive ; rdfs:label "Commodity input price shock"@en ;
+    snw:slug "CM" ; rdfs:comment "General form; specify commodity per industry."@en .
+
+snw:prim_LC a snw:Primitive ; rdfs:label "Labor cost"@en ;
+    snw:slug "LC" ; rdfs:comment "Labor cost + labor availability."@en .
+
+# =============================================================================
+# OUTCOME NODE INSTANCES (16 non-primitive intermediate nodes)
+# =============================================================================
+
+# --- Financial (F::) ---
+snw:out_GrossMargin a snw:OutcomeNode ; rdfs:label "Gross margin / EBITDA margin"@en ;
+    snw:slug "F::GrossMargin" ; snw:outcomeCategory "F" .
+
+snw:out_WACC a snw:OutcomeNode ; rdfs:label "Weighted avg cost of capital"@en ;
+    snw:slug "F::WACC" ; snw:outcomeCategory "F" .
+
+snw:out_CreditRating a snw:OutcomeNode ; rdfs:label "Credit rating / covenant headroom"@en ;
+    snw:slug "F::CreditRating" ; snw:outcomeCategory "F" .
+
+snw:out_FCF a snw:OutcomeNode ; rdfs:label "Free cash flow"@en ;
+    snw:slug "F::FCF" ; snw:outcomeCategory "F" .
+
+snw:out_EquityVal a snw:OutcomeNode ; rdfs:label "Equity valuation / P/E multiple"@en ;
+    snw:slug "F::EquityVal" ; snw:outcomeCategory "F" .
+
+snw:out_InsurancePremium a snw:OutcomeNode ; rdfs:label "Insurance premium / coverage cost"@en ;
+    snw:slug "F::InsurancePremium" ; snw:outcomeCategory "F" .
+
+snw:out_HedgingCost a snw:OutcomeNode ; rdfs:label "Hedging cost / derivative expense"@en ;
+    snw:slug "F::HedgingCost" ; snw:outcomeCategory "F" .
+
+# --- Environmental (E::) ---
+snw:out_CarbonCost a snw:OutcomeNode ; rdfs:label "Carbon credit / ETS compliance cost"@en ;
+    snw:slug "E::CarbonCost" ; snw:outcomeCategory "E" .
+
+snw:out_CarbonLiability a snw:OutcomeNode ; rdfs:label "Stranded asset / carbon liability"@en ;
+    snw:slug "E::CarbonLiability" ; snw:outcomeCategory "E" .
+
+snw:out_WaterPermitCost a snw:OutcomeNode ; rdfs:label "Water permit cost / scarcity surcharge"@en ;
+    snw:slug "E::WaterPermitCost" ; snw:outcomeCategory "E" .
+
+snw:out_WasteDisposalCost a snw:OutcomeNode ; rdfs:label "Hazardous waste disposal cost"@en ;
+    snw:slug "E::WasteDisposalCost" ; snw:outcomeCategory "E" .
+
+snw:out_RemediationLiability a snw:OutcomeNode ; rdfs:label "Environmental remediation liability"@en ;
+    snw:slug "E::RemediationLiability" ; snw:outcomeCategory "E" .
+
+# --- Operational (O::) ---
+snw:out_LaborProductivity a snw:OutcomeNode ; rdfs:label "Labor productivity"@en ;
+    snw:slug "O::LaborProductivity" ; snw:outcomeCategory "O" .
+
+snw:out_CapacityUtil a snw:OutcomeNode ; rdfs:label "Capacity utilization rate"@en ;
+    snw:slug "O::CapacityUtil" ; snw:outcomeCategory "O" .
+
+snw:out_InventoryCarryCost a snw:OutcomeNode ; rdfs:label "Inventory carry / buffer stock cost"@en ;
+    snw:slug "O::InventoryCarryCost" ; snw:outcomeCategory "O" .
+
+snw:out_ServiceLevel a snw:OutcomeNode ; rdfs:label "Customer fill-rate / service level"@en ;
+    snw:slug "O::ServiceLevel" ; snw:outcomeCategory "O" .
+
+# --- Reputational (R::) ---
+snw:out_ESGRating a snw:OutcomeNode ; rdfs:label "ESG rating / sustainability score"@en ;
+    snw:slug "R::ESGRating" ; snw:outcomeCategory "R" .
+
+snw:out_CustomerChurn a snw:OutcomeNode ; rdfs:label "Customer churn / brand erosion"@en ;
+    snw:slug "R::CustomerChurn" ; snw:outcomeCategory "R" .
+
+snw:out_InvestorSentiment a snw:OutcomeNode ; rdfs:label "Investor sentiment / analyst rating"@en ;
+    snw:slug "R::InvestorSentiment" ; snw:outcomeCategory "R" .
+
+snw:out_SocialLicence a snw:OutcomeNode ; rdfs:label "Social licence to operate"@en ;
+    snw:slug "R::SocialLicence" ; snw:outcomeCategory "R" .
+
+snw:out_EmployerBrand a snw:OutcomeNode ; rdfs:label "Employer brand index"@en ;
+    snw:slug "R::EmployerBrand" ; snw:outcomeCategory "R" .
+
+# =============================================================================
+# SOCIETAL NODE INSTANCES (8 terminal nodes — ESRS double-materiality)
+# =============================================================================
+
+snw:sw01 a snw:SocietalNode ; rdfs:label "Community health burden"@en ;
+    snw:societalId "SW01" ; snw:frameworkAlignment "ESRS S3, GRI 413, TNFD" .
+
+snw:sw02 a snw:SocietalNode ; rdfs:label "Energy poverty rate"@en ;
+    snw:societalId "SW02" ; snw:frameworkAlignment "ESRS S2, SDG 7" .
+
+snw:sw03 a snw:SocietalNode ; rdfs:label "Food & water security index"@en ;
+    snw:societalId "SW03" ; snw:frameworkAlignment "ESRS E3, TNFD, SDG 2/6" .
+
+snw:sw04 a snw:SocietalNode ; rdfs:label "Worker welfare index"@en ;
+    snw:societalId "SW04" ; snw:frameworkAlignment "ESRS S1, GRI 401/403, SDG 8" .
+
+snw:sw05 a snw:SocietalNode ; rdfs:label "Displacement / migration pressure"@en ;
+    snw:societalId "SW05" ; snw:frameworkAlignment "ESRS S3, TNFD, SDG 11" .
+
+snw:sw06 a snw:SocietalNode ; rdfs:label "Biodiversity & ecosystem integrity"@en ;
+    snw:societalId "SW06" ; snw:frameworkAlignment "ESRS E4, TNFD, GRI 304" .
+
+snw:sw07 a snw:SocietalNode ; rdfs:label "Societal credit access"@en ;
+    snw:societalId "SW07" ; snw:frameworkAlignment "ESRS G1, SDG 8/10" .
+
+snw:sw08 a snw:SocietalNode ; rdfs:label "Consumer price burden"@en ;
+    snw:societalId "SW08" ; snw:frameworkAlignment "ESRS S4, GRI 416, SDG 1/2" .
+
+# =============================================================================
+# EVENT-TYPE → PRIMITIVE MAPPING (bridge from Snowkap events)
+# =============================================================================
+
+snowkap:event_climate_event snw:affectsPrimitive snw:prim_XW ;
+    snw:affectsPrimitiveSecondary snw:prim_EP, snw:prim_WA, snw:prim_SC, snw:prim_DT .
+
+snowkap:event_heavy_penalty snw:affectsPrimitive snw:prim_CL ;
+    snw:affectsPrimitiveSecondary snw:prim_OX, snw:prim_RV, snw:prim_RG .
+
+snowkap:event_criminal_indictment snw:affectsPrimitive snw:prim_CL ;
+    snw:affectsPrimitiveSecondary snw:prim_RV, snw:prim_WF .
+
+snowkap:event_esg_rating_change snw:affectsPrimitive snw:prim_IR ;
+    snw:affectsPrimitiveSecondary snw:prim_RV, snw:prim_CX .
+
+snowkap:event_green_bond snw:affectsPrimitive snw:prim_CX ;
+    snw:affectsPrimitiveSecondary snw:prim_IR, snw:prim_GE .
+
+snowkap:event_credit_rating snw:affectsPrimitive snw:prim_IR ;
+    snw:affectsPrimitiveSecondary snw:prim_CX .
+
+snowkap:event_labour_strike snw:affectsPrimitive snw:prim_WF ;
+    snw:affectsPrimitiveSecondary snw:prim_OX, snw:prim_DT, snw:prim_HS .
+
+snowkap:event_cyber_incident snw:affectsPrimitive snw:prim_CY ;
+    snw:affectsPrimitiveSecondary snw:prim_DT, snw:prim_CL, snw:prim_SC .
+
+snowkap:event_community_protest snw:affectsPrimitive snw:prim_WA ;
+    snw:affectsPrimitiveSecondary snw:prim_CL, snw:prim_RV .
+
+snowkap:event_board_change snw:affectsPrimitive snw:prim_RG ;
+    snw:affectsPrimitiveSecondary snw:prim_RV, snw:prim_CL .
+
+snowkap:event_routine_capex snw:affectsPrimitive snw:prim_CX ;
+    snw:affectsPrimitiveSecondary snw:prim_EU, snw:prim_GE .
+
+snowkap:event_systemic_regulatory_change snw:affectsPrimitive snw:prim_RG ;
+    snw:affectsPrimitiveSecondary snw:prim_CL, snw:prim_CX, snw:prim_OX .
+
+snowkap:event_transition_announcement snw:affectsPrimitive snw:prim_GE ;
+    snw:affectsPrimitiveSecondary snw:prim_CX, snw:prim_EP .
+
+snowkap:event_ngo_report snw:affectsPrimitive snw:prim_CL ;
+    snw:affectsPrimitiveSecondary snw:prim_RV .
+
+snowkap:event_climate_disclosure_index snw:affectsPrimitive snw:prim_RV ;
+    snw:affectsPrimitiveSecondary snw:prim_CX .
+
+snowkap:event_green_finance_milestone snw:affectsPrimitive snw:prim_CX ;
+    snw:affectsPrimitiveSecondary snw:prim_IR, snw:prim_GE .
+
+snowkap:event_ma_deal snw:affectsPrimitive snw:prim_CX ;
+    snw:affectsPrimitiveSecondary snw:prim_RV, snw:prim_SC .
+
+snowkap:event_dividend_policy snw:affectsPrimitive snw:prim_CX ;
+    snw:affectsPrimitiveSecondary snw:prim_IR .
+
+snowkap:event_award_recognition snw:affectsPrimitive snw:prim_RV .
+
+snowkap:event_esg_partnership snw:affectsPrimitive snw:prim_RV ;
+    snw:affectsPrimitiveSecondary snw:prim_CX, snw:prim_IR .
+
+snowkap:event_license_revocation snw:affectsPrimitive snw:prim_DT ;
+    snw:affectsPrimitiveSecondary snw:prim_OX, snw:prim_RV, snw:prim_CL .

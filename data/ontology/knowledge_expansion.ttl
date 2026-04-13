@@ -1112,14 +1112,14 @@ snowkap:headline_cfo_1 a snowkap:HeadlineRule ;
     snowkap:forPerspective snowkap:lens_cfo ;
     snowkap:headlinePriority 1 ;
     snowkap:sourceField "decision_summary.financial_exposure" ;
-    snowkap:headlineTemplate "{value} — {base}" ;
+    snowkap:headlineTemplate "P&L exposure: {value}" ;
     snowkap:isFallback false .
 
 snowkap:headline_cfo_2 a snowkap:HeadlineRule ;
     snowkap:forPerspective snowkap:lens_cfo ;
     snowkap:headlinePriority 2 ;
     snowkap:sourceField "financial_timeline.immediate.revenue_at_risk" ;
-    snowkap:headlineTemplate "{value} revenue exposure — {base}" ;
+    snowkap:headlineTemplate "Revenue at risk: {value}" ;
     snowkap:isFallback false .
 
 snowkap:headline_cfo_3 a snowkap:HeadlineRule ;

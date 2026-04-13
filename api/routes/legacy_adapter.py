@@ -819,24 +819,29 @@ def news_refresh(background: BackgroundTasks, _: None = Depends(require_auth)) -
 
 
 @router.post("/news/{article_id}/trigger-analysis")
-def news_trigger_analysis(article_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
-    """Phase 14: On-demand enrichment — runs deep insight + perspectives +
-    recommendations + intelligence layers when user opens an article that
-    hasn't been fully enriched yet."""
+def news_trigger_analysis(
+    article_id: str,
+    force: bool = Query(False, description="Force re-enrichment even if cached"),
+    _: None = Depends(require_auth),
+) -> dict[str, Any]:
+    """Phase 17b: On-demand enrichment — runs deep insight + perspectives +
+    recommendations with primitive-enriched prompts when user opens an article."""
     row = sqlite_index.get_by_id(article_id)
     if not row:
         return {"status": "failed", "message": "Article not found"}
 
-    payload = _load_payload(row.get("json_path"))
-    # Check if already fully enriched
-    if payload and payload.get("insight", {}).get("headline") and payload.get("insight", {}).get("core_mechanism"):
-        return {"status": "cached", "message": "Analysis already computed"}
+    if not force:
+        payload = _load_payload(row.get("json_path"))
+        # Check if already fully enriched
+        existing_insight = (payload or {}).get("insight") or {}
+        if existing_insight.get("headline") and existing_insight.get("core_mechanism"):
+            return {"status": "cached", "message": "Analysis already computed"}
 
     # Run on-demand enrichment (synchronous — takes 5-15 seconds)
     from engine.analysis.on_demand import enrich_on_demand
 
     company_slug = row.get("company_slug", "")
-    result = enrich_on_demand(article_id, company_slug)
+    result = enrich_on_demand(article_id, company_slug, force=force)
     if result:
         return {"status": "done", "message": "Enrichment complete"}
     return {"status": "failed", "message": "Enrichment failed"}

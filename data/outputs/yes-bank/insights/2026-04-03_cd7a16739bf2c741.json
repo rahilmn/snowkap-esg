@@ -17,8 +17,8 @@
     "tier": "SECONDARY",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 27,
-    "elapsed_seconds": 6.517,
+    "ontology_query_count": 29,
+    "elapsed_seconds": 12.515,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -31,15 +31,15 @@
       "risk_assessment_lite"
     ],
     "nlp": {
-      "sentiment": -1,
-      "sentiment_confidence": 0.7,
+      "sentiment": 0,
+      "sentiment_confidence": 0.9,
       "tone": [
         "neutral",
         "analytical"
       ],
-      "narrative_core_claim": "YES Bank's ESG rating was revised down from 78 to 77 by NSE Sustainability for FY 2024-25.",
-      "narrative_implied_causation": "A slight downgrade in ESG rating indicates minor concerns or performance issues identified by NSE Sustainability.",
-      "narrative_stakeholder_framing": "YES Bank is the protagonist facing a slight ESG rating downgrade, affecting investors and stakeholders relying on ESG metrics.",
+      "narrative_core_claim": "YES Bank's ESG rating was revised down slightly from 78 to 77 by NSE Sustainability for FY 2024-25.",
+      "narrative_implied_causation": "The revision in ESG rating reflects NSE Sustainability's updated assessment of YES Bank's ESG performance.",
+      "narrative_stakeholder_framing": "YES Bank is the protagonist undergoing ESG evaluation; investors and regulators are affected stakeholders.",
       "entities": [
         "YES Bank",
         "NSE Sustainability",
@@ -61,9 +61,9 @@
       "esg_pillar": "mixed",
       "esg_topics": [
         "ESG rating",
-        "sustainability performance"
+        "sustainability assessment"
       ],
-      "content_type": "reputational",
+      "content_type": "regulatory",
       "urgency": "low",
       "time_horizon": "months",
       "source_credibility_tier": 3,
@@ -77,7 +77,7 @@
         "disclosure_completeness"
       ],
       "secondary_themes": [],
-      "confidence": 0.7,
+      "confidence": 0.8,
       "method": "llm"
     },
     "event": {
@@ -94,15 +94,15 @@
       "financial_amount_cr": null
     },
     "relevance": {
-      "total": 5,
+      "total": 4,
       "tier": "SECONDARY",
       "esg_correlation": 2,
-      "financial_impact": 1,
+      "financial_impact": 0,
       "compliance_risk": 2,
       "supply_chain_impact": 0,
       "people_impact": 0,
       "materiality_weight": 0.9,
-      "adjusted_total": 5.0,
+      "adjusted_total": 4.0,
       "rejection_reason": "",
       "ontology_queries": 1
     },
@@ -184,7 +184,12 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
       },
       {
         "framework_id": "GRI",
@@ -195,7 +200,12 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
       },
       {
         "framework_id": "DJSI",
@@ -206,7 +216,12 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
       },
       {
         "framework_id": "ESRS",
@@ -217,7 +232,12 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
       },
       {
         "framework_id": "EDELMAN",
@@ -228,7 +248,11 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
       },
       {
         "framework_id": "SP_GLOBAL_ESG",
@@ -239,7 +263,11 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
       },
       {
         "framework_id": "SFDR",
@@ -250,7 +278,8 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       }
     ],
     "risk": {
@@ -258,10 +287,10 @@
         {
           "category": "Regulatory Risk",
           "probability": 2,
-          "exposure": 5,
-          "raw_score": 10,
+          "exposure": 4,
+          "raw_score": 8,
           "industry_weight": 1.6,
-          "adjusted_score": 16.0,
+          "adjusted_score": 12.8,
           "level": "HIGH",
           "lead_indicators": [
             "draft regulations",
@@ -277,11 +306,11 @@
         {
           "category": "Reputational Risk",
           "probability": 1,
-          "exposure": 5,
-          "raw_score": 5,
+          "exposure": 4,
+          "raw_score": 4,
           "industry_weight": 1.4,
-          "adjusted_score": 7.0,
-          "level": "MODERATE",
+          "adjusted_score": 5.6,
+          "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
             "NGO campaigns",
@@ -298,10 +327,10 @@
         {
           "category": "Legal",
           "probability": 2,
-          "exposure": 5,
-          "raw_score": 10,
+          "exposure": 4,
+          "raw_score": 8,
           "industry_weight": 1.0,
-          "adjusted_score": 10.0,
+          "adjusted_score": 8.0,
           "level": "MODERATE",
           "lead_indicators": [
             "draft regulations",
@@ -319,10 +348,10 @@
         {
           "category": "Regulatory Risk",
           "probability": 2,
-          "exposure": 5,
-          "raw_score": 10,
+          "exposure": 4,
+          "raw_score": 8,
           "industry_weight": 1.6,
-          "adjusted_score": 16.0,
+          "adjusted_score": 12.8,
           "level": "HIGH",
           "lead_indicators": [
             "draft regulations",
@@ -338,10 +367,10 @@
         {
           "category": "Legal",
           "probability": 2,
-          "exposure": 5,
-          "raw_score": 10,
+          "exposure": 4,
+          "raw_score": 8,
           "industry_weight": 1.0,
-          "adjusted_score": 10.0,
+          "adjusted_score": 8.0,
           "level": "MODERATE",
           "lead_indicators": [
             "draft regulations",
@@ -357,11 +386,11 @@
         {
           "category": "Reputational Risk",
           "probability": 1,
-          "exposure": 5,
-          "raw_score": 5,
+          "exposure": 4,
+          "raw_score": 4,
           "industry_weight": 1.4,
-          "adjusted_score": 7.0,
-          "level": "MODERATE",
+          "adjusted_score": 5.6,
+          "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
             "NGO campaigns",
@@ -374,7 +403,7 @@
           ]
         }
       ],
-      "aggregate_score": 0.132,
+      "aggregate_score": 0.106,
       "ontology_queries": 6
     },
     "stakeholders": [
@@ -385,371 +414,11 @@
     ],
     "sdgs": []
   },
-  "insight": {
-    "headline": "YES Bank's ESG rating downgraded slightly by NSE Sustainability, signaling minor governance concerns",
-    "impact_score": 5,
-    "core_mechanism": "A marginal downgrade in YES Bank's ESG rating from 78 to 77 by NSE Sustainability reflects minor gaps in transparency and disclosure practices. This adjustment may trigger passive fund rebalancing and heightened scrutiny from ESG-focused investors and regulators.",
-    "profitability_connection": "The rating change could modestly increase YES Bank's cost of capital and prompt minor outflows from ESG-linked funds, with limited direct impact on core profitability.",
-    "translation": "YES Bank's ESG score dropped by one point, which may cause some ESG investors to reconsider their holdings and could slightly raise the bank's borrowing costs.",
-    "impact_analysis": {
-      "esg_positioning": "Small ESG score gap versus peers may increase peer pressure and risk index exclusion if trend continues.",
-      "capital_allocation": "Potential for marginal cost of capital increase (20-40bps) and minor ESG fund outflows.",
-      "valuation_cashflow": "Possible P/E compression if further downgrades occur; current impact limited, with minor revenue at risk.",
-      "compliance_regulatory": "BRSR, GRI, DJSI, ESRS frameworks triggered; no immediate penalty, but increased SEBI scrutiny possible.",
-      "supply_chain_transmission": "N/A",
-      "people_demand": "Potential minor impact on talent attraction and customer trust if governance concerns persist."
-    },
-    "financial_timeline": {
-      "immediate": {
-        "headline": "₹50-200 Cr potential passive fund outflow and cost of capital uptick",
-        "profitability_pathway": "ESG rating downgrade → passive ESG fund rebalancing + higher scrutiny → minor outflows and borrowing cost rise",
-        "margin_pressure": "N/A",
-        "revenue_at_risk": "₹50-200 Cr"
-      },
-      "structural": {
-        "valuation_rerating": "Mild P/E compression risk if ESG trend worsens; currently stable",
-        "competitive_position": "Slight disadvantage vs ICICI Bank and IDFC First Bank if peers maintain or improve ESG scores"
-      },
-      "long_term": {
-        "secular_trajectory": "Sustained minor downgrades could erode ESG investor base and trust over 3-5 years",
-        "green_revenue_opportunity": "N/A"
-      }
-    },
-    "esg_relevance_score": {
-      "environment": {
-        "score": 2,
-        "rationale": "Event is governance-focused with negligible environmental dimension"
-      },
-      "social": {
-        "score": 3,
-        "rationale": "Minor indirect impact on trust and stakeholder confidence"
-      },
-      "governance": {
-        "score": 7,
-        "rationale": "Transparency and disclosure shortfall directly affects governance standing"
-      },
-      "financial_materiality": {
-        "score": 5,
-        "rationale": "Limited but real transmission to cost of capital and fund flows"
-      },
-      "regulatory_exposure": {
-        "score": 6,
-        "rationale": "Triggers BRSR/SEBI scrutiny; no immediate penalty but risk present"
-      },
-      "stakeholder_impact": {
-        "score": 4,
-        "rationale": "ESG-focused investors and some customers may react; broader impact muted"
-      }
-    },
-    "net_impact_summary": "The one-point ESG rating downgrade for YES Bank is a minor but visible signal to markets and regulators, highlighting incremental governance and disclosure gaps. While immediate financial impact is limited, repeated downgrades could cumulatively affect cost of capital, passive fund flows, and competitive positioning. The event underscores the importance of robust ESG reporting to maintain investor confidence. Proactive remediation can turn this into a narrative advantage.",
-    "decision_summary": {
-      "materiality": "MODERATE",
-      "action": "MONITOR",
-      "verdict": "Monitor for further downgrades; initiate gap analysis on ESG disclosure to preempt regulatory or investor action.",
-      "financial_exposure": "₹50-200 Cr at risk",
-      "key_risk": "Passive ESG fund outflow and cost of capital increase due to rating downgrade",
-      "top_opportunity": "First-mover advantage in proactive ESG disclosure remediation",
-      "timeline": "within 8 weeks"
-    },
-    "causal_chain": {
-      "event": "YES Bank's ESG rating downgraded from 78 to 77 by NSE Sustainability",
-      "mechanism": "Downgrade signals minor governance/disclosure gaps, triggering passive fund rebalancing and increased regulatory/investor scrutiny",
-      "company_impact": "Potential for minor fund outflows, higher cost of capital, and reputational pressure; limited immediate P&L effect",
-      "transmission_type": "market_sentiment"
-    },
-    "warnings": []
-  },
-  "recommendations": {
-    "recommendations": [
-      {
-        "title": "Conduct Comprehensive ESG Disclosure Gap Analysis",
-        "description": "Initiate a detailed gap analysis of YES Bank's ESG disclosures against BRSR and GRI frameworks to identify and address non-disclosure areas before the FY26 filing deadline.",
-        "type": "compliance",
-        "responsible_party": "Head of ESG and Compliance",
-        "framework_section": "BRSR:P6, GRI:102-56",
-        "deadline": "2026-05-15",
-        "estimated_budget": "₹1-2 Cr",
-        "profitability_link": "Avoid potential cost of capital increase by 20-40 bps, saving approximately ₹30-60 Cr annually on borrowing costs.",
-        "priority": "CRITICAL",
-        "urgency": "immediate",
-        "estimated_impact": "High",
-        "risk_of_inaction": 10,
-        "roi_percentage": 150.0,
-        "payback_months": 6.0,
-        "peer_benchmark": "State Bank of India improved disclosures leading to ₹3000 Cr ESG inflows"
-      },
-      {
-        "title": "Publish TCFD-Aligned Climate Risk Report",
-        "description": "Develop and publish a TCFD-aligned report including Scope 3 financed emissions to enhance transparency and attract ESG-focused investors.",
-        "type": "esg_positioning",
-        "responsible_party": "Chief Sustainability Officer",
-        "framework_section": "BRSR:P6:Q14, GRI:305-3",
-        "deadline": "2026-07-01",
-        "estimated_budget": "₹3-4 Cr",
-        "profitability_link": "Potential to attract ₹1000-1500 Cr in ESG-mandated FII inflows, increasing valuation premium by 5-10%.",
-        "priority": "CRITICAL",
-        "urgency": "short_term",
-        "estimated_impact": "High",
-        "risk_of_inaction": 9,
-        "roi_percentage": 200.0,
-        "payback_months": 12.0,
-        "peer_benchmark": "SBI's TCFD report led to CDP B rating and ₹3000 Cr inflows"
-      },
-      {
-        "title": "Enhance Corporate Governance Transparency",
-        "description": "Strengthen governance disclosures in quarterly SEBI Corporate Governance reports to address minor governance concerns and improve ESG rating.",
-        "type": "operational",
-        "responsible_party": "Company Secretary",
-        "framework_section": "BRSR:P6:Q10",
-        "deadline": "2026-07-15",
-        "estimated_budget": "₹0.5-1 Cr",
-        "profitability_link": "Improved governance can reduce reputational risk and lower cost of capital by 10-15 bps, saving ₹15-25 Cr annually.",
-        "priority": "HIGH",
-        "urgency": "short_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 6,
-        "roi_percentage": 120.0,
-        "payback_months": 9.0,
-        "peer_benchmark": null
-      },
-      {
-        "title": "Launch ESG Investor Engagement Program",
-        "description": "Proactively engage ESG-focused investors through webinars and disclosures to mitigate passive fund outflows and improve trust scores.",
-        "type": "strategic",
-        "responsible_party": "Head of Investor Relations",
-        "framework_section": "Edelman Trust Barometer",
-        "deadline": "2026-06-30",
-        "estimated_budget": "₹1-1.5 Cr",
-        "profitability_link": "Reducing fund outflows by 5% can preserve ₹500 Cr in AUM, maintaining fee income and valuation.",
-        "priority": "HIGH",
-        "urgency": "short_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 6,
-        "roi_percentage": 130.0,
-        "payback_months": 8.0,
-        "peer_benchmark": null
-      }
-    ],
-    "do_nothing": false,
-    "gate_reason": "",
-    "generator_count": 4,
-    "validated_count": 4,
-    "priority_matrix": {
-      "immediate_high": [
-        {
-          "index": 0,
-          "title": "Conduct Comprehensive ESG Disclosure Gap Analysis",
-          "type": "compliance",
-          "roi": 150.0,
-          "budget": "₹1-2 Cr"
-        },
-        {
-          "index": 1,
-          "title": "Publish TCFD-Aligned Climate Risk Report",
-          "type": "esg_positioning",
-          "roi": 200.0,
-          "budget": "₹3-4 Cr"
-        }
-      ],
-      "immediate_low": [
-        {
-          "index": 2,
-          "title": "Enhance Corporate Governance Transparency",
-          "type": "operational",
-          "roi": 120.0,
-          "budget": "₹0.5-1 Cr"
-        },
-        {
-          "index": 3,
-          "title": "Launch ESG Investor Engagement Program",
-          "type": "strategic",
-          "roi": 130.0,
-          "budget": "₹1-1.5 Cr"
-        }
-      ],
-      "deferred_high": [],
-      "deferred_low": []
-    },
-    "recommendation_rankings": {
-      "cfo": [
-        1,
-        0,
-        3,
-        2
-      ],
-      "ceo": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "esg-analyst": [
-        0,
-        1,
-        2,
-        3
-      ]
-    }
-  },
-  "perspectives": {
-    "esg-analyst": {
-      "perspective": "esg-analyst",
-      "headline": "YES Bank's ESG rating downgraded slightly by NSE Sustainability, signaling minor governance concerns",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "MEDIUM",
-        "strategic": "HIGH"
-      },
-      "what_matters": [
-        "Small ESG score gap versus peers may increase peer pressure and risk index exclusion if trend continues.",
-        "Potential minor impact on talent attraction and customer trust if governance concerns persist.",
-        "Possible P/E compression if further downgrades occur; current impact limited, with minor revenue at risk."
-      ],
-      "action": [
-        "Monitor for further downgrades; initiate gap analysis on ESG disclosure to preempt regulatory or investor action.",
-        "Opportunity: First-mover advantage in proactive ESG disclosure remediation"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "brand",
-        "cost",
-        "financial",
-        "regulatory",
-        "reputational",
-        "strategic"
-      ],
-      "full_insight": {
-        "headline": "YES Bank's ESG rating downgraded slightly by NSE Sustainability, signaling minor governance concerns",
-        "impact_score": 5,
-        "core_mechanism": "A marginal downgrade in YES Bank's ESG rating from 78 to 77 by NSE Sustainability reflects minor gaps in transparency and disclosure practices. This adjustment may trigger passive fund rebalancing and heightened scrutiny from ESG-focused investors and regulators.",
-        "profitability_connection": "The rating change could modestly increase YES Bank's cost of capital and prompt minor outflows from ESG-linked funds, with limited direct impact on core profitability.",
-        "translation": "YES Bank's ESG score dropped by one point, which may cause some ESG investors to reconsider their holdings and could slightly raise the bank's borrowing costs.",
-        "impact_analysis": {
-          "esg_positioning": "Small ESG score gap versus peers may increase peer pressure and risk index exclusion if trend continues.",
-          "capital_allocation": "Potential for marginal cost of capital increase (20-40bps) and minor ESG fund outflows.",
-          "valuation_cashflow": "Possible P/E compression if further downgrades occur; current impact limited, with minor revenue at risk.",
-          "compliance_regulatory": "BRSR, GRI, DJSI, ESRS frameworks triggered; no immediate penalty, but increased SEBI scrutiny possible.",
-          "supply_chain_transmission": "N/A",
-          "people_demand": "Potential minor impact on talent attraction and customer trust if governance concerns persist."
-        },
-        "financial_timeline": {
-          "immediate": {
-            "headline": "₹50-200 Cr potential passive fund outflow and cost of capital uptick",
-            "profitability_pathway": "ESG rating downgrade → passive ESG fund rebalancing + higher scrutiny → minor outflows and borrowing cost rise",
-            "margin_pressure": "N/A",
-            "revenue_at_risk": "₹50-200 Cr"
-          },
-          "structural": {
-            "valuation_rerating": "Mild P/E compression risk if ESG trend worsens; currently stable",
-            "competitive_position": "Slight disadvantage vs ICICI Bank and IDFC First Bank if peers maintain or improve ESG scores"
-          },
-          "long_term": {
-            "secular_trajectory": "Sustained minor downgrades could erode ESG investor base and trust over 3-5 years",
-            "green_revenue_opportunity": "N/A"
-          }
-        },
-        "esg_relevance_score": {
-          "environment": {
-            "score": 2,
-            "rationale": "Event is governance-focused with negligible environmental dimension"
-          },
-          "social": {
-            "score": 3,
-            "rationale": "Minor indirect impact on trust and stakeholder confidence"
-          },
-          "governance": {
-            "score": 7,
-            "rationale": "Transparency and disclosure shortfall directly affects governance standing"
-          },
-          "financial_materiality": {
-            "score": 5,
-            "rationale": "Limited but real transmission to cost of capital and fund flows"
-          },
-          "regulatory_exposure": {
-            "score": 6,
-            "rationale": "Triggers BRSR/SEBI scrutiny; no immediate penalty but risk present"
-          },
-          "stakeholder_impact": {
-            "score": 4,
-            "rationale": "ESG-focused investors and some customers may react; broader impact muted"
-          }
-        },
-        "net_impact_summary": "The one-point ESG rating downgrade for YES Bank is a minor but visible signal to markets and regulators, highlighting incremental governance and disclosure gaps. While immediate financial impact is limited, repeated downgrades could cumulatively affect cost of capital, passive fund flows, and competitive positioning. The event underscores the importance of robust ESG reporting to maintain investor confidence. Proactive remediation can turn this into a narrative advantage.",
-        "decision_summary": {
-          "materiality": "MODERATE",
-          "action": "MONITOR",
-          "verdict": "Monitor for further downgrades; initiate gap analysis on ESG disclosure to preempt regulatory or investor action.",
-          "financial_exposure": "₹50-200 Cr at risk",
-          "key_risk": "Passive ESG fund outflow and cost of capital increase due to rating downgrade",
-          "top_opportunity": "First-mover advantage in proactive ESG disclosure remediation",
-          "timeline": "within 8 weeks"
-        },
-        "causal_chain": {
-          "event": "YES Bank's ESG rating downgraded from 78 to 77 by NSE Sustainability",
-          "mechanism": "Downgrade signals minor governance/disclosure gaps, triggering passive fund rebalancing and increased regulatory/investor scrutiny",
-          "company_impact": "Potential for minor fund outflows, higher cost of capital, and reputational pressure; limited immediate P&L effect",
-          "transmission_type": "market_sentiment"
-        },
-        "warnings": []
-      }
-    },
-    "cfo": {
-      "perspective": "cfo",
-      "headline": "₹50-200 Cr at risk at stake — YES Bank's ESG rating downgraded slightly by NSE Sustainability, signaling minor governance concerns",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "MEDIUM",
-        "strategic": "HIGH"
-      },
-      "what_matters": [
-        "BRSR, GRI, DJSI, ESRS frameworks triggered; no immediate penalty, but increased SEBI scrutiny possible.",
-        "Possible P/E compression if further downgrades occur; current impact limited, with minor revenue at risk.",
-        "Potential for marginal cost of capital increase (20-40bps) and minor ESG fund outflows."
-      ],
-      "action": [
-        "Monitor for further downgrades; initiate gap analysis on ESG disclosure to preempt regulatory or investor action.",
-        "Opportunity: First-mover advantage in proactive ESG disclosure remediation"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "cost",
-        "financial",
-        "regulatory"
-      ],
-      "full_insight": null
-    },
-    "ceo": {
-      "perspective": "ceo",
-      "headline": "Strategic opportunity: First-mover advantage in proactive ESG disclosure remediation",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "MEDIUM",
-        "strategic": "HIGH"
-      },
-      "what_matters": [
-        "BRSR, GRI, DJSI, ESRS frameworks triggered; no immediate penalty, but increased SEBI scrutiny possible.",
-        "Small ESG score gap versus peers may increase peer pressure and risk index exclusion if trend continues.",
-        "Potential minor impact on talent attraction and customer trust if governance concerns persist."
-      ],
-      "action": [
-        "Monitor for further downgrades; initiate gap analysis on ESG disclosure to preempt regulatory or investor action.",
-        "Opportunity: First-mover advantage in proactive ESG disclosure remediation"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "brand",
-        "regulatory",
-        "reputational",
-        "strategic"
-      ],
-      "full_insight": null
-    }
-  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
   "meta": {
-    "written_at": "2026-04-12T08:27:22.413859+00:00",
+    "written_at": "2026-04-13T07:55:02.456955+00:00",
     "schema_version": "1.0"
   }
 }

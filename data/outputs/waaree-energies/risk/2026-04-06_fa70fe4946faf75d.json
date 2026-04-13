@@ -1,25 +1,6 @@
 {
   "esg_risks": [
     {
-      "category": "Transition Risk",
-      "probability": 3,
-      "exposure": 2,
-      "raw_score": 6,
-      "industry_weight": 0.8,
-      "adjusted_score": 4.8,
-      "level": "LOW",
-      "lead_indicators": [
-        "tech adoption curves",
-        "policy roadmaps",
-        "customer preference shifts"
-      ],
-      "lag_indicators": [
-        "stranded assets",
-        "demand destruction",
-        "market share loss"
-      ]
-    },
-    {
       "category": "Regulatory Risk",
       "probability": 2,
       "exposure": 2,
@@ -39,12 +20,31 @@
       ]
     },
     {
-      "category": "Physical Risk",
-      "probability": 2,
+      "category": "Transition Risk",
+      "probability": 1,
       "exposure": 2,
-      "raw_score": 4,
+      "raw_score": 2,
+      "industry_weight": 0.8,
+      "adjusted_score": 1.6,
+      "level": "LOW",
+      "lead_indicators": [
+        "tech adoption curves",
+        "policy roadmaps",
+        "customer preference shifts"
+      ],
+      "lag_indicators": [
+        "stranded assets",
+        "demand destruction",
+        "market share loss"
+      ]
+    },
+    {
+      "category": "Physical Risk",
+      "probability": 1,
+      "exposure": 2,
+      "raw_score": 2,
       "industry_weight": 1.3,
-      "adjusted_score": 5.2,
+      "adjusted_score": 2.6,
       "level": "LOW",
       "lead_indicators": [
         "monsoon forecast",
@@ -59,11 +59,11 @@
     },
     {
       "category": "Reputational Risk",
-      "probability": 2,
+      "probability": 1,
       "exposure": 2,
-      "raw_score": 4,
+      "raw_score": 2,
       "industry_weight": 1.0,
-      "adjusted_score": 4.0,
+      "adjusted_score": 2.0,
       "level": "LOW",
       "lead_indicators": [
         "social media sentiment",
@@ -79,13 +79,32 @@
   ],
   "temples_risks": [
     {
-      "category": "Environmental",
-      "probability": 3,
+      "category": "Economic",
+      "probability": 2,
       "exposure": 2,
-      "raw_score": 6,
+      "raw_score": 4,
       "industry_weight": 1.0,
-      "adjusted_score": 6.0,
-      "level": "MODERATE",
+      "adjusted_score": 4.0,
+      "level": "LOW",
+      "lead_indicators": [
+        "commodity price trends",
+        "FX volatility",
+        "customer order pipeline"
+      ],
+      "lag_indicators": [
+        "revenue decline",
+        "margin erosion",
+        "write-downs"
+      ]
+    },
+    {
+      "category": "Environmental",
+      "probability": 1,
+      "exposure": 2,
+      "raw_score": 2,
+      "industry_weight": 1.0,
+      "adjusted_score": 2.0,
+      "level": "LOW",
       "lead_indicators": [
         "weather pattern shifts",
         "water table data",
@@ -95,6 +114,27 @@
         "insurance claims",
         "production downtime",
         "remediation costs"
+      ]
+    }
+  ],
+  "top_risks": [
+    {
+      "category": "Regulatory Risk",
+      "probability": 2,
+      "exposure": 2,
+      "raw_score": 4,
+      "industry_weight": 1.3,
+      "adjusted_score": 5.2,
+      "level": "LOW",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
       ]
     },
     {
@@ -115,54 +155,14 @@
         "margin erosion",
         "write-downs"
       ]
-    }
-  ],
-  "top_risks": [
-    {
-      "category": "Environmental",
-      "probability": 3,
-      "exposure": 2,
-      "raw_score": 6,
-      "industry_weight": 1.0,
-      "adjusted_score": 6.0,
-      "level": "MODERATE",
-      "lead_indicators": [
-        "weather pattern shifts",
-        "water table data",
-        "air quality index"
-      ],
-      "lag_indicators": [
-        "insurance claims",
-        "production downtime",
-        "remediation costs"
-      ]
-    },
-    {
-      "category": "Regulatory Risk",
-      "probability": 2,
-      "exposure": 2,
-      "raw_score": 4,
-      "industry_weight": 1.3,
-      "adjusted_score": 5.2,
-      "level": "LOW",
-      "lead_indicators": [
-        "draft regulations",
-        "public consultations",
-        "regulator speeches"
-      ],
-      "lag_indicators": [
-        "enforcement actions",
-        "fines",
-        "license conditions"
-      ]
     },
     {
       "category": "Physical Risk",
-      "probability": 2,
+      "probability": 1,
       "exposure": 2,
-      "raw_score": 4,
+      "raw_score": 2,
       "industry_weight": 1.3,
-      "adjusted_score": 5.2,
+      "adjusted_score": 2.6,
       "level": "LOW",
       "lead_indicators": [
         "monsoon forecast",
@@ -176,31 +176,12 @@
       ]
     },
     {
-      "category": "Transition Risk",
-      "probability": 3,
-      "exposure": 2,
-      "raw_score": 6,
-      "industry_weight": 0.8,
-      "adjusted_score": 4.8,
-      "level": "LOW",
-      "lead_indicators": [
-        "tech adoption curves",
-        "policy roadmaps",
-        "customer preference shifts"
-      ],
-      "lag_indicators": [
-        "stranded assets",
-        "demand destruction",
-        "market share loss"
-      ]
-    },
-    {
       "category": "Reputational Risk",
-      "probability": 2,
+      "probability": 1,
       "exposure": 2,
-      "raw_score": 4,
+      "raw_score": 2,
       "industry_weight": 1.0,
-      "adjusted_score": 4.0,
+      "adjusted_score": 2.0,
       "level": "LOW",
       "lead_indicators": [
         "social media sentiment",
@@ -212,8 +193,27 @@
         "customer churn",
         "boycotts"
       ]
+    },
+    {
+      "category": "Environmental",
+      "probability": 1,
+      "exposure": 2,
+      "raw_score": 2,
+      "industry_weight": 1.0,
+      "adjusted_score": 2.0,
+      "level": "LOW",
+      "lead_indicators": [
+        "weather pattern shifts",
+        "water table data",
+        "air quality index"
+      ],
+      "lag_indicators": [
+        "insurance claims",
+        "production downtime",
+        "remediation costs"
+      ]
     }
   ],
-  "aggregate_score": 0.117,
+  "aggregate_score": 0.07,
   "ontology_queries": 12
 }

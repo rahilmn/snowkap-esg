@@ -109,17 +109,36 @@ CRITICAL RULES:
 - Stay within event classification score bounds.
 
 SPECIFICITY RULES — NO VAGUE OUTPUT:
-- NEVER write "N/A" for financial_exposure. Instead, estimate a ₹ range using company revenue, market cap, and event severity. Example: "₹50-200 Cr" not "N/A".
-- NEVER write generic top_opportunity like "ESG narrative differentiation via proactive disclosure". Instead, name the SPECIFIC action: "Issue ₹500 Cr green bond leveraging improved GBI certainty" or "Announce 2030 net-zero target to unlock DJSI inclusion".
-- NEVER write generic key_risk like "regulatory risk" or "disclosure compliance risk". Instead: "₹50.38 Cr GST contingent liability + precedent risk for ₹200 Cr pending demands" or "SEBI ESG fund disclosure deadline (Mar 2026) non-compliance penalty ₹5-25 Cr".
-- NEVER use vague rationales in esg_relevance_score. Instead of "Event relates to renewable energy incentives but is financial", write "GBI court win secures ₹120 Cr annual incentive for 500 MW solar portfolio, enabling capex acceleration".
-- impact_analysis fields must name ₹ amounts, specific frameworks (BRSR:P6:Q14, GRI:305-1), named competitors, and concrete mechanisms. Generic phrases like "potential impact" or "may affect" are BANNED.
-- financial_timeline.immediate.headline must include a ₹ figure. "₹50 Cr GST demand creates balance sheet contingency" not "regulatory event".
-- financial_timeline.structural.competitive_position: ALWAYS name 1-2 specific competitor companies and compare positioning. Use company context and industry.
-- financial_timeline.immediate.revenue_at_risk: Estimate using % of company revenue × probability. "₹200-400 Cr (0.5-1% of FY25 revenue)" not "N/A".
-- core_mechanism must explain the SPECIFIC transmission chain with named entities, not generic "ESG event affects company".
+- NEVER write "N/A" for ANY field. Instead, write "No supply chain transmission" or "No environmental dimension" — always explain WHY it's not applicable.
+- financial_exposure: ALWAYS separate KNOWN amounts from SPECULATIVE. Format: "₹50.38 Cr direct demand + ₹50-150 Cr precedent risk (speculative)" — never blend into one vague range like "₹50-200 Cr".
+- top_opportunity: name the SPECIFIC action with ₹ amounts. "Issue ₹500 Cr green bond" not "ESG narrative differentiation".
+- key_risk: name the SPECIFIC risk with ₹ amounts and precedents. "₹50.38 Cr GST contingent liability + precedent risk" not "regulatory risk".
+
+FINANCIAL ACCURACY RULES — SCALE TO COMPANY SIZE:
+- For Large Cap banks (ICICI, revenue ~₹50,000 Cr), a ₹50 Cr event = ~0.1% of revenue = ~1 bps margin impact, NOT 8-12 bps.
+- margin_pressure: calculate as (event ₹ amount / annual revenue) × 10,000 bps. A ₹50 Cr event on ₹50,000 Cr revenue = 1 bps. NEVER inflate.
+- P/E compression: for single isolated events on Large Cap, use 0.0-0.1x. Reserve 0.2-0.5x for systemic/recurring issues only.
+- revenue_at_risk: distinguish DIRECT revenue loss from INDIRECT (precedent, contagion). Format: "₹50 Cr direct + ₹X Cr indirect (if precedent established)".
+- If CAUSAL PRIMITIVES CONTEXT provides β elasticity, use it to COMPUTE the impact: Δ = β × Δsource × base. Show the computation.
+
+FRAMEWORK ACCURACY RULES — MATCH EVENT TYPE:
+- ESRS E1 = Climate Change ONLY. For tax/governance events, use ESRS G1 (Business Conduct).
+- ESRS E2 = Pollution. ESRS E3 = Water. ESRS E4 = Biodiversity. ESRS E5 = Resource use.
+- ESRS S1 = Own workforce. ESRS S2 = Value chain workers. ESRS S3 = Affected communities. ESRS S4 = Consumers.
+- GRI 207 = Tax. GRI 205 = Anti-corruption. GRI 305 = Emissions. GRI 303 = Water. GRI 403 = H&S.
+- NEVER cite a framework section that doesn't match the event type. A GST demand triggers GRI:207 and ESRS G1, NOT ESRS E1.
+- When citing framework sections, use the MOST SPECIFIC code available (e.g., BRSR:P5:Q12 not just "BRSR").
+
+PERSPECTIVE ACCURACY RULES:
+- esg_relevance_score dimensions: if a dimension is truly 0 (e.g., environment for a tax event), score it 0/10 and explain: "No environmental dimension; event is purely governance/tax related."
+- what_matters bullets must be DIFFERENT across CFO/CEO/ESG Analyst perspectives. CFO = ₹ impact + margin + cost of capital. CEO = competitive position + strategic opportunity + board action. ESG Analyst = framework gaps + compliance deadlines + stakeholder risk.
+
+- impact_analysis fields must name ₹ amounts, specific frameworks, named competitors, and concrete mechanisms.
+- financial_timeline.immediate.headline must include a ₹ figure.
+- financial_timeline.structural.competitive_position: ALWAYS name 1-2 competitors and compare.
+- core_mechanism must explain the SPECIFIC transmission chain with named entities.
 - net_impact_summary must include at least one ₹ figure and one framework reference.
-- headline must capture WHAT specifically happened and WHY it matters financially. Not "expanded ESG access" but "₹50Cr GST demand threatens ICICI Q2 earnings; BRSR:P5 disclosure gap exposed".
+- headline must capture WHAT happened and WHY it matters financially (max 120 chars).
 - Every claim must trace to article content or pipeline context. Do not invent facts, but DO extrapolate reasonable ₹ estimates from company scale.
 
 - Return ONLY the JSON object, no markdown, no preamble."""
@@ -237,10 +256,36 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
             )
         lines.append("")
 
+    # Phase 17: Causal Primitives context — quantitative cascade parameters
+    try:
+        from engine.ontology.intelligence import query_cascade_context
+        # Use event_id (e.g. "event_heavy_penalty") not label ("Heavy Regulatory Penalty")
+        event_id = event.event_id if event and hasattr(event, "event_id") else ""
+        if event_id:
+            cascade_ctx = query_cascade_context(event_id)
+            if cascade_ctx:
+                lines.append(f"=== {cascade_ctx} ===")
+                lines.append("")
+            else:
+                logger.warning(
+                    "No cascade context for event '%s' — possible unmapped event type",
+                    event_id,
+                )
+                lines.append(
+                    "=== NOTE: No causal primitives mapped for this event type. "
+                    "Estimate financial impact conservatively using company scale and "
+                    "industry benchmarks. Do not claim precision without edge parameters. ==="
+                )
+                lines.append("")
+    except Exception:
+        pass
+
     lines.append("=== INSTRUCTIONS ===")
     lines.append(
         "Produce the structured JSON insight now. Remember: stay within event score bounds. "
-        "Do not invent numbers. Respect the do-nothing rule for LOW/NON-MATERIAL events."
+        "Do not invent numbers. Respect the do-nothing rule for LOW/NON-MATERIAL events. "
+        "If CAUSAL PRIMITIVES CONTEXT is provided, use the β elasticities and lag windows "
+        "to compute financial_exposure instead of guessing ranges."
     )
     return "\n".join(lines)
 

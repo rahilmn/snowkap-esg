@@ -17,8 +17,8 @@
     "tier": "SECONDARY",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 48,
-    "elapsed_seconds": 5.714,
+    "ontology_query_count": 50,
+    "elapsed_seconds": 10.409,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -32,15 +32,15 @@
     ],
     "nlp": {
       "sentiment": -1,
-      "sentiment_confidence": 0.8,
+      "sentiment_confidence": 0.85,
       "tone": [
         "analytical",
         "cautionary",
         "neutral"
       ],
-      "narrative_core_claim": "Despite the growth of green bonds, investment is not reaching the most impactful environmental projects.",
-      "narrative_implied_causation": "Structural and market inefficiencies cause green bond funds to flow away from critical environmental needs.",
-      "narrative_stakeholder_framing": "Investors are the protagonists seeking returns, while environmental projects are the affected parties lacking funds.",
+      "narrative_core_claim": "Despite the rise of green bonds, investment is not reaching the most needed sustainable projects.",
+      "narrative_implied_causation": "Inefficiencies and structural issues in green bond markets cause misallocation of funds away from critical sustainability areas.",
+      "narrative_stakeholder_framing": "Investors and issuers are protagonists; sustainable projects and communities needing funding are affected.",
       "entities": [
         "Green Bond",
         "Business Today"
@@ -57,9 +57,9 @@
       "regulatory_references": [],
       "esg_pillar": "E",
       "esg_topics": [
-        "climate finance",
+        "green finance",
         "investment flow",
-        "environmental impact"
+        "sustainable projects"
       ],
       "content_type": "narrative",
       "urgency": "medium",
@@ -94,7 +94,7 @@
           ]
         }
       ],
-      "confidence": 0.85,
+      "confidence": 0.8,
       "method": "llm"
     },
     "event": {
@@ -195,7 +195,12 @@
           "Climate Change",
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
       },
       {
         "framework_id": "GRI",
@@ -207,7 +212,12 @@
           "Climate Change",
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:205",
+          "GRI:302",
+          "GRI:303"
+        ]
       },
       {
         "framework_id": "TCFD",
@@ -219,7 +229,10 @@
           "Climate Change",
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1"
+        ]
       },
       {
         "framework_id": "CDP",
@@ -230,7 +243,8 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "CFA_ESG",
@@ -242,7 +256,12 @@
           "Climate Change",
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
       },
       {
         "framework_id": "COSO_ERM",
@@ -254,7 +273,12 @@
           "Climate Change",
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
       },
       {
         "framework_id": "DJSI",
@@ -266,7 +290,10 @@
           "Climate Change",
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Env"
+        ]
       },
       {
         "framework_id": "ESRS",
@@ -278,7 +305,10 @@
           "Climate Change",
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1"
+        ]
       },
       {
         "framework_id": "EDELMAN",
@@ -290,7 +320,11 @@
           "Climate Change",
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
       },
       {
         "framework_id": "ISSB",
@@ -302,7 +336,12 @@
           "Climate Change",
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
       },
       {
         "framework_id": "PORTER_5_FORCES",
@@ -314,7 +353,12 @@
           "Climate Change",
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
       },
       {
         "framework_id": "SP_GLOBAL_ESG",
@@ -326,7 +370,11 @@
           "Climate Change",
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
       },
       {
         "framework_id": "CSRD",
@@ -337,7 +385,10 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1"
+        ]
       },
       {
         "framework_id": "SBTI",
@@ -348,7 +399,8 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "SEC_CLIMATE",
@@ -359,7 +411,8 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "SFDR",
@@ -370,7 +423,8 @@
         "triggered_by_themes": [
           "Transparency & Disclosure"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "BCG_MATRIX",
@@ -381,7 +435,12 @@
         "triggered_by_themes": [
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "BCG:CashCows",
+          "BCG:Dogs",
+          "BCG:QuestionMarks"
+        ]
       },
       {
         "framework_id": "MCKINSEY_3_HORIZONS",
@@ -392,38 +451,24 @@
         "triggered_by_themes": [
           "Risk Management"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "M3H:H1",
+          "M3H:H2",
+          "M3H:H3"
+        ]
       }
     ],
     "risk": {
       "esg_risks": [
         {
-          "category": "Transition Risk",
+          "category": "Physical Risk",
           "probability": 3,
           "exposure": 4,
           "raw_score": 12,
-          "industry_weight": 1.3,
-          "adjusted_score": 15.6,
-          "level": "HIGH",
-          "lead_indicators": [
-            "tech adoption curves",
-            "policy roadmaps",
-            "customer preference shifts"
-          ],
-          "lag_indicators": [
-            "stranded assets",
-            "demand destruction",
-            "market share loss"
-          ]
-        },
-        {
-          "category": "Physical Risk",
-          "probability": 2,
-          "exposure": 4,
-          "raw_score": 8,
           "industry_weight": 0.6,
-          "adjusted_score": 4.8,
-          "level": "LOW",
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
           "lead_indicators": [
             "monsoon forecast",
             "reservoir levels",
@@ -433,6 +478,25 @@
             "production downtime",
             "insurance claims",
             "damage assessments"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.6,
+          "adjusted_score": 12.8,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
           ]
         },
         {
@@ -455,22 +519,22 @@
           ]
         },
         {
-          "category": "Regulatory Risk",
+          "category": "Transition Risk",
           "probability": 2,
           "exposure": 4,
           "raw_score": 8,
-          "industry_weight": 1.6,
-          "adjusted_score": 12.8,
-          "level": "HIGH",
+          "industry_weight": 1.3,
+          "adjusted_score": 10.4,
+          "level": "MODERATE",
           "lead_indicators": [
-            "draft regulations",
-            "public consultations",
-            "regulator speeches"
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
           ],
           "lag_indicators": [
-            "enforcement actions",
-            "fines",
-            "license conditions"
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
           ]
         },
         {
@@ -495,32 +559,13 @@
       ],
       "temples_risks": [
         {
-          "category": "Environmental",
+          "category": "Economic",
           "probability": 3,
           "exposure": 4,
           "raw_score": 12,
           "industry_weight": 1.0,
           "adjusted_score": 12.0,
           "level": "HIGH",
-          "lead_indicators": [
-            "weather pattern shifts",
-            "water table data",
-            "air quality index"
-          ],
-          "lag_indicators": [
-            "insurance claims",
-            "production downtime",
-            "remediation costs"
-          ]
-        },
-        {
-          "category": "Economic",
-          "probability": 2,
-          "exposure": 4,
-          "raw_score": 8,
-          "industry_weight": 1.0,
-          "adjusted_score": 8.0,
-          "level": "MODERATE",
           "lead_indicators": [
             "commodity price trends",
             "FX volatility",
@@ -530,6 +575,25 @@
             "revenue decline",
             "margin erosion",
             "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
           ]
         },
         {
@@ -554,25 +618,6 @@
       ],
       "top_risks": [
         {
-          "category": "Transition Risk",
-          "probability": 3,
-          "exposure": 4,
-          "raw_score": 12,
-          "industry_weight": 1.3,
-          "adjusted_score": 15.6,
-          "level": "HIGH",
-          "lead_indicators": [
-            "tech adoption curves",
-            "policy roadmaps",
-            "customer preference shifts"
-          ],
-          "lag_indicators": [
-            "stranded assets",
-            "demand destruction",
-            "market share loss"
-          ]
-        },
-        {
           "category": "Regulatory Risk",
           "probability": 2,
           "exposure": 4,
@@ -592,7 +637,7 @@
           ]
         },
         {
-          "category": "Environmental",
+          "category": "Economic",
           "probability": 3,
           "exposure": 4,
           "raw_score": 12,
@@ -600,14 +645,14 @@
           "adjusted_score": 12.0,
           "level": "HIGH",
           "lead_indicators": [
-            "weather pattern shifts",
-            "water table data",
-            "air quality index"
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
           ],
           "lag_indicators": [
-            "insurance claims",
-            "production downtime",
-            "remediation costs"
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
           ]
         },
         {
@@ -647,9 +692,28 @@
             "capital flight",
             "downgrades"
           ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.3,
+          "adjusted_score": 10.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
         }
       ],
-      "aggregate_score": 0.334,
+      "aggregate_score": 0.323,
       "ontology_queries": 16
     },
     "stakeholders": [
@@ -662,377 +726,11 @@
       "Climate Action"
     ]
   },
-  "insight": {
-    "headline": "Green bond flows misaligned with impact needs, exposing YES Bank to ESG scrutiny and capital cost risk",
-    "impact_score": 4.2,
-    "core_mechanism": "Structural inefficiencies in the green bond market mean funds are not reaching the most impactful environmental projects. This misallocation raises questions about the effectiveness of green finance and increases regulatory and investor scrutiny on issuers like YES Bank.",
-    "profitability_connection": "If YES Bank's green bond disclosures are perceived as weak or misaligned, it could face higher cost of capital, FII outflows, and potential P/E compression due to lower ESG ratings.",
-    "translation": "Although green bonds are growing, the money isn't going to the projects that matter most for the environment. This could make regulators and investors question YES Bank's ESG credibility, possibly raising its borrowing costs and hurting its valuation.",
-    "impact_analysis": {
-      "esg_positioning": "YES Bank risks a widening ESG score gap versus peers if green bond disclosures are weak, increasing peer pressure and risk of index exclusion.",
-      "capital_allocation": "Potential for higher cost of capital (20-40bps) and FII outflow if disclosure is inadequate.",
-      "valuation_cashflow": "Risk of P/E compression (5-10%) and margin erosion if ESG ratings decline.",
-      "compliance_regulatory": "BRSR, GRI, TCFD, CDP triggered; non-disclosure could lead to SEBI scrutiny and trading restrictions.",
-      "supply_chain_transmission": "N/A",
-      "people_demand": "N/A"
-    },
-    "financial_timeline": {
-      "immediate": {
-        "headline": "₹50-200 Cr potential FII outflow and cost of capital uptick",
-        "profitability_pathway": "Green bond misallocation → regulatory/investor scrutiny → higher cost of capital and FII outflow → ₹50-200 Cr at risk",
-        "margin_pressure": "20-40bps",
-        "revenue_at_risk": "N/A"
-      },
-      "structural": {
-        "valuation_rerating": "P/E compression likely if ESG ratings drop due to weak disclosure",
-        "competitive_position": "YES Bank could lose ground to ICICI Bank and IDFC First Bank if peers maintain stronger ESG disclosures"
-      },
-      "long_term": {
-        "secular_trajectory": "Sustained ESG underperformance may limit access to green capital and erode investor trust over 3-5 years",
-        "green_revenue_opportunity": "₹100-300 Cr if YES Bank pivots to higher-impact green lending and transparent reporting"
-      }
-    },
-    "esg_relevance_score": {
-      "environment": {
-        "score": 5,
-        "rationale": "Event relates to climate finance but does not directly impact YES Bank's own emissions or operations."
-      },
-      "social": {
-        "score": 2,
-        "rationale": "Limited direct social impact; focus is on environmental capital flows."
-      },
-      "governance": {
-        "score": 4,
-        "rationale": "Disclosure and transparency are governance issues, but not a governance failure event."
-      },
-      "financial_materiality": {
-        "score": 4,
-        "rationale": "Potential for cost of capital and valuation impact, but not a direct P&L event."
-      },
-      "regulatory_exposure": {
-        "score": 5,
-        "rationale": "BRSR, GRI, TCFD triggered; risk of SEBI scrutiny if disclosures lag."
-      },
-      "stakeholder_impact": {
-        "score": 3,
-        "rationale": "Investors and environmental project stakeholders affected, but no direct customer or employee impact."
-      }
-    },
-    "net_impact_summary": "The article highlights a sector-wide misalignment in green bond capital flows, which exposes YES Bank to regulatory and investor scrutiny if its disclosures are not robust. While not an immediate P&L event, the risk of higher cost of capital and valuation compression is material if ESG ratings decline. The issue also presents an opportunity for YES Bank to differentiate itself through improved transparency and targeted green lending. Overall, the event is of moderate materiality, requiring monitoring and potential action on disclosure practices.",
-    "decision_summary": {
-      "materiality": "MODERATE",
-      "action": "MONITOR",
-      "verdict": "Monitor green bond disclosure practices and peer positioning; act if regulatory or investor pressure escalates.",
-      "financial_exposure": "₹50-200 Cr at risk",
-      "key_risk": "₹50-200 Cr FII outflow and cost of capital increase due to weak ESG disclosure",
-      "top_opportunity": "ESG narrative differentiation via proactive, high-impact green bond reporting",
-      "timeline": "next quarterly review"
-    },
-    "causal_chain": {
-      "event": "Green bond funds are not reaching the most impactful environmental projects due to market inefficiencies.",
-      "mechanism": "This raises regulatory and investor scrutiny on green bond issuers like YES Bank, especially regarding disclosure quality and impact alignment.",
-      "company_impact": "Potential increase in cost of capital, FII outflow, and P/E compression if YES Bank's ESG disclosures are perceived as inadequate.",
-      "transmission_type": "regulatory"
-    },
-    "warnings": []
-  },
-  "recommendations": {
-    "recommendations": [
-      {
-        "title": "Enhance Green Bond Disclosure Quality",
-        "description": "Improve green bond reporting to meet BRSR and GRI standards ahead of FY26 filings to avoid SEBI scrutiny and trading restrictions.",
-        "type": "compliance",
-        "responsible_party": "Head of Investor Relations",
-        "framework_section": "BRSR:P6:Q14, GRI:305-1",
-        "deadline": "2026-05-30",
-        "estimated_budget": "₹2-3 Cr",
-        "profitability_link": "Avoid potential ₹50-200 Cr FII outflow and 20-40 bps cost of capital increase, preserving valuation.",
-        "priority": "CRITICAL",
-        "urgency": "immediate",
-        "estimated_impact": "High",
-        "risk_of_inaction": 10,
-        "roi_percentage": 20.0,
-        "payback_months": 12.0,
-        "peer_benchmark": "JSW Energy improved ESG disclosure leading to 15% ESG score uplift and green bond discount."
-      },
-      {
-        "title": "Launch High-Impact Green Bond with Science-Based Targets",
-        "description": "Issue a green bond aligned with a 2030 net-zero target and science-based pathway to differentiate ESG narrative and attract premium investors.",
-        "type": "esg_positioning",
-        "responsible_party": "Chief Sustainability Officer",
-        "framework_section": "TCFD, CDP",
-        "deadline": "2026-07-15",
-        "estimated_budget": "₹5-7 Cr",
-        "profitability_link": "Potential valuation premium of 5-10% via improved ESG ratings and investor confidence, reducing cost of capital by up to 50 bps.",
-        "priority": "CRITICAL",
-        "urgency": "short_term",
-        "estimated_impact": "High",
-        "risk_of_inaction": 9,
-        "roi_percentage": 25.0,
-        "payback_months": 18.0,
-        "peer_benchmark": "JSW Energy issued ₹2000 Cr green bond at 50bps discount after announcing net-zero target."
-      },
-      {
-        "title": "Integrate ESG Factors into Financial Models",
-        "description": "Incorporate ESG metrics into DCF and multiples valuation models to better reflect transition and regulatory risks in capital allocation decisions.",
-        "type": "strategic",
-        "responsible_party": "Chief Financial Officer",
-        "framework_section": "CFA ESG Integration",
-        "deadline": "2026-06-30",
-        "estimated_budget": "₹1-2 Cr",
-        "profitability_link": "Improved capital allocation efficiency could reduce cost of capital by 10-20 bps, preserving ₹50 Cr+ in valuation.",
-        "priority": "HIGH",
-        "urgency": "short_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 6,
-        "roi_percentage": 15.0,
-        "payback_months": 12.0,
-        "peer_benchmark": null
-      },
-      {
-        "title": "Strengthen CDP Reporting to Achieve A-list Status",
-        "description": "Enhance environmental disclosures and initiatives to improve CDP score aiming for A-list inclusion, signaling leadership to investors.",
-        "type": "operational",
-        "responsible_party": "Head of Sustainability Reporting",
-        "framework_section": "CDP",
-        "deadline": "2026-12-31",
-        "estimated_budget": "₹2-4 Cr",
-        "profitability_link": "A-list inclusion can drive valuation premium of 5-8%, potentially increasing market cap by ₹100 Cr+.",
-        "priority": "HIGH",
-        "urgency": "medium_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 6,
-        "roi_percentage": 18.0,
-        "payback_months": 18.0,
-        "peer_benchmark": null
-      }
-    ],
-    "do_nothing": false,
-    "gate_reason": "",
-    "generator_count": 4,
-    "validated_count": 4,
-    "priority_matrix": {
-      "immediate_high": [
-        {
-          "index": 0,
-          "title": "Enhance Green Bond Disclosure Quality",
-          "type": "compliance",
-          "roi": 20.0,
-          "budget": "₹2-3 Cr"
-        },
-        {
-          "index": 1,
-          "title": "Launch High-Impact Green Bond with Science-Based Targets",
-          "type": "esg_positioning",
-          "roi": 25.0,
-          "budget": "₹5-7 Cr"
-        }
-      ],
-      "immediate_low": [
-        {
-          "index": 2,
-          "title": "Integrate ESG Factors into Financial Models",
-          "type": "strategic",
-          "roi": 15.0,
-          "budget": "₹1-2 Cr"
-        }
-      ],
-      "deferred_high": [],
-      "deferred_low": [
-        {
-          "index": 3,
-          "title": "Strengthen CDP Reporting to Achieve A-list Status",
-          "type": "operational",
-          "roi": 18.0,
-          "budget": "₹2-4 Cr"
-        }
-      ]
-    },
-    "recommendation_rankings": {
-      "cfo": [
-        1,
-        0,
-        3,
-        2
-      ],
-      "ceo": [
-        0,
-        1,
-        2,
-        3
-      ],
-      "esg-analyst": [
-        0,
-        1,
-        2,
-        3
-      ]
-    }
-  },
-  "perspectives": {
-    "esg-analyst": {
-      "perspective": "esg-analyst",
-      "headline": "Green bond flows misaligned with impact needs, exposing YES Bank to ESG scrutiny and capital cost risk",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "MEDIUM",
-        "strategic": "MEDIUM"
-      },
-      "what_matters": [
-        "Risk of P/E compression (5-10%) and margin erosion if ESG ratings decline.",
-        "Potential for higher cost of capital (20-40bps) and FII outflow if disclosure is inadequate.",
-        "YES Bank risks a widening ESG score gap versus peers if green bond disclosures are weak, increasing peer pressure and risk of index exclusion."
-      ],
-      "action": [
-        "Monitor green bond disclosure practices and peer positioning; act if regulatory or investor pressure escalates.",
-        "Opportunity: ESG narrative differentiation via proactive, high-impact green bond reporting"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "brand",
-        "cost",
-        "financial",
-        "growth",
-        "operational",
-        "regulatory",
-        "strategic",
-        "value",
-        "volume"
-      ],
-      "full_insight": {
-        "headline": "Green bond flows misaligned with impact needs, exposing YES Bank to ESG scrutiny and capital cost risk",
-        "impact_score": 4.2,
-        "core_mechanism": "Structural inefficiencies in the green bond market mean funds are not reaching the most impactful environmental projects. This misallocation raises questions about the effectiveness of green finance and increases regulatory and investor scrutiny on issuers like YES Bank.",
-        "profitability_connection": "If YES Bank's green bond disclosures are perceived as weak or misaligned, it could face higher cost of capital, FII outflows, and potential P/E compression due to lower ESG ratings.",
-        "translation": "Although green bonds are growing, the money isn't going to the projects that matter most for the environment. This could make regulators and investors question YES Bank's ESG credibility, possibly raising its borrowing costs and hurting its valuation.",
-        "impact_analysis": {
-          "esg_positioning": "YES Bank risks a widening ESG score gap versus peers if green bond disclosures are weak, increasing peer pressure and risk of index exclusion.",
-          "capital_allocation": "Potential for higher cost of capital (20-40bps) and FII outflow if disclosure is inadequate.",
-          "valuation_cashflow": "Risk of P/E compression (5-10%) and margin erosion if ESG ratings decline.",
-          "compliance_regulatory": "BRSR, GRI, TCFD, CDP triggered; non-disclosure could lead to SEBI scrutiny and trading restrictions.",
-          "supply_chain_transmission": "N/A",
-          "people_demand": "N/A"
-        },
-        "financial_timeline": {
-          "immediate": {
-            "headline": "₹50-200 Cr potential FII outflow and cost of capital uptick",
-            "profitability_pathway": "Green bond misallocation → regulatory/investor scrutiny → higher cost of capital and FII outflow → ₹50-200 Cr at risk",
-            "margin_pressure": "20-40bps",
-            "revenue_at_risk": "N/A"
-          },
-          "structural": {
-            "valuation_rerating": "P/E compression likely if ESG ratings drop due to weak disclosure",
-            "competitive_position": "YES Bank could lose ground to ICICI Bank and IDFC First Bank if peers maintain stronger ESG disclosures"
-          },
-          "long_term": {
-            "secular_trajectory": "Sustained ESG underperformance may limit access to green capital and erode investor trust over 3-5 years",
-            "green_revenue_opportunity": "₹100-300 Cr if YES Bank pivots to higher-impact green lending and transparent reporting"
-          }
-        },
-        "esg_relevance_score": {
-          "environment": {
-            "score": 5,
-            "rationale": "Event relates to climate finance but does not directly impact YES Bank's own emissions or operations."
-          },
-          "social": {
-            "score": 2,
-            "rationale": "Limited direct social impact; focus is on environmental capital flows."
-          },
-          "governance": {
-            "score": 4,
-            "rationale": "Disclosure and transparency are governance issues, but not a governance failure event."
-          },
-          "financial_materiality": {
-            "score": 4,
-            "rationale": "Potential for cost of capital and valuation impact, but not a direct P&L event."
-          },
-          "regulatory_exposure": {
-            "score": 5,
-            "rationale": "BRSR, GRI, TCFD triggered; risk of SEBI scrutiny if disclosures lag."
-          },
-          "stakeholder_impact": {
-            "score": 3,
-            "rationale": "Investors and environmental project stakeholders affected, but no direct customer or employee impact."
-          }
-        },
-        "net_impact_summary": "The article highlights a sector-wide misalignment in green bond capital flows, which exposes YES Bank to regulatory and investor scrutiny if its disclosures are not robust. While not an immediate P&L event, the risk of higher cost of capital and valuation compression is material if ESG ratings decline. The issue also presents an opportunity for YES Bank to differentiate itself through improved transparency and targeted green lending. Overall, the event is of moderate materiality, requiring monitoring and potential action on disclosure practices.",
-        "decision_summary": {
-          "materiality": "MODERATE",
-          "action": "MONITOR",
-          "verdict": "Monitor green bond disclosure practices and peer positioning; act if regulatory or investor pressure escalates.",
-          "financial_exposure": "₹50-200 Cr at risk",
-          "key_risk": "₹50-200 Cr FII outflow and cost of capital increase due to weak ESG disclosure",
-          "top_opportunity": "ESG narrative differentiation via proactive, high-impact green bond reporting",
-          "timeline": "next quarterly review"
-        },
-        "causal_chain": {
-          "event": "Green bond funds are not reaching the most impactful environmental projects due to market inefficiencies.",
-          "mechanism": "This raises regulatory and investor scrutiny on green bond issuers like YES Bank, especially regarding disclosure quality and impact alignment.",
-          "company_impact": "Potential increase in cost of capital, FII outflow, and P/E compression if YES Bank's ESG disclosures are perceived as inadequate.",
-          "transmission_type": "regulatory"
-        },
-        "warnings": []
-      }
-    },
-    "cfo": {
-      "perspective": "cfo",
-      "headline": "₹50-200 Cr at risk at stake — Green bond flows misaligned with impact needs, exposing YES Bank to ESG scrutiny and capital cost risk",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "MEDIUM",
-        "strategic": "MEDIUM"
-      },
-      "what_matters": [
-        "Risk of P/E compression (5-10%) and margin erosion if ESG ratings decline.",
-        "Potential for higher cost of capital (20-40bps) and FII outflow if disclosure is inadequate.",
-        "BRSR, GRI, TCFD, CDP triggered; non-disclosure could lead to SEBI scrutiny and trading restrictions."
-      ],
-      "action": [
-        "Monitor green bond disclosure practices and peer positioning; act if regulatory or investor pressure escalates.",
-        "Opportunity: ESG narrative differentiation via proactive, high-impact green bond reporting"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "cost",
-        "financial",
-        "operational",
-        "regulatory",
-        "value",
-        "volume"
-      ],
-      "full_insight": null
-    },
-    "ceo": {
-      "perspective": "ceo",
-      "headline": "Strategic opportunity: ESG narrative differentiation via proactive, high-impact green bond reporting",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "MEDIUM",
-        "strategic": "MEDIUM"
-      },
-      "what_matters": [
-        "BRSR, GRI, TCFD, CDP triggered; non-disclosure could lead to SEBI scrutiny and trading restrictions.",
-        "YES Bank risks a widening ESG score gap versus peers if green bond disclosures are weak, increasing peer pressure and risk of index exclusion."
-      ],
-      "action": [
-        "Monitor green bond disclosure practices and peer positioning; act if regulatory or investor pressure escalates.",
-        "Opportunity: ESG narrative differentiation via proactive, high-impact green bond reporting"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "brand",
-        "growth",
-        "regulatory",
-        "strategic"
-      ],
-      "full_insight": null
-    }
-  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
   "meta": {
-    "written_at": "2026-04-12T08:25:04.751109+00:00",
+    "written_at": "2026-04-13T07:46:42.708898+00:00",
     "schema_version": "1.0"
   }
 }

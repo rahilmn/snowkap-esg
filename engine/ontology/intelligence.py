@@ -1206,3 +1206,231 @@ def query_perspective_rec_types(
             if t and t not in types:
                 types.append(t)
     return types
+
+
+# ---------------------------------------------------------------------------
+# LAYER 7: Causal Primitives Queries
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class PrimitiveInfo:
+    slug: str
+    label: str
+
+
+@dataclass
+class CausalEdgeInfo:
+    edge_id: str
+    source_slug: str
+    target_slug: str
+    direction: str
+    functional_form: str
+    elasticity: str
+    lag: str
+    aggregation: str
+    confidence: str
+    notes: str
+
+
+@dataclass
+class FeedbackLoopInfo:
+    loop_id: str
+    loop_type: str
+    path: str
+    notes: str
+
+
+def query_primitives_for_event(
+    event_type: str, graph: OntologyGraph | None = None
+) -> list[PrimitiveInfo]:
+    """Return primitives affected by a Snowkap EventType (primary + secondary).
+
+    Handles both URI-style ('event_heavy_penalty') and label-style
+    ('Heavy Regulatory Penalty') inputs by normalizing to lowercase underscore.
+    """
+    g = _graph(graph)
+    # Normalize: "Heavy Regulatory Penalty" → "heavy_regulatory_penalty"
+    # Also handles: "event_heavy_penalty" → "event_heavy_penalty"
+    needle = _lower(event_type).replace(" ", "_")
+    sparql = """
+    SELECT ?slug ?label ?primary WHERE {
+        {
+            ?event snowkap:affectsPrimitive ?prim .
+            ?prim snowkap:slug ?slug .
+            ?prim rdfs:label ?label .
+            BIND("primary" AS ?primary)
+            FILTER(CONTAINS(LCASE(STR(?event)), ?needle))
+        }
+        UNION
+        {
+            ?event snowkap:affectsPrimitiveSecondary ?prim .
+            ?prim snowkap:slug ?slug .
+            ?prim rdfs:label ?label .
+            BIND("secondary" AS ?primary)
+            FILTER(CONTAINS(LCASE(STR(?event)), ?needle))
+        }
+    }
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    # Deduplicate, primary first
+    seen: set[str] = set()
+    result: list[PrimitiveInfo] = []
+    for row in sorted(rows, key=lambda r: str(r.get("primary", "z"))):
+        slug = str(row["slug"])
+        if slug not in seen:
+            seen.add(slug)
+            result.append(PrimitiveInfo(slug=slug, label=str(row["label"])))
+    return result
+
+
+def query_p2p_edges(
+    source_primitive: str, graph: OntologyGraph | None = None
+) -> list[CausalEdgeInfo]:
+    """Return all outgoing P→P causal edges from a source primitive."""
+    g = _graph(graph)
+    needle = _lower(source_primitive)
+    sparql = """
+    SELECT ?edgeId ?targetSlug ?direction ?form ?elasticity ?lag ?agg ?conf ?notes WHERE {
+        ?edge a snowkap:CausalEdge .
+        ?edge snowkap:cause ?source .
+        ?edge snowkap:effect ?target .
+        ?source snowkap:slug ?srcSlug .
+        ?target snowkap:slug ?targetSlug .
+        ?edge snowkap:edgeId ?edgeId .
+        ?edge snowkap:directionSign ?direction .
+        ?edge snowkap:functionalForm ?form .
+        ?edge snowkap:elasticityOrWeight ?elasticity .
+        ?edge snowkap:lagK ?lag .
+        ?edge snowkap:aggregationRule ?agg .
+        ?edge snowkap:confidenceLevel ?conf .
+        OPTIONAL { ?edge snowkap:edgeNotes ?notes }
+        FILTER(LCASE(STR(?srcSlug)) = ?needle)
+    }
+    ORDER BY ?conf ?targetSlug
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    return [
+        CausalEdgeInfo(
+            edge_id=str(row["edgeId"]),
+            source_slug=source_primitive.upper(),
+            target_slug=str(row["targetSlug"]),
+            direction=str(row["direction"]),
+            functional_form=str(row["form"]),
+            elasticity=str(row["elasticity"]),
+            lag=str(row["lag"]),
+            aggregation=str(row["agg"]),
+            confidence=str(row["conf"]),
+            notes=str(row.get("notes", "")),
+        )
+        for row in rows
+    ]
+
+
+def query_cascade_context(
+    event_type: str, graph: OntologyGraph | None = None
+) -> str:
+    """Build a human-readable cascade context string for LLM prompt enrichment.
+
+    Returns a formatted text block showing:
+    - Primary + secondary primitives affected by the event
+    - All outgoing P→P edges from the primary primitive with β, lag, form
+    - Relevant feedback loops
+    """
+    prims = query_primitives_for_event(event_type, graph)
+    if not prims:
+        return ""
+
+    lines: list[str] = []
+    lines.append("CAUSAL PRIMITIVES CONTEXT:")
+    lines.append(f"  Event type: {event_type}")
+    primary = prims[0] if prims else None
+    secondary = prims[1:] if len(prims) > 1 else []
+
+    if primary:
+        lines.append(f"  Primary primitive: {primary.label} ({primary.slug})")
+    if secondary:
+        sec_str = ", ".join(f"{p.label} ({p.slug})" for p in secondary[:4])
+        lines.append(f"  Secondary primitives: {sec_str}")
+
+    # Get edges from primary primitive
+    if primary:
+        edges = query_p2p_edges(primary.slug, graph)
+        if edges:
+            lines.append("  Direct causal edges (order-2):")
+            for e in edges[:8]:  # Limit to top 8 edges
+                lines.append(
+                    f"    {e.edge_id}: {e.source_slug}→{e.target_slug} "
+                    f"(β={e.elasticity}, {e.functional_form}, lag={e.lag}, "
+                    f"direction={e.direction}, agg={e.aggregation}, conf={e.confidence})"
+                )
+                if e.notes:
+                    lines.append(f"      Notes: {e.notes[:120]}")
+
+    # Get relevant feedback loops
+    loops = query_feedback_loops(primary.slug if primary else "", graph)
+    if loops:
+        lines.append("  Feedback loops involving this primitive:")
+        for loop in loops[:3]:
+            lines.append(
+                f"    [{loop.loop_id}] ({loop.loop_type}): {loop.path}"
+            )
+
+    lines.append("  USE THESE PARAMETERS to compute financial_exposure. Do not guess ranges.")
+    return "\n".join(lines)
+
+
+def query_feedback_loops(
+    primitive_slug: str, graph: OntologyGraph | None = None
+) -> list[FeedbackLoopInfo]:
+    """Return feedback loops that involve the given primitive."""
+    g = _graph(graph)
+    needle = _lower(primitive_slug)
+    sparql = """
+    SELECT ?loopId ?loopType ?loopPath ?notes WHERE {
+        ?arc a snowkap:FeedbackArc .
+        ?arc snowkap:loopId ?loopId .
+        ?arc snowkap:loopType ?loopType .
+        ?arc snowkap:loopPath ?loopPath .
+        OPTIONAL { ?arc snowkap:edgeNotes ?notes }
+        FILTER(CONTAINS(LCASE(STR(?loopPath)), ?needle))
+    }
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    return [
+        FeedbackLoopInfo(
+            loop_id=str(row["loopId"]),
+            loop_type=str(row["loopType"]),
+            path=str(row["loopPath"]),
+            notes=str(row.get("notes", "")),
+        )
+        for row in rows
+    ]
+
+
+def query_thresholds_for_primitive(
+    primitive_slug: str, graph: OntologyGraph | None = None
+) -> list[dict[str, str]]:
+    """Return threshold categories relevant to edges involving this primitive."""
+    g = _graph(graph)
+    needle = _lower(primitive_slug)
+    sparql = """
+    SELECT ?label ?range ?unit ?edges WHERE {
+        ?tau a snowkap:ThresholdCategory .
+        ?tau rdfs:label ?label .
+        ?tau snowkap:thresholdRange ?range .
+        ?tau snowkap:thresholdUnit ?unit .
+        ?tau snowkap:applicableEdges ?edges .
+        FILTER(CONTAINS(LCASE(STR(?edges)), ?needle))
+    }
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    return [
+        {
+            "label": str(row["label"]),
+            "range": str(row["range"]),
+            "unit": str(row["unit"]),
+            "edges": str(row["edges"]),
+        }
+        for row in rows
+    ]

@@ -24,8 +24,14 @@ from engine.config import Company, get_company, get_data_path
 logger = logging.getLogger(__name__)
 
 
-def enrich_on_demand(article_id: str, company_slug: str) -> dict[str, Any] | None:
+def enrich_on_demand(
+    article_id: str, company_slug: str, force: bool = False
+) -> dict[str, Any] | None:
     """Run deep enrichment for an article on demand.
+
+    Args:
+        force: If True, re-run enrichment even if already cached (for articles
+               processed with old prompts that need primitive-enriched re-analysis).
 
     Returns the full enriched payload dict, or None on failure.
     """
@@ -50,8 +56,8 @@ def enrich_on_demand(article_id: str, company_slug: str) -> dict[str, Any] | Non
     pipeline_data = payload.get("pipeline") or {}
     existing_insight = payload.get("insight") or {}
 
-    # 3. Skip if already enriched (has a headline from deep insight)
-    if existing_insight.get("headline") and existing_insight.get("core_mechanism"):
+    # 3. Skip if already enriched (unless force=True for re-analysis with new prompts)
+    if not force and existing_insight.get("headline") and existing_insight.get("core_mechanism"):
         logger.info("enrich_on_demand: %s already enriched, returning cached", article_id)
         return payload
 
@@ -340,7 +346,8 @@ def _reconstruct_pipeline_result(pipeline_data: dict[str, Any]) -> Any:
         hops: int = 0
         impact_score: float = 0.0
         explanation: str = ""
-        path: list[str] = dc_field(default_factory=list)
+        nodes: list[str] = dc_field(default_factory=list)
+        edges: list[str] = dc_field(default_factory=list)
 
     causal_chains = [
         _Chain(
@@ -348,7 +355,8 @@ def _reconstruct_pipeline_result(pipeline_data: dict[str, Any]) -> Any:
             hops=c.get("hops", 0),
             impact_score=c.get("impact_score", 0),
             explanation=c.get("explanation", ""),
-            path=c.get("path", []),
+            nodes=c.get("nodes") or c.get("path", []),
+            edges=c.get("edges", []),
         )
         for c in (pipeline_data.get("causal_chains") or [])
     ]
@@ -363,6 +371,17 @@ def _reconstruct_pipeline_result(pipeline_data: dict[str, Any]) -> Any:
         profitability_link: str = ""
         triggered_sections: list[str] = dc_field(default_factory=list)
         triggered_by_themes: list[str] = dc_field(default_factory=list)
+
+        def to_dict(self) -> dict:
+            return {
+                "framework_id": self.framework_id,
+                "framework_label": self.framework_label,
+                "relevance": self.relevance,
+                "is_mandatory": self.is_mandatory,
+                "profitability_link": self.profitability_link,
+                "triggered_sections": self.triggered_sections,
+                "triggered_by_themes": self.triggered_by_themes,
+            }
 
     frameworks = [
         _FW(
@@ -399,6 +418,7 @@ def _reconstruct_pipeline_result(pipeline_data: dict[str, Any]) -> Any:
             temples_risks=[],
             top_risks=top_risks,
             aggregate_score=risk_data.get("aggregate_score", 0),
+            ontology_queries=risk_data.get("ontology_queries", 0),
         )
 
     return PipelineResult(

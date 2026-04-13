@@ -56,25 +56,6 @@
         "capital flight",
         "downgrades"
       ]
-    },
-    {
-      "category": "Litigation Risk",
-      "probability": 1,
-      "exposure": 2,
-      "raw_score": 2,
-      "industry_weight": 1.5,
-      "adjusted_score": 3.0,
-      "level": "LOW",
-      "lead_indicators": [
-        "class action pre-filings",
-        "activist investor campaigns",
-        "regulatory investigations"
-      ],
-      "lag_indicators": [
-        "lawsuits filed",
-        "settlements",
-        "penalties"
-      ]
     }
   ],
   "temples_risks": [
@@ -176,25 +157,6 @@
       ]
     },
     {
-      "category": "Litigation Risk",
-      "probability": 1,
-      "exposure": 2,
-      "raw_score": 2,
-      "industry_weight": 1.5,
-      "adjusted_score": 3.0,
-      "level": "LOW",
-      "lead_indicators": [
-        "class action pre-filings",
-        "activist investor campaigns",
-        "regulatory investigations"
-      ],
-      "lag_indicators": [
-        "lawsuits filed",
-        "settlements",
-        "penalties"
-      ]
-    },
-    {
       "category": "Reputational Risk",
       "probability": 1,
       "exposure": 2,
@@ -231,8 +193,27 @@
         "capital flight",
         "downgrades"
       ]
+    },
+    {
+      "category": "Political",
+      "probability": 1,
+      "exposure": 2,
+      "raw_score": 2,
+      "industry_weight": 1.0,
+      "adjusted_score": 2.0,
+      "level": "LOW",
+      "lead_indicators": [
+        "election cycles",
+        "policy white papers",
+        "diplomatic tensions"
+      ],
+      "lag_indicators": [
+        "policy changes",
+        "license restrictions",
+        "trade barriers"
+      ]
     }
   ],
-  "aggregate_score": 0.092,
-  "ontology_queries": 14
+  "aggregate_score": 0.08,
+  "ontology_queries": 12
 }

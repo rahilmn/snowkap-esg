@@ -17,8 +17,8 @@
     "tier": "SECONDARY",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 41,
-    "elapsed_seconds": 5.346,
+    "ontology_query_count": 43,
+    "elapsed_seconds": 10.432,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -32,22 +32,22 @@
     ],
     "nlp": {
       "sentiment": 1,
-      "sentiment_confidence": 0.85,
+      "sentiment_confidence": 0.8,
       "tone": [
         "optimistic",
         "analytical",
         "neutral"
       ],
       "narrative_core_claim": "Waaree Energies subsidiary has started manufacturing solar modules with a capacity of 3000 MW.",
-      "narrative_implied_causation": "The commencement of manufacturing operations will increase solar module supply capacity.",
-      "narrative_stakeholder_framing": "Waaree Energies subsidiary is the protagonist expanding operations; renewable energy sector and consumers are affected positively.",
+      "narrative_implied_causation": "The commencement of manufacturing operations will likely increase solar module supply and support renewable energy growth.",
+      "narrative_stakeholder_framing": "Waaree Energies is the protagonist expanding operations; renewable energy sector and consumers are positively affected.",
       "entities": [
         "Waaree Energies",
-        "Waaree Energies Subsidiary"
+        "3000 MW"
       ],
       "entity_types": {
         "Waaree Energies": "company",
-        "Waaree Energies Subsidiary": "company"
+        "3000 MW": "capacity"
       },
       "financial_signal": {
         "amount": null,
@@ -57,12 +57,12 @@
       "regulatory_references": [],
       "esg_pillar": "E",
       "esg_topics": [
-        "solar energy",
         "renewable energy",
+        "solar power",
         "clean energy manufacturing"
       ],
       "content_type": "operational",
-      "urgency": "low",
+      "urgency": "medium",
       "time_horizon": "immediate",
       "source_credibility_tier": 3,
       "climate_events": []
@@ -182,7 +182,12 @@
           "Energy",
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "BRSR:P1",
+          "BRSR:P2",
+          "BRSR:P3"
+        ]
       },
       {
         "framework_id": "CDP",
@@ -194,7 +199,8 @@
           "Energy",
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "GRI",
@@ -206,7 +212,10 @@
           "Energy",
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
       },
       {
         "framework_id": "TCFD",
@@ -218,7 +227,12 @@
           "Energy",
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Metrics"
+        ]
       },
       {
         "framework_id": "EU_TAXONOMY",
@@ -229,7 +243,8 @@
         "triggered_by_themes": [
           "Energy"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "CFA_ESG",
@@ -240,7 +255,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "CFA:Materiality",
+          "CFA:Valuation",
+          "CFA:WACC"
+        ]
       },
       {
         "framework_id": "COSO_ERM",
@@ -251,7 +271,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov",
+          "COSO:Info",
+          "COSO:Perf"
+        ]
       },
       {
         "framework_id": "CSRD",
@@ -262,7 +287,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
       },
       {
         "framework_id": "DJSI",
@@ -273,7 +303,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ",
+          "DJSI:Env",
+          "DJSI:Social"
+        ]
       },
       {
         "framework_id": "ESRS",
@@ -284,7 +319,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E2",
+          "ESRS:E3"
+        ]
       },
       {
         "framework_id": "EDELMAN",
@@ -295,7 +335,11 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "EDEL:Ethics",
+          "EDEL:TrustIndex"
+        ]
       },
       {
         "framework_id": "ISSB",
@@ -306,7 +350,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Metrics",
+          "TCFD:RM"
+        ]
       },
       {
         "framework_id": "PORTER_5_FORCES",
@@ -317,7 +366,12 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "P5F:Force1",
+          "P5F:Force2",
+          "P5F:Force3"
+        ]
       },
       {
         "framework_id": "SP_GLOBAL_ESG",
@@ -328,7 +382,11 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "SPG:CSA",
+          "SPG:ESGScore"
+        ]
       },
       {
         "framework_id": "SBTI",
@@ -339,7 +397,8 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       },
       {
         "framework_id": "SEC_CLIMATE",
@@ -350,11 +409,31 @@
         "triggered_by_themes": [
           "Climate Change"
         ],
-        "applicable_deadlines": []
+        "applicable_deadlines": [],
+        "triggered_sections": []
       }
     ],
     "risk": {
       "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.3,
+          "adjusted_score": 7.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
         {
           "category": "Transition Risk",
           "probability": 2,
@@ -375,31 +454,12 @@
           ]
         },
         {
-          "category": "Regulatory Risk",
-          "probability": 1,
-          "exposure": 2,
-          "raw_score": 2,
-          "industry_weight": 1.3,
-          "adjusted_score": 2.6,
-          "level": "LOW",
-          "lead_indicators": [
-            "draft regulations",
-            "public consultations",
-            "regulator speeches"
-          ],
-          "lag_indicators": [
-            "enforcement actions",
-            "fines",
-            "license conditions"
-          ]
-        },
-        {
           "category": "Physical Risk",
-          "probability": 1,
+          "probability": 2,
           "exposure": 2,
-          "raw_score": 2,
+          "raw_score": 4,
           "industry_weight": 1.3,
-          "adjusted_score": 2.6,
+          "adjusted_score": 5.2,
           "level": "LOW",
           "lead_indicators": [
             "monsoon forecast",
@@ -414,11 +474,11 @@
         },
         {
           "category": "Reputational Risk",
-          "probability": 1,
+          "probability": 2,
           "exposure": 2,
-          "raw_score": 2,
+          "raw_score": 4,
           "industry_weight": 1.0,
-          "adjusted_score": 2.0,
+          "adjusted_score": 4.0,
           "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
@@ -434,32 +494,13 @@
       ],
       "temples_risks": [
         {
-          "category": "Environmental",
-          "probability": 2,
-          "exposure": 2,
-          "raw_score": 4,
-          "industry_weight": 1.0,
-          "adjusted_score": 4.0,
-          "level": "LOW",
-          "lead_indicators": [
-            "weather pattern shifts",
-            "water table data",
-            "air quality index"
-          ],
-          "lag_indicators": [
-            "insurance claims",
-            "production downtime",
-            "remediation costs"
-          ]
-        },
-        {
           "category": "Economic",
-          "probability": 1,
+          "probability": 3,
           "exposure": 2,
-          "raw_score": 2,
+          "raw_score": 6,
           "industry_weight": 1.0,
-          "adjusted_score": 2.0,
-          "level": "LOW",
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
           "lead_indicators": [
             "commodity price trends",
             "FX volatility",
@@ -470,9 +511,7 @@
             "margin erosion",
             "write-downs"
           ]
-        }
-      ],
-      "top_risks": [
+        },
         {
           "category": "Environmental",
           "probability": 2,
@@ -491,34 +530,17 @@
             "production downtime",
             "remediation costs"
           ]
-        },
-        {
-          "category": "Transition Risk",
-          "probability": 2,
-          "exposure": 2,
-          "raw_score": 4,
-          "industry_weight": 0.8,
-          "adjusted_score": 3.2,
-          "level": "LOW",
-          "lead_indicators": [
-            "tech adoption curves",
-            "policy roadmaps",
-            "customer preference shifts"
-          ],
-          "lag_indicators": [
-            "stranded assets",
-            "demand destruction",
-            "market share loss"
-          ]
-        },
+        }
+      ],
+      "top_risks": [
         {
           "category": "Regulatory Risk",
-          "probability": 1,
+          "probability": 3,
           "exposure": 2,
-          "raw_score": 2,
+          "raw_score": 6,
           "industry_weight": 1.3,
-          "adjusted_score": 2.6,
-          "level": "LOW",
+          "adjusted_score": 7.8,
+          "level": "MODERATE",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -531,12 +553,31 @@
           ]
         },
         {
-          "category": "Physical Risk",
-          "probability": 1,
+          "category": "Economic",
+          "probability": 3,
           "exposure": 2,
-          "raw_score": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
           "industry_weight": 1.3,
-          "adjusted_score": 2.6,
+          "adjusted_score": 5.2,
           "level": "LOW",
           "lead_indicators": [
             "monsoon forecast",
@@ -551,11 +592,11 @@
         },
         {
           "category": "Reputational Risk",
-          "probability": 1,
+          "probability": 2,
           "exposure": 2,
-          "raw_score": 2,
+          "raw_score": 4,
           "industry_weight": 1.0,
-          "adjusted_score": 2.0,
+          "adjusted_score": 4.0,
           "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
@@ -567,9 +608,28 @@
             "customer churn",
             "boycotts"
           ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
         }
       ],
-      "aggregate_score": 0.066,
+      "aggregate_score": 0.121,
       "ontology_queries": 12
     },
     "stakeholders": [
@@ -580,248 +640,11 @@
       "Climate Action"
     ]
   },
-  "insight": {
-    "headline": "Waaree Energies subsidiary launches 3000 MW solar module plant, expanding renewable capacity.",
-    "impact_score": 3.0,
-    "core_mechanism": "The commencement of a 3000 MW solar module manufacturing facility increases Waaree Energies' production capacity, supporting India's renewable energy transition. This is a routine capex event, structurally enhancing supply but not triggering immediate ESG re-rating.",
-    "profitability_connection": "Expanded capacity may support future revenue growth and market share, but immediate P&L impact is limited. No direct margin or valuation shift is expected in the short term.",
-    "translation": "Waaree Energies has started a new solar module plant, boosting its ability to supply solar panels. This is a standard business expansion and does not immediately affect profits or ESG ratings.",
-    "impact_analysis": {
-      "esg_positioning": "No immediate ESG score change; routine expansion aligns with sector norms.",
-      "capital_allocation": "No material cost of capital impact; green financing eligibility may improve over time.",
-      "valuation_cashflow": "No P/E compression or margin erosion; future revenue potential enhanced.",
-      "compliance_regulatory": "Triggers BRSR, GRI, TCFD, CDP, EU Taxonomy disclosure relevance but no immediate penalty or deadline.",
-      "supply_chain_transmission": "N/A",
-      "people_demand": "N/A"
-    },
-    "financial_timeline": {
-      "immediate": {
-        "headline": "N/A",
-        "profitability_pathway": "Routine capex expansion → increased capacity → no immediate ₹ impact.",
-        "margin_pressure": "N/A",
-        "revenue_at_risk": "N/A"
-      },
-      "structural": {
-        "valuation_rerating": "Stable; no immediate P/E change as event is routine and sector-aligned.",
-        "competitive_position": "Neutral vs Adani Power, JSW Energy; capacity expansion matches peer activity."
-      },
-      "long_term": {
-        "secular_trajectory": "Supports 3-5 year growth in renewables; positions for future demand.",
-        "green_revenue_opportunity": "N/A"
-      }
-    },
-    "esg_relevance_score": {
-      "environment": {
-        "score": 3,
-        "rationale": "Positive for renewable energy supply, but routine in sector context."
-      },
-      "social": {
-        "score": 1,
-        "rationale": "No direct social impact identified."
-      },
-      "governance": {
-        "score": 2,
-        "rationale": "Triggers disclosure obligations but no governance shift."
-      },
-      "financial_materiality": {
-        "score": 2,
-        "rationale": "Routine capex, not material to near-term financials."
-      },
-      "regulatory_exposure": {
-        "score": 2,
-        "rationale": "Disclosure frameworks triggered, but no penalty or deadline."
-      },
-      "stakeholder_impact": {
-        "score": 2,
-        "rationale": "Incremental benefit to sector, not transformative for stakeholders."
-      }
-    },
-    "net_impact_summary": "The new 3000 MW solar module facility is a standard capacity expansion for Waaree Energies, supporting India's renewable energy goals. While positive for long-term positioning, it does not materially affect ESG scores, regulatory risk, or financials in the near term. Peer alignment means no competitive advantage is gained or lost. Disclosure obligations are triggered but carry no immediate consequence.",
-    "decision_summary": {
-      "materiality": "LOW",
-      "action": "MONITOR",
-      "verdict": "No immediate action required; monitor for future ESG or financial implications.",
-      "financial_exposure": "₹50-200 Cr at risk (routine capex scale, no immediate downside).",
-      "key_risk": "Disclosure compliance risk under BRSR/GRI if reporting lags.",
-      "top_opportunity": "First-mover advantage in scaling green manufacturing capacity.",
-      "timeline": "next quarterly review"
-    },
-    "causal_chain": {
-      "event": "Waaree Energies subsidiary commences 3000 MW solar module manufacturing.",
-      "mechanism": "Increases renewable energy supply capacity; triggers ESG disclosure frameworks.",
-      "company_impact": "No immediate P&L effect; supports long-term growth and compliance positioning.",
-      "transmission_type": "direct"
-    },
-    "warnings": []
-  },
-  "recommendations": {
-    "recommendations": [],
-    "do_nothing": true,
-    "gate_reason": "Low materiality + monitor/ignore — quarterly review only",
-    "generator_count": 0,
-    "validated_count": 0,
-    "priority_matrix": null,
-    "recommendation_rankings": null
-  },
-  "perspectives": {
-    "esg-analyst": {
-      "perspective": "esg-analyst",
-      "headline": "Waaree Energies subsidiary launches 3000 MW solar module plant, expanding renewable capacity.",
-      "impact_grid": {
-        "financial": "LOW",
-        "regulatory": "LOW",
-        "strategic": "LOW"
-      },
-      "what_matters": [
-        "No P/E compression or margin erosion; future revenue potential enhanced.",
-        "No material cost of capital impact; green financing eligibility may improve over time.",
-        "No immediate ESG score change; routine expansion aligns with sector norms."
-      ],
-      "action": [
-        "No action required — monitor quarterly"
-      ],
-      "materiality": "LOW",
-      "do_nothing": true,
-      "active_impact_dimensions": [
-        "brand",
-        "cost",
-        "financial",
-        "growth",
-        "operational",
-        "regulatory",
-        "strategic",
-        "volume"
-      ],
-      "full_insight": {
-        "headline": "Waaree Energies subsidiary launches 3000 MW solar module plant, expanding renewable capacity.",
-        "impact_score": 3.0,
-        "core_mechanism": "The commencement of a 3000 MW solar module manufacturing facility increases Waaree Energies' production capacity, supporting India's renewable energy transition. This is a routine capex event, structurally enhancing supply but not triggering immediate ESG re-rating.",
-        "profitability_connection": "Expanded capacity may support future revenue growth and market share, but immediate P&L impact is limited. No direct margin or valuation shift is expected in the short term.",
-        "translation": "Waaree Energies has started a new solar module plant, boosting its ability to supply solar panels. This is a standard business expansion and does not immediately affect profits or ESG ratings.",
-        "impact_analysis": {
-          "esg_positioning": "No immediate ESG score change; routine expansion aligns with sector norms.",
-          "capital_allocation": "No material cost of capital impact; green financing eligibility may improve over time.",
-          "valuation_cashflow": "No P/E compression or margin erosion; future revenue potential enhanced.",
-          "compliance_regulatory": "Triggers BRSR, GRI, TCFD, CDP, EU Taxonomy disclosure relevance but no immediate penalty or deadline.",
-          "supply_chain_transmission": "N/A",
-          "people_demand": "N/A"
-        },
-        "financial_timeline": {
-          "immediate": {
-            "headline": "N/A",
-            "profitability_pathway": "Routine capex expansion → increased capacity → no immediate ₹ impact.",
-            "margin_pressure": "N/A",
-            "revenue_at_risk": "N/A"
-          },
-          "structural": {
-            "valuation_rerating": "Stable; no immediate P/E change as event is routine and sector-aligned.",
-            "competitive_position": "Neutral vs Adani Power, JSW Energy; capacity expansion matches peer activity."
-          },
-          "long_term": {
-            "secular_trajectory": "Supports 3-5 year growth in renewables; positions for future demand.",
-            "green_revenue_opportunity": "N/A"
-          }
-        },
-        "esg_relevance_score": {
-          "environment": {
-            "score": 3,
-            "rationale": "Positive for renewable energy supply, but routine in sector context."
-          },
-          "social": {
-            "score": 1,
-            "rationale": "No direct social impact identified."
-          },
-          "governance": {
-            "score": 2,
-            "rationale": "Triggers disclosure obligations but no governance shift."
-          },
-          "financial_materiality": {
-            "score": 2,
-            "rationale": "Routine capex, not material to near-term financials."
-          },
-          "regulatory_exposure": {
-            "score": 2,
-            "rationale": "Disclosure frameworks triggered, but no penalty or deadline."
-          },
-          "stakeholder_impact": {
-            "score": 2,
-            "rationale": "Incremental benefit to sector, not transformative for stakeholders."
-          }
-        },
-        "net_impact_summary": "The new 3000 MW solar module facility is a standard capacity expansion for Waaree Energies, supporting India's renewable energy goals. While positive for long-term positioning, it does not materially affect ESG scores, regulatory risk, or financials in the near term. Peer alignment means no competitive advantage is gained or lost. Disclosure obligations are triggered but carry no immediate consequence.",
-        "decision_summary": {
-          "materiality": "LOW",
-          "action": "MONITOR",
-          "verdict": "No immediate action required; monitor for future ESG or financial implications.",
-          "financial_exposure": "₹50-200 Cr at risk (routine capex scale, no immediate downside).",
-          "key_risk": "Disclosure compliance risk under BRSR/GRI if reporting lags.",
-          "top_opportunity": "First-mover advantage in scaling green manufacturing capacity.",
-          "timeline": "next quarterly review"
-        },
-        "causal_chain": {
-          "event": "Waaree Energies subsidiary commences 3000 MW solar module manufacturing.",
-          "mechanism": "Increases renewable energy supply capacity; triggers ESG disclosure frameworks.",
-          "company_impact": "No immediate P&L effect; supports long-term growth and compliance positioning.",
-          "transmission_type": "direct"
-        },
-        "warnings": []
-      }
-    },
-    "cfo": {
-      "perspective": "cfo",
-      "headline": "₹50-200 Cr at risk (routine capex scale, no immediate downside). at stake — Waaree Energies subsidiary launches 3000 MW solar module plant, expanding renewable capacity.",
-      "impact_grid": {
-        "financial": "LOW",
-        "regulatory": "LOW",
-        "strategic": "LOW"
-      },
-      "what_matters": [
-        "No P/E compression or margin erosion; future revenue potential enhanced.",
-        "No material cost of capital impact; green financing eligibility may improve over time.",
-        "Triggers BRSR, GRI, TCFD, CDP, EU Taxonomy disclosure relevance but no immediate penalty or deadline."
-      ],
-      "action": [
-        "No action required — monitor quarterly"
-      ],
-      "materiality": "LOW",
-      "do_nothing": true,
-      "active_impact_dimensions": [
-        "cost",
-        "financial",
-        "operational",
-        "regulatory",
-        "volume"
-      ],
-      "full_insight": null
-    },
-    "ceo": {
-      "perspective": "ceo",
-      "headline": "Strategic opportunity: First-mover advantage in scaling green manufacturing capacity.",
-      "impact_grid": {
-        "financial": "LOW",
-        "regulatory": "LOW",
-        "strategic": "LOW"
-      },
-      "what_matters": [
-        "Triggers BRSR, GRI, TCFD, CDP, EU Taxonomy disclosure relevance but no immediate penalty or deadline.",
-        "No immediate ESG score change; routine expansion aligns with sector norms."
-      ],
-      "action": [
-        "No action required — monitor quarterly"
-      ],
-      "materiality": "LOW",
-      "do_nothing": true,
-      "active_impact_dimensions": [
-        "brand",
-        "growth",
-        "regulatory",
-        "strategic"
-      ],
-      "full_insight": null
-    }
-  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
   "meta": {
-    "written_at": "2026-04-12T08:20:33.315739+00:00",
+    "written_at": "2026-04-13T07:34:41.982760+00:00",
     "schema_version": "1.0"
   }
 }

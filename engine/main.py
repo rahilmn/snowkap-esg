@@ -107,16 +107,20 @@ def _run_article(article: dict[str, Any], company: Company) -> ArticleRunSummary
     files = 0
 
     if not result.rejected:
-        insight = generate_deep_insight(result, company)
-        if insight:
-            for lens in ("esg-analyst", "cfo", "ceo"):
-                perspectives[lens] = transform_for_perspective(insight, result, lens)
-            recs = generate_recommendations(insight, result, company)
-            written = write_insight(result, insight, perspectives, recs)
-            # Count non-None files
-            d = written.to_dict()
-            files = sum(1 for k, v in d.items() if v and not isinstance(v, dict))
-            files += len(d.get("perspectives") or {})
+        # Phase 17b: Only run expensive LLM stages (10-12) for HOME tier at ingestion.
+        # SECONDARY articles get stages 1-9 only; stages 10-12 run on-demand when user clicks.
+        if result.tier == "HOME":
+            insight = generate_deep_insight(result, company)
+            if insight:
+                for lens in ("esg-analyst", "cfo", "ceo"):
+                    perspectives[lens] = transform_for_perspective(insight, result, lens)
+                recs = generate_recommendations(insight, result, company)
+        # Write to disk (HOME: full insight; SECONDARY: pipeline-only, insight=None)
+        written = write_insight(result, insight, perspectives, recs)
+        # Count non-None files
+        d = written.to_dict()
+        files = sum(1 for k, v in d.items() if v and not isinstance(v, dict))
+        files += len(d.get("perspectives") or {})
 
     return ArticleRunSummary(
         article_id=result.article_id,

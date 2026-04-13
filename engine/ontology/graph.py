@@ -66,13 +66,27 @@ class OntologyGraph:
         self._loaded = False
 
     def load(self) -> "OntologyGraph":
-        """Load schema + knowledge + expansion + depth + company instances."""
+        """Load schema + knowledge + expansion + depth + company + primitives."""
+        # Primitives layer (Layer 7) — causal graph
+        ontology_dir = self.schema_path.parent
+        primitives_files = [
+            ontology_dir / "primitives_schema.ttl",
+            ontology_dir / "primitives_edges_p2p.ttl",
+            ontology_dir / "primitives_thresholds.ttl",
+        ]
+        # Optional files (may not exist yet)
+        for opt in ("primitives_indicators.ttl", "primitives_order3.ttl"):
+            p = ontology_dir / opt
+            if p.exists():
+                primitives_files.append(p)
+
         for path in (
             self.schema_path,
             self.knowledge_path,
             self.expansion_path,
             self.depth_path,
             self.companies_path,
+            *primitives_files,
         ):
             if path.exists():
                 self.graph.parse(path, format="turtle")

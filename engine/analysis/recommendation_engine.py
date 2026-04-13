@@ -118,6 +118,18 @@ RULES:
 - payback_months: for capex, use industry standard payback periods. For compliance, use regulatory deadline as outer bound. NEVER use null.
 - If PEER ACTIONS are provided, reference what competitors did and suggest matching or exceeding their approach.
 - For LOW materiality articles: focus on monitoring actions and disclosure improvements, but still be SPECIFIC about what to monitor and how.
+- ALWAYS include at least 1 MONITORING recommendation with specific threshold triggers: "Monitor X metric; escalate to ACT if Y exceeds Z threshold within N months".
+- If CAUSAL PRIMITIVES context provides threshold categories (τ values), include them in monitoring recommendations.
+
+FRAMEWORK ACCURACY:
+- Match framework sections to the event type. Tax events → GRI:207, ESRS G1. Climate → GRI:305, ESRS E1. H&S → GRI:403, ESRS S1.
+- NEVER cite ESRS E1 for a non-climate event. NEVER cite GRI:305 for a tax/governance event.
+
+PERSPECTIVE-AWARE RECOMMENDATIONS:
+- CFO-relevant: focus on ₹ exposure quantification, cost avoidance, margin protection, ROI maximization.
+- CEO-relevant: focus on strategic positioning, competitive advantage, board-level decisions.
+- ESG Analyst-relevant: focus on framework compliance gaps, disclosure deadlines, stakeholder engagement.
+- Include a mix of types so each perspective has relevant recommendations.
 
 Return a JSON object:
 {
@@ -198,9 +210,29 @@ def _build_generator_prompt(
     except Exception:
         pass
 
+    # Phase 17: Causal Primitives context for quantitative recommendation grounding
+    try:
+        from engine.ontology.intelligence import query_cascade_context, query_thresholds_for_primitive, query_primitives_for_event
+        event_id = result.event.event_id if result.event and hasattr(result.event, "event_id") else ""
+        if event_id:
+            prims = query_primitives_for_event(event_id)
+            if prims:
+                primary = prims[0]
+                lines.append(f"CAUSAL PRIMITIVES FOR RECOMMENDATIONS:")
+                lines.append(f"  Primary affected: {primary.label} ({primary.slug})")
+                # Get thresholds for monitoring recommendations
+                thresholds = query_thresholds_for_primitive(primary.slug)
+                if thresholds:
+                    lines.append("  Threshold monitors (recommend tracking these):")
+                    for t in thresholds[:3]:
+                        lines.append(f"    - {t['label']}: τ = {t['range']} ({t['unit']})")
+                lines.append("  Actionable levers: reduce β (efficiency investment), hedge exposure, diversify inputs")
+    except Exception:
+        pass
+
     lines.append("")
     rec_count = _get_rec_count(insight)
-    lines.append(f"Generate exactly {rec_count} actionable recommendations for this company. Today's date is 2026-04-12.")
+    lines.append(f"Generate exactly {rec_count} actionable recommendations for this company. Today's date is 2026-04-13.")
     return "\n".join(lines)
 
 

@@ -1,0 +1,133 @@
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# Canonical τ Threshold Categories (25 categories)
+# Source: "00 — Primitives" canonical τ table
+# =============================================================================
+
+snw:tau_drought a snw:ThresholdCategory ; rdfs:label "Drought / water scarcity"@en ;
+    snw:thresholdRange "PDSI <= -3.0 (severe) or SPI <= -1.5" ;
+    snw:thresholdUnit "PDSI / SPI index" ;
+    snw:applicableEdges "IND→WA, XW→WA, WA→CL, WA→CapacityUtil" .
+
+snw:tau_wind a snw:ThresholdCategory ; rdfs:label "Extreme weather — wind"@en ;
+    snw:thresholdRange "Cat 2+ hurricane (>= 96 kt) or EF2+ tornado" ;
+    snw:thresholdUnit "wind speed (kt)" ;
+    snw:applicableEdges "XW→DT, XW→SC, XW→HS, XW→OX, XW→CX" .
+
+snw:tau_flood a snw:ThresholdCategory ; rdfs:label "Extreme weather — flood"@en ;
+    snw:thresholdRange ">= 100-yr ARI (1% AEP) or flood depth >= 0.5m" ;
+    snw:thresholdUnit "ARI / flood depth (m)" ;
+    snw:applicableEdges "XW→DT, XW→AssetImpairment, XW→InsurancePremium" .
+
+snw:tau_heat a snw:ThresholdCategory ; rdfs:label "Extreme weather — heat"@en ;
+    snw:thresholdRange "Wet-bulb >= 32C outdoor; heat index >= 41C for >= 3 consecutive days" ;
+    snw:thresholdUnit "degrees C" ;
+    snw:applicableEdges "XW→HS, XW→WF, XW→DT" .
+
+snw:tau_energy_price a snw:ThresholdCategory ; rdfs:label "Energy price shock"@en ;
+    snw:thresholdRange "ΔEP >= 25% YoY or EP >= 2σ above 5-yr rolling mean" ;
+    snw:thresholdUnit "% change YoY" ;
+    snw:applicableEdges "EP→EU, EP→DT, EP→SC, EP→CX" .
+
+snw:tau_commodity a snw:ThresholdCategory ; rdfs:label "Commodity price shock"@en ;
+    snw:thresholdRange "ΔCM >= 30% YoY or inventory-to-use ratio < 10th percentile" ;
+    snw:thresholdUnit "% change YoY" ;
+    snw:applicableEdges "CM→SC, CM→InventoryRisk" .
+
+snw:tau_cyber a snw:ThresholdCategory ; rdfs:label "Cyber vulnerability"@en ;
+    snw:thresholdRange "CVSS >= 7.0 (high/critical) or red-team achieved primary objective" ;
+    snw:thresholdUnit "CVSS score" ;
+    snw:applicableEdges "IND→CY, CY→DT, CY→CL" .
+
+snw:tau_data_breach a snw:ThresholdCategory ; rdfs:label "Data breach (public)"@en ;
+    snw:thresholdRange ">= 1000 PII records or mandatory regulatory notification" ;
+    snw:thresholdUnit "record count" ;
+    snw:applicableEdges "CY→CL, CY→CustomerChurn, CY→ESGRating" .
+
+snw:tau_regulatory_mandate a snw:ThresholdCategory ; rdfs:label "Regulatory mandate enacted"@en ;
+    snw:thresholdRange "Binding standard with compliance deadline <= 24 months" ;
+    snw:thresholdUnit "months to deadline" ;
+    snw:applicableEdges "RG→CX, RG→GE, RG→WS, RG→RV" .
+
+snw:tau_carbon_price a snw:ThresholdCategory ; rdfs:label "Emission cap / carbon price"@en ;
+    snw:thresholdRange "GHG > allocated ETS allowance or carbon price >= 50 EUR/tCO2" ;
+    snw:thresholdUnit "EUR/tCO2" ;
+    snw:applicableEdges "GE→CL, RG→GE, EU→CarbonCost" .
+
+snw:tau_water_permit a snw:ThresholdCategory ; rdfs:label "Water permit limit"@en ;
+    snw:thresholdRange "Abstraction >= 80% licensed volume (warning) or > 100% (breach)" ;
+    snw:thresholdUnit "% of licensed volume" ;
+    snw:applicableEdges "WA→CL, WA→OX, WA→WaterPermitCost" .
+
+snw:tau_supplier_credit a snw:ThresholdCategory ; rdfs:label "Supplier credit stress"@en ;
+    snw:thresholdRange "Supplier rating <= CCC+ or current ratio < 1.0" ;
+    snw:thresholdUnit "credit rating / ratio" ;
+    snw:applicableEdges "IR→SC, EP→SC, CM→SC" .
+
+snw:tau_labor_dispute a snw:ThresholdCategory ; rdfs:label "Labor dispute"@en ;
+    snw:thresholdRange "Formal strike ballot or >= 30% workforce CBA expiring with no deal within 6mo" ;
+    snw:thresholdUnit "workforce % / ballot status" ;
+    snw:applicableEdges "IND→WF, LC→WF" .
+
+snw:tau_safety_audit a snw:ThresholdCategory ; rdfs:label "Safety finding (audit)"@en ;
+    snw:thresholdRange ">= 1 critical finding or >= 5 high-severity findings per audit cycle" ;
+    snw:thresholdUnit "finding count / severity" ;
+    snw:applicableEdges "IND→HS" .
+
+snw:tau_hs_incident a snw:ThresholdCategory ; rdfs:label "H&S incident (serious)"@en ;
+    snw:thresholdRange "Fatality, or >= 1 lost-time injury >= 30 days, or TRIR >= 2x sector avg" ;
+    snw:thresholdUnit "TRIR / fatality count" ;
+    snw:applicableEdges "HS→DT, HS→CL, HS→WF, HS→InsurancePremium" .
+
+snw:tau_margin_stress a snw:ThresholdCategory ; rdfs:label "Margin stress / EBITDA"@en ;
+    snw:thresholdRange "EBITDA coverage < 3.0x or net debt/EBITDA > 4.0x for 2+ quarters" ;
+    snw:thresholdUnit "coverage ratio" ;
+    snw:applicableEdges "OX→CreditRating, OX→CX" .
+
+snw:tau_stockout a snw:ThresholdCategory ; rdfs:label "Stockout / safety stock exhaustion"@en ;
+    snw:thresholdRange "Safety stock exhausted for >= 1 critical SKU, or fill rate < 90% for >= 5 days" ;
+    snw:thresholdUnit "fill rate % / days" ;
+    snw:applicableEdges "SC→DT, SC→RV, SC→ServiceLevel" .
+
+snw:tau_sla_breach a snw:ThresholdCategory ; rdfs:label "SLA breach / uptime"@en ;
+    snw:thresholdRange "Outage exceeding contractual SLA (typical: >= 99.5% = <= 43.8 hr/yr)" ;
+    snw:thresholdUnit "uptime % / hours" ;
+    snw:applicableEdges "DT→SLAPenalty, DT→ServiceLevel, DT→CustomerChurn" .
+
+snw:tau_compliance_enforcement a snw:ThresholdCategory ; rdfs:label "Compliance enforcement"@en ;
+    snw:thresholdRange "Fine >= 0.5% revenue, consent order, or regulatory prosecution" ;
+    snw:thresholdUnit "% revenue / order type" ;
+    snw:applicableEdges "CL→CreditRating, CL→ESGRating, CL→RV, CL→OX" .
+
+snw:tau_port_congestion a snw:ThresholdCategory ; rdfs:label "Port / logistics congestion"@en ;
+    snw:thresholdRange "Vessel queue >= 7 days or berth utilization >= 85%" ;
+    snw:thresholdUnit "days / %" ;
+    snw:applicableEdges "IND→FR, FR→SC" .
+
+snw:tau_supply_disruption a snw:ThresholdCategory ; rdfs:label "Supply disruption (sanctions/ban)"@en ;
+    snw:thresholdRange ">= 10% of sourced volume affected by sanction, export ban, or force majeure" ;
+    snw:thresholdUnit "% volume affected" ;
+    snw:applicableEdges "IND→CM, IND→SC" .
+
+snw:tau_refinery_outage a snw:ThresholdCategory ; rdfs:label "Refinery / generation outage"@en ;
+    snw:thresholdRange ">= 5% of regional capacity simultaneously offline" ;
+    snw:thresholdUnit "% capacity" ;
+    snw:applicableEdges "IND→EP" .
+
+snw:tau_geopolitical a snw:ThresholdCategory ; rdfs:label "OPEC / geopolitical supply shock"@en ;
+    snw:thresholdRange ">= 1 Mbpd production cut or >= 5% global trade-route disrupted" ;
+    snw:thresholdUnit "Mbpd / %" ;
+    snw:applicableEdges "IND→EP" .
+
+snw:tau_asset_condition a snw:ThresholdCategory ; rdfs:label "Asset condition / degradation"@en ;
+    snw:thresholdRange "Condition index < 40/100, remaining useful life < 20%, or anomaly > 2sigma" ;
+    snw:thresholdUnit "condition index / %" ;
+    snw:applicableEdges "IND→DT, DT→MaintenanceBacklog" .
+
+snw:tau_public_incident a snw:ThresholdCategory ; rdfs:label "Public incident (reputational)"@en ;
+    snw:thresholdRange "National/trade media coverage + regulator notification triggered" ;
+    snw:thresholdUnit "media coverage / notification" ;
+    snw:applicableEdges "CL→SocialLicence, HS→SocialLicence, CY→CustomerChurn, WS→SocialLicence" .

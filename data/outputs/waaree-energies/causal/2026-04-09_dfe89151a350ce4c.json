@@ -9,6 +9,51 @@
       "relationship_type": "directOperational",
       "impact_score": 1.0,
       "explanation": "Waaree Energies"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "BRSR",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers BRSR disclosure obligation for Waaree Energies"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "GRI",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers GRI disclosure obligation for Waaree Energies"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "TCFD",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
     }
   ]
 }

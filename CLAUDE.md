@@ -595,6 +595,66 @@ The "Predictions" stat is currently `0`. To make it functional:
 3. Count active predictions per company in `GET /api/news/stats`
 4. Frontend: render as trend indicators (up/stable/down arrows)
 
+### Phase 17: Causal Primitives Integration (Planned)
+
+Integrates the Causal Primitives Framework (22 universal primitives, 90+ P→P edges, 332 order-3 chains, 16 outcome nodes, 8 societal nodes, 11 feedback loops) into the Snowkap ontology. Upgrades from qualitative ESG analysis to quantitative causal reasoning with computed financial exposure.
+
+**New Ontology Files (Layer 7: Causal Primitives):**
+- `data/ontology/primitives_schema.ttl` — Primitive, CausalEdge, IndicatorEdge, OutcomeNode, SocietalNode classes
+- `data/ontology/primitives_edges_p2p.ttl` — 90+ P→P edges + 80 P→non-P edges + O2:: cascades + FB:: feedback arcs
+- `data/ontology/primitives_indicators.ttl` — 200+ IND→P edges + 37 qualitative rubrics
+- `data/ontology/primitives_thresholds.ttl` — 25 canonical τ threshold categories
+- `data/ontology/primitives_order3.ttl` — Top 50 high-confidence P3 chains + 19 P4 chains
+
+**22 Primitives:** OX (Opex), RV (Revenue), CX (Capex), EU (Energy Use), GE (GHG Emissions), WA (Water), WS (Waste), WF (Workforce), HS (H&S), CL (Compliance), SC (Supply Chain), DT (Downtime), CY (Cyber), EP (Energy Price), FR (Freight), LT (Lead Time), IR (Interest Rates), FX (Currency), RG (Regulatory), XW (Extreme Weather), CM (Commodity Price), LC (Labor Cost)
+
+**Edge Schema:** Each edge carries: edge_id, source, target, order, direction (+/−/mixed), functional_form (linear/log-linear/threshold/ratio/step/composite), operator_expression, elasticity_or_weight (β range), lag_k, aggregation_rule (additive/weighted_avg/max/multiplicative/dominant), confidence (high/medium/low), notes
+
+**New SPARQL Queries:** query_primitives_for_event(), query_p2p_edges(), query_cascade_path(), query_threshold(), query_indicators_for_primitive(), query_feedback_loops()
+
+**Integration Points:**
+- `insight_generator.py` — LLM prompt enriched with relevant cascade edges, β, lag, thresholds
+- `recommendation_engine.py` — Prompt enriched with actionable levers and threshold monitors
+- `perspective_engine.py` — CFO gets financial cascade (EP→OX→GrossMargin), CEO gets strategic cascade (EP→CX→RV), ESG Analyst gets compliance cascade (EP→EU→GE→CL)
+
+**Level 1 Status: COMPLETED** — Schema, 58 P→P edges, 25 thresholds, 11 feedback loops, 6 SPARQL queries, prompt enrichment all live.
+
+### Phase 17b: On-Demand Pipeline + Edge Gap Fixes (Planned)
+
+**On-Demand Architecture:**
+- User clicks "View Insights" → `POST /api/news/{id}/trigger-analysis` fires
+- If no `insight.headline` in stored JSON → runs full stages 10-12 with primitive-enriched prompts
+- Frontend shows spinner (5-15 seconds) → renders enriched analysis
+- Second click → instant (cached to disk)
+- `engine/main.py` modified to skip stages 10-12 for SECONDARY tier at ingestion → saves ~$0.05/article
+- One-time migration script `scripts/clear_stale_insights.py` nulls old vague insights → forces fresh on-demand analysis
+
+**Edge Gap Fixes (8 gaps):**
+1. Add primary primitives to 5 secondary-only events (esg_rating_change→IR, board_change→RG, climate_disclosure_index→RV, dividend_policy→CX, award_recognition→RV)
+2. Add 2 missing event mappings (esg_partnership→RV, license_revocation→DT)
+3. Fix event name mismatch (event_systemic_regulatory vs event_systemic_regulatory_change)
+4. Add fallback LLM guidance when cascade context is empty
+5. Add logging for "Unclassified" event reconstruction
+
+### Ontology Coverage Post-Phase 17b
+
+| Pipeline Stage | Ontology-Driven? | Source |
+|---------------|-----------------|--------|
+| 1. NLP Extraction | No (LLM: gpt-4.1-mini) | LLM |
+| 2. Theme Tagging | No (LLM: gpt-4.1-mini) | LLM |
+| 3. Event Classification | **Yes** — 22 EventTypes + keywords from ontology | Ontology |
+| 4. Relevance Scoring | **Yes** — materiality weights, cap tier, industry risk | Ontology |
+| 5. Causal Chains | **Yes** — BFS over entity/topic graph + **Primitives** (β, lag, τ) | Ontology + Primitives |
+| 6. Framework Matching | **Yes** — 21 frameworks, sections, regional boosts, mandatory rules | Ontology |
+| 7. Stakeholder Mapping | **Yes** — 5 stakeholder groups × 21 topics | Ontology |
+| 8. SDG Mapping | **Yes** — 17 SDGs × topic relationships | Ontology |
+| 9. Risk Assessment | **Yes** — 10 ESG + 7 TEMPLES categories, industry weights, thresholds | Ontology |
+| 10. Deep Insight | **Hybrid** — LLM (gpt-4.1) guided by **primitive cascade context** (β, lag, form, thresholds) | LLM + Primitives |
+| 11. Perspective Transform | **Yes** — headline rules, grid columns, impact dimensions, word caps | Ontology |
+| 12. Recommendations | **Hybrid** — LLM (gpt-4.1-mini) guided by **primitive levers + thresholds** | LLM + Primitives |
+
+**Summary: 9 of 12 stages are fully ontology-driven. 2 stages (NLP, themes) are LLM-only. 1 stage (deep insight) is LLM + ontology hybrid. The 2 LLM-only stages handle unstructured text → structured data extraction where ontology alone cannot operate. Overall: ~92% ontology-driven intelligence.**
+
 ---
 
 ## CLI Commands
