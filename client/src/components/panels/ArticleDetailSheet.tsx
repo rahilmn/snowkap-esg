@@ -530,8 +530,9 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const activePerspective = usePerspective((s) => s.active);
 
   // ── On-demand analysis state (hooks must be before early return) ──
-  // Only skip trigger if deep_insight exists — risk_matrix alone means analysis is incomplete
-  const hasAnalysis = !!(article?.deep_insight);
+  // Only skip trigger if deep_insight has actual content (headline exists).
+  // Empty {} from cleared/stale articles must still trigger fresh analysis.
+  const hasAnalysis = !!(article?.deep_insight?.headline);
   const [analysisStatus, setAnalysisStatus] = useState<"idle" | "pending" | "done" | "failed">(
     hasAnalysis ? "done" : "idle"
   );
