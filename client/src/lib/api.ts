@@ -19,22 +19,25 @@ const BASE = "/api";
 
 async function request<T>(
   path: string,
-  options: RequestInit = {},
+  options: RequestInit & { _timeout?: number } = {},
 ): Promise<T> {
   const token = getToken();
+  const customTimeout = options._timeout;
+  // Strip custom field before passing to fetch
+  const { _timeout, ...fetchOptions } = options as RequestInit & { _timeout?: number };
   const headers: Record<string, string> = {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options.headers as Record<string, string> ?? {}),
+    ...(fetchOptions.headers as Record<string, string> ?? {}),
   };
   // Only set Content-Type when there's a body (not for GET requests)
-  if (options.body) {
+  if (fetchOptions.body) {
     headers["Content-Type"] = "application/json";
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
+  const timeout = setTimeout(() => controller.abort(), customTimeout || 30000);
   try {
-    const res = await fetch(`${BASE}${path}`, { ...options, headers, signal: controller.signal });
+    const res = await fetch(`${BASE}${path}`, { ...fetchOptions, headers, signal: controller.signal });
 
     if (res.status === 401) {
       const { logout } = (await import("@/stores/authStore")).useAuthStore.getState();
@@ -132,9 +135,9 @@ export const news = {
     ),
 
   triggerAnalysis: (articleId: string) =>
-    request<{ status: "triggered" | "already_running" | "cached"; message: string }>(
+    request<{ status: "triggered" | "already_running" | "cached" | "done"; message: string }>(
       `/news/${articleId}/trigger-analysis`,
-      { method: "POST" }
+      { method: "POST", _timeout: 120000 } as RequestInit & { _timeout?: number }
     ),
 
   getAnalysisStatus: (articleId: string) =>

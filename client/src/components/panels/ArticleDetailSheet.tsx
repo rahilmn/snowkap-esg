@@ -555,25 +555,24 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const doTrigger = (id: string) => {
     setAnalysisStatus("pending");
     newsApi.triggerAnalysis(id)
-      .then((res) => {
-        if (res.status === "cached") {
-          return newsApi.getAnalysisStatus(id).then((r) => {
+      .then(async (res) => {
+        // Both "cached" and "done" mean analysis is ready — fetch it
+        if (res.status === "cached" || res.status === "done") {
+          try {
+            const r = await newsApi.getAnalysisStatus(id);
             if (r.analysis) {
               setLiveAnalysis(r.analysis as Record<string, unknown>);
               setAnalysisStatus("done");
+              return;
             }
-          });
+          } catch { /* fall through to pending */ }
         }
-        // "done" — fetch the analysis immediately
-        if (res.status === "done") {
-          return newsApi.getAnalysisStatus(id).then((r) => {
-            if (r.analysis) {
-              setLiveAnalysis(r.analysis as Record<string, unknown>);
-              setAnalysisStatus("done");
-            }
-          });
+        // "failed" — show error
+        if (res.status === "failed" as string) {
+          setAnalysisStatus("failed");
+          return;
         }
-        // "triggered" or "already_running" — polling will handle it
+        // Any other status — polling will handle it (keep "pending")
       })
       .catch(() => { setAnalysisStatus("failed"); });
   };
