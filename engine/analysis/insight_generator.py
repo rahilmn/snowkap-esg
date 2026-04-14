@@ -159,6 +159,18 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
     lines.append(f"Source: {result.source} (credibility tier {nlp.source_credibility_tier})")
     lines.append(f"Published: {result.published_at}")
     lines.append(f"URL: {result.url}")
+    # Detect thin/paywalled content
+    content_len = len(nlp.narrative_core_claim or "") + len(nlp.narrative_implied_causation or "")
+    is_thin = getattr(result, "_thin_content", False) or content_len < 100
+    if is_thin:
+        lines.append("")
+        lines.append("⚠ WARNING: This article has VERY LIMITED content (likely paywalled or truncated).")
+        lines.append("You are working with HEADLINE ONLY. You MUST:")
+        lines.append("- State clearly that analysis is based on headline only, not full article")
+        lines.append("- Use LOWER confidence for all estimates")
+        lines.append("- Do NOT fabricate detailed sector analysis or specific ₹ figures beyond engine-computed values")
+        lines.append("- Set materiality to LOW unless the headline itself contains a specific ₹ amount")
+        lines.append("- Add to net_impact_summary: 'Note: This analysis is based on limited article content (headline only). Full article behind paywall.'")
     lines.append("")
 
     lines.append("=== COMPANY PROFILE ===")

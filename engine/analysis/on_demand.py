@@ -80,6 +80,17 @@ def enrich_on_demand(
         logger.info("enrich_on_demand: %s is rejected, skipping", article_id)
         return payload
 
+    # 4c. Check content quality — flag paywall/thin articles
+    content_len = len(result.title or "") + len(getattr(result, "content", "") or "")
+    if content_len < 200:
+        logger.warning(
+            "enrich_on_demand: thin content (%d chars) for %s — likely paywalled",
+            content_len, article_id,
+        )
+        result._thin_content = True  # type: ignore[attr-defined]
+    else:
+        result._thin_content = False  # type: ignore[attr-defined]
+
     # 5. Stage 10: Deep insight generation
     logger.info("enrich_on_demand: generating deep insight for %s", article_id)
     insight = generate_deep_insight(result, company)
