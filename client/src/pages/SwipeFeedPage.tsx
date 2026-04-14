@@ -48,8 +48,8 @@ export function SwipeFeedPage() {
       }
       return result;
     },
-    staleTime: 0, // Always refetch fresh data
-    refetchOnMount: "always",
+    staleTime: 30_000, // Cache for 30s to prevent refetch on detail sheet close
+    refetchOnMount: true,
   });
 
   // Filter out dismissed articles
@@ -110,7 +110,7 @@ export function SwipeFeedPage() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-full pb-14">
+    <div className="flex flex-col items-center justify-center h-full pb-14 bg-white">
       {/* Intro card — shown once per session */}
       {!hasSeenIntro && articles.length > 0 && (
         <div className="flex items-center justify-center h-full">

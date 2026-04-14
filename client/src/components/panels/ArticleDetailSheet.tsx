@@ -620,17 +620,23 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
 
   if (!article) return null;
 
-  // Overlay live analysis onto article (only fills null fields)
+  // Overlay live analysis onto article — prefer liveAnalysis when article fields are empty/stale
+  // Use helper: treat empty objects {} and null/undefined as "no data"
+  const _has = (v: unknown) => v != null && (typeof v !== "object" || Object.keys(v as object).length > 0);
   const effectiveArticle: Article = liveAnalysis
     ? {
         ...article,
-        deep_insight: (article.deep_insight ?? liveAnalysis.deep_insight) as Article["deep_insight"],
-        rereact_recommendations: (article.rereact_recommendations ?? liveAnalysis.rereact_recommendations) as Article["rereact_recommendations"],
-        risk_matrix: (article.risk_matrix ?? liveAnalysis.risk_matrix) as Article["risk_matrix"],
-        framework_matches: (article.framework_matches ?? liveAnalysis.framework_matches) as Article["framework_matches"],
+        deep_insight: (_has(article.deep_insight) && (article.deep_insight as Record<string, unknown>)?.headline
+          ? article.deep_insight
+          : liveAnalysis.deep_insight) as Article["deep_insight"],
+        rereact_recommendations: (_has(article.rereact_recommendations)
+          ? article.rereact_recommendations
+          : liveAnalysis.rereact_recommendations) as Article["rereact_recommendations"],
+        risk_matrix: (_has(article.risk_matrix) ? article.risk_matrix : liveAnalysis.risk_matrix) as Article["risk_matrix"],
+        framework_matches: (_has(article.framework_matches) ? article.framework_matches : liveAnalysis.framework_matches) as Article["framework_matches"],
         priority_score: article.priority_score ?? (liveAnalysis.priority_score as number | null),
         priority_level: article.priority_level ?? (liveAnalysis.priority_level as string | null),
-        perspectives: (article.perspectives ?? liveAnalysis.perspectives) as Article["perspectives"],
+        perspectives: (_has(article.perspectives) ? article.perspectives : liveAnalysis.perspectives) as Article["perspectives"],
       }
     : article;
 
