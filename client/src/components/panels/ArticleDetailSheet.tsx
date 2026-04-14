@@ -539,6 +539,17 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const [liveAnalysis, setLiveAnalysis] = useState<Record<string, unknown> | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const triggeredRef = useRef(false);
+  const lastArticleId = useRef<string | null>(null);
+
+  // Reset state when article changes (since we don't use key={} for remount)
+  useEffect(() => {
+    if (article?.id !== lastArticleId.current) {
+      lastArticleId.current = article?.id ?? null;
+      triggeredRef.current = false;
+      setLiveAnalysis(null);
+      setAnalysisStatus(article?.deep_insight?.headline ? "done" : "idle");
+    }
+  }, [article?.id, article?.deep_insight?.headline]);
 
   // Trigger analysis (extracted so retry can reuse)
   const doTrigger = (id: string) => {
@@ -553,17 +564,26 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             }
           });
         }
+        // "done" — fetch the analysis immediately
+        if (res.status === "done") {
+          return newsApi.getAnalysisStatus(id).then((r) => {
+            if (r.analysis) {
+              setLiveAnalysis(r.analysis as Record<string, unknown>);
+              setAnalysisStatus("done");
+            }
+          });
+        }
         // "triggered" or "already_running" — polling will handle it
       })
       .catch(() => { setAnalysisStatus("failed"); });
   };
 
-  // Auto-trigger analysis on mount if article has no analysis
+  // Auto-trigger analysis when article opens and has no analysis
   useEffect(() => {
     if (!article || hasAnalysis || triggeredRef.current) return;
     triggeredRef.current = true;
     doTrigger(article.id);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [article?.id, hasAnalysis]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Poll every 5s while pending, give up after 24 polls (~2min)
   useEffect(() => {

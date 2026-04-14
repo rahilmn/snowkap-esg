@@ -316,9 +316,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Unified detail sheet */}
+      {/* Unified detail sheet — no key prop to prevent remount on close */}
       <ArticleDetailSheet
-        key={selectedArticle?.id}
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />

@@ -830,11 +830,15 @@ def news_trigger_analysis(
     if not row:
         return {"status": "failed", "message": "Article not found"}
 
+    CURRENT_SCHEMA = "2.0-primitives-l2"
     if not force:
         payload = _load_payload(row.get("json_path"))
-        # Check if already fully enriched
+        stored_version = ((payload or {}).get("meta") or {}).get("schema_version", "")
         existing_insight = (payload or {}).get("insight") or {}
-        if existing_insight.get("headline") and existing_insight.get("core_mechanism"):
+        # Only return cached if schema is current AND insight has real content
+        if (stored_version == CURRENT_SCHEMA
+                and existing_insight.get("headline")
+                and existing_insight.get("core_mechanism")):
             return {"status": "cached", "message": "Analysis already computed"}
 
     # Run on-demand enrichment (synchronous — takes 5-15 seconds)
