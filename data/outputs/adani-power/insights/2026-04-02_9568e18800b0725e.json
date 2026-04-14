@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 48,
-    "elapsed_seconds": 15.338,
+    "elapsed_seconds": 20.124,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -38,9 +38,9 @@
         "analytical",
         "neutral"
       ],
-      "narrative_core_claim": "Adani and JSW power plants are experiencing low coal stocks ahead of the summer season.",
+      "narrative_core_claim": "Adani and JSW power plants are running low on coal stocks ahead of the summer season.",
       "narrative_implied_causation": "Low coal stocks at power plants may lead to power generation challenges during increased summer demand.",
-      "narrative_stakeholder_framing": "Power plant operators (Adani, JSW) are protagonists facing supply issues, while consumers may be affected by potential power shortages.",
+      "narrative_stakeholder_framing": "Power companies Adani and JSW are protagonists; electricity consumers are potentially affected.",
       "entities": [
         "Adani",
         "JSW"
@@ -717,11 +717,413 @@
       "Climate Action"
     ]
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "Adani Power faces ₹45 Cr direct exposure as coal stock shortages threaten summer generation capacity",
+    "impact_score": 4.0,
+    "core_mechanism": "Low coal inventories at Adani Power's plants ahead of peak summer demand create operational risk, potentially leading to reduced generation or forced spot-market purchases at higher prices. This situation exposes the company to immediate cost increases and longer-term scrutiny over fossil fuel dependency and risk management practices.",
+    "profitability_connection": "The direct operational impact is estimated at ₹45 Cr, translating to a 10 bps margin pressure on annual revenue. Persistent fuel supply issues could erode profitability and trigger higher cost of capital if ESG disclosure gaps are flagged by investors or regulators.",
+    "translation": "Adani Power is running low on coal just as electricity demand is about to spike for summer. This could force the company to buy expensive coal or reduce power output, costing about ₹45 Cr right away and making investors nervous about future risks.",
+    "impact_analysis": {
+      "esg_positioning": "ESG score gap may widen versus peers like JSW Energy if fossil fuel risk management is not addressed, risking index exclusion if disclosure lapses persist.",
+      "capital_allocation": "Potential cost of capital increase by 20-40 bps if SEBI or investors penalize weak BRSR/TCFD disclosure; FII outflows possible if TCFD/CDP scores drop.",
+      "valuation_cashflow": "P/E compression of 0.05-0.1x possible if risk persists; immediate margin erosion of 10 bps; ₹45 Cr revenue at risk from operational disruption.",
+      "compliance_regulatory": "BRSR (SEBI), TCFD, CDP, GRI frameworks triggered; non-disclosure could invite SEBI scrutiny and trading restrictions.",
+      "supply_chain_transmission": "No supply chain transmission: event is direct operational risk at Adani Power's own plants, not cascading to suppliers.",
+      "people_demand": "Potential negative impact on consumer trust if power shortages occur, but no immediate talent or community effect identified."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹45 Cr direct operational cost from coal shortage risk",
+        "profitability_pathway": "Coal stock depletion → higher spot coal procurement or reduced output → ₹45 Cr direct cost",
+        "margin_pressure": "10 bps",
+        "revenue_at_risk": "₹45 Cr direct"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.05-0.1x due to increased operational and ESG risk",
+        "competitive_position": "Adani Power at disadvantage vs JSW Energy if peer maintains better fuel security and ESG disclosure"
+      },
+      "long_term": {
+        "secular_trajectory": "Continued fossil fuel dependency exposes Adani Power to transition and regulatory risks over 3-5 years, potentially increasing cost of capital and reducing access to green financing.",
+        "green_revenue_opportunity": "No immediate green revenue opportunity identified; transition to renewables could unlock future value."
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 5,
+        "rationale": "Event highlights fossil fuel dependency and energy intensity, but does not directly increase emissions."
+      },
+      "social": {
+        "score": 2,
+        "rationale": "Potential for consumer impact if power shortages occur, but no direct workforce or community effect."
+      },
+      "governance": {
+        "score": 4,
+        "rationale": "Risk management and disclosure practices under scrutiny; BRSR/TCFD compliance relevant."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "₹45 Cr direct exposure is modest for a large cap, but persistent risk could escalate."
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "SEBI BRSR and TCFD/CDP frameworks triggered; non-compliance could lead to penalties or trading restrictions."
+      },
+      "stakeholder_impact": {
+        "score": 3,
+        "rationale": "Investors and regulators are primary stakeholders; limited immediate consumer or community impact."
+      }
+    },
+    "net_impact_summary": "The coal stock shortage at Adani Power's plants creates a direct operational exposure of ₹45 Cr and 10 bps margin pressure, with no supply chain transmission. The event triggers BRSR, TCFD, and CDP frameworks, raising the risk of regulatory scrutiny and potential cost of capital increases if disclosure gaps persist. While the immediate financial impact is contained, repeated incidents could erode ESG positioning and valuation relative to peers like JSW Energy.",
+    "decision_summary": {
+      "materiality": "MODERATE",
+      "action": "MONITOR",
+      "verdict": "Monitor fuel risk management and ESG disclosure; no immediate board action required unless risk escalates.",
+      "financial_exposure": "₹45 Cr direct operational cost; no speculative or precedent risk identified.",
+      "key_risk": "₹45 Cr direct operational cost from coal shortage; precedent for regulatory scrutiny if disclosure gaps persist.",
+      "top_opportunity": "Enhance BRSR/TCFD disclosure and fuel risk management to reduce cost of capital by 20-40 bps.",
+      "timeline": "within 4-8 weeks (pre-summer demand peak)"
+    },
+    "causal_chain": {
+      "event": "Adani Power's coal stocks fall below optimal levels ahead of summer demand surge.",
+      "mechanism": "Low coal inventory increases risk of reduced generation or costly spot-market purchases, raising operational costs and exposing disclosure gaps.",
+      "company_impact": "Direct ₹45 Cr cost, 10 bps margin pressure, and potential for higher cost of capital if ESG risks are not managed.",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Enhance BRSR and TCFD Disclosure for FY26",
+        "description": "Commission third-party assurance and enhanced disclosure for BRSR and TCFD frameworks by 2026-05-30 to avoid SEBI scrutiny and reduce cost of capital by 20-40 bps, targeting ₹90-180 Cr valuation uplift based on market cap.",
+        "type": "esg_positioning",
+        "responsible_party": "Head of Sustainability Reporting",
+        "framework_section": "BRSR:P6:Q14, TCFD",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "₹90-180 Cr valuation premium from 20-40 bps cost of capital reduction",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 9,
+        "roi_percentage": 400.0,
+        "payback_months": 1.0,
+        "peer_benchmark": "Tata Power improved ESG disclosures leading to ₹5000 Cr green bond issuance"
+      },
+      {
+        "title": "File SEBI Quarterly Corporate Governance Report on Time",
+        "description": "Submit the SEBI Quarterly Corporate Governance Report by 2026-07-15 with enhanced disclosures on coal risk and transition plans to avoid regulatory penalties and trading restrictions.",
+        "type": "compliance",
+        "responsible_party": "Company Secretary",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.1-0.3 Cr",
+        "profitability_link": "Avoid ₹10-15 Cr in penalties and trading restrictions",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 500.0,
+        "payback_months": 3.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Implement Coal Supply Risk Monitoring Dashboard",
+        "description": "Develop and deploy a real-time coal stock and price monitoring system with escalation triggers for stock below 15 days or price spikes >25% YoY, to mitigate ₹45 Cr operational cost risk by 2026-06-30.",
+        "type": "operational",
+        "responsible_party": "Chief Operations Officer",
+        "framework_section": "BRSR:P6, GRI:301-1",
+        "deadline": "2026-06-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Avoid ₹45 Cr direct operational cost from coal shortages",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 200.0,
+        "payback_months": 2.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Develop Renewable Transition Roadmap to 2030",
+        "description": "Initiate a board-approved plan to increase renewable portfolio to 50% by 2030, surpassing Tata Power’s 80% target, unlocking ₹3000 Cr green financing opportunity and potential 10% P/E rerating by 2027-12-31.",
+        "type": "strategic",
+        "responsible_party": "Chief Strategy Officer",
+        "framework_section": "BRSR:P7, EU Taxonomy",
+        "deadline": "2027-12-31",
+        "estimated_budget": "₹10-15 Cr",
+        "profitability_link": "₹3000 Cr green bond opportunity and 10% P/E premium",
+        "priority": "HIGH",
+        "urgency": "medium_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 6,
+        "roi_percentage": 20.0,
+        "payback_months": 24.0,
+        "peer_benchmark": "Tata Power’s 80% renewables and ₹5000 Cr green bond issuance"
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Enhance BRSR and TCFD Disclosure for FY26",
+          "type": "esg_positioning",
+          "roi": 400.0,
+          "budget": "₹1-2 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 1,
+          "title": "File SEBI Quarterly Corporate Governance Report on Time",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹0.1-0.3 Cr"
+        },
+        {
+          "index": 2,
+          "title": "Implement Coal Supply Risk Monitoring Dashboard",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.5-1 Cr"
+        }
+      ],
+      "deferred_high": [
+        {
+          "index": 3,
+          "title": "Develop Renewable Transition Roadmap to 2030",
+          "type": "strategic",
+          "roi": 20.0,
+          "budget": "₹10-15 Cr"
+        }
+      ],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        1,
+        0,
+        2,
+        3
+      ],
+      "ceo": [
+        1,
+        2,
+        0,
+        3
+      ],
+      "esg-analyst": [
+        1,
+        0,
+        2,
+        3
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power faces ₹45 Cr direct exposure as coal stock shortages threaten summer generation capacity",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission: event is direct operational risk at Adani Power's own plants, not cascading to suppliers.",
+        "ESG score gap may widen versus peers like JSW Energy if fossil fuel risk management is not addressed, risking index exclusion if disclosure lapses persist.",
+        "Potential negative impact on consumer trust if power shortages occur, but no immediate talent or community effect identified."
+      ],
+      "action": [
+        "Monitor fuel risk management and ESG disclosure; no immediate board action required unless risk escalates.",
+        "Key risk: ₹45 Cr direct operational cost from coal shortage; precedent for regulatory scrutiny if disclosure gaps persist.",
+        "Opportunity: Enhance BRSR/TCFD disclosure and fuel risk management to reduce cost of capital by 20-40 bps."
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power faces ₹45 Cr direct exposure as coal stock shortages threaten summer generation capacity",
+        "impact_score": 4.0,
+        "core_mechanism": "Low coal inventories at Adani Power's plants ahead of peak summer demand create operational risk, potentially leading to reduced generation or forced spot-market purchases at higher prices. This situation exposes the company to immediate cost increases and longer-term scrutiny over fossil fuel dependency and risk management practices.",
+        "profitability_connection": "The direct operational impact is estimated at ₹45 Cr, translating to a 10 bps margin pressure on annual revenue. Persistent fuel supply issues could erode profitability and trigger higher cost of capital if ESG disclosure gaps are flagged by investors or regulators.",
+        "translation": "Adani Power is running low on coal just as electricity demand is about to spike for summer. This could force the company to buy expensive coal or reduce power output, costing about ₹45 Cr right away and making investors nervous about future risks.",
+        "impact_analysis": {
+          "esg_positioning": "ESG score gap may widen versus peers like JSW Energy if fossil fuel risk management is not addressed, risking index exclusion if disclosure lapses persist.",
+          "capital_allocation": "Potential cost of capital increase by 20-40 bps if SEBI or investors penalize weak BRSR/TCFD disclosure; FII outflows possible if TCFD/CDP scores drop.",
+          "valuation_cashflow": "P/E compression of 0.05-0.1x possible if risk persists; immediate margin erosion of 10 bps; ₹45 Cr revenue at risk from operational disruption.",
+          "compliance_regulatory": "BRSR (SEBI), TCFD, CDP, GRI frameworks triggered; non-disclosure could invite SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission: event is direct operational risk at Adani Power's own plants, not cascading to suppliers.",
+          "people_demand": "Potential negative impact on consumer trust if power shortages occur, but no immediate talent or community effect identified."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹45 Cr direct operational cost from coal shortage risk",
+            "profitability_pathway": "Coal stock depletion → higher spot coal procurement or reduced output → ₹45 Cr direct cost",
+            "margin_pressure": "10 bps",
+            "revenue_at_risk": "₹45 Cr direct"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.05-0.1x due to increased operational and ESG risk",
+            "competitive_position": "Adani Power at disadvantage vs JSW Energy if peer maintains better fuel security and ESG disclosure"
+          },
+          "long_term": {
+            "secular_trajectory": "Continued fossil fuel dependency exposes Adani Power to transition and regulatory risks over 3-5 years, potentially increasing cost of capital and reducing access to green financing.",
+            "green_revenue_opportunity": "No immediate green revenue opportunity identified; transition to renewables could unlock future value."
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 5,
+            "rationale": "Event highlights fossil fuel dependency and energy intensity, but does not directly increase emissions."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Potential for consumer impact if power shortages occur, but no direct workforce or community effect."
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Risk management and disclosure practices under scrutiny; BRSR/TCFD compliance relevant."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "₹45 Cr direct exposure is modest for a large cap, but persistent risk could escalate."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "SEBI BRSR and TCFD/CDP frameworks triggered; non-compliance could lead to penalties or trading restrictions."
+          },
+          "stakeholder_impact": {
+            "score": 3,
+            "rationale": "Investors and regulators are primary stakeholders; limited immediate consumer or community impact."
+          }
+        },
+        "net_impact_summary": "The coal stock shortage at Adani Power's plants creates a direct operational exposure of ₹45 Cr and 10 bps margin pressure, with no supply chain transmission. The event triggers BRSR, TCFD, and CDP frameworks, raising the risk of regulatory scrutiny and potential cost of capital increases if disclosure gaps persist. While the immediate financial impact is contained, repeated incidents could erode ESG positioning and valuation relative to peers like JSW Energy.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "MONITOR",
+          "verdict": "Monitor fuel risk management and ESG disclosure; no immediate board action required unless risk escalates.",
+          "financial_exposure": "₹45 Cr direct operational cost; no speculative or precedent risk identified.",
+          "key_risk": "₹45 Cr direct operational cost from coal shortage; precedent for regulatory scrutiny if disclosure gaps persist.",
+          "top_opportunity": "Enhance BRSR/TCFD disclosure and fuel risk management to reduce cost of capital by 20-40 bps.",
+          "timeline": "within 4-8 weeks (pre-summer demand peak)"
+        },
+        "causal_chain": {
+          "event": "Adani Power's coal stocks fall below optimal levels ahead of summer demand surge.",
+          "mechanism": "Low coal inventory increases risk of reduced generation or costly spot-market purchases, raising operational costs and exposing disclosure gaps.",
+          "company_impact": "Direct ₹45 Cr cost, 10 bps margin pressure, and potential for higher cost of capital if ESG risks are not managed.",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹45 Cr direct operational cost; no speculative or precedent risk identified.",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission: event is direct operational risk at Adani Power's own plants, not cascading to suppliers.",
+        "P/E compression of 0.05-0.1x possible if risk persists; immediate margin erosion of 10 bps; ₹45 Cr revenue at risk from operational disruption.",
+        "Potential cost of capital increase by 20-40 bps if SEBI or investors penalize weak BRSR/TCFD disclosure; FII outflows possible if TCFD/CDP scores drop."
+      ],
+      "action": [
+        "Quantify exposure: ₹45 Cr direct operational cost; no speculative or precedent risk identified.",
+        "Revenue at risk: ₹45 Cr direct"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Enhance BRSR/TCFD disclosure and fuel risk management to reduce cost of capital by 20-40 bps.",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "ESG score gap may widen versus peers like JSW Energy if fossil fuel risk management is not addressed, risking index exclusion if disclosure lapses persist.",
+        "BRSR (SEBI), TCFD, CDP, GRI frameworks triggered; non-disclosure could invite SEBI scrutiny and trading restrictions.",
+        "Potential negative impact on consumer trust if power shortages occur, but no immediate talent or community effect identified."
+      ],
+      "action": [
+        "Strategic opportunity: Enhance BRSR/TCFD disclosure and fuel risk management to reduce cost of capital by 20-40 bps.",
+        "Competitive position: Adani Power at disadvantage vs JSW Energy if peer maintains better fuel security and ESG disclosure"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
   "meta": {
-    "written_at": "2026-04-12T09:40:36.351126+00:00",
-    "schema_version": "1.0"
+    "written_at": "2026-04-14T07:20:25.240963+00:00",
+    "schema_version": "2.0-primitives-l2"
+  },
+  "intelligence": {
+    "competitive_brief": "Adani Power’s ₹45 Cr exposure due to coal stock shortages highlights critical supply chain vulnerabilities impacting summer generation capacity. JSW Energy, a key competitor with a diversified fuel mix including hydro and renewables, is likely to leverage this situation to strengthen its market positioning.\n\nJSW Energy may respond by emphasizing its lower coal dependency and better fuel security, promoting its stable generation outlook to customers and investors. The company might also accelerate coal procurement contracts or increase coal inventory levels pre-summer to avoid similar disruptions.\n\nHistorically, during coal shortages, industry players like NTPC and Tata Power have diversified fuel sourcing, enhanced coal linkages with captive mines, and invested in blending alternatives (e.g., petcoke). Additionally, companies have increased transparency on coal stock levels to reassure stakeholders.\n\nJSW Energy could also advocate for policy support on coal imports or logistics improvements, aligning with industry calls for enhanced coal supply chain resilience. This event may prompt JSW to highlight its ESG credentials by accelerating renewables capacity additions, reducing coal dependency, and mitigating future risks.\n\nIn summary, JSW Energy is poised to capitalize on Adani Power’s coal supply challenges by showcasing operational resilience, optimizing fuel strategies, and reinforcing its ESG transition narrative.",
+    "causal_narrative": "The coal stock shortages at Adani Power directly constrain its generation capacity during peak summer demand, leading to an estimated ₹45 crore loss in revenue due to reduced electricity output. This operational disruption not only affects Adani Power’s immediate financial performance but also strains its supply chain, as delays or shortages in coal procurement amplify production risks. Additionally, industry-wide energy challenges may prompt regulatory scrutiny, triggering enhanced disclosure requirements under BRSR and GRI frameworks, which could increase compliance costs and expose the company to reputational risks. Collectively, these factors transmit through Adani Power’s operations and regulatory environment, elevating its financial risk profile amid constrained energy supply conditions.",
+    "anticipated_qa": [
+      {
+        "question": "What is the immediate financial impact of the coal stock shortage on Adani Power?",
+        "answer": "Adani Power faces a direct operational cost of ₹45 crore due to low coal inventories, leading to either higher spot coal purchases or reduced power output. This translates to a 10 basis points margin pressure on annual revenue."
+      },
+      {
+        "question": "How could this coal shortage affect Adani Power’s ESG positioning and investor perception?",
+        "answer": "The shortage highlights risks in fossil fuel dependency and weak risk management, potentially widening the ESG score gap versus peers like JSW Energy. Poor disclosure under frameworks like BRSR and TCFD could lead to regulatory scrutiny, investor outflows, and increased cost of capital."
+      },
+      {
+        "question": "What are the potential long-term financial and valuation implications for Adani Power?",
+        "answer": "Persistent fuel supply issues may cause P/E multiple compression by 0.05-0.1x and increase the cost of capital by 20-40 basis points. Over 3-5 years, continued fossil fuel reliance could reduce access to green financing and negatively impact valuation."
+      },
+      {
+        "question": "Are there any supply chain or operational risks beyond Adani Power’s own plants?",
+        "answer": "No, the risk is confined to Adani Power’s direct operations due to low coal stockpiles and does not currently cascade to suppliers or the broader supply chain."
+      },
+      {
+        "question": "Does this situation present any immediate opportunities for green revenue or transition to renewables?",
+        "answer": "No immediate green revenue opportunities are identified. However, transitioning to renewables in the future could unlock value and mitigate long-term regulatory and ESG risks."
+      }
+    ],
+    "sentiment_trajectory": {
+      "direction": "declining",
+      "summary": "Adani Power is currently facing challenges due to coal stock shortages impacting generation capacity, despite some positive developments in joint ventures and acquisitions.",
+      "emerging_themes": [
+        "coal stock shortages",
+        "generation capacity risk",
+        "strategic joint ventures",
+        "asset acquisitions"
+      ]
+    }
   }
 }

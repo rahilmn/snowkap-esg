@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 41,
-    "elapsed_seconds": 8.389,
+    "elapsed_seconds": 10.339,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -34,13 +34,13 @@
       "sentiment": -1,
       "sentiment_confidence": 0.8,
       "tone": [
-        "alarmist",
         "cautionary",
-        "analytical"
+        "analytical",
+        "neutral"
       ],
-      "narrative_core_claim": "Adani is ranked high on Oxfam's list of the world's top carbon-emitting billionaires.",
+      "narrative_core_claim": "Adani ranks high on Oxfam's list of the world's top carbon-emitting billionaires.",
       "narrative_implied_causation": "Adani's business activities contribute significantly to carbon emissions, leading to its high ranking on Oxfam's list.",
-      "narrative_stakeholder_framing": "Adani is the protagonist; the global community and environment are affected by its carbon emissions.",
+      "narrative_stakeholder_framing": "Adani is the protagonist as a major emitter; the affected are global communities impacted by carbon emissions.",
       "entities": [
         "Adani",
         "Oxfam"
@@ -59,7 +59,7 @@
       "esg_topics": [
         "carbon emissions",
         "climate impact",
-        "environmental responsibility"
+        "corporate responsibility"
       ],
       "content_type": "reputational",
       "urgency": "medium",
@@ -94,15 +94,15 @@
       "financial_amount_cr": null
     },
     "relevance": {
-      "total": 5,
+      "total": 4,
       "tier": "SECONDARY",
       "esg_correlation": 2,
       "financial_impact": 1,
       "compliance_risk": 1,
       "supply_chain_impact": 0,
-      "people_impact": 1,
+      "people_impact": 0,
       "materiality_weight": 1.0,
-      "adjusted_total": 5.0,
+      "adjusted_total": 4.0,
       "rejection_reason": "",
       "ontology_queries": 1
     },
@@ -629,11 +629,413 @@
       "Climate Action"
     ]
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "Adani Power faces ₹76 Cr exposure as Oxfam ranks it among top global carbon emitters, raising ESG fund outflow risk",
+    "impact_score": 4,
+    "core_mechanism": "Oxfam's NGO report highlights Adani Power as a leading carbon emitter, intensifying scrutiny from ESG-focused investors and civil society. This narrative shift increases the risk of ESG fund outflows, cost of capital uplift, and peer pressure for improved climate disclosures and decarbonization commitments.",
+    "profitability_connection": "The event triggers a potential ₹76 Cr financial exposure through higher compliance costs, increased cost of capital, and possible revenue at risk from negative investor sentiment. Margin pressure is estimated at 10.0 bps, with a risk of P/E compression if ESG ratings deteriorate.",
+    "translation": "Adani Power has been named by Oxfam as one of the world's top carbon-emitting companies, which could make it less attractive to ESG investors. This may lead to higher borrowing costs and pressure to improve climate practices, costing the company around ₹76 Cr.",
+    "impact_analysis": {
+      "esg_positioning": "Adani Power's high carbon ranking widens its ESG score gap versus peers like JSW Energy, increasing risk of index exclusion and negative ratings momentum.",
+      "capital_allocation": "Potential 20-40 bps cost of capital increase as ESG funds reduce exposure; FII outflows likely if disclosure gaps persist.",
+      "valuation_cashflow": "P/E compression risk of 0.05-0.1x due to negative ESG sentiment; margin erosion of 10.0 bps; direct revenue at risk of ₹5.6 Cr if investor/lender relationships weaken.",
+      "compliance_regulatory": "Triggers BRSR (SEBI), CDP, GRI 305, and TCFD frameworks; non-disclosure or weak disclosure could prompt SEBI scrutiny and trading restrictions.",
+      "supply_chain_transmission": "No supply chain transmission; event is reputational and investor-facing, not operationally cascading through suppliers.",
+      "people_demand": "No direct talent or consumer impact; reputational risk may affect community trust but not immediate workforce or customer demand."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹45 Cr direct compliance and reputational cost from Oxfam carbon ranking",
+        "profitability_pathway": "NGO report → negative ESG narrative → compliance/legal risk → ₹45 Cr direct cost",
+        "margin_pressure": "10.0 bps",
+        "revenue_at_risk": "₹5.6 Cr direct"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.05-0.1x due to ESG fund outflows and negative ratings momentum",
+        "competitive_position": "Adani Power at disadvantage vs JSW Energy, which has lower carbon intensity and better ESG disclosure"
+      },
+      "long_term": {
+        "secular_trajectory": "Persistent ESG scrutiny may require accelerated decarbonization investments, raising long-term capex and compliance costs",
+        "green_revenue_opportunity": "₹0 Cr; no immediate green revenue uplift identified from this event"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 8,
+        "rationale": "Event is directly related to carbon emissions and climate change, a core environmental issue for power sector."
+      },
+      "social": {
+        "score": 2,
+        "rationale": "Limited social dimension; indirect impact on communities via climate risk, but no direct workforce or community event."
+      },
+      "governance": {
+        "score": 5,
+        "rationale": "Governance relevance via disclosure practices and board oversight of climate risk; moderate impact."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "Medium financial materiality; ₹76 Cr exposure is ~0.15% of revenue, with 10 bps margin impact."
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "Triggers BRSR, CDP, GRI, and TCFD frameworks; risk of SEBI scrutiny if disclosure gaps persist."
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Reputational risk among investors and NGOs; limited direct impact on customers or employees."
+      }
+    },
+    "net_impact_summary": "Oxfam's report places Adani Power among the world's top carbon emitters, exposing the company to ₹76 Cr in direct and indirect costs, including compliance, reputational, and revenue risks. The event triggers BRSR, CDP, GRI 305, and TCFD frameworks, increasing the likelihood of ESG fund outflows and cost of capital uplift. While the immediate financial impact is moderate, persistent negative ESG narratives could erode valuation and competitive position versus peers like JSW Energy.",
+    "decision_summary": {
+      "materiality": "MODERATE",
+      "action": "MONITOR",
+      "verdict": "Monitor ESG investor sentiment and disclosure gaps; no immediate action required, but prepare for enhanced climate reporting.",
+      "financial_exposure": "₹45 Cr direct compliance/reputational cost + ₹31 Cr indirect (cost of capital, revenue at risk)",
+      "key_risk": "₹45 Cr direct compliance/legal cost from negative ESG narrative and potential SEBI scrutiny",
+      "top_opportunity": "Accelerate climate disclosure and set science-based targets to regain ESG fund interest (potential cost of capital reduction up to 40 bps)",
+      "timeline": "within next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Oxfam ranks Adani Power among top global carbon emitters in an NGO report",
+      "mechanism": "Negative ESG narrative triggers investor scrutiny, potential fund outflows, and higher compliance costs due to regulatory and disclosure expectations",
+      "company_impact": "₹76 Cr total exposure via compliance, cost of capital, and revenue at risk; 10 bps margin pressure; risk of P/E compression",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Enhance Climate Disclosure for FY26 BRSR Filing",
+        "description": "Commission third-party assurance and expand climate-related disclosures in line with BRSR and TCFD requirements for FY26 filing by 2026-05-30 to avoid SEBI scrutiny and potential ₹45 Cr legal costs.",
+        "type": "compliance",
+        "responsible_party": "Head of Investor Relations",
+        "framework_section": "BRSR:P6, TCFD",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "₹45 Cr compliance cost avoided by preventing SEBI penalties and trading restrictions",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 10,
+        "roi_percentage": 500.0,
+        "payback_months": 1.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Set Science-Based Net-Zero Target by 2030",
+        "description": "Adani Power should announce a 2030 net-zero emissions target aligned with SBTi frameworks to improve ESG ratings and regain investor confidence, targeting a 15% uplift in ESG score similar to JSW Energy. This will enable access to green financing and reduce cost of capital by up to 40 bps.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Sustainability Officer",
+        "framework_section": "BRSR:P6:Q14, CDP, TCFD",
+        "deadline": "2026-09-30",
+        "estimated_budget": "₹3-5 Cr",
+        "profitability_link": "₹200 Cr green bond opportunity at 40 bps discount, reducing interest expense by ₹8 Cr annually",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 9,
+        "roi_percentage": 15.0,
+        "payback_months": 24.0,
+        "peer_benchmark": "JSW Energy announced 2030 net-zero target and achieved 15% ESG score uplift"
+      },
+      {
+        "title": "File SEBI Quarterly Corporate Governance Report",
+        "description": "Submit the SEBI quarterly corporate governance report by 2026-07-15 with enhanced ESG disclosures to maintain regulatory compliance and investor trust, minimizing risk of trading restrictions.",
+        "type": "compliance",
+        "responsible_party": "Company Secretary",
+        "framework_section": "BRSR:P6",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.3-0.5 Cr",
+        "profitability_link": "₹45 Cr legal exposure mitigated through timely compliance",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 500.0,
+        "payback_months": 3.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Monitor Physical Climate Risks with PDSI and SPI Indices",
+        "description": "Implement quarterly monitoring of drought severity using PDSI (threshold ≤ -3.0) and SPI (threshold ≤ -1.5) indices; escalate to risk committee if thresholds are breached to mitigate physical risk exposure.",
+        "type": "operational",
+        "responsible_party": "Risk Management Head",
+        "framework_section": "GRI:305-5",
+        "deadline": "2026-07-01",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Avoid ₹20-30 Cr in asset downtime and operational losses from unmitigated physical risks",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": null
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Enhance Climate Disclosure for FY26 BRSR Filing",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Set Science-Based Net-Zero Target by 2030",
+          "type": "esg_positioning",
+          "roi": 15.0,
+          "budget": "₹3-5 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 2,
+          "title": "File SEBI Quarterly Corporate Governance Report",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹0.3-0.5 Cr"
+        },
+        {
+          "index": 3,
+          "title": "Monitor Physical Climate Risks with PDSI and SPI Indices",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.5-1 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        2,
+        3,
+        1
+      ],
+      "ceo": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "esg-analyst": [
+        0,
+        2,
+        1,
+        3
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power faces ₹76 Cr exposure as Oxfam ranks it among top global carbon emitters, raising ESG fund outflow risk",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "No supply chain transmission; event is reputational and investor-facing, not operationally cascading through suppliers.",
+        "Adani Power's high carbon ranking widens its ESG score gap versus peers like JSW Energy, increasing risk of index exclusion and negative ratings momentum.",
+        "No direct talent or consumer impact; reputational risk may affect community trust but not immediate workforce or customer demand."
+      ],
+      "action": [
+        "Monitor ESG investor sentiment and disclosure gaps; no immediate action required, but prepare for enhanced climate reporting.",
+        "Key risk: ₹45 Cr direct compliance/legal cost from negative ESG narrative and potential SEBI scrutiny",
+        "Opportunity: Accelerate climate disclosure and set science-based targets to regain ESG fund interest (potential cost of capital reduction up to 40 bps)"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "value",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power faces ₹76 Cr exposure as Oxfam ranks it among top global carbon emitters, raising ESG fund outflow risk",
+        "impact_score": 4,
+        "core_mechanism": "Oxfam's NGO report highlights Adani Power as a leading carbon emitter, intensifying scrutiny from ESG-focused investors and civil society. This narrative shift increases the risk of ESG fund outflows, cost of capital uplift, and peer pressure for improved climate disclosures and decarbonization commitments.",
+        "profitability_connection": "The event triggers a potential ₹76 Cr financial exposure through higher compliance costs, increased cost of capital, and possible revenue at risk from negative investor sentiment. Margin pressure is estimated at 10.0 bps, with a risk of P/E compression if ESG ratings deteriorate.",
+        "translation": "Adani Power has been named by Oxfam as one of the world's top carbon-emitting companies, which could make it less attractive to ESG investors. This may lead to higher borrowing costs and pressure to improve climate practices, costing the company around ₹76 Cr.",
+        "impact_analysis": {
+          "esg_positioning": "Adani Power's high carbon ranking widens its ESG score gap versus peers like JSW Energy, increasing risk of index exclusion and negative ratings momentum.",
+          "capital_allocation": "Potential 20-40 bps cost of capital increase as ESG funds reduce exposure; FII outflows likely if disclosure gaps persist.",
+          "valuation_cashflow": "P/E compression risk of 0.05-0.1x due to negative ESG sentiment; margin erosion of 10.0 bps; direct revenue at risk of ₹5.6 Cr if investor/lender relationships weaken.",
+          "compliance_regulatory": "Triggers BRSR (SEBI), CDP, GRI 305, and TCFD frameworks; non-disclosure or weak disclosure could prompt SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission; event is reputational and investor-facing, not operationally cascading through suppliers.",
+          "people_demand": "No direct talent or consumer impact; reputational risk may affect community trust but not immediate workforce or customer demand."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹45 Cr direct compliance and reputational cost from Oxfam carbon ranking",
+            "profitability_pathway": "NGO report → negative ESG narrative → compliance/legal risk → ₹45 Cr direct cost",
+            "margin_pressure": "10.0 bps",
+            "revenue_at_risk": "₹5.6 Cr direct"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.05-0.1x due to ESG fund outflows and negative ratings momentum",
+            "competitive_position": "Adani Power at disadvantage vs JSW Energy, which has lower carbon intensity and better ESG disclosure"
+          },
+          "long_term": {
+            "secular_trajectory": "Persistent ESG scrutiny may require accelerated decarbonization investments, raising long-term capex and compliance costs",
+            "green_revenue_opportunity": "₹0 Cr; no immediate green revenue uplift identified from this event"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 8,
+            "rationale": "Event is directly related to carbon emissions and climate change, a core environmental issue for power sector."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Limited social dimension; indirect impact on communities via climate risk, but no direct workforce or community event."
+          },
+          "governance": {
+            "score": 5,
+            "rationale": "Governance relevance via disclosure practices and board oversight of climate risk; moderate impact."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "Medium financial materiality; ₹76 Cr exposure is ~0.15% of revenue, with 10 bps margin impact."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Triggers BRSR, CDP, GRI, and TCFD frameworks; risk of SEBI scrutiny if disclosure gaps persist."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Reputational risk among investors and NGOs; limited direct impact on customers or employees."
+          }
+        },
+        "net_impact_summary": "Oxfam's report places Adani Power among the world's top carbon emitters, exposing the company to ₹76 Cr in direct and indirect costs, including compliance, reputational, and revenue risks. The event triggers BRSR, CDP, GRI 305, and TCFD frameworks, increasing the likelihood of ESG fund outflows and cost of capital uplift. While the immediate financial impact is moderate, persistent negative ESG narratives could erode valuation and competitive position versus peers like JSW Energy.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "MONITOR",
+          "verdict": "Monitor ESG investor sentiment and disclosure gaps; no immediate action required, but prepare for enhanced climate reporting.",
+          "financial_exposure": "₹45 Cr direct compliance/reputational cost + ₹31 Cr indirect (cost of capital, revenue at risk)",
+          "key_risk": "₹45 Cr direct compliance/legal cost from negative ESG narrative and potential SEBI scrutiny",
+          "top_opportunity": "Accelerate climate disclosure and set science-based targets to regain ESG fund interest (potential cost of capital reduction up to 40 bps)",
+          "timeline": "within next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Oxfam ranks Adani Power among top global carbon emitters in an NGO report",
+          "mechanism": "Negative ESG narrative triggers investor scrutiny, potential fund outflows, and higher compliance costs due to regulatory and disclosure expectations",
+          "company_impact": "₹76 Cr total exposure via compliance, cost of capital, and revenue at risk; 10 bps margin pressure; risk of P/E compression",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹45 Cr direct compliance/reputational cost + ₹31 Cr indirect (cost of capital, revenue at risk)",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "No supply chain transmission; event is reputational and investor-facing, not operationally cascading through suppliers.",
+        "Triggers BRSR (SEBI), CDP, GRI 305, and TCFD frameworks; non-disclosure or weak disclosure could prompt SEBI scrutiny and trading restrictions.",
+        "P/E compression risk of 0.05-0.1x due to negative ESG sentiment; margin erosion of 10.0 bps; direct revenue at risk of ₹5.6 Cr if investor/lender relationships weaken."
+      ],
+      "action": [
+        "Quantify exposure: ₹45 Cr direct compliance/reputational cost + ₹31 Cr indirect (cost of capital, revenue at risk)",
+        "Revenue at risk: ₹5.6 Cr direct"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "value",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Accelerate climate disclosure and set science-based targets to regain ESG fund interest (potential cost of capital reduction up to 40 bps)",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Adani Power's high carbon ranking widens its ESG score gap versus peers like JSW Energy, increasing risk of index exclusion and negative ratings momentum.",
+        "No direct talent or consumer impact; reputational risk may affect community trust but not immediate workforce or customer demand.",
+        "Triggers BRSR (SEBI), CDP, GRI 305, and TCFD frameworks; non-disclosure or weak disclosure could prompt SEBI scrutiny and trading restrictions."
+      ],
+      "action": [
+        "Strategic opportunity: Accelerate climate disclosure and set science-based targets to regain ESG fund interest (potential cost of capital reduction up to 40 bps)",
+        "Competitive position: Adani Power at disadvantage vs JSW Energy, which has lower carbon intensity and better ESG disclosure"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
   "meta": {
-    "written_at": "2026-04-12T09:04:07.271044+00:00",
-    "schema_version": "1.0"
+    "written_at": "2026-04-14T07:33:58.883394+00:00",
+    "schema_version": "2.0-primitives-l2"
+  },
+  "intelligence": {
+    "competitive_brief": "Adani Power’s ₹76 Cr exposure following Oxfam’s ranking as a top global carbon emitter poses reputational and financial risks, particularly triggering ESG fund outflows. JSW Energy, a key competitor, could leverage this situation to strengthen its ESG positioning and attract ESG-focused investors.\n\nJSW Energy has been proactively investing in renewable energy, with a 2023 renewable capacity of over 1,200 MW and plans to scale up to 5,000 MW by 2030, signaling a clear transition strategy. In response, JSW may accelerate its green energy projects and highlight its lower carbon footprint to differentiate from Adani Power’s coal-heavy profile.\n\nHistorically, Indian power companies facing ESG scrutiny—like Tata Power and NTPC—have responded by enhancing transparency, setting clear carbon reduction targets, and increasing renewable investments. For example, Tata Power committed ₹10,000 Cr towards renewables by 2025, improving investor confidence.\n\nJSW Energy could also engage with ESG rating agencies to improve its scores and communicate its sustainability roadmap more aggressively. This proactive stance may help JSW capture ESG fund inflows diverted from Adani Power, strengthening its market position amid growing investor emphasis on sustainability.",
+    "causal_narrative": "Adani Power's ranking by Oxfam as a top global carbon emitter directly exposes the company to ₹76 crore in potential financial losses due to heightened ESG fund outflows, as investors increasingly divest from high-emission firms. This reputational damage can reduce capital access and increase borrowing costs, directly impacting Adani Power's operational funding. Additionally, the power sector's material climate risks trigger stricter regulatory requirements, such as BRSR and GRI disclosures, increasing compliance costs and operational complexity. Together, these factors transmit through Adani Power’s operations and regulatory environment, amplifying financial risk via reduced investor confidence and higher regulatory burdens.",
+    "anticipated_qa": [
+      {
+        "question": "How does the Oxfam report impact Adani Power's financial outlook?",
+        "answer": "The report exposes Adani Power to an estimated ₹76 crore financial risk from higher compliance costs, increased cost of capital, and potential revenue loss due to negative investor sentiment, leading to margin pressure of about 10 basis points and possible P/E multiple compression."
+      },
+      {
+        "question": "What risks does Adani Power face regarding ESG investor sentiment and fund flows?",
+        "answer": "Being ranked among top global carbon emitters increases the risk of ESG fund outflows and foreign institutional investor (FII) withdrawals, which could raise the company’s cost of capital by 20-40 basis points and negatively affect valuation and access to capital markets."
+      },
+      {
+        "question": "What regulatory and compliance challenges arise from this ESG scrutiny?",
+        "answer": "Adani Power must enhance disclosures to comply with frameworks like SEBI's BRSR, CDP, GRI 305, and TCFD; failure to do so could invite regulatory scrutiny, potential trading restrictions, and further reputational damage."
+      },
+      {
+        "question": "How does this ESG event affect Adani Power’s competitive positioning?",
+        "answer": "The company is at a disadvantage compared to peers like JSW Energy, which have lower carbon intensity and stronger ESG disclosures, increasing the risk of index exclusion and negative momentum in ESG ratings."
+      },
+      {
+        "question": "Are there any immediate operational or talent-related impacts from this ESG issue?",
+        "answer": "There is no direct impact on supply chain operations, workforce, or consumer demand; however, reputational risks may affect community trust over time but are not expected to cause immediate talent or demand challenges."
+      }
+    ],
+    "sentiment_trajectory": {
+      "direction": "declining",
+      "summary": "Sentiment around Adani Power is declining due to ESG concerns and subdued demand growth despite some positive business developments.",
+      "emerging_themes": [
+        "ESG risks and carbon emissions",
+        "subdued power demand growth",
+        "strategic joint ventures and acquisitions"
+      ]
+    }
   }
 }

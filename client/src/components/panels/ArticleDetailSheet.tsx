@@ -578,11 +578,14 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   };
 
   // Auto-trigger analysis when article opens and has no analysis
+  // Using article.id as the key dependency ensures this fires when a new article is selected
+  const articleId = article?.id;
   useEffect(() => {
-    if (!article || hasAnalysis || triggeredRef.current) return;
+    if (!articleId || hasAnalysis || triggeredRef.current) return;
+    console.log("[ArticleDetailSheet] Triggering analysis for:", articleId);
     triggeredRef.current = true;
-    doTrigger(article.id);
-  }, [article?.id, hasAnalysis]); // eslint-disable-line react-hooks/exhaustive-deps
+    doTrigger(articleId);
+  }, [articleId, hasAnalysis]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Poll every 5s while pending, give up after 24 polls (~2min)
   useEffect(() => {

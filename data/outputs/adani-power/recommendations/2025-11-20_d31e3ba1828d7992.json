@@ -1,111 +1,62 @@
 {
   "recommendations": [
     {
-      "title": "Engage Regulators to Resolve Pricing Dispute",
-      "description": "Initiate immediate dialogue with UP government regulators to clarify and renegotiate electricity pricing terms to prevent contract termination and revenue loss.",
+      "title": "Enhance BRSR Disclosure for FY26 Filing",
+      "description": "Commission third-party assurance of BRSR FY26 disclosures by 2026-05-30 to avoid SEBI scrutiny and potential 20-40 bps cost of capital increase, aligning with BRSR:P6:Q14 requirements.",
       "type": "compliance",
-      "responsible_party": "Head of Regulatory Affairs",
+      "responsible_party": "Head of ESG Reporting",
       "framework_section": "BRSR:P6:Q14",
-      "deadline": "2026-05-15",
-      "estimated_budget": "₹5-7 Cr",
-      "profitability_link": "Avoids estimated revenue loss of ₹200 Cr from UP contract suspension, preserving regional revenue streams.",
-      "priority": "CRITICAL",
-      "urgency": "immediate",
-      "estimated_impact": "High",
-      "risk_of_inaction": 10,
-      "roi_percentage": 2857.0,
-      "payback_months": 1.0,
-      "peer_benchmark": null
-    },
-    {
-      "title": "Enhance Transparency via Proactive ESG Disclosures",
-      "description": "Publish detailed disclosures on pricing mechanisms and regulatory engagements in upcoming BRSR FY26 filings to improve ESG ratings and investor confidence.",
-      "type": "esg_positioning",
-      "responsible_party": "Chief Sustainability Officer",
-      "framework_section": "BRSR:P6, GRI:102-40",
       "deadline": "2026-05-30",
-      "estimated_budget": "₹2-3 Cr",
-      "profitability_link": "Improves ESG ratings, potentially reducing cost of capital by 20-40 bps, saving ₹50-100 Cr annually in financing costs.",
-      "priority": "CRITICAL",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "Avoid ₹10-20 Cr annual financing cost increase due to higher cost of capital from SEBI penalties",
+      "priority": "HIGH",
       "urgency": "short_term",
-      "estimated_impact": "High",
-      "risk_of_inaction": 9,
-      "roi_percentage": 1500.0,
-      "payback_months": 6.0,
-      "peer_benchmark": "Tata Power's enhanced ESG disclosures led to P/E rerating"
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 8,
+      "roi_percentage": 500.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Tata Power enhanced ESG disclosures leading to improved investor confidence"
     },
     {
-      "title": "Accelerate Renewable Portfolio Expansion",
-      "description": "Commit to increasing renewable energy share to 80% by 2030, matching Tata Power's strategy to improve valuation and access green financing.",
-      "type": "strategic",
-      "responsible_party": "Chief Strategy Officer",
-      "framework_section": "EU Taxonomy",
-      "deadline": "2026-12-31",
-      "estimated_budget": "₹1500-2000 Cr",
-      "profitability_link": "Unlocks green financing and valuation premium, estimated at ₹3000 Cr uplift in market cap over 5 years.",
+      "title": "Monitor Energy Price Shock and Escalate if Threshold Breached",
+      "description": "Implement monthly monitoring of energy price changes; escalate to executive committee if YoY price change exceeds 25% or surpasses 2σ above 5-year rolling mean within 6 months, enabling proactive hedging and input diversification per τ thresholds.",
+      "type": "operational",
+      "responsible_party": "Chief Risk Officer",
+      "framework_section": "BRSR:P5:Q10",
+      "deadline": "2026-10-13",
+      "estimated_budget": "₹0.2-0.5 Cr",
+      "profitability_link": "Mitigate potential ₹5-10 Cr losses from unhedged energy price shocks annually",
       "priority": "HIGH",
       "urgency": "medium_term",
       "estimated_impact": "High",
       "risk_of_inaction": 6,
-      "roi_percentage": 15.0,
-      "payback_months": 24.0,
-      "peer_benchmark": "Tata Power's 80% renewable commitment and ₹5000 Cr green bond issuance"
-    },
-    {
-      "title": "Implement Proactive Regulatory Risk Monitoring",
-      "description": "Establish a dedicated team to monitor regulatory developments and preemptively address compliance issues to avoid future contract risks.",
-      "type": "operational",
-      "responsible_party": "Chief Risk Officer",
-      "framework_section": "TCFD",
-      "deadline": "2026-06-30",
-      "estimated_budget": "₹10-15 Cr annually",
-      "profitability_link": "Reduces risk of contract losses and P/E compression by 5-10%, protecting ₹500-1000 Cr in market valuation.",
-      "priority": "HIGH",
-      "urgency": "short_term",
-      "estimated_impact": "Medium",
-      "risk_of_inaction": 6,
-      "roi_percentage": 33.0,
-      "payback_months": 12.0,
-      "peer_benchmark": null
+      "roi_percentage": 200.0,
+      "payback_months": 6.0,
+      "peer_benchmark": "Peers maintain active energy price monitoring to optimize procurement costs"
     }
   ],
   "do_nothing": false,
   "gate_reason": "",
-  "generator_count": 4,
-  "validated_count": 4,
+  "generator_count": 2,
+  "validated_count": 2,
   "priority_matrix": {
-    "immediate_high": [
-      {
-        "index": 0,
-        "title": "Engage Regulators to Resolve Pricing Dispute",
-        "type": "compliance",
-        "roi": 2857.0,
-        "budget": "₹5-7 Cr"
-      },
-      {
-        "index": 1,
-        "title": "Enhance Transparency via Proactive ESG Disclosures",
-        "type": "esg_positioning",
-        "roi": 1500.0,
-        "budget": "₹2-3 Cr"
-      }
-    ],
+    "immediate_high": [],
     "immediate_low": [
       {
-        "index": 3,
-        "title": "Implement Proactive Regulatory Risk Monitoring",
-        "type": "operational",
-        "roi": 33.0,
-        "budget": "₹10-15 Cr annually"
+        "index": 0,
+        "title": "Enhance BRSR Disclosure for FY26 Filing",
+        "type": "compliance",
+        "roi": 500.0,
+        "budget": "₹1-2 Cr"
       }
     ],
     "deferred_high": [
       {
-        "index": 2,
-        "title": "Accelerate Renewable Portfolio Expansion",
-        "type": "strategic",
-        "roi": 15.0,
-        "budget": "₹1500-2000 Cr"
+        "index": 1,
+        "title": "Monitor Energy Price Shock and Escalate if Threshold Breached",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹0.2-0.5 Cr"
       }
     ],
     "deferred_low": []
@@ -113,21 +64,15 @@
   "recommendation_rankings": {
     "cfo": [
       0,
-      1,
-      3,
-      2
+      1
     ],
     "ceo": [
-      3,
       0,
-      1,
-      2
+      1
     ],
     "esg-analyst": [
       0,
-      1,
-      3,
-      2
+      1
     ]
   }
 }

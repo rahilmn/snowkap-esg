@@ -841,14 +841,22 @@ def news_trigger_analysis(
                 and existing_insight.get("core_mechanism")):
             return {"status": "cached", "message": "Analysis already computed"}
 
-    # Run on-demand enrichment (synchronous — takes 5-15 seconds)
+    # Run enrichment in background thread — return immediately so frontend can poll
+    import threading
     from engine.analysis.on_demand import enrich_on_demand
 
     company_slug = row.get("company_slug", "")
-    result = enrich_on_demand(article_id, company_slug, force=force)
-    if result:
-        return {"status": "done", "message": "Enrichment complete"}
-    return {"status": "failed", "message": "Enrichment failed"}
+
+    def _bg_enrich() -> None:
+        try:
+            enrich_on_demand(article_id, company_slug, force=force)
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).error("bg enrich failed: %s", exc)
+
+    thread = threading.Thread(target=_bg_enrich, daemon=True)
+    thread.start()
+    return {"status": "triggered", "message": "Enrichment started in background"}
 
 
 @router.get("/news/{article_id}/analysis")
@@ -856,6 +864,10 @@ def news_analysis(article_id: str, _: None = Depends(require_auth)) -> dict[str,
     row, payload = _load_row_and_payload(article_id)
     if not payload:
         return {"status": "idle", "analysis": None}
+    # Check if insight exists — if not, enrichment is still running in background
+    insight = (payload.get("insight") or {})
+    if not insight.get("headline"):
+        return {"status": "pending", "analysis": None}
     legacy = build_legacy_article(dict(row), payload)
     return {
         "status": "done",

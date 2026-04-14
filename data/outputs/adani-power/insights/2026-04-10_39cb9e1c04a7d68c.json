@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 27,
-    "elapsed_seconds": 4.653,
+    "elapsed_seconds": 8.278,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -397,11 +397,411 @@
       "Climate Action"
     ]
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "Adani Power faces ₹45 Cr near-term margin pressure as subdued demand growth hits sector outlook",
+    "impact_score": 4.0,
+    "core_mechanism": "Subdued power demand growth is leading to lower capacity utilization and revenue pressure for power generators like Adani Power. This reduces operational leverage and puts downward pressure on margins, especially in a fixed-cost-heavy industry. The event also triggers increased scrutiny on ESG disclosures, with potential regulatory and investor consequences if gaps persist.",
+    "profitability_connection": "Lower demand directly reduces revenue and profitability, with a computed immediate exposure of ₹45 Cr and a 10 bps margin impact. Weak ESG disclosure in this context can further increase cost of capital and risk P/E compression if investor sentiment deteriorates.",
+    "translation": "Because electricity demand isn't growing as fast as expected, Adani Power will earn less in the near term, putting pressure on profits. Investors may also become cautious if the company doesn't improve its ESG reporting, which could make borrowing more expensive and hurt its stock price.",
+    "impact_analysis": {
+      "esg_positioning": "Adani Power faces a moderate ESG score gap versus peers like JSW Energy, with risk of index exclusion if BRSR/TCFD disclosures lag.",
+      "capital_allocation": "Cost of capital could rise by 20-40 bps if disclosure gaps persist, as per BRSR/TCFD triggers; potential for FII outflow.",
+      "valuation_cashflow": "P/E compression risk of 0.05-0.1x if sector sentiment weakens; immediate margin erosion of 10 bps; ₹45 Cr direct revenue at risk.",
+      "compliance_regulatory": "BRSR [MANDATORY], TCFD, GRI triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+      "supply_chain_transmission": "No supply chain transmission—demand slowdown is sectoral, not supplier-driven.",
+      "people_demand": "No direct impact on talent or community; consumer demand is the root cause, but not an ESG-driven social issue."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹45 Cr direct margin pressure from subdued demand",
+        "profitability_pathway": "Subdued demand → lower utilization → ₹45 Cr direct revenue/margin loss",
+        "margin_pressure": "10 bps",
+        "revenue_at_risk": "₹45 Cr direct; no indirect precedent risk identified"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.05-0.1x likely if weak demand persists and ESG gaps remain",
+        "competitive_position": "JSW Energy better positioned due to stronger ESG disclosure; Adani Power at risk of lagging sector peers"
+      },
+      "long_term": {
+        "secular_trajectory": "If demand remains subdued for 3-5 years, structural overcapacity could erode margins and valuation further",
+        "green_revenue_opportunity": "₹0 Cr—no immediate green revenue opportunity from this event"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 3,
+        "rationale": "Event is sector demand-driven, not environmental in origin; moderate relevance via energy transition risk."
+      },
+      "social": {
+        "score": 1,
+        "rationale": "No direct workforce or community impact; demand slowdown is not a social ESG event."
+      },
+      "governance": {
+        "score": 5,
+        "rationale": "Disclosure obligations (BRSR, TCFD, GRI) triggered; governance risk if gaps persist."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "₹45 Cr direct impact is ~0.1% of annual revenue; moderate but not critical."
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "BRSR/TCFD/GRI non-compliance could trigger SEBI scrutiny and trading restrictions."
+      },
+      "stakeholder_impact": {
+        "score": 3,
+        "rationale": "Investors may react to weak demand and disclosure gaps; limited impact on other stakeholders."
+      }
+    },
+    "net_impact_summary": "Adani Power faces a moderate near-term financial impact of ₹45 Cr and a 10 bps margin hit due to subdued sector demand. The event also exposes the company to regulatory and investor scrutiny under BRSR, TCFD, and GRI frameworks, with a risk of P/E compression if ESG disclosure gaps persist. While not immediately critical, the situation could worsen if demand remains weak and ESG positioning lags peers. No supply chain or green revenue effects are triggered by this event.",
+    "decision_summary": {
+      "materiality": "MODERATE",
+      "action": "MONITOR",
+      "verdict": "Monitor demand trends and accelerate ESG disclosure improvements to avoid regulatory and investor penalties.",
+      "financial_exposure": "₹45 Cr direct margin pressure; no indirect or precedent risk identified",
+      "key_risk": "₹45 Cr direct margin loss from demand slowdown; potential 20-40 bps cost of capital increase if ESG gaps persist",
+      "top_opportunity": "Close BRSR/TCFD gaps to regain ESG index eligibility and lower cost of capital by 20-40 bps",
+      "timeline": "within next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Subdued power demand growth reported sector-wide",
+      "mechanism": "Lower demand reduces plant utilization, directly impacting revenue and margins; triggers ESG disclosure scrutiny",
+      "company_impact": "₹45 Cr direct margin loss, 10 bps margin pressure, risk of higher cost of capital and P/E compression if ESG gaps persist",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Accelerate BRSR and TCFD Disclosure Enhancements",
+        "description": "Complete enhanced BRSR and TCFD disclosures by 2026-05-30 to avoid ₹45 Cr margin loss and 20-40 bps cost of capital increase, led by the ESG Reporting team.",
+        "type": "compliance",
+        "responsible_party": "Head of ESG Reporting",
+        "framework_section": "BRSR:P6:Q14, TCFD",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "Avoid ₹45 Cr margin loss and reduce cost of capital by 20-40 bps, saving ₹30-50 Cr annually in financing costs",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 10,
+        "roi_percentage": 500.0,
+        "payback_months": 3.0,
+        "peer_benchmark": "Tata Power improved disclosures leading to ₹5000 Cr green bond issuance and P/E rerating"
+      },
+      {
+        "title": "Launch Renewable Portfolio Expansion Plan",
+        "description": "Develop and announce a plan to achieve 50% renewable energy portfolio by 2030, targeting ₹2000 Cr capex with 18-24 months payback to improve ESG ratings and attract green financing.",
+        "type": "strategic",
+        "responsible_party": "Chief Strategy Officer",
+        "framework_section": "BRSR:P6, EU Taxonomy",
+        "deadline": "2026-12-31",
+        "estimated_budget": "₹2000 Cr",
+        "profitability_link": "Unlock ₹500 Cr green bond opportunity at 50 bps discount and improve P/E multiple by 10-15%, adding ₹1500 Cr market cap",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 15.0,
+        "payback_months": 24.0,
+        "peer_benchmark": "Tata Power committed 80% renewables by 2030, achieving 18x P/E rerating"
+      },
+      {
+        "title": "Monitor Energy Price and Weather Risks Quarterly",
+        "description": "Establish quarterly monitoring of energy price shocks (≥25% YoY increase) and extreme weather events (Cat 2+ hurricanes or EF2+ tornadoes) to trigger risk mitigation within 1 month.",
+        "type": "operational",
+        "responsible_party": "Risk Management Head",
+        "framework_section": "BRSR:P6:Q10",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Mitigate potential ₹45 Cr margin shocks by early risk response and hedge adjustments",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": null
+      },
+      {
+        "title": "Commission Third-Party Assurance for FY26 BRSR Filing",
+        "description": "Engage an external auditor to provide third-party assurance on FY26 BRSR disclosures by 2026-05-30 to enhance credibility and regain ESG index eligibility.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Compliance Officer",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹0.8-1.5 Cr",
+        "profitability_link": "Reduce cost of capital by 20 bps, saving ₹15-25 Cr annually in financing costs",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 7,
+        "roi_percentage": 400.0,
+        "payback_months": 4.0,
+        "peer_benchmark": "Competitors secured third-party assurance to maintain ESG ratings and investor confidence"
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Accelerate BRSR and TCFD Disclosure Enhancements",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Launch Renewable Portfolio Expansion Plan",
+          "type": "strategic",
+          "roi": 15.0,
+          "budget": "₹2000 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 2,
+          "title": "Monitor Energy Price and Weather Risks Quarterly",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.5-1 Cr"
+        },
+        {
+          "index": 3,
+          "title": "Commission Third-Party Assurance for FY26 BRSR Filing",
+          "type": "esg_positioning",
+          "roi": 400.0,
+          "budget": "₹0.8-1.5 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        3,
+        2,
+        1
+      ],
+      "ceo": [
+        2,
+        3,
+        0,
+        1
+      ],
+      "esg-analyst": [
+        0,
+        2,
+        1,
+        3
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power faces ₹45 Cr near-term margin pressure as subdued demand growth hits sector outlook",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission—demand slowdown is sectoral, not supplier-driven.",
+        "BRSR [MANDATORY], TCFD, GRI triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+        "P/E compression risk of 0.05-0.1x if sector sentiment weakens; immediate margin erosion of 10 bps; ₹45 Cr direct revenue at risk."
+      ],
+      "action": [
+        "Monitor demand trends and accelerate ESG disclosure improvements to avoid regulatory and investor penalties.",
+        "Key risk: ₹45 Cr direct margin loss from demand slowdown; potential 20-40 bps cost of capital increase if ESG gaps persist",
+        "Opportunity: Close BRSR/TCFD gaps to regain ESG index eligibility and lower cost of capital by 20-40 bps"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power faces ₹45 Cr near-term margin pressure as subdued demand growth hits sector outlook",
+        "impact_score": 4.0,
+        "core_mechanism": "Subdued power demand growth is leading to lower capacity utilization and revenue pressure for power generators like Adani Power. This reduces operational leverage and puts downward pressure on margins, especially in a fixed-cost-heavy industry. The event also triggers increased scrutiny on ESG disclosures, with potential regulatory and investor consequences if gaps persist.",
+        "profitability_connection": "Lower demand directly reduces revenue and profitability, with a computed immediate exposure of ₹45 Cr and a 10 bps margin impact. Weak ESG disclosure in this context can further increase cost of capital and risk P/E compression if investor sentiment deteriorates.",
+        "translation": "Because electricity demand isn't growing as fast as expected, Adani Power will earn less in the near term, putting pressure on profits. Investors may also become cautious if the company doesn't improve its ESG reporting, which could make borrowing more expensive and hurt its stock price.",
+        "impact_analysis": {
+          "esg_positioning": "Adani Power faces a moderate ESG score gap versus peers like JSW Energy, with risk of index exclusion if BRSR/TCFD disclosures lag.",
+          "capital_allocation": "Cost of capital could rise by 20-40 bps if disclosure gaps persist, as per BRSR/TCFD triggers; potential for FII outflow.",
+          "valuation_cashflow": "P/E compression risk of 0.05-0.1x if sector sentiment weakens; immediate margin erosion of 10 bps; ₹45 Cr direct revenue at risk.",
+          "compliance_regulatory": "BRSR [MANDATORY], TCFD, GRI triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission—demand slowdown is sectoral, not supplier-driven.",
+          "people_demand": "No direct impact on talent or community; consumer demand is the root cause, but not an ESG-driven social issue."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹45 Cr direct margin pressure from subdued demand",
+            "profitability_pathway": "Subdued demand → lower utilization → ₹45 Cr direct revenue/margin loss",
+            "margin_pressure": "10 bps",
+            "revenue_at_risk": "₹45 Cr direct; no indirect precedent risk identified"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.05-0.1x likely if weak demand persists and ESG gaps remain",
+            "competitive_position": "JSW Energy better positioned due to stronger ESG disclosure; Adani Power at risk of lagging sector peers"
+          },
+          "long_term": {
+            "secular_trajectory": "If demand remains subdued for 3-5 years, structural overcapacity could erode margins and valuation further",
+            "green_revenue_opportunity": "₹0 Cr—no immediate green revenue opportunity from this event"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 3,
+            "rationale": "Event is sector demand-driven, not environmental in origin; moderate relevance via energy transition risk."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No direct workforce or community impact; demand slowdown is not a social ESG event."
+          },
+          "governance": {
+            "score": 5,
+            "rationale": "Disclosure obligations (BRSR, TCFD, GRI) triggered; governance risk if gaps persist."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "₹45 Cr direct impact is ~0.1% of annual revenue; moderate but not critical."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "BRSR/TCFD/GRI non-compliance could trigger SEBI scrutiny and trading restrictions."
+          },
+          "stakeholder_impact": {
+            "score": 3,
+            "rationale": "Investors may react to weak demand and disclosure gaps; limited impact on other stakeholders."
+          }
+        },
+        "net_impact_summary": "Adani Power faces a moderate near-term financial impact of ₹45 Cr and a 10 bps margin hit due to subdued sector demand. The event also exposes the company to regulatory and investor scrutiny under BRSR, TCFD, and GRI frameworks, with a risk of P/E compression if ESG disclosure gaps persist. While not immediately critical, the situation could worsen if demand remains weak and ESG positioning lags peers. No supply chain or green revenue effects are triggered by this event.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "MONITOR",
+          "verdict": "Monitor demand trends and accelerate ESG disclosure improvements to avoid regulatory and investor penalties.",
+          "financial_exposure": "₹45 Cr direct margin pressure; no indirect or precedent risk identified",
+          "key_risk": "₹45 Cr direct margin loss from demand slowdown; potential 20-40 bps cost of capital increase if ESG gaps persist",
+          "top_opportunity": "Close BRSR/TCFD gaps to regain ESG index eligibility and lower cost of capital by 20-40 bps",
+          "timeline": "within next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Subdued power demand growth reported sector-wide",
+          "mechanism": "Lower demand reduces plant utilization, directly impacting revenue and margins; triggers ESG disclosure scrutiny",
+          "company_impact": "₹45 Cr direct margin loss, 10 bps margin pressure, risk of higher cost of capital and P/E compression if ESG gaps persist",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹45 Cr direct margin pressure; no indirect or precedent risk identified",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission—demand slowdown is sectoral, not supplier-driven.",
+        "BRSR [MANDATORY], TCFD, GRI triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+        "P/E compression risk of 0.05-0.1x if sector sentiment weakens; immediate margin erosion of 10 bps; ₹45 Cr direct revenue at risk."
+      ],
+      "action": [
+        "Quantify exposure: ₹45 Cr direct margin pressure; no indirect or precedent risk identified",
+        "Revenue at risk: ₹45 Cr direct; no indirect precedent risk identified"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Close BRSR/TCFD gaps to regain ESG index eligibility and lower cost of capital by 20-40 bps",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Adani Power faces a moderate ESG score gap versus peers like JSW Energy, with risk of index exclusion if BRSR/TCFD disclosures lag.",
+        "No direct impact on talent or community; consumer demand is the root cause, but not an ESG-driven social issue.",
+        "BRSR [MANDATORY], TCFD, GRI triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions."
+      ],
+      "action": [
+        "Strategic opportunity: Close BRSR/TCFD gaps to regain ESG index eligibility and lower cost of capital by 20-40 bps",
+        "Competitive position: JSW Energy better positioned due to stronger ESG disclosure; Adani Power at risk of lagging sector peers"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
   "meta": {
-    "written_at": "2026-04-12T09:49:30.784893+00:00",
-    "schema_version": "1.0"
+    "written_at": "2026-04-14T07:50:55.092517+00:00",
+    "schema_version": "2.0-primitives-l2"
+  },
+  "intelligence": {
+    "competitive_brief": "Adani Power’s ₹45 Cr near-term margin pressure due to subdued demand growth signals a cautious industry outlook. JSW Energy, a key competitor, may experience indirect impacts such as intensified market competition for limited demand and potential downward pressure on power tariffs. However, JSW Energy’s diversified portfolio, including renewable assets and long-term PPAs, could provide some cushion against immediate margin erosion.\n\nIn response, JSW Energy might accelerate cost optimization initiatives, enhance operational efficiencies, and prioritize higher-margin segments like renewables or captive power to offset demand softness. They may also explore strategic tariff renegotiations or capacity utilization adjustments to maintain profitability.\n\nHistorically, during demand slowdowns, Indian power companies have focused on improving plant load factors, investing in renewable energy to align with ESG trends, and leveraging government incentives to sustain margins. For instance, Tata Power and NTPC increased renewable capacity and optimized coal-based operations during past subdued demand phases. Industry players also emphasize digitalization and predictive maintenance to reduce O&M costs.\n\nIn summary, JSW Energy is likely to adopt a multi-pronged approach—cost control, portfolio diversification, and operational efficiency—to mitigate margin pressures while positioning for long-term sustainable growth amid sector headwinds.",
+    "causal_narrative": "The subdued demand growth in the power sector is causing Adani Power to face near-term margin pressure of ₹45 crore, directly impacting its profitability. This financial strain is compounded by increased regulatory scrutiny, as the sector’s challenges trigger mandatory disclosures under BRSR, GRI, and TCFD frameworks. Compliance with these enhanced ESG reporting requirements will likely increase operational costs and administrative burdens, further squeezing margins. Additionally, the transparency mandated by these disclosures may expose Adani Power to heightened investor and regulatory scrutiny, potentially affecting its access to capital and valuation.",
+    "anticipated_qa": [
+      {
+        "question": "How will subdued power demand growth impact Adani Power's near-term financial performance?",
+        "answer": "Adani Power faces an immediate margin pressure of ₹45 Cr due to lower capacity utilization from subdued demand, resulting in a 10 basis points margin erosion and direct revenue loss. This impacts profitability directly in the near term."
+      },
+      {
+        "question": "What are the ESG-related risks associated with this demand slowdown for Adani Power?",
+        "answer": "Weak ESG disclosures amid this demand pressure could increase the company's cost of capital by 20-40 basis points and risk P/E multiple compression. Additionally, regulatory scrutiny from SEBI and potential index exclusion risks exist if BRSR and TCFD disclosures are inadequate."
+      },
+      {
+        "question": "How does Adani Power's ESG positioning compare to its peers, and what are the consequences?",
+        "answer": "Adani Power has a moderate ESG score gap compared to peers like JSW Energy, which have stronger ESG disclosures. This gap could lead to competitive disadvantages, including potential foreign institutional investor outflows and valuation rerating risks."
+      },
+      {
+        "question": "Are there any supply chain or social impacts linked to the demand slowdown?",
+        "answer": "No direct supply chain transmission or social impacts on talent or communities are identified, as the demand slowdown is sector-wide and not driven by ESG-related social issues or supplier disruptions."
+      },
+      {
+        "question": "What is the long-term outlook if subdued demand persists for Adani Power?",
+        "answer": "If demand remains subdued for 3-5 years, structural overcapacity could further erode margins and valuations. There is no immediate green revenue opportunity from this event, indicating limited near-term ESG-driven growth prospects."
+      }
+    ],
+    "sentiment_trajectory": {
+      "direction": "declining",
+      "summary": "Adani Power is experiencing near-term margin pressure due to subdued demand growth impacting the sector outlook.",
+      "emerging_themes": [
+        "subdued demand growth",
+        "margin pressure",
+        "strategic acquisitions and joint ventures"
+      ]
+    }
   }
 }

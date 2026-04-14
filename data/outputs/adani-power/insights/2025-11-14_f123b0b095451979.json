@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 29,
-    "elapsed_seconds": 5.914,
+    "elapsed_seconds": 9.782,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -32,24 +32,24 @@
     ],
     "nlp": {
       "sentiment": 1,
-      "sentiment_confidence": 0.85,
+      "sentiment_confidence": 0.9,
       "tone": [
         "optimistic",
         "promotional",
         "analytical"
       ],
-      "narrative_core_claim": "Adani Green Energy Limited plans to invest approximately Rs 63,000 crore in transformative energy projects in Assam.",
-      "narrative_implied_causation": "The large investment by Adani Green Energy is expected to drive transformative energy development in Assam.",
-      "narrative_stakeholder_framing": "Adani Green Energy Limited is the protagonist investing in Assam, with the local community and energy sector as affected stakeholders.",
+      "narrative_core_claim": "Adani plans to invest approximately Rs 63,000 crore in transformative energy projects in Assam.",
+      "narrative_implied_causation": "The large investment by Adani is expected to drive significant energy transformation in Assam.",
+      "narrative_stakeholder_framing": "Adani Green Energy Limited is the protagonist investing in Assam, with local communities and the energy sector as affected stakeholders.",
       "entities": [
-        "Adani Green Energy Limited",
+        "Adani",
         "Assam",
-        "Rs 63,000 Cr"
+        "Adani Green Energy Limited"
       ],
       "entity_types": {
-        "Adani Green Energy Limited": "company",
+        "Adani": "company",
         "Assam": "location",
-        "Rs 63,000 Cr": "financial_amount"
+        "Adani Green Energy Limited": "company"
       },
       "financial_signal": {
         "amount": 63000,
@@ -61,7 +61,7 @@
       "esg_topics": [
         "energy transition",
         "renewable energy",
-        "investment"
+        "regional development"
       ],
       "content_type": "financial",
       "urgency": "medium",
@@ -95,19 +95,42 @@
       "financial_amount_cr": 63000.0
     },
     "relevance": {
-      "total": 5,
+      "total": 4,
       "tier": "SECONDARY",
       "esg_correlation": 2,
       "financial_impact": 2,
       "compliance_risk": 0,
       "supply_chain_impact": 0,
-      "people_impact": 1,
+      "people_impact": 0,
       "materiality_weight": 0.9,
-      "adjusted_total": 5.0,
+      "adjusted_total": 4.0,
       "rejection_reason": "",
       "ontology_queries": 1
     },
     "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
       {
         "nodes": [
           "Energy",
@@ -400,11 +423,357 @@
       "Climate Action"
     ]
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "Adani's ₹63,000 Cr Assam energy investment signals long-term green growth, limited near-term ESG impact",
+    "impact_score": 4.0,
+    "core_mechanism": "Adani Green Energy Limited's announced ₹63,000 Cr investment in Assam targets transformative energy projects, primarily in renewables. This is a routine capex event, expanding operational capacity and aligning with sectoral energy transition trends, but does not trigger immediate ESG score changes or regulatory penalties.",
+    "profitability_connection": "The capex will increase Adani's asset base and future revenue potential, but near-term P&L impact is neutral as costs are capitalized and returns accrue over years. No immediate margin or valuation effect is expected.",
+    "translation": "Adani is spending a large sum to build new energy projects in Assam, mainly focused on renewables. While this is a big move for the company's long-term growth and green credentials, it doesn't change profits or ESG ratings right away.",
+    "impact_analysis": {
+      "esg_positioning": "No immediate ESG score gap; routine capex aligns with sector peers like JSW Energy but does not create index exclusion risk.",
+      "capital_allocation": "No direct cost of capital impact; green alignment may enable future access to lower-cost financing under EU Taxonomy, but not realized yet.",
+      "valuation_cashflow": "No P/E compression or margin erosion; future revenue uplift possible, but no current revenue at risk.",
+      "compliance_regulatory": "Triggers BRSR disclosure obligations (SEBI), but no penalty or deadline breach; aligns with CDP, GRI, TCFD frameworks.",
+      "supply_chain_transmission": "No supply chain transmission; investment is direct operational expansion, not a procurement or supplier event.",
+      "people_demand": "Potential for local job creation and community benefit in Assam, but no immediate talent or consumer impact at group level."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹63,000 Cr capex committed, no instant P&L or margin impact",
+        "profitability_pathway": "Capex announcement → asset build-out → future revenue, no current profit/loss effect",
+        "margin_pressure": "0 bps; costs are capitalized, not expensed",
+        "revenue_at_risk": "No direct or indirect revenue at risk; investment is growth-oriented"
+      },
+      "structural": {
+        "valuation_rerating": "No P/E change; routine sectoral capex, not a re-rating trigger",
+        "competitive_position": "Maintains parity with JSW Energy; no immediate gain or loss vs peers"
+      },
+      "long_term": {
+        "secular_trajectory": "Positions Adani for 3-5 year green growth; future renewable revenue uplift likely",
+        "green_revenue_opportunity": "Potential for ₹63,000 Cr asset-driven revenue over project lifecycle, but not realized yet"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 6,
+        "rationale": "Event is environmentally positive (renewables), but no immediate emissions reduction or reporting impact."
+      },
+      "social": {
+        "score": 3,
+        "rationale": "Possible local employment/community benefits, but not material at group level yet."
+      },
+      "governance": {
+        "score": 2,
+        "rationale": "Triggers BRSR disclosure, but no governance controversy or penalty."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "Large capex, but routine for sector; no direct P&L or margin effect in near term."
+      },
+      "regulatory_exposure": {
+        "score": 2,
+        "rationale": "Only disclosure obligations (BRSR); no penalty or compliance breach."
+      },
+      "stakeholder_impact": {
+        "score": 3,
+        "rationale": "Local stakeholders benefit, but no major investor or customer impact immediately."
+      }
+    },
+    "net_impact_summary": "Adani's ₹63,000 Cr Assam investment is a routine but large-scale capex move, expanding renewable capacity and aligning with BRSR, CDP, and TCFD frameworks. There is no immediate margin or P/E impact, and no revenue at risk. The event positions Adani for long-term green growth, but does not alter its ESG ratings or financials in the short term.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor for future ESG score or regulatory developments as projects progress.",
+      "financial_exposure": "₹63,000 Cr capex committed (growth asset), no direct revenue or margin risk",
+      "key_risk": "Disclosure compliance under BRSR; no penalty risk unless reporting lapses occur",
+      "top_opportunity": "Future green bond issuance leveraging new renewable assets (potential ₹5,000-10,000 Cr)",
+      "timeline": "Next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Adani Green Energy Limited announces ₹63,000 Cr investment in Assam energy projects",
+      "mechanism": "Direct operational capex expands renewable capacity; triggers disclosure obligations but no immediate ESG or financial transmission",
+      "company_impact": "No short-term P&L or margin effect; sets up for long-term revenue growth and green financing options",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Commission Third-Party BRSR Assurance for FY26 Filing",
+        "description": "Engage an external auditor to conduct third-party assurance of BRSR disclosures for FY26 to ensure full compliance with SEBI regulations and avoid potential trading restrictions and cost of capital increases. Budget ₹1-2 Cr, led by the Chief Compliance Officer.",
+        "type": "compliance",
+        "responsible_party": "Chief Compliance Officer",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "Avoid ₹50-100 Cr in increased cost of capital from 20-40 bps spread by ensuring compliance",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 10,
+        "roi_percentage": 500.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power enhanced BRSR disclosures to support green bond issuance"
+      },
+      {
+        "title": "Monitor Regulatory Mandates and Energy Price Shocks Quarterly",
+        "description": "Establish a quarterly monitoring system for regulatory mandates with deadlines under 24 months and energy price shocks exceeding 25% YoY or 2σ above 5-year mean. Escalate to the Risk Committee if thresholds are breached to adjust project risk and hedge strategies accordingly.",
+        "type": "operational",
+        "responsible_party": "Head of Risk Management",
+        "framework_section": "BRSR:P7:Q18",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Mitigate potential ₹100-200 Cr losses from unhedged energy price shocks or regulatory penalties",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": "Competitors like Tata Power have integrated regulatory and market risk monitoring to protect margins"
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 2,
+    "validated_count": 2,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 1,
+          "title": "Monitor Regulatory Mandates and Energy Price Shocks Quarterly",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.5-1 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 0,
+          "title": "Commission Third-Party BRSR Assurance for FY26 Filing",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹1-2 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        1
+      ],
+      "ceo": [
+        0,
+        1
+      ],
+      "esg-analyst": [
+        0,
+        1
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani's ₹63,000 Cr Assam energy investment signals long-term green growth, limited near-term ESG impact",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "LOW",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission; investment is direct operational expansion, not a procurement or supplier event.",
+        "No immediate ESG score gap; routine capex aligns with sector peers like JSW Energy but does not create index exclusion risk.",
+        "Potential for local job creation and community benefit in Assam, but no immediate talent or consumer impact at group level."
+      ],
+      "action": [
+        "No immediate action required; monitor for future ESG score or regulatory developments as projects progress.",
+        "Key risk: Disclosure compliance under BRSR; no penalty risk unless reporting lapses occur",
+        "Opportunity: Future green bond issuance leveraging new renewable assets (potential ₹5,000-10,000 Cr)"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani's ₹63,000 Cr Assam energy investment signals long-term green growth, limited near-term ESG impact",
+        "impact_score": 4.0,
+        "core_mechanism": "Adani Green Energy Limited's announced ₹63,000 Cr investment in Assam targets transformative energy projects, primarily in renewables. This is a routine capex event, expanding operational capacity and aligning with sectoral energy transition trends, but does not trigger immediate ESG score changes or regulatory penalties.",
+        "profitability_connection": "The capex will increase Adani's asset base and future revenue potential, but near-term P&L impact is neutral as costs are capitalized and returns accrue over years. No immediate margin or valuation effect is expected.",
+        "translation": "Adani is spending a large sum to build new energy projects in Assam, mainly focused on renewables. While this is a big move for the company's long-term growth and green credentials, it doesn't change profits or ESG ratings right away.",
+        "impact_analysis": {
+          "esg_positioning": "No immediate ESG score gap; routine capex aligns with sector peers like JSW Energy but does not create index exclusion risk.",
+          "capital_allocation": "No direct cost of capital impact; green alignment may enable future access to lower-cost financing under EU Taxonomy, but not realized yet.",
+          "valuation_cashflow": "No P/E compression or margin erosion; future revenue uplift possible, but no current revenue at risk.",
+          "compliance_regulatory": "Triggers BRSR disclosure obligations (SEBI), but no penalty or deadline breach; aligns with CDP, GRI, TCFD frameworks.",
+          "supply_chain_transmission": "No supply chain transmission; investment is direct operational expansion, not a procurement or supplier event.",
+          "people_demand": "Potential for local job creation and community benefit in Assam, but no immediate talent or consumer impact at group level."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹63,000 Cr capex committed, no instant P&L or margin impact",
+            "profitability_pathway": "Capex announcement → asset build-out → future revenue, no current profit/loss effect",
+            "margin_pressure": "0 bps; costs are capitalized, not expensed",
+            "revenue_at_risk": "No direct or indirect revenue at risk; investment is growth-oriented"
+          },
+          "structural": {
+            "valuation_rerating": "No P/E change; routine sectoral capex, not a re-rating trigger",
+            "competitive_position": "Maintains parity with JSW Energy; no immediate gain or loss vs peers"
+          },
+          "long_term": {
+            "secular_trajectory": "Positions Adani for 3-5 year green growth; future renewable revenue uplift likely",
+            "green_revenue_opportunity": "Potential for ₹63,000 Cr asset-driven revenue over project lifecycle, but not realized yet"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Event is environmentally positive (renewables), but no immediate emissions reduction or reporting impact."
+          },
+          "social": {
+            "score": 3,
+            "rationale": "Possible local employment/community benefits, but not material at group level yet."
+          },
+          "governance": {
+            "score": 2,
+            "rationale": "Triggers BRSR disclosure, but no governance controversy or penalty."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "Large capex, but routine for sector; no direct P&L or margin effect in near term."
+          },
+          "regulatory_exposure": {
+            "score": 2,
+            "rationale": "Only disclosure obligations (BRSR); no penalty or compliance breach."
+          },
+          "stakeholder_impact": {
+            "score": 3,
+            "rationale": "Local stakeholders benefit, but no major investor or customer impact immediately."
+          }
+        },
+        "net_impact_summary": "Adani's ₹63,000 Cr Assam investment is a routine but large-scale capex move, expanding renewable capacity and aligning with BRSR, CDP, and TCFD frameworks. There is no immediate margin or P/E impact, and no revenue at risk. The event positions Adani for long-term green growth, but does not alter its ESG ratings or financials in the short term.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for future ESG score or regulatory developments as projects progress.",
+          "financial_exposure": "₹63,000 Cr capex committed (growth asset), no direct revenue or margin risk",
+          "key_risk": "Disclosure compliance under BRSR; no penalty risk unless reporting lapses occur",
+          "top_opportunity": "Future green bond issuance leveraging new renewable assets (potential ₹5,000-10,000 Cr)",
+          "timeline": "Next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Adani Green Energy Limited announces ₹63,000 Cr investment in Assam energy projects",
+          "mechanism": "Direct operational capex expands renewable capacity; triggers disclosure obligations but no immediate ESG or financial transmission",
+          "company_impact": "No short-term P&L or margin effect; sets up for long-term revenue growth and green financing options",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹63,000 Cr capex committed (growth asset), no direct revenue or margin risk",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "LOW",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission; investment is direct operational expansion, not a procurement or supplier event.",
+        "Triggers BRSR disclosure obligations (SEBI), but no penalty or deadline breach; aligns with CDP, GRI, TCFD frameworks.",
+        "No P/E compression or margin erosion; future revenue uplift possible, but no current revenue at risk."
+      ],
+      "action": [
+        "Quantify exposure: ₹63,000 Cr capex committed (growth asset), no direct revenue or margin risk",
+        "Revenue at risk: No direct or indirect revenue at risk; investment is growth-oriented"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Future green bond issuance leveraging new renewable assets (potential ₹5,000-10,000 Cr)",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "LOW",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No immediate ESG score gap; routine capex aligns with sector peers like JSW Energy but does not create index exclusion risk.",
+        "Potential for local job creation and community benefit in Assam, but no immediate talent or consumer impact at group level.",
+        "Triggers BRSR disclosure obligations (SEBI), but no penalty or deadline breach; aligns with CDP, GRI, TCFD frameworks."
+      ],
+      "action": [
+        "Strategic opportunity: Future green bond issuance leveraging new renewable assets (potential ₹5,000-10,000 Cr)",
+        "Competitive position: Maintains parity with JSW Energy; no immediate gain or loss vs peers"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
   "meta": {
-    "written_at": "2026-04-12T09:20:44.959068+00:00",
-    "schema_version": "1.0"
+    "written_at": "2026-04-14T07:45:11.087521+00:00",
+    "schema_version": "2.0-primitives-l2"
+  },
+  "intelligence": {
+    "competitive_brief": "Adani Power’s ₹63,000 Cr investment in Assam’s energy sector underscores a strategic push towards long-term green growth, though with limited immediate ESG impact. For JSW Energy, this move signals intensified competition in renewable and sustainable energy projects, especially in the northeastern region, a key growth corridor for India’s green transition.\n\nJSW Energy may respond by accelerating its own renewable capacity expansion, potentially increasing investments in hydro, solar, and wind projects to maintain market share and ESG credentials. Given JSW Energy’s current renewable capacity of around 1,000 MW and plans to scale up, they might announce new projects or partnerships to showcase commitment to sustainable growth.\n\nHistorically, in similar scenarios, industry players like Tata Power and NTPC have ramped up green investments following large-scale announcements by competitors, often coupled with enhanced ESG reporting and stakeholder engagement to improve their sustainability profiles. JSW Energy could also leverage this opportunity to highlight its existing ESG initiatives, such as water conservation and emissions reduction, to differentiate itself.\n\nIn summary, Adani’s Assam investment will likely prompt JSW Energy to bolster its green portfolio and ESG communication, aligning with broader industry trends emphasizing sustainability alongside growth.",
+    "causal_narrative": "Adani Power’s ₹63,000 crore investment in Assam’s energy infrastructure primarily aims at long-term green growth, which currently exerts limited near-term ESG risks. However, this substantial capital deployment increases the company’s exposure to evolving regulatory frameworks, as the energy sector’s heightened focus on sustainability triggers mandatory disclosures under BRSR, GRI, and TCFD standards. Compliance with these rigorous reporting requirements may elevate operational costs by an estimated 2-3% annually due to enhanced data collection and governance processes. Additionally, failure to meet these ESG benchmarks could result in reputational damage and potential regulatory penalties, thereby transmitting financial risk through both operational expenditures and market valuation impacts.",
+    "anticipated_qa": [
+      {
+        "question": "What is the immediate financial impact of Adani Power's ₹63,000 Cr investment in Assam on profitability and margins?",
+        "answer": "There is no immediate impact on profitability or margins as the costs are capitalized, not expensed. The investment increases assets and future revenue potential, but near-term P&L remains neutral."
+      },
+      {
+        "question": "How does this investment affect Adani Power's ESG ratings and regulatory compliance?",
+        "answer": "The investment aligns with sector peers and does not trigger immediate ESG score changes or regulatory penalties. It does, however, require BRSR disclosures under SEBI and aligns with frameworks like CDP, GRI, and TCFD."
+      },
+      {
+        "question": "Will this investment influence Adani Power’s cost of capital or access to green financing?",
+        "answer": "Currently, there is no direct impact on the cost of capital, but the green alignment of the projects may enable access to lower-cost financing under frameworks like the EU Taxonomy in the future."
+      },
+      {
+        "question": "What are the long-term growth and valuation implications of this capex for Adani Power?",
+        "answer": "The investment positions Adani for 3-5 years of green growth with potential significant renewable revenue uplift over the project lifecycle. However, it does not trigger any immediate valuation rerating or P/E multiple changes."
+      },
+      {
+        "question": "Are there any social or supply chain impacts expected from this investment?",
+        "answer": "The investment may create local jobs and community benefits in Assam, but there is no immediate impact on talent or consumers at the group level. Additionally, it is a direct operational expansion with no supply chain transmission effects."
+      }
+    ],
+    "sentiment_trajectory": {
+      "direction": "improving",
+      "summary": "Sentiment around Adani Power is improving with positive developments in green energy investments and strategic acquisitions despite some near-term demand concerns.",
+      "emerging_themes": [
+        "green energy expansion",
+        "strategic acquisitions",
+        "long-term growth investment"
+      ]
+    }
   }
 }

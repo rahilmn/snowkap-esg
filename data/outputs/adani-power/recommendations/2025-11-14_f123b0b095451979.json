@@ -1,133 +1,78 @@
 {
   "recommendations": [
     {
-      "title": "Enhance BRSR and TCFD ESG Disclosures",
-      "description": "Accelerate and improve ESG disclosures under BRSR and TCFD frameworks to avoid SEBI scrutiny and potential trading restrictions, ensuring filings are complete by the FY26 deadline.",
+      "title": "Commission Third-Party BRSR Assurance for FY26 Filing",
+      "description": "Engage an external auditor to conduct third-party assurance of BRSR disclosures for FY26 to ensure full compliance with SEBI regulations and avoid potential trading restrictions and cost of capital increases. Budget ₹1-2 Cr, led by the Chief Compliance Officer.",
       "type": "compliance",
-      "responsible_party": "Head of Sustainability Reporting",
-      "framework_section": "BRSR:P6:Q14, TCFD",
+      "responsible_party": "Chief Compliance Officer",
+      "framework_section": "BRSR:P6:Q14",
       "deadline": "2026-05-30",
-      "estimated_budget": "₹5-8 Cr",
-      "profitability_link": "Avoids potential cost of capital increase by 20-40 bps on ₹63,000 Cr capex, saving ₹126-252 Cr annually",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "Avoid ₹50-100 Cr in increased cost of capital from 20-40 bps spread by ensuring compliance",
       "priority": "CRITICAL",
       "urgency": "immediate",
-      "estimated_impact": "High",
+      "estimated_impact": "Medium",
       "risk_of_inaction": 10,
-      "roi_percentage": 2500.0,
-      "payback_months": 1.0,
-      "peer_benchmark": "Tata Power enhanced ESG disclosures leading to P/E rerating"
+      "roi_percentage": 500.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Tata Power enhanced BRSR disclosures to support green bond issuance"
     },
     {
-      "title": "Implement Enhanced GRI Disclosure Practices",
-      "description": "Strengthen GRI reporting to improve ESG ratings and reduce risk of fund outflows by aligning disclosures with investor expectations.",
-      "type": "compliance",
-      "responsible_party": "ESG Reporting Manager",
-      "framework_section": "GRI:102-15, GRI:305-1",
+      "title": "Monitor Regulatory Mandates and Energy Price Shocks Quarterly",
+      "description": "Establish a quarterly monitoring system for regulatory mandates with deadlines under 24 months and energy price shocks exceeding 25% YoY or 2σ above 5-year mean. Escalate to the Risk Committee if thresholds are breached to adjust project risk and hedge strategies accordingly.",
+      "type": "operational",
+      "responsible_party": "Head of Risk Management",
+      "framework_section": "BRSR:P7:Q18",
       "deadline": "2026-07-15",
-      "estimated_budget": "₹3-5 Cr",
-      "profitability_link": "Improved ESG ratings can prevent fund outflows estimated at ₹500 Cr annually",
-      "priority": "HIGH",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Mitigate potential ₹100-200 Cr losses from unhedged energy price shocks or regulatory penalties",
+      "priority": "CRITICAL",
       "urgency": "short_term",
-      "estimated_impact": "Medium",
-      "risk_of_inaction": 8,
-      "roi_percentage": 10000.0,
-      "payback_months": 2.0,
-      "peer_benchmark": null
-    },
-    {
-      "title": "Issue Green Bonds to Finance Assam Projects",
-      "description": "Raise ₹10,000 Cr through green bonds aligned with EU Taxonomy to lower cost of capital and signal ESG commitment, following Tata Power's successful ₹5,000 Cr green bond issuance.",
-      "type": "financial",
-      "responsible_party": "CFO",
-      "framework_section": "EU Taxonomy",
-      "deadline": "2026-09-30",
-      "estimated_budget": "₹0.5-1 Cr (issuance cost)",
-      "profitability_link": "Expected 20 bps reduction in cost of capital on ₹10,000 Cr saves ₹20 Cr annually",
-      "priority": "HIGH",
-      "urgency": "short_term",
-      "estimated_impact": "Medium",
-      "risk_of_inaction": 6,
-      "roi_percentage": 2000.0,
-      "payback_months": 6.0,
-      "peer_benchmark": "Tata Power's ₹5,000 Cr green bond issuance"
-    },
-    {
-      "title": "Develop Roadmap for Renewable Portfolio Increase",
-      "description": "Formulate a clear plan to increase renewable energy share towards 80% by 2030, including divestment of coal assets, to capture valuation premium and align with sector transition trends.",
-      "type": "strategic",
-      "responsible_party": "Chief Strategy Officer",
-      "framework_section": "BRSR:P6, GRI:302-1",
-      "deadline": "2026-12-31",
-      "estimated_budget": "₹10-15 Cr",
-      "profitability_link": "Potential P/E rerating from 12x to 18x on ₹63,000 Cr asset base could increase valuation by ₹31,500 Cr over long term",
-      "priority": "HIGH",
-      "urgency": "medium_term",
       "estimated_impact": "High",
-      "risk_of_inaction": 6,
-      "roi_percentage": null,
-      "payback_months": null,
-      "peer_benchmark": "Tata Power committed to 80% renewables by 2030"
+      "risk_of_inaction": 8,
+      "roi_percentage": 200.0,
+      "payback_months": 6.0,
+      "peer_benchmark": "Competitors like Tata Power have integrated regulatory and market risk monitoring to protect margins"
     }
   ],
   "do_nothing": false,
   "gate_reason": "",
-  "generator_count": 4,
-  "validated_count": 4,
+  "generator_count": 2,
+  "validated_count": 2,
   "priority_matrix": {
     "immediate_high": [
       {
-        "index": 0,
-        "title": "Enhance BRSR and TCFD ESG Disclosures",
-        "type": "compliance",
-        "roi": 2500.0,
-        "budget": "₹5-8 Cr"
+        "index": 1,
+        "title": "Monitor Regulatory Mandates and Energy Price Shocks Quarterly",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹0.5-1 Cr"
       }
     ],
     "immediate_low": [
       {
-        "index": 1,
-        "title": "Implement Enhanced GRI Disclosure Practices",
+        "index": 0,
+        "title": "Commission Third-Party BRSR Assurance for FY26 Filing",
         "type": "compliance",
-        "roi": 10000.0,
-        "budget": "₹3-5 Cr"
-      },
-      {
-        "index": 2,
-        "title": "Issue Green Bonds to Finance Assam Projects",
-        "type": "financial",
-        "roi": 2000.0,
-        "budget": "₹0.5-1 Cr (issuance cost)"
+        "roi": 500.0,
+        "budget": "₹1-2 Cr"
       }
     ],
-    "deferred_high": [
-      {
-        "index": 3,
-        "title": "Develop Roadmap for Renewable Portfolio Increase",
-        "type": "strategic",
-        "roi": null,
-        "budget": "₹10-15 Cr"
-      }
-    ],
+    "deferred_high": [],
     "deferred_low": []
   },
   "recommendation_rankings": {
     "cfo": [
-      1,
       0,
-      2,
-      3
+      1
     ],
     "ceo": [
-      1,
-      2,
       0,
-      3
+      1
     ],
     "esg-analyst": [
       0,
-      1,
-      2,
-      3
+      1
     ]
   }
 }
