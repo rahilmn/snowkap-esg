@@ -88,15 +88,34 @@ def _should_skip(insight: DeepInsight, result: PipelineResult) -> tuple[bool, st
 
 
 def _get_rec_count(insight: DeepInsight) -> int:
-    """Return how many recommendations to generate based on materiality."""
+    """Return how many recommendations to generate based on materiality AND impact score.
+
+    Uses the HIGHER of materiality-based and score-based count to prevent
+    the LLM underrating materiality from suppressing recommendations.
+    """
     decision = insight.decision_summary or {}
     materiality = str(decision.get("materiality", "")).upper()
+
+    # Materiality-based count
     if materiality in ("CRITICAL", "HIGH"):
-        return 5
-    if materiality == "MODERATE":
-        return 4
-    # LOW materiality still gets 2 monitoring-oriented recommendations
-    return 2
+        mat_count = 5
+    elif materiality == "MODERATE":
+        mat_count = 4
+    else:
+        mat_count = 2
+
+    # Impact-score-based count (override if LLM underrates materiality)
+    score = insight.impact_score or 0
+    if score >= 7:
+        score_count = 5
+    elif score >= 5:
+        score_count = 4
+    elif score >= 3:
+        score_count = 3
+    else:
+        score_count = 2
+
+    return max(mat_count, score_count)
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +133,7 @@ RULES:
 - No generic advice like "improve ESG practices" or "enhance disclosure". Every recommendation must name the SPECIFIC action: "File GST appellate tribunal appeal within 30 days citing ABC precedent" or "Commission third-party BRSR assurance for FY26 filing".
 - title must be a SPECIFIC action verb phrase: "File GST appeal at CESTAT" not "Address regulatory compliance".
 - description must name ₹ amounts, specific frameworks, specific deadlines, and specific responsible parties.
-- roi_percentage: estimate conservatively. For compliance, ROI = avoided penalty / implementation cost. For ESG positioning, ROI = valuation premium / cost. NEVER use null — always estimate.
+- roi_percentage: estimate conservatively. For compliance, ROI = avoided penalty / implementation cost. For ESG positioning, ROI = valuation premium / cost. NEVER use null — always estimate. IMPORTANT: ROI values are capped at 500% (compliance), 400% (strategic/ESG), 300% (financial), 200% (operational). Do NOT cite higher ROI in the description or profitability_link text — use capped values.
 - payback_months: for capex, use industry standard payback periods. For compliance, use regulatory deadline as outer bound. NEVER use null.
 - If PEER ACTIONS are provided, reference what competitors did and suggest matching or exceeding their approach.
 - For LOW materiality articles: focus on monitoring actions and disclosure improvements, but still be SPECIFIC about what to monitor and how.

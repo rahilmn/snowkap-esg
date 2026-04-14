@@ -236,6 +236,10 @@ snowkap:gri_413 a snowkap:FrameworkSection ;
 snowkap:gri_414 a snowkap:FrameworkSection ;
     snowkap:belongsToFramework snowkap:GRI ;
     snowkap:sectionCode "GRI:414" ; snowkap:sectionTitle "Supplier Social Assessment" .
+snowkap:gri_207 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:207" ; snowkap:sectionTitle "Tax" ;
+    snowkap:profitabilityLink "Tax transparency failure → regulatory penalty + investor scrutiny → cost of capital increase 20-50 bps + ESG fund exclusion risk" .
 snowkap:gri_408 a snowkap:FrameworkSection ;
     snowkap:belongsToFramework snowkap:GRI ;
     snowkap:sectionCode "GRI:408" ; snowkap:sectionTitle "Child Labor" ;
@@ -250,7 +254,7 @@ snowkap:gri_412 a snowkap:FrameworkSection ;
     snowkap:profitabilityLink "Human rights assessment failure → ESG rating downgrade → passive fund exclusion → FII outflow + cost of capital increase 20-50 bps" .
 snowkap:GRI snowkap:hasSection snowkap:gri_205, snowkap:gri_302, snowkap:gri_303,
     snowkap:gri_305, snowkap:gri_306, snowkap:gri_401, snowkap:gri_403,
-    snowkap:gri_405, snowkap:gri_408, snowkap:gri_409, snowkap:gri_412, snowkap:gri_413, snowkap:gri_414 .
+    snowkap:gri_207, snowkap:gri_405, snowkap:gri_408, snowkap:gri_409, snowkap:gri_412, snowkap:gri_413, snowkap:gri_414 .
 
 # TCFD pillars
 snowkap:tcfd_governance a snowkap:FrameworkSection ;
@@ -298,7 +302,7 @@ snowkap:esrs_s4 a snowkap:FrameworkSection ;
     snowkap:sectionCode "ESRS:S4" ; snowkap:sectionTitle "Consumers & End-Users" .
 snowkap:esrs_g1 a snowkap:FrameworkSection ;
     snowkap:belongsToFramework snowkap:ESRS ;
-    snowkap:sectionCode "ESRS:G1" ; snowkap:sectionTitle "Business Conduct" .
+    snowkap:sectionCode "ESRS:G1" ; snowkap:sectionTitle "Business Conduct (Tax, Ethics, Anti-corruption, Governance)" .
 snowkap:ESRS snowkap:hasSection snowkap:esrs_e1, snowkap:esrs_e2, snowkap:esrs_e3,
     snowkap:esrs_e4, snowkap:esrs_e5, snowkap:esrs_s1, snowkap:esrs_s2,
     snowkap:esrs_s3, snowkap:esrs_s4, snowkap:esrs_g1 .

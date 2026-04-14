@@ -163,13 +163,18 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
     content_len = len(nlp.narrative_core_claim or "") + len(nlp.narrative_implied_causation or "")
     is_thin = getattr(result, "_thin_content", False) or content_len < 100
     if is_thin:
+        has_financial_quantum = bool(nlp.financial_signal and nlp.financial_signal.get("amount"))
         lines.append("")
         lines.append("⚠ WARNING: This article has VERY LIMITED content (likely paywalled or truncated).")
         lines.append("You are working with HEADLINE ONLY. You MUST:")
         lines.append("- State clearly that analysis is based on headline only, not full article")
-        lines.append("- Use LOWER confidence for all estimates")
-        lines.append("- Do NOT fabricate detailed sector analysis or specific ₹ figures beyond engine-computed values")
-        lines.append("- Set materiality to LOW unless the headline itself contains a specific ₹ amount")
+        lines.append("- Use LOWER confidence for all estimates NOT supported by computed cascade data")
+        lines.append("- Do NOT fabricate detailed sector analysis beyond what the headline states")
+        if has_financial_quantum:
+            lines.append("- The headline DOES contain a specific ₹ amount — use the COMPUTED CASCADE figures for materiality")
+            lines.append("- Set materiality based on the COMPUTED impact score and risk levels, NOT automatically LOW")
+        else:
+            lines.append("- No ₹ amount detected in headline — set materiality to LOW")
         lines.append("- Add to net_impact_summary: 'Note: This analysis is based on limited article content (headline only). Full article behind paywall.'")
     lines.append("")
 

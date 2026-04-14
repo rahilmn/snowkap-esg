@@ -665,15 +665,20 @@ def query_framework_sections(
     rows = g.select_rows(sparql, init_bindings={"fw_needle": Literal(fw_needle)})
     if not rows:
         return []
-    # Filter sections whose title contains a topic keyword (>3 chars)
-    topic_words = {w.lower() for w in topic.replace("&", "").split() if len(w) > 3}
+    # Filter sections whose title contains a topic keyword (>2 chars)
+    # Use both topic words AND slug-derived words for broader matching
+    topic_words = {w.lower() for w in topic.replace("&", "").replace("/", " ").split() if len(w) > 2}
+    # Also add individual slug words (e.g., "tax_transparency" → {"tax", "transparency"})
+    slug_words = {w.lower() for w in topic.replace(" ", "_").split("_") if len(w) > 2}
+    all_keywords = topic_words | slug_words
     matched = []
     for row in rows:
         title = (row.get("title") or "").lower()
         code = row["code"]
-        if topic_words and any(w in title for w in topic_words):
+        if all_keywords and any(w in title for w in all_keywords):
             matched.append(code)
-    return matched if matched else [row["code"] for row in rows[:3]]
+    # Return matched sections, or empty list (NOT generic fallback)
+    return matched
 
 
 def query_competitors(
