@@ -743,6 +743,22 @@ Second click → schema_version matches → instant (cached)
 - Stages 3-9, 11 (82%): Fully ontology-driven. Zero LLM.
 - Stages 10, 12 (15%): LLM writes narrative prose, but ALL numbers (₹ exposure, margin bps, ROI) are engine-computed hard constraints. LLM cannot override them.
 
+### Phase 17d: Complete Causal Edge Coverage (In Progress)
+
+Load all 64 missing P→P edges + 29 P→non-P edges from the Primitives framework into `primitives_edges_p2p.ttl`. Brings edge coverage from 56 → ~120 (100%). Mechanical data entry — all edge specs already extracted from PART 1 + PART 2.
+
+**Missing edges by source primitive:**
+- SC (Supply chain): +9 edges (→CM, EP, FR, FX, IR, LC, LT, RG, and dominant →LT)
+- RG (Regulatory): +7 edges (→CM, EP, FR, FX, IR, LC, LT)
+- XW (Extreme weather): +7 edges (→CM, FR, FX, IR, LC, LT, RG)
+- CM (Commodity): +7 edges (→FR, FX, IR, LC, LT, and existing gaps)
+- EP (Energy price): +6 edges (→CM, FX, IR, LC, LT, XW)
+- IR (Interest rates): +5 edges (→CM, EP, FR, FX, LC)
+- GE (GHG emissions): +4 edges (→EP, IR, RG, XW including dominant GE→RG)
+- Others: CL(+2), CY(+2), DT(+3), EU(+3), FR(+1), FX(+2), HS(+1), LC(+1), LT(+1), OX(+2), RV(+1), WA(+2), WF(+1), WS(+1)
+
+**P→non-P edges (29):** Primitives to outcome nodes (GrossMargin, WACC, CreditRating, FCF, EquityVal, InsurancePremium, CarbonCost, CarbonLiability, ESGRating, CustomerChurn, CapacityUtil, SocialLicence, etc.)
+
 ---
 
 ## CLI Commands

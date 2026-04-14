@@ -567,3 +567,506 @@ snw:loop_B5 a snw:FeedbackArc ;
     snw:loopId "B5" ; snw:loopType "balancing" ;
     snw:loopPath "AssetImpairment→CX→CapacityUtil→RV→FCF→AssetImpairment" ;
     snw:edgeNotes "Asset replacement loop" .
+
+# =============================================================================
+# MISSING P→P EDGES (64 edges — Phase 17d completion)
+# =============================================================================
+
+# ---- CL (Compliance) outgoing ----
+
+snw:edge_CL_IR a snw:CausalEdge ;
+    snw:edgeId "P2::CL→IR" ; snw:cause snw:prim_CL ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔIR(t) = β · 𝟙[ComplianceAction ≥ τ]" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Fines/litigation reduce creditworthiness → spread widening; financial institutions most exposed" .
+
+snw:edge_CL_RG a snw:CausalEdge ;
+    snw:edgeId "P2::CL→RG" ; snw:cause snw:prim_CL ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔRG(t) = β · 𝟙[SystemicFailure ≥ τ]" ;
+    snw:elasticityOrWeight "0.10–0.35" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Systemic compliance failures attract escalated regulatory scrutiny and new rules" .
+
+# ---- CM (Commodity) outgoing ----
+
+snw:edge_CM_FR a snw:CausalEdge ;
+    snw:edgeId "P2::CM→FR" ; snw:cause snw:prim_CM ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Commodity booms drive bulk freight demand surge → rate spike" .
+
+snw:edge_CM_FX a snw:CausalEdge ;
+    snw:edgeId "P2::CM→FX" ; snw:cause snw:prim_CM ; snw:effect snw:prim_FX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.15–0.45" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Commodity exporters (AUD, BRL, NOK) appreciate on boom; importers depreciate" .
+
+snw:edge_CM_IR a snw:CausalEdge ;
+    snw:edgeId "P2::CM→IR" ; snw:cause snw:prim_CM ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.08–0.25" ; snw:lagK "1–3q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Commodity inflation feeds CPI → central bank tightening" .
+
+snw:edge_CM_LC a snw:CausalEdge ;
+    snw:edgeId "P2::CM→LC" ; snw:cause snw:prim_CM ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.10–0.25" ; snw:lagK "1–3q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Food/energy commodity shocks → cost of living → wage demands" .
+
+snw:edge_CM_LT a snw:CausalEdge ;
+    snw:edgeId "P2::CM→LT" ; snw:cause snw:prim_CM ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Commodity supply shocks → supplier capacity crunch → longer order-to-ship" .
+
+# ---- CY (Cyber) outgoing ----
+
+snw:edge_CY_EP a snw:CausalEdge ;
+    snw:edgeId "P2::CY→EP" ; snw:cause snw:prim_CY ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.03–0.15" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cyber on energy infrastructure → supply disruption → price spike; Colonial Pipeline prototype" .
+
+snw:edge_CY_LT a snw:CausalEdge ;
+    snw:edgeId "P2::CY→LT" ; snw:cause snw:prim_CY ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cyber on ERP/logistics/port systems delays processing; Maersk NotPetya prototype" .
+
+# ---- DT (Downtime) outgoing ----
+
+snw:edge_DT_CM a snw:CausalEdge ;
+    snw:edgeId "P2::DT→CM" ; snw:cause snw:prim_DT ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Downtime at extraction/refining → commodity supply reduction" .
+
+snw:edge_DT_EP a snw:CausalEdge ;
+    snw:edgeId "P2::DT→EP" ; snw:cause snw:prim_DT ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Power generation/fuel processing downtime → regional energy price spike" .
+
+snw:edge_DT_LT a snw:CausalEdge ;
+    snw:edgeId "P2::DT→LT" ; snw:cause snw:prim_DT ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Supplier/logistics downtime directly halts shipments; step function (binary)" .
+
+# ---- EP (Energy price) outgoing ----
+
+snw:edge_EP_CM a snw:CausalEdge ;
+    snw:edgeId "P2::EP→CM" ; snw:cause snw:prim_EP ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.15–0.40" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Energy is universal commodity production input; dominant edge" .
+
+snw:edge_EP_FX a snw:CausalEdge ;
+    snw:edgeId "P2::EP→FX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_FX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Petrocurrency effect: exporters appreciate, importers depreciate on EP rise" .
+
+snw:edge_EP_IR a snw:CausalEdge ;
+    snw:edgeId "P2::EP→IR" ; snw:cause snw:prim_EP ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "1–3q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Energy inflation → broad CPI → central bank rate hike; 1970s oil shock precedent" .
+
+snw:edge_EP_LC a snw:CausalEdge ;
+    snw:edgeId "P2::EP→LC" ; snw:cause snw:prim_EP ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "1–3q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Energy cost of living → wage demands; high residential energy share economies" .
+
+snw:edge_EP_LT a snw:CausalEdge ;
+    snw:edgeId "P2::EP→LT" ; snw:cause snw:prim_EP ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–2m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "High fuel cost → carrier slowsteaming → longer transit; sea freight most exposed" .
+
+snw:edge_EP_XW a snw:CausalEdge ;
+    snw:edgeId "P2::EP→XW" ; snw:cause snw:prim_EP ; snw:effect snw:prim_XW ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.005–0.02" ; snw:lagK "10–30y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Fossil fuel dependence → GHG → climate → extreme weather; decadal lag" .
+
+# ---- EU (Energy use) outgoing ----
+
+snw:edge_EU_EP a snw:CausalEdge ;
+    snw:edgeId "P2::EU→EP" ; snw:cause snw:prim_EU ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "High aggregate energy demand tightens supply-demand → upward price pressure" .
+
+snw:edge_EU_RG a snw:CausalEdge ;
+    snw:edgeId "P2::EU→RG" ; snw:cause snw:prim_EU ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "2–6q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "High energy intensity vs benchmark → efficiency mandates and audits" .
+
+snw:edge_EU_XW a snw:CausalEdge ;
+    snw:edgeId "P2::EU→XW" ; snw:cause snw:prim_EU ; snw:effect snw:prim_XW ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "10–40y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Energy use (fossil) → GHG → climate change → extreme weather; decadal lag" .
+
+# ---- FR (Freight) outgoing ----
+
+snw:edge_FR_LT a snw:CausalEdge ;
+    snw:edgeId "P2::FR→LT" ; snw:cause snw:prim_FR ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Extreme freight cost → mode downgrade (air→sea) → longer transit" .
+
+# ---- FX (Currency) outgoing ----
+
+snw:edge_FX_CM a snw:CausalEdge ;
+    snw:edgeId "P2::FX→CM" ; snw:cause snw:prim_FX ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.15–0.40" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "USD-denominated commodities: depreciation raises effective landed cost for importers" .
+
+snw:edge_FX_EP a snw:CausalEdge ;
+    snw:edgeId "P2::FX→EP" ; snw:cause snw:prim_FX ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "USD-denominated energy: depreciation raises domestic energy price" .
+
+# ---- GE (GHG emissions) outgoing ----
+
+snw:edge_GE_EP a snw:CausalEdge ;
+    snw:edgeId "P2::GE→EP" ; snw:cause snw:prim_GE ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "GHG → carbon pricing/ETS cost adds to electricity and fossil fuel price" .
+
+snw:edge_GE_IR a snw:CausalEdge ;
+    snw:edgeId "P2::GE→IR" ; snw:cause snw:prim_GE ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "2–8q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "GHG exposure raises transition risk → credit premium on carbon-intensive firms" .
+
+snw:edge_GE_RG a snw:CausalEdge ;
+    snw:edgeId "P2::GE→RG" ; snw:cause snw:prim_GE ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.15–0.40" ; snw:lagK "2–8q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Dominant: persistent high emissions → tighter carbon regulation; EU ETS phase 4 prototype" .
+
+snw:edge_GE_XW a snw:CausalEdge ;
+    snw:edgeId "P2::GE→XW" ; snw:cause snw:prim_GE ; snw:effect snw:prim_XW ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "10–40y" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Dominant: cumulative GHG → warming → extreme weather (IPCC AR6); decadal" .
+
+# ---- HS (Health & safety) outgoing ----
+
+snw:edge_HS_RG a snw:CausalEdge ;
+    snw:edgeId "P2::HS→RG" ; snw:cause snw:prim_HS ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Fatalities/mass exposure → regulatory investigation and new safety standards" .
+
+# ---- IR (Interest rates) outgoing ----
+
+snw:edge_IR_CM a snw:CausalEdge ;
+    snw:edgeId "P2::IR→CM" ; snw:cause snw:prim_IR ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Higher rates → USD strengthens → commodity prices fall; demand destruction" .
+
+snw:edge_IR_EP a snw:CausalEdge ;
+    snw:edgeId "P2::IR→EP" ; snw:cause snw:prim_IR ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Higher rates suppress energy supply investment → long-run supply tightness" .
+
+snw:edge_IR_FR a snw:CausalEdge ;
+    snw:edgeId "P2::IR→FR" ; snw:cause snw:prim_IR ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "2–6q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Higher rates reduce carrier fleet investment → supply constraint → rate pressure" .
+
+snw:edge_IR_FX a snw:CausalEdge ;
+    snw:edgeId "P2::IR→FX" ; snw:cause snw:prim_IR ; snw:effect snw:prim_FX ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Dominant: rate differentials drive carry trade and capital flow → FX moves" .
+
+snw:edge_IR_LC a snw:CausalEdge ;
+    snw:edgeId "P2::IR→LC" ; snw:cause snw:prim_IR ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Higher mortgage/consumer debt costs → real income squeeze → wage demands" .
+
+# ---- LC (Labor cost) outgoing ----
+
+snw:edge_LC_FR a snw:CausalEdge ;
+    snw:edgeId "P2::LC→FR" ; snw:cause snw:prim_LC ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Carrier labor (dock, drivers, crew) is 20-35% of cost; wage inflation → rate increase" .
+
+# ---- LT (Lead time) outgoing ----
+
+snw:edge_LT_FR a snw:CausalEdge ;
+    snw:edgeId "P2::LT→FR" ; snw:cause snw:prim_LT ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Extended LT → larger in-transit inventory → higher effective freight cost" .
+
+# ---- OX (Opex) outgoing ----
+
+snw:edge_OX_IR a snw:CausalEdge ;
+    snw:edgeId "P2::OX→IR" ; snw:cause snw:prim_OX ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "2–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Sustained opex inflation → margin compression → credit quality deterioration" .
+
+snw:edge_OX_LC a snw:CausalEdge ;
+    snw:edgeId "P2::OX→LC" ; snw:cause snw:prim_OX ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "mixed" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Rising opex: cost-cut pressure suppresses wages OR bargaining power raises them; mixed" .
+
+# ---- RG (Regulatory) outgoing ----
+
+snw:edge_RG_CM a snw:CausalEdge ;
+    snw:edgeId "P2::RG→CM" ; snw:cause snw:prim_RG ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.10–0.35" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Export bans, sanctions, CBAM → commodity supply restriction; 2022 Russian wheat prototype" .
+
+snw:edge_RG_EP a snw:CausalEdge ;
+    snw:edgeId "P2::RG→EP" ; snw:cause snw:prim_RG ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Carbon taxes, ETS tightening, fuel standards raise effective energy price" .
+
+snw:edge_RG_FR a snw:CausalEdge ;
+    snw:edgeId "P2::RG→FR" ; snw:cause snw:prim_RG ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "IMO sulfur rules, ETS maritime inclusion → carrier compliance costs → rate increase" .
+
+snw:edge_RG_FX a snw:CausalEdge ;
+    snw:edgeId "P2::RG→FX" ; snw:cause snw:prim_RG ; snw:effect snw:prim_FX ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Surprise regulatory tightening → policy uncertainty → capital flight → depreciation" .
+
+snw:edge_RG_IR a snw:CausalEdge ;
+    snw:edgeId "P2::RG→IR" ; snw:cause snw:prim_RG ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Regulatory burden → compliance cost → margin compression → credit spread widening" .
+
+snw:edge_RG_LC a snw:CausalEdge ;
+    snw:edgeId "P2::RG→LC" ; snw:cause snw:prim_RG ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Minimum wage, living wage mandates, labor standards → step-change cost increase" .
+
+snw:edge_RG_LT a snw:CausalEdge ;
+    snw:edgeId "P2::RG→LT" ; snw:cause snw:prim_RG ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Export controls, sanctions, customs requirements extend clearance time" .
+
+# ---- RV (Revenue) outgoing ----
+
+snw:edge_RV_WF a snw:CausalEdge ;
+    snw:edgeId "P2::RV→WF" ; snw:cause snw:prim_RV ; snw:effect snw:prim_WF ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:elasticityOrWeight "0.02–0.12" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Revenue decline → headcount reduction; direction: − (RV falls → WF falls)" .
+
+# ---- SC (Supply chain) outgoing ----
+
+snw:edge_SC_CM a snw:CausalEdge ;
+    snw:edgeId "P2::SC→CM" ; snw:cause snw:prim_SC ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "SC disruptions reduce commodity throughput → regional scarcity → price spike" .
+
+snw:edge_SC_EP a snw:CausalEdge ;
+    snw:edgeId "P2::SC→EP" ; snw:cause snw:prim_SC ; snw:effect snw:prim_EP ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Energy SC disruptions (pipeline, LNG terminal) → regional energy price spikes" .
+
+snw:edge_SC_FR a snw:CausalEdge ;
+    snw:edgeId "P2::SC→FR" ; snw:cause snw:prim_SC ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "SC stress → expedited freight, premium routing, spot surcharges" .
+
+snw:edge_SC_FX a snw:CausalEdge ;
+    snw:edgeId "P2::SC→FX" ; snw:cause snw:prim_SC ; snw:effect snw:prim_FX ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Severe SC disruption → trade balance deterioration → currency depreciation" .
+
+snw:edge_SC_IR a snw:CausalEdge ;
+    snw:edgeId "P2::SC→IR" ; snw:cause snw:prim_SC ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–3q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "SC stress → working capital crunch → increased borrowing → spread widening" .
+
+snw:edge_SC_LC a snw:CausalEdge ;
+    snw:edgeId "P2::SC→LC" ; snw:cause snw:prim_SC ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–3q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "SC disruptions → essential goods scarcity → CPI → wage pressure; slow indirect path" .
+
+snw:edge_SC_LT a snw:CausalEdge ;
+    snw:edgeId "P2::SC→LT" ; snw:cause snw:prim_SC ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.30–0.70" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Dominant: SC stress directly manifests as elongated lead times" .
+
+snw:edge_SC_RG a snw:CausalEdge ;
+    snw:edgeId "P2::SC→RG" ; snw:cause snw:prim_SC ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "2–6q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "High-profile SC failures drive due-diligence laws (EU CSDDD, German LkSG)" .
+
+# ---- WA (Water) outgoing ----
+
+snw:edge_WA_CM a snw:CausalEdge ;
+    snw:edgeId "P2::WA→CM" ; snw:cause snw:prim_WA ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Water scarcity → reduced agricultural/mining output → commodity price rise" .
+
+snw:edge_WA_RG a snw:CausalEdge ;
+    snw:edgeId "P2::WA→RG" ; snw:cause snw:prim_WA ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Persistent over-extraction → permit review, tighter water governance" .
+
+# ---- WF (Workforce) outgoing ----
+
+snw:edge_WF_LC a snw:CausalEdge ;
+    snw:edgeId "P2::WF→LC" ; snw:cause snw:prim_WF ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "ratio" ;
+    snw:elasticityOrWeight "0.20–0.55" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Dominant: tight labor market → wage premium competition; − availability → + cost" .
+
+# ---- WS (Waste) outgoing ----
+
+snw:edge_WS_RG a snw:CausalEdge ;
+    snw:edgeId "P2::WS→RG" ; snw:cause snw:prim_WS ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Waste permit exceedances → enforcement escalation and new waste regulations" .
+
+# ---- XW (Extreme weather) outgoing ----
+
+snw:edge_XW_CM a snw:CausalEdge ;
+    snw:edgeId "P2::XW→CM" ; snw:cause snw:prim_XW ; snw:effect snw:prim_CM ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.15–0.50" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Drought→crop failure, floods→mine disruption; agricultural commodities most exposed" .
+
+snw:edge_XW_FR a snw:CausalEdge ;
+    snw:edgeId "P2::XW→FR" ; snw:cause snw:prim_XW ; snw:effect snw:prim_FR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Storms close ports/roads; rerouting adds cost; Panama Canal low-water prototype" .
+
+snw:edge_XW_FX a snw:CausalEdge ;
+    snw:edgeId "P2::XW→FX" ; snw:cause snw:prim_XW ; snw:effect snw:prim_FX ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Systemic weather events → trade balance deterioration → currency weakness" .
+
+snw:edge_XW_IR a snw:CausalEdge ;
+    snw:edgeId "P2::XW→IR" ; snw:cause snw:prim_XW ; snw:effect snw:prim_IR ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Physical climate risk → insurance cost + asset impairment → higher risk premium" .
+
+snw:edge_XW_LC a snw:CausalEdge ;
+    snw:edgeId "P2::XW→LC" ; snw:cause snw:prim_XW ; snw:effect snw:prim_LC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Extreme weather → disaster recovery cost → cost-of-living spike → wage demands" .
+
+snw:edge_XW_LT a snw:CausalEdge ;
+    snw:edgeId "P2::XW→LT" ; snw:cause snw:prim_XW ; snw:effect snw:prim_LT ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Flooding, typhoons, ice storms close ports/roads; Panama Canal drought 2023 prototype" .
+
+snw:edge_XW_RG a snw:CausalEdge ;
+    snw:edgeId "P2::XW→RG" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RG ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "2–6q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Major climate events accelerate political pressure for stricter environmental rules" .
