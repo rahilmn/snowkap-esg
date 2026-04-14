@@ -236,9 +236,21 @@ snowkap:gri_413 a snowkap:FrameworkSection ;
 snowkap:gri_414 a snowkap:FrameworkSection ;
     snowkap:belongsToFramework snowkap:GRI ;
     snowkap:sectionCode "GRI:414" ; snowkap:sectionTitle "Supplier Social Assessment" .
+snowkap:gri_408 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:408" ; snowkap:sectionTitle "Child Labor" ;
+    snowkap:profitabilityLink "Child labor discovery → supply chain audit cost ₹5-20 Cr + remediation capex + brand damage → 5-15% B2B revenue at risk from procurement exclusion" .
+snowkap:gri_409 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:409" ; snowkap:sectionTitle "Forced or Compulsory Labor" ;
+    snowkap:profitabilityLink "Forced labor exposure → import ban risk (US UFLPA, EU CSDDD) + SEBI penalty + institutional investor divestment → 10-25% revenue at risk in export markets" .
+snowkap:gri_412 a snowkap:FrameworkSection ;
+    snowkap:belongsToFramework snowkap:GRI ;
+    snowkap:sectionCode "GRI:412" ; snowkap:sectionTitle "Human Rights Assessment" ;
+    snowkap:profitabilityLink "Human rights assessment failure → ESG rating downgrade → passive fund exclusion → FII outflow + cost of capital increase 20-50 bps" .
 snowkap:GRI snowkap:hasSection snowkap:gri_205, snowkap:gri_302, snowkap:gri_303,
     snowkap:gri_305, snowkap:gri_306, snowkap:gri_401, snowkap:gri_403,
-    snowkap:gri_405, snowkap:gri_413, snowkap:gri_414 .
+    snowkap:gri_405, snowkap:gri_408, snowkap:gri_409, snowkap:gri_412, snowkap:gri_413, snowkap:gri_414 .
 
 # TCFD pillars
 snowkap:tcfd_governance a snowkap:FrameworkSection ;
@@ -458,20 +470,20 @@ snowkap:metric_renewable_share a snowkap:ESGMetric ; rdfs:label "Renewable Energ
 # =============================================================================
 
 snowkap:stakeholder_investors rdfs:comment "Communication channels: annual report, investor day, ESG ratings, quarterly results, roadshows" ;
-    snowkap:careAbout snowkap:topic_risk_management, snowkap:topic_tax_transparency, snowkap:topic_ethics_compliance, snowkap:topic_transparency, snowkap:topic_board_leadership ;
-    snowkap:investorConcern "FII/DII sentiment shift, analyst downgrade risk, ESG fund exclusion, passive index rebalancing, bond spread widening, institutional holder engagement escalation" ;
-    snowkap:investorTransmission "Penalty/fine event → contingent liability → earnings revision → analyst downgrade → FII outflow → share price impact (lag 1-4 weeks). ESG rating downgrade → passive fund exclusion → forced selling (lag 1-3 months)." ;
-    snowkap:investorSeverityTrigger "Fine ≥ 0.1% of market cap = MODERATE concern. Fine ≥ 0.5% of market cap = HIGH concern. Recurring penalties or systemic governance failure = CRITICAL concern triggering board engagement." .
+    snowkap:careAbout snowkap:topic_risk_management, snowkap:topic_tax_transparency, snowkap:topic_ethics_compliance, snowkap:topic_transparency, snowkap:topic_board_leadership, snowkap:topic_supply_chain_labor ;
+    snowkap:investorConcern "FII/DII sentiment shift, analyst downgrade risk, ESG fund exclusion, passive index rebalancing, bond spread widening, institutional holder engagement escalation. For social/labor violations: MSCI ESG downgrade, B2B procurement exclusion, US UFLPA import ban risk, EU CSDDD due diligence failure" ;
+    snowkap:investorTransmission "Penalty/fine event → contingent liability → earnings revision → analyst downgrade → FII outflow → share price impact (lag 1-4 weeks). ESG rating downgrade → passive fund exclusion → forced selling (lag 1-3 months). Child/forced labor discovery → immediate MSCI review → ESG fund divestment (lag 1-2 weeks)." ;
+    snowkap:investorSeverityTrigger "Fine ≥ 0.1% of market cap = MODERATE concern. Fine ≥ 0.5% of market cap = HIGH concern. Recurring penalties or systemic governance failure = CRITICAL concern triggering board engagement. ANY child labor or forced labor finding = CRITICAL regardless of financial quantum." .
 
 snowkap:stakeholder_employees rdfs:comment "Communication channels: town halls, engagement surveys, internal newsletter, grievance mechanism" ;
-    snowkap:careAbout snowkap:topic_ethics_compliance, snowkap:topic_health_safety, snowkap:topic_dei, snowkap:topic_human_capital ;
-    snowkap:employeeConcern "Talent retention risk, employer brand erosion, whistleblower culture impact, union response" ;
-    snowkap:employeeTransmission "Public penalty → employer brand damage → attrition of senior talent (lag 2-6 months). Safety incident → union escalation → productivity loss (lag 0-1 month)." .
+    snowkap:careAbout snowkap:topic_ethics_compliance, snowkap:topic_health_safety, snowkap:topic_dei, snowkap:topic_human_capital, snowkap:topic_supply_chain_labor ;
+    snowkap:employeeConcern "Talent retention risk, employer brand erosion, whistleblower culture impact, union response. For supply chain labor violations: employee morale shock, internal ethics culture questioned, senior talent attrition accelerated" ;
+    snowkap:employeeTransmission "Public penalty → employer brand damage → attrition of senior talent (lag 2-6 months). Safety incident → union escalation → productivity loss (lag 0-1 month). Child labor discovery → employer brand crisis → 10-20% increase in attrition intent (lag 1-3 months)." .
 
 snowkap:stakeholder_community rdfs:comment "Communication channels: public meetings, grievance redressal, CSR reports, village panchayat dialogues" ;
-    snowkap:careAbout snowkap:topic_biodiversity, snowkap:topic_health_safety, snowkap:topic_community, snowkap:topic_water, snowkap:topic_pollution ;
-    snowkap:communityConcern "Social licence to operate risk, protest/blockade risk, NGO campaign targeting, local government intervention" ;
-    snowkap:communityTransmission "Environmental violation → community health concern → protest → regulatory investigation → permit risk (lag 1-6 months)." .
+    snowkap:careAbout snowkap:topic_biodiversity, snowkap:topic_health_safety, snowkap:topic_community, snowkap:topic_water, snowkap:topic_pollution, snowkap:topic_supply_chain_labor ;
+    snowkap:communityConcern "Social licence to operate risk, protest/blockade risk, NGO campaign targeting, local government intervention. For labor violations: community outrage, NGO naming campaigns (Amnesty, HRW), political intervention, permit review" ;
+    snowkap:communityTransmission "Environmental violation → community health concern → protest → regulatory investigation → permit risk (lag 1-6 months). Labor violation → NGO campaign → media coverage → political pressure → regulatory crackdown (lag 1-4 months)." .
 
 snowkap:stakeholder_regulators rdfs:comment "Communication channels: disclosure filings, compliance reports, official consultations" ;
     snowkap:careAbout snowkap:topic_climate, snowkap:topic_risk_management, snowkap:topic_tax_transparency, snowkap:topic_ethics_compliance, snowkap:topic_transparency, snowkap:topic_emissions ;

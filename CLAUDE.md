@@ -759,6 +759,20 @@ Load all 64 missing P→P edges + 29 P→non-P edges from the Primitives framewo
 
 **P→non-P edges (29):** Primitives to outcome nodes (GrossMargin, WACC, CreditRating, FCF, EquityVal, InsurancePremium, CarbonCost, CarbonLiability, ESGRating, CustomerChurn, CapacityUtil, SocialLicence, etc.)
 
+### Phase 18: Social/Labor Intelligence Coverage (In Progress)
+
+**Problem:** Social issues (child labor, forced labor, modern slavery) were aggregated under generic `topic_supply_chain_labor` with no dedicated event types, framework sections, or penalty cascades. A child labor article would classify as generic "NGO Report" (score 4-7) instead of "Social/Labor Rights Violation" (score 7-9).
+
+**8 Gaps Fixed:**
+1. New event type: `event_social_violation` (score 7-9) with 20+ keywords (child labor, forced labor, modern slavery, sweatshop, wage theft, etc.)
+2. Framework sections: GRI:408 (Child Labor), GRI:409 (Forced Labor), GRI:412 (Human Rights Assessment)
+3. Event→primitive mapping: social violation → CL (primary) + SC, RV, OX, RG, WF (secondary)
+4. Theme→event mapping: `topic_supply_chain_labor` → `event_social_violation` (replaces ngo_report fallback)
+5. Materiality weight boost: supply_chain_labor for Power/Renewable raised from 0.7 to 0.9
+6. Stakeholder mappings: Employees and Community now care about supply_chain_labor
+7. Investor concern: "MSCI ESG downgrade, B2B procurement exclusion, ESG fund divestment" for social violations
+8. CL→RG edge already exists (from Phase 17d) for regulatory escalation cascade
+
 ---
 
 ## CLI Commands

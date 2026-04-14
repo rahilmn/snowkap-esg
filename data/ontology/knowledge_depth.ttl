@@ -267,6 +267,11 @@ snowkap:event_community_protest a snowkap:EventType ; rdfs:label "Community Prot
     snowkap:eventKeyword "protest, opposition, blockade, public hearing, land acquisition dispute, community resistance, social impact, displacement, rehabilitation, indigenous" ;
     snowkap:financialTransmission "social licence risk -> project delay / cancellation" .
 
+snowkap:event_social_violation a snowkap:EventType ; rdfs:label "Social / Labor Rights Violation" ;
+    snowkap:scoreFloor 7 ; snowkap:scoreCeiling 9 ;
+    snowkap:eventKeyword "child labor, child labour, forced labor, forced labour, modern slavery, labor violation, labour violation, human rights abuse, worker exploitation, sweatshop, bonded labor, bonded labour, trafficking, labor audit, labour audit, supply chain audit failure, working conditions, underage worker, minimum wage violation, wage theft, labor rights, labour rights, occupational exploitation, contractor abuse, migrant worker abuse" ;
+    snowkap:financialTransmission "Supply chain audit → remediation capex + supplier substitution + regulatory fine + brand damage + ESG fund exclusion → revenue loss + cost of capital increase" .
+
 snowkap:event_esg_partnership a snowkap:EventType ; rdfs:label "ESG Partnership / Certification" ;
     snowkap:scoreFloor 2 ; snowkap:scoreCeiling 5 ;
     snowkap:eventKeyword "mou, partnership, joint venture, certification, sbti validated, cdp a-list" ;
@@ -367,7 +372,7 @@ snowkap:topic_pollution      snowkap:defaultEventForTheme snowkap:event_heavy_pe
 snowkap:topic_human_capital  snowkap:defaultEventForTheme snowkap:event_labour_strike .
 snowkap:topic_health_safety  snowkap:defaultEventForTheme snowkap:event_community_protest .
 snowkap:topic_community      snowkap:defaultEventForTheme snowkap:event_community_protest .
-snowkap:topic_supply_chain_labor snowkap:defaultEventForTheme snowkap:event_ngo_report .
+snowkap:topic_supply_chain_labor snowkap:defaultEventForTheme snowkap:event_social_violation .
 snowkap:topic_dei            snowkap:defaultEventForTheme snowkap:event_esg_rating_change .
 snowkap:topic_product_safety snowkap:defaultEventForTheme snowkap:event_heavy_penalty .
 snowkap:topic_data_privacy   snowkap:defaultEventForTheme snowkap:event_cyber_incident .
