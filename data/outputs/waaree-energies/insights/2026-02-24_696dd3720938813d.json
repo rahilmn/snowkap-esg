@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 48,
-    "elapsed_seconds": 19.871,
+    "elapsed_seconds": 20.634,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -38,9 +38,9 @@
         "cautionary",
         "analytical"
       ],
-      "narrative_core_claim": "US imposed 126% solar import duties causing Waaree Energies and Vikram Solar stock prices to fall sharply.",
-      "narrative_implied_causation": "The high import duties by the US led to investor fear, resulting in significant stock price declines for Indian solar companies.",
-      "narrative_stakeholder_framing": "US regulators are the protagonists imposing duties; Indian solar companies and investors are negatively affected.",
+      "narrative_core_claim": "US imposed 126% solar import duties causing Waaree Energies and Vikram Solar stock prices to drop significantly.",
+      "narrative_implied_causation": "The high import duties by the US led to investor fear, resulting in a sharp decline in Indian solar companies' stock prices.",
+      "narrative_stakeholder_framing": "US regulators are the protagonists imposing duties; Indian solar companies and their investors are affected negatively.",
       "entities": [
         "Waaree Energies",
         "Vikram Solar",
@@ -54,14 +54,15 @@
       "financial_signal": {
         "amount": null,
         "unit": null,
-        "context": "stock price declines of Waaree Energies and Vikram Solar"
+        "context": ""
       },
       "regulatory_references": [],
       "esg_pillar": "E",
       "esg_topics": [
-        "solar import duties",
-        "renewable energy trade",
-        "investor impact"
+        "solar energy",
+        "trade policy",
+        "import duties",
+        "investor sentiment"
       ],
       "content_type": "financial",
       "urgency": "high",
@@ -687,11 +688,356 @@
       "Climate Action"
     ]
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "US imposes 126% solar import duties, triggering 14% Waaree Energies stock crash and investor flight",
+    "impact_score": 5,
+    "core_mechanism": "The US has imposed a 126% import duty on solar products, directly impacting Indian solar exporters like Waaree Energies. This has led to immediate investor concern, reflected in a sharp 14% stock price decline, as the US is a key export market and the duties threaten revenue streams.",
+    "profitability_connection": "The import duties create direct revenue headwinds for Waaree Energies' US exports, with a computed direct exposure of ₹5.0 Cr and a 10.0 bps margin impact. Investor sentiment has deteriorated, increasing cost of capital and pressuring valuation multiples.",
+    "translation": "The US sharply raised taxes on imported solar panels, causing Waaree Energies' stock to drop. This means the company may sell less in the US and face higher costs, making it less profitable and less attractive to investors.",
+    "impact_analysis": {
+      "esg_positioning": "Waaree Energies faces a potential ESG score gap due to weaker GRI/TCFD disclosure triggered by the event, risking index exclusion if transparency is not improved.",
+      "capital_allocation": "Cost of capital could rise by 20-40 bps due to increased risk perception and potential FII outflows, as flagged by BRSR and TCFD frameworks.",
+      "valuation_cashflow": "P/E compression risk of 0.05-0.1x as FII outflows and negative sentiment weigh on valuation; direct revenue at risk is ₹5.0 Cr.",
+      "compliance_regulatory": "BRSR and GRI disclosure obligations triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+      "supply_chain_transmission": "No supply chain transmission; impact is direct via export market access, not via upstream or downstream suppliers.",
+      "people_demand": "No direct talent or community impact; event is market-access and investor-sentiment driven, not workforce or consumer related."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹5.0 Cr direct US export revenue at risk from import duties",
+        "profitability_pathway": "US import duty → reduced US sales → ₹5.0 Cr direct revenue loss",
+        "margin_pressure": "10.0 bps",
+        "revenue_at_risk": "₹5.0 Cr direct; no indirect precedent risk identified"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.05-0.1x due to FII outflow and risk repricing",
+        "competitive_position": "Waaree Energies at disadvantage vs Adani Power (diversified markets) and JSW Energy (lower US exposure)"
+      },
+      "long_term": {
+        "secular_trajectory": "If US duties persist, Waaree Energies may need to pivot to non-US markets or invest in local US manufacturing; otherwise, export growth will remain constrained.",
+        "green_revenue_opportunity": "No immediate green revenue opportunity; focus is on mitigating export loss."
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 7,
+        "rationale": "Event is in renewable energy sector, but impact is regulatory/market, not environmental performance."
+      },
+      "social": {
+        "score": 1,
+        "rationale": "No direct workforce, community, or consumer impact; event is trade/regulatory."
+      },
+      "governance": {
+        "score": 6,
+        "rationale": "Regulatory risk and disclosure obligations triggered; governance response required."
+      },
+      "financial_materiality": {
+        "score": 5,
+        "rationale": "Direct revenue at risk is moderate for a mid-cap; margin impact is measurable but not critical."
+      },
+      "regulatory_exposure": {
+        "score": 8,
+        "rationale": "High US import duties and triggered disclosure obligations create significant regulatory exposure."
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Investor sentiment and FII flows affected, but no direct impact on employees or communities."
+      }
+    },
+    "net_impact_summary": "The US's 126% solar import duty directly threatens Waaree Energies' US export revenue, with a computed ₹5.0 Cr at risk and a 10.0 bps margin impact. Regulatory disclosure obligations under BRSR and GRI are triggered, raising cost of capital and risking index exclusion if transparency is not improved. The event places Waaree at a disadvantage to peers with less US exposure. Note: This analysis is based on limited article content (headline only). Full article behind paywall.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "Do nothing immediately; monitor US policy and disclosure obligations, as direct exposure is limited.",
+      "financial_exposure": "₹5.0 Cr direct US revenue at risk; no indirect or precedent risk identified",
+      "key_risk": "₹5.0 Cr US export loss if duties persist; risk of SEBI scrutiny if BRSR/GRI disclosure gaps remain",
+      "top_opportunity": "Enhance ESG disclosure to maintain index inclusion and access to green capital",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "US imposes 126% import duty on solar products",
+      "mechanism": "Waaree Energies' US exports become uncompetitive, leading to revenue loss and investor flight; triggered ESG disclosure obligations increase regulatory scrutiny.",
+      "company_impact": "Direct revenue loss of ₹5.0 Cr, 10.0 bps margin impact, and potential P/E compression from negative sentiment and FII outflow.",
+      "transmission_type": "direct"
+    },
+    "warnings": []
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Enhance ESG Disclosure for BRSR FY26 Filing",
+        "description": "Commission a third-party assurance of BRSR FY26 disclosures by 2026-05-15 to avoid SEBI scrutiny and potential trading restrictions, budgeting ₹1-2 Cr. This ensures compliance with BRSR:P6:Q14 and mitigates a 20-40 bps cost of capital increase.",
+        "type": "compliance",
+        "responsible_party": "Head of Sustainability",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-05-15",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "Avoid ₹5-10 Cr annual cost from higher cost of capital and trading restrictions",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 250.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power enhanced ESG disclosures to support green bond issuance"
+      },
+      {
+        "title": "Monitor US Solar Import Duty Impact Quarterly",
+        "description": "Establish a quarterly monitoring system to track US solar import duties and related regulatory mandates, escalating to the board if duties exceed 100% or if SEBI issues related to ESG disclosures arise within 6 months, aligned with GRI:207-1 and TCFD recommendations.",
+        "type": "operational",
+        "responsible_party": "Head of Risk Management",
+        "framework_section": "GRI:207-1",
+        "deadline": "2026-07-13",
+        "estimated_budget": "₹0.25-0.5 Cr",
+        "profitability_link": "Avoid ₹5 Cr export loss by timely strategic adjustments and regulatory compliance",
+        "priority": "MEDIUM",
+        "urgency": "short_term",
+        "estimated_impact": "Low",
+        "risk_of_inaction": 4,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": null
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 2,
+    "validated_count": 2,
+    "priority_matrix": {
+      "immediate_high": [],
+      "immediate_low": [
+        {
+          "index": 0,
+          "title": "Enhance ESG Disclosure for BRSR FY26 Filing",
+          "type": "compliance",
+          "roi": 250.0,
+          "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Monitor US Solar Import Duty Impact Quarterly",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.25-0.5 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        1
+      ],
+      "ceo": [
+        1,
+        0
+      ],
+      "esg-analyst": [
+        0,
+        1
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "US imposes 126% solar import duties, triggering 14% Waaree Energies stock crash and investor flight",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "Waaree Energies faces a potential ESG score gap due to weaker GRI/TCFD disclosure triggered by the event, risking index exclusion if transparency is not improved.",
+        "No supply chain transmission; impact is direct via export market access, not via upstream or downstream suppliers.",
+        "BRSR and GRI disclosure obligations triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions."
+      ],
+      "action": [
+        "Do nothing immediately; monitor US policy and disclosure obligations, as direct exposure is limited.",
+        "Key risk: ₹5.0 Cr US export loss if duties persist; risk of SEBI scrutiny if BRSR/GRI disclosure gaps remain",
+        "Opportunity: Enhance ESG disclosure to maintain index inclusion and access to green capital"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "US imposes 126% solar import duties, triggering 14% Waaree Energies stock crash and investor flight",
+        "impact_score": 5,
+        "core_mechanism": "The US has imposed a 126% import duty on solar products, directly impacting Indian solar exporters like Waaree Energies. This has led to immediate investor concern, reflected in a sharp 14% stock price decline, as the US is a key export market and the duties threaten revenue streams.",
+        "profitability_connection": "The import duties create direct revenue headwinds for Waaree Energies' US exports, with a computed direct exposure of ₹5.0 Cr and a 10.0 bps margin impact. Investor sentiment has deteriorated, increasing cost of capital and pressuring valuation multiples.",
+        "translation": "The US sharply raised taxes on imported solar panels, causing Waaree Energies' stock to drop. This means the company may sell less in the US and face higher costs, making it less profitable and less attractive to investors.",
+        "impact_analysis": {
+          "esg_positioning": "Waaree Energies faces a potential ESG score gap due to weaker GRI/TCFD disclosure triggered by the event, risking index exclusion if transparency is not improved.",
+          "capital_allocation": "Cost of capital could rise by 20-40 bps due to increased risk perception and potential FII outflows, as flagged by BRSR and TCFD frameworks.",
+          "valuation_cashflow": "P/E compression risk of 0.05-0.1x as FII outflows and negative sentiment weigh on valuation; direct revenue at risk is ₹5.0 Cr.",
+          "compliance_regulatory": "BRSR and GRI disclosure obligations triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission; impact is direct via export market access, not via upstream or downstream suppliers.",
+          "people_demand": "No direct talent or community impact; event is market-access and investor-sentiment driven, not workforce or consumer related."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹5.0 Cr direct US export revenue at risk from import duties",
+            "profitability_pathway": "US import duty → reduced US sales → ₹5.0 Cr direct revenue loss",
+            "margin_pressure": "10.0 bps",
+            "revenue_at_risk": "₹5.0 Cr direct; no indirect precedent risk identified"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.05-0.1x due to FII outflow and risk repricing",
+            "competitive_position": "Waaree Energies at disadvantage vs Adani Power (diversified markets) and JSW Energy (lower US exposure)"
+          },
+          "long_term": {
+            "secular_trajectory": "If US duties persist, Waaree Energies may need to pivot to non-US markets or invest in local US manufacturing; otherwise, export growth will remain constrained.",
+            "green_revenue_opportunity": "No immediate green revenue opportunity; focus is on mitigating export loss."
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 7,
+            "rationale": "Event is in renewable energy sector, but impact is regulatory/market, not environmental performance."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No direct workforce, community, or consumer impact; event is trade/regulatory."
+          },
+          "governance": {
+            "score": 6,
+            "rationale": "Regulatory risk and disclosure obligations triggered; governance response required."
+          },
+          "financial_materiality": {
+            "score": 5,
+            "rationale": "Direct revenue at risk is moderate for a mid-cap; margin impact is measurable but not critical."
+          },
+          "regulatory_exposure": {
+            "score": 8,
+            "rationale": "High US import duties and triggered disclosure obligations create significant regulatory exposure."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Investor sentiment and FII flows affected, but no direct impact on employees or communities."
+          }
+        },
+        "net_impact_summary": "The US's 126% solar import duty directly threatens Waaree Energies' US export revenue, with a computed ₹5.0 Cr at risk and a 10.0 bps margin impact. Regulatory disclosure obligations under BRSR and GRI are triggered, raising cost of capital and risking index exclusion if transparency is not improved. The event places Waaree at a disadvantage to peers with less US exposure. Note: This analysis is based on limited article content (headline only). Full article behind paywall.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "Do nothing immediately; monitor US policy and disclosure obligations, as direct exposure is limited.",
+          "financial_exposure": "₹5.0 Cr direct US revenue at risk; no indirect or precedent risk identified",
+          "key_risk": "₹5.0 Cr US export loss if duties persist; risk of SEBI scrutiny if BRSR/GRI disclosure gaps remain",
+          "top_opportunity": "Enhance ESG disclosure to maintain index inclusion and access to green capital",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "US imposes 126% import duty on solar products",
+          "mechanism": "Waaree Energies' US exports become uncompetitive, leading to revenue loss and investor flight; triggered ESG disclosure obligations increase regulatory scrutiny.",
+          "company_impact": "Direct revenue loss of ₹5.0 Cr, 10.0 bps margin impact, and potential P/E compression from negative sentiment and FII outflow.",
+          "transmission_type": "direct"
+        },
+        "warnings": []
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹5.0 Cr direct US revenue at risk; no indirect or precedent risk identified",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "No supply chain transmission; impact is direct via export market access, not via upstream or downstream suppliers.",
+        "BRSR and GRI disclosure obligations triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+        "P/E compression risk of 0.05-0.1x as FII outflows and negative sentiment weigh on valuation; direct revenue at risk is ₹5.0 Cr."
+      ],
+      "action": [
+        "Quantify exposure: ₹5.0 Cr direct US revenue at risk; no indirect or precedent risk identified",
+        "Revenue at risk: ₹5.0 Cr direct; no indirect precedent risk identified"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Enhance ESG disclosure to maintain index inclusion and access to green capital",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "BRSR and GRI disclosure obligations triggered; SEBI scrutiny possible if non-disclosure persists, with risk of trading restrictions.",
+        "Waaree Energies faces a potential ESG score gap due to weaker GRI/TCFD disclosure triggered by the event, risking index exclusion if transparency is not improved.",
+        "No direct talent or community impact; event is market-access and investor-sentiment driven, not workforce or consumer related."
+      ],
+      "action": [
+        "Strategic opportunity: Enhance ESG disclosure to maintain index inclusion and access to green capital",
+        "Competitive position: Waaree Energies at disadvantage vs Adani Power (diversified markets) and JSW Energy (lower US exposure)"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
   "meta": {
-    "written_at": "2026-04-12T10:31:14.632978+00:00",
-    "schema_version": "1.0"
+    "written_at": "2026-04-14T08:07:11.605806+00:00",
+    "schema_version": "2.0-primitives-l2"
+  },
+  "intelligence": {
+    "competitive_brief": "The US imposing 126% solar import duties significantly impacts Waaree Energies, reflected in its 14% stock crash and investor flight. Competitors like Adani Power and JSW Energy could experience mixed effects:\n\n1. **Adani Power**: With its diversified energy portfolio and strong financials, Adani may leverage this disruption by accelerating domestic solar manufacturing to reduce import dependency. It might also lobby for government incentives to boost local production, mitigating US tariff impacts. Adani’s stock could see moderate volatility but less severe than Waaree due to its scale and integrated operations.\n\n2. **JSW Energy**: Primarily focused on power generation rather than solar manufacturing, JSW may be less directly affected. However, higher solar panel costs could slow renewable capacity additions, impacting long-term growth. JSW might respond by exploring alternative suppliers or investing in R&D for cost-effective solar tech domestically.\n\n**Industry precedent**: In 2018, when the US imposed tariffs on solar imports, Indian companies like Vikram Solar and Renew Power accelerated local manufacturing and diversified supply chains. The Indian government also increased production-linked incentives (PLI) for solar modules, which competitors are likely to advocate for now.\n\nIn summary, Adani and JSW will likely focus on supply chain localization, government engagement, and strategic diversification to counteract the adverse effects seen by Waaree Energies.",
+    "causal_narrative": "The imposition of a 126% import duty on solar panels by the US directly increases Waaree Energies' cost of imported components, squeezing margins and triggering a 14% stock price decline as investors anticipate reduced competitiveness and profitability. This regulatory shift also intensifies disclosure requirements under frameworks like BRSR, GRI, and TCFD, increasing compliance costs and operational complexity for Waaree Energies. Additionally, industry-wide ESG pressures, such as enhanced Diversity, Equity & Inclusion mandates linked through BRSR reporting, further elevate governance risks and potential reputational damage. Collectively, these factors transmit financial risk by escalating costs, constraining growth, and eroding investor confidence.",
+    "anticipated_qa": [
+      {
+        "question": "How will the 126% US solar import duties specifically affect Waaree Energies' revenue and profitability?",
+        "answer": "The duties put approximately ₹5.0 Cr of Waaree Energies' US export revenue at immediate risk, causing a 10 basis points margin pressure. This direct hit reduces profitability and creates headwinds for growth in a key market."
+      },
+      {
+        "question": "What are the implications of this event on Waaree Energies' investor sentiment and valuation?",
+        "answer": "Investor sentiment has deteriorated sharply, leading to a 14% stock price drop and increased cost of capital by 20-40 basis points. This has triggered a P/E multiple compression risk of 0.05-0.1x due to foreign institutional investor outflows and risk repricing."
+      },
+      {
+        "question": "Are there any ESG disclosure or compliance risks arising from this development?",
+        "answer": "Yes, the event exposes potential gaps in Waaree Energies' ESG disclosures under GRI and TCFD frameworks, risking index exclusion and SEBI scrutiny if transparency is not enhanced. Compliance with BRSR and GRI reporting obligations is critical to avoid regulatory penalties or trading restrictions."
+      },
+      {
+        "question": "What strategic options should Waaree Energies consider to mitigate the long-term impact of these US import duties?",
+        "answer": "Waaree Energies may need to pivot to non-US export markets or invest in local US manufacturing to circumvent import duties. Without such measures, export growth will remain constrained, and competitive positioning against diversified peers like Adani Power and JSW Energy will weaken."
+      },
+      {
+        "question": "Does this event have any direct impact on Waaree Energies' supply chain, workforce, or community relations?",
+        "answer": "No direct supply chain disruptions or workforce impacts are identified; the effect is primarily market-access and investor sentiment driven. There is no immediate impact on talent or community demand related to this event."
+      }
+    ],
+    "sentiment_trajectory": {
+      "direction": "stable",
+      "summary": "Despite a recent stock crash due to US solar import duties, Waaree Energies continues to expand its solar module capacity in Gujarat, maintaining overall positive momentum.",
+      "emerging_themes": [
+        "solar module capacity expansion",
+        "impact of US import duties",
+        "stock market volatility"
+      ]
+    }
   }
 }

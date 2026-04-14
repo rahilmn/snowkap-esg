@@ -1434,3 +1434,48 @@ def query_thresholds_for_primitive(
         }
         for row in rows
     ]
+
+
+def query_stakeholder_impact(
+    topic: str, graph: OntologyGraph | None = None
+) -> list[dict[str, str]]:
+    """Return stakeholder concerns and transmission mechanisms for a topic.
+
+    Returns list of dicts with: stakeholder, concern, transmission, severity_trigger.
+    """
+    g = _graph(graph)
+    needle = _lower(topic).replace(" ", "_")
+    sparql = """
+    SELECT ?label ?concern ?transmission ?severity WHERE {
+        ?s a snowkap:Stakeholder .
+        ?s rdfs:label ?label .
+        ?s snowkap:careAbout ?topic .
+        FILTER(CONTAINS(LCASE(STR(?topic)), ?needle))
+        OPTIONAL { ?s snowkap:investorConcern ?concern }
+        OPTIONAL { ?s snowkap:employeeConcern ?concern }
+        OPTIONAL { ?s snowkap:communityConcern ?concern }
+        OPTIONAL { ?s snowkap:regulatorConcern ?concern }
+        OPTIONAL { ?s snowkap:customerConcern ?concern }
+        OPTIONAL { ?s snowkap:investorTransmission ?transmission }
+        OPTIONAL { ?s snowkap:employeeTransmission ?transmission }
+        OPTIONAL { ?s snowkap:communityTransmission ?transmission }
+        OPTIONAL { ?s snowkap:regulatorTransmission ?transmission }
+        OPTIONAL { ?s snowkap:customerTransmission ?transmission }
+        OPTIONAL { ?s snowkap:investorSeverityTrigger ?severity }
+    }
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    results: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for row in rows:
+        label = str(row.get("label", ""))
+        if label in seen:
+            continue
+        seen.add(label)
+        results.append({
+            "stakeholder": label,
+            "concern": str(row.get("concern", "")),
+            "transmission": str(row.get("transmission", "")),
+            "severity_trigger": str(row.get("severity", "")),
+        })
+    return results

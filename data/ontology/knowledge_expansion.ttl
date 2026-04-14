@@ -454,23 +454,34 @@ snowkap:metric_renewable_share a snowkap:ESGMetric ; rdfs:label "Renewable Energ
     snowkap:calculationMethod "Renewable MWh / total MWh × 100" .
 
 # =============================================================================
-# STAKEHOLDER COMMUNICATION DETAIL
+# STAKEHOLDER IMPACT MODEL (enriched with concern descriptions, severity, transmission)
 # =============================================================================
 
 snowkap:stakeholder_investors rdfs:comment "Communication channels: annual report, investor day, ESG ratings, quarterly results, roadshows" ;
-    snowkap:careAbout snowkap:topic_risk_management, snowkap:topic_tax_transparency .
+    snowkap:careAbout snowkap:topic_risk_management, snowkap:topic_tax_transparency, snowkap:topic_ethics_compliance, snowkap:topic_transparency, snowkap:topic_board_leadership ;
+    snowkap:investorConcern "FII/DII sentiment shift, analyst downgrade risk, ESG fund exclusion, passive index rebalancing, bond spread widening, institutional holder engagement escalation" ;
+    snowkap:investorTransmission "Penalty/fine event → contingent liability → earnings revision → analyst downgrade → FII outflow → share price impact (lag 1-4 weeks). ESG rating downgrade → passive fund exclusion → forced selling (lag 1-3 months)." ;
+    snowkap:investorSeverityTrigger "Fine ≥ 0.1% of market cap = MODERATE concern. Fine ≥ 0.5% of market cap = HIGH concern. Recurring penalties or systemic governance failure = CRITICAL concern triggering board engagement." .
 
 snowkap:stakeholder_employees rdfs:comment "Communication channels: town halls, engagement surveys, internal newsletter, grievance mechanism" ;
-    snowkap:careAbout snowkap:topic_ethics_compliance .
+    snowkap:careAbout snowkap:topic_ethics_compliance, snowkap:topic_health_safety, snowkap:topic_dei, snowkap:topic_human_capital ;
+    snowkap:employeeConcern "Talent retention risk, employer brand erosion, whistleblower culture impact, union response" ;
+    snowkap:employeeTransmission "Public penalty → employer brand damage → attrition of senior talent (lag 2-6 months). Safety incident → union escalation → productivity loss (lag 0-1 month)." .
 
 snowkap:stakeholder_community rdfs:comment "Communication channels: public meetings, grievance redressal, CSR reports, village panchayat dialogues" ;
-    snowkap:careAbout snowkap:topic_biodiversity, snowkap:topic_health_safety .
+    snowkap:careAbout snowkap:topic_biodiversity, snowkap:topic_health_safety, snowkap:topic_community, snowkap:topic_water, snowkap:topic_pollution ;
+    snowkap:communityConcern "Social licence to operate risk, protest/blockade risk, NGO campaign targeting, local government intervention" ;
+    snowkap:communityTransmission "Environmental violation → community health concern → protest → regulatory investigation → permit risk (lag 1-6 months)." .
 
 snowkap:stakeholder_regulators rdfs:comment "Communication channels: disclosure filings, compliance reports, official consultations" ;
-    snowkap:careAbout snowkap:topic_climate, snowkap:topic_risk_management .
+    snowkap:careAbout snowkap:topic_climate, snowkap:topic_risk_management, snowkap:topic_tax_transparency, snowkap:topic_ethics_compliance, snowkap:topic_transparency, snowkap:topic_emissions ;
+    snowkap:regulatorConcern "Enforcement escalation, show-cause notices, licence review, mandatory audit requirement, sector-wide rule tightening" ;
+    snowkap:regulatorTransmission "Compliance failure → SEBI/RBI inquiry → show-cause notice → penalty or trading restriction (lag 2-8 quarters). Systemic failure → sector-wide regulatory tightening." .
 
 snowkap:stakeholder_customers rdfs:comment "Communication channels: product labelling, customer portals, sustainability marketing" ;
-    snowkap:careAbout snowkap:topic_ethics_compliance .
+    snowkap:careAbout snowkap:topic_ethics_compliance, snowkap:topic_product_safety, snowkap:topic_data_privacy ;
+    snowkap:customerConcern "Brand trust erosion, B2B procurement ESG criteria exclusion, customer churn for retail-facing companies" ;
+    snowkap:customerTransmission "Public ESG incident → media coverage → B2B customers review supplier ESG score → potential exclusion from procurement shortlist (lag 1-4 quarters)." .
 
 # =============================================================================
 # COMMODITY RISK PROFILES

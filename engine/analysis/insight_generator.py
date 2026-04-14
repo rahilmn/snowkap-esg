@@ -268,6 +268,27 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
             )
         lines.append("")
 
+    # Stakeholder impact context from ontology
+    try:
+        from engine.ontology.intelligence import query_stakeholder_impact
+        primary_theme = themes.primary_theme if themes else ""
+        if primary_theme:
+            impacts = query_stakeholder_impact(primary_theme)
+            if impacts:
+                lines.append("=== STAKEHOLDER IMPACT (from ontology) ===")
+                for si in impacts:
+                    lines.append(f"- {si['stakeholder']}:")
+                    if si.get("concern"):
+                        lines.append(f"    Concerns: {si['concern'][:200]}")
+                    if si.get("transmission"):
+                        lines.append(f"    Transmission: {si['transmission'][:200]}")
+                    if si.get("severity_trigger"):
+                        lines.append(f"    Severity trigger: {si['severity_trigger'][:200]}")
+                lines.append("USE these stakeholder concerns in the stakeholder_impact score rationale and in people_demand impact analysis.")
+                lines.append("")
+    except Exception:
+        pass
+
     # Phase 17c (Level 2): Computed financial cascade — deterministic ₹ figures
     try:
         from engine.analysis.primitive_engine import compute_cascade
