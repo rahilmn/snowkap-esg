@@ -821,7 +821,38 @@ New user enters "tatasteel.com"
   → Dashboard ready in ~5 minutes
 ```
 
-**Current status: Test free tiers of NewsAPI.ai and EODHD before subscribing.**
+**Current status: NewsAPI.ai integrated and tested (free tier, 5,000+ chars full text). EODHD deferred (free tier = prices only, no fundamentals).**
+
+### Phase 19: Self-Evolving Ontology (In Progress)
+
+**Problem:** Pipeline reads ontology (97%) but never writes back. Entities, themes, events, causal links extracted from articles are discarded after JSON output.
+
+**Architecture:** Stage 12.5 — `collect_discoveries()` runs after each article (~5ms), buffers candidates, batch promoter runs every 30 min with confidence thresholds and SPARQL dedup, promotes to `discovered.ttl`.
+
+**7 Discovery Categories:**
+1. New Entities (auto: 3+ articles, confidence ≥ 0.80)
+2. New ESG Themes (human review: 5+ articles, confidence ≥ 0.70)
+3. New Event Types (conditional: 3+ articles from 2+ sources)
+4. New Causal Edges (human review: 5+ articles, confidence ≥ 0.80)
+5. Materiality Weight Refinement (human review: 10+ articles)
+6. Stakeholder Concerns (human review: 5+ articles)
+7. Framework Updates (conditional: Tier-1 sources auto-promote)
+
+**Safety:** Authored TTL never modified. Max 10,000 discovered triples. 90-day archival. Provenance on every triple. Jaro-Winkler dedup for entities.
+
+**New Files:**
+- `engine/ontology/discovery/` — 7 discoverer modules + collector + promoter
+- `data/ontology/discovered.ttl` — runtime-learned triples
+- `data/ontology/discovery_audit.jsonl` — append-only audit log
+
+**Phases with Testing Gates:**
+- Phase A (5d): Foundation — buffer, collector, promoter, graph loading, audit
+- Phase B (5d): Entity + Theme discovery with auto-promotion and dedup
+- Phase C (4d): Event + Framework discovery with conditional promotion
+- Phase D (5d): Edge + Weight + Stakeholder discovery (always human review)
+- Phase E (4d): Governance — triple cap, archival, admin API endpoints
+
+**Each phase has a testing gate that must pass before proceeding to the next.**
 
 ---
 

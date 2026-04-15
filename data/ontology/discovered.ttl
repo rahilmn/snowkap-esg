@@ -1,0 +1,14 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+snowkap:disc_fw_sebi a snowkap:ComplianceDeadline,
+        snowkap:DiscoveredTriple ;
+    rdfs:label "SEBI" ;
+    snowkap:discoveredAt "2026-04-15T10:38:10.719099+00:00" ;
+    snowkap:discoveredFrom "7bc239c6b7d7184f" ;
+    snowkap:discoveryCategory "framework" ;
+    snowkap:discoveryConfidence 8.5e-01 ;
+    snowkap:discoveryStatus "promoted" ;
+    snowkap:slug "sebi" .
+

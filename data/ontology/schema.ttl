@@ -17,7 +17,35 @@
 <http://snowkap.com/ontology/esg> a owl:Ontology ;
     rdfs:label "SNOWKAP ESG Intelligence Ontology" ;
     rdfs:comment "Ontology-driven ESG intelligence schema for Snowkap Intelligence Engine" ;
-    owl:versionInfo "2.0.0" .
+    owl:versionInfo "3.0.0" .
+
+# =============================================================================
+# SELF-EVOLVING ONTOLOGY — Discovery Provenance (Phase 19)
+# =============================================================================
+
+snowkap:DiscoveredTriple a owl:Class ;
+    rdfs:label "Discovered Triple" ;
+    rdfs:comment "A triple discovered at runtime from article analysis. Carries provenance metadata." .
+
+snowkap:discoveredFrom a owl:DatatypeProperty ;
+    rdfs:domain snowkap:DiscoveredTriple ; rdfs:range xsd:string ;
+    rdfs:comment "Article ID that triggered this discovery." .
+
+snowkap:discoveredAt a owl:DatatypeProperty ;
+    rdfs:domain snowkap:DiscoveredTriple ; rdfs:range xsd:dateTime ;
+    rdfs:comment "Timestamp when this triple was discovered." .
+
+snowkap:discoveryConfidence a owl:DatatypeProperty ;
+    rdfs:domain snowkap:DiscoveredTriple ; rdfs:range xsd:float ;
+    rdfs:comment "Confidence level of the discovery (0.0-1.0)." .
+
+snowkap:discoveryCategory a owl:DatatypeProperty ;
+    rdfs:domain snowkap:DiscoveredTriple ; rdfs:range xsd:string ;
+    rdfs:comment "Discovery category: entity | theme | event | edge | weight | stakeholder | framework." .
+
+snowkap:discoveryStatus a owl:DatatypeProperty ;
+    rdfs:domain snowkap:DiscoveredTriple ; rdfs:range xsd:string ;
+    rdfs:comment "Status: pending | promoted | rejected | archived." .
 
 # =============================================================================
 # LAYER 1: ENTITY CLASSES

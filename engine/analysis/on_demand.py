@@ -116,6 +116,15 @@ def enrich_on_demand(
     # 9. Write enriched payload back to disk
     written = write_insight(result, insight, perspectives, recs)
 
+    # 9.5 Stage 12.5: Self-evolving ontology — collect discoveries (~5ms)
+    try:
+        from engine.ontology.discovery.collector import collect_discoveries
+        discoveries = collect_discoveries(result, insight, company_slug)
+        if discoveries > 0:
+            logger.info("enrich_on_demand: %d discovery candidates collected", discoveries)
+    except Exception as exc:
+        logger.debug("discovery collection skipped: %s", exc)
+
     # 10. Reload and merge intelligence layers into the payload
     payload = json.loads(json_path.read_text(encoding="utf-8"))
     if intelligence:

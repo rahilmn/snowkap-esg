@@ -18,7 +18,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 28,
-    "elapsed_seconds": 13.9,
+    "elapsed_seconds": 12.97,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -40,14 +40,16 @@
       ],
       "narrative_core_claim": "ICICI Bank has received a GST demand of ₹50.38 crore and plans to challenge the order.",
       "narrative_implied_causation": "The GST authority issued a demand of ₹50.38 crore to ICICI Bank, prompting the bank to contest the order.",
-      "narrative_stakeholder_framing": "ICICI Bank is the protagonist facing regulatory action; the tax authorities are the affected enforcers.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist facing regulatory action, with the tax authority as the opposing stakeholder.",
       "entities": [
         "ICICI Bank",
-        "A2Z Taxcorp LLP"
+        "A2Z Taxcorp LLP",
+        "GST"
       ],
       "entity_types": {
         "ICICI Bank": "company",
-        "A2Z Taxcorp LLP": "company"
+        "A2Z Taxcorp LLP": "company",
+        "GST": "regulatory framework"
       },
       "financial_signal": {
         "amount": 50.38,
@@ -59,8 +61,9 @@
       ],
       "esg_pillar": "G",
       "esg_topics": [
-        "tax compliance",
-        "regulatory risk"
+        "governance",
+        "regulatory compliance",
+        "taxation"
       ],
       "content_type": "regulatory",
       "urgency": "medium",
@@ -225,11 +228,11 @@
         {
           "category": "Regulatory Risk",
           "probability": 4,
-          "exposure": 3,
-          "raw_score": 12,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.6,
-          "adjusted_score": 19.2,
-          "level": "HIGH",
+          "adjusted_score": 25.6,
+          "level": "CRITICAL",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -244,11 +247,11 @@
         {
           "category": "Reputational Risk",
           "probability": 3,
-          "exposure": 2,
-          "raw_score": 6,
+          "exposure": 3,
+          "raw_score": 9,
           "industry_weight": 1.4,
-          "adjusted_score": 8.4,
-          "level": "MODERATE",
+          "adjusted_score": 12.6,
+          "level": "HIGH",
           "lead_indicators": [
             "social media sentiment",
             "NGO campaigns",
@@ -262,25 +265,6 @@
         }
       ],
       "temples_risks": [
-        {
-          "category": "Economic",
-          "probability": 3,
-          "exposure": 2,
-          "raw_score": 6,
-          "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "commodity price trends",
-            "FX volatility",
-            "customer order pipeline"
-          ],
-          "lag_indicators": [
-            "revenue decline",
-            "margin erosion",
-            "write-downs"
-          ]
-        },
         {
           "category": "Legal",
           "probability": 4,
@@ -324,11 +308,11 @@
         {
           "category": "Regulatory Risk",
           "probability": 4,
-          "exposure": 3,
-          "raw_score": 12,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.6,
-          "adjusted_score": 19.2,
-          "level": "HIGH",
+          "adjusted_score": 25.6,
+          "level": "CRITICAL",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -360,6 +344,25 @@
           ]
         },
         {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.4,
+          "adjusted_score": 12.6,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
           "category": "Legal",
           "probability": 4,
           "exposure": 3,
@@ -379,26 +382,7 @@
           ]
         },
         {
-          "category": "Reputational Risk",
-          "probability": 3,
-          "exposure": 2,
-          "raw_score": 6,
-          "industry_weight": 1.4,
-          "adjusted_score": 8.4,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "social media sentiment",
-            "NGO campaigns",
-            "whistleblower reports"
-          ],
-          "lag_indicators": [
-            "brand score decline",
-            "customer churn",
-            "boycotts"
-          ]
-        },
-        {
-          "category": "Economic",
+          "category": "Media",
           "probability": 3,
           "exposure": 2,
           "raw_score": 6,
@@ -406,19 +390,19 @@
           "adjusted_score": 6.0,
           "level": "MODERATE",
           "lead_indicators": [
-            "commodity price trends",
-            "FX volatility",
-            "customer order pipeline"
+            "social media sentiment shifts",
+            "journalist inquiries",
+            "activist group interest"
           ],
           "lag_indicators": [
-            "revenue decline",
-            "margin erosion",
-            "write-downs"
+            "negative coverage",
+            "brand value decline",
+            "customer boycotts"
           ]
         }
       ],
-      "aggregate_score": 0.278,
-      "ontology_queries": 12
+      "aggregate_score": 0.297,
+      "ontology_queries": 10
     },
     "stakeholders": [
       "Investors",
@@ -427,33 +411,33 @@
     "sdgs": []
   },
   "insight": {
-    "headline": "ICICI Bank faces ₹50.38 Cr GST demand, risking direct P&L hit and potential ESG rating downgrade",
-    "impact_score": 7.5,
-    "core_mechanism": "A GST authority has issued a ₹50.38 Cr demand to ICICI Bank, which the bank intends to challenge. This event triggers a direct compliance/legal risk, with immediate P&L impact and potential for regulatory scrutiny. The penalty also exposes the bank to precedent risk, possible ESG rating downgrades, and increased cost of capital.",
-    "profitability_connection": "The ₹50.38 Cr demand directly reduces net profit and may lead to further contingent liabilities if similar cases arise. Negative ESG signals can prompt analyst downgrades, FII outflows, and bond spread widening, affecting both valuation and funding costs.",
-    "translation": "ICICI Bank has received a large tax demand from GST authorities, which could immediately reduce profits and hurt its reputation with investors. If the issue escalates or repeats, it could make borrowing more expensive and lower the bank's stock value.",
+    "headline": "ICICI Bank faces ₹50.38 Cr GST demand, risking 10.1 bps margin hit and governance scrutiny",
+    "impact_score": 8.0,
+    "core_mechanism": "The GST authority has issued a ₹50.38 Cr demand to ICICI Bank, directly impacting its P&L and triggering governance risk. This event signals potential compliance gaps in tax transparency, raising the risk of further regulatory scrutiny and possible precedent for future penalties.",
+    "profitability_connection": "The direct penalty of ₹50.38 Cr, plus associated compliance and reputational costs, will reduce net profit and may prompt analyst downgrades. This could widen bond spreads and increase the cost of capital, with a total exposure of ₹85.1 Cr and a 10.1 bps margin impact.",
+    "translation": "ICICI Bank has been hit with a ₹50.38 Cr tax demand, which it plans to contest. This fine will immediately dent profits and could make investors and regulators more cautious, possibly leading to higher borrowing costs and closer scrutiny of the bank’s governance.",
     "impact_analysis": {
-      "esg_positioning": "This event widens the ESG score gap versus peers due to governance and tax transparency concerns, risking index exclusion if repeated.",
-      "capital_allocation": "Cost of capital may rise as bond spreads widen and FII outflows occur following an ESG rating downgrade; direct penalty quantum is ₹50.38 Cr.",
-      "valuation_cashflow": "Potential P/E compression of 0.1x due to direct P&L hit and negative sentiment; margin erosion of 10.1 bps; revenue at risk: ₹6.3 Cr (β=0.125, lag 1–4q).",
-      "compliance_regulatory": "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); regulatory deadline immediate; penalty quantum ₹50.38 Cr; risk of further enforcement if systemic.",
-      "supply_chain_transmission": "No supply chain transmission: event is direct regulatory action on ICICI Bank, not value chain.",
-      "people_demand": "Investor sentiment may turn negative, risking FII outflows and analyst downgrades; no direct impact on workforce or community."
+      "esg_positioning": "This event exposes a governance score gap in tax transparency, risking ESG rating downgrades and peer pressure from banks like YES Bank and IDFC First Bank with cleaner records.",
+      "capital_allocation": "The penalty and governance concerns may widen bond spreads and trigger FII outflows, raising the bank's cost of capital by an estimated ₹7.6 Cr.",
+      "valuation_cashflow": "Potential P/E compression of 0.1x due to earnings revision and negative sentiment; direct revenue at risk is ₹6.3 Cr, with total exposure at ₹85.1 Cr.",
+      "compliance_regulatory": "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); non-compliance could escalate to SEBI/RBI inquiries and further penalties if precedent is set.",
+      "supply_chain_transmission": "No supply chain transmission, as the event is confined to direct regulatory action on ICICI Bank's operations.",
+      "people_demand": "Investor and analyst confidence may erode, risking passive fund exclusion and board-level engagement; no direct impact on workforce or community."
     },
     "financial_timeline": {
       "immediate": {
-        "headline": "₹50.38 Cr direct P&L impact from GST demand",
-        "profitability_pathway": "GST demand → direct legal/compliance cost → ₹50.38 Cr P&L reduction",
+        "headline": "₹50.38 Cr direct GST penalty hits P&L",
+        "profitability_pathway": "GST demand → direct P&L charge → ₹50.38 Cr reduction in net profit",
         "margin_pressure": "10.1 bps",
-        "revenue_at_risk": "₹6.3 Cr (β=0.125, lag 1–4q)"
+        "revenue_at_risk": "₹6.3 Cr direct revenue impact"
       },
       "structural": {
-        "valuation_rerating": "P/E compression of 0.1x due to governance risk and potential ESG rating downgrade",
-        "competitive_position": "Potential disadvantage vs YES Bank and IDFC First Bank if peers avoid similar penalties"
+        "valuation_rerating": "P/E compression of 0.1x due to governance risk and earnings revision",
+        "competitive_position": "Potential loss vs YES Bank and IDFC First Bank if they avoid similar penalties"
       },
       "long_term": {
-        "secular_trajectory": "If unresolved or repeated, could lead to recurring compliance costs, higher cost of capital, and persistent ESG underperformance over 3–5 years.",
-        "green_revenue_opportunity": "None identified: event is a governance/tax penalty, not an environmental or green business opportunity."
+        "secular_trajectory": "If unaddressed, recurring compliance failures could trigger systemic regulatory tightening and sustained cost of capital increases over 3-5 years.",
+        "green_revenue_opportunity": "No green revenue opportunity, as the event is governance/tax related."
       }
     },
     "esg_relevance_score": {
@@ -463,39 +447,39 @@
       },
       "social": {
         "score": 1,
-        "rationale": "Minimal social impact; no direct effect on workforce or communities."
+        "rationale": "Minimal social impact; no workforce or community transmission detected."
       },
       "governance": {
-        "score": 8,
-        "rationale": "Significant governance risk due to regulatory penalty and tax transparency concerns."
+        "score": 9,
+        "rationale": "Direct governance and tax transparency failure, triggering GRI:207 and ESRS G1."
       },
       "financial_materiality": {
-        "score": 7,
-        "rationale": "₹50.38 Cr direct hit plus ₹34.7 Cr additional exposure (computed cascade); margin impact 10.1 bps."
+        "score": 8,
+        "rationale": "₹85.1 Cr total exposure and 10.1 bps margin impact on a large cap bank."
       },
       "regulatory_exposure": {
         "score": 8,
-        "rationale": "High exposure due to direct GST demand and risk of further regulatory scrutiny."
+        "rationale": "Triggers direct regulatory action, with risk of escalation to SEBI/RBI and precedent for future penalties."
       },
       "stakeholder_impact": {
-        "score": 6,
-        "rationale": "Moderate to high investor concern; risk of FII outflow, analyst downgrade, and index exclusion if repeated."
+        "score": 7,
+        "rationale": "Investor and analyst confidence at risk; potential for FII outflow and board engagement."
       }
     },
-    "net_impact_summary": "ICICI Bank's ₹50.38 Cr GST demand triggers a direct P&L hit and 10.1 bps margin erosion, with total computed exposure at ₹85.1 Cr. The event activates GRI:207 and ESRS G1 frameworks, raising governance and regulatory red flags. While the bank plans to challenge the order, the risk of precedent and negative investor sentiment could pressure valuation and cost of capital. Note: This analysis is based on limited article content (headline only). Full article behind paywall.",
+    "net_impact_summary": "The ₹50.38 Cr GST demand on ICICI Bank creates an immediate 10.1 bps margin impact and exposes a governance gap under GRI:207 and ESRS G1. Total financial exposure is ₹85.1 Cr, including direct and indirect costs. This event may prompt ESG rating downgrades, FII outflows, and increased regulatory scrutiny, with potential for further penalties if precedent is set.",
     "decision_summary": {
-      "materiality": "HIGH",
+      "materiality": "CRITICAL",
       "action": "ACT",
-      "verdict": "Immediate board-level review and legal challenge recommended; monitor for regulatory escalation and investor reaction.",
-      "financial_exposure": "₹50.38 Cr direct demand + ₹34.7 Cr precedent/contingent risk (computed cascade)",
-      "key_risk": "₹50.38 Cr GST contingent liability plus ₹34.7 Cr precedent risk if similar cases arise",
-      "top_opportunity": "Strengthen tax compliance and disclosure to restore ESG rating and reduce cost of capital (potential bond spread savings up to ₹11.3 Cr)",
+      "verdict": "Immediate board-level review and legal challenge are required to contain financial and reputational fallout.",
+      "financial_exposure": "₹50.38 Cr direct demand + ₹34.7 Cr indirect (β cascade, speculative)",
+      "key_risk": "₹50.38 Cr GST contingent liability plus precedent risk of further regulatory penalties",
+      "top_opportunity": "Strengthen tax governance and disclosure to restore investor confidence and avoid future penalties (potentially saving ₹50-100 Cr over 3 years)",
       "timeline": "within 4 weeks"
     },
     "causal_chain": {
       "event": "GST authority issues ₹50.38 Cr demand to ICICI Bank",
-      "mechanism": "Direct legal/compliance cost reduces P&L; triggers governance scrutiny and potential ESG rating downgrade, leading to investor outflows and higher funding costs",
-      "company_impact": "Immediate profit reduction, margin erosion, and risk of valuation downgrade; possible escalation if precedent is set",
+      "mechanism": "Direct P&L charge, triggers governance scrutiny, and raises risk of further regulatory action and investor concern",
+      "company_impact": "Immediate profit reduction, 10.1 bps margin hit, potential for FII outflow and P/E compression",
       "transmission_type": "direct"
     },
     "warnings": []
@@ -504,88 +488,88 @@
     "recommendations": [
       {
         "title": "File GST appellate tribunal appeal within 30 days",
-        "description": "ICICI Bank Legal team to file a GST appeal at the appellate tribunal by 2026-05-13 citing precedent cases to challenge the ₹50.38 Cr demand, aligning with GRI:207-1 requirements to mitigate regulatory risk and avoid direct P&L impact.",
+        "description": "Initiate legal challenge against ₹50.38 Cr GST demand by filing appeal at the GST appellate tribunal by 2026-05-13, led by Head of Legal, to avoid ₹50.38 Cr penalty and potential 10.1 bps margin erosion, aligned with GRI:207-1 disclosure requirements.",
         "type": "compliance",
         "responsible_party": "Head of Legal",
         "framework_section": "GRI:207-1",
         "deadline": "2026-05-13",
-        "estimated_budget": "₹2-3 Cr",
-        "profitability_link": "₹50.38 Cr tax demand avoided, yielding ~1600% ROI on ₹3 Cr legal spend",
+        "estimated_budget": "₹2-4 Cr",
+        "profitability_link": "₹50.38 Cr penalty avoided, ROI ~1200% capped at 500%",
         "priority": "CRITICAL",
         "urgency": "immediate",
         "estimated_impact": "High",
         "risk_of_inaction": 10,
         "roi_percentage": 500.0,
         "payback_months": 1.0,
-        "peer_benchmark": "HDFC Bank successfully challenged similar GST demands in 2025 with tribunal appeal"
+        "peer_benchmark": "Peer banks filed timely appeals to avoid penalties in similar GST disputes"
       },
       {
-        "title": "Commission third-party BRSR assurance for FY26 filing",
-        "description": "ESG and Compliance teams to engage an external auditor for third-party assurance of FY26 BRSR disclosures by 2026-05-30 to enhance transparency on tax compliance and restore ESG rating, per BRSR:P6:Q14 guidelines.",
+        "title": "Commission third-party tax governance audit by Q3 FY26",
+        "description": "Engage an external auditor to conduct a comprehensive tax governance and compliance audit by 2026-09-30 to identify gaps and strengthen controls, improving GRI:207 and ESRS G1 disclosures and potentially saving ₹50-100 Cr over 3 years in avoided penalties.",
         "type": "esg_positioning",
-        "responsible_party": "Chief Sustainability Officer",
-        "framework_section": "BRSR:P6:Q14",
-        "deadline": "2026-05-30",
-        "estimated_budget": "₹1-1.5 Cr",
-        "profitability_link": "₹11.3 Cr potential bond spread savings from improved ESG rating, ~750% ROI on assurance cost",
+        "responsible_party": "Chief Compliance Officer",
+        "framework_section": "GRI:207, ESRS G1",
+        "deadline": "2026-09-30",
+        "estimated_budget": "₹1-3 Cr",
+        "profitability_link": "₹50-100 Cr penalty risk mitigation over 3 years, ROI ~150%",
         "priority": "CRITICAL",
         "urgency": "short_term",
         "estimated_impact": "High",
-        "risk_of_inaction": 9,
-        "roi_percentage": 400.0,
-        "payback_months": 12.0,
-        "peer_benchmark": "Axis Bank enhanced BRSR disclosures with third-party assurance in FY25, improving ESG scores"
+        "risk_of_inaction": 10,
+        "roi_percentage": 150.0,
+        "payback_months": 18.0,
+        "peer_benchmark": "Top banks enhanced tax governance post-GST disputes to restore investor confidence"
       },
       {
-        "title": "Enhance GRI 207 tax disclosures in annual report FY26",
-        "description": "Investor Relations and Sustainability teams to update FY26 annual report with detailed GRI:207 tax disclosures by 2026-05-30, including contingent liabilities and risk mitigation plans to improve ESG ratings and investor confidence.",
+        "title": "Implement monthly GST compliance monitoring dashboard",
+        "description": "Develop and deploy a GST compliance dashboard by 2026-06-30 to monitor tax payments, disputes, and regulatory changes; escalate to Board if GST demand exceeds ₹10 Cr or new litigation arises, reducing risk of surprise penalties.",
+        "type": "operational",
+        "responsible_party": "Head of Taxation",
+        "framework_section": "GRI:207-2",
+        "deadline": "2026-06-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Avoid ₹10-20 Cr unexpected penalties annually, ROI ~150%",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 150.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Leading banks use real-time tax dashboards to preempt compliance risks"
+      },
+      {
+        "title": "Enhance GST-related disclosures in BRSR FY26 filing",
+        "description": "Update BRSR FY26 and Core FY26 filings by 2026-05-30 to include detailed GST risk management and contingent liabilities disclosure, led by ESG Reporting Head, to improve transparency and reduce governance scrutiny per BRSR:P6:Q14 guidelines.",
         "type": "esg_positioning",
-        "responsible_party": "Head of Investor Relations",
-        "framework_section": "GRI:207-1",
+        "responsible_party": "Head of ESG Reporting",
+        "framework_section": "BRSR:P6:Q14",
         "deadline": "2026-05-30",
-        "estimated_budget": "₹0.3-0.5 Cr",
-        "profitability_link": "Reduce fund outflow risk by ₹15-20 Cr via improved transparency, ~3000% ROI on disclosure enhancement",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Improved ESG ratings may reduce fund outflow by ₹20-40 Cr annually, ROI ~200%",
         "priority": "HIGH",
         "urgency": "short_term",
         "estimated_impact": "Medium",
         "risk_of_inaction": 7,
-        "roi_percentage": 400.0,
-        "payback_months": 2.0,
-        "peer_benchmark": "State Bank of India improved tax disclosures in FY25 to enhance ESG ratings"
-      },
-      {
-        "title": "Implement monthly GST compliance dashboard monitoring",
-        "description": "Finance and Tax teams to develop and deploy a monthly GST compliance dashboard by 2026-06-15 to monitor tax liabilities and flag deviations exceeding ₹5 Cr, escalating to CFO and Board if thresholds breached, per GRI:207-2 monitoring standards.",
-        "type": "operational",
-        "responsible_party": "Head of Tax",
-        "framework_section": "GRI:207-2",
-        "deadline": "2026-06-15",
-        "estimated_budget": "₹0.5-0.8 Cr",
-        "profitability_link": "Avoid ₹34.7 Cr precedent risk by early detection, ROI ~4350% on dashboard investment",
-        "priority": "HIGH",
-        "urgency": "short_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 6,
         "roi_percentage": 200.0,
-        "payback_months": 3.0,
-        "peer_benchmark": "Kotak Mahindra Bank implemented tax risk dashboards in FY25 to proactively manage liabilities"
+        "payback_months": 12.0,
+        "peer_benchmark": "Competitors improved GST risk disclosure post regulatory actions to maintain ESG scores"
       },
       {
-        "title": "Board-level quarterly review of tax litigation and ESG impact",
-        "description": "Schedule quarterly Board meetings starting 2026-07-01 to review ongoing GST litigation status and ESG rating impacts, ensuring timely strategic decisions and investor communications aligned with ESRS G1 governance requirements.",
+        "title": "Board-level quarterly review of tax litigation and risks",
+        "description": "Institute quarterly Board reviews starting 2026-07-15 for all tax litigation and contingent liabilities, led by CFO and Head of Legal, to ensure timely escalation and strategic decision-making per SEBI governance reporting requirements.",
         "type": "strategic",
-        "responsible_party": "Company Secretary",
-        "framework_section": "ESRS G1",
-        "deadline": "2026-07-01",
-        "estimated_budget": "₹0.1-0.2 Cr per meeting",
-        "profitability_link": "Mitigate investor outflow risk worth ₹20-30 Cr by proactive governance, ~150% ROI on meeting costs",
+        "responsible_party": "CFO",
+        "framework_section": "BRSR:P7:Q16",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.1-0.3 Cr annually",
+        "profitability_link": "Avoid ₹50 Cr+ penalties via proactive governance, ROI ~300%",
         "priority": "HIGH",
         "urgency": "medium_term",
         "estimated_impact": "High",
         "risk_of_inaction": 6,
-        "roi_percentage": 150.0,
+        "roi_percentage": 300.0,
         "payback_months": 6.0,
-        "peer_benchmark": "ICICI Prudential Life Insurance instituted board ESG reviews quarterly from FY25"
+        "peer_benchmark": "Peer financial institutions enhanced board oversight after GST disputes to mitigate risks"
       }
     ],
     "do_nothing": false,
@@ -599,39 +583,39 @@
           "title": "File GST appellate tribunal appeal within 30 days",
           "type": "compliance",
           "roi": 500.0,
-          "budget": "₹2-3 Cr"
+          "budget": "₹2-4 Cr"
         },
         {
           "index": 1,
-          "title": "Commission third-party BRSR assurance for FY26 filing",
+          "title": "Commission third-party tax governance audit by Q3 FY26",
           "type": "esg_positioning",
-          "roi": 400.0,
-          "budget": "₹1-1.5 Cr"
+          "roi": 150.0,
+          "budget": "₹1-3 Cr"
+        },
+        {
+          "index": 2,
+          "title": "Implement monthly GST compliance monitoring dashboard",
+          "type": "operational",
+          "roi": 150.0,
+          "budget": "₹0.5-1 Cr"
         }
       ],
       "immediate_low": [
         {
-          "index": 2,
-          "title": "Enhance GRI 207 tax disclosures in annual report FY26",
-          "type": "esg_positioning",
-          "roi": 400.0,
-          "budget": "₹0.3-0.5 Cr"
-        },
-        {
           "index": 3,
-          "title": "Implement monthly GST compliance dashboard monitoring",
-          "type": "operational",
+          "title": "Enhance GST-related disclosures in BRSR FY26 filing",
+          "type": "esg_positioning",
           "roi": 200.0,
-          "budget": "₹0.5-0.8 Cr"
+          "budget": "₹0.5-1 Cr"
         }
       ],
       "deferred_high": [
         {
           "index": 4,
-          "title": "Board-level quarterly review of tax litigation and ESG impact",
+          "title": "Board-level quarterly review of tax litigation and risks",
           "type": "strategic",
-          "roi": 150.0,
-          "budget": "₹0.1-0.2 Cr per meeting"
+          "roi": 300.0,
+          "budget": "₹0.1-0.3 Cr annually"
         }
       ],
       "deferred_low": []
@@ -639,16 +623,16 @@
     "recommendation_rankings": {
       "cfo": [
         0,
-        2,
-        1,
+        4,
         3,
-        4
+        2,
+        1
       ],
       "ceo": [
-        2,
         3,
         0,
         1,
+        2,
         4
       ],
       "esg-analyst": [
@@ -663,23 +647,23 @@
   "perspectives": {
     "esg-analyst": {
       "perspective": "esg-analyst",
-      "headline": "ICICI Bank faces ₹50.38 Cr GST demand, risking direct P&L hit and potential ESG rating downgrade",
+      "headline": "ICICI Bank faces ₹50.38 Cr GST demand, risking 10.1 bps margin hit and governance scrutiny",
       "impact_grid": {
         "financial": "HIGH",
         "regulatory": "HIGH",
         "strategic": "HIGH"
       },
       "what_matters": [
-        "Potential P/E compression of 0.1x due to direct P&L hit and negative sentiment; margin erosion of 10.1 bps; revenue at risk: ₹6.3 Cr (β=0.125, lag 1–4q).",
-        "Cost of capital may rise as bond spreads widen and FII outflows occur following an ESG rating downgrade; direct penalty quantum is ₹50.38 Cr.",
-        "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); regulatory deadline immediate; penalty quantum ₹50.38 Cr; risk of further enforcement if systemic."
+        "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); non-compliance could escalate to SEBI/RBI inquiries and further penalties if precedent is set.",
+        "Potential P/E compression of 0.1x due to earnings revision and negative sentiment; direct revenue at risk is ₹6.3 Cr, with total exposure at ₹85.1 Cr.",
+        "The penalty and governance concerns may widen bond spreads and trigger FII outflows, raising the bank's cost of capital by an estimated ₹7.6 Cr."
       ],
       "action": [
-        "Immediate board-level review and legal challenge recommended; monitor for regulatory escalation and investor reaction.",
-        "Key risk: ₹50.38 Cr GST contingent liability plus ₹34.7 Cr precedent risk if similar cases arise",
-        "Opportunity: Strengthen tax compliance and disclosure to restore ESG rating and reduce cost of capital (potential bond spread savings up to ₹11.3 Cr)"
+        "Immediate board-level review and legal challenge are required to contain financial and reputational fallout.",
+        "Key risk: ₹50.38 Cr GST contingent liability plus precedent risk of further regulatory penalties",
+        "Opportunity: Strengthen tax governance and disclosure to restore investor confidence and avoid future penalties (potentially saving ₹50-100 Cr over 3 years)"
       ],
-      "materiality": "HIGH",
+      "materiality": "CRITICAL",
       "do_nothing": false,
       "active_impact_dimensions": [
         "brand",
@@ -690,33 +674,33 @@
         "strategic"
       ],
       "full_insight": {
-        "headline": "ICICI Bank faces ₹50.38 Cr GST demand, risking direct P&L hit and potential ESG rating downgrade",
-        "impact_score": 7.5,
-        "core_mechanism": "A GST authority has issued a ₹50.38 Cr demand to ICICI Bank, which the bank intends to challenge. This event triggers a direct compliance/legal risk, with immediate P&L impact and potential for regulatory scrutiny. The penalty also exposes the bank to precedent risk, possible ESG rating downgrades, and increased cost of capital.",
-        "profitability_connection": "The ₹50.38 Cr demand directly reduces net profit and may lead to further contingent liabilities if similar cases arise. Negative ESG signals can prompt analyst downgrades, FII outflows, and bond spread widening, affecting both valuation and funding costs.",
-        "translation": "ICICI Bank has received a large tax demand from GST authorities, which could immediately reduce profits and hurt its reputation with investors. If the issue escalates or repeats, it could make borrowing more expensive and lower the bank's stock value.",
+        "headline": "ICICI Bank faces ₹50.38 Cr GST demand, risking 10.1 bps margin hit and governance scrutiny",
+        "impact_score": 8.0,
+        "core_mechanism": "The GST authority has issued a ₹50.38 Cr demand to ICICI Bank, directly impacting its P&L and triggering governance risk. This event signals potential compliance gaps in tax transparency, raising the risk of further regulatory scrutiny and possible precedent for future penalties.",
+        "profitability_connection": "The direct penalty of ₹50.38 Cr, plus associated compliance and reputational costs, will reduce net profit and may prompt analyst downgrades. This could widen bond spreads and increase the cost of capital, with a total exposure of ₹85.1 Cr and a 10.1 bps margin impact.",
+        "translation": "ICICI Bank has been hit with a ₹50.38 Cr tax demand, which it plans to contest. This fine will immediately dent profits and could make investors and regulators more cautious, possibly leading to higher borrowing costs and closer scrutiny of the bank’s governance.",
         "impact_analysis": {
-          "esg_positioning": "This event widens the ESG score gap versus peers due to governance and tax transparency concerns, risking index exclusion if repeated.",
-          "capital_allocation": "Cost of capital may rise as bond spreads widen and FII outflows occur following an ESG rating downgrade; direct penalty quantum is ₹50.38 Cr.",
-          "valuation_cashflow": "Potential P/E compression of 0.1x due to direct P&L hit and negative sentiment; margin erosion of 10.1 bps; revenue at risk: ₹6.3 Cr (β=0.125, lag 1–4q).",
-          "compliance_regulatory": "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); regulatory deadline immediate; penalty quantum ₹50.38 Cr; risk of further enforcement if systemic.",
-          "supply_chain_transmission": "No supply chain transmission: event is direct regulatory action on ICICI Bank, not value chain.",
-          "people_demand": "Investor sentiment may turn negative, risking FII outflows and analyst downgrades; no direct impact on workforce or community."
+          "esg_positioning": "This event exposes a governance score gap in tax transparency, risking ESG rating downgrades and peer pressure from banks like YES Bank and IDFC First Bank with cleaner records.",
+          "capital_allocation": "The penalty and governance concerns may widen bond spreads and trigger FII outflows, raising the bank's cost of capital by an estimated ₹7.6 Cr.",
+          "valuation_cashflow": "Potential P/E compression of 0.1x due to earnings revision and negative sentiment; direct revenue at risk is ₹6.3 Cr, with total exposure at ₹85.1 Cr.",
+          "compliance_regulatory": "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); non-compliance could escalate to SEBI/RBI inquiries and further penalties if precedent is set.",
+          "supply_chain_transmission": "No supply chain transmission, as the event is confined to direct regulatory action on ICICI Bank's operations.",
+          "people_demand": "Investor and analyst confidence may erode, risking passive fund exclusion and board-level engagement; no direct impact on workforce or community."
         },
         "financial_timeline": {
           "immediate": {
-            "headline": "₹50.38 Cr direct P&L impact from GST demand",
-            "profitability_pathway": "GST demand → direct legal/compliance cost → ₹50.38 Cr P&L reduction",
+            "headline": "₹50.38 Cr direct GST penalty hits P&L",
+            "profitability_pathway": "GST demand → direct P&L charge → ₹50.38 Cr reduction in net profit",
             "margin_pressure": "10.1 bps",
-            "revenue_at_risk": "₹6.3 Cr (β=0.125, lag 1–4q)"
+            "revenue_at_risk": "₹6.3 Cr direct revenue impact"
           },
           "structural": {
-            "valuation_rerating": "P/E compression of 0.1x due to governance risk and potential ESG rating downgrade",
-            "competitive_position": "Potential disadvantage vs YES Bank and IDFC First Bank if peers avoid similar penalties"
+            "valuation_rerating": "P/E compression of 0.1x due to governance risk and earnings revision",
+            "competitive_position": "Potential loss vs YES Bank and IDFC First Bank if they avoid similar penalties"
           },
           "long_term": {
-            "secular_trajectory": "If unresolved or repeated, could lead to recurring compliance costs, higher cost of capital, and persistent ESG underperformance over 3–5 years.",
-            "green_revenue_opportunity": "None identified: event is a governance/tax penalty, not an environmental or green business opportunity."
+            "secular_trajectory": "If unaddressed, recurring compliance failures could trigger systemic regulatory tightening and sustained cost of capital increases over 3-5 years.",
+            "green_revenue_opportunity": "No green revenue opportunity, as the event is governance/tax related."
           }
         },
         "esg_relevance_score": {
@@ -726,39 +710,39 @@
           },
           "social": {
             "score": 1,
-            "rationale": "Minimal social impact; no direct effect on workforce or communities."
+            "rationale": "Minimal social impact; no workforce or community transmission detected."
           },
           "governance": {
-            "score": 8,
-            "rationale": "Significant governance risk due to regulatory penalty and tax transparency concerns."
+            "score": 9,
+            "rationale": "Direct governance and tax transparency failure, triggering GRI:207 and ESRS G1."
           },
           "financial_materiality": {
-            "score": 7,
-            "rationale": "₹50.38 Cr direct hit plus ₹34.7 Cr additional exposure (computed cascade); margin impact 10.1 bps."
+            "score": 8,
+            "rationale": "₹85.1 Cr total exposure and 10.1 bps margin impact on a large cap bank."
           },
           "regulatory_exposure": {
             "score": 8,
-            "rationale": "High exposure due to direct GST demand and risk of further regulatory scrutiny."
+            "rationale": "Triggers direct regulatory action, with risk of escalation to SEBI/RBI and precedent for future penalties."
           },
           "stakeholder_impact": {
-            "score": 6,
-            "rationale": "Moderate to high investor concern; risk of FII outflow, analyst downgrade, and index exclusion if repeated."
+            "score": 7,
+            "rationale": "Investor and analyst confidence at risk; potential for FII outflow and board engagement."
           }
         },
-        "net_impact_summary": "ICICI Bank's ₹50.38 Cr GST demand triggers a direct P&L hit and 10.1 bps margin erosion, with total computed exposure at ₹85.1 Cr. The event activates GRI:207 and ESRS G1 frameworks, raising governance and regulatory red flags. While the bank plans to challenge the order, the risk of precedent and negative investor sentiment could pressure valuation and cost of capital. Note: This analysis is based on limited article content (headline only). Full article behind paywall.",
+        "net_impact_summary": "The ₹50.38 Cr GST demand on ICICI Bank creates an immediate 10.1 bps margin impact and exposes a governance gap under GRI:207 and ESRS G1. Total financial exposure is ₹85.1 Cr, including direct and indirect costs. This event may prompt ESG rating downgrades, FII outflows, and increased regulatory scrutiny, with potential for further penalties if precedent is set.",
         "decision_summary": {
-          "materiality": "HIGH",
+          "materiality": "CRITICAL",
           "action": "ACT",
-          "verdict": "Immediate board-level review and legal challenge recommended; monitor for regulatory escalation and investor reaction.",
-          "financial_exposure": "₹50.38 Cr direct demand + ₹34.7 Cr precedent/contingent risk (computed cascade)",
-          "key_risk": "₹50.38 Cr GST contingent liability plus ₹34.7 Cr precedent risk if similar cases arise",
-          "top_opportunity": "Strengthen tax compliance and disclosure to restore ESG rating and reduce cost of capital (potential bond spread savings up to ₹11.3 Cr)",
+          "verdict": "Immediate board-level review and legal challenge are required to contain financial and reputational fallout.",
+          "financial_exposure": "₹50.38 Cr direct demand + ₹34.7 Cr indirect (β cascade, speculative)",
+          "key_risk": "₹50.38 Cr GST contingent liability plus precedent risk of further regulatory penalties",
+          "top_opportunity": "Strengthen tax governance and disclosure to restore investor confidence and avoid future penalties (potentially saving ₹50-100 Cr over 3 years)",
           "timeline": "within 4 weeks"
         },
         "causal_chain": {
           "event": "GST authority issues ₹50.38 Cr demand to ICICI Bank",
-          "mechanism": "Direct legal/compliance cost reduces P&L; triggers governance scrutiny and potential ESG rating downgrade, leading to investor outflows and higher funding costs",
-          "company_impact": "Immediate profit reduction, margin erosion, and risk of valuation downgrade; possible escalation if precedent is set",
+          "mechanism": "Direct P&L charge, triggers governance scrutiny, and raises risk of further regulatory action and investor concern",
+          "company_impact": "Immediate profit reduction, 10.1 bps margin hit, potential for FII outflow and P/E compression",
           "transmission_type": "direct"
         },
         "warnings": []
@@ -766,22 +750,22 @@
     },
     "cfo": {
       "perspective": "cfo",
-      "headline": "P&L exposure: ₹50.38 Cr direct demand + ₹34.7 Cr precedent/contingent risk (computed cascade)",
+      "headline": "P&L exposure: ₹50.38 Cr direct demand + ₹34.7 Cr indirect (β cascade, speculative)",
       "impact_grid": {
         "financial": "HIGH",
         "regulatory": "HIGH",
         "strategic": "HIGH"
       },
       "what_matters": [
-        "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); regulatory deadline immediate; penalty quantum ₹50.38 Cr; risk of further enforcement if systemic.",
-        "Potential P/E compression of 0.1x due to direct P&L hit and negative sentiment; margin erosion of 10.1 bps; revenue at risk: ₹6.3 Cr (β=0.125, lag 1–4q).",
-        "Cost of capital may rise as bond spreads widen and FII outflows occur following an ESG rating downgrade; direct penalty quantum is ₹50.38 Cr."
+        "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); non-compliance could escalate to SEBI/RBI inquiries and further penalties if precedent is set.",
+        "Potential P/E compression of 0.1x due to earnings revision and negative sentiment; direct revenue at risk is ₹6.3 Cr, with total exposure at ₹85.1 Cr.",
+        "The penalty and governance concerns may widen bond spreads and trigger FII outflows, raising the bank's cost of capital by an estimated ₹7.6 Cr."
       ],
       "action": [
-        "Quantify exposure: ₹50.38 Cr direct demand + ₹34.7 Cr precedent/contingent risk (computed cascade)",
-        "Revenue at risk: ₹6.3 Cr (β=0.125, lag 1–4q)"
+        "Quantify exposure: ₹50.38 Cr direct demand + ₹34.7 Cr indirect (β cascade, speculative)",
+        "Revenue at risk: ₹6.3 Cr direct revenue impact"
       ],
-      "materiality": "HIGH",
+      "materiality": "CRITICAL",
       "do_nothing": false,
       "active_impact_dimensions": [
         "cost",
@@ -792,22 +776,22 @@
     },
     "ceo": {
       "perspective": "ceo",
-      "headline": "Strategic angle — Strengthen tax compliance and disclosure to restore ESG rating and reduce cost of capital (potential bond spread savings up to ₹11.3 Cr)",
+      "headline": "Strategic angle — Strengthen tax governance and disclosure to restore investor confidence and avoid future penalties (potentially saving ₹50-100 Cr over 3 years)",
       "impact_grid": {
         "financial": "HIGH",
         "regulatory": "HIGH",
         "strategic": "HIGH"
       },
       "what_matters": [
-        "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); regulatory deadline immediate; penalty quantum ₹50.38 Cr; risk of further enforcement if systemic.",
-        "This event widens the ESG score gap versus peers due to governance and tax transparency concerns, risking index exclusion if repeated.",
-        "Investor sentiment may turn negative, risking FII outflows and analyst downgrades; no direct impact on workforce or community."
+        "Triggers GRI:207 (Tax), ESRS G1 (Business Conduct); non-compliance could escalate to SEBI/RBI inquiries and further penalties if precedent is set.",
+        "This event exposes a governance score gap in tax transparency, risking ESG rating downgrades and peer pressure from banks like YES Bank and IDFC First Bank with cleaner records.",
+        "Investor and analyst confidence may erode, risking passive fund exclusion and board-level engagement; no direct impact on workforce or community."
       ],
       "action": [
-        "Strategic opportunity: Strengthen tax compliance and disclosure to restore ESG rating and reduce cost of capital (potential bond spread savings up to ₹11.3 Cr)",
-        "Competitive position: Potential disadvantage vs YES Bank and IDFC First Bank if peers avoid similar penalties"
+        "Strategic opportunity: Strengthen tax governance and disclosure to restore investor confidence and avoid future penalties (potentially saving ₹50-100 Cr over 3 years)",
+        "Competitive position: Potential loss vs YES Bank and IDFC First Bank if they avoid similar penalties"
       ],
-      "materiality": "HIGH",
+      "materiality": "CRITICAL",
       "do_nothing": false,
       "active_impact_dimensions": [
         "brand",
@@ -819,41 +803,41 @@
     }
   },
   "meta": {
-    "written_at": "2026-04-14T11:48:38.941269+00:00",
+    "written_at": "2026-04-15T10:39:58.870172+00:00",
     "schema_version": "2.0-primitives-l2"
   },
   "intelligence": {
-    "competitive_brief": "ICICI Bank’s ₹50.38 Cr GST demand poses a direct P&L impact and risks an ESG rating downgrade, signaling governance and compliance scrutiny. Competitors like YES Bank and IDFC First Bank are likely to monitor the situation closely to gauge regulatory risk exposure and investor sentiment shifts.\n\nYES Bank, recovering from past governance issues, may emphasize its strengthened compliance frameworks and transparent tax practices to reassure stakeholders. It could highlight its ESG credentials through enhanced disclosures and proactive tax governance to differentiate itself.\n\nIDFC First Bank, known for its retail focus and digital initiatives, might leverage this opportunity to underscore its robust risk management and adherence to regulatory norms, positioning itself as a stable alternative. Both banks may avoid aggressive commentary but could subtly reinforce their ESG commitments in investor communications.\n\nHistorically, Indian banks facing tax or regulatory demands have responded by accelerating compliance audits, engaging with tax authorities for resolution, and enhancing ESG disclosures to mitigate rating impacts. For example, HDFC Bank and Axis Bank have proactively improved governance transparency post regulatory challenges, which helped stabilize investor confidence.\n\nIn summary, YES Bank and IDFC First Bank will likely focus on reinforcing their governance and ESG frameworks, while the industry trend leans towards greater transparency and proactive regulatory engagement to manage such risks.",
-    "causal_narrative": "The ₹50.38 crore GST demand against ICICI Bank directly impacts its financial operations by creating an immediate P&L liability, reducing net income and potentially affecting capital adequacy ratios. This tax dispute also raises concerns about the bank’s tax transparency and compliance practices, which can trigger mandatory disclosures under GRI standards, thereby increasing regulatory scrutiny. The heightened regulatory attention may lead to a downgrade in the bank’s ESG rating, undermining investor confidence and potentially increasing the cost of capital. Additionally, operational units in Bangalore and Hyderabad, as well as the HQ, may face increased compliance costs and reputational risks, amplifying the financial strain across the organization.",
+    "competitive_brief": "The ₹50.38 Cr GST demand on ICICI Bank poses a potential 10.1 bps margin hit and governance scrutiny, signaling regulatory vigilance on tax compliance in banking. Competitors like YES Bank and IDFC First Bank are likely to respond by reinforcing their own GST compliance frameworks to avoid similar liabilities, ensuring transparent disclosures to maintain investor confidence.\n\nYES Bank, recovering from past governance issues, may emphasize strengthened internal controls and proactive tax risk management to differentiate itself positively. IDFC First Bank, focusing on retail and digital banking growth, might highlight its robust compliance culture to reassure stakeholders.\n\nHistorically, the Indian banking sector has responded to such tax disputes by engaging with tax authorities for clarifications, provisioning for potential liabilities, and enhancing governance disclosures in quarterly reports. For example, HDFC Bank and Axis Bank have previously increased transparency around tax contingencies to mitigate investor concerns.\n\nOverall, this event could prompt industry-wide reviews of GST practices, with banks adopting stricter compliance audits and enhanced ESG disclosures to preempt regulatory risks and maintain market trust.",
+    "causal_narrative": "The ₹50.38 crore GST demand against ICICI Bank directly impacts its financial operations by potentially reducing net margins by approximately 10.1 basis points, reflecting a tangible hit to profitability. This tax liability arises from the bank’s core operational units, including its Bangalore and Hyderabad offices, as well as headquarters, indicating systemic exposure across its organizational structure. Additionally, the GST dispute triggers heightened regulatory scrutiny and tax transparency requirements, compelling ICICI Bank to enhance its GRI disclosures, which may increase compliance costs and reputational risk. Collectively, these factors transmit through the bank’s operational and regulatory environment to elevate financial and governance risks.",
     "anticipated_qa": [
       {
-        "question": "What is the immediate financial impact of the GST demand on ICICI Bank's profitability?",
-        "answer": "The GST demand of ₹50.38 Cr will directly reduce ICICI Bank's net profit, causing a 10.1 basis points margin erosion and putting ₹6.3 Cr of revenue at risk in the short term."
+        "question": "What is the immediate financial impact of the ₹50.38 Cr GST demand on ICICI Bank?",
+        "answer": "The ₹50.38 Cr GST demand will directly reduce ICICI Bank's net profit, causing a 10.1 basis points margin hit and a ₹6.3 Cr direct revenue impact in the short term."
       },
       {
-        "question": "How could this GST penalty affect ICICI Bank's ESG rating and investor perception?",
-        "answer": "The penalty raises governance and tax transparency concerns, potentially leading to an ESG rating downgrade. This negative signal may cause analyst downgrades, foreign institutional investor outflows, and increased cost of capital."
+        "question": "How could this GST penalty affect ICICI Bank's ESG ratings and governance perception?",
+        "answer": "The penalty exposes gaps in tax transparency, risking downgrades in governance scores and ESG ratings, especially compared to peers like YES Bank and IDFC First Bank with cleaner records."
       },
       {
-        "question": "What are the potential long-term risks if this compliance issue remains unresolved or recurs?",
-        "answer": "If unresolved or repeated, ICICI Bank could face recurring compliance costs, sustained higher cost of capital, and persistent ESG underperformance over the next 3 to 5 years, which may weaken its competitive position."
+        "question": "What are the potential longer-term financial consequences for ICICI Bank?",
+        "answer": "Longer-term risks include P/E multiple compression by 0.1x due to governance concerns, increased cost of capital from wider bond spreads, and possible FII outflows, with total exposure estimated at ₹85.1 Cr."
       },
       {
-        "question": "Does this GST demand impact ICICI Bank's operational supply chain or workforce?",
-        "answer": "No, the event is a direct regulatory action on ICICI Bank itself and does not affect its supply chain or workforce directly. However, investor sentiment may turn negative, impacting funding and valuation."
+        "question": "Could this regulatory issue trigger further compliance or regulatory scrutiny?",
+        "answer": "Yes, non-compliance with GST regulations could lead to SEBI or RBI inquiries and additional penalties, especially if this case sets a precedent, escalating governance and regulatory risks."
       },
       {
-        "question": "How does this event compare with peers and what competitive risks does it pose?",
-        "answer": "ICICI Bank risks falling behind peers like YES Bank and IDFC First Bank if they avoid similar penalties, as this governance issue could widen the ESG score gap and lead to index exclusion or valuation rerating disadvantages."
+        "question": "Does this GST demand have any impact on ICICI Bank's environmental or social ESG dimensions?",
+        "answer": "No, the issue is confined to governance and tax compliance, with no direct environmental or social impact, and no supply chain or workforce effects identified."
       }
     ],
     "sentiment_trajectory": {
       "direction": "declining",
-      "summary": "Sentiment around ICICI Bank is declining due to financial and regulatory challenges including a significant GST demand and potential ESG rating downgrade.",
+      "summary": "Sentiment around ICICI Bank is declining due to GST demand and regulatory challenges impacting margins and governance perception.",
       "emerging_themes": [
-        "GST demand",
-        "regulatory challenges",
-        "ESG rating concerns"
+        "GST demand impact",
+        "regulatory scrutiny",
+        "margin pressure"
       ]
     }
   }

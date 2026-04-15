@@ -889,6 +889,106 @@ def news_analysis(article_id: str, _: None = Depends(require_auth)) -> dict[str,
     }
 
 
+# =============================================================================
+# Discovery API (Phase 19: Self-Evolving Ontology)
+# =============================================================================
+
+
+@router.get("/discovery/pending")
+def discovery_pending(
+    category: str | None = None,
+    _: None = Depends(require_auth),
+) -> dict[str, Any]:
+    """Return pending discovery candidates for human review."""
+    from engine.ontology.discovery.candidates import get_buffer, STATUS_PENDING
+
+    buf = get_buffer()
+    candidates = buf.get_all(category=category, status=STATUS_PENDING)
+    return {
+        "count": len(candidates),
+        "candidates": [c.to_dict() for c in candidates],
+    }
+
+
+@router.get("/discovery/stats")
+def discovery_stats(_: None = Depends(require_auth)) -> dict[str, Any]:
+    """Return discovery buffer statistics."""
+    from engine.ontology.discovery.candidates import get_buffer
+
+    buf = get_buffer()
+    all_candidates = buf.get_all()
+    by_category: dict[str, int] = {}
+    by_status: dict[str, int] = {}
+    for c in all_candidates:
+        by_category[c.category] = by_category.get(c.category, 0) + 1
+        by_status[c.status] = by_status.get(c.status, 0) + 1
+    return {
+        "total": buf.count,
+        "pending": buf.pending_count,
+        "by_category": by_category,
+        "by_status": by_status,
+    }
+
+
+@router.post("/discovery/{candidate_id}/approve")
+def discovery_approve(candidate_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
+    """Approve a pending discovery candidate → promote to ontology."""
+    from engine.ontology.discovery.candidates import get_buffer, STATUS_PENDING
+    from engine.ontology.discovery.promoter import _build_triples, _log_audit, _persist_discovered, STATUS_PROMOTED
+
+    buf = get_buffer()
+    # candidate_id format: "category:slug"
+    parts = candidate_id.split(":", 1)
+    if len(parts) != 2:
+        return {"status": "error", "message": "Invalid candidate_id format (expected category:slug)"}
+
+    category, slug = parts
+    candidate = buf.get(category, slug)
+    if not candidate:
+        return {"status": "error", "message": "Candidate not found"}
+    if candidate.status != STATUS_PENDING:
+        return {"status": "error", "message": f"Candidate is {candidate.status}, not pending"}
+
+    triples = _build_triples(candidate)
+    if triples:
+        from engine.ontology.graph import get_graph
+        g = get_graph()
+        g.insert_triples(triples)
+        _persist_discovered()
+
+    buf.update_status(category, slug, STATUS_PROMOTED)
+    _log_audit("manually_approved", candidate, len(triples))
+    return {"status": "approved", "label": candidate.label, "triples": len(triples)}
+
+
+@router.post("/discovery/{candidate_id}/reject")
+def discovery_reject(candidate_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
+    """Reject a pending discovery candidate."""
+    from engine.ontology.discovery.candidates import get_buffer, STATUS_PENDING
+    from engine.ontology.discovery.promoter import _log_audit
+
+    buf = get_buffer()
+    parts = candidate_id.split(":", 1)
+    if len(parts) != 2:
+        return {"status": "error", "message": "Invalid candidate_id format"}
+
+    category, slug = parts
+    candidate = buf.get(category, slug)
+    if not candidate:
+        return {"status": "error", "message": "Candidate not found"}
+
+    buf.update_status(category, slug, "rejected")
+    _log_audit("rejected", candidate)
+    return {"status": "rejected", "label": candidate.label}
+
+
+@router.post("/discovery/promote")
+def discovery_run_batch(_: None = Depends(require_auth)) -> dict[str, Any]:
+    """Manually trigger batch promotion of qualifying candidates."""
+    from engine.ontology.discovery.promoter import batch_promote
+    return batch_promote()
+
+
 class NewsChatIn(BaseModel):
     company_id: str
     message: str
