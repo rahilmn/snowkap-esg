@@ -209,6 +209,82 @@ def fetch_newsapi(query: str, max_results: int = 20) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Source 3: NewsAPI.ai (Event Registry) — full article text
+# ---------------------------------------------------------------------------
+
+NEWSAPI_AI_URL = "https://eventregistry.org/api/v1/article/getArticles"
+
+
+def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
+    """Fetch from NewsAPI.ai (Event Registry) with full article body.
+
+    Returns articles with 2,000-5,000+ chars of content — dramatically
+    better than Google News RSS (87 chars) or NewsAPI.org (200 chars).
+    """
+    import os
+
+    api_key = os.environ.get("NEWSAPI_AI_KEY", "")
+    if not api_key:
+        return []
+
+    try:
+        resp = requests.post(
+            NEWSAPI_AI_URL,
+            json={
+                "action": "getArticles",
+                "keyword": query,
+                "articlesPage": 1,
+                "articlesCount": min(max_results, 10),  # conserve free tier tokens
+                "articlesSortBy": "date",
+                "includeArticleBody": True,
+                "articleBodyLen": -1,  # full body
+                "resultType": "articles",
+                "lang": "eng",
+                "apiKey": api_key,
+            },
+            timeout=20,
+        )
+        resp.raise_for_status()
+    except requests.RequestException as exc:
+        logger.error("NewsAPI.ai fetch failed for '%s': %s", query, exc)
+        return []
+
+    payload = resp.json()
+    articles: list[dict] = []
+    for item in payload.get("articles", {}).get("results", []):
+        url = item.get("url") or ""
+        if not url:
+            continue
+        body = item.get("body") or ""
+        title = item.get("title") or ""
+        source_name = (item.get("source") or {}).get("title") or "NewsAPI.ai"
+        published = item.get("dateTime") or item.get("date") or ""
+
+        articles.append(
+            {
+                "title": _strip_html(title),
+                "summary": _strip_html(body[:500]) if body else title,
+                "content": _strip_html(body),  # FULL ARTICLE TEXT
+                "source": source_name,
+                "url": url,
+                "published_at": _parse_published(published),
+                "metadata": {
+                    "sentiment": item.get("sentiment"),
+                    "source_type": "newsapi_ai",
+                    "concepts": [
+                        c.get("label", {}).get("eng", "")
+                        for c in (item.get("concepts") or [])[:5]
+                    ],
+                },
+            }
+        )
+    logger.info("NewsAPI.ai: %d articles for '%s' (avg %d chars)",
+                len(articles), query,
+                sum(len(a["content"]) for a in articles) // max(len(articles), 1))
+    return articles
+
+
+# ---------------------------------------------------------------------------
 # Orchestration
 # ---------------------------------------------------------------------------
 
@@ -228,15 +304,17 @@ def fetch_for_company(
     raw_articles: list[dict] = []
     seen_urls: set[str] = set()
     for query in company.news_queries:
+        # Prioritize NewsAPI.ai (full text) → NewsAPI.org → Google News RSS (headline only)
         for source_type, fetcher in (
-            ("google_news", fetch_google_news),
+            ("newsapi_ai", fetch_newsapi_ai),
             ("newsapi", fetch_newsapi),
+            ("google_news", fetch_google_news),
         ):
             for art in fetcher(query, max_results=limit):
                 if art["url"] in seen_urls:
                     continue
                 seen_urls.add(art["url"])
-                art["source_type"] = source_type
+                art.setdefault("source_type", source_type)
                 art["query"] = query
                 raw_articles.append(art)
 

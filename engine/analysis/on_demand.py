@@ -81,8 +81,12 @@ def enrich_on_demand(
         return payload
 
     # 4c. Check content quality — flag paywall/thin articles
-    content_len = len(result.title or "") + len(getattr(result, "content", "") or "")
-    if content_len < 200:
+    # Check both raw content and NLP extraction quality
+    raw_content_len = len(result.title or "")
+    if hasattr(result, "nlp") and result.nlp:
+        raw_content_len += len(result.nlp.narrative_core_claim or "")
+        raw_content_len += len(result.nlp.narrative_implied_causation or "")
+    if raw_content_len < 100:
         logger.warning(
             "enrich_on_demand: thin content (%d chars) for %s — likely paywalled",
             content_len, article_id,

@@ -773,6 +773,56 @@ Load all 64 missing P→P edges + 29 P→non-P edges from the Primitives framewo
 7. Investor concern: "MSCI ESG downgrade, B2B procurement exclusion, ESG fund divestment" for social violations
 8. CL→RG edge already exists (from Phase 17d) for regulatory escalation cascade
 
+### Production Roadmap: Any-Company Onboarding via Domain Signup
+
+**Goal:** User enters company domain → system auto-configures → intelligence available in 5 minutes.
+
+**Infrastructure (test free tiers first, upgrade when validated):**
+
+| Service | Purpose | Free Tier | Paid (production) |
+|---------|---------|-----------|-------------------|
+| NewsAPI.ai | Full text news (150K+ publishers) | Limited tokens | $150/mo (10K plan) |
+| EODHD | Company financials (revenue, opex, capex) for auto-calibration | 20 calls/day | $20/mo |
+| OpenAI | NLP + insight + recommendations (stages 1-2, 10, 12) | Pay-as-you-go | ~$50/mo |
+| Replit Pro | Hosting (API + frontend, single process) | Already have | $25/mo |
+
+**Total production: ~$246/month. Beta: ~$15/month (OpenAI only).**
+
+**3 Components to Build:**
+
+1. **NewsAPI.ai Integration** (~3 days)
+   - Replace Google News RSS in `engine/ingestion/news_fetcher.py`
+   - Full article text (2,000-5,000 chars vs current 87 chars)
+   - ESG keyword filtering per company
+   - Eliminates paywall/headline-only problem entirely
+
+2. **Auto-Onboarding Engine** (~4 days)
+   - Domain → company name resolution (web lookup)
+   - EODHD API → revenue, opex, capex, debt ratios → `primitive_calibration`
+   - Industry + SASB category classification
+   - Auto-generate news queries from company name + industry
+   - Add to `companies.json` programmatically
+   - Seed ontology with company + competitor triples
+
+3. **Financial Data API (EODHD)** (~2 days)
+   - REST API integration for BSE/NSE listed companies
+   - Extract: revenue_cr, opex_cr, capex_cr, debt_to_equity, cost_of_capital
+   - Derive: energy_share, labor_share, freight_intensity from industry benchmarks
+   - Cache financial data (refresh quarterly)
+
+**Flow after build:**
+```
+New user enters "tatasteel.com"
+  → Resolve: Tata Steel, Industry: Steel, SASB: Iron & Steel
+  → EODHD: revenue ₹2.3L Cr, opex ₹1.8L Cr, energy 35%
+  → Generate queries: "Tata Steel ESG", "Tata Steel emissions", etc.
+  → NewsAPI.ai: fetch 20 full-text articles
+  → Pipeline: 12-stage analysis on each article
+  → Dashboard ready in ~5 minutes
+```
+
+**Current status: Test free tiers of NewsAPI.ai and EODHD before subscribing.**
+
 ---
 
 ## CLI Commands
