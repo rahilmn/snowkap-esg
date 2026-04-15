@@ -197,6 +197,7 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
 
     lines.append("=== NLP EXTRACTION ===")
     lines.append(f"Sentiment: {nlp.sentiment} (tone: {', '.join(nlp.tone)})")
+    lines.append(f"Source credibility: tier {nlp.source_credibility_tier} ({'Tier 1: high credibility (Reuters, Bloomberg, Economic Times)' if nlp.source_credibility_tier <= 2 else 'Tier 3+: moderate credibility — verify claims' if nlp.source_credibility_tier >= 3 else 'Tier 2: good credibility'})")
     lines.append(f"Core claim: {nlp.narrative_core_claim}")
     lines.append(f"Causation: {nlp.narrative_implied_causation}")
     lines.append(f"Stakeholders: {nlp.narrative_stakeholder_framing}")
@@ -300,14 +301,23 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
         event_id = event.event_id if event and hasattr(event, "event_id") else ""
         # Extract financial quantum from NLP if available
         delta_cr = None
+        signal_unit = "cr"
         if nlp.financial_signal and nlp.financial_signal.get("amount"):
             try:
                 delta_cr = float(nlp.financial_signal["amount"])
+                # Detect if signal is percentage vs absolute ₹
+                unit_raw = str(nlp.financial_signal.get("unit", "")).lower()
+                if unit_raw in ("percent", "%", "percentage", "pct"):
+                    signal_unit = "percent"
             except (ValueError, TypeError):
                 pass
 
+        # Determine if event is positive or negative for prompt framing
+        sentiment = nlp.sentiment if nlp else 0
+        is_positive_event = sentiment > 0
+
         if event_id:
-            cascade_result = compute_cascade(event_id, company, delta_source_cr=delta_cr)
+            cascade_result = compute_cascade(event_id, company, delta_source_cr=delta_cr, signal_unit=signal_unit)
             if cascade_result and cascade_result.hops:
                 lines.append(f"=== {cascade_result.to_prompt_block()} ===")
                 lines.append("")
@@ -340,12 +350,23 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
     except Exception as exc:
         logger.warning("Primitive cascade computation failed: %s", exc)
 
+    # Event sentiment framing
+    if is_positive_event:
+        lines.append("=== EVENT SENTIMENT: POSITIVE ===")
+        lines.append("This is a POSITIVE event (analyst upgrade, ESG improvement, award, partnership, etc.).")
+        lines.append("- Use 'potential upside' or 'benefit' NOT 'exposure' or 'at risk' in financial_exposure")
+        lines.append("- Use 'opportunity' framing in headline, not 'threat' or 'risk'")
+        lines.append("- Recommendations should focus on LEVERAGING the positive momentum (timing advantage, green bond window, investor communication)")
+        lines.append("- Do NOT generate generic compliance recommendations unless frameworks are specifically triggered")
+        lines.append("")
+
     lines.append("=== INSTRUCTIONS ===")
     lines.append(
         "Produce the structured JSON insight now. Remember: stay within event score bounds. "
         "Do not invent numbers. Respect the do-nothing rule for LOW/NON-MATERIAL events. "
-        "If CAUSAL PRIMITIVES CONTEXT is provided, use the β elasticities and lag windows "
-        "to compute financial_exposure instead of guessing ranges."
+        "If CAUSAL PRIMITIVES CONTEXT is provided, use the computed ₹ figures. "
+        "Match your recommendations to the SPECIFIC event — do not generate generic ESG recommendations "
+        "that could apply to any article. Each recommendation must reference something from THIS article."
     )
     return "\n".join(lines)
 

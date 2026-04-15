@@ -454,6 +454,18 @@ snowkap:event_award_recognition snw:affectsPrimitive snw:prim_RV .
 snowkap:event_esg_partnership snw:affectsPrimitive snw:prim_RV ;
     snw:affectsPrimitiveSecondary snw:prim_CX, snw:prim_IR .
 
+snowkap:event_analyst_outlook snw:affectsPrimitive snw:prim_RV ;
+    snw:affectsPrimitiveSecondary snw:prim_IR, snw:prim_CX .
+
+snowkap:event_quarterly_results snw:affectsPrimitive snw:prim_RV ;
+    snw:affectsPrimitiveSecondary snw:prim_OX, snw:prim_CX, snw:prim_IR .
+
+snowkap:event_supply_chain_disruption snw:affectsPrimitive snw:prim_SC ;
+    snw:affectsPrimitiveSecondary snw:prim_OX, snw:prim_DT, snw:prim_RV, snw:prim_FR .
+
+snowkap:event_regulatory_policy snw:affectsPrimitive snw:prim_RG ;
+    snw:affectsPrimitiveSecondary snw:prim_CL, snw:prim_OX, snw:prim_CX .
+
 snowkap:event_social_violation snw:affectsPrimitive snw:prim_CL ;
     snw:affectsPrimitiveSecondary snw:prim_SC, snw:prim_RV, snw:prim_OX, snw:prim_RG, snw:prim_WF .
 

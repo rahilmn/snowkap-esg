@@ -199,6 +199,7 @@ def compute_cascade(
     event_id: str,
     company: Company,
     delta_source_cr: float | None = None,
+    signal_unit: str = "cr",
     max_order: int = 2,
 ) -> CascadeResult | None:
     """Compute the quantitative financial cascade for an event × company.
@@ -206,8 +207,10 @@ def compute_cascade(
     Args:
         event_id: Snowkap event type (e.g. "event_heavy_penalty").
         company: Company with primitive_calibration data.
-        delta_source_cr: ₹ Cr magnitude from article (e.g. 50.38 for a ₹50.38 Cr demand).
-                         If None, uses a default based on event type and company scale.
+        delta_source_cr: Magnitude from article. If signal_unit is "cr", this is ₹ Cr.
+                         If signal_unit is "percent", this is a % which gets converted
+                         to ₹ Cr using company revenue.
+        signal_unit: "cr" for ₹ Crores (default), "percent" for percentage signals.
         max_order: Maximum cascade depth (2 = primary→secondary, 3 = tertiary).
 
     Returns:
@@ -226,11 +229,23 @@ def compute_cascade(
 
     primary = prims[0]
 
-    # 2. Default delta if not provided
+    # 2. Default delta if not provided; convert % to ₹ if needed
     source_from_article = delta_source_cr is not None and delta_source_cr > 0
+    is_percentage = signal_unit == "percent"
+
     if not source_from_article:
         # Estimate from company scale: 0.1% of revenue for generic events
         delta_source_cr = company.revenue_cr * 0.001 if company.revenue_cr > 0 else 10.0
+    elif is_percentage and company.revenue_cr > 0:
+        # Convert percentage signal to ₹ Cr: e.g., 24% upside × revenue = potential ₹ impact
+        # Use a dampened conversion: actual realized impact is ~10-20% of predicted % move
+        pct_value = delta_source_cr
+        dampening = 0.02  # analyst % targets: ~2% of revenue translates to actual benefit
+        delta_source_cr = company.revenue_cr * (pct_value / 100.0) * dampening
+        logger.info(
+            "compute_cascade: converted %s%% signal to ₹%.1f Cr (%.0f%% × ₹%.0f Cr × %.0f%% dampening)",
+            pct_value, delta_source_cr, pct_value, company.revenue_cr, dampening * 100,
+        )
 
     result = CascadeResult(
         event_id=event_id,

@@ -252,6 +252,26 @@ snowkap:event_dividend_policy a snowkap:EventType ; rdfs:label "Dividend / Capit
     snowkap:eventKeyword "dividend, buyback, capital return, interim dividend" ;
     snowkap:financialTransmission "capital allocation signal -> investor sentiment" .
 
+snowkap:event_analyst_outlook a snowkap:EventType ; rdfs:label "Analyst Outlook / Market Sentiment" ;
+    snowkap:scoreFloor 2 ; snowkap:scoreCeiling 5 ;
+    snowkap:eventKeyword "analyst, target price, price target, rally, upside, bullish, bearish, outperform, underperform, buy rating, sell rating, hold rating, upgrade, downgrade, broker, brokerage, coverage, overweight, underweight, sector outlook, market outlook, stock pick, top pick" ;
+    snowkap:financialTransmission "analyst sentiment → investor positioning → short-term share price movement; limited ESG transmission unless tied to ESG rating action" .
+
+snowkap:event_quarterly_results a snowkap:EventType ; rdfs:label "Quarterly / Annual Financial Results" ;
+    snowkap:scoreFloor 3 ; snowkap:scoreCeiling 6 ;
+    snowkap:eventKeyword "quarterly results, annual results, earnings, Q1, Q2, Q3, Q4, FY25, FY26, profit, revenue growth, EBITDA, PAT, net profit, operating profit, margin, results beat, results miss, guidance" ;
+    snowkap:financialTransmission "actual financial performance → earnings revision → valuation re-rating → investor flow" .
+
+snowkap:event_supply_chain_disruption a snowkap:EventType ; rdfs:label "Supply Chain Disruption" ;
+    snowkap:scoreFloor 5 ; snowkap:scoreCeiling 8 ;
+    snowkap:eventKeyword "supply chain disruption, supply shortage, shortage, stockout, inventory, lead time, logistics disruption, port congestion, freight spike, raw material shortage, input cost, commodity shortage, coal shortage, semiconductor shortage" ;
+    snowkap:financialTransmission "input unavailability → production curtailment → revenue loss + expedited sourcing cost" .
+
+snowkap:event_regulatory_policy a snowkap:EventType ; rdfs:label "Regulatory Policy Change" ;
+    snowkap:scoreFloor 4 ; snowkap:scoreCeiling 7 ;
+    snowkap:eventKeyword "sebi circular, rbi policy, government policy, regulatory change, new regulation, policy announcement, tariff revision, subsidy, tax policy, carbon tax, emission standard, disclosure requirement, compliance deadline" ;
+    snowkap:financialTransmission "new obligation → compliance cost + strategic adjustment → sector-wide impact" .
+
 snowkap:event_labour_strike a snowkap:EventType ; rdfs:label "Labour Strike / Dispute" ;
     snowkap:scoreFloor 5 ; snowkap:scoreCeiling 8 ;
     snowkap:eventKeyword "strike, labour dispute, union, protest, lockout, go-slow" ;

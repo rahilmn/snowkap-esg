@@ -149,6 +149,7 @@ PERSPECTIVE-AWARE RECOMMENDATIONS:
 - CEO-relevant: focus on strategic positioning, competitive advantage, board-level decisions.
 - ESG Analyst-relevant: focus on framework compliance gaps, disclosure deadlines, stakeholder engagement.
 - Include a mix of types so each perspective has relevant recommendations.
+- CRITICAL: Every recommendation must be SPECIFIC to THIS article's event. Do NOT generate generic ESG recommendations (like "enhance CDP disclosure" or "file BRSR") unless the article specifically triggers those frameworks. For positive events (analyst upgrades, ESG awards), recommend LEVERAGING the momentum (green bond timing, investor communication, competitive positioning). For negative events (penalties, violations), recommend REMEDIATION and PREVENTION.
 
 Return a JSON object:
 {
