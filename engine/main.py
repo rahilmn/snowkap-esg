@@ -45,6 +45,14 @@ logger = logging.getLogger("snowkap")
 
 
 def setup_logging(level: str = "INFO") -> None:
+    # Force UTF-8 on stdout/stderr so ₹, ↑, etc. don't crash on Windows cp1252.
+    import io
+    if hasattr(sys.stdout, "buffer"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
+        except (AttributeError, io.UnsupportedOperation):
+            pass
     level_int = getattr(logging, level.upper(), logging.INFO)
     try:
         import structlog
@@ -90,8 +98,16 @@ class ArticleRunSummary:
 
 
 def _run_article(article: dict[str, Any], company: Company) -> ArticleRunSummary:
-    """Run a single article through the full 12-stage pipeline."""
+    """Run a single article through the full 12-stage pipeline.
+
+    Phase 4: ESG Analyst and CEO perspectives now use dedicated LLM generators
+    (Stage 11a + 11b) for real persona-specific content. CFO still uses the
+    lighter-weight `transform_for_perspective` since the audit rated it 72/100
+    (acceptable with Phase 3 verifier + precedent hardening).
+    """
     # Lazy imports keep CLI startup fast for `--help`
+    from engine.analysis.ceo_narrative_generator import generate_ceo_narrative_perspective
+    from engine.analysis.esg_analyst_generator import generate_esg_analyst_perspective
     from engine.analysis.insight_generator import generate_deep_insight
     from engine.analysis.perspective_engine import transform_for_perspective
     from engine.analysis.pipeline import process_article
@@ -112,8 +128,11 @@ def _run_article(article: dict[str, Any], company: Company) -> ArticleRunSummary
         if result.tier == "HOME":
             insight = generate_deep_insight(result, company)
             if insight:
-                for lens in ("esg-analyst", "cfo", "ceo"):
-                    perspectives[lens] = transform_for_perspective(insight, result, lens)
+                # Phase 4 dedicated generators for ESG Analyst + CEO
+                perspectives["esg-analyst"] = generate_esg_analyst_perspective(insight, result, company)
+                perspectives["ceo"] = generate_ceo_narrative_perspective(insight, result, company)
+                # CFO stays on legacy path (simpler, verified by Phase 3 hardening)
+                perspectives["cfo"] = transform_for_perspective(insight, result, "cfo")
                 recs = generate_recommendations(insight, result, company)
         # Write to disk (HOME: full insight; SECONDARY: pipeline-only, insight=None)
         written = write_insight(result, insight, perspectives, recs)
@@ -121,6 +140,24 @@ def _run_article(article: dict[str, Any], company: Company) -> ArticleRunSummary
         d = written.to_dict()
         files = sum(1 for k, v in d.items() if v and not isinstance(v, dict))
         files += len(d.get("perspectives") or {})
+
+        # Phase 19 — feed the self-evolving ontology buffer.
+        # Pre-Phase-19 fix this was only called from the on-demand path
+        # (`engine/analysis/on_demand.enrich_on_demand`), which meant nightly
+        # ingestion never contributed to entity / theme / event / framework
+        # discovery. Result: entities accumulated only when a user manually
+        # clicked View Insights, so they never reached the min_articles=3
+        # auto-promote threshold. Wiring it here means every article
+        # (HOME + SECONDARY + REJECTED stages 1-9 still run) feeds the buffer.
+        try:
+            from engine.ontology.discovery.collector import collect_discoveries
+            collect_discoveries(result, insight, company.slug)
+        except Exception as exc:  # noqa: BLE001
+            # Discovery is additive — never block ingestion on a buffer error.
+            import logging
+            logging.getLogger(__name__).debug(
+                "discovery collection skipped for %s: %s", result.article_id, exc
+            )
 
     return ArticleRunSummary(
         article_id=result.article_id,
@@ -343,6 +380,125 @@ def cmd_reindex(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------------------
+# Phase 6 — Batch API commands
+# ---------------------------------------------------------------------------
+
+
+def cmd_batch_submit(args: argparse.Namespace) -> int:
+    """Build + submit a Stage 10 batch job for HOME-tier articles.
+
+    Reads unprocessed-or-requeued articles from data/inputs/news and runs
+    stages 1-9 synchronously, then packages Stage 10 into a Batch API job.
+    """
+    from engine.analysis.batch_processor import (
+        build_insight_batch,
+        estimate_batch_cost,
+        submit_batch,
+    )
+    from engine.analysis.pipeline import process_article
+    from engine.ingestion.news_fetcher import _load_processed
+
+    if not args.company and not args.all:
+        print("error: --company <slug> or --all required", file=sys.stderr)
+        return 2
+
+    companies = load_companies() if args.all else [get_company(args.company)]
+    collected: list = []
+    for company in companies:
+        input_dir = get_data_path("inputs", "news", company.slug)
+        if not input_dir.exists():
+            continue
+        articles = sorted(input_dir.glob("*.json"))[: args.max_per_company or 50]
+        for a_path in articles:
+            article = json.loads(a_path.read_text(encoding="utf-8"))
+            try:
+                result = process_article(article, company)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("skip %s: %s", a_path.name, exc)
+                continue
+            if result.tier == "HOME" and not result.rejected:
+                collected.append((result, company))
+    if not collected:
+        print("no HOME-tier articles to batch")
+        return 0
+
+    cost = estimate_batch_cost(len(collected))
+    print(f"Collected {len(collected)} HOME articles. Estimated batch cost: ${cost['batch_cost_usd']} "
+          f"(vs ${cost['sync_cost_usd']} sync; savings ${cost['savings_usd']}).")
+
+    if args.dry_run:
+        print("(dry-run — not submitting)")
+        return 0
+
+    jsonl_path, request_map = build_insight_batch(collected)
+    manifest = submit_batch(jsonl_path, request_map, completion_window=args.completion_window)
+
+    print(f"\nSubmitted: {manifest.batch_id}")
+    print(f"Manifest:  data/batch/{manifest.batch_id}_manifest.json")
+    print(f"Requests:  {manifest.total_requests}")
+    print(f"Poll with: python engine/main.py batch-status --batch-id {manifest.batch_id}")
+    return 0
+
+
+def cmd_batch_status(args: argparse.Namespace) -> int:
+    """Refresh batch status."""
+    from engine.analysis.batch_processor import check_batch_status
+
+    manifest = check_batch_status(args.batch_id)
+    if not manifest:
+        print(f"No manifest found for {args.batch_id}", file=sys.stderr)
+        return 1
+
+    print(f"Batch:      {manifest.batch_id}")
+    print(f"Status:     {manifest.status}")
+    print(f"Submitted:  {manifest.submitted_at}")
+    print(f"Completed:  {manifest.completed_at or '—'}")
+    print(f"Requests:   {manifest.total_requests}")
+    print(f"Output fid: {manifest.output_file_id or '—'}")
+    if manifest.status == "completed":
+        print(f"\nFetch with: python engine/main.py batch-fetch --batch-id {manifest.batch_id}")
+    return 0
+
+
+def cmd_batch_fetch(args: argparse.Namespace) -> int:
+    """Fetch completed batch output + persist insights. Only works when status=completed."""
+    from engine.analysis.batch_processor import check_batch_status, fetch_batch_results
+
+    manifest = check_batch_status(args.batch_id)
+    if not manifest:
+        print(f"No manifest found for {args.batch_id}", file=sys.stderr)
+        return 1
+    if manifest.status != "completed":
+        print(f"Batch {args.batch_id} not complete (status={manifest.status})", file=sys.stderr)
+        return 2
+
+    insights = fetch_batch_results(args.batch_id)
+    print(f"Hydrated {len(insights)} DeepInsights from batch {args.batch_id}")
+    # Persist each to disk for downstream consumption
+    for custom_id, insight in insights.items():
+        info = manifest.request_map.get(custom_id, {})
+        slug = info.get("company_slug", "unknown")
+        article_id = info.get("article_id", custom_id)
+        out_path = get_output_dir(slug) / "insights_batched" / f"{article_id}.json"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(insight.to_dict(), indent=2, ensure_ascii=False),
+                            encoding="utf-8")
+    print(f"Wrote {len(insights)} insight files under data/outputs/<slug>/insights_batched/")
+    return 0
+
+
+def cmd_cache_stats(args: argparse.Namespace) -> int:
+    """Print Stage 10 insight cache stats."""
+    from engine.analysis.insight_cache import cache_stats
+
+    stats = cache_stats()
+    print("Insight cache:")
+    for k, v in stats.items():
+        print(f"  {k}: {v}")
+    return 0
+
+
+# ---------------------------------------------------------------------------
 # Argparse
 # ---------------------------------------------------------------------------
 
@@ -391,6 +547,28 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("stats", help="Print ontology + output statistics.")
     subparsers.add_parser("reindex", help="Rebuild SQLite index from JSON outputs.")
 
+    # Phase 6: Batch API commands
+    batch_submit = subparsers.add_parser(
+        "batch-submit", help="Submit a Stage 10 batch job (50% cheaper, async)."
+    )
+    batch_grp = batch_submit.add_mutually_exclusive_group(required=True)
+    batch_grp.add_argument("--company", help="Company slug.")
+    batch_grp.add_argument("--all", action="store_true", help="All companies.")
+    batch_submit.add_argument("--max-per-company", type=int, default=50,
+                              help="Articles per company to include (default 50).")
+    batch_submit.add_argument("--completion-window", default="24h",
+                              choices=["24h"], help="Batch completion window.")
+    batch_submit.add_argument("--dry-run", action="store_true",
+                              help="Compile + estimate cost without submitting.")
+
+    batch_status = subparsers.add_parser("batch-status", help="Check a batch job status.")
+    batch_status.add_argument("--batch-id", required=True, help="Batch ID returned by submit.")
+
+    batch_fetch = subparsers.add_parser("batch-fetch", help="Fetch + persist completed batch results.")
+    batch_fetch.add_argument("--batch-id", required=True)
+
+    subparsers.add_parser("cache-stats", help="Print Stage 10 insight-cache stats.")
+
     return parser
 
 
@@ -409,6 +587,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_stats(args)
     if args.command == "reindex":
         return cmd_reindex(args)
+    if args.command == "batch-submit":
+        return cmd_batch_submit(args)
+    if args.command == "batch-status":
+        return cmd_batch_status(args)
+    if args.command == "batch-fetch":
+        return cmd_batch_fetch(args)
+    if args.command == "cache-stats":
+        return cmd_cache_stats(args)
 
     parser.print_help()
     return 1

@@ -33,6 +33,8 @@ import { useNavigate } from "react-router-dom";
 import { agent, news as newsApi } from "../../lib/api";
 import { COLORS, SHADOWS, RADII } from "../../lib/designTokens";
 import { PriorityBadge } from "../ui/PriorityBadge";
+import { ShareArticleButton } from "../sharing/ShareArticleButton";
+import { useAuthStore } from "@/stores/authStore";
 import { VerticalCausalChain } from "./VerticalCausalChain";
 import { EsgThemeBar } from "./EsgThemeBar";
 import { NarrativeIntelligence } from "./NarrativeIntelligence";
@@ -43,6 +45,7 @@ import { GeographicSignalPanel } from "./GeographicSignalPanel";
 import { RiskSpotlight } from "./RiskSpotlight";
 import { UnlockFullAnalysis } from "./UnlockFullAnalysis";
 import { CrispInsight } from "@/components/CrispInsight";
+import { PerspectiveSwitcher } from "@/components/PerspectiveSwitcher";
 import { usePerspective } from "@/stores/perspectiveStore";
 import { formatCurrency } from "../../lib/utils";
 import type { Article } from "../../types";
@@ -541,6 +544,26 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const triggeredRef = useRef(false);
   const lastArticleId = useRef<string | null>(null);
 
+  // Phase 13 S5 — faux-progress for the on-demand analysis spinner. The
+  // pipeline runs in 20-60s; static "loading…" copy makes the wait feel
+  // longer. We advance through 5 named stages every ~6s so the user sees
+  // motion. Stage index is reset whenever a new analysis starts.
+  const [analysisStage, setAnalysisStage] = useState(0);
+  useEffect(() => {
+    if (analysisStatus !== "pending") {
+      // Reset on idle/done/failed so next pending starts at 0
+      if (analysisStage !== 0) setAnalysisStage(0);
+      return;
+    }
+    setAnalysisStage(0);
+    const tick = setInterval(() => {
+      // Cap at last stage (max index 4) — never claim "done" before backend confirms.
+      setAnalysisStage((prev) => Math.min(prev + 1, 4));
+    }, 6000);
+    return () => clearInterval(tick);
+    // analysisStage intentionally absent from deps — we manage it inside.
+  }, [analysisStatus]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Reset state when article changes (since we don't use key={} for remount)
   useEffect(() => {
     if (article?.id !== lastArticleId.current) {
@@ -552,9 +575,12 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   }, [article?.id, article?.deep_insight?.headline]);
 
   // Trigger analysis (extracted so retry can reuse)
-  const doTrigger = (id: string) => {
+  const doTrigger = (id: string, force = false) => {
     setAnalysisStatus("pending");
-    newsApi.triggerAnalysis(id)
+    // Phase 13 B6: pass force=true when the user explicitly clicks the
+    // "Generate <persona> view" fallback button so we re-run perspective
+    // generation even if a stale schema-version insight is cached.
+    newsApi.triggerAnalysis(id, force)
       .then(async (res) => {
         // Both "cached" and "done" mean analysis is ready — fetch it
         if (res.status === "cached" || res.status === "done") {
@@ -582,10 +608,10 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const articleId = article?.id;
   useEffect(() => {
     if (!articleId || hasAnalysis || triggeredRef.current) return;
-    console.log("[ArticleDetailSheet] Triggering analysis for:", articleId);
+    // Phase 13 B5: removed dev-debug console.log. Trigger silently.
     triggeredRef.current = true;
     doTrigger(articleId);
-  }, [articleId, hasAnalysis]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [articleId, hasAnalysis]);
 
   // Poll every 5s while pending, give up after 24 polls (~2min)
   useEffect(() => {
@@ -619,6 +645,18 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
     }, 5000);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [analysisStatus, article?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Phase 11+ — super-admin Share-by-email gate. MUST be declared before any
+  // early returns so hooks fire in the same order on every render (Rules of
+  // Hooks). Backend API also 403s on `manage_drip_campaigns`, so this is
+  // belt + braces.
+  // Phase 13 B7 — also gate on server-confirmed email backend liveness so
+  // the button doesn't appear when RESEND_API_KEY is missing or the sender
+  // address isn't configured. Avoids the "click → preview-only" demo trap.
+  const hasSharePermission = useAuthStore((s) => s.hasPermission("manage_drip_campaigns"));
+  const emailConfigured = useAuthStore((s) => s.emailConfigured);
+  const emailConfigReason = useAuthStore((s) => s.emailConfigReason);
+  const canShareByEmail = hasSharePermission && emailConfigured;
 
   if (!article) return null;
 
@@ -720,9 +758,52 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: "18px", border: "none", cursor: "pointer",
           }}
+          aria-label="Back"
         >
           &larr;
         </button>
+
+        {/* Share button (super-admin only) — fixed top-right, mirrors the back button.
+            Phase 13 B7: gated on BOTH `manage_drip_campaigns` permission AND
+            server-confirmed email-backend liveness (`emailConfigured`). When
+            permission is held but backend is down/missing, render a disabled
+            badge with a tooltip so the demo doesn't show a button that
+            silently no-ops. */}
+        {hasSharePermission && article?.id && (
+          <div
+            className="fixed z-50"
+            style={{
+              top: "28px",
+              right: "max(16px, calc((100vw - 440px) / 2 + 16px))",
+            }}
+          >
+            {canShareByEmail ? (
+              <ShareArticleButton
+                articleId={String(article.id)}
+                variant="default"
+                label="Share via email"
+                onSent={(res) => {
+                  // Phase 13 B5: silent confirmation. Toast UX is the next
+                  // polish item; no dev-debug console output in production.
+                  void res;
+                }}
+              />
+            ) : (
+              <span
+                title={emailConfigReason || "Email backend is not configured for this deployment."}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "6px",
+                  fontSize: "12px", fontWeight: 500, color: "#888",
+                  background: "#f3f3f3", border: "1px solid #e0e0e0",
+                  borderRadius: "16px", padding: "6px 14px", cursor: "not-allowed",
+                  userSelect: "none",
+                }}
+              >
+                Share unavailable
+              </span>
+            )}
+          </div>
+        )}
 
         {/* ═══ ZONE A: HERO CARD ═══ */}
         <div style={{ margin: "80px 24px 0", backgroundColor: COLORS.darkCard, borderRadius: RADII.card, boxShadow: SHADOWS.darkCard, padding: "28px" }}>
@@ -783,19 +864,78 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
           </div>
         )}
 
+        {/* ═══ ZONE B1.5: INLINE PERSPECTIVE SWITCHER ═══
+            The global PerspectiveSwitcher in MinimalHeader is hidden behind
+            this fullscreen article sheet (z-50 overlay). Without an inline
+            switcher, users had no way to toggle CFO ↔ CEO ↔ ESG Analyst from
+            within the article view. Phase 16 fix. */}
+        {effectiveArticle.perspectives && Object.keys(effectiveArticle.perspectives).length > 0 && (
+          <div style={{
+            padding: "16px 24px 0",
+            display: "flex",
+            justifyContent: "center",
+          }}>
+            <PerspectiveSwitcher />
+          </div>
+        )}
+
         {/* ═══ ZONE B2: CRISP INSIGHT — ontology-driven perspective view ═══
             Renders the CFO / CEO / ESG Analyst crisp card based on the
             global PerspectiveSwitcher. Driven entirely from the new
-            ontology-backed pipeline's `perspectives` field. */}
-        {effectiveArticle.perspectives?.[activePerspective] && (
+            ontology-backed pipeline's `perspectives` field.
+
+            Phase 13 B6: empty-perspective fallback. If the deep insight
+            exists but the requested perspective is not yet generated (e.g.
+            on-demand pipeline only emitted CFO so far, user toggles to CEO),
+            show an explicit fallback rather than silent blank space. */}
+        {effectiveArticle.perspectives?.[activePerspective] ? (
           <div style={{ padding: "12px 24px 0" }}>
             <CrispInsight
               view={effectiveArticle.perspectives[activePerspective] as unknown as NewCrispView}
             />
           </div>
-        )}
+        ) : hasDeep && analysisStatus !== "pending" ? (
+          <div style={{ padding: "12px 24px 0" }}>
+            <div style={{
+              padding: "16px 18px", borderRadius: "10px",
+              background: "rgba(0,0,0,0.03)",
+              border: "1px solid rgba(0,0,0,0.08)",
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              gap: "16px", flexWrap: "wrap",
+            }}>
+              <div style={{ flex: 1, minWidth: "220px" }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: COLORS.textPrimary, margin: 0 }}>
+                  {activePerspective === "cfo" ? "CFO" : activePerspective === "ceo" ? "CEO" : "ESG Analyst"} view not yet available
+                </p>
+                <p style={{ fontSize: "11px", color: COLORS.textMuted, margin: "4px 0 0", lineHeight: 1.45 }}>
+                  Deep insight is ready, but this perspective hasn't been generated.
+                  Click below to run the perspective generator (~10s).
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  triggeredRef.current = false;
+                  doTrigger(article.id, /* force */ true);
+                }}
+                style={{
+                  fontSize: "12px", fontWeight: 600, color: "#fff",
+                  background: COLORS.brand, border: "none",
+                  borderRadius: "16px", padding: "6px 16px", cursor: "pointer",
+                  flexShrink: 0,
+                }}
+              >
+                Generate {activePerspective === "esg-analyst" ? "ESG Analyst" : activePerspective.toUpperCase()} view
+              </button>
+            </div>
+          </div>
+        ) : null}
 
-        {/* ═══ On-demand analysis loading skeleton ═══ */}
+        {/* ═══ On-demand analysis loading skeleton ═══
+            Phase 13 S5: faux-progress stage labels advance every 6s so the
+            45-60s wait feels purposeful. Stages are illustrative not
+            literal — the pipeline runs all stages in parallel/sequence
+            internally; we just surface progress to the user.
+        */}
         {analysisStatus === "pending" && (
           <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "12px" }}>
             <div style={{
@@ -810,13 +950,21 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
                   Generating Intelligence Brief
                 </p>
                 <p style={{ fontSize: "11px", color: "#888", margin: "2px 0 0" }}>
-                  Running ESG analysis pipeline — 20 to 60 seconds
+                  {[
+                    "Stage 1 of 5 · Extracting article themes & sentiment",
+                    "Stage 2 of 5 · Matching ESG frameworks (BRSR, GRI, TCFD)",
+                    "Stage 3 of 5 · Computing financial cascade & ₹ exposure",
+                    "Stage 4 of 5 · Generating CFO / CEO / Analyst perspectives",
+                    "Stage 5 of 5 · Drafting actionable recommendations",
+                  ][analysisStage]}
                 </p>
               </div>
             </div>
             <div className="analysis-skeleton" style={{ height: "130px" }} />
             <div className="analysis-skeleton" style={{ height: "90px" }} />
             <div className="analysis-skeleton" style={{ height: "70px" }} />
+            <div className="analysis-skeleton" style={{ height: "60px" }} />
+            <div className="analysis-skeleton" style={{ height: "50px" }} />
           </div>
         )}
 
@@ -1094,17 +1242,21 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
 
               // Step 1: Reorder by perspective-specific ranking
               const order = rankings?.[perspKey];
-              const ordered = order && order.length > 0
-                ? order.filter((idx: number) => idx < recs.length).map((idx: number) => recs[idx])
+              type Rec = typeof recs[number];
+              const ordered: Rec[] = order && order.length > 0
+                ? order
+                    .filter((idx: number) => idx >= 0 && idx < recs.length)
+                    .map((idx: number) => recs[idx])
+                    .filter((r): r is Rec => r != null)
                 : recs;
 
               // Step 2: Filter by perspective-specific allowed types
               const allowedTypes = typeFilters?.[perspKey];
               const filtered = allowedTypes && allowedTypes.length > 0
-                ? ordered.filter((rec) => allowedTypes.includes(rec.type))
+                ? ordered.filter((rec: Rec) => allowedTypes.includes(rec.type))
                 : ordered;
 
-              return filtered.map((rec: typeof recs[number], i: number) => (
+              return filtered.map((rec: Rec, i: number) => (
                 <RecommendationCard key={i} rec={rec} index={i} articleId={article.id} />
               ));
             })()}

@@ -1,0 +1,295 @@
+{
+  "esg_risks": [
+    {
+      "category": "Litigation Risk",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.3,
+      "adjusted_score": 20.8,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "class action pre-filings",
+        "activist investor campaigns",
+        "regulatory investigations"
+      ],
+      "lag_indicators": [
+        "lawsuits filed",
+        "settlements",
+        "penalties"
+      ]
+    },
+    {
+      "category": "Market & Uncertainty",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.2,
+      "adjusted_score": 24.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "VIX",
+        "FX volatility",
+        "geopolitical tensions"
+      ],
+      "lag_indicators": [
+        "valuation compression",
+        "capital flight",
+        "downgrades"
+      ]
+    },
+    {
+      "category": "Regulatory Risk",
+      "probability": 5,
+      "exposure": 5,
+      "raw_score": 25,
+      "industry_weight": 1.5,
+      "adjusted_score": 37.5,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
+    {
+      "category": "Reputational Risk",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.3,
+      "adjusted_score": 26.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "social media sentiment",
+        "NGO campaigns",
+        "whistleblower reports"
+      ],
+      "lag_indicators": [
+        "brand score decline",
+        "customer churn",
+        "boycotts"
+      ]
+    },
+    {
+      "category": "Transition Risk",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.8,
+      "adjusted_score": 16.2,
+      "level": "HIGH",
+      "lead_indicators": [
+        "tech adoption curves",
+        "policy roadmaps",
+        "customer preference shifts"
+      ],
+      "lag_indicators": [
+        "stranded assets",
+        "demand destruction",
+        "market share loss"
+      ]
+    }
+  ],
+  "temples_risks": [
+    {
+      "category": "Economic",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.0,
+      "adjusted_score": 20.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "commodity price trends",
+        "FX volatility",
+        "customer order pipeline"
+      ],
+      "lag_indicators": [
+        "revenue decline",
+        "margin erosion",
+        "write-downs"
+      ]
+    },
+    {
+      "category": "Legal",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.0,
+      "adjusted_score": 16.0,
+      "level": "HIGH",
+      "lead_indicators": [
+        "draft regulations",
+        "enforcement priorities",
+        "litigation precedents"
+      ],
+      "lag_indicators": [
+        "fines",
+        "lawsuits",
+        "settlements"
+      ]
+    },
+    {
+      "category": "Media",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.0,
+      "adjusted_score": 20.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "social media sentiment shifts",
+        "journalist inquiries",
+        "activist group interest"
+      ],
+      "lag_indicators": [
+        "negative coverage",
+        "brand value decline",
+        "customer boycotts"
+      ]
+    },
+    {
+      "category": "Political",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.0,
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "election cycles",
+        "policy white papers",
+        "diplomatic tensions"
+      ],
+      "lag_indicators": [
+        "policy changes",
+        "license restrictions",
+        "trade barriers"
+      ]
+    },
+    {
+      "category": "Social",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.0,
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "workforce sentiment surveys",
+        "union activity",
+        "community engagement feedback"
+      ],
+      "lag_indicators": [
+        "strikes",
+        "protests",
+        "community opposition"
+      ]
+    }
+  ],
+  "top_risks": [
+    {
+      "category": "Regulatory Risk",
+      "probability": 5,
+      "exposure": 5,
+      "raw_score": 25,
+      "industry_weight": 1.5,
+      "adjusted_score": 37.5,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
+    {
+      "category": "Reputational Risk",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.3,
+      "adjusted_score": 26.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "social media sentiment",
+        "NGO campaigns",
+        "whistleblower reports"
+      ],
+      "lag_indicators": [
+        "brand score decline",
+        "customer churn",
+        "boycotts"
+      ]
+    },
+    {
+      "category": "Market & Uncertainty",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.2,
+      "adjusted_score": 24.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "VIX",
+        "FX volatility",
+        "geopolitical tensions"
+      ],
+      "lag_indicators": [
+        "valuation compression",
+        "capital flight",
+        "downgrades"
+      ]
+    },
+    {
+      "category": "Litigation Risk",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.3,
+      "adjusted_score": 20.8,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "class action pre-filings",
+        "activist investor campaigns",
+        "regulatory investigations"
+      ],
+      "lag_indicators": [
+        "lawsuits filed",
+        "settlements",
+        "penalties"
+      ]
+    },
+    {
+      "category": "Economic",
+      "probability": 4,
+      "exposure": 5,
+      "raw_score": 20,
+      "industry_weight": 1.0,
+      "adjusted_score": 20.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "commodity price trends",
+        "FX volatility",
+        "customer order pipeline"
+      ],
+      "lag_indicators": [
+        "revenue decline",
+        "margin erosion",
+        "write-downs"
+      ]
+    }
+  ],
+  "aggregate_score": 0.794,
+  "ontology_queries": 20
+}

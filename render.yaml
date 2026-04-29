@@ -1,0 +1,51 @@
+# Snowkap ESG — Render.com one-click deploy
+# https://render.com/docs/blueprint-spec
+#
+# Push this file to your Git repo + connect the repo on render.com.
+# Render auto-detects the Dockerfile, builds the image, and exposes the
+# service on a *.onrender.com URL with TLS auto-managed.
+#
+# Required env vars (set via the Render dashboard under "Environment"
+# BEFORE first deploy — they are NOT in this YAML for security):
+#   SNOWKAP_ENV=production
+#   JWT_SECRET=<32+ char random>
+#   REQUIRE_SIGNED_JWT=1
+#   SNOWKAP_API_KEY=<random key>
+#   OPENAI_API_KEY=sk-proj-...
+#   RESEND_API_KEY=re_...
+#   SNOWKAP_FROM_ADDRESS=Snowkap ESG <newsletter@snowkap.co.in>
+#   NEWSAPI_AI_KEY=<uuid from eventregistry.org>
+#   SENTRY_DSN=https://...@sentry.io/...   (optional)
+
+services:
+  - type: web
+    name: snowkap-esg
+    runtime: docker
+    region: singapore        # closest to India
+    plan: starter            # 512 MB / 0.5 CPU. Bump to "standard" once
+                             # ingestion is running on the same box.
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true         # redeploy on every push to main
+    disk:
+      name: snowkap-data
+      mountPath: /opt/snowkap/data
+      sizeGB: 10             # SQLite + outputs + ontology + backups
+
+    # Cron job for the drip-campaign scheduler (Phase 10) and the
+    # nightly fuzz harness (Phase 12) — both run inside the same image.
+  - type: cron
+    name: snowkap-drip-tick
+    runtime: docker
+    region: singapore
+    schedule: "*/15 * * * *"  # every 15 min
+    dockerCommand: python -m engine.output.campaign_runner --tick
+    dockerfilePath: ./Dockerfile
+
+  - type: cron
+    name: snowkap-nightly-fuzz
+    runtime: docker
+    region: singapore
+    schedule: "0 2 * * *"    # 2 AM UTC daily
+    dockerCommand: python scripts/fuzz_pipeline.py --slo-fail-pct 5
+    dockerfilePath: ./Dockerfile

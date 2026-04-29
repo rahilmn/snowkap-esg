@@ -820,8 +820,9 @@ def query_industry_roi_benchmarks(
 # ---------------------------------------------------------------------------
 
 
+@lru_cache(maxsize=32)
 def query_esg_risk_categories(graph: OntologyGraph | None = None) -> list[str]:
-    """Return all ESG risk category labels from ontology."""
+    """Return all ESG risk category labels from ontology. Cached — stable set."""
     g = _graph(graph)
     sparql = """
     SELECT ?label WHERE {
@@ -833,8 +834,9 @@ def query_esg_risk_categories(graph: OntologyGraph | None = None) -> list[str]:
     return [row["label"] for row in g.select_rows(sparql)]
 
 
+@lru_cache(maxsize=32)
 def query_temples_categories(graph: OntologyGraph | None = None) -> list[str]:
-    """Return all TEMPLES category labels from ontology."""
+    """Return all TEMPLES category labels from ontology. Cached — stable set."""
     g = _graph(graph)
     sparql = """
     SELECT ?label WHERE {
@@ -1065,6 +1067,7 @@ def query_risk_of_inaction_config(
     )
 
 
+@lru_cache(maxsize=32)
 def query_grid_column_map(
     graph: OntologyGraph | None = None,
 ) -> dict[str, str]:
@@ -1090,6 +1093,7 @@ def query_grid_column_map(
     return result
 
 
+@lru_cache(maxsize=32)
 def query_dim_to_insight_keys(
     graph: OntologyGraph | None = None,
 ) -> dict[str, list[str]]:
@@ -1118,6 +1122,7 @@ class HeadlineRuleInfo:
     is_fallback: bool
 
 
+@lru_cache(maxsize=64)
 def query_headline_rules(
     perspective: str, graph: OntologyGraph | None = None
 ) -> list[HeadlineRuleInfo]:
@@ -1156,6 +1161,7 @@ class RankingSortKey:
     sort_priority: int
 
 
+@lru_cache(maxsize=64)
 def query_perspective_ranking_keys(
     perspective: str, graph: OntologyGraph | None = None
 ) -> list[RankingSortKey]:
@@ -1483,4 +1489,450 @@ def query_stakeholder_impact(
             "transmission": str(row.get("transmission", "")),
             "severity_trigger": str(row.get("severity", "")),
         })
+    return results
+
+
+# =============================================================================
+# Phase 3: Precedent Library Queries
+# =============================================================================
+
+
+@dataclass
+class PrecedentCase:
+    """A named real-world case the LLM can cite by reference, not fabrication."""
+    name: str
+    company: str
+    date: str  # ISO YYYY-MM-DD
+    jurisdiction: str
+    cost_cr: float
+    duration_months: float
+    outcome: str
+    recovery_path: str
+    source: str
+    event_type: str  # e.g., "event_social_violation"
+    industry: str
+
+    def as_citation(self) -> str:
+        """One-line citation suitable for LLM prompt injection."""
+        yr = self.date[:4] if self.date else "?"
+        cost = f"₹{self.cost_cr:.0f} Cr" if self.cost_cr else "cost-undisclosed"
+        return (
+            f"{self.company} ({yr}): {self.name} — {cost}, "
+            f"{self.duration_months:.0f}m duration. {self.outcome[:140]}"
+        )
+
+
+# =============================================================================
+# Phase 4: Perspective Generation Queries
+# =============================================================================
+
+
+@dataclass
+class ESGKPI:
+    slug: str  # e.g., "kpi_scope1_emissions"
+    label: str
+    pillar: str  # E | S | G
+    unit: str
+    calculation: str
+    data_source: str
+    direction: str  # lower_is_better | higher_is_better | target_band
+    # Populated when peer cohort is available
+    peer_p25: str | None = None
+    peer_median: str | None = None
+    peer_p75: str | None = None
+    peer_examples: str | None = None
+
+
+def query_esg_kpis_for_industry(
+    industry: str,
+    limit: int = 10,
+    graph: OntologyGraph | None = None,
+) -> list[ESGKPI]:
+    """Return ESG KPIs relevant to an industry with peer-cohort benchmark joined.
+
+    Relevance filter: kpiRelevantIndustry string contains the industry name OR
+    says "All sectors". Newest or most-material KPIs first where possible.
+    """
+    g = _graph(graph)
+    needle = industry.lower()
+    sparql = """
+    SELECT ?kpi ?label ?pillar ?unit ?calc ?src ?dir ?rel
+           ?cohort ?p25 ?median ?p75 ?examples
+    WHERE {
+        ?kpi a snowkap:ESGKPIType ;
+             rdfs:label ?label ;
+             snowkap:kpiPillar ?pillar ;
+             snowkap:kpiUnit ?unit ;
+             snowkap:kpiCalculation ?calc ;
+             snowkap:kpiDataSource ?src ;
+             snowkap:kpiDirection ?dir ;
+             snowkap:kpiRelevantIndustry ?rel .
+        OPTIONAL {
+            ?cohort a snowkap:PeerCohortBenchmark ;
+                    snowkap:cohortForKPI ?kpi ;
+                    snowkap:cohortIndustry ?ind .
+            OPTIONAL { ?cohort snowkap:cohortP25 ?p25 }
+            OPTIONAL { ?cohort snowkap:cohortMedian ?median }
+            OPTIONAL { ?cohort snowkap:cohortP75 ?p75 }
+            OPTIONAL { ?cohort snowkap:cohortPeerExamples ?examples }
+            FILTER(CONTAINS(LCASE(STR(?ind)), ?needle))
+        }
+    }
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    out: list[ESGKPI] = []
+    seen: set[str] = set()
+    for row in rows:
+        rel = str(row.get("rel", "")).lower()
+        if needle not in rel and "all sectors" not in rel:
+            continue
+        slug = str(row.get("kpi", "")).split("#")[-1]
+        if slug in seen:
+            continue
+        seen.add(slug)
+        out.append(ESGKPI(
+            slug=slug,
+            label=str(row.get("label", "")),
+            pillar=str(row.get("pillar", "")),
+            unit=str(row.get("unit", "")),
+            calculation=str(row.get("calc", "")),
+            data_source=str(row.get("src", "")),
+            direction=str(row.get("dir", "")),
+            peer_p25=str(row.get("p25", "")) or None,
+            peer_median=str(row.get("median", "")) or None,
+            peer_p75=str(row.get("p75", "")) or None,
+            peer_examples=str(row.get("examples", "")) or None,
+        ))
+        if len(out) >= limit:
+            break
+    # Sort: E/S/G with cohort data first, then alphabetical
+    out.sort(key=lambda k: (0 if k.peer_median else 1, k.pillar, k.label))
+    return out[:limit]
+
+
+@dataclass
+class ScenarioFraming:
+    path: str  # "1.5C" | "2C" | "4C"
+    industry: str
+    timeframe: str
+    transition_risk: str
+    physical_risk: str
+    financial_impact: str
+    reference: str
+
+
+def query_scenario_framings(
+    industry: str,
+    graph: OntologyGraph | None = None,
+) -> list[ScenarioFraming]:
+    """Return 3 TCFD scenario framings (1.5°C, 2°C, 4°C) for an industry."""
+    g = _graph(graph)
+    needle = industry.lower()
+    sparql = """
+    SELECT ?path ?ind ?tf ?tr ?pr ?fi ?ref WHERE {
+        ?scn a snowkap:ScenarioTemplate ;
+             snowkap:scenarioPath ?path ;
+             snowkap:scenarioIndustry ?ind ;
+             snowkap:scenarioTimeframe ?tf ;
+             snowkap:scenarioTransitionRisk ?tr ;
+             snowkap:scenarioPhysicalRisk ?pr ;
+             snowkap:scenarioFinancialImpact ?fi ;
+             snowkap:scenarioReference ?ref .
+        FILTER(CONTAINS(LCASE(STR(?ind)), ?needle))
+    }
+    ORDER BY ?path
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    out = []
+    for row in rows:
+        out.append(ScenarioFraming(
+            path=str(row.get("path", "")),
+            industry=str(row.get("ind", "")),
+            timeframe=str(row.get("tf", "")),
+            transition_risk=str(row.get("tr", "")),
+            physical_risk=str(row.get("pr", "")),
+            financial_impact=str(row.get("fi", "")),
+            reference=str(row.get("ref", "")),
+        ))
+    return out
+
+
+@dataclass
+class StakeholderPosition:
+    label: str
+    stakeholder_type: str  # regulator | rating_agency | etc.
+    stance: str
+    precedent: str
+    escalation_window: str
+
+
+def query_stakeholder_positions(
+    topic_keywords: list[str] | str,
+    graph: OntologyGraph | None = None,
+    event_polarity: str = "negative",
+) -> list[StakeholderPosition]:
+    """Return stakeholder positions whose topic triggers match any keyword.
+
+    `topic_keywords` can be a single string or list. Each position is returned
+    once (dedup by label).
+
+    Phase 15 — `event_polarity`:
+      - "negative" (default, back-compat): returns the legacy
+        `stakeholderDefaultStance` + `stakeholderPrecedent` (regulator-
+        escalation, AGM-vote-against, MSCI-downgrade flavour).
+      - "positive": returns `stakeholderPositiveStance` +
+        `stakeholderPositivePrecedent` (endorsement / upgrade-pathway /
+        re-weighting flavour). Stakeholders without a positive variant
+        are SKIPPED entirely so the CEO narrative doesn't emit a wrong-
+        polarity precedent like "Vedanta 2020 SCN" on a contract win.
+    """
+    if isinstance(topic_keywords, str):
+        topic_keywords = [topic_keywords]
+    needles = [k.strip().lower() for k in topic_keywords if k and k.strip()]
+    if not needles:
+        return []
+
+    g = _graph(graph)
+    if event_polarity == "positive":
+        # Positive flavour: REQUIRE the positive predicates to be present;
+        # stakeholders without them are excluded from the result.
+        sparql = """
+        SELECT ?pos ?label ?type ?triggers ?stance ?prec ?win WHERE {
+            ?pos a snowkap:StakeholderPosition ;
+                 snowkap:stakeholderLabel ?label ;
+                 snowkap:stakeholderType ?type ;
+                 snowkap:stakeholderTopicTrigger ?triggers ;
+                 snowkap:stakeholderPositiveStance ?stance ;
+                 snowkap:stakeholderPositivePrecedent ?prec .
+            OPTIONAL { ?pos snowkap:stakeholderEscalationWindow ?win }
+        }
+        """
+    else:
+        sparql = """
+        SELECT ?pos ?label ?type ?triggers ?stance ?prec ?win WHERE {
+            ?pos a snowkap:StakeholderPosition ;
+                 snowkap:stakeholderLabel ?label ;
+                 snowkap:stakeholderType ?type ;
+                 snowkap:stakeholderTopicTrigger ?triggers ;
+                 snowkap:stakeholderDefaultStance ?stance ;
+                 snowkap:stakeholderPrecedent ?prec .
+            OPTIONAL { ?pos snowkap:stakeholderEscalationWindow ?win }
+        }
+        """
+    rows = g.select_rows(sparql)
+    out: list[StakeholderPosition] = []
+    seen: set[str] = set()
+    for row in rows:
+        triggers = str(row.get("triggers", "")).lower()
+        if not any(n in triggers for n in needles):
+            continue
+        label = str(row.get("label", ""))
+        if label in seen:
+            continue
+        seen.add(label)
+        out.append(StakeholderPosition(
+            label=label,
+            stakeholder_type=str(row.get("type", "")),
+            stance=str(row.get("stance", "")),
+            precedent=str(row.get("prec", "")),
+            escalation_window=str(row.get("win", "")),
+        ))
+    return out
+
+
+@dataclass
+class SDGTargetRef:
+    code: str  # "8.7"
+    goal_number: int
+    title: str
+    description: str
+    corporate_action: str
+
+
+def query_sdg_targets(
+    topic_keywords: list[str] | str,
+    limit: int = 5,
+    graph: OntologyGraph | None = None,
+) -> list[SDGTargetRef]:
+    """Return SDG targets whose topic triggers match any keyword.
+
+    Targets deduped by code, sorted by goal number.
+    """
+    if isinstance(topic_keywords, str):
+        topic_keywords = [topic_keywords]
+    needles = [k.strip().lower() for k in topic_keywords if k and k.strip()]
+    if not needles:
+        return []
+
+    g = _graph(graph)
+    sparql = """
+    SELECT ?sdg ?code ?goal ?title ?desc ?triggers ?action WHERE {
+        ?sdg a snowkap:SDGTarget ;
+             snowkap:sdgTargetCode ?code ;
+             snowkap:sdgGoalNumber ?goal ;
+             snowkap:sdgTargetTitle ?title ;
+             snowkap:sdgTargetDescription ?desc ;
+             snowkap:sdgTopicTrigger ?triggers .
+        OPTIONAL { ?sdg snowkap:sdgCorporateAction ?action }
+    }
+    """
+    rows = g.select_rows(sparql)
+    out: list[SDGTargetRef] = []
+    seen: set[str] = set()
+    for row in rows:
+        triggers = str(row.get("triggers", "")).lower()
+        if not any(n in triggers for n in needles):
+            continue
+        code = str(row.get("code", ""))
+        if code in seen:
+            continue
+        seen.add(code)
+        try:
+            goal = int(row.get("goal", 0))
+        except (TypeError, ValueError):
+            goal = 0
+        out.append(SDGTargetRef(
+            code=code,
+            goal_number=goal,
+            title=str(row.get("title", "")),
+            description=str(row.get("desc", "")),
+            corporate_action=str(row.get("action", "")),
+        ))
+    out.sort(key=lambda s: (s.goal_number, s.code))
+    return out[:limit]
+
+
+def query_framework_rationales(
+    graph: OntologyGraph | None = None,
+) -> dict[str, str]:
+    """Return {sectionCode → rationale text} lookup for all FrameworkSection
+    instances that carry a hasRationale triple.
+
+    Result is keyed by section code (e.g., "BRSR:P6:Q14") so verifier-side
+    regex matches can trivially annotate LLM output. Cached implicitly via
+    rdflib's graph (query runs once per pipeline invocation).
+    """
+    g = _graph(graph)
+    sparql = """
+    SELECT ?code ?rationale WHERE {
+        ?s a snowkap:FrameworkSection ;
+           snowkap:sectionCode ?code ;
+           snowkap:hasRationale ?rationale .
+    }
+    """
+    rows = g.select_rows(sparql)
+    return {str(row.get("code", "")): str(row.get("rationale", "")) for row in rows}
+
+
+# =============================================================================
+# Phase 3 Precedent Query (below)
+# =============================================================================
+
+
+def query_precedents_for_event(
+    event_type: str,
+    industry: str | None = None,
+    limit: int = 3,
+    graph: OntologyGraph | None = None,
+) -> list[PrecedentCase]:
+    """Return up to `limit` most-relevant precedent cases for an event type + industry.
+
+    Matching strategy:
+      1. Try exact event_type + industry match (highest fidelity)
+      2. Fall back to event_type match only (cross-industry analogy)
+      3. Fall back to industry match only (same sector, related event)
+
+    Returns newest-first (highest caseDate) so LLM cites recent precedent.
+    """
+    g = _graph(graph)
+
+    # Accept both full URI and short slug
+    if event_type.startswith("event_"):
+        event_type_uri = f"http://snowkap.com/ontology/esg#{event_type}"
+    else:
+        event_type_uri = event_type
+
+    # Try event_type + industry (tight match), then event_type only (cross-industry
+    # analogy). We do NOT fall through to industry-only — a random industry event
+    # isn't a relevant precedent for a different event type.
+    queries: list[tuple[str, dict]] = []
+
+    if industry:
+        queries.append(("event+industry", {
+            "evt": URIRef(event_type_uri),
+            "ind": Literal(industry),
+        }))
+    queries.append(("event", {"evt": URIRef(event_type_uri)}))
+
+    base_sparql = """
+    SELECT ?case ?name ?company ?date ?jurisdiction ?cost ?duration
+           ?outcome ?recovery ?source ?evt ?ind
+    WHERE {
+        ?case a snowkap:PrecedentCase ;
+              snowkap:caseName ?name ;
+              snowkap:caseCompany ?company .
+        OPTIONAL { ?case snowkap:caseDate ?date }
+        OPTIONAL { ?case snowkap:caseJurisdiction ?jurisdiction }
+        OPTIONAL { ?case snowkap:caseCostCr ?cost }
+        OPTIONAL { ?case snowkap:caseDurationMonths ?duration }
+        OPTIONAL { ?case snowkap:caseOutcome ?outcome }
+        OPTIONAL { ?case snowkap:caseRecoveryPath ?recovery }
+        OPTIONAL { ?case snowkap:caseSource ?source }
+        ?case snowkap:precedesEventType ?evt .
+        OPTIONAL { ?case snowkap:precedesIndustry ?ind }
+        FILTER_HERE
+    }
+    ORDER BY DESC(?date)
+    """
+
+    seen: set[str] = set()
+    results: list[PrecedentCase] = []
+    for mode, bindings in queries:
+        if mode == "event+industry":
+            flt = "FILTER(?evt = ?evt_param && ?ind = ?ind_param)"
+            sparql = base_sparql.replace("FILTER_HERE", flt)
+            init = {"evt_param": bindings["evt"], "ind_param": bindings["ind"]}
+        elif mode == "event":
+            flt = "FILTER(?evt = ?evt_param)"
+            sparql = base_sparql.replace("FILTER_HERE", flt)
+            init = {"evt_param": bindings["evt"]}
+        else:  # industry
+            flt = "FILTER(?ind = ?ind_param)"
+            sparql = base_sparql.replace("FILTER_HERE", flt)
+            init = {"ind_param": bindings["ind"]}
+
+        rows = g.select_rows(sparql, init_bindings=init)
+        for row in rows:
+            case_uri = str(row.get("case", ""))
+            if case_uri in seen:
+                continue
+            seen.add(case_uri)
+            try:
+                cost = float(row.get("cost", 0))
+            except (TypeError, ValueError):
+                cost = 0.0
+            try:
+                duration = float(row.get("duration", 0))
+            except (TypeError, ValueError):
+                duration = 0.0
+            evt_str = str(row.get("evt", ""))
+            evt_slug = evt_str.split("#")[-1] if "#" in evt_str else evt_str
+            results.append(PrecedentCase(
+                name=str(row.get("name", "")),
+                company=str(row.get("company", "")),
+                date=str(row.get("date", "")),
+                jurisdiction=str(row.get("jurisdiction", "")),
+                cost_cr=cost,
+                duration_months=duration,
+                outcome=str(row.get("outcome", "")),
+                recovery_path=str(row.get("recovery", "")),
+                source=str(row.get("source", "")),
+                event_type=evt_slug,
+                industry=str(row.get("ind", "")),
+            ))
+            if len(results) >= limit:
+                return results
+        if len(results) >= limit:
+            break
+
     return results

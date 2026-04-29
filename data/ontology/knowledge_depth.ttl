@@ -263,9 +263,9 @@ snowkap:event_quarterly_results a snowkap:EventType ; rdfs:label "Quarterly / An
     snowkap:financialTransmission "actual financial performance → earnings revision → valuation re-rating → investor flow" .
 
 snowkap:event_supply_chain_disruption a snowkap:EventType ; rdfs:label "Supply Chain Disruption" ;
-    snowkap:scoreFloor 5 ; snowkap:scoreCeiling 8 ;
-    snowkap:eventKeyword "supply chain disruption, supply shortage, shortage, stockout, inventory, lead time, logistics disruption, port congestion, freight spike, raw material shortage, input cost, commodity shortage, coal shortage, semiconductor shortage" ;
-    snowkap:financialTransmission "input unavailability → production curtailment → revenue loss + expedited sourcing cost" .
+    snowkap:scoreFloor 5 ; snowkap:scoreCeiling 9 ;
+    snowkap:eventKeyword "supply chain disruption, supply chain disruptions, supply disruption, supply disruptions, supply shock, supply shocks, supply shortage, shortage, stockout, inventory, lead time, logistics disruption, port congestion, freight spike, raw material shortage, input cost, commodity shortage, coal shortage, semiconductor shortage, lng, liquefied natural gas, natural gas supply, lng shortage, lng availability, gas shortage, gas shortages, gas supply, gas supply disruption, fuel shortage, fuel shortages, crude oil supply, tanker diversion, tanker diversions, shipping disruption, shipping route, strait of hormuz, west asia, red sea, suez, sanctions, embargo, trade embargo, geopolitical risk, geopolitical tension, import dependence, energy security, energy supply disruption" ;
+    snowkap:financialTransmission "input unavailability OR geopolitical supply shock → production curtailment + input-price spike → revenue loss + expedited sourcing cost + margin compression" .
 
 snowkap:event_regulatory_policy a snowkap:EventType ; rdfs:label "Regulatory Policy Change" ;
     snowkap:scoreFloor 4 ; snowkap:scoreCeiling 7 ;
@@ -316,14 +316,47 @@ snowkap:event_transition_announcement a snowkap:EventType ; rdfs:label "Transiti
 
 snowkap:event_green_finance_milestone a snowkap:EventType ; rdfs:label "Green Finance Milestone" ;
     snowkap:scoreFloor 4 ; snowkap:scoreCeiling 7 ;
-    snowkap:eventKeyword "green loan, sustainability-linked loan, transition bond, blue bond, social bond, green capex, sustainable financing facility" ;
+    snowkap:eventKeyword "green loan, sustainability-linked loan, transition bond, blue bond, social bond, green bond, green capex, sustainable financing facility, sustainability-linked bond, climate bond, green financing, impact investing" ;
     snowkap:financialTransmission "lower coupon -> reduced cost of debt -> investor signal" .
+
+# =============================================================================
+# Phase 12.3 — Positive business events (contract wins, capacity additions,
+# certifications). Previously these fell through to generic event types or
+# to negative-event defaults, causing the LLM to invent crisis narratives
+# from positive source material (e.g. Waaree solar auction win on 2026-04-24
+# was classified as event_ngo_report and produced a ₹807 Cr hallucinated
+# regulatory exposure). These four positive event types close the gap.
+# =============================================================================
+
+snowkap:event_contract_win a snowkap:EventType ; rdfs:label "Contract / Auction / Tender Win" ;
+    snowkap:scoreFloor 3 ; snowkap:scoreCeiling 7 ;
+    snowkap:eventKeyword "auction win, tender win, contract win, won the auction, won the tender, won the contract, l1 bidder, lowest bidder, awarded contract, awarded tender, won bid, wins order, secured order, bagged contract, bagged order, l1 in, emerged winner, emerged lowest, letter of award, loa issued, ppa signed, power purchase agreement signed, signed ppa, secured ppa, emerged winning bidder, auction winners, winners of the auction, auction to procure, auction to supply, solar auction, wind auction, renewable auction, power auction, energy auction, hybrid auction, battery auction, storage auction, ceiling tariff, tariff-based bidding, reverse auction, announces winners, announced winners, lowest tariff bid, lowest tariff, quoted tariff, winning bid, winning bidder, bid winners, award of letter, procurement of, procure power, pspcl auction, seci auction, ntpc auction, irel auction, mseb auction" ;
+    snowkap:financialTransmission "order book addition -> revenue visibility -> valuation multiple expansion" .
+
+snowkap:event_capacity_addition a snowkap:EventType ; rdfs:label "Capacity Addition / Commissioning" ;
+    snowkap:scoreFloor 3 ; snowkap:scoreCeiling 6 ;
+    snowkap:eventKeyword "commissioned, commissioning, capacity addition, new facility, new plant, inaugurated, production start, unit commissioned, plant commissioned, commercial operation date, cod achieved, grid connection, mw commissioned, gw commissioned, plant inaugurated, facility inaugurated, manufacturing line commissioned, greenfield project" ;
+    snowkap:financialTransmission "installed base growth -> EBITDA uplift once loaded -> asset-turnover improvement" .
+
+snowkap:event_esg_certification a snowkap:EventType ; rdfs:label "ESG Certification / Rating Upgrade" ;
+    snowkap:scoreFloor 3 ; snowkap:scoreCeiling 6 ;
+    snowkap:eventKeyword "iso 14001, iso 45001, iso 50001, leed certification, leed platinum, leed gold, greenco rating, brsr core assurance, cdp climate score, msci esg upgrade, sustainalytics upgrade, dow jones sustainability index, djsi inclusion, ecovadis gold, ecovadis platinum, rating upgrade, esg rating upgrade, sustainability rating upgrade, b corp certification" ;
+    snowkap:financialTransmission "external validation -> institutional-investor eligibility -> cost-of-capital reduction 10-30 bps" .
+
+snowkap:event_order_book_update a snowkap:EventType ; rdfs:label "Order Book / Backlog Update" ;
+    snowkap:scoreFloor 3 ; snowkap:scoreCeiling 6 ;
+    snowkap:eventKeyword "order book, order backlog, order intake, book-to-bill ratio, new orders received, order pipeline, confirmed orders, order inflow, unexecuted orders, firm order book" ;
+    snowkap:financialTransmission "forward revenue visibility -> multiple re-rating -> guidance confidence" .
 
 # Map the new event types to their TEMPLES + ESG risk overlaps
 snowkap:event_ngo_report snowkap:hasImpactOn snowkap:impact_brand, snowkap:impact_reputational .
 snowkap:event_climate_disclosure_index snowkap:hasImpactOn snowkap:impact_brand, snowkap:impact_financial, snowkap:impact_reputational .
 snowkap:event_transition_announcement snowkap:hasImpactOn snowkap:impact_strategic, snowkap:impact_growth, snowkap:impact_financial .
 snowkap:event_green_finance_milestone snowkap:hasImpactOn snowkap:impact_financial, snowkap:impact_cost, snowkap:impact_brand .
+snowkap:event_contract_win snowkap:hasImpactOn snowkap:impact_growth, snowkap:impact_financial, snowkap:impact_strategic .
+snowkap:event_capacity_addition snowkap:hasImpactOn snowkap:impact_growth, snowkap:impact_volume, snowkap:impact_financial .
+snowkap:event_esg_certification snowkap:hasImpactOn snowkap:impact_brand, snowkap:impact_financial, snowkap:impact_reputational .
+snowkap:event_order_book_update snowkap:hasImpactOn snowkap:impact_growth, snowkap:impact_financial .
 
 # =============================================================================
 # FRAMEWORK CROSS-REFERENCES + COMPLEMENTARY CHAINS

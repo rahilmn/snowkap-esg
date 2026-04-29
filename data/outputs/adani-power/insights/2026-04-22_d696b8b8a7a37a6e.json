@@ -1,0 +1,669 @@
+{
+  "article": {
+    "id": "d696b8b8a7a37a6e",
+    "title": "One unit of Adani power plant closed, load shedding increases - Prothom Alo English",
+    "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1XR2lzc2dMa3VRUXc0MVlnNEM1WjBYT084VFhrVlRYNjNpb2JhcmNEWFNMWVpJbWdZWThVSHdMd2RmM3JERFhtSGlXZG5pZzFqeHZ3TktpRFVjRWFRQnlpWdIBbkFVX3lxTE4xWEtxOS1MZ1pReXdIV2Z5UDZhdjVKRHJfdlY1MmRpa2QwMHNtSW9zUF81ODdjQkotUDExRGFyMGhPZlZkcFEwTzlJU3pUOVBndDdvT2R6bFZQWGViZzB1TmhUOU5FR05fRTlwcXN3?oc=5",
+    "source": "Prothom Alo English",
+    "published_at": "2026-04-22T14:05:13+00:00",
+    "company_slug": "adani-power"
+  },
+  "pipeline": {
+    "article_id": "d696b8b8a7a37a6e",
+    "title": "One unit of Adani power plant closed, load shedding increases - Prothom Alo English",
+    "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE1XR2lzc2dMa3VRUXc0MVlnNEM1WjBYT084VFhrVlRYNjNpb2JhcmNEWFNMWVpJbWdZWThVSHdMd2RmM3JERFhtSGlXZG5pZzFqeHZ3TktpRFVjRWFRQnlpWdIBbkFVX3lxTE4xWEtxOS1MZ1pReXdIV2Z5UDZhdjVKRHJfdlY1MmRpa2QwMHNtSW9zUF81ODdjQkotUDExRGFyMGhPZlZkcFEwTzlJU3pUOVBndDdvT2R6bFZQWGViZzB1TmhUOU5FR05fRTlwcXN3?oc=5",
+    "source": "Prothom Alo English",
+    "published_at": "2026-04-22T14:05:13+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 50,
+    "elapsed_seconds": 12.524,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "cautionary",
+        "neutral"
+      ],
+      "narrative_core_claim": "Closure of one unit of Adani power plant has led to increased load shedding.",
+      "narrative_implied_causation": "The shutdown of the power plant unit caused a rise in load shedding.",
+      "narrative_stakeholder_framing": "Adani power plant is the protagonist; electricity consumers are affected by increased load shedding.",
+      "entities": [
+        "Adani power plant",
+        "Prothom Alo English"
+      ],
+      "entity_types": {
+        "Adani power plant": "company",
+        "Prothom Alo English": "media"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "energy supply",
+        "power generation",
+        "load shedding"
+      ],
+      "content_type": "operational",
+      "urgency": "high",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "fossil_fuel_dependency",
+        "energy_intensity"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Climate Change",
+          "pillar": "E",
+          "sub_metrics": [
+            "scope_1_direct",
+            "ghg_reduction_targets"
+          ]
+        },
+        {
+          "theme": "Community Impact",
+          "pillar": "S",
+          "sub_metrics": [
+            "local_employment",
+            "social_license"
+          ]
+        }
+      ],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 1,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.5,
+          "adjusted_score": 30.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.8,
+          "adjusted_score": 27.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.5,
+          "adjusted_score": 22.5,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.3,
+          "adjusted_score": 19.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.3,
+          "adjusted_score": 19.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.0,
+          "adjusted_score": 20.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Media",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment shifts",
+            "journalist inquiries",
+            "activist group interest"
+          ],
+          "lag_indicators": [
+            "negative coverage",
+            "brand value decline",
+            "customer boycotts"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.5,
+          "adjusted_score": 30.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.8,
+          "adjusted_score": 27.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.5,
+          "adjusted_score": 22.5,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.0,
+          "adjusted_score": 20.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.3,
+          "adjusted_score": 19.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.734,
+      "ontology_queries": 18
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-04-23T13:05:38.989405+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

@@ -471,3 +471,20 @@ snowkap:event_social_violation snw:affectsPrimitive snw:prim_CL ;
 
 snowkap:event_license_revocation snw:affectsPrimitive snw:prim_DT ;
     snw:affectsPrimitiveSecondary snw:prim_OX, snw:prim_RV, snw:prim_CL .
+
+# Phase 12.3 — positive-event primitive mappings. All four route through
+# prim_RV (Revenue) as primary since these events add top-line visibility or
+# reduce cost of capital. Secondary edges propagate to Capex, Workforce,
+# Operational cost as relevant. Rendering downstream will pick up positive
+# impact_scores (6-8 for a contract win) instead of inverted crisis framing.
+snowkap:event_contract_win snw:affectsPrimitive snw:prim_RV ;
+    snw:affectsPrimitiveSecondary snw:prim_CX, snw:prim_WF, snw:prim_IR .
+
+snowkap:event_capacity_addition snw:affectsPrimitive snw:prim_CX ;
+    snw:affectsPrimitiveSecondary snw:prim_RV, snw:prim_OX, snw:prim_WF .
+
+snowkap:event_esg_certification snw:affectsPrimitive snw:prim_IR ;
+    snw:affectsPrimitiveSecondary snw:prim_RV, snw:prim_CX .
+
+snowkap:event_order_book_update snw:affectsPrimitive snw:prim_RV ;
+    snw:affectsPrimitiveSecondary snw:prim_IR .

@@ -9,7 +9,6 @@ import type {
   PredictionReport,
   PredictionStats,
   ResolveDomainResponse,
-  TenantSummary,
   UsageStats,
   UserSummary,
 } from "@/types";
@@ -122,7 +121,16 @@ export const news = {
 
   stats: (companyId?: string) => {
     const q = companyId ? `?company_id=${encodeURIComponent(companyId)}` : "";
-    return request<{ total: number; high_impact_count: number; predictions_count: number; new_last_24h: number }>(`/news/stats${q}`);
+    return request<{
+      total: number;
+      high_impact_count: number;
+      // Phase 13 B8: real count of HOME-tier high-impact articles in the
+      // last 7 days. `predictions_count` is preserved as a back-compat
+      // alias and now mirrors `active_signals_count`.
+      active_signals_count?: number;
+      predictions_count: number;
+      new_last_24h: number;
+    }>(`/news/stats${q}`);
   },
 
   bookmark: (articleId: string) =>
@@ -134,9 +142,9 @@ export const news = {
       { method: "POST" }
     ),
 
-  triggerAnalysis: (articleId: string) =>
+  triggerAnalysis: (articleId: string, force = false) =>
     request<{ status: "triggered" | "already_running" | "cached" | "done"; message: string }>(
-      `/news/${articleId}/trigger-analysis`,
+      `/news/${articleId}/trigger-analysis${force ? "?force=true" : ""}`,
       { method: "POST", _timeout: 120000 } as RequestInit & { _timeout?: number }
     ),
 
@@ -152,6 +160,184 @@ export const news = {
         priority_level: string | null;
       } | null;
     }>(`/news/${articleId}/analysis`),
+
+  // Phase 9: one-click share an analyzed article to a recipient's email.
+  // Name is auto-extracted for greeting ("ambalika.m@x.com" → "Ambalika").
+  share: (articleId: string, payload: { recipient_email: string; sender_note?: string; read_more_base?: string }) =>
+    request<{
+      status: "sent" | "preview" | "failed";
+      recipient: string;
+      recipient_name: string | null;
+      subject: string;
+      article_id: string;
+      company_slug: string;
+      company_name: string;
+      html_length: number;
+      provider_id: string;
+      error: string;
+    }>(`/news/${articleId}/share`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    }),
+
+  sharePreview: (articleId: string, payload: { recipient_email: string; sender_note?: string; read_more_base?: string }) =>
+    request<{
+      status: "sent" | "preview" | "failed";
+      recipient: string;
+      recipient_name: string | null;
+      subject: string;
+      html: string;
+      article_id: string;
+      company_slug: string;
+      company_name: string;
+      error: string;
+    }>(`/news/${articleId}/share/preview`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    }),
+};
+
+// ---- Campaigns (Phase 10: drip scheduler) ----
+
+export type CampaignCadence = "once" | "weekly" | "monthly";
+export type CampaignStatus = "active" | "paused" | "archived";
+export type ArticleSelection = "latest_home" | "specific";
+export type SendLogStatus = "sent" | "preview" | "failed" | "skipped_stale" | "skipped_dedup";
+
+export interface CampaignRecipient {
+  id?: string;
+  campaign_id?: string;
+  email: string;
+  name_override?: string | null;
+  last_sent_at?: string | null;
+  created_at?: string;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  created_by: string;
+  template_type: string;
+  target_company: string;
+  article_selection: ArticleSelection;
+  article_id: string | null;
+  cadence: CampaignCadence;
+  day_of_week: number | null;
+  day_of_month: number | null;
+  send_time_utc: string | null;
+  cta_url: string | null;
+  cta_label: string | null;
+  sender_note: string | null;
+  status: CampaignStatus;
+  last_sent_at: string | null;
+  next_send_at: string | null;
+  created_at: string;
+  updated_at: string;
+  recipient_count?: number;
+}
+
+export interface SendLogEntry {
+  id: string;
+  campaign_id: string;
+  recipient_email: string;
+  article_id: string | null;
+  subject: string | null;
+  html_length: number | null;
+  status: SendLogStatus;
+  provider_id: string | null;
+  error: string | null;
+  sent_at: string;
+}
+
+export interface CampaignCreateInput {
+  name: string;
+  target_company: string;
+  article_selection: ArticleSelection;
+  article_id?: string | null;
+  cadence: CampaignCadence;
+  day_of_week?: number | null;
+  day_of_month?: number | null;
+  send_time_utc?: string | null;
+  cta_url?: string | null;
+  cta_label?: string | null;
+  sender_note?: string | null;
+  recipients: CampaignRecipient[];
+  status?: CampaignStatus;
+}
+
+export interface CampaignPatchInput {
+  name?: string;
+  article_selection?: ArticleSelection;
+  article_id?: string | null;
+  cadence?: CampaignCadence;
+  day_of_week?: number | null;
+  day_of_month?: number | null;
+  send_time_utc?: string | null;
+  cta_url?: string | null;
+  cta_label?: string | null;
+  sender_note?: string | null;
+}
+
+export interface CampaignPreview {
+  campaign_id: string;
+  article_id: string;
+  subject: string;
+  recipient: string;
+  recipient_name: string | null;
+  html: string;
+  html_length: number;
+}
+
+export const campaigns = {
+  list: (status?: CampaignStatus) => {
+    const q = status ? `?status=${status}` : "";
+    return request<{ campaigns: Campaign[]; total: number }>(`/campaigns${q}`);
+  },
+  get: (id: string) => request<Campaign>(`/campaigns/${id}`),
+  create: (body: CampaignCreateInput) =>
+    request<Campaign>("/campaigns", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  patch: (id: string, body: CampaignPatchInput) =>
+    request<Campaign>(`/campaigns/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  delete: (id: string) =>
+    request<void>(`/campaigns/${id}`, { method: "DELETE" }),
+  sendNow: (id: string, dryRun = false) =>
+    request<{ status: string; campaign_id: string; dry_run: boolean }>(
+      `/campaigns/${id}/send-now?dry_run=${dryRun}`,
+      { method: "POST", body: JSON.stringify({}) },
+    ),
+  pause: (id: string) =>
+    request<Campaign>(`/campaigns/${id}/pause`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
+  resume: (id: string) =>
+    request<Campaign>(`/campaigns/${id}/resume`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
+  archive: (id: string) =>
+    request<Campaign>(`/campaigns/${id}/archive`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }),
+  sendLog: (id: string, limit = 50) =>
+    request<{ campaign_id: string; total: number; entries: SendLogEntry[] }>(
+      `/campaigns/${id}/send-log?limit=${limit}`,
+    ),
+  replaceRecipients: (id: string, recipients: CampaignRecipient[]) =>
+    request<{ campaign_id: string; total: number; recipients: CampaignRecipient[] }>(
+      `/campaigns/${id}/recipients`,
+      { method: "POST", body: JSON.stringify({ recipients }) },
+    ),
+  preview: (id: string) => request<CampaignPreview>(`/campaigns/${id}/preview`),
 };
 
 // ---- Preferences (Phase 2D) ----
@@ -223,35 +409,7 @@ export const ontology = {
     }),
 };
 
-// ---- Campaigns ----
-export interface CampaignItem {
-  id: string;
-  type: string;
-  title: string;
-  content: string;
-  topic: string | null;
-  status: string;
-  frameworks_referenced: string[];
-  articles_used: number;
-  created_at: string | null;
-}
-
-export const campaigns = {
-  list: (type?: string) =>
-    request<{ campaigns: CampaignItem[]; total: number }>(`/campaigns/${type ? `?type=${type}` : ""}`),
-
-  get: (id: string) =>
-    request<CampaignItem>(`/campaigns/${id}`),
-
-  generate: (type: string, topic?: string, frameworks?: string[]) =>
-    request<CampaignItem>("/campaigns/generate", {
-      method: "POST",
-      body: JSON.stringify({ type, topic, frameworks }),
-    }),
-
-  delete: (id: string) =>
-    request<void>(`/campaigns/${id}`, { method: "DELETE" }),
-};
+// (Legacy CampaignItem + campaigns export removed — Phase 10 replaces them.)
 
 // ---- Agent Chat ----
 export const agent = {
@@ -318,9 +476,25 @@ export const agent = {
 };
 
 // ---- Admin ----
+
+/** Phase 10: enriched tenant shape returned by /api/admin/tenants.
+ * Used by CompanySwitcher (for super-admins) to list every tenant the product
+ * has ever seen — the 7 hardcoded targets + every onboarded prospect. */
+export interface AdminTenant {
+  id: string;
+  slug: string;
+  name: string;
+  domain?: string | null;
+  industry?: string | null;
+  source?: "target" | "onboarded";
+  article_count?: number;
+  last_analysis_at?: string | null;
+}
+
 export const admin = {
-  tenants: () =>
-    request<TenantSummary[]>("/admin/tenants"),
+  /** Super-admin-only. Non-admin tokens get 403. Includes target companies
+   * AND every onboarded domain that has logged in. */
+  tenants: () => request<AdminTenant[]>("/admin/tenants"),
 
   users: () =>
     request<UserSummary[]>("/admin/users"),
@@ -333,4 +507,68 @@ export const admin = {
       method: "PATCH",
       body: JSON.stringify({ role }),
     }),
+
+  /**
+   * Phase 16.1 — Admin onboarding. POST /api/admin/onboard accepts a new
+   * company name + optional ticker hint, returns 202 + slug. Frontend
+   * polls onboardStatus() every 5s while state ∈ {pending, fetching,
+   * analysing} and shows a progress card.
+   */
+  onboard: (req: { name: string; ticker_hint?: string; domain?: string; limit?: number }) =>
+    request<{ slug: string; status: string; message: string }>(
+      "/admin/onboard",
+      {
+        method: "POST",
+        body: JSON.stringify(req),
+      }
+    ),
+
+  /** Phase 16.1 — Poll target after admin.onboard(). Returns the live row
+   * from the onboarding_status SQLite table. */
+  onboardStatus: (slug: string) =>
+    request<{
+      slug: string;
+      state: "pending" | "fetching" | "analysing" | "ready" | "failed";
+      fetched: number;
+      analysed: number;
+      home_count: number;
+      started_at: string;
+      finished_at: string | null;
+      error: string | null;
+    }>(`/admin/onboard/${slug}/status`),
+
+  /**
+   * Phase 13 B7 — Server-confirmed email backend liveness. Polled on
+   * boot + after login so the Share button can gate on real configuration
+   * state rather than on permission alone. Returns:
+   *   { enabled: bool, sender: string, reason?: string }
+   */
+  emailConfigStatus: () =>
+    request<{ enabled: boolean; sender: string; reason?: string }>(
+      "/admin/email-config-status"
+    ),
+
+  /**
+   * Phase 18 — Bulk reanalyze: bumps the schema_version on every article
+   * for `slug` so the next user click triggers fresh on-demand enrichment
+   * via stages 10-12. Idempotent. Use after engine version bumps.
+   */
+  reanalyzeCompany: (slug: string) =>
+    request<{
+      status: string;
+      company_slug: string;
+      invalidated: number;
+      skipped: number;
+      errors: number;
+    }>(`/admin/companies/${slug}/reanalyze`, { method: "POST" }),
+
+  /** Phase 18 — single-article version of reanalyzeCompany. Use for
+   * "this article looks wrong" UX. */
+  reanalyzeArticle: (articleId: string) =>
+    request<{
+      status: string;
+      company_slug: string;
+      article_id: string;
+      invalidated: number;
+    }>(`/admin/articles/${articleId}/reanalyze`, { method: "POST" }),
 };

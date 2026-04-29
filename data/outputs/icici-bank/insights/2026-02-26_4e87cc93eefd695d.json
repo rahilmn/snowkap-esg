@@ -1,0 +1,405 @@
+{
+  "article": {
+    "id": "4e87cc93eefd695d",
+    "title": "Federal Bank Earns 'Leader' ESG Rating of 78 from NSE - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPdzk4NFNxY0l3MW1DNVFlR3NRUmFmbTBsZEVxWEl3eVBYVHNqYi0wRVRjbk5ySU5WcFkwak53TDJVS0ZoUW1ub3hMRkJ4ZUpFekpXaVRTZy02dFhBS0dEOE5Sb2R4ZjhCLUl0aFZLRUMyYnZvSVJNcUpqM2NfY1E3MndiTi15UGtxcVpaa1g2Y3hRaEFrU0dvX09vTk1KTUx3M2xHZzZUS0xEVlRQWkpVMG5lQzQwZVBBMmJ1T0ZjQWtaYVhLY2V2WXZjbw?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-02-26T08:00:00+00:00",
+    "company_slug": "icici-bank"
+  },
+  "pipeline": {
+    "article_id": "4e87cc93eefd695d",
+    "title": "Federal Bank Earns 'Leader' ESG Rating of 78 from NSE - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxPdzk4NFNxY0l3MW1DNVFlR3NRUmFmbTBsZEVxWEl3eVBYVHNqYi0wRVRjbk5ySU5WcFkwak53TDJVS0ZoUW1ub3hMRkJ4ZUpFekpXaVRTZy02dFhBS0dEOE5Sb2R4ZjhCLUl0aFZLRUMyYnZvSVJNcUpqM2NfY1E3MndiTi15UGtxcVpaa1g2Y3hRaEFrU0dvX09vTk1KTUx3M2xHZzZUS0xEVlRQWkpVMG5lQzQwZVBBMmJ1T0ZjQWtaYVhLY2V2WXZjbw?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-02-26T08:00:00+00:00",
+    "company_slug": "icici-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 28.762,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "optimistic",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "Federal Bank has earned a 'Leader' ESG rating of 78 from NSE.",
+      "narrative_implied_causation": "Federal Bank's ESG practices led to receiving a high ESG rating from NSE.",
+      "narrative_stakeholder_framing": "Federal Bank is the protagonist benefiting from the positive ESG rating; stakeholders and investors are positively affected.",
+      "entities": [
+        "Federal Bank",
+        "NSE",
+        "Whalesbook"
+      ],
+      "entity_types": {
+        "Federal Bank": "company",
+        "NSE": "regulator/stock exchange",
+        "Whalesbook": "media/source"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [
+        "NSE"
+      ],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "ESG rating",
+        "governance",
+        "sustainability"
+      ],
+      "content_type": "reputational",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_esg_rating_change",
+      "label": "ESG Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 7,
+      "financial_transmission": "passive fund rebalancing → ~5% share price impact",
+      "matched_keywords": [
+        "esg rating"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 5,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 2,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 5.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "BRSR",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for ICICI Bank"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "GRI",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for ICICI Bank"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "ESRS",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for ICICI Bank"
+      },
+      {
+        "nodes": [
+          "McKinsey Three Horizons",
+          "Risk Management",
+          "Financials/Banking",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "indirectImpact",
+          "indirectImpact",
+          "industrySpillover"
+        ],
+        "hops": 3,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.2,
+        "explanation": "McKinsey Three Horizons -> Risk Management -> Financials/Banking -> ICICI Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:207"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.4,
+          "adjusted_score": 4.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.4,
+          "adjusted_score": 4.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.079,
+      "ontology_queries": 6
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": []
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-04-23T13:01:00.032540+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

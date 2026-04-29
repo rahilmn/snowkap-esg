@@ -96,13 +96,57 @@ def _extract_financial_quantum(text: str) -> tuple[bool, float | None]:
     return False, None
 
 
+# Phase 12.1: minimum classification confidence.
+#
+# Without this guard, a single generic keyword (e.g. "accountability") in a
+# 2000-char article can pick a specific event type — triggering the wrong
+# primitive cascade and causing the LLM to hallucinate a crisis narrative.
+# The Waaree solar-auction article (2026-04-24) was a real example: a
+# positive contract-win classified as event_ngo_report on one weak match.
+#
+# Rules:
+#   - A match qualifies as "confident" if it hit on ≥ 2 distinct keywords,
+#     OR at least one "specific" multi-word phrase (2+ tokens, ≥ 10 chars).
+#   - If no rule clears the confidence bar, fall through to the theme-based
+#     default (which was the behaviour for un-matched articles pre-Phase 12).
+#   - Single-word, short-word matches ("strike", "fine", "audit") no longer
+#     alone determine the event; they must stack with ≥ 1 other keyword or
+#     a phrase.
+_SPECIFIC_PHRASE_MIN_CHARS = 10
+_SPECIFIC_PHRASE_MIN_TOKENS = 2
+
+
+def _is_specific_phrase(kw: str) -> bool:
+    """A keyword is 'specific' if it's a multi-word phrase of decent length.
+
+    Examples of specific: "strait of hormuz", "child labour", "consent order".
+    Examples of generic: "fine", "audit", "strike", "emissions", "accountability".
+    """
+    kw_stripped = kw.strip()
+    if len(kw_stripped) < _SPECIFIC_PHRASE_MIN_CHARS:
+        return False
+    tokens = [t for t in kw_stripped.split() if t]
+    return len(tokens) >= _SPECIFIC_PHRASE_MIN_TOKENS
+
+
+def _is_confident_match(keywords: list[str]) -> bool:
+    """A rule match is 'confident' if it has ≥ 2 keyword hits OR at least
+    one specific multi-word phrase."""
+    if len(keywords) >= 2:
+        return True
+    if keywords and _is_specific_phrase(keywords[0]):
+        return True
+    return False
+
+
 def classify_event(
     title: str, content: str, theme: str = ""
 ) -> EventClassification:
     """Classify an article against ontology event types.
 
-    Picks the rule with the highest specificity (most keyword matches).
-    Falls back to theme-based default when nothing matches (Phase 14).
+    Picks the rule with the highest specificity (most keyword matches) that
+    clears the Phase 12.1 confidence bar (≥2 hits OR 1 specific phrase).
+    Falls back to theme-based default when nothing matches confidently.
     Returns a default routine/ambiguous classification as last resort.
     """
     text = f"{title}\n{content}"
@@ -124,9 +168,21 @@ def classify_event(
         logger.warning("event_classifier: ontology returned no event rules")
         return _default
 
-    matches = _match_keywords(text, rules)
-    if not matches:
-        # Phase 14: theme-based fallback before returning Unclassified
+    all_matches = _match_keywords(text, rules)
+    # Phase 12.1 — keep only confident matches
+    confident_matches = [
+        (rule, kws) for rule, kws in all_matches if _is_confident_match(kws)
+    ]
+
+    if not confident_matches:
+        if all_matches:
+            logger.debug(
+                "event_classifier: dropped %d weak single-keyword match(es) "
+                "below confidence bar: %s",
+                len(all_matches),
+                [(r.event_id, kws) for r, kws in all_matches[:3]],
+            )
+        # Theme-based fallback (unchanged behaviour — Phase 14)
         if theme:
             from engine.ontology.intelligence import query_default_event_for_theme
 
@@ -144,10 +200,15 @@ def classify_event(
                 )
         return _default
 
-    # Pick the rule with the highest keyword hit count. Ties broken by score floor.
-    best_rule, best_keywords = max(
-        matches, key=lambda pair: (len(pair[1]), pair[0].score_floor)
-    )
+    # Pick the confident rule with the highest keyword hit count.
+    # Tie-breaker: prefer the rule with the most specific phrase matches,
+    # then the higher score floor (more-severe rule wins ties).
+    def _rank(pair):
+        _rule, kws = pair
+        specific_count = sum(1 for k in kws if _is_specific_phrase(k))
+        return (len(kws), specific_count, _rule.score_floor)
+
+    best_rule, best_keywords = max(confident_matches, key=_rank)
 
     return EventClassification(
         event_id=best_rule.event_id,

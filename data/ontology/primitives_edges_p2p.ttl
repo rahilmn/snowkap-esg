@@ -1070,3 +1070,425 @@ snw:edge_XW_RG a snw:CausalEdge ;
     snw:elasticityOrWeight "0.10–0.30" ; snw:lagK "2–6q" ;
     snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
     snw:edgeNotes "Major climate events accelerate political pressure for stricter environmental rules" .
+
+# =============================================================================
+# Phase 17d: Outcome Edges (P→non-P)
+# Primitive → Outcome Node cascade specs, extracted from PART 1 §7/§8
+# Uses snw:OutcomeEdge class; predicates outcomeSource / outcomeTarget
+# =============================================================================
+
+# ---- EU (Energy use) → outcomes ----
+
+snw:outedge_EU_CarbonCost a snw:OutcomeEdge ;
+    snw:edgeId "OE::EU→CarbonCost" ; snw:outcomeSource snw:prim_EU ; snw:outcomeTarget snw:out_CarbonCost ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔCarbonCost(t) = β · ΔEU(t−k) · EF · CarbonPrice" ;
+    snw:elasticityOrWeight "0.70–1.00" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Near-identity for fossil fuel use; dominant environmental cost exposure from EU; largest for power generation and heavy industry" .
+
+snw:outedge_EU_ESGRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::EU→ESGRating" ; snw:outcomeSource snw:prim_EU ; snw:outcomeTarget snw:out_ESGRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔESG(t) = −β · ΔEU_intensity(t−k)" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Energy intensity is a core ESG metric (MSCI, Sustainalytics, CDP); affects index inclusion and cost of equity" .
+
+snw:outedge_EU_CarbonLiability a snw:OutcomeEdge ;
+    snw:edgeId "OE::EU→CarbonLiability" ; snw:outcomeSource snw:prim_EU ; snw:outcomeTarget snw:out_CarbonLiability ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔCarbonLiability(t) = β · EU_path · CarbonPriceForward" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Current energy intensity trajectory determines future permit obligation as free allocation phases out; most material for ETS-exposed firms" .
+
+# ---- GE (GHG emissions) → outcomes ----
+
+snw:outedge_GE_CarbonLiability a snw:OutcomeEdge ;
+    snw:edgeId "OE::GE→CarbonLiability" ; snw:outcomeSource snw:prim_GE ; snw:outcomeTarget snw:out_CarbonLiability ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔCarbonLiability(t) = β · ΔGE(t−k) · CarbonPriceForward" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "High absolute GHG signals future permit obligation and asset stranding risk; power generation, oil & gas, heavy industry at upper bound" .
+
+snw:outedge_GE_InvestorSentiment a snw:OutcomeEdge ;
+    snw:edgeId "OE::GE→InvestorSentiment" ; snw:outcomeSource snw:prim_GE ; snw:outcomeTarget snw:out_InvestorSentiment ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔInvestorSentiment(t) = −β · 𝟙[GE_intensity≥τ_peer]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "ESG-mandated fund divestment, Climate Action 100+ engagement, Scope 3 pressure reduce investor appetite; τ = peer-relative threshold" .
+
+snw:outedge_GE_InsurancePremium a snw:OutcomeEdge ;
+    snw:edgeId "OE::GE→InsurancePremium" ; snw:outcomeSource snw:prim_GE ; snw:outcomeTarget snw:out_InsurancePremium ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔPremium(t) = β · ln(1+ΔGE_cumulative)" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "1–5y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "Long-run physical risk: cumulative GHG drives climate change → physical asset risk repriced in property/BI insurance; very long lag" .
+
+# ---- WA (Water) → outcomes ----
+
+snw:outedge_WA_WaterPermitCost a snw:OutcomeEdge ;
+    snw:edgeId "OE::WA→WaterPermitCost" ; snw:outcomeSource snw:prim_WA ; snw:outcomeTarget snw:out_WaterPermitCost ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔPermitCost(t) = β · 𝟙[WA≥τ_permit]" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "High abstraction volume in stressed catchments triggers tiered permit pricing, excess-use levies; process, agriculture, mining, beverage most exposed" .
+
+snw:outedge_WA_ESGRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::WA→ESGRating" ; snw:outcomeSource snw:prim_WA ; snw:outcomeTarget snw:out_ESGRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔESG(t) = −β · ΔWA_intensity(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Water intensity and stress exposure scored in MSCI, Sustainalytics, CDP Water; affects institutional investor appetite" .
+
+snw:outedge_WA_CapacityUtil a snw:OutcomeEdge ;
+    snw:edgeId "OE::WA→CapacityUtil" ; snw:outcomeSource snw:prim_WA ; snw:outcomeTarget snw:out_CapacityUtil ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔCapUtil(t) = −β · 𝟙[WaterAvail≤τ_minimum]" ;
+    snw:elasticityOrWeight "0.05–0.30" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Water restriction orders or aquifer depletion force curtailment; threshold = minimum water flow; semiconductor, food processing, mining most exposed" .
+
+snw:outedge_WA_InsurancePremium a snw:OutcomeEdge ;
+    snw:edgeId "OE::WA→InsurancePremium" ; snw:outcomeSource snw:prim_WA ; snw:outcomeTarget snw:out_InsurancePremium ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔPremium(t) = β · 𝟙[WaterStress≥τ_high]" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "0–1y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "low" ;
+    snw:edgeNotes "High water stress signals physical risk (flood/drought); repriced in property and BI cover; long lag (renewal cycle); agriculture, food, utilities most exposed" .
+
+# ---- WS (Waste) → outcomes ----
+
+snw:outedge_WS_WasteDisposalCost a snw:OutcomeEdge ;
+    snw:edgeId "OE::WS→WasteDisposalCost" ; snw:outcomeSource snw:prim_WS ; snw:outcomeTarget snw:out_WasteDisposalCost ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔDisposalCost(t) = β · ΔWS(t−k)" ;
+    snw:elasticityOrWeight "0.50–1.00" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Near-identity: waste volume × gate fee = disposal cost; hazardous and special waste at upper bound" .
+
+snw:outedge_WS_ESGRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::WS→ESGRating" ; snw:outcomeSource snw:prim_WS ; snw:outcomeTarget snw:out_ESGRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔESG(t) = −β · ΔWS_intensity(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Waste intensity and landfill diversion rate scored in ESG frameworks; most visible for packaging-heavy and process industries" .
+
+# ---- EP (Energy price) → outcomes ----
+
+snw:outedge_EP_CarbonLiability a snw:OutcomeEdge ;
+    snw:edgeId "OE::EP→CarbonLiability" ; snw:outcomeSource snw:prim_EP ; snw:outcomeTarget snw:out_CarbonLiability ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔCarbonCost(t) = β · ΔEP · EnergyVol" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Carbon cost = energy volume × emission factor × carbon price; EP change shifts energy mix and thus liability" .
+
+# ---- XW (Extreme weather) → outcomes ----
+
+snw:outedge_XW_InsurancePremium a snw:OutcomeEdge ;
+    snw:edgeId "OE::XW→InsurancePremium" ; snw:outcomeSource snw:prim_XW ; snw:outcomeTarget snw:out_InsurancePremium ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔPremium(t) = β · ln(1+ΔXWFreq)" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–1y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Catastrophe loss history reprices property insurance; log-linear (diminishing at very high risk); long lag (renewal cycle)" .
+
+# ---- IR (Interest rates) → outcomes ----
+
+snw:outedge_IR_WACC a snw:OutcomeEdge ;
+    snw:edgeId "OE::IR→WACC" ; snw:outcomeSource snw:prim_IR ; snw:outcomeTarget snw:out_WACC ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔWACC(t) = β · ΔIR(t−k)" ;
+    snw:elasticityOrWeight "0.60–0.90" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Risk-free rate directly sets the base for WACC; dominant financial output of IR change; most sensitive for debt-dependent firms" .
+
+# ---- FX (Currency) → outcomes ----
+
+snw:outedge_FX_HedgingCost a snw:OutcomeEdge ;
+    snw:edgeId "OE::FX→HedgingCost" ; snw:outcomeSource snw:prim_FX ; snw:outcomeTarget snw:out_HedgingCost ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔHedgeCost(t) = β · 𝟙[FXVol≥τ]" ;
+    snw:elasticityOrWeight "0.01–0.05" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Elevated FX volatility widens option premiums and swap spreads; triggers new hedging activity" .
+
+# ---- LT (Lead time) → outcomes ----
+
+snw:outedge_LT_InventoryCarryCost a snw:OutcomeEdge ;
+    snw:edgeId "OE::LT→InventoryCarryCost" ; snw:outcomeSource snw:prim_LT ; snw:outcomeTarget snw:out_InventoryCarryCost ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔCarryCost(t) = β · (LT/LT_base − 1)" ;
+    snw:elasticityOrWeight "0.20–0.50" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Longer lead time requires proportionally larger safety stock to maintain target service level" .
+
+snw:outedge_LT_GrossMargin a snw:OutcomeEdge ;
+    snw:edgeId "OE::LT→GrossMargin" ; snw:outcomeSource snw:prim_LT ; snw:outcomeTarget snw:out_GrossMargin ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔGrossMargin(t) = −β · 𝟙[LT≥τ]" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Extended lead times trigger air-freight substitution and spot sourcing at above-contract premiums; retail, electronics, pharma at upper bound" .
+
+# ---- OX (Opex) → outcomes ----
+
+snw:outedge_OX_CreditRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::OX→CreditRating" ; snw:outcomeSource snw:prim_OX ; snw:outcomeTarget snw:out_CreditRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔRating(t) = −β · 𝟙[OX≥τ_EBITDA]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Sustained margin deterioration triggers ratings review; EBITDA/interest coverage threshold most relevant for leveraged firms" .
+
+snw:outedge_OX_GrossMargin a snw:OutcomeEdge ;
+    snw:edgeId "OE::OX→GrossMargin" ; snw:outcomeSource snw:prim_OX ; snw:outcomeTarget snw:out_GrossMargin ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔGrossMargin(t) = −β · ΔOX(t−k)" ;
+    snw:elasticityOrWeight "0.40–0.90" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Opex increase directly compresses gross margin when revenue flat/inelastic; β = opex as share of revenue; most visible in retail, commodity processing" .
+
+snw:outedge_OX_FCF a snw:OutcomeEdge ;
+    snw:edgeId "OE::OX→FCF" ; snw:outcomeSource snw:prim_OX ; snw:outcomeTarget snw:out_FCF ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔFCF(t) = −β · ΔOX(t−k)" ;
+    snw:elasticityOrWeight "0.30–0.80" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Cash opex reduces operating cash flow directly; β = cash opex as share of revenue; constrains reinvestment and debt service" .
+
+snw:outedge_OX_CapacityUtil a snw:OutcomeEdge ;
+    snw:edgeId "OE::OX→CapacityUtil" ; snw:outcomeSource snw:prim_OX ; snw:outcomeTarget snw:out_CapacityUtil ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔCapUtil(t) = −β · 𝟙[OX≥τ_shutdown]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Extreme opex pressure forces line shutdowns or curtailment; most visible in energy-intensive process industries" .
+
+# ---- RV (Revenue) → outcomes ----
+
+snw:outedge_RV_GrossMargin a snw:OutcomeEdge ;
+    snw:edgeId "OE::RV→GrossMargin" ; snw:outcomeSource snw:prim_RV ; snw:outcomeTarget snw:out_GrossMargin ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔGrossMargin(t) = β · (RV/RV_base − 1)" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Revenue increase with fixed cost base expands margin via operating leverage; β = fixed cost share; capital-intensive and software sectors highest" .
+
+snw:outedge_RV_FCF a snw:OutcomeEdge ;
+    snw:edgeId "OE::RV→FCF" ; snw:outcomeSource snw:prim_RV ; snw:outcomeTarget snw:out_FCF ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔFCF(t) = β · ΔRV(t−k)" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Incremental revenue after variable cost = contribution margin; flows to operating cash if working capital stable; β = contribution margin rate" .
+
+snw:outedge_RV_EquityVal a snw:OutcomeEdge ;
+    snw:edgeId "OE::RV→EquityVal" ; snw:outcomeSource snw:prim_RV ; snw:outcomeTarget snw:out_EquityVal ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔEquityVal(t) = β · ln(1+ΔRV(t−k))" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Revenue growth drives earnings expectations and multiple expansion; log-linear; growth-oriented sectors at upper bound" .
+
+snw:outedge_RV_CustomerChurn a snw:OutcomeEdge ;
+    snw:edgeId "OE::RV→CustomerChurn" ; snw:outcomeSource snw:prim_RV ; snw:outcomeTarget snw:out_CustomerChurn ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔChurn(t) = −β · (RV/RV_base − 1)" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Revenue decline signals deteriorating customer base; sustained RV drop = rising churn; subscription and repeat-purchase models most visible" .
+
+snw:outedge_RV_CapacityUtil a snw:OutcomeEdge ;
+    snw:edgeId "OE::RV→CapacityUtil" ; snw:outcomeSource snw:prim_RV ; snw:outcomeTarget snw:out_CapacityUtil ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔCapUtil(t) = β · (RV/RV_base − 1)" ;
+    snw:elasticityOrWeight "0.30–0.70" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Demand volume directly drives production scheduling; β = demand-to-capacity ratio; process industries (utilities, chemicals, cement) at upper bound" .
+
+# ---- CX (Capex) → outcomes ----
+
+snw:outedge_CX_FCF a snw:OutcomeEdge ;
+    snw:edgeId "OE::CX→FCF" ; snw:outcomeSource snw:prim_CX ; snw:outcomeTarget snw:out_FCF ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔFCF(t) = −β · ΔCX(t−k)" ;
+    snw:elasticityOrWeight "0.80–1.00" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Capex is direct cash outflow reducing FCF; near-identity (β≈1.0 for cash capex); separates earnings from cash during investment cycles" .
+
+snw:outedge_CX_CapacityUtil a snw:OutcomeEdge ;
+    snw:edgeId "OE::CX→CapacityUtil" ; snw:outcomeSource snw:prim_CX ; snw:outcomeTarget snw:out_CapacityUtil ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "ratio" ;
+    snw:operatorExpression "ΔCapUtilPotential(t) = β · (CX/CX_base − 1)" ;
+    snw:elasticityOrWeight "0.10–0.40" ; snw:lagK "1–4y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "New capacity capex raises installed base; very long lag (asset commissioning); replacement capex maintains existing CapUtil" .
+
+snw:outedge_CX_CarbonLiability a snw:OutcomeEdge ;
+    snw:edgeId "OE::CX→CarbonLiability" ; snw:outcomeSource snw:prim_CX ; snw:outcomeTarget snw:out_CarbonLiability ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔCarbonLiability(t) = β · 𝟙[CX≥τ_fossil]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Capital investment in fossil-fuel infrastructure locks in future GHG liability; stranded asset risk rises; power and extraction industries most relevant" .
+
+# ---- HS (Health & Safety) → outcomes ----
+
+snw:outedge_HS_InsurancePremium a snw:OutcomeEdge ;
+    snw:edgeId "OE::HS→InsurancePremium" ; snw:outcomeSource snw:prim_HS ; snw:outcomeTarget snw:out_InsurancePremium ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔPremium(t) = β · 𝟙[HS≥τ]" ;
+    snw:elasticityOrWeight "0.03–0.15" ; snw:lagK "0–1y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Incident frequency/severity directly reprices workers' comp and employer liability at renewal; fatalities can make covers unavailable; long lag" .
+
+snw:outedge_HS_ESGRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::HS→ESGRating" ; snw:outcomeSource snw:prim_HS ; snw:outcomeTarget snw:out_ESGRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔESG(t) = −β · 𝟙[HS≥τ_material]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "LTIFR, TRIFR, and fatality rates scored in MSCI, Sustainalytics, ISS ESG; affects institutional investor confidence and index inclusion" .
+
+snw:outedge_HS_GrossMargin a snw:OutcomeEdge ;
+    snw:edgeId "OE::HS→GrossMargin" ; snw:outcomeSource snw:prim_HS ; snw:outcomeTarget snw:out_GrossMargin ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔGrossMargin(t) = −β · 𝟙[HS≥τ]" ;
+    snw:elasticityOrWeight "0.02–0.10" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Injured workers create absenteeism and productivity loss; replacement/agency cost during recovery; compresses margin in labour-intensive operations" .
+
+snw:outedge_HS_LaborProductivity a snw:OutcomeEdge ;
+    snw:edgeId "OE::HS→LaborProductivity" ; snw:outcomeSource snw:prim_HS ; snw:outcomeTarget snw:out_LaborProductivity ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔProductivity(t) = −β · 𝟙[HS≥τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Injured workers reduce effective output/person-hour; investigations distract non-injured workers; manual assembly, mining, construction, care most visible" .
+
+snw:outedge_HS_RemediationLiability a snw:OutcomeEdge ;
+    snw:edgeId "OE::HS→RemediationLiability" ; snw:outcomeSource snw:prim_HS ; snw:outcomeTarget snw:out_RemediationLiability ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔRemediation(t) = β · 𝟙[HS≥τ_toxic]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–8q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Chronic toxic exposure (asbestos, silica, PFAS, heavy metals) triggers long-tail occupational disease liability; very long lag (latency + litigation); chemicals, mining, manufacturing at upper bound" .
+
+# ---- CL (Compliance) → outcomes ----
+
+snw:outedge_CL_CreditRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::CL→CreditRating" ; snw:outcomeSource snw:prim_CL ; snw:outcomeTarget snw:out_CreditRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔRating(t) = −β · 𝟙[CL≥τ_material]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Material litigation triggers rating review and spread widening; contingent liabilities reduce headroom" .
+
+snw:outedge_CL_ESGRating a snw:OutcomeEdge ;
+    snw:edgeId "OE::CL→ESGRating" ; snw:outcomeSource snw:prim_CL ; snw:outcomeTarget snw:out_ESGRating ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔESG(t) = −β · 𝟙[CL≥τ_material]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Material regulatory enforcement, litigation, governance failures scored in ESG Governance pillar (MSCI, Sustainalytics, ISS); affects institutional investor mandates" .
+
+snw:outedge_CL_RemediationLiability a snw:OutcomeEdge ;
+    snw:edgeId "OE::CL→RemediationLiability" ; snw:outcomeSource snw:prim_CL ; snw:outcomeTarget snw:out_RemediationLiability ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔRemediation(t) = β · 𝟙[CL≥τ_environmental]" ;
+    snw:elasticityOrWeight "0.05–0.30" ; snw:lagK "0–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Enforcement of environmental violations triggers mandatory site remediation; balance sheet provision; chemicals, mining, manufacturing at upper bound" .
+
+snw:outedge_CL_InvestorSentiment a snw:OutcomeEdge ;
+    snw:edgeId "OE::CL→InvestorSentiment" ; snw:outcomeSource snw:prim_CL ; snw:outcomeTarget snw:out_InvestorSentiment ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔInvestorSentiment(t) = −β · 𝟙[CL≥τ_material]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Material litigation/enforcement triggers analyst downgrades and target price cuts; distinct from ESGRating (market reaction vs. agency score)" .
+
+# ---- SC (Supply Chain) → outcomes ----
+
+snw:outedge_SC_GrossMargin a snw:OutcomeEdge ;
+    snw:edgeId "OE::SC→GrossMargin" ; snw:outcomeSource snw:prim_SC ; snw:outcomeTarget snw:out_GrossMargin ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔGrossMargin(t) = −β · 𝟙[SC≥τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Expedite freight, spot sourcing, emergency inventory build directly compress gross margin; β = premium spend/revenue; retail, e-commerce, JIT manufacturers at upper bound" .
+
+snw:outedge_SC_ServiceLevel a snw:OutcomeEdge ;
+    snw:edgeId "OE::SC→ServiceLevel" ; snw:outcomeSource snw:prim_SC ; snw:outcomeTarget snw:out_ServiceLevel ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔServiceLevel(t) = −β · 𝟙[SC≥τ_stockout]" ;
+    snw:elasticityOrWeight "0.20–0.60" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Supply disruption directly reduces order fill rate and OTIF; dominant operational output of SC; retail, e-commerce, pharma at upper bound" .
+
+snw:outedge_SC_CustomerChurn a snw:OutcomeEdge ;
+    snw:edgeId "OE::SC→CustomerChurn" ; snw:outcomeSource snw:prim_SC ; snw:outcomeTarget snw:out_CustomerChurn ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔChurn(t) = β · 𝟙[SC≥τ_repeated]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Repeated delivery failures erode customer loyalty; τ = sustained disruption threshold; subscription and contract models most exposed" .
+
+snw:outedge_SC_FCF a snw:OutcomeEdge ;
+    snw:edgeId "OE::SC→FCF" ; snw:outcomeSource snw:prim_SC ; snw:outcomeTarget snw:out_FCF ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔFCF(t) = −β · 𝟙[SC≥τ]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Safety stock build ties up working capital; expedite freight and spot procurement are cash outflows; captures cash-flow timing impact" .
+
+# ---- DT (Downtime) → outcomes ----
+
+snw:outedge_DT_CapacityUtil a snw:OutcomeEdge ;
+    snw:edgeId "OE::DT→CapacityUtil" ; snw:outcomeSource snw:prim_DT ; snw:outcomeTarget snw:out_CapacityUtil ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔCapUtil(t) = −β · ΔDT(t−k)" ;
+    snw:elasticityOrWeight "0.60–1.00" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Downtime IS reduced capacity utilization; outage hours = lost production; β≈1.0 for pure production downtime; near-identity; dominant operational output" .
+
+snw:outedge_DT_CustomerChurn a snw:OutcomeEdge ;
+    snw:edgeId "OE::DT→CustomerChurn" ; snw:outcomeSource snw:prim_DT ; snw:outcomeTarget snw:out_CustomerChurn ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔChurnRisk(t) = β · 𝟙[DT≥SLAThreshold]" ;
+    snw:elasticityOrWeight "0.05–0.20" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Repeated/prolonged outages erode customer trust; SaaS, utilities, manufacturers with uptime SLAs most exposed; reputational signal distinct from contractual penalty" .
+
+snw:outedge_DT_ServiceLevel a snw:OutcomeEdge ;
+    snw:edgeId "OE::DT→ServiceLevel" ; snw:outcomeSource snw:prim_DT ; snw:outcomeTarget snw:out_ServiceLevel ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔServiceLevel(t) = −β · 𝟙[DT≥SLAThreshold]" ;
+    snw:elasticityOrWeight "0.30–0.80" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "dominant" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Production halt = zero output → fill rate drops to zero for affected SKUs; dominant operational output; SaaS uptime, OTIF, utility availability most exposed" .
+
+snw:outedge_DT_GrossMargin a snw:OutcomeEdge ;
+    snw:edgeId "OE::DT→GrossMargin" ; snw:outcomeSource snw:prim_DT ; snw:outcomeTarget snw:out_GrossMargin ;
+    snw:edgeOrder 2 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔGrossMargin(t) = −β · 𝟙[DT≥τ]" ;
+    snw:elasticityOrWeight "0.05–0.25" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Fixed costs continue during downtime while revenue stops; restart overtime and emergency repair further compress margin; capital-intensive industries most affected" .
+
+snw:outedge_DT_InsurancePremium a snw:OutcomeEdge ;
+    snw:edgeId "OE::DT→InsurancePremium" ; snw:outcomeSource snw:prim_DT ; snw:outcomeTarget snw:out_InsurancePremium ;
+    snw:edgeOrder 2 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔPremium(t) = β · 𝟙[DT≥τ_claim]" ;
+    snw:elasticityOrWeight "0.03–0.15" ; snw:lagK "0–1y" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "BI claims history directly reprices business interruption and property cover at annual renewal; repeated claims can make cover unavailable; long lag" .

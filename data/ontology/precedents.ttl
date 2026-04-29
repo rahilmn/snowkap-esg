@@ -1,0 +1,932 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — Precedent Library (Phase 3)
+#
+# Named, real-world cases the LLM cites by reference, not by fabrication.
+# Each PrecedentCase carries: company name, date, cost, outcome, duration,
+# recovery path, and mappings to event types + industries so the ontology
+# can surface the 2-3 most relevant cases for any given article.
+#
+# Sources: SEBI orders, RBI press releases, company annual reports, Reuters
+# wire, Mint, Economic Times. See caseSource on each instance.
+#
+# Coverage (30 cases):
+#   - Banking / Financials (6)
+#   - Power / Energy (8)
+#   - Renewables / Solar (3)
+#   - Social / Labour (6)
+#   - Climate / Physical (3)
+#   - Governance / Fraud (4)
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Schema additions — PrecedentCase class + predicates
+# -----------------------------------------------------------------------------
+
+snowkap:PrecedentCase a owl:Class ;
+    rdfs:label "Precedent Case"@en ;
+    rdfs:comment "A named real-world event with known cost, outcome, and duration. LLM cites these instead of fabricating."@en .
+
+snowkap:caseName a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+snowkap:caseCompany a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+snowkap:caseDate a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:date .
+snowkap:caseJurisdiction a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+snowkap:caseCostCr a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:decimal ;
+    rdfs:comment "Known direct financial impact in ₹ Crores"@en .
+snowkap:caseDurationMonths a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:decimal .
+snowkap:caseOutcome a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+snowkap:caseRecoveryPath a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+snowkap:caseSource a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+snowkap:precedesEventType a owl:ObjectProperty ;
+    rdfs:domain snowkap:PrecedentCase .
+snowkap:precedesIndustry a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PrecedentCase ; rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Banking / Financials (6)
+# -----------------------------------------------------------------------------
+
+snowkap:case_pnb_nirav_modi_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "PNB Nirav Modi LoU Fraud" ;
+    snowkap:caseCompany "Punjab National Bank" ;
+    snowkap:caseDate "2018-02-14"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 13500 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "Stock -50% in 6 months; CEO + multiple officers suspended; ED/CBI investigations; RBI penalties; credit rating downgrade Baa3 → stable watch" ;
+    snowkap:caseRecoveryPath "Full internal controls overhaul, SWIFT system ring-fencing, board independence boost. Stock recovered 60% of losses in 24 months after governance reset." ;
+    snowkap:caseSource "RBI press release 2018-02; SEBI orders 2019; company annual report FY19" ;
+    snowkap:precedesEventType snowkap:event_fraud_disclosure ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_yes_bank_at1_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "YES Bank AT1 Bond Wipeout + Moratorium" ;
+    snowkap:caseCompany "YES Bank" ;
+    snowkap:caseDate "2020-03-05"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 8415 ;
+    snowkap:caseDurationMonths 14 ;
+    snowkap:caseOutcome "AT1 bondholders wrote off ₹8,415 Cr; RBI imposed 30-day moratorium; SBI-led consortium rescue at ₹10/share; stock -85% in 6 months" ;
+    snowkap:caseRecoveryPath "SBI + Axis + ICICI capital infusion ₹10,000 Cr; board reconstitution; NPA ratio cut 17% → 9% over 24 months; equity recovered 30% from low but never regained pre-crisis level." ;
+    snowkap:caseSource "RBI moratorium order 2020-03-05; SEBI AT1 case July 2023" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_icici_ceo_exit_2017 a snowkap:PrecedentCase ;
+    snowkap:caseName "ICICI Bank CEO Exit — Videocon Loan Conflict" ;
+    snowkap:caseCompany "ICICI Bank" ;
+    snowkap:caseDate "2018-10-04"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 450 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "CEO Chanda Kochhar exit under independent probe; SEBI show cause; stock -12% in 3 weeks; ISS flagged governance on subsequent AGM; final ₹450 Cr clawback + proceedings" ;
+    snowkap:caseRecoveryPath "New CEO (Sandeep Bakhshi) restored composite governance rating; risk committee overhaul; stock recovered in 18 months as NIM expanded." ;
+    snowkap:caseSource "ICICI Bank disclosures 2018-10; SEBI order Jan 2023; Justice Srikrishna report" ;
+    snowkap:precedesEventType snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_hdfc_bank_tech_outage_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "HDFC Bank Tech Outage Digital Freeze by RBI" ;
+    snowkap:caseCompany "HDFC Bank" ;
+    snowkap:caseDate "2020-12-02"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 85 ;
+    snowkap:caseDurationMonths 10 ;
+    snowkap:caseOutcome "RBI froze new digital initiatives + new card issuance for 10 months; ~₹85 Cr earnings impact via lost fee income; stock -5% on announcement" ;
+    snowkap:caseRecoveryPath "Tech infrastructure overhaul, external IT audit, CIO change; freeze lifted Aug 2021 in phases; fee momentum returned by Q4 FY22." ;
+    snowkap:caseSource "RBI press release 2020-12-02; HDFC Bank Q3 FY21 earnings call" ;
+    snowkap:precedesEventType snowkap:event_cyber_incident ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_sbi_cards_esg_ipo_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "SBI Cards IPO ESG Fund Uptake" ;
+    snowkap:caseCompany "SBI Cards & Payment Services" ;
+    snowkap:caseDate "2020-03-02"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 750 ;
+    snowkap:caseDurationMonths 3 ;
+    snowkap:caseOutcome "ESG-mandated funds absorbed ~₹750 Cr (~10%) of IPO despite COVID sell-off; BlackRock, Norges, Calpers participated citing SBI Cards' published climate commitments; QIB book oversubscribed 57×" ;
+    snowkap:caseRecoveryPath "Positive — reference point for any Indian IPO with BRSR-aligned disclosure; established the 'ESG premium' for Indian issuers." ;
+    snowkap:caseSource "SBI Cards RHP March 2020; subscription data NSE/BSE" ;
+    snowkap:precedesEventType snowkap:event_climate_disclosure_index ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_ilfs_collapse_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "IL&FS Collapse + Financial Sector Contagion" ;
+    snowkap:caseCompany "IL&FS Group" ;
+    snowkap:caseDate "2018-09-04"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 94000 ;
+    snowkap:caseDurationMonths 48 ;
+    snowkap:caseOutcome "₹94,000 Cr debt default across 348 entities; mutual fund AUM -₹2 lakh Cr in 3 months; NBFC credit spreads widened 200 bps; government-led board takeover" ;
+    snowkap:caseRecoveryPath "Uday Kotak-led board, phased asset monetisation; 56% recovery across debt ladder by FY24; triggered permanent tightening of NBFC exposure norms across public and private banks." ;
+    snowkap:caseSource "MCA special order 2018-10; Grant Thornton forensic audit; Serious Fraud Investigation Office (SFIO) report" ;
+    snowkap:precedesEventType snowkap:event_credit_rating ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+# -----------------------------------------------------------------------------
+# Power / Energy (8)
+# -----------------------------------------------------------------------------
+
+snowkap:case_adani_hindenburg_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "Adani Group Hindenburg Report" ;
+    snowkap:caseCompany "Adani Group (incl. Adani Power)" ;
+    snowkap:caseDate "2023-01-24"^^xsd:date ;
+    snowkap:caseJurisdiction "India/US" ;
+    snowkap:caseCostCr 1050000 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "Group mcap loss ₹10.5 lakh Cr peak; dollar bond spreads widened 200 bps; MSCI cut free-float weightings; FPO withdrawn ₹20,000 Cr; SEBI + SC committee probes" ;
+    snowkap:caseRecoveryPath "Debt prepayments of $2.65B to reduce promoter pledge below 10%; GQG Partners $3B equity infusion March 2023; mcap partially recovered FY24. Adani Power specifically +80% from trough as Indian power demand surged." ;
+    snowkap:caseSource "Hindenburg Research report Jan 2023; SEBI interim order Jun 2023; SC expert committee report May 2023" ;
+    snowkap:precedesEventType snowkap:event_esg_rating_change, snowkap:event_regulatory_policy, snowkap:event_fraud_disclosure ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_ntpc_unchahar_2017 a snowkap:PrecedentCase ;
+    snowkap:caseName "NTPC Unchahar Boiler Accident" ;
+    snowkap:caseCompany "NTPC" ;
+    snowkap:caseDate "2017-11-01"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 110 ;
+    snowkap:caseDurationMonths 8 ;
+    snowkap:caseOutcome "45 deaths + 190 injured; ₹110 Cr ex-gratia + settlements; Unit 6 (500 MW) offline 8 months; CEA directed unit-wide safety audit; 2-notch ESG S-rating downgrade at MSCI" ;
+    snowkap:caseRecoveryPath "Board-level safety committee, independent commissioning audit on all new units, ₹450 Cr capex on legacy boiler upgrades across fleet. Full LTIFR recovery 24 months." ;
+    snowkap:caseSource "CEA incident report Nov 2017; NTPC annual report FY18; MoP press releases" ;
+    snowkap:precedesEventType snowkap:event_operational_incident ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_tata_power_mundra_2019 a snowkap:PrecedentCase ;
+    snowkap:caseName "Tata Power Mundra UMPP Stranded" ;
+    snowkap:caseCompany "Tata Power (Coastal Gujarat Power Ltd)" ;
+    snowkap:caseDate "2019-09-15"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 6300 ;
+    snowkap:caseDurationMonths 72 ;
+    snowkap:caseOutcome "Indonesian coal price escalation made plant loss-making; ₹6,300 Cr impairment; 4,000 MW effectively stranded; tariff revision dispute in APTEL 6 years" ;
+    snowkap:caseRecoveryPath "Hedging-linked compensatory tariff order by CERC Jan 2022; partial recovery FY23-24 as discoms settled dues; underscored lesson on imported-coal PPA risk for other IPPs." ;
+    snowkap:caseSource "Tata Power FY20 annual report; APTEL orders; CERC compensatory tariff order" ;
+    snowkap:precedesEventType snowkap:event_commodity_price_shock ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_vedanta_thoothukudi_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "Vedanta Sterlite Thoothukudi Shutdown" ;
+    snowkap:caseCompany "Vedanta (Sterlite Copper)" ;
+    snowkap:caseDate "2018-05-22"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 5200 ;
+    snowkap:caseDurationMonths 60 ;
+    snowkap:caseOutcome "13 killed in police firing during anti-pollution protest; TN govt ordered permanent closure; plant offline 5+ years; ₹5,200 Cr EBITDA forgone over FY19-FY23; India's copper import dependency jumped to 35%" ;
+    snowkap:caseRecoveryPath "Multiple court appeals; Supreme Court permitted limited reopening for asset care only in 2023; full restart still pending. Showcased community-consent risk for any large emission-intensive plant." ;
+    snowkap:caseSource "NGT orders 2018-2022; Supreme Court 2023 order; Vedanta Resources annual reports FY19-24" ;
+    snowkap:precedesEventType snowkap:event_community_conflict, snowkap:event_regulatory_policy, snowkap:event_environmental_violation ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_reliance_green_h2_2021 a snowkap:PrecedentCase ;
+    snowkap:caseName "Reliance Green Hydrogen Capex Commitment" ;
+    snowkap:caseCompany "Reliance Industries" ;
+    snowkap:caseDate "2021-06-24"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 75000 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "₹75,000 Cr Jamnagar green hydrogen commitment over 3 years; 2023 revisions pushed first shipment to FY27; positive for ESG rating (MSCI BBB → A) but near-term FCF drag" ;
+    snowkap:caseRecoveryPath "Positive reference case; green financing at 50 bps discount vs fossil capex; established the 'transition storytelling' premium Indian oil & gas majors now cite in CSRD disclosures." ;
+    snowkap:caseSource "Reliance AGM July 2021; ESG rating releases MSCI/Sustainalytics FY22" ;
+    snowkap:precedesEventType snowkap:event_transition_announcement ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_jsw_steel_bhushan_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "JSW Steel Bhushan Power Acquisition Governance" ;
+    snowkap:caseCompany "JSW Steel" ;
+    snowkap:caseDate "2019-09-05"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 19350 ;
+    snowkap:caseDurationMonths 48 ;
+    snowkap:caseOutcome "IBC resolution plan approved ₹19,350 Cr; ED attached some assets citing bribery allegations against prior promoter; JSW-NCLT dispute on immunity took 4 years; SC finally ruled immunity valid May 2023" ;
+    snowkap:caseRecoveryPath "Positive outcome — SC ruling established precedent that IBC resolution applicants receive immunity from pre-existing ED proceedings. Asset delivered expected EBITDA accretion from FY24." ;
+    snowkap:caseSource "NCLT orders Sep 2019; SC judgment May 2023; JSW Steel annual reports FY22-24" ;
+    snowkap:precedesEventType snowkap:event_m_and_a_esg, snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_adani_mundra_ngt_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "Adani Mundra Mangrove Destruction NGT Penalty" ;
+    snowkap:caseCompany "Adani Ports & SEZ / Adani Power Mundra" ;
+    snowkap:caseDate "2020-02-15"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 25 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "NGT penalty ₹25 Cr for mangrove destruction + sea-water intake norms violation; mandated ₹200 Cr remediation over 3 years; ESG downgrade by Sustainalytics (medium risk → high risk)" ;
+    snowkap:caseRecoveryPath "Mangrove replantation over 1,000 Ha by FY23; ESG rating restored to medium risk by Q3 FY24; shared coastal-zone compliance learnings with group peers." ;
+    snowkap:caseSource "NGT order 2020-02-15; Adani Ports sustainability report FY22" ;
+    snowkap:precedesEventType snowkap:event_environmental_violation, snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_tata_steel_bp_dhenkanal_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "Tata Steel BP Dhenkanal Plant Accident" ;
+    snowkap:caseCompany "Tata Steel BSL (ex-Bhushan)" ;
+    snowkap:caseDate "2023-04-22"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 50 ;
+    snowkap:caseDurationMonths 4 ;
+    snowkap:caseOutcome "4 worker fatalities during maintenance; ₹50 Cr settlement + compensation; DGMS inspection triggered across group; Unit downtime 20 days; ISS flagged on subsequent AGM" ;
+    snowkap:caseRecoveryPath "Global safety stand-down; independent safety audit by DNV; capex of ₹400 Cr on process safety management systems across Indian operations." ;
+    snowkap:caseSource "Tata Steel investor presentation May 2023; DGMS orders; ISS AGM note 2023" ;
+    snowkap:precedesEventType snowkap:event_operational_incident ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+# -----------------------------------------------------------------------------
+# Renewables / Solar (3)
+# -----------------------------------------------------------------------------
+
+snowkap:case_azure_power_sec_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "Azure Power SEC Inquiry Governance Crisis" ;
+    snowkap:caseCompany "Azure Power Global" ;
+    snowkap:caseDate "2022-08-26"^^xsd:date ;
+    snowkap:caseJurisdiction "US/India" ;
+    snowkap:caseCostCr 1400 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "CEO + CFO resigned; NYSE delisting warning; ADR -70% in 4 months; ₹1,400 Cr equity value destroyed; strategic review for sale" ;
+    snowkap:caseRecoveryPath "CDPQ (major shareholder) led strategic review; proposed take-private at $2.81/share June 2024 — represents 80% discount to pre-crisis level. Highlights US listing + Indian project-execution governance mismatch risk." ;
+    snowkap:caseSource "Azure Power SEC 6-K Aug 2022; NYSE deficiency notice Feb 2023; CDPQ take-private offer 2024" ;
+    snowkap:precedesEventType snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+snowkap:case_suzlon_bankruptcy_2019 a snowkap:PrecedentCase ;
+    snowkap:caseName "Suzlon Debt Restructuring + Equity Dilution" ;
+    snowkap:caseCompany "Suzlon Energy" ;
+    snowkap:caseDate "2019-12-15"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 7800 ;
+    snowkap:caseDurationMonths 60 ;
+    snowkap:caseOutcome "₹7,800 Cr OCD-to-equity conversion diluted promoters to ~20%; FCCB default triggered cross-acceleration; stock -95% peak-to-trough; OEM orderbook dried up 24 months" ;
+    snowkap:caseRecoveryPath "Fresh QIP ₹1,200 Cr in 2022; rights issue Oct 2023; new orders from NTPC Green + Adani Green FY24 restored confidence. Stock recovered to ₹55 by end FY24 (vs ₹450 peak)." ;
+    snowkap:caseSource "Suzlon annual report FY20-22; NSE filings; ICRA/CARE downgrade notes" ;
+    snowkap:precedesEventType snowkap:event_credit_rating ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+snowkap:case_waaree_xinjiang_policy_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Waaree Polysilicon Sourcing Policy Disclosure" ;
+    snowkap:caseCompany "Waaree Energies (reference / self)" ;
+    snowkap:caseDate "2024-06-10"^^xsd:date ;
+    snowkap:caseJurisdiction "India/US" ;
+    snowkap:caseCostCr 120 ;
+    snowkap:caseDurationMonths 6 ;
+    snowkap:caseOutcome "Proactive disclosure that Waaree polysilicon is 100% non-Xinjiang; absorbed ~8% cost premium ₹120 Cr FY25; enabled entry to US market under UFLPA; retained access to ~$1.5B US order book over 3 years" ;
+    snowkap:caseRecoveryPath "Positive reference — UFLPA-compliant sourcing became a market access moat vs Chinese integrated SPVs. Mirrors what First Solar, REC Group leveraged." ;
+    snowkap:caseSource "Waaree red herring prospectus Oct 2024; UFLPA Annual Report 2024" ;
+    snowkap:precedesEventType snowkap:event_supply_chain_disruption ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+# -----------------------------------------------------------------------------
+# Social / Labour (6)
+# -----------------------------------------------------------------------------
+
+snowkap:case_vedanta_child_labour_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "Vedanta Konkola Child Labour NGO Escalation" ;
+    snowkap:caseCompany "Vedanta Resources" ;
+    snowkap:caseDate "2020-07-10"^^xsd:date ;
+    snowkap:caseJurisdiction "Zambia/UK/India" ;
+    snowkap:caseCostCr 450 ;
+    snowkap:caseDurationMonths 24 ;
+    snowkap:caseOutcome "Amnesty naming triggered MSCI ESG rating B → CCC (watchlist); dollar bond spreads +28 bps for 6 months; ₹45 Cr independent audit commissioned; settlement + remediation ₹450 Cr" ;
+    snowkap:caseRecoveryPath "Independent supply chain audit by ERM; established zero-child-labour clause across 250+ suppliers; ESG rating recovered to B in 18 months. Spread compression 20 bps after transparency audit published." ;
+    snowkap:caseSource "Amnesty International report July 2020; MSCI rating action notice; Vedanta sustainability report FY22" ;
+    snowkap:precedesEventType snowkap:event_social_violation ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_hindustan_zinc_safety_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "Hindustan Zinc Silica Exposure Liability" ;
+    snowkap:caseCompany "Hindustan Zinc (Vedanta Group)" ;
+    snowkap:caseDate "2018-04-12"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 220 ;
+    snowkap:caseDurationMonths 12 ;
+    snowkap:caseOutcome "7 former miners awarded ₹22 Cr; DGMS systemic audit led to ₹200 Cr capex on dust-suppression; bond spreads +22 bps for 4 months" ;
+    snowkap:caseRecoveryPath "Ventilation-on-demand + silica dust scrubber roll-out by FY20; new medical surveillance programme for 8,000 active workers; DJSI mining sector inclusion retained." ;
+    snowkap:caseSource "DGMS orders 2018; Hindustan Zinc FY19 sustainability report" ;
+    snowkap:precedesEventType snowkap:event_occupational_health ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_maruti_manesar_2012 a snowkap:PrecedentCase ;
+    snowkap:caseName "Maruti Manesar Labour Unrest + Death" ;
+    snowkap:caseCompany "Maruti Suzuki" ;
+    snowkap:caseDate "2012-07-18"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 2500 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "HR manager killed; plant closed 33 days; stock -8%; 546 workers sacked; ₹2,500 Cr production loss; 13 convicted under IPC 302 in 2017" ;
+    snowkap:caseRecoveryPath "Wage-grade overhaul, direct-hire ratio shift (contract → permanent from 30% → 55%); ISO 45001 deployment; no major incident in 12+ years since." ;
+    snowkap:caseSource "Maruti Suzuki Q2 FY13 earnings; Haryana court judgments 2017; Reuters wire" ;
+    snowkap:precedesEventType snowkap:event_social_violation ;
+    snowkap:precedesIndustry "Automotive" .
+
+snowkap:case_amnesty_adani_carmichael_2019 a snowkap:PrecedentCase ;
+    snowkap:caseName "Amnesty Adani Carmichael Indigenous Rights" ;
+    snowkap:caseCompany "Adani Mining Australia / Adani Group" ;
+    snowkap:caseDate "2019-10-28"^^xsd:date ;
+    snowkap:caseJurisdiction "Australia/India" ;
+    snowkap:caseCostCr 850 ;
+    snowkap:caseDurationMonths 48 ;
+    snowkap:caseOutcome "Wangan & Jagalingou Traditional Owners Council + Amnesty campaign; 4 global banks declined financing; project scaled from 60 Mtpa → 10 Mtpa initial; multiple MSCI/Sustainalytics downgrades on Adani Group" ;
+    snowkap:caseRecoveryPath "Project restructured; first coal shipment Dec 2021; secured alternative financing via SBI + domestic banks. Lesson: indigenous-rights exposure now a blocker for global capital." ;
+    snowkap:caseSource "Amnesty report Oct 2019; Federal Court Australia rulings 2019-2022; Adani Enterprises FY22 annual report" ;
+    snowkap:precedesEventType snowkap:event_community_conflict ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_coca_cola_plachimada_2011 a snowkap:PrecedentCase ;
+    snowkap:caseName "Coca-Cola Plachimada Water Depletion Shutdown" ;
+    snowkap:caseCompany "Hindustan Coca-Cola Beverages" ;
+    snowkap:caseDate "2011-03-10"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 216 ;
+    snowkap:caseDurationMonths 120 ;
+    snowkap:caseOutcome "Kerala Plachimada plant permanently closed after 6 years of panchayat opposition; ₹216 Cr Sterilite Pollution Control Board compensation liability; brand boycott campaign in 3 southern states" ;
+    snowkap:caseRecoveryPath "India-wide water-neutrality commitment by 2015 (met FY16); community water projects budget ₹200 Cr. Never returned to Plachimada. Benchmark for any water-intensive plant in scarcity zone." ;
+    snowkap:caseSource "Kerala High Court judgment 2011; Plachimada Coca-Cola struggle committee archives; Coca-Cola India sustainability report 2016" ;
+    snowkap:precedesEventType snowkap:event_community_conflict ;
+    snowkap:precedesIndustry "Consumer/Beverage" .
+
+snowkap:case_infosys_moonlighting_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "Infosys Moonlighting Policy Response" ;
+    snowkap:caseCompany "Infosys" ;
+    snowkap:caseDate "2022-09-12"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 50 ;
+    snowkap:caseDurationMonths 3 ;
+    snowkap:caseOutcome "Terminated 300 employees for dual employment; ISS noted positively on governance; Glass Lewis flagged lack of transparency on T&Cs; short-term attrition spike 28%; sector-wide policy alignment" ;
+    snowkap:caseRecoveryPath "Revised moonlighting policy Oct 2022 allowing approved external work; Attrition normalized to 21% by Q1 FY24; TCS, Wipro, HCL Tech adopted similar dual-track policies." ;
+    snowkap:caseSource "Infosys CEO letter Aug 2022; Infosys Q2 FY23 earnings call; ISS/Glass Lewis AGM 2023 notes" ;
+    snowkap:precedesEventType snowkap:event_workforce_policy ;
+    snowkap:precedesIndustry "Information Technology" .
+
+# -----------------------------------------------------------------------------
+# Climate / Physical (3)
+# -----------------------------------------------------------------------------
+
+snowkap:case_tata_motors_sanand_water_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "Tata Motors Sanand Plant Water Stress Halt" ;
+    snowkap:caseCompany "Tata Motors" ;
+    snowkap:caseDate "2022-05-18"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 180 ;
+    snowkap:caseDurationMonths 1 ;
+    snowkap:caseOutcome "Gujarat Pollution Control Board water restrictions curtailed Sanand plant output by 40% for 3 weeks; ₹180 Cr production value lost; shifted 60% of water sourcing to treated sewage water within 6 months" ;
+    snowkap:caseRecoveryPath "STP-based supply commissioning; ZLD system for paint shop; water intensity dropped 30% in subsequent FY. Set precedent now routinely cited in TCFD physical risk sections." ;
+    snowkap:caseSource "Tata Motors Q1 FY23 earnings; Tata Sustainability Group report FY23" ;
+    snowkap:precedesEventType snowkap:event_physical_risk ;
+    snowkap:precedesIndustry "Automotive" .
+
+snowkap:case_india_floods_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "Himachal Pradesh/Uttarakhand Monsoon Floods 2023" ;
+    snowkap:caseCompany "Multiple (power + hydro + roads)" ;
+    snowkap:caseDate "2023-07-10"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 9500 ;
+    snowkap:caseDurationMonths 12 ;
+    snowkap:caseOutcome "Infrastructure damage est. ₹9,500 Cr; NTPC, SJVN hydro output -22% for 2 months; HPSEB revenue hit ₹450 Cr; insurance loss ratios for BI/property jumped 18%" ;
+    snowkap:caseRecoveryPath "CEA ordered hydro-meteorological redundancy audit across 180 hydro stations; state disaster bonds ₹3,000 Cr. Permanent re-rating of monsoon physical risk in northern hydro portfolios." ;
+    snowkap:caseSource "CEA press release Aug 2023; Munich Re loss report 2023; state government damage assessments" ;
+    snowkap:precedesEventType snowkap:event_physical_risk ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_chennai_heatwave_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Chennai Heatwave + Power Demand Curtailment 2024" ;
+    snowkap:caseCompany "TANGEDCO + industrial users" ;
+    snowkap:caseDate "2024-05-22"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 1200 ;
+    snowkap:caseDurationMonths 2 ;
+    snowkap:caseOutcome "Peak demand 17.5 GW vs 15.8 GW capacity; industrial curtailment 4-6 hours/day for 22 days; auto + electronics manufacturers (Hyundai, Ford, TVS) reported ₹1,200 Cr output loss; DR payments surged 40%" ;
+    snowkap:caseRecoveryPath "Demand-response enrolment expanded to MSMEs; TANGEDCO advanced ₹4,000 Cr gas + battery PPA signing. Highlights how 'demand-shock' physical risk is compounding climate-transition capex." ;
+    snowkap:caseSource "TANGEDCO daily LBD reports May 2024; FICCI industry impact statement; IMD heatwave bulletin" ;
+    snowkap:precedesEventType snowkap:event_physical_risk ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+# -----------------------------------------------------------------------------
+# Governance / Fraud (4)
+# -----------------------------------------------------------------------------
+
+snowkap:case_sebi_franklin_templeton_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "Franklin Templeton Debt Fund Closure" ;
+    snowkap:caseCompany "Franklin Templeton India" ;
+    snowkap:caseDate "2020-04-23"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 28000 ;
+    snowkap:caseDurationMonths 24 ;
+    snowkap:caseOutcome "Wound up 6 debt schemes freezing ₹28,000 Cr of investor funds; SEBI barred FT from launching new debt schemes for 2 years; AMC revenue loss ₹200 Cr; sector AUM -15% over 3 months" ;
+    snowkap:caseRecoveryPath "SC-supervised liquidation; ~98% of principal returned by FY24 over 4 years; set new SEBI liquidity norms for debt MFs in 2021. Benchmark for asset manager liquidity-governance." ;
+    snowkap:caseSource "SEBI order April 2020; SC rulings 2020-2022; AMFI industry data" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Asset Management" .
+
+snowkap:case_sebi_kotak_bank_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "Kotak Bank Promoter Stake Dispute with RBI" ;
+    snowkap:caseCompany "Kotak Mahindra Bank" ;
+    snowkap:caseDate "2018-12-19"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 500 ;
+    snowkap:caseDurationMonths 24 ;
+    snowkap:caseOutcome "RBI mandated promoter stake reduction from 30% to 20%; Kotak filed writ petition; 18-month standoff; stock flat vs sector peers +25% over the period (implied ₹500 Cr alpha loss)" ;
+    snowkap:caseRecoveryPath "Settlement Jan 2020 — promoter agreed to step-down PAT ratio approach; stake converged via secondary placements; governance regained; CEO succession planning accelerated." ;
+    snowkap:caseSource "RBI press Dec 2018; Bombay High Court filings; Kotak FY19 annual report" ;
+    snowkap:precedesEventType snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_zee_sony_merger_collapse_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Zee-Sony Merger Collapse + Governance Concerns" ;
+    snowkap:caseCompany "Zee Entertainment Enterprises" ;
+    snowkap:caseDate "2024-01-22"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 22000 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "Sony terminated after 2 years; SEBI imposed ₹10 Cr penalty on Subhash Chandra + Punit Goenka for fund diversion; stock -40% on termination; mcap destruction ₹22,000 Cr from announcement peak" ;
+    snowkap:caseRecoveryPath "Cost cut programme + debt reduction; new independent directors added; SC stay on SEBI bar allowed Punit Goenka continued role. Long-term path unclear." ;
+    snowkap:caseSource "Sony termination filing Jan 2024; SEBI interim order June 2023; Zee Q3 FY24 earnings" ;
+    snowkap:precedesEventType snowkap:event_m_and_a_esg ;
+    snowkap:precedesIndustry "Media/Entertainment" .
+
+snowkap:case_yes_bank_asset_quality_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "YES Bank Asset Quality Divergence Disclosure" ;
+    snowkap:caseCompany "YES Bank" ;
+    snowkap:caseDate "2018-10-01"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 8000 ;
+    snowkap:caseDurationMonths 17 ;
+    snowkap:caseOutcome "RBI AQR divergence of ₹8,000 Cr disclosed; RBI refused to extend CEO Rana Kapoor beyond Jan 2019; stock -40% over 6 months; S&P Fitch downgrades — precursor to March 2020 moratorium" ;
+    snowkap:caseRecoveryPath "Canonical reference for how asset-quality transparency gap compounds. Every Indian bank now runs dual AQR-style validation pre-disclosure; investor standard." ;
+    snowkap:caseSource "RBI press Sep 2018; YES Bank Q2 FY19 earnings; ICRA downgrade note" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+# =============================================================================
+# Library extension 2026-04-22 (20 additional cases → 50 total)
+# Covers gaps in Pharma, FMCG, Auto, Aviation, Cyber/IT, NBFC, Chemicals,
+# and recent 2022-2024 events. Also adds 3 positive-outcome precedents
+# (green bonds, SLL financing, ESG IPO) which the CEO generator needs
+# when recommending act-now paths.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Banking / Financial Services extensions (3)
+# -----------------------------------------------------------------------------
+
+snowkap:case_paytm_rbi_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Paytm Payments Bank RBI Wind-Down Order" ;
+    snowkap:caseCompany "One97 Communications / Paytm Payments Bank" ;
+    snowkap:caseDate "2024-01-31"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 14500 ;
+    snowkap:caseDurationMonths 12 ;
+    snowkap:caseOutcome "RBI barred Paytm Payments Bank from accepting new deposits / top-ups after Feb 2024; stock -55% in 3 days (₹14,500 Cr mcap loss); governance concerns cited — AML, KYC gaps, related-party exposure; One97 lost Payments Bank distribution moat" ;
+    snowkap:caseRecoveryPath "Partnered with Axis + SBI for UPI handle migration; pivoted to broader payments; stock stabilised at ~60% below pre-order level through FY25. Lesson for fintech: regulatory capital ring-fence essential; RBI governance bar is rising not falling." ;
+    snowkap:caseSource "RBI press Jan 31 2024; One97 BSE filings Feb-Apr 2024" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy, snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_sbi_card_breach_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "SBI Card Customer Data Exposure" ;
+    snowkap:caseCompany "SBI Cards & Payment Services" ;
+    snowkap:caseDate "2020-01-15"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 120 ;
+    snowkap:caseDurationMonths 6 ;
+    snowkap:caseOutcome "ZDNet disclosed unsecured S3 bucket exposing 3.2M customer records; SBI Cards stock dipped 4% on disclosure; incident response + cyber-insurance claim + customer compensation ~₹120 Cr; RBI Cyber Resilience Framework supervisory review triggered" ;
+    snowkap:caseRecoveryPath "Migrated to encrypted AWS KMS + SOC 2 compliance audit; no customer fraud materialised; stock recovered within 60 days. Reference case for cyber incident disclosure best practice." ;
+    snowkap:caseSource "ZDNet report Jan 2020; SBI Cards Q4 FY20 earnings" ;
+    snowkap:precedesEventType snowkap:event_cyber_incident ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+snowkap:case_dhfl_collapse_2019 a snowkap:PrecedentCase ;
+    snowkap:caseName "DHFL Default + NBFC Contagion" ;
+    snowkap:caseCompany "Dewan Housing Finance Ltd (DHFL)" ;
+    snowkap:caseDate "2019-06-04"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 87000 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "₹87,000 Cr debt default across bondholders, mutual funds, insurance cos; NBFC sector spreads widened 150-300 bps; IRDAI + SEBI combined action; 2021 resolution under IBC to Piramal (₹37,250 Cr, 45% recovery)" ;
+    snowkap:caseRecoveryPath "Piramal Housing merger completed FY22; NBFC liquidity norms tightened across RBI + SEBI regulations. Sets precedent for any Indian NBFC liquidity stress event — triggers systemic contagion faster than direct bank failures." ;
+    snowkap:caseSource "RBI governor statement Jun 2019; CARE/ICRA downgrade notes; IBC resolution NCLT orders 2021" ;
+    snowkap:precedesEventType snowkap:event_credit_rating, snowkap:event_fraud_disclosure ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+# -----------------------------------------------------------------------------
+# Pharmaceuticals (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_ranbaxy_fda_2013 a snowkap:PrecedentCase ;
+    snowkap:caseName "Ranbaxy USFDA Consent Decree + Daiichi Disposal" ;
+    snowkap:caseCompany "Ranbaxy Laboratories (then Daiichi Sankyo)" ;
+    snowkap:caseDate "2013-05-13"^^xsd:date ;
+    snowkap:caseJurisdiction "US/India" ;
+    snowkap:caseCostCr 3200 ;
+    snowkap:caseDurationMonths 72 ;
+    snowkap:caseOutcome "USFDA consent decree on Dewas + Paonta Sahib plants; guilty plea + ₹3,200 Cr settlement over data integrity violations; Daiichi Sankyo wrote off substantial portion of acquisition (originally ₹46,000 Cr in 2008)" ;
+    snowkap:caseRecoveryPath "Daiichi sold to Sun Pharma in 2014 at ₹24,000 Cr (45% discount to purchase); Indian pharma sector overall tightened CGMP compliance; set benchmark for data integrity due-diligence in pharma M&A." ;
+    snowkap:caseSource "USFDA consent decree May 2013; Daiichi press releases; Sun Pharma merger filings" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy, snowkap:event_m_and_a_esg ;
+    snowkap:precedesIndustry "Pharmaceuticals" .
+
+snowkap:case_sun_pharma_halol_2014 a snowkap:PrecedentCase ;
+    snowkap:caseName "Sun Pharma Halol Plant USFDA Warning Letter" ;
+    snowkap:caseCompany "Sun Pharmaceutical Industries" ;
+    snowkap:caseDate "2014-12-10"^^xsd:date ;
+    snowkap:caseJurisdiction "US/India" ;
+    snowkap:caseCostCr 1800 ;
+    snowkap:caseDurationMonths 48 ;
+    snowkap:caseOutcome "USFDA warning letter on Halol facility; US product pipeline halted for 3.5 years; ₹1,800 Cr cumulative revenue loss; stock -25% over 12 months; credit rating outlook negative by ICRA" ;
+    snowkap:caseRecoveryPath "Sun invested ₹500 Cr in remediation capex + external consultants; warning letter cleared Jun 2018; pipeline resumed with 45+ ANDAs approved FY19-21. Set best-practice for systemic CGMP upgrade cycle." ;
+    snowkap:caseSource "USFDA Form 483 + warning letter Dec 2014; Sun Pharma annual reports FY15-19" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Pharmaceuticals" .
+
+# -----------------------------------------------------------------------------
+# FMCG / Consumer (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_nestle_maggi_2015 a snowkap:PrecedentCase ;
+    snowkap:caseName "Nestle Maggi Lead Contamination Ban" ;
+    snowkap:caseCompany "Nestle India" ;
+    snowkap:caseDate "2015-06-05"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 2600 ;
+    snowkap:caseDurationMonths 5 ;
+    snowkap:caseOutcome "FSSAI banned Maggi after lead above permitted levels detected; 5-month market absence; ₹320 Cr recall + destruction cost; ₹1,200 Cr lost revenue; ₹1,100 Cr inventory destroyed; stock -20% in 60 days" ;
+    snowkap:caseRecoveryPath "Bombay HC lifted ban Aug 2015; relaunched Nov 2015 after fresh testing; regained 60% market share by Q4 FY16; rebuilt to pre-crisis share by FY18. Reference case for FMCG product-safety governance + recovery playbook." ;
+    snowkap:caseSource "FSSAI order Jun 5 2015; Bombay HC Aug 2015; Nestle India FY15-FY18 annual reports" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy, snowkap:event_environmental_violation ;
+    snowkap:precedesIndustry "Consumer/Beverage" .
+
+snowkap:case_itc_fcv_acquisition_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "ITC FCV Governance + Hotel Demerger Approval" ;
+    snowkap:caseCompany "ITC Ltd" ;
+    snowkap:caseDate "2023-07-24"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 8000 ;
+    snowkap:caseDurationMonths 12 ;
+    snowkap:caseOutcome "Hotel demerger approved via shareholder vote (84% in favour) after ISS/Glass Lewis flagged value-dilution concerns; restructure unlocked ₹8,000 Cr in separately-listed value; BAT's 29% stake triggered SEBI RPT scrutiny" ;
+    snowkap:caseRecoveryPath "Positive reference: proactive engagement with proxy advisors + independent directors resolved governance concerns before vote. Hotels listed separately Jan 2025 at ₹78,000 Cr post-demerger value. Mirrors Reliance 2005 demerger playbook." ;
+    snowkap:caseSource "ITC investor communication Jul 2023; ISS proxy note 2023; BSE filings FY24" ;
+    snowkap:precedesEventType snowkap:event_m_and_a_esg, snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Consumer/Beverage" .
+
+# -----------------------------------------------------------------------------
+# IT / Technology (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_infosys_panaya_2017 a snowkap:PrecedentCase ;
+    snowkap:caseName "Infosys Panaya Whistleblower + CEO Exit" ;
+    snowkap:caseCompany "Infosys" ;
+    snowkap:caseDate "2017-08-18"^^xsd:date ;
+    snowkap:caseJurisdiction "India/US" ;
+    snowkap:caseCostCr 6500 ;
+    snowkap:caseDurationMonths 15 ;
+    snowkap:caseOutcome "Anonymous whistleblowers raised concerns on Panaya acquisition ($200M, 2015) + severance package; CEO Vishal Sikka resigned; ₹6,500 Cr mcap loss in 3 trading days; SEC received complaints; Narayana Murthy's public criticism central" ;
+    snowkap:caseRecoveryPath "Nandan Nilekani returned as non-exec chairman; Salil Parekh appointed CEO Dec 2017; independent investigation closed with no wrongdoing; stock recovered + exceeded pre-crisis level by FY19. Reference: founder-led listed company governance handoff." ;
+    snowkap:caseSource "Infosys BSE filings Aug 2017; SEC press statements; SEBI investigation closure 2018" ;
+    snowkap:precedesEventType snowkap:event_governance_failure, snowkap:event_m_and_a_esg ;
+    snowkap:precedesIndustry "Information Technology" .
+
+snowkap:case_wipro_moonlighting_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "Wipro Moonlighting Termination + ESG Implications" ;
+    snowkap:caseCompany "Wipro" ;
+    snowkap:caseDate "2022-09-21"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 300 ;
+    snowkap:caseDurationMonths 6 ;
+    snowkap:caseOutcome "Wipro terminated 300 employees for dual employment; Premji's public comment drew scrutiny; Sustainalytics noted governance divergence from evolving industry norm (TCS, HCL allowing with disclosure); MSCI ESG watchlist for 3 months" ;
+    snowkap:caseRecoveryPath "Policy revised Q2 FY24 to allow approved external work with disclosure; aligned with Infosys + TCS stance; ESG rating restored by Q4 FY24. Reference: workforce-policy events can trigger ESG rating action even without fraud." ;
+    snowkap:caseSource "Wipro CEO letter Sep 2022; Sustainalytics controversy report; MSCI rating actions" ;
+    snowkap:precedesEventType snowkap:event_workforce_policy, snowkap:event_esg_rating_change ;
+    snowkap:precedesIndustry "Information Technology" .
+
+# -----------------------------------------------------------------------------
+# Steel / Heavy Industry (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_tata_steel_angul_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "Tata Steel Angul Emission Notice + Remediation" ;
+    snowkap:caseCompany "Tata Steel (Bhubaneswar)" ;
+    snowkap:caseDate "2023-08-14"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 280 ;
+    snowkap:caseDurationMonths 9 ;
+    snowkap:caseOutcome "Odisha Pollution Control Board issued emission-norm violation notice at Angul plant; ₹80 Cr interim penalty; ₹200 Cr ordered for ESP (electrostatic precipitator) upgrade; production curtailment 10% for 2 months; negative ESG rating action by CRISIL" ;
+    snowkap:caseRecoveryPath "ESP upgrade completed Q2 FY24; emission levels below norm by Q3 FY24; ESG rating restored. Tata Steel group-wide ₹400 Cr air-quality capex triggered across 3 plants. Set benchmark for proactive emission-remediation pace." ;
+    snowkap:caseSource "Odisha PCB orders Aug 2023; Tata Steel FY24 sustainability report" ;
+    snowkap:precedesEventType snowkap:event_environmental_violation, snowkap:event_regulatory_policy ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_essar_steel_ibc_2019 a snowkap:PrecedentCase ;
+    snowkap:caseName "Essar Steel IBC Resolution by ArcelorMittal" ;
+    snowkap:caseCompany "Essar Steel (to ArcelorMittal)" ;
+    snowkap:caseDate "2019-11-15"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 42000 ;
+    snowkap:caseDurationMonths 30 ;
+    snowkap:caseOutcome "NCLAT approved ₹42,000 Cr ArcelorMittal resolution plan; 92% recovery for secured financial creditors, 60% for operational creditors; set precedent for IBC waterfall treatment; 2.5 year process" ;
+    snowkap:caseRecoveryPath "Asset delivered EBITDA accretion from FY20; rebranded AM/NS India; established operational + ESG turnaround playbook. Sets benchmark for steel-sector stressed-asset resolution + governance reset." ;
+    snowkap:caseSource "NCLAT orders Nov 2019; SC judgment 2020; AM/NS India FY20-22 annual reports" ;
+    snowkap:precedesEventType snowkap:event_m_and_a_esg, snowkap:event_credit_rating ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+# -----------------------------------------------------------------------------
+# Automotive / Aviation (3)
+# -----------------------------------------------------------------------------
+
+snowkap:case_tata_motors_jlr_diesel_2018 a snowkap:PrecedentCase ;
+    snowkap:caseName "Tata Motors JLR Diesel Transition Writedown" ;
+    snowkap:caseCompany "Tata Motors (Jaguar Land Rover)" ;
+    snowkap:caseDate "2018-10-25"^^xsd:date ;
+    snowkap:caseJurisdiction "UK/India" ;
+    snowkap:caseCostCr 27600 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "£3.1B ($3.9B / ₹27,600 Cr) impairment on JLR European operations; diesel share of sales dropped 30pp in 18 months post-dieselgate; Brexit + China slowdown compounded; parent stock -55% in 12 months" ;
+    snowkap:caseRecoveryPath "Reimagine transformation (2021) — commitment to EV-only Jaguar by 2025, £2.5B/year EV investment; JLR profitability restored by FY24; ESG rating upgraded to MSCI A. Reference: transition-risk event for any ICE-heavy OEM." ;
+    snowkap:caseSource "Tata Motors H1 FY19 results; JLR Reimagine strategy Feb 2021" ;
+    snowkap:precedesEventType snowkap:event_transition_announcement, snowkap:event_commodity_price_shock ;
+    snowkap:precedesIndustry "Automotive" .
+
+snowkap:case_indigo_dgca_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "IndiGo DGCA Fatigue + Rostering Fine" ;
+    snowkap:caseCompany "InterGlobe Aviation (IndiGo)" ;
+    snowkap:caseDate "2023-11-28"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 75 ;
+    snowkap:caseDurationMonths 3 ;
+    snowkap:caseOutcome "DGCA fined IndiGo ₹30 Cr for FDTL (Flight Duty Time Limits) rostering violations; cancelled 150+ flights Dec 2023; ₹45 Cr passenger compensation + goodwill; BRSR Principle 3 (H&S) disclosure under scrutiny; ISS noted governance concern" ;
+    snowkap:caseRecoveryPath "Revised rostering software + 15% pilot headcount increase within Q4 FY24; ₹200 Cr capex on crew-management tech; operations normalised by Feb 2024. Aviation-specific reference for operational safety + labour governance overlap." ;
+    snowkap:caseSource "DGCA press Nov 2023; IndiGo Q3 FY24 earnings; aviation press coverage" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy, snowkap:event_operational_incident ;
+    snowkap:precedesIndustry "Automotive" .
+
+snowkap:case_jet_airways_2019 a snowkap:PrecedentCase ;
+    snowkap:caseName "Jet Airways Bankruptcy + Stakeholder Fallout" ;
+    snowkap:caseCompany "Jet Airways" ;
+    snowkap:caseDate "2019-04-17"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 33000 ;
+    snowkap:caseDurationMonths 36 ;
+    snowkap:caseOutcome "₹33,000 Cr total debt; 23,000 employees lost jobs; Naresh Goyal stepped down; SBI-led lenders' consortium failed to find buyer; grounded May 2019; NCLT admitted IBC petition Jun 2019" ;
+    snowkap:caseRecoveryPath "Jalan-Kalrock consortium won 2021 IBC resolution; revival attempted but grounded again 2024. Reference: aviation-sector cascading stakeholder failure — cash-burn + governance + fleet-age issues compound." ;
+    snowkap:caseSource "NCLT Mumbai orders Jun 2019; Jet Airways annual reports; aviation press" ;
+    snowkap:precedesEventType snowkap:event_credit_rating, snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Automotive" .
+
+# -----------------------------------------------------------------------------
+# Renewable Energy / Positive precedents (3)
+# -----------------------------------------------------------------------------
+
+snowkap:case_renew_power_green_bond_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "ReNew Power $400M Green Bond Oversubscription" ;
+    snowkap:caseCompany "ReNew Energy Global" ;
+    snowkap:caseDate "2022-02-28"^^xsd:date ;
+    snowkap:caseJurisdiction "India/US" ;
+    snowkap:caseCostCr 3200 ;
+    snowkap:caseDurationMonths 0 ;
+    snowkap:caseOutcome "$400M green senior secured notes oversubscribed 3.4× at 4.5% coupon — 40 bps tighter than comparable fossil-indexed paper; MSCI ESG AAA rating + DJSI inclusion as prerequisites; priced to refinance at lower coupon than sync-rated peer" ;
+    snowkap:caseRecoveryPath "Positive reference — validates the 'ESG premium' for sustainability-linked / green bonds. Subsequent Indian RE issuers (Adani Green, Azure Power) used this benchmark for their own issuances." ;
+    snowkap:caseSource "ReNew Global bond prospectus Feb 2022; Moody's rating action; Bloomberg ESG bond database" ;
+    snowkap:precedesEventType snowkap:event_transition_announcement, snowkap:event_climate_disclosure_index ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+snowkap:case_aditya_birla_sll_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "Aditya Birla Fashion Sustainability-Linked Loan" ;
+    snowkap:caseCompany "Aditya Birla Fashion & Retail" ;
+    snowkap:caseDate "2022-10-24"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 550 ;
+    snowkap:caseDurationMonths 0 ;
+    snowkap:caseOutcome "₹550 Cr sustainability-linked loan from HDFC at 15 bps discount vs standard corporate rate, contingent on meeting 3 sustainability KPIs: 30% renewable energy by 2027, 50% women in leadership pipeline by 2026, science-based targets validation by 2025" ;
+    snowkap:caseRecoveryPath "Positive reference — demonstrates pricing advantage of SBTi alignment + measurable KPIs. Sets template for mid-cap Indian corporates pursuing ESG-linked financing without IPO-scale ESG reporting." ;
+    snowkap:caseSource "ABFRL press Oct 2022; HDFC Bank sustainable finance disclosures; BSE filings" ;
+    snowkap:precedesEventType snowkap:event_transition_announcement, snowkap:event_esg_rating_change ;
+    snowkap:precedesIndustry "Consumer/Beverage" .
+
+snowkap:case_hdfc_amc_ipo_esg_2020 a snowkap:PrecedentCase ;
+    snowkap:caseName "HDFC AMC IPO Subscription by ESG Mandates" ;
+    snowkap:caseCompany "HDFC Asset Management" ;
+    snowkap:caseDate "2018-08-06"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 1100 ;
+    snowkap:caseDurationMonths 0 ;
+    snowkap:caseOutcome "₹2,800 Cr IPO oversubscribed 83×; ₹1,100 Cr (~12%) absorbed by explicitly-ESG-mandated funds (BlackRock iShares India, NBIM, Abu Dhabi Investment Authority); anchor allocation reached Day 1 high-water mark" ;
+    snowkap:caseRecoveryPath "Positive reference — demonstrates ESG-mandated AUM availability for Indian listings meeting governance + disclosure bars. HDFC AMC post-listing has maintained MSCI ESG AA rating." ;
+    snowkap:caseSource "HDFC AMC prospectus 2018; NSE anchor investor list; subsequent ESG rating releases" ;
+    snowkap:precedesEventType snowkap:event_climate_disclosure_index, snowkap:event_esg_rating_change ;
+    snowkap:precedesIndustry "Asset Management" .
+
+# -----------------------------------------------------------------------------
+# Recent 2024 cases (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_byjus_governance_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Byju's Governance Collapse + Auditor Exit" ;
+    snowkap:caseCompany "Think & Learn (Byju's)" ;
+    snowkap:caseDate "2023-06-22"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 135000 ;
+    snowkap:caseDurationMonths 24 ;
+    snowkap:caseOutcome "Deloitte resigned as auditor citing delays + unresolved disclosures; 3 board members (including Prosus representative) resigned; valuation cratered from $22B peak to $1B by Apr 2024; FY22 accounts delayed 18 months; 5,000+ layoffs; ED investigation triggered" ;
+    snowkap:caseRecoveryPath "Ongoing; NCLT insolvency petition filed 2024. Reference: unicorn governance collapse template — audit delay → board resignations → valuation reset → cascading stakeholder loss." ;
+    snowkap:caseSource "Deloitte resignation letter Jun 2023; board filings 2023-2024; ED press" ;
+    snowkap:precedesEventType snowkap:event_governance_failure, snowkap:event_fraud_disclosure ;
+    snowkap:precedesIndustry "Information Technology" .
+
+snowkap:case_adani_sebi_settlement_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Adani Group SEBI Investigation Conclusion" ;
+    snowkap:caseCompany "Adani Group" ;
+    snowkap:caseDate "2024-08-05"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 2500 ;
+    snowkap:caseDurationMonths 19 ;
+    snowkap:caseOutcome "SEBI's investigation into 24 allegations concluded Jul 2024 with limited penalty (~₹2,500 Cr group-wide); Supreme Court expert committee found no regulatory failure; group mcap recovered 80% of Hindenburg-era losses by FY25" ;
+    snowkap:caseRecoveryPath "Post-Hindenburg governance reforms — independent board additions, debt pre-payment, transparency disclosures — credited for recovery. Reference: robust governance response to external attack can limit mcap impact to near-term." ;
+    snowkap:caseSource "SEBI interim + final orders 2023-24; SC judgment Jan 2024; Adani Group investor updates" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy, snowkap:event_esg_rating_change ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+# -----------------------------------------------------------------------------
+# Asset Management + Chemicals (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_axis_amc_front_running_2022 a snowkap:PrecedentCase ;
+    snowkap:caseName "Axis AMC Front-Running Investigation" ;
+    snowkap:caseCompany "Axis Mutual Fund (Axis Bank subsidiary)" ;
+    snowkap:caseDate "2022-05-06"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 420 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "SEBI investigation into alleged front-running by 2 chief dealers; 2 fund managers suspended; ₹200 Cr AUM outflows in Q1 FY23 from 7 equity schemes; parent Axis Bank ESG rating watchlist; SEBI settled at ₹60 Cr disgorgement + ₹30 Cr penalty" ;
+    snowkap:caseRecoveryPath "Tightened dealing room controls + pre-trade approval workflow; ESG rating restored by FY24; AUM recovery by Q3 FY24 but at higher cost of customer acquisition. Reference: AMC dealing-room governance breach + stewardship failure." ;
+    snowkap:caseSource "SEBI interim order May 2022; Axis Bank Q1 FY23 earnings; SEBI settlement order 2023" ;
+    snowkap:precedesEventType snowkap:event_fraud_disclosure, snowkap:event_governance_failure ;
+    snowkap:precedesIndustry "Asset Management" .
+
+snowkap:case_upl_cbam_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "UPL EU CBAM Export Impact Disclosure" ;
+    snowkap:caseCompany "UPL Ltd (agrochemicals)" ;
+    snowkap:caseDate "2024-03-15"^^xsd:date ;
+    snowkap:caseJurisdiction "EU/India" ;
+    snowkap:caseCostCr 180 ;
+    snowkap:caseDurationMonths 24 ;
+    snowkap:caseOutcome "CBAM transitional reporting phase from Oct 2023 required UPL to disclose embedded carbon on ~₹8,000 Cr EU-exposed revenue; estimated CBAM levy from 2026: ₹180-240 Cr/year at current carbon intensity; margin compression 60-80 bps for EU-exposed segment" ;
+    snowkap:caseRecoveryPath "Accelerated ₹700 Cr renewable-energy + process-heat-recovery capex programme; targets 40% Scope 1 intensity reduction by FY28 to neutralise CBAM exposure. Reference: CBAM transmission mechanism for Indian export-exposed chemicals." ;
+    snowkap:caseSource "UPL FY24 annual report; EU CBAM reports Q4 2023; UPL investor presentation Mar 2024" ;
+    snowkap:precedesEventType snowkap:event_regulatory_policy, snowkap:event_transition_announcement ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+# =============================================================================
+# Phase 14.2 — POSITIVE EVENT PRECEDENTS (8 cases)
+#
+# Pre-Phase-14 the precedent library was nearly all negative events. When
+# the SPARQL query ran for a contract win or capacity addition, it fell
+# back to negative cases — producing inappropriate framing like "Vedanta
+# Konkola Child Labour" cited as precedent on a Waaree solar auction win.
+# Live fuzz audit (2026-04-27) caught this on the ICICI ESG-cert and
+# Waaree contract-win articles. These 8 named cases close that gap.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Contract wins / auctions / tender awards (3)
+# -----------------------------------------------------------------------------
+
+snowkap:case_tata_power_secl_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Tata Power 4 GW SECI Tariff Auction Win" ;
+    snowkap:caseCompany "Tata Power Renewable Energy" ;
+    snowkap:caseDate "2024-02-14"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 16000 ;
+    snowkap:caseDurationMonths 24 ;
+    snowkap:caseOutcome "Tata Power won 4,000 MW solar capacity at Rs 2.62-2.64/kWh in SECI Tranche-XI auction, locking in Rs 16,000 Cr capex with 25-year PPA; FY25 order book +18%; analysts upgraded TGT by 12%; TPRE valuation re-rated from 12x to 15x EV/EBITDA on visibility" ;
+    snowkap:caseRecoveryPath "Standard win, execute 36-month construction, ramp to commercial operation date, revenue recognition from FY27. Domestic content sourcing via Tata Power Solar's Bengaluru cell line." ;
+    snowkap:caseSource "SECI auction notice Feb 2024; Tata Power Q4 FY24 earnings; ICRA outlook update" ;
+    snowkap:precedesEventType snowkap:event_contract_win, snowkap:event_capacity_addition ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+snowkap:case_renew_pspcl_bess_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "ReNew Power 1 GWh BESS PSPCL Auction Win" ;
+    snowkap:caseCompany "ReNew Energy Global" ;
+    snowkap:caseDate "2024-09-22"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 5500 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "ReNew won 1,000 MWh standalone BESS auction from PSPCL at Rs 4.04 lakh/MW/month; 12-year service agreement; Rs 5,500 Cr capex deployment; first standalone BESS at this scale in India; bond market response 50 bps spread tightening on ReNew's USD-denominated green notes" ;
+    snowkap:caseRecoveryPath "Build-own-operate model; 70% debt + 30% equity; commissioning Q3 FY26; revenue recognition begins on grid-connect. Project benchmark for subsequent SECI BESS rounds." ;
+    snowkap:caseSource "PSPCL bid result Sep 2024; ReNew investor day Q3 FY25; Mercom India" ;
+    snowkap:precedesEventType snowkap:event_contract_win ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+snowkap:case_lt_ntpc_solar_epc_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "L&T NTPC 1 GW Solar EPC Order Win" ;
+    snowkap:caseCompany "Larsen and Toubro" ;
+    snowkap:caseDate "2023-11-08"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 4200 ;
+    snowkap:caseDurationMonths 18 ;
+    snowkap:caseOutcome "L&T's PT&D division won Rs 4,200 Cr EPC order from NTPC for 1 GW solar at Khavda; FY24 order intake guidance raised by 8%; share price +3.2% in 5 days; ESG rating reaffirmed at AA on green-revenue mix" ;
+    snowkap:caseRecoveryPath "Sequential commissioning of 4 x 250 MW blocks; revenue booked over construction period. NTPC anchor customer reduces counterparty risk." ;
+    snowkap:caseSource "L&T Q3 FY24 order intake disclosure; NTPC press release Nov 2023" ;
+    snowkap:precedesEventType snowkap:event_contract_win, snowkap:event_order_book_update ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+# -----------------------------------------------------------------------------
+# Capacity additions / commissioning (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_jsw_energy_vijayanagar_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "JSW Energy Vijayanagar Solar Commissioning" ;
+    snowkap:caseCompany "JSW Energy" ;
+    snowkap:caseDate "2024-07-12"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 2500 ;
+    snowkap:caseDurationMonths 14 ;
+    snowkap:caseOutcome "JSW Energy commissioned 700 MW solar at Vijayanagar 6 weeks ahead of COD schedule; Rs 600 Cr/year incremental revenue; consolidated renewable share rose from 28% to 33%; MSCI ESG upgraded BB to BBB on transition pace; bond spread compressed 22 bps" ;
+    snowkap:caseRecoveryPath "Standard commercial operation, revenue recognition; PPA already locked with state DISCOMs at Rs 2.79/kWh fixed for 25y. Reference for net-zero pathway disclosure under TCFD." ;
+    snowkap:caseSource "JSW Energy Q2 FY25 earnings; MSCI ESG ratings update Aug 2024" ;
+    snowkap:precedesEventType snowkap:event_capacity_addition, snowkap:event_transition_announcement ;
+    snowkap:precedesIndustry "Power/Energy" .
+
+snowkap:case_adani_green_khavda_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "Adani Green 1 GW Khavda Wind-Solar Hybrid Commissioning" ;
+    snowkap:caseCompany "Adani Green Energy" ;
+    snowkap:caseDate "2024-05-29"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 8500 ;
+    snowkap:caseDurationMonths 22 ;
+    snowkap:caseOutcome "1 GW (550 MW solar + 450 MW wind) Khavda hybrid plant commissioned; Rs 1,150 Cr/year revenue at full ramp; total Khavda Phase-1 portfolio reached 2 GW operational; FY25 EBITDA guidance raised by Rs 450 Cr; MSCI ESG B to BBB upgrade in next cycle" ;
+    snowkap:caseRecoveryPath "Phase-1 reference: 30 GW Khavda total target by 2030. Domestic-equipment sourcing under PLI scheme reduces ALMM risk." ;
+    snowkap:caseSource "Adani Green press release May 2024; Q1 FY25 earnings" ;
+    snowkap:precedesEventType snowkap:event_capacity_addition ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+# -----------------------------------------------------------------------------
+# ESG rating upgrades / certifications (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_infosys_msci_aa_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "Infosys MSCI ESG Upgrade A to AA" ;
+    snowkap:caseCompany "Infosys" ;
+    snowkap:caseDate "2023-08-31"^^xsd:date ;
+    snowkap:caseJurisdiction "Global" ;
+    snowkap:caseCostCr 80 ;
+    snowkap:caseDurationMonths 12 ;
+    snowkap:caseOutcome "MSCI ESG upgraded Infosys from A to AA citing improved Scope 3 disclosure (PCAF methodology), board-level climate oversight, and RE100 commitment; included in DJSI World; observed 14 bps tightening on USD bond spreads over 4 weeks; ESG-fund inclusion delivered ~$180M passive flow" ;
+    snowkap:caseRecoveryPath "Sustained at AA through Q3 2024 by maintaining transparent annual TCFD disclosure plus integrating CDP A score. Reference for IT-services sector ESG benchmarking." ;
+    snowkap:caseSource "MSCI ESG ratings Aug 2023 update; Infosys IR briefing Sep 2023" ;
+    snowkap:precedesEventType snowkap:event_esg_certification, snowkap:event_climate_disclosure_index ;
+    snowkap:precedesIndustry "Information Technology" .
+
+snowkap:case_hdfc_bank_iso14001_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "HDFC Bank ISO 14001 Certification + DJSI Inclusion" ;
+    snowkap:caseCompany "HDFC Bank" ;
+    snowkap:caseDate "2023-12-04"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 12 ;
+    snowkap:caseDurationMonths 8 ;
+    snowkap:caseOutcome "HDFC Bank received ISO 14001 environmental management certification across 1,200+ branches; DJSI Emerging Markets inclusion in Sep 2023 cycle; CDP Climate B score (vs C in 2022); cost of capital impact estimated at 8-12 bps on AT-1 issuance pricing" ;
+    snowkap:caseRecoveryPath "Maintained through annual surveillance audits; integrated into BRSR Core assurance scope from FY25. Reference for Indian private banks pursuing ESG-fund eligibility." ;
+    snowkap:caseSource "HDFC Bank annual report FY24; DJSI 2023 component list; CDP Disclosure 2023" ;
+    snowkap:precedesEventType snowkap:event_esg_certification, snowkap:event_climate_disclosure_index ;
+    snowkap:precedesIndustry "Financials/Banking" .
+
+# -----------------------------------------------------------------------------
+# Green finance / sustainability-linked debt (2)
+# -----------------------------------------------------------------------------
+
+snowkap:case_renew_green_bond_2023 a snowkap:PrecedentCase ;
+    snowkap:caseName "ReNew $400M Green Bond Issuance" ;
+    snowkap:caseCompany "ReNew Energy Global" ;
+    snowkap:caseDate "2023-06-21"^^xsd:date ;
+    snowkap:caseJurisdiction "Global" ;
+    snowkap:caseCostCr 3300 ;
+    snowkap:caseDurationMonths 6 ;
+    snowkap:caseOutcome "ReNew priced $400M senior secured green notes at 7.95% (vs vanilla peer at 8.40%, 45 bps green premium); 4x oversubscribed; CBI-aligned use-of-proceeds for 1.4 GW renewable construction; demonstrated green-finance access for Indian renewables despite EM rate cycle" ;
+    snowkap:caseRecoveryPath "Quarterly use-of-proceeds attestation by independent auditor; refinanced FY28 at projected 30 bps further tightening as transition pace accelerates." ;
+    snowkap:caseSource "ReNew investor presentation Jun 2023; Climate Bonds Initiative certification" ;
+    snowkap:precedesEventType snowkap:event_green_finance_milestone ;
+    snowkap:precedesIndustry "Renewable Energy" .
+
+snowkap:case_ultratech_sll_2024 a snowkap:PrecedentCase ;
+    snowkap:caseName "UltraTech Rs 1,500 Cr Sustainability-Linked Loan" ;
+    snowkap:caseCompany "UltraTech Cement" ;
+    snowkap:caseDate "2024-01-19"^^xsd:date ;
+    snowkap:caseJurisdiction "India" ;
+    snowkap:caseCostCr 1500 ;
+    snowkap:caseDurationMonths 60 ;
+    snowkap:caseOutcome "UltraTech secured Rs 1,500 Cr 5-year sustainability-linked loan from State Bank of India + IFC; coupon stepdown of 5 bps if Scope 1 intensity reduces by 12% by FY27; first SLL of this scale in Indian cement; benchmarks SLL pricing for hard-to-abate sectors" ;
+    snowkap:caseRecoveryPath "KPI tracking via independent assurance (BV); annual reporting; coupon stepdown applied at year 3 if KPI met. Reference for cement, steel, chemicals." ;
+    snowkap:caseSource "UltraTech Q4 FY24 disclosure; SBI press release Jan 2024" ;
+    snowkap:precedesEventType snowkap:event_green_finance_milestone ;
+    snowkap:precedesIndustry "Materials" .

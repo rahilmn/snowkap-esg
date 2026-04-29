@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi.responses import JSONResponse
 
 from api.auth import require_api_key
 from engine.config import get_company, get_data_path
 from engine.index.sqlite_index import get_by_id, query_feed
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["insights"], dependencies=[Depends(require_api_key)])
 
@@ -39,28 +43,78 @@ def company_insights(
     return {"count": len(rows), "company_slug": slug, "items": rows}
 
 
-@router.get("/api/insights/{article_id}")
+def _trigger_background_regenerate(article_id: str, slug: str) -> None:
+    """Phase 13 B4: schedule on-demand re-enrichment when an indexed JSON
+    file is missing or malformed. Best-effort — failures here are logged
+    but never block the user-facing 202 response."""
+    try:
+        from engine.analysis.on_demand import enrich_on_demand
+        enrich_on_demand(article_id=article_id, company_slug=slug, force=True)
+    except Exception:  # noqa: BLE001 — background task, log + swallow
+        logger.exception("background regenerate failed for %s/%s", slug, article_id)
+
+
+# response_model=None: this endpoint returns either dict (200) or
+# JSONResponse (202 regenerating). FastAPI can't auto-derive a response
+# model from the union, so we suppress schema generation here.
+@router.get("/api/insights/{article_id}", response_model=None)
 def insight_detail(
     article_id: str,
+    background_tasks: BackgroundTasks,
     perspective: str | None = Query(
         None, regex="^(cfo|ceo|esg-analyst)$", description="Return perspective-specific view"
     ),
-) -> dict:
+):
     row = get_by_id(article_id)
     if not row:
         raise HTTPException(status_code=404, detail=f"Insight {article_id} not found")
 
     json_path = _resolve_json_path(row["json_path"])
-    if not json_path.exists():
-        raise HTTPException(
-            status_code=500,
-            detail=f"Indexed file missing on disk: {row['json_path']}",
+
+    # Phase 13 B4: graceful fallback when the indexed file is missing or
+    # malformed (truncated mid-write, stale path, encoding error). Instead
+    # of returning a raw 500 with stack trace (which kills demo trust),
+    # return HTTP 202 + queue a background re-enrichment job. The UI can
+    # poll the article-status endpoint and re-fetch when ready.
+    def _regen_response(reason: str) -> JSONResponse:
+        slug = (row.get("company_slug") or "").strip()
+        if slug:
+            background_tasks.add_task(_trigger_background_regenerate, article_id, slug)
+        logger.warning(
+            "insight_detail: serving 202 regenerating for %s (reason=%s)",
+            article_id, reason,
+        )
+        return JSONResponse(
+            status_code=202,
+            content={
+                "state": "regenerating",
+                "article_id": article_id,
+                "reason": reason,
+                "retry_after_seconds": 30,
+            },
+            headers={"Retry-After": "30"},
         )
 
+    if not json_path.exists():
+        return _regen_response("file_missing_on_disk")
+
     try:
-        payload = json.loads(json_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise HTTPException(status_code=500, detail=f"Failed to read insight JSON: {exc}") from exc
+        raw = json_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        logger.error("insight_detail: read failed for %s: %s", json_path, exc)
+        return _regen_response(f"read_failed:{type(exc).__name__}")
+    except UnicodeDecodeError as exc:
+        logger.error("insight_detail: encoding error for %s: %s", json_path, exc)
+        return _regen_response("encoding_error")
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        logger.error(
+            "insight_detail: malformed JSON for %s at line %d col %d: %s",
+            json_path, exc.lineno, exc.colno, exc.msg,
+        )
+        return _regen_response("malformed_json")
 
     if perspective:
         # Return only the requested perspective view + article metadata

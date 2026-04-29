@@ -1,0 +1,288 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — UN SDG Targets (Phase 4)
+#
+# 25 material SDG targets with ESG topic triggers + corporate action mapping.
+# Used by the ESG Analyst generator so citations are specific ("SDG 8.7 —
+# forced labour eradication") not vague ("SDG 8").
+# =============================================================================
+
+snowkap:SDGTarget a owl:Class ;
+    rdfs:label "SDG Target"@en ;
+    rdfs:comment "A specific sub-target within a UN Sustainable Development Goal."@en .
+
+snowkap:sdgGoalNumber a owl:DatatypeProperty ;
+    rdfs:domain snowkap:SDGTarget ; rdfs:range xsd:integer .
+snowkap:sdgTargetCode a owl:DatatypeProperty ;
+    rdfs:domain snowkap:SDGTarget ; rdfs:range xsd:string ;
+    rdfs:comment "e.g., '8.7'"@en .
+snowkap:sdgTargetTitle a owl:DatatypeProperty ;
+    rdfs:domain snowkap:SDGTarget ; rdfs:range xsd:string .
+snowkap:sdgTargetDescription a owl:DatatypeProperty ;
+    rdfs:domain snowkap:SDGTarget ; rdfs:range xsd:string .
+snowkap:sdgTopicTrigger a owl:DatatypeProperty ;
+    rdfs:domain snowkap:SDGTarget ; rdfs:range xsd:string ;
+    rdfs:comment "comma-separated topic slugs that trigger this SDG mapping"@en .
+snowkap:sdgCorporateAction a owl:DatatypeProperty ;
+    rdfs:domain snowkap:SDGTarget ; rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# SDG 5 — Gender Equality
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_5_5 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 5 ;
+    snowkap:sdgTargetCode "5.5" ;
+    snowkap:sdgTargetTitle "Women's full and effective participation in leadership" ;
+    snowkap:sdgTargetDescription "Ensure women's full participation and equal opportunities for leadership at all levels of decision-making" ;
+    snowkap:sdgTopicTrigger "women_board, women_workforce, diversity_inclusion, board_governance, executive_succession" ;
+    snowkap:sdgCorporateAction "Board composition targets; succession pipeline transparency; pay equity audits" .
+
+# -----------------------------------------------------------------------------
+# SDG 6 — Clean Water and Sanitation
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_6_3 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 6 ;
+    snowkap:sdgTargetCode "6.3" ;
+    snowkap:sdgTargetTitle "Water quality and pollution reduction" ;
+    snowkap:sdgTargetDescription "Improve water quality by reducing pollution, eliminating dumping, halving untreated wastewater" ;
+    snowkap:sdgTopicTrigger "water_pollution, hazardous_waste, environmental_violation, effluent_discharge" ;
+    snowkap:sdgCorporateAction "Zero liquid discharge (ZLD); effluent treatment capex; CPCB compliance audit" .
+
+snowkap:sdg_6_4 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 6 ;
+    snowkap:sdgTargetCode "6.4" ;
+    snowkap:sdgTargetTitle "Water-use efficiency" ;
+    snowkap:sdgTargetDescription "Substantially increase water-use efficiency across all sectors; ensure sustainable withdrawals and address water scarcity" ;
+    snowkap:sdgTopicTrigger "water_stress, water_intensity, drought, community_conflict, land_acquisition" ;
+    snowkap:sdgCorporateAction "Water-use intensity targets; STP/treated water sourcing; community water partnerships" .
+
+# -----------------------------------------------------------------------------
+# SDG 7 — Affordable and Clean Energy
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_7_2 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 7 ;
+    snowkap:sdgTargetCode "7.2" ;
+    snowkap:sdgTargetTitle "Substantially increase renewable energy share" ;
+    snowkap:sdgTargetDescription "Substantially increase the share of renewable energy in the global energy mix by 2030" ;
+    snowkap:sdgTopicTrigger "renewable_energy, transition_announcement, coal_emissions, energy_transition, green_bonds" ;
+    snowkap:sdgCorporateAction "RE100 commitment; renewable PPA signings; coal phase-out timeline disclosure" .
+
+snowkap:sdg_7_3 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 7 ;
+    snowkap:sdgTargetCode "7.3" ;
+    snowkap:sdgTargetTitle "Double the rate of improvement in energy efficiency" ;
+    snowkap:sdgTargetDescription "Double the global rate of improvement in energy efficiency by 2030" ;
+    snowkap:sdgTopicTrigger "energy_intensity, energy_efficiency, industrial_process, transition_announcement" ;
+    snowkap:sdgCorporateAction "ISO 50001 certification; process heat recovery; DC modernisation" .
+
+# -----------------------------------------------------------------------------
+# SDG 8 — Decent Work and Economic Growth
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_8_5 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 8 ;
+    snowkap:sdgTargetCode "8.5" ;
+    snowkap:sdgTargetTitle "Full and productive employment and decent work" ;
+    snowkap:sdgTargetDescription "Achieve full and productive employment with equal pay for work of equal value" ;
+    snowkap:sdgTopicTrigger "workforce_policy, diversity_inclusion, fair_wages, decent_work" ;
+    snowkap:sdgCorporateAction "Pay equity audit; minimum wage + living wage commitments; job-retention disclosure" .
+
+snowkap:sdg_8_7 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 8 ;
+    snowkap:sdgTargetCode "8.7" ;
+    snowkap:sdgTargetTitle "Eradicate forced labour, modern slavery, human trafficking, child labour" ;
+    snowkap:sdgTargetDescription "Take immediate and effective measures to eradicate forced labour, end modern slavery and human trafficking, secure the prohibition and elimination of the worst forms of child labour" ;
+    snowkap:sdgTopicTrigger "forced_labour, child_labour, modern_slavery, wage_theft, supply_chain_labour, social_violation" ;
+    snowkap:sdgCorporateAction "UK Modern Slavery Act statement; supplier audit coverage %; whistleblower system; grievance mechanism" .
+
+snowkap:sdg_8_8 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 8 ;
+    snowkap:sdgTargetCode "8.8" ;
+    snowkap:sdgTargetTitle "Protect labour rights and safe working environments" ;
+    snowkap:sdgTargetDescription "Protect labour rights and promote safe and secure working environments for all workers, including migrant workers" ;
+    snowkap:sdgTopicTrigger "occupational_health, labour_strike, workforce_policy, factory_audit, workplace_safety" ;
+    snowkap:sdgCorporateAction "ISO 45001 certification; LTIFR/fatality disclosure; grievance response time SLA" .
+
+# -----------------------------------------------------------------------------
+# SDG 9 — Industry, Innovation and Infrastructure
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_9_4 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 9 ;
+    snowkap:sdgTargetCode "9.4" ;
+    snowkap:sdgTargetTitle "Retrofit industries for sustainability" ;
+    snowkap:sdgTargetDescription "Upgrade infrastructure and retrofit industries with increased resource-use efficiency and greater adoption of clean technologies" ;
+    snowkap:sdgTopicTrigger "capex, transition_announcement, industrial_process, technology_upgrade" ;
+    snowkap:sdgCorporateAction "Transition capex ring-fenced (≥30% of total capex by 2030); technology roadmap disclosure" .
+
+# -----------------------------------------------------------------------------
+# SDG 11 — Sustainable Cities and Communities
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_11_6 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 11 ;
+    snowkap:sdgTargetCode "11.6" ;
+    snowkap:sdgTargetTitle "Reduce environmental impact of cities (air quality, waste)" ;
+    snowkap:sdgTargetDescription "Reduce the adverse per-capita environmental impact of cities, including by paying attention to air quality and municipal waste management" ;
+    snowkap:sdgTopicTrigger "air_quality, pollution, emissions, community_conflict, urban_operations" ;
+    snowkap:sdgCorporateAction "PM2.5/PM10/NOx/SO2 monitoring; emission source inventory; neighbourhood air-quality stations" .
+
+# -----------------------------------------------------------------------------
+# SDG 12 — Responsible Consumption and Production
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_12_2 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 12 ;
+    snowkap:sdgTargetCode "12.2" ;
+    snowkap:sdgTargetTitle "Sustainable management and efficient use of natural resources" ;
+    snowkap:sdgTargetDescription "Achieve sustainable management and efficient use of natural resources by 2030" ;
+    snowkap:sdgTopicTrigger "resource_efficiency, material_intensity, supply_chain_sustainability, commodity_exposure" ;
+    snowkap:sdgCorporateAction "Material circularity indicators (MCI); recycled content %; eco-design certifications" .
+
+snowkap:sdg_12_5 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 12 ;
+    snowkap:sdgTargetCode "12.5" ;
+    snowkap:sdgTargetTitle "Substantially reduce waste generation" ;
+    snowkap:sdgTargetDescription "Substantially reduce waste generation through prevention, reduction, recycling and reuse" ;
+    snowkap:sdgTopicTrigger "waste_generation, hazardous_waste, circular_economy, e_waste, EPR_compliance" ;
+    snowkap:sdgCorporateAction "Zero-waste-to-landfill targets; EPR compliance; closed-loop supply programs" .
+
+snowkap:sdg_12_6 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 12 ;
+    snowkap:sdgTargetCode "12.6" ;
+    snowkap:sdgTargetTitle "Adopt sustainable practices and sustainability reporting" ;
+    snowkap:sdgTargetDescription "Encourage companies to adopt sustainable practices and integrate sustainability information into reporting cycle" ;
+    snowkap:sdgTopicTrigger "BRSR_filing, CSRD, climate_disclosure, mandatory_disclosure, assurance" ;
+    snowkap:sdgCorporateAction "Third-party assurance on BRSR/CSRD; integrated reporting; TCFD-aligned financial disclosures" .
+
+# -----------------------------------------------------------------------------
+# SDG 13 — Climate Action
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_13_1 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 13 ;
+    snowkap:sdgTargetCode "13.1" ;
+    snowkap:sdgTargetTitle "Strengthen resilience to climate-related hazards" ;
+    snowkap:sdgTargetDescription "Strengthen resilience and adaptive capacity to climate-related hazards and natural disasters in all countries" ;
+    snowkap:sdgTopicTrigger "physical_risk, climate_disaster, extreme_weather, flood, drought, adaptation_capex" ;
+    snowkap:sdgCorporateAction "TCFD physical risk assessment; site-level climate vulnerability maps; adaptation capex ring-fence" .
+
+snowkap:sdg_13_2 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 13 ;
+    snowkap:sdgTargetCode "13.2" ;
+    snowkap:sdgTargetTitle "Integrate climate change into national and corporate policy" ;
+    snowkap:sdgTargetDescription "Integrate climate change measures into national policies, strategies and planning" ;
+    snowkap:sdgTopicTrigger "climate_disclosure, transition_announcement, TCFD, strategy" ;
+    snowkap:sdgCorporateAction "SBTi target; internal carbon price; climate-linked executive compensation" .
+
+snowkap:sdg_13_3 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 13 ;
+    snowkap:sdgTargetCode "13.3" ;
+    snowkap:sdgTargetTitle "Education, awareness-raising, capacity on climate" ;
+    snowkap:sdgTargetDescription "Improve education, awareness-raising and human and institutional capacity on climate change mitigation and adaptation" ;
+    snowkap:sdgTopicTrigger "sustainability_reporting, training, stakeholder_engagement" ;
+    snowkap:sdgCorporateAction "Climate awareness training; supplier capacity building; community education programs" .
+
+# -----------------------------------------------------------------------------
+# SDG 15 — Life on Land
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_15_1 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 15 ;
+    snowkap:sdgTargetCode "15.1" ;
+    snowkap:sdgTargetTitle "Conserve terrestrial ecosystems" ;
+    snowkap:sdgTargetDescription "Ensure the conservation, restoration and sustainable use of terrestrial and inland freshwater ecosystems" ;
+    snowkap:sdgTopicTrigger "biodiversity, land_acquisition, deforestation, wetland_destruction" ;
+    snowkap:sdgCorporateAction "TNFD disclosure; no-deforestation commitments; mangrove / wetland restoration" .
+
+snowkap:sdg_15_5 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 15 ;
+    snowkap:sdgTargetCode "15.5" ;
+    snowkap:sdgTargetTitle "Halt biodiversity loss" ;
+    snowkap:sdgTargetDescription "Take urgent and significant action to reduce the degradation of natural habitats, halt the loss of biodiversity" ;
+    snowkap:sdgTopicTrigger "biodiversity, community_conflict, land_acquisition, habitat_destruction" ;
+    snowkap:sdgCorporateAction "Species impact assessment; habitat offset + restoration; TNFD reporting" .
+
+# -----------------------------------------------------------------------------
+# SDG 16 — Peace, Justice and Strong Institutions
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_16_5 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 16 ;
+    snowkap:sdgTargetCode "16.5" ;
+    snowkap:sdgTargetTitle "Substantially reduce corruption and bribery" ;
+    snowkap:sdgTargetDescription "Substantially reduce corruption and bribery in all their forms" ;
+    snowkap:sdgTopicTrigger "fraud_disclosure, corruption, bribery, insider_trading, governance_failure" ;
+    snowkap:sdgCorporateAction "Anti-bribery certification (ISO 37001); whistleblower hotline; gift-and-hospitality registers" .
+
+snowkap:sdg_16_6 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 16 ;
+    snowkap:sdgTargetCode "16.6" ;
+    snowkap:sdgTargetTitle "Develop effective, accountable and transparent institutions" ;
+    snowkap:sdgTargetDescription "Develop effective, accountable and transparent institutions at all levels" ;
+    snowkap:sdgTopicTrigger "governance_failure, regulatory_policy, related_party_transactions, audit_committee, board_governance" ;
+    snowkap:sdgCorporateAction "Board independence disclosure; audit committee charter publication; related-party transaction policy" .
+
+snowkap:sdg_16_7 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 16 ;
+    snowkap:sdgTargetCode "16.7" ;
+    snowkap:sdgTargetTitle "Responsive, inclusive and representative decision-making" ;
+    snowkap:sdgTargetDescription "Ensure responsive, inclusive, participatory and representative decision-making at all levels" ;
+    snowkap:sdgTopicTrigger "stakeholder_engagement, community_conflict, shareholder_activism, proxy" ;
+    snowkap:sdgCorporateAction "Stakeholder dialogue forums; community grievance mechanisms; proxy voting disclosures" .
+
+# -----------------------------------------------------------------------------
+# SDG 3 — Good Health and Well-Being
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_3_9 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 3 ;
+    snowkap:sdgTargetCode "3.9" ;
+    snowkap:sdgTargetTitle "Reduce deaths and illnesses from hazardous substances and pollution" ;
+    snowkap:sdgTargetDescription "Substantially reduce the number of deaths and illnesses from hazardous chemicals and air, water and soil pollution" ;
+    snowkap:sdgTopicTrigger "air_quality, water_pollution, hazardous_waste, occupational_health" ;
+    snowkap:sdgCorporateAction "Stack emission monitoring; chemicals handling protocol; occupational exposure audits" .
+
+# -----------------------------------------------------------------------------
+# SDG 4 — Quality Education
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_4_4 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 4 ;
+    snowkap:sdgTargetCode "4.4" ;
+    snowkap:sdgTargetTitle "Increase skills for employment and entrepreneurship" ;
+    snowkap:sdgTargetDescription "Substantially increase the number of youth and adults who have relevant skills, including technical and vocational, for employment" ;
+    snowkap:sdgTopicTrigger "workforce_policy, training, skills_development, community_investment" ;
+    snowkap:sdgCorporateAction "Training-hours-per-employee disclosure; apprenticeship programs; CSR skilling spend" .
+
+# -----------------------------------------------------------------------------
+# SDG 10 — Reduced Inequalities
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_10_4 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 10 ;
+    snowkap:sdgTargetCode "10.4" ;
+    snowkap:sdgTargetTitle "Fiscal and wage policies for equality" ;
+    snowkap:sdgTargetDescription "Adopt policies, especially fiscal, wage and social protection policies, and progressively achieve greater equality" ;
+    snowkap:sdgTopicTrigger "wage_theft, compensation, fair_wages, diversity_inclusion" ;
+    snowkap:sdgCorporateAction "Living wage certification; CEO pay-ratio disclosure; contract worker benefit alignment" .
+
+# -----------------------------------------------------------------------------
+# SDG 17 — Partnerships for the Goals
+# -----------------------------------------------------------------------------
+
+snowkap:sdg_17_17 a snowkap:SDGTarget ;
+    snowkap:sdgGoalNumber 17 ;
+    snowkap:sdgTargetCode "17.17" ;
+    snowkap:sdgTargetTitle "Effective public, public-private and civil society partnerships" ;
+    snowkap:sdgTargetDescription "Encourage and promote effective public, public-private and civil society partnerships" ;
+    snowkap:sdgTopicTrigger "stakeholder_engagement, community_investment, sustainable_bonds, green_finance" ;
+    snowkap:sdgCorporateAction "Multi-stakeholder MoUs; blended-finance participation; SDG-aligned reporting framework" .

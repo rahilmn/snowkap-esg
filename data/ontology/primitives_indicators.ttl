@@ -1,0 +1,834 @@
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — Indicator Instances + IndicatorEdges (Order-1)
+# Source: PART 1.txt §4-§6 (rubrics A–AK), §7e (materialized indicator ontology)
+#
+# Contents:
+#   - 37 qualitative rubrics (snw:Indicator, indicatorType "qualitative")
+#   - 40 quantitative indicators (snw:Indicator, indicatorType "quantitative")
+#   - 40 IndicatorEdge instances (IND→P) spanning all 22 primitives
+# =============================================================================
+
+# =============================================================================
+# SECTION 1 — Qualitative Rubrics (37, labels A–AK)
+# Each rubric is a 0–10 scale qualitative signal.
+# Scale levels embedded in rdfs:comment.
+# =============================================================================
+
+snw:ind_advisory_severity a snw:Indicator ;
+    rdfs:label "Advisory Severity Score (Rubric A)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no advisories; 2=one minor advisory; 4=multiple advisories with operational impact; 6=clear disruption warnings; 8=severe advisories with sustained impact; 10=active crisis dominating planning"@en .
+
+snw:ind_sentiment_score a snw:Indicator ;
+    rdfs:label "Customer/Channel Sentiment Score (Rubric B)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no signal; 2=anecdotal; 4=consistent mentions; 6=strong directional signal; 8=broad confirmation; 10=demand narrative dominant"@en .
+
+snw:ind_rfp_narrative a snw:Indicator ;
+    rdfs:label "RFP Narrative Score (Rubric C)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no signal; 2=one-off commentary; 4=multiple narratives; 6=clear pattern; 8=strong sustained shift; 10=dominant driver"@en .
+
+snw:ind_disruption_signal a snw:Indicator ;
+    rdfs:label "Logistics Disruption Signal (Rubric D)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=minor local delays; 4=repeated lane/supplier disruption; 6=material expedite/reroute; 8=widespread; 10=severe dominates logistics outcomes"@en .
+
+snw:ind_policy_signal a snw:Indicator ;
+    rdfs:label "Energy Policy Signal (Rubric E)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=early rhetoric; 4=credible proposals; 6=pricing response visible; 8=implemented materially moving prices; 10=regime shift dominates price formation"@en .
+
+snw:ind_deferral_signal a snw:Indicator ;
+    rdfs:label "Maintenance Deferral Signal (Rubric F)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no deferral; 2=isolated; 4=multiple with backlog; 6=material backlog stressing risk controls; 8=chronic with elevated downtime risk; 10=severe deferral state"@en .
+
+snw:ind_finding_severity a snw:Indicator ;
+    rdfs:label "Cyber Finding Severity (Rubric G)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no findings; 2=minor low-exploitability; 4=several medium; 6=significant with credible exploit path; 8=multiple critical urgent; 10=active exploitation imminent"@en .
+
+snw:ind_audit_severity a snw:Indicator ;
+    rdfs:label "Audit Severity (Rubric H)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no adverse audit signal; 2=minor nonconformities; 4=repeated; 6=major with leadership escalation; 8=critical outcome; 10=severe audit failure dominates"@en .
+
+snw:ind_report_severity a snw:Indicator ;
+    rdfs:label "Compliance Report Severity (Rubric I)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no reports; 2=low-severity complaints; 4=formal complaints or repeated regulator engagement; 6=notice-like engagement; 8=strong enforcement posture; 10=enforcement action imminent"@en .
+
+snw:ind_employer_brand_score a snw:Indicator ;
+    rdfs:label "Employer Brand Score (Rubric J)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no signal; 2=weak (small review movement); 4=clear deterioration/improvement; 6=strong trend affecting hiring/retention; 8=materially constraining workforce; 10=dominates staffing outcomes"@en .
+
+snw:ind_dispute_signal a snw:Indicator ;
+    rdfs:label "Labor Dispute Signal (Rubric K)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=low-level tensions; 4=credible dispute risk; 6=active dispute conditions; 8=high disruption probability; 10=severe dispute dominates"@en .
+
+snw:ind_water_restriction_severity a snw:Indicator ;
+    rdfs:label "Water Restriction Severity (Rubric L)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no signal; 2=mild likelihood; 4=credible movement; 6=restrictions likely/partly imposed; 8=strong materially limiting withdrawals; 10=severe dominates water availability"@en .
+
+snw:ind_curtailment_signal a snw:Indicator ;
+    rdfs:label "Energy Curtailment Signal (Rubric M)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=minor/short event; 4=repeated guidance; 6=material actions in place; 8=sustained materially reducing EU; 10=dominates operational profile"@en .
+
+snw:ind_fuel_switch_signal a snw:Indicator ;
+    rdfs:label "Fuel Switch Signal (Rubric N)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=early intent/small pilots; 4=clear plans partial execution; 6=execution underway at scale; 8=major switching changing emissions profile; 10=dominates near-term GHG"@en .
+
+snw:ind_efficiency_delta_signal a snw:Indicator ;
+    rdfs:label "Efficiency Delta Signal (Rubric O)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=small minor events; 4=repeated; 6=material change impacting emissions; 8=large shifts dominating emissions; 10=regime shift dominates"@en .
+
+snw:ind_permit_state a snw:Indicator ;
+    rdfs:label "Project Permit State (Rubric P)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no movement; 2=early-stage; 4=progressing moderate certainty; 6=approvals likely; 8=approved/near-final activation imminent; 10=permits drive capex spend"@en .
+
+snw:ind_supplier_capacity_signal a snw:Indicator ;
+    rdfs:label "Supplier Capacity Signal (Rubric Q)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=mild manageable; 4=repeated affecting timelines; 6=material pace adjustment; 8=severe limiting capex pace; 10=dominates capex execution"@en .
+
+snw:ind_notice_count a snw:Indicator ;
+    rdfs:label "Supplier Notice Count (Rubric R)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no notices; 2=1 minor; 4=multiple or major; 6=broad-based with mitigation underway; 8=sustained clear cost pressure; 10=dominant driver of cost renegotiation"@en .
+
+snw:ind_approval_state a snw:Indicator ;
+    rdfs:label "Capex Approval State (Rubric S)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=projects paused; 2=early-stage discussion; 4=active review material uncertainty; 6=likely approval; 8=greenlit mobilisation underway; 10=approvals pace capex spend"@en .
+
+snw:ind_process_change a snw:Indicator ;
+    rdfs:label "Process Change Signal (Rubric T)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=minor trials negligible; 4=several with early yield variability; 6=material affecting yield; 8=major program impacting waste; 10=dominates waste dynamics"@en .
+
+snw:ind_alert_severity a snw:Indicator ;
+    rdfs:label "Geopolitical Alert Severity (Rubric U)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=low-level low-likelihood; 4=credible lane/supplier alerts; 6=material contingency actions; 8=severe high-probability; 10=active disruption dominates supply risk"@en .
+
+snw:ind_community_conflict_signal a snw:Indicator ;
+    rdfs:label "Community Conflict Signal (Rubric V)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=low-level complaints; 4=repeated; 6=material conflict credible constraints; 8=severe shutdown risk high; 10=dominates water/operational continuity"@en .
+
+snw:ind_supplier_spec_change a snw:Indicator ;
+    rdfs:label "Supplier Material Spec Change (Rubric W)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=one minor low yield impact; 4=multiple early variability; 6=material affecting waste; 8=severe incompatibilities rework dominates; 10=spec changes dominate waste"@en .
+
+snw:ind_incident_advisory_severity a snw:Indicator ;
+    rdfs:label "Incident Advisory Severity (Rubric X)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=minor low likelihood; 4=credible mitigation planning; 6=high-likelihood controls stressed; 8=severe downtime probability high; 10=advisories dominate downtime risk"@en .
+
+snw:ind_third_party_risk a snw:Indicator ;
+    rdfs:label "Third-Party Risk Assessment (Rubric Y)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=low in one vendor; 4=several vendor issues; 6=material remediation/segmentation; 8=severe incident probability higher; 10=third-party risk dominates cyber"@en .
+
+snw:ind_bank_guidance a snw:Indicator ;
+    rdfs:label "Bank Guidance Signal (Rubric Z)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no/neutral; 2=mild tightening; 4=clear tightening terms shift; 6=material availability reduced; 8=severe refinancing difficult; 10=guidance dominates credit availability"@en .
+
+snw:ind_risk_off_sentiment a snw:Indicator ;
+    rdfs:label "Risk-Off Sentiment Narrative (Rubric AA)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=early tone; 4=broad spreads reacting; 6=sustained financing tightens; 8=severe market shut; 10=risk-off dominates credit outcomes"@en .
+
+snw:ind_policy_uncertainty a snw:Indicator ;
+    rdfs:label "Policy Uncertainty Score (Rubric AB)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none meaningful; 2=mild; 4=credible affecting expectations; 6=high affecting hedging; 8=severe driving FX repricing; 10=uncertainty dominates FX dynamics"@en .
+
+snw:ind_political_risk a snw:Indicator ;
+    rdfs:label "Political Risk Score (Rubric AC)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=mild isolated; 4=persistent investor behavior changes; 6=high capital controls plausible; 8=severe FX volatility dominates; 10=political risk dominates FX"@en .
+
+snw:ind_regulatory_signal a snw:Indicator ;
+    rdfs:label "Regulatory Signal Score (Rubric AD)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none notable; 2=mild; 4=clear tighter stance; 6=strong signaling with early actions; 8=severe enforcement shift imminent; 10=signaling dominates expectations"@en .
+
+snw:ind_early_warning_severity a snw:Indicator ;
+    rdfs:label "Extreme Weather Early Warning (Rubric AE)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no warning; 2=low-confidence; 4=credible prep begins; 6=high-confidence mitigation underway; 8=severe high expected impact; 10=warning dominates operational planning"@en .
+
+snw:ind_climate_risk_assessment a snw:Indicator ;
+    rdfs:label "Climate Risk Assessment Signal (Rubric AF)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=minor concerns; 4=material vulnerabilities; 6=significant adaptation underway; 8=severe major capex/insurance impact; 10=climate risk dominates exposure decisions"@en .
+
+snw:ind_sanctions_export_ban a snw:Indicator ;
+    rdfs:label "Sanctions / Export Ban Signal (Rubric AG)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=early rumors; 4=credible action risk; 6=action likely/partial supply tight; 8=implemented major supply impact; 10=dominant driver of commodity shock"@en .
+
+snw:ind_crop_weather_news a snw:Indicator ;
+    rdfs:label "Crop / Weather News Severity (Rubric AH)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=no relevant news; 2=mild adverse; 4=repeated adverse; 6=high-likelihood supply impact; 8=severe prices respond; 10=dominant driver of commodity pricing"@en .
+
+snw:ind_producer_guidance a snw:Indicator ;
+    rdfs:label "Producer Guidance Signal (Rubric AI)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=neutral; 2=mild tightening; 4=clear contracts adjust; 6=material allocation risk; 8=severe shortages likely; 10=guidance dominates procurement outcomes"@en .
+
+snw:ind_industrial_relations_temp a snw:Indicator ;
+    rdfs:label "Industrial Relations Temperature (Rubric AJ)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=stable; 2=mild tension; 4=persistent negotiation risk; 6=high wage pressure likely; 8=severe disruption likely; 10=dominant driver of labor cost and availability"@en .
+
+snw:ind_retention_risk a snw:Indicator ;
+    rdfs:label "Retention Risk Narrative (Rubric AK)"@en ;
+    snw:indicatorType "qualitative" ;
+    rdfs:comment "0-10 scale. 0=none; 2=mild concern; 4=repeated early churn risk; 6=material comp adjustments; 8=severe workforce stability threatened; 10=dominant driver of labor cost decisions"@en .
+
+# =============================================================================
+# SECTION 2 — Quantitative Indicators (40)
+# Observable numeric signals mapped to one or more primitives.
+# =============================================================================
+
+snw:ind_energy_price_index a snw:Indicator ;
+    rdfs:label "Wholesale energy price index"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Energy spot/futures market price; leading cost driver for OX and EP"@en .
+
+snw:ind_freight_cost_index a snw:Indicator ;
+    rdfs:label "Freight / logistics cost index (BDI, Drewry, Cass)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Freight rates, shipping indices; leading freight cost signal"@en .
+
+snw:ind_wage_growth a snw:Indicator ;
+    rdfs:label "Wage growth rate"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Labor cost inflation; SG&A wage escalation"@en .
+
+snw:ind_cogs_sga_actuals a snw:Indicator ;
+    rdfs:label "COGS + SG&A actuals"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Reported financials; lagging opex observation"@en .
+
+snw:ind_ppi_basket a snw:Indicator ;
+    rdfs:label "Producer Price Index (sector basket)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Proxy indicator for broad opex inflation"@en .
+
+snw:ind_order_intake a snw:Indicator ;
+    rdfs:label "Order intake / bookings"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Forward bookings; leading demand signal 0–2q lead"@en .
+
+snw:ind_pmi_consumer_confidence a snw:Indicator ;
+    rdfs:label "PMI / consumer confidence"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Macro demand proxy; leading revenue"@en .
+
+snw:ind_web_app_traffic a snw:Indicator ;
+    rdfs:label "Web/app traffic"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Digital traffic; early demand metric"@en .
+
+snw:ind_pipeline_coverage a snw:Indicator ;
+    rdfs:label "Sales pipeline coverage ratio"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Forward-cover of sales pipeline; leading revenue"@en .
+
+snw:ind_credit_spreads a snw:Indicator ;
+    rdfs:label "Credit spreads / financing cost"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "WACC / financing; leading capex signal (negative)"@en .
+
+snw:ind_machinery_backlog a snw:Indicator ;
+    rdfs:label "Machinery / equipment backlog"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Order backlog for equipment; leading capex 1–4q"@en .
+
+snw:ind_cfo_capex_guidance a snw:Indicator ;
+    rdfs:label "CFO guidance capex plans"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Management guidance; leading capex"@en .
+
+snw:ind_production_utilization a snw:Indicator ;
+    rdfs:label "Production / capacity utilization"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Leading energy use driver"@en .
+
+snw:ind_degree_days a snw:Indicator ;
+    rdfs:label "Heating / cooling degree days"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "HVAC energy driver; 0–1m lag"@en .
+
+snw:ind_grid_emissions_factor a snw:Indicator ;
+    rdfs:label "Grid carbon emissions factor"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Leading Scope 2 GHG driver"@en .
+
+snw:ind_energy_use_metered a snw:Indicator ;
+    rdfs:label "Metered energy use"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Direct Scope 1/2 driver via emissions factor"@en .
+
+snw:ind_production_volumes a snw:Indicator ;
+    rdfs:label "Production volumes"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Output volume; leading Scope 1/2 GHG"@en .
+
+snw:ind_drought_index a snw:Indicator ;
+    rdfs:label "Drought index / reservoir levels (PDSI, SPI)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Water stress physical indicator"@en .
+
+snw:ind_water_meter_readings a snw:Indicator ;
+    rdfs:label "Water meter readings"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Actual water metering; lagging observation"@en .
+
+snw:ind_scrap_rate a snw:Indicator ;
+    rdfs:label "Scrap rate / yield loss"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Manufacturing scrap; leading waste indicator"@en .
+
+snw:ind_waste_manifests a snw:Indicator ;
+    rdfs:label "Waste manifests / disposal invoices"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Actual waste volume; lagging observation"@en .
+
+snw:ind_vacancy_rate a snw:Indicator ;
+    rdfs:label "Vacancy rate / time-to-fill"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Hiring difficulty; leading workforce availability"@en .
+
+snw:ind_near_miss_rate a snw:Indicator ;
+    rdfs:label "Near-miss rate / overtime"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Safety precursor; leading H&S incident risk"@en .
+
+snw:ind_port_congestion a snw:Indicator ;
+    rdfs:label "Port congestion / OTIF"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Supply chain logistics; leading disruption"@en .
+
+snw:ind_cyber_vulnerability_score a snw:Indicator ;
+    rdfs:label "Cyber vulnerability score (CVSS)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Technical vulnerability backlog; leading incident risk"@en .
+
+snw:ind_wholesale_spot_price a snw:Indicator ;
+    rdfs:label "Wholesale spot energy price"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Real-time energy spot market; immediate EP signal"@en .
+
+snw:ind_retail_tariff_updates a snw:Indicator ;
+    rdfs:label "Retail tariff updates"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Retail tariff; lagging 1–6m through utility rate pass-through"@en .
+
+snw:ind_high_yield_spreads a snw:Indicator ;
+    rdfs:label "High-yield credit spreads"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Leading credit availability (negative elasticity)"@en .
+
+snw:ind_fed_funds_expectations a snw:Indicator ;
+    rdfs:label "Policy rate / fed funds expectations"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Policy rate; leading IR"@en .
+
+snw:ind_fx_volatility a snw:Indicator ;
+    rdfs:label "FX implied volatility"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Option-implied FX volatility; leading hedging cost"@en .
+
+snw:ind_regulatory_change_count a snw:Indicator ;
+    rdfs:label "Regulatory change count"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Count of new regulations in period; leading compliance"@en .
+
+snw:ind_enforcement_actions a snw:Indicator ;
+    rdfs:label "Enforcement actions / fines count"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Lagging compliance observation"@en .
+
+snw:ind_hazard_index a snw:Indicator ;
+    rdfs:label "Physical hazard index (NOAA/ERA5)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Extreme weather hazard intensity; leading XW signal"@en .
+
+snw:ind_commodity_spot_price a snw:Indicator ;
+    rdfs:label "Commodity spot price"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Benchmark commodity prices; leading CM signal"@en .
+
+snw:ind_unit_labor_cost a snw:Indicator ;
+    rdfs:label "Unit labor cost (BLS/Eurostat)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Labor cost per unit output; leading LC"@en .
+
+snw:ind_on_time_delivery a snw:Indicator ;
+    rdfs:label "On-time delivery performance"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Supplier on-time rate; leading lead-time shift"@en .
+
+snw:ind_inventory_days a snw:Indicator ;
+    rdfs:label "Inventory days of supply"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Safety-stock metric; proxies SC and LT stress"@en .
+
+snw:ind_maintenance_backlog a snw:Indicator ;
+    rdfs:label "Maintenance backlog hours"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Accumulated deferred maintenance; leading DT risk"@en .
+
+snw:ind_cyber_incidents_confirmed a snw:Indicator ;
+    rdfs:label "Confirmed cyber incidents"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Reported incidents; lagging cyber observable"@en .
+
+snw:ind_carbon_price a snw:Indicator ;
+    rdfs:label "Carbon price (ETS / voluntary)"@en ;
+    snw:indicatorType "quantitative" ;
+    rdfs:comment "Carbon allowance price; leading GHG cost exposure"@en .
+
+# =============================================================================
+# SECTION 3 — IndicatorEdges (Order-1, IND→P)
+# 40 edges spanning all 22 primitives.
+# =============================================================================
+
+snw:ie_EnergyPriceIndex_OX a snw:IndicatorEdge ;
+    snw:edgeId "IND→OX::EnergyPriceIndex" ; snw:leadsPrimitive snw:prim_OX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Opex(t) ≈ Opex(t−1) + α · EnergyIndex(t)" ;
+    snw:elasticityOrWeight "0.15–0.35 (5–35% of opex by sector)" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Energy spend is direct COGS for energy-intensive sectors" .
+
+snw:ie_FreightIndex_OX a snw:IndicatorEdge ;
+    snw:edgeId "IND→OX::FreightIndex" ; snw:leadsPrimitive snw:prim_OX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Opex(t) ≈ Opex(t−1) + β · FreightIndex(t)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Freight/logistics is direct opex component" .
+
+snw:ie_WageGrowth_OX a snw:IndicatorEdge ;
+    snw:edgeId "IND→OX::WageGrowth" ; snw:leadsPrimitive snw:prim_OX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Opex(t) ≈ Opex(t−1) + γ · WageGrowth(t)" ;
+    snw:elasticityOrWeight "0.10–0.30 (10–30% of opex in services)" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Labor wage inflation feeds SG&A" .
+
+snw:ie_COGS_SGA_OX a snw:IndicatorEdge ;
+    snw:edgeId "IND→OX::COGS_SGA_Actuals" ; snw:lagsPrimitive snw:prim_OX ;
+    snw:edgeOrder 1 ; snw:sourceType "lagging_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ReportedOpex(t) = Opex(t−Δ)" ;
+    snw:elasticityOrWeight "1.0" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Definitional lagging observable; reported financials" .
+
+snw:ie_PPI_OX a snw:IndicatorEdge ;
+    snw:edgeId "IND→OX::PPI_Basket" ; snw:proxiesPrimitive snw:prim_OX ;
+    snw:edgeOrder 1 ; snw:sourceType "proxy_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Opex(t) ≈ a·PPI(t) + b" ;
+    snw:elasticityOrWeight "0.3–0.7" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Broad inflation proxy for sector opex" .
+
+snw:ie_OrderIntake_RV a snw:IndicatorEdge ;
+    snw:edgeId "IND→RV::OrderIntake" ; snw:leadsPrimitive snw:prim_RV ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Revenue(t+Δ) ≈ k · Bookings(t)" ;
+    snw:elasticityOrWeight "0.7–1.0" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "multiplicative" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Backlog recognises as revenue in 1–2q; k = conversion/timing" .
+
+snw:ie_PMI_RV a snw:IndicatorEdge ;
+    snw:edgeId "IND→RV::PMI" ; snw:leadsPrimitive snw:prim_RV ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Demand(t+Δ) = a0 + a1·PMI(t)" ;
+    snw:elasticityOrWeight "0.1–0.3" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Macro demand proxy; a1 ≈ 0.1–0.3 log-points per PMI point" .
+
+snw:ie_WebTraffic_RV a snw:IndicatorEdge ;
+    snw:edgeId "IND→RV::WebTraffic" ; snw:leadsPrimitive snw:prim_RV ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Revenue(t+Δ) = a0 + a1·Traffic(t)" ;
+    snw:elasticityOrWeight "0.3–0.7 for e-commerce" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "E-commerce / DTC leading demand metric" .
+
+snw:ie_PipelineCoverage_RV a snw:IndicatorEdge ;
+    snw:edgeId "IND→RV::PipelineCoverage" ; snw:leadsPrimitive snw:prim_RV ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Revenue(t+Δ) = a0 + a1·PipelineCoverage(t)" ;
+    snw:elasticityOrWeight "0.2–0.5" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "B2B sales pipeline leading signal" .
+
+snw:ie_CreditSpreads_CX a snw:IndicatorEdge ;
+    snw:edgeId "IND→CX::CreditSpreads" ; snw:leadsPrimitive snw:prim_CX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "CapexApproval(t+Δ) ≈ CapexApproval(t) − a·Spread(t)" ;
+    snw:elasticityOrWeight "0.2–0.5" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "decreasing" ;
+    snw:edgeNotes "Higher cost of capital defers capex projects" .
+
+snw:ie_BoardApproval_CX a snw:IndicatorEdge ;
+    snw:edgeId "IND→CX::BoardApproval" ; snw:leadsPrimitive snw:prim_CX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "CapexSpend(t+Δ) = a0 + a1·ApprovalState(t)" ;
+    snw:elasticityOrWeight "0.4–0.8" ; snw:lagK "1–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Approval state leads capex spend by mobilisation window" .
+
+snw:ie_MachineryBacklog_CX a snw:IndicatorEdge ;
+    snw:edgeId "IND→CX::MachineryBacklog" ; snw:leadsPrimitive snw:prim_CX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Capex(t+Δ) = a0 + a1·Backlog(t)" ;
+    snw:elasticityOrWeight "0.3–0.6" ; snw:lagK "1–4q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Equipment order backlog signals commitment and delivery timing" .
+
+snw:ie_Utilization_EU a snw:IndicatorEdge ;
+    snw:edgeId "IND→EU::Utilization" ; snw:leadsPrimitive snw:prim_EU ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "EnergyUse(t) ≈ BaseLoad + a · Utilization(t)" ;
+    snw:elasticityOrWeight "0.4–0.6 (40–60% BaseLoad)" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Process utilization drives variable energy" .
+
+snw:ie_DegreeDays_EU a snw:IndicatorEdge ;
+    snw:edgeId "IND→EU::DegreeDays" ; snw:leadsPrimitive snw:prim_EU ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "EnergyUse(t) ≈ a·HDD(t) + b·CDD(t)" ;
+    snw:elasticityOrWeight "0.1–0.3" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "HVAC energy driver; near-instant lag for climate control" .
+
+snw:ie_GridEF_GE a snw:IndicatorEdge ;
+    snw:edgeId "IND→GE::GridEmissionsFactor" ; snw:leadsPrimitive snw:prim_GE ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "GHG(t) = kWh(t)·EF_grid(t) + Fuel(t)·EF_fuel" ;
+    snw:elasticityOrWeight "multiplicative" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "multiplicative" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "EF updates quarterly; direct Scope 2 driver" .
+
+snw:ie_EnergyUse_GE a snw:IndicatorEdge ;
+    snw:edgeId "IND→GE::EnergyUse" ; snw:leadsPrimitive snw:prim_GE ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "GHG(t) = EnergyUse(t)·EF(t)" ;
+    snw:elasticityOrWeight "1.0 (identity)" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "multiplicative" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Near-identity for fossil fuels (Scope 1/2)" .
+
+snw:ie_ProductionVolume_GE a snw:IndicatorEdge ;
+    snw:edgeId "IND→GE::ProductionVolume" ; snw:leadsPrimitive snw:prim_GE ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "GHG(t) = Production(t)·Intensity(t)" ;
+    snw:elasticityOrWeight "0.6–1.0" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "multiplicative" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Output scales Scope 1/2 emissions" .
+
+snw:ie_DroughtIndex_WA a snw:IndicatorEdge ;
+    snw:edgeId "IND→WA::DroughtIndex" ; snw:leadsPrimitive snw:prim_WA ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "AllowedWithdrawal(t+Δ) = a0 + a1·RestrictionSeverity(t)" ;
+    snw:elasticityOrWeight "0.3–0.6" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "Drought signals regulatory water restrictions" .
+
+snw:ie_WaterRestriction_WA a snw:IndicatorEdge ;
+    snw:edgeId "IND→WA::RestrictionNotices" ; snw:leadsPrimitive snw:prim_WA ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "AllowedWithdrawal(t) = AllowedWithdrawal(t−1) − Restriction(t)" ;
+    snw:elasticityOrWeight "0.4–0.8" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "Direct regulatory water constraint" .
+
+snw:ie_WaterMeter_WA a snw:IndicatorEdge ;
+    snw:edgeId "IND→WA::MeterReadings" ; snw:lagsPrimitive snw:prim_WA ;
+    snw:edgeOrder 1 ; snw:sourceType "lagging_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ReportedWA(t) = WA(t−Δ)" ;
+    snw:elasticityOrWeight "1.0" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Direct meter reading; lagging observation" .
+
+snw:ie_ScrapRate_WS a snw:IndicatorEdge ;
+    snw:edgeId "IND→WS::ScrapRate" ; snw:leadsPrimitive snw:prim_WS ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "Waste(t+Δ) = a0 + a1·ScrapRate(t)" ;
+    snw:elasticityOrWeight "0.5–0.9" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Manufacturing yield loss directly impacts waste generation" .
+
+snw:ie_WasteManifests_WS a snw:IndicatorEdge ;
+    snw:edgeId "IND→WS::Manifests" ; snw:lagsPrimitive snw:prim_WS ;
+    snw:edgeOrder 1 ; snw:sourceType "lagging_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ReportedWS(t) = WS(t−Δ)" ;
+    snw:elasticityOrWeight "1.0" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Disposal invoices; definitional lagging observation" .
+
+snw:ie_VacancyRate_WF a snw:IndicatorEdge ;
+    snw:edgeId "IND→WF::VacancyRate" ; snw:leadsPrimitive snw:prim_WF ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔWF(t+Δ) = −a·VacancyRate(t)" ;
+    snw:elasticityOrWeight "0.2–0.6" ; snw:lagK "1–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "decreasing" ;
+    snw:edgeNotes "Hiring difficulty constrains workforce availability" .
+
+snw:ie_NearMiss_HS a snw:IndicatorEdge ;
+    snw:edgeId "IND→HS::NearMissRate" ; snw:leadsPrimitive snw:prim_HS ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "IncidentRisk(t+Δ) = a0 + a1·NearMissRate(t)" ;
+    snw:elasticityOrWeight "0.3–0.7" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Near-miss rate is leading H&S incident predictor" .
+
+snw:ie_RegChangeCount_CL a snw:IndicatorEdge ;
+    snw:edgeId "IND→CL::RegulatoryChangeCount" ; snw:leadsPrimitive snw:prim_CL ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ComplianceRisk(t+Δ) = a0 + a1·RegulatoryChangeCount(t)" ;
+    snw:elasticityOrWeight "0.2–0.5" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "New regulations; leads compliance burden signal" .
+
+snw:ie_EnforcementActions_CL a snw:IndicatorEdge ;
+    snw:edgeId "IND→CL::EnforcementActions" ; snw:lagsPrimitive snw:prim_CL ;
+    snw:edgeOrder 1 ; snw:sourceType "lagging_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ReportedCL(t) = CL(t−Δ)" ;
+    snw:elasticityOrWeight "1.0" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Confirmed enforcement actions; lagging observation" .
+
+snw:ie_PortCongestion_SC a snw:IndicatorEdge ;
+    snw:edgeId "IND→SC::PortCongestion" ; snw:leadsPrimitive snw:prim_SC ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "SupplyRisk(t+Δ) = a0 + a1·PortCongestion(t)" ;
+    snw:elasticityOrWeight "0.3–0.7" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Port delays lead supply chain disruption" .
+
+snw:ie_InventoryDays_SC a snw:IndicatorEdge ;
+    snw:edgeId "IND→SC::InventoryDays" ; snw:proxiesPrimitive snw:prim_SC ;
+    snw:edgeOrder 1 ; snw:sourceType "proxy_indicator" ;
+    snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "SCRisk(t) = a0 + a1·|InventoryDays − target|" ;
+    snw:elasticityOrWeight "0.2–0.5" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "Safety-stock level proxies SC stress (both too-low and too-high flag risk)" .
+
+snw:ie_MaintBacklog_DT a snw:IndicatorEdge ;
+    snw:edgeId "IND→DT::MaintenanceBacklog" ; snw:leadsPrimitive snw:prim_DT ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "DowntimeRisk(t+Δ) = a0 + a1·DeferralSignal(t)" ;
+    snw:elasticityOrWeight "0.3–0.7" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Maintenance backlog leads downtime risk via incident probability" .
+
+snw:ie_CVSS_CY a snw:IndicatorEdge ;
+    snw:edgeId "IND→CY::VulnerabilityScore" ; snw:leadsPrimitive snw:prim_CY ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "IncidentProb(t+Δ) = a0 + a1·FindingSeverity(t)" ;
+    snw:elasticityOrWeight "0.4–0.8" ; snw:lagK "0–1q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "CVSS backlog leads cyber incident risk" .
+
+snw:ie_CyberIncidents_CY a snw:IndicatorEdge ;
+    snw:edgeId "IND→CY::ConfirmedIncidents" ; snw:lagsPrimitive snw:prim_CY ;
+    snw:edgeOrder 1 ; snw:sourceType "lagging_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ReportedCY(t) = CY(t−Δ)" ;
+    snw:elasticityOrWeight "1.0" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Definitional lagging cyber observation" .
+
+snw:ie_SpotPrice_EP a snw:IndicatorEdge ;
+    snw:edgeId "IND→EP::WholesaleSpotPrice" ; snw:leadsPrimitive snw:prim_EP ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "EP(t) = (1−λ)·EP(t−1) + λ·Spot(t)" ;
+    snw:elasticityOrWeight "λ ∈ 0.1–0.3" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "weighted_avg" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Spot → retail pass-through via smoothing" .
+
+snw:ie_RetailTariff_EP a snw:IndicatorEdge ;
+    snw:edgeId "IND→EP::RetailTariff" ; snw:lagsPrimitive snw:prim_EP ;
+    snw:edgeOrder 1 ; snw:sourceType "lagging_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "EP(t) ≈ b0 + b1·Spot(t−Δ)" ;
+    snw:elasticityOrWeight "0.5–0.9" ; snw:lagK "1–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Utility rate pass-through lags spot by 1–6m" .
+
+snw:ie_FreightSignal_FR a snw:IndicatorEdge ;
+    snw:edgeId "IND→FR::FreightIndex" ; snw:leadsPrimitive snw:prim_FR ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "FR(t) = a0 + a1·Index(t)" ;
+    snw:elasticityOrWeight "0.6–0.9" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Freight indices directly drive observed FR" .
+
+snw:ie_OTIF_LT a snw:IndicatorEdge ;
+    snw:edgeId "IND→LT::OnTimeDelivery" ; snw:leadsPrimitive snw:prim_LT ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "−" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "ΔLT(t+Δ) = −a·OTIF(t)" ;
+    snw:elasticityOrWeight "0.3–0.7" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "decreasing" ;
+    snw:edgeNotes "Declining on-time performance signals lead-time expansion" .
+
+snw:ie_HYSpreads_IR a snw:IndicatorEdge ;
+    snw:edgeId "IND→IR::HighYieldSpreads" ; snw:leadsPrimitive snw:prim_IR ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "CreditAvailability(t) = a0 − a1·Spread(t)" ;
+    snw:elasticityOrWeight "0.3–0.7" ; snw:lagK "0–2q" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "Credit spread widening tightens credit availability" .
+
+snw:ie_BankGuidance_IR a snw:IndicatorEdge ;
+    snw:edgeId "IND→IR::BankGuidance" ; snw:leadsPrimitive snw:prim_IR ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "CreditAvailability(t+Δ) = a0 + a1·BankGuidanceSignal(t)" ;
+    snw:elasticityOrWeight "0.3–0.6" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "Bank tightening signals lead credit availability (Rubric Z)" .
+
+snw:ie_FXVol_FX a snw:IndicatorEdge ;
+    snw:edgeId "IND→FX::ImpliedVolatility" ; snw:leadsPrimitive snw:prim_FX ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "FX_vol(t) = a0 + a1·IV(t)" ;
+    snw:elasticityOrWeight "0.4–0.8" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Option-implied volatility leads realised FX volatility" .
+
+snw:ie_PolicySignal_RG a snw:IndicatorEdge ;
+    snw:edgeId "IND→RG::RegulatorySignal" ; snw:leadsPrimitive snw:prim_RG ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "mixed" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "EnforcementExpectations(t+Δ) = a0 + a1·RegSignalScore(t)" ;
+    snw:elasticityOrWeight "0.3–0.6" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "mixed" ;
+    snw:edgeNotes "Regulator speeches/signals lead enforcement intensity (Rubric AD)" .
+
+snw:ie_HazardIndex_XW a snw:IndicatorEdge ;
+    snw:edgeId "IND→XW::HazardIndex" ; snw:leadsPrimitive snw:prim_XW ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "XW(t) = a0 + a1·HazardIndex(t)" ;
+    snw:elasticityOrWeight "0.6–1.0" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "max" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Physical hazard index directly drives XW primitive" .
+
+snw:ie_CommoditySpot_CM a snw:IndicatorEdge ;
+    snw:edgeId "IND→CM::SpotPrice" ; snw:leadsPrimitive snw:prim_CM ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "CM(t) = a0 + a1·SpotPrice(t)" ;
+    snw:elasticityOrWeight "0.7–1.0" ; snw:lagK "0–1m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Benchmark commodity prices drive observed CM" .
+
+snw:ie_ULC_LC a snw:IndicatorEdge ;
+    snw:edgeId "IND→LC::UnitLaborCost" ; snw:leadsPrimitive snw:prim_LC ;
+    snw:edgeOrder 1 ; snw:sourceType "leading_indicator" ;
+    snw:directionSign "+" ; snw:functionalForm "linear" ;
+    snw:operatorExpression "LC(t) = a0 + a1·ULC(t)" ;
+    snw:elasticityOrWeight "0.5–0.9" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:monotonicity "increasing" ;
+    snw:edgeNotes "Unit labor cost per output leads LC primitive" .

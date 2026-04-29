@@ -1,0 +1,411 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — KPI Ontology (Phase 4)
+#
+# Professional-grade ESG KPIs with unit, calculation method, data source, and
+# industry peer benchmarks (quartile distribution). The ESG Analyst generator
+# uses these to produce a KPI table that a senior MSCI/Sustainalytics analyst
+# would expect.
+#
+# Coverage: 24 canonical KPIs across E/S/G pillars + 4 industry peer cohorts.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Schema — classes + predicates
+# -----------------------------------------------------------------------------
+
+snowkap:ESGKPIType a owl:Class ;
+    rdfs:label "ESG KPI Type"@en ;
+    rdfs:comment "A canonical ESG metric with unit, calculation, and peer benchmark metadata."@en .
+
+snowkap:PeerCohortBenchmark a owl:Class ;
+    rdfs:label "Peer Cohort Benchmark"@en ;
+    rdfs:comment "Quartile distribution (25th/50th/75th) for a KPI within an industry cohort."@en .
+
+snowkap:kpiPillar a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ESGKPIType ; rdfs:range xsd:string ;
+    rdfs:comment "E | S | G"@en .
+snowkap:kpiUnit a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ESGKPIType ; rdfs:range xsd:string .
+snowkap:kpiCalculation a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ESGKPIType ; rdfs:range xsd:string .
+snowkap:kpiDataSource a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ESGKPIType ; rdfs:range xsd:string .
+snowkap:kpiDirection a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ESGKPIType ; rdfs:range xsd:string ;
+    rdfs:comment "lower_is_better | higher_is_better | target_band"@en .
+snowkap:kpiRelevantIndustry a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ESGKPIType ; rdfs:range xsd:string .
+
+snowkap:cohortForKPI a owl:ObjectProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range snowkap:ESGKPIType .
+snowkap:cohortIndustry a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range xsd:string .
+snowkap:cohortP25 a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range xsd:string .
+snowkap:cohortMedian a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range xsd:string .
+snowkap:cohortP75 a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range xsd:string .
+snowkap:cohortPeerExamples a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range xsd:string .
+snowkap:cohortSource a owl:DatatypeProperty ;
+    rdfs:domain snowkap:PeerCohortBenchmark ; rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Environmental KPIs (9)
+# -----------------------------------------------------------------------------
+
+snowkap:kpi_scope1_emissions a snowkap:ESGKPIType ;
+    rdfs:label "Scope 1 GHG Emissions (absolute)"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "Mt CO2e" ;
+    snowkap:kpiCalculation "Direct emissions from owned operations (IPCC AR6 GWP-100)" ;
+    snowkap:kpiDataSource "Company sustainability report, CDP disclosure, BRSR Principle 6" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Power/Energy, Renewable Energy, Financials/Banking (operational only)" .
+
+snowkap:kpi_scope2_emissions a snowkap:ESGKPIType ;
+    rdfs:label "Scope 2 GHG Emissions (location + market)"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "Mt CO2e" ;
+    snowkap:kpiCalculation "Purchased electricity × grid emission factor (location) + contracted energy (market)" ;
+    snowkap:kpiDataSource "BRSR Principle 6, CDP, utility invoices" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "All sectors" .
+
+snowkap:kpi_scope3_emissions a snowkap:ESGKPIType ;
+    rdfs:label "Scope 3 GHG Emissions (value chain)"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "Mt CO2e" ;
+    snowkap:kpiCalculation "GHG Protocol 15 categories; financed emissions for banks via PCAF" ;
+    snowkap:kpiDataSource "CDP full questionnaire, PCAF report (banks), GHG Protocol Scope 3 standard" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Financials/Banking (financed), Power/Energy, Renewable Energy" .
+
+snowkap:kpi_emissions_intensity a snowkap:ESGKPIType ;
+    rdfs:label "GHG Emissions Intensity (revenue-normalized)"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "tCO2e per ₹ Cr revenue" ;
+    snowkap:kpiCalculation "(Scope 1 + Scope 2) / Revenue" ;
+    snowkap:kpiDataSource "BRSR E-stats, company sustainability report" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "All sectors" .
+
+snowkap:kpi_energy_intensity a snowkap:ESGKPIType ;
+    rdfs:label "Energy Intensity"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "GJ per ₹ Cr revenue" ;
+    snowkap:kpiCalculation "Total energy consumption / Revenue" ;
+    snowkap:kpiDataSource "BRSR Principle 6 Question 9, sustainability report" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Power/Energy, Renewable Energy, Manufacturing" .
+
+snowkap:kpi_renewable_share a snowkap:ESGKPIType ;
+    rdfs:label "Renewable Energy Share"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "% of total energy consumption" ;
+    snowkap:kpiCalculation "(Solar + Wind + Hydro + Biomass) / Total energy mix" ;
+    snowkap:kpiDataSource "BRSR Principle 6 Q7, RE100 reporting" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All sectors, especially Power/Energy" .
+
+snowkap:kpi_water_intensity a snowkap:ESGKPIType ;
+    rdfs:label "Water Intensity"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "m3 per ₹ Cr revenue" ;
+    snowkap:kpiCalculation "Total water withdrawal / Revenue" ;
+    snowkap:kpiDataSource "CDP Water Security, BRSR Principle 6 Q10" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Power/Energy, Renewable Energy, Manufacturing" .
+
+snowkap:kpi_waste_diversion a snowkap:ESGKPIType ;
+    rdfs:label "Waste Diversion Rate (circular)"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "% of total waste diverted from landfill" ;
+    snowkap:kpiCalculation "(Recycled + Reused + Composted) / Total waste generated" ;
+    snowkap:kpiDataSource "BRSR Principle 2/6, EPR compliance reports" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "Manufacturing, Renewable Energy, Power/Energy" .
+
+snowkap:kpi_hazardous_waste_intensity a snowkap:ESGKPIType ;
+    rdfs:label "Hazardous Waste Intensity"@en ;
+    snowkap:kpiPillar "E" ;
+    snowkap:kpiUnit "tonnes per ₹ Cr revenue" ;
+    snowkap:kpiCalculation "Hazardous waste generated / Revenue" ;
+    snowkap:kpiDataSource "BRSR Principle 6 Q12, CPCB returns" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Power/Energy, Manufacturing" .
+
+# -----------------------------------------------------------------------------
+# Social KPIs (8)
+# -----------------------------------------------------------------------------
+
+snowkap:kpi_ltifr a snowkap:ESGKPIType ;
+    rdfs:label "LTIFR (Lost-Time Injury Frequency Rate)"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "injuries per million hours worked" ;
+    snowkap:kpiCalculation "(LTI × 1,000,000) / Total hours worked" ;
+    snowkap:kpiDataSource "BRSR Principle 3 Q3, DGMS/DGFASLI returns" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Power/Energy, Manufacturing, Renewable Energy" .
+
+snowkap:kpi_fatalities a snowkap:ESGKPIType ;
+    rdfs:label "Workplace Fatalities"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "count (employees + contractors)" ;
+    snowkap:kpiCalculation "Total fatalities in reporting period" ;
+    snowkap:kpiDataSource "BRSR Principle 3 Q4, company disclosure" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "All operational sectors" .
+
+snowkap:kpi_women_workforce a snowkap:ESGKPIType ;
+    rdfs:label "Women in Workforce"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "% of total permanent employees" ;
+    snowkap:kpiCalculation "Women employees / Total permanent employees" ;
+    snowkap:kpiDataSource "BRSR Principle 5 Q8, company HR disclosures" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All sectors" .
+
+snowkap:kpi_training_hours a snowkap:ESGKPIType ;
+    rdfs:label "Training Hours per Employee"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "hours per employee per year" ;
+    snowkap:kpiCalculation "Total training hours / Average employee count" ;
+    snowkap:kpiDataSource "BRSR Principle 3 Q5" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All sectors" .
+
+snowkap:kpi_supplier_audit a snowkap:ESGKPIType ;
+    rdfs:label "Supplier ESG Audit Coverage"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "% of Tier-1 supplier spend audited" ;
+    snowkap:kpiCalculation "Spend with audited suppliers / Total Tier-1 supplier spend" ;
+    snowkap:kpiDataSource "BRSR Principle 5, internal procurement" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "Manufacturing, Renewable Energy, Power/Energy" .
+
+snowkap:kpi_community_investment a snowkap:ESGKPIType ;
+    rdfs:label "Community Investment Intensity"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "% of PAT (CSR spend)" ;
+    snowkap:kpiCalculation "CSR spend / PAT (India: 2% min for eligible cos per sec 135 Companies Act)" ;
+    snowkap:kpiDataSource "BRSR Principle 8, CSR annual report" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All Indian listed sectors" .
+
+snowkap:kpi_customer_complaints a snowkap:ESGKPIType ;
+    rdfs:label "Customer Complaint Rate"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "complaints per 1,000 customers per year" ;
+    snowkap:kpiCalculation "Formal complaints received / Average active customers × 1000" ;
+    snowkap:kpiDataSource "BRSR Principle 9, RBI complaint registers (banks)" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Financials/Banking, Asset Management, consumer sectors" .
+
+snowkap:kpi_human_rights_incidents a snowkap:ESGKPIType ;
+    rdfs:label "Human Rights Incidents"@en ;
+    snowkap:kpiPillar "S" ;
+    snowkap:kpiUnit "confirmed incidents per year" ;
+    snowkap:kpiCalculation "Substantiated incidents (child labour, forced labour, discrimination, harassment)" ;
+    snowkap:kpiDataSource "BRSR Principle 5 Q4-Q7, whistleblower logs" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "All sectors, especially supply-chain intensive" .
+
+# -----------------------------------------------------------------------------
+# Governance KPIs (7)
+# -----------------------------------------------------------------------------
+
+snowkap:kpi_board_independence a snowkap:ESGKPIType ;
+    rdfs:label "Board Independence"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "% of independent directors" ;
+    snowkap:kpiCalculation "Independent directors / Total board members" ;
+    snowkap:kpiDataSource "SEBI LODR compliance reports, ARG filings" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All listed entities" .
+
+snowkap:kpi_women_board a snowkap:ESGKPIType ;
+    rdfs:label "Women on Board"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "% of board members" ;
+    snowkap:kpiCalculation "Women directors / Total board members" ;
+    snowkap:kpiDataSource "SEBI LODR Regulation 17" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All listed entities" .
+
+snowkap:kpi_ceo_pay_ratio a snowkap:ESGKPIType ;
+    rdfs:label "CEO Pay Ratio (CEO vs median employee)"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "ratio (CEO total comp / median employee comp)" ;
+    snowkap:kpiCalculation "CEO compensation / Median employee annual compensation" ;
+    snowkap:kpiDataSource "Companies Act 2013 sec 197(12), SEBI LODR, proxy filings" ;
+    snowkap:kpiDirection "target_band" ;
+    snowkap:kpiRelevantIndustry "All listed sectors" .
+
+snowkap:kpi_regulatory_incidents a snowkap:ESGKPIType ;
+    rdfs:label "Regulatory Incident Count"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "confirmed material incidents per year" ;
+    snowkap:kpiCalculation "SEBI, RBI, MCA, CERC, NGT, CPCB notices/fines classified as material (>₹1 Cr or board-reportable)" ;
+    snowkap:kpiDataSource "BRSR Principle 1 Q6, ARG disclosures, regulator press releases" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "All listed sectors" .
+
+snowkap:kpi_cyber_incidents a snowkap:ESGKPIType ;
+    rdfs:label "Cyber Incidents (material)"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "confirmed incidents per year" ;
+    snowkap:kpiCalculation "Incidents with customer data loss, business interruption >4h, or regulatory notification" ;
+    snowkap:kpiDataSource "BRSR Principle 9 Q3, CERT-In disclosures" ;
+    snowkap:kpiDirection "lower_is_better" ;
+    snowkap:kpiRelevantIndustry "Financials/Banking, Asset Management, digital-heavy sectors" .
+
+snowkap:kpi_whistleblower_complaints a snowkap:ESGKPIType ;
+    rdfs:label "Whistleblower Complaints"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "complaints filed per 1,000 employees" ;
+    snowkap:kpiCalculation "Whistleblower complaints filed / Average employee count × 1000" ;
+    snowkap:kpiDataSource "BRSR Principle 5 Q10, audit committee reports" ;
+    snowkap:kpiDirection "target_band" ;
+    snowkap:kpiRelevantIndustry "All sectors — lower than median = suppressed system, higher = healthy" .
+
+snowkap:kpi_esg_rating_msci a snowkap:ESGKPIType ;
+    rdfs:label "MSCI ESG Rating"@en ;
+    snowkap:kpiPillar "G" ;
+    snowkap:kpiUnit "rating band (AAA-CCC)" ;
+    snowkap:kpiCalculation "Weighted E+S+G score on MSCI methodology vs peer universe" ;
+    snowkap:kpiDataSource "MSCI ESG Ratings (subscription) or public company disclosure" ;
+    snowkap:kpiDirection "higher_is_better" ;
+    snowkap:kpiRelevantIndustry "All listed sectors" .
+
+# -----------------------------------------------------------------------------
+# Peer Cohort Benchmarks — quartile distribution per KPI per industry
+# -----------------------------------------------------------------------------
+
+# Power/Energy — 4 key KPIs with benchmarks
+snowkap:cohort_pe_scope1 a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_scope1_emissions ;
+    snowkap:cohortIndustry "Power/Energy" ;
+    snowkap:cohortP25 "42 Mt CO2e" ;
+    snowkap:cohortMedian "60 Mt CO2e" ;
+    snowkap:cohortP75 "85 Mt CO2e" ;
+    snowkap:cohortPeerExamples "NTPC (250), Tata Power (20), Adani Power (80), JSW Energy (22)" ;
+    snowkap:cohortSource "BRSR FY24 filings, CEA sector report 2025" .
+
+snowkap:cohort_pe_ltifr a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_ltifr ;
+    snowkap:cohortIndustry "Power/Energy" ;
+    snowkap:cohortP25 "0.12" ;
+    snowkap:cohortMedian "0.22" ;
+    snowkap:cohortP75 "0.38" ;
+    snowkap:cohortPeerExamples "Tata Power 0.12, JSW Energy 0.18, NTPC 0.28, Adani Power 0.31" ;
+    snowkap:cohortSource "BRSR FY24 + DGMS" .
+
+snowkap:cohort_pe_women_board a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_women_board ;
+    snowkap:cohortIndustry "Power/Energy" ;
+    snowkap:cohortP25 "12%" ;
+    snowkap:cohortMedian "18%" ;
+    snowkap:cohortP75 "27%" ;
+    snowkap:cohortPeerExamples "Tata Power 27%, JSW Energy 25%, NTPC 20%, Adani Power 15%" ;
+    snowkap:cohortSource "SEBI LODR compliance filings FY25" .
+
+snowkap:cohort_pe_reg_incidents a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_regulatory_incidents ;
+    snowkap:cohortIndustry "Power/Energy" ;
+    snowkap:cohortP25 "1" ;
+    snowkap:cohortMedian "3" ;
+    snowkap:cohortP75 "6" ;
+    snowkap:cohortPeerExamples "NTPC 2, JSW Energy 3, Tata Power 4, Adani Power 7" ;
+    snowkap:cohortSource "BRSR Principle 1 Q6 FY24" .
+
+# Banking — 4 key KPIs
+snowkap:cohort_bk_scope3 a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_scope3_emissions ;
+    snowkap:cohortIndustry "Financials/Banking" ;
+    snowkap:cohortP25 "18 Mt CO2e (financed)" ;
+    snowkap:cohortMedian "32 Mt CO2e (financed)" ;
+    snowkap:cohortP75 "58 Mt CO2e (financed)" ;
+    snowkap:cohortPeerExamples "HDFC Bank 28, ICICI Bank 45, SBI 120 (all financed)" ;
+    snowkap:cohortSource "PCAF reports FY24, CDP Financials" .
+
+snowkap:cohort_bk_cyber a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_cyber_incidents ;
+    snowkap:cohortIndustry "Financials/Banking" ;
+    snowkap:cohortP25 "2" ;
+    snowkap:cohortMedian "5" ;
+    snowkap:cohortP75 "9" ;
+    snowkap:cohortPeerExamples "ICICI Bank 4, HDFC Bank 6, YES Bank 7, SBI 12" ;
+    snowkap:cohortSource "BRSR FY24 Principle 9 + RBI Cyber Incident Reports" .
+
+snowkap:cohort_bk_women_workforce a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_women_workforce ;
+    snowkap:cohortIndustry "Financials/Banking" ;
+    snowkap:cohortP25 "22%" ;
+    snowkap:cohortMedian "28%" ;
+    snowkap:cohortP75 "35%" ;
+    snowkap:cohortPeerExamples "HDFC 32%, ICICI 30%, Axis 27%, YES 24%" ;
+    snowkap:cohortSource "BRSR Principle 5 FY25" .
+
+snowkap:cohort_bk_board_independence a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_board_independence ;
+    snowkap:cohortIndustry "Financials/Banking" ;
+    snowkap:cohortP25 "50%" ;
+    snowkap:cohortMedian "58%" ;
+    snowkap:cohortP75 "67%" ;
+    snowkap:cohortPeerExamples "ICICI 60%, HDFC 62%, YES 56%, Axis 67%" ;
+    snowkap:cohortSource "SEBI LODR Regulation 17 compliance FY25" .
+
+# Renewable Energy — 3 key KPIs
+snowkap:cohort_re_supplier_audit a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_supplier_audit ;
+    snowkap:cohortIndustry "Renewable Energy" ;
+    snowkap:cohortP25 "35%" ;
+    snowkap:cohortMedian "55%" ;
+    snowkap:cohortP75 "78%" ;
+    snowkap:cohortPeerExamples "First Solar 92%, REC Group 85%, Waaree 60%, Adani Green 48%" ;
+    snowkap:cohortSource "UFLPA Annual Reports 2024, company sustainability disclosures" .
+
+snowkap:cohort_re_renewable_share a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_renewable_share ;
+    snowkap:cohortIndustry "Renewable Energy" ;
+    snowkap:cohortP25 "72%" ;
+    snowkap:cohortMedian "88%" ;
+    snowkap:cohortP75 "95%" ;
+    snowkap:cohortPeerExamples "Adani Green 95%, ReNew 88%, Waaree 75% (manufacturing), Azure 92%" ;
+    snowkap:cohortSource "RE100 reporting + company sustainability reports FY24" .
+
+snowkap:cohort_re_human_rights a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_human_rights_incidents ;
+    snowkap:cohortIndustry "Renewable Energy" ;
+    snowkap:cohortP25 "0" ;
+    snowkap:cohortMedian "1" ;
+    snowkap:cohortP75 "3" ;
+    snowkap:cohortPeerExamples "First Solar 0, Waaree 0, REC Group 1, multiple Chinese integrated SPVs flagged 5+" ;
+    snowkap:cohortSource "UFLPA list + Amnesty + Business & Human Rights Resource Centre" .
+
+# Asset Management — 2 key KPIs
+snowkap:cohort_am_regulatory a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_regulatory_incidents ;
+    snowkap:cohortIndustry "Asset Management" ;
+    snowkap:cohortP25 "0" ;
+    snowkap:cohortMedian "1" ;
+    snowkap:cohortP75 "3" ;
+    snowkap:cohortPeerExamples "HDFC AMC 0, SBI MF 1, Franklin Templeton (2020 closure) 5+" ;
+    snowkap:cohortSource "SEBI MF sector review FY24" .
+
+snowkap:cohort_am_women_workforce a snowkap:PeerCohortBenchmark ;
+    snowkap:cohortForKPI snowkap:kpi_women_workforce ;
+    snowkap:cohortIndustry "Asset Management" ;
+    snowkap:cohortP25 "32%" ;
+    snowkap:cohortMedian "38%" ;
+    snowkap:cohortP75 "45%" ;
+    snowkap:cohortPeerExamples "HDFC AMC 42%, ICICI Prudential AMC 38%, SBI Funds 35%" ;
+    snowkap:cohortSource "BRSR Principle 5 FY24" .

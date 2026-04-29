@@ -116,12 +116,12 @@
     },
     {
       "category": "Transition Risk",
-      "probability": 3,
+      "probability": 2,
       "exposure": 3,
-      "raw_score": 9,
+      "raw_score": 6,
       "industry_weight": 1.8,
-      "adjusted_score": 16.2,
-      "level": "HIGH",
+      "adjusted_score": 10.8,
+      "level": "MODERATE",
       "lead_indicators": [
         "tech adoption curves",
         "policy roadmaps",
@@ -290,25 +290,25 @@
       ]
     },
     {
-      "category": "Transition Risk",
-      "probability": 3,
-      "exposure": 3,
-      "raw_score": 9,
-      "industry_weight": 1.8,
-      "adjusted_score": 16.2,
+      "category": "Media",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.0,
+      "adjusted_score": 16.0,
       "level": "HIGH",
       "lead_indicators": [
-        "tech adoption curves",
-        "policy roadmaps",
-        "customer preference shifts"
+        "social media sentiment shifts",
+        "journalist inquiries",
+        "activist group interest"
       ],
       "lag_indicators": [
-        "stranded assets",
-        "demand destruction",
-        "market share loss"
+        "negative coverage",
+        "brand value decline",
+        "customer boycotts"
       ]
     }
   ],
-  "aggregate_score": 0.721,
+  "aggregate_score": 0.7,
   "ontology_queries": 22
 }

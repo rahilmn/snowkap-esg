@@ -1,0 +1,281 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — Framework Section Rationales (Phase 3 follow-up)
+#
+# `hasRationale` triples for the most commonly cited framework sections.
+# Consumed by engine/analysis/output_verifier.py::inject_framework_rationales
+# — when an LLM output cites BRSR:P6:Q14, the verifier appends "(rationale:
+# …why it's triggered…)" so a CFO sees WHY the framework applies, not just
+# the code.
+#
+# Coverage: 45 commonly triggered sections across BRSR (15), GRI (10),
+# ESRS (8), TCFD (4), CSRD (4), ISSB (2), SASB (2).
+# =============================================================================
+
+snowkap:hasRationale a owl:DatatypeProperty ;
+    rdfs:domain snowkap:FrameworkSection ;
+    rdfs:range xsd:string ;
+    rdfs:comment "One-line rationale for why a framework section is triggered by an event."@en .
+
+# -----------------------------------------------------------------------------
+# BRSR — India's Business Responsibility and Sustainability Reporting
+# (15 sections across 9 Principles)
+# -----------------------------------------------------------------------------
+
+snowkap:brsr_p1_q1 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P1:Q1" ;
+    snowkap:sectionTitle "Governance + stakeholder review cycle" ;
+    snowkap:hasRationale "Triggered for any stakeholder-monitoring or materiality-review action; mandatory for Top-250 Indian listed entities." .
+
+snowkap:brsr_p1_q6 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P1:Q6" ;
+    snowkap:sectionTitle "Material regulatory incidents disclosure" ;
+    snowkap:hasRationale "Triggered by any SEBI/RBI/NGT/CPCB notice, fine >₹1 Cr, or board-reportable enforcement. Must be reported in the principal annual BRSR." .
+
+snowkap:brsr_p3_q3 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P3:Q3" ;
+    snowkap:sectionTitle "LTIFR / fatality disclosure" ;
+    snowkap:hasRationale "Triggered by any workplace fatality, LTIFR deterioration >10% YoY, or material safety incident. Mandatory for all operational-sector listed entities." .
+
+snowkap:brsr_p3_q4 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P3:Q4" ;
+    snowkap:sectionTitle "Total workplace injuries + near-misses" ;
+    snowkap:hasRationale "Triggered when incident-count disclosure is material; tracks trend against DGMS/DGFASLI returns." .
+
+snowkap:brsr_p3_q5 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P3:Q5" ;
+    snowkap:sectionTitle "Employee training + skills hours" ;
+    snowkap:hasRationale "Triggered for any workforce policy change, moonlighting dispute, or BRSR annual filing preparation." .
+
+snowkap:brsr_p5_q4 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P5:Q4" ;
+    snowkap:sectionTitle "Human rights violations + remediation" ;
+    snowkap:hasRationale "Triggered by any confirmed or alleged violation (forced labour, child labour, harassment, wage theft). Principle 5 covers human rights across the value chain — not just direct workforce." .
+
+snowkap:brsr_p5_q8 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P5:Q8" ;
+    snowkap:sectionTitle "Women in workforce + board diversity" ;
+    snowkap:hasRationale "Triggered by board composition changes, gender-diversity disclosures, or SEBI LODR regulation 17 compliance events." .
+
+snowkap:brsr_p5_q10 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P5:Q10" ;
+    snowkap:sectionTitle "Whistleblower complaints + audit committee review" ;
+    snowkap:hasRationale "Triggered by any whistleblower filing above materiality threshold, audit committee referral, or governance-failure event." .
+
+snowkap:brsr_p5_q12 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P5:Q12" ;
+    snowkap:sectionTitle "Related-party transaction disclosure + approval" ;
+    snowkap:hasRationale "Triggered by any RPT above ₹25 Cr or 10% of net worth; SEBI Regulation 23 of LODR; board-level approval required before transaction." .
+
+snowkap:brsr_p6_q7 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P6:Q7" ;
+    snowkap:sectionTitle "Renewable energy share + RE100 alignment" ;
+    snowkap:hasRationale "Triggered by any transition announcement, PPA signing, coal phase-out, or green hydrogen commitment. Mandatory for Top-1000 by FY27." .
+
+snowkap:brsr_p6_q9 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P6:Q9" ;
+    snowkap:sectionTitle "Scope 1/2 emissions + energy intensity" ;
+    snowkap:hasRationale "Triggered for all material climate events, BRSR filing deadlines, or SEBI climate stress-test asks. CDP methodology aligned." .
+
+snowkap:brsr_p6_q10 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P6:Q10" ;
+    snowkap:sectionTitle "Water withdrawal + discharge intensity" ;
+    snowkap:hasRationale "Triggered by drought events, water-restriction orders, CPCB discharge notices, or any water-stress disclosure in BRSR." .
+
+snowkap:brsr_p6_q12 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P6:Q12" ;
+    snowkap:sectionTitle "Hazardous waste + EPR compliance" ;
+    snowkap:hasRationale "Triggered by EPR compliance events, CPCB hazardous-waste returns, or circular-economy disclosure. E-waste and plastic EPR mandatory in India FY24." .
+
+snowkap:brsr_p6_q14 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P6:Q14" ;
+    snowkap:sectionTitle "Supply chain labour audit + due diligence" ;
+    snowkap:hasRationale "Triggered by any NGO/media flag on supplier labour conditions, UFLPA/Xinjiang disclosure needs, or Tier-1 audit-coverage reporting. Mandatory for Large Cap Indian listed entities." .
+
+snowkap:brsr_p8_q4 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P8:Q4" ;
+    snowkap:sectionTitle "CSR spend + community investment" ;
+    snowkap:hasRationale "Triggered for any community-conflict event, land-acquisition dispute, or Section 135 Companies Act CSR disclosure. 2% of PAT minimum for eligible companies." .
+
+snowkap:brsr_p9_q3 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "BRSR:P9:Q3" ;
+    snowkap:sectionTitle "Cyber incidents + customer data breach disclosure" ;
+    snowkap:hasRationale "Triggered by confirmed cyber incidents, CERT-In mandatory reporting, or customer complaint patterns. SEBI to expand cyber disclosure from FY27." .
+
+# -----------------------------------------------------------------------------
+# GRI — Global Reporting Initiative (10 sections)
+# -----------------------------------------------------------------------------
+
+snowkap:gri_205 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:205" ;
+    snowkap:sectionTitle "Anti-corruption" ;
+    snowkap:hasRationale "Triggered by any fraud disclosure, bribery allegation, insider trading investigation, or ED/CBI action. Also referenced for ISO 37001 certification." .
+
+snowkap:gri_207 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:207" ;
+    snowkap:sectionTitle "Tax transparency" ;
+    snowkap:hasRationale "Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1." .
+
+snowkap:gri_303 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:303" ;
+    snowkap:sectionTitle "Water and effluents" ;
+    snowkap:hasRationale "Triggered by drought events, water-stress disclosures, CPCB effluent violations, or community water-conflict events. GRI 303-3 for withdrawal intensity." .
+
+snowkap:gri_305 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:305" ;
+    snowkap:sectionTitle "Emissions" ;
+    snowkap:hasRationale "Triggered for all Scope 1/2/3 disclosure events, climate stress-test asks, and pollution-control notices. GRI 305-1/2/3 by scope." .
+
+snowkap:gri_306 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:306" ;
+    snowkap:sectionTitle "Waste" ;
+    snowkap:hasRationale "Triggered by hazardous-waste violations, EPR compliance events, circular-economy initiatives, or CPCB returns. GRI 306-2/3/4 for waste types." .
+
+snowkap:gri_403 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:403" ;
+    snowkap:sectionTitle "Occupational health and safety" ;
+    snowkap:hasRationale "Triggered by workplace fatalities, LTIFR-material events, occupational-disease liability (silica, asbestos), or ISO 45001 certification. Near-universal for operational sectors." .
+
+snowkap:gri_405 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:405" ;
+    snowkap:sectionTitle "Diversity and equal opportunity" ;
+    snowkap:hasRationale "Triggered by board-diversity events, pay-equity audits, or women-in-workforce disclosure. GRI 405-1 for board composition; GRI 405-2 for remuneration ratios." .
+
+snowkap:gri_408 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:408" ;
+    snowkap:sectionTitle "Child labour" ;
+    snowkap:hasRationale "Triggered by any child-labour allegation or flagged supplier. Directly connects to SDG 8.7; Amnesty / Business & Human Rights Resource Centre investigations cite this section." .
+
+snowkap:gri_409 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:409" ;
+    snowkap:sectionTitle "Forced or compulsory labour" ;
+    snowkap:hasRationale "Triggered by any forced-labour allegation, UK Modern Slavery Act disclosure, or UFLPA US import scrutiny. Directly connects to SDG 8.7." .
+
+snowkap:gri_412 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "GRI:412" ;
+    snowkap:sectionTitle "Human rights assessment" ;
+    snowkap:hasRationale "Triggered by community-conflict events, indigenous-rights disputes (e.g. Adani Carmichael, Vedanta Niyamgiri), or UN Guiding Principles engagement." .
+
+# -----------------------------------------------------------------------------
+# ESRS — European Sustainability Reporting Standards (8 sections)
+# -----------------------------------------------------------------------------
+
+snowkap:esrs_e1 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:E1" ;
+    snowkap:sectionTitle "Climate change" ;
+    snowkap:hasRationale "Triggered for all GHG disclosure, transition-plan, and climate stress-test events. CSRD-mandatory for large EU-exposed Indian firms (Reliance, Tata Steel, Adani Ports)." .
+
+snowkap:esrs_e2 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:E2" ;
+    snowkap:sectionTitle "Pollution" ;
+    snowkap:hasRationale "Triggered by air-quality violations, emission-norm disputes, NGT penalties, or CBAM-related compliance events." .
+
+snowkap:esrs_e3 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:E3" ;
+    snowkap:sectionTitle "Water and marine resources" ;
+    snowkap:hasRationale "Triggered by water-stress events, drought impact on operations, coastal-zone violations, or aquifer-depletion disputes." .
+
+snowkap:esrs_e4 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:E4" ;
+    snowkap:sectionTitle "Biodiversity and ecosystems" ;
+    snowkap:hasRationale "Triggered by deforestation, mangrove destruction, habitat loss, or TNFD-aligned disclosure. Mandatory for firms with direct biodiversity impact." .
+
+snowkap:esrs_s1 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:S1" ;
+    snowkap:sectionTitle "Own workforce" ;
+    snowkap:hasRationale "Triggered by direct-workforce events: attrition spikes, labour disputes, moonlighting policies, compensation disclosures, diversity metrics." .
+
+snowkap:esrs_s2 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:S2" ;
+    snowkap:sectionTitle "Value chain workers" ;
+    snowkap:hasRationale "Triggered by supplier-labour violations, Tier-1/2 audits, Xinjiang/UFLPA compliance, or Modern Slavery Act disclosure. Different scope from S1 (direct workforce)." .
+
+snowkap:esrs_s3 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:S3" ;
+    snowkap:sectionTitle "Affected communities" ;
+    snowkap:hasRationale "Triggered by community-conflict events, land-acquisition disputes, or indigenous-rights violations. Distinct from S1/S2 which cover workers." .
+
+snowkap:esrs_g1 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ESRS:G1" ;
+    snowkap:sectionTitle "Business conduct" ;
+    snowkap:hasRationale "Triggered by governance failures, fraud, corruption, tax disputes, related-party transaction issues, or regulatory enforcement. Complements ISSB IFRS S2." .
+
+# -----------------------------------------------------------------------------
+# TCFD — Task Force on Climate-related Financial Disclosures (4 pillars)
+# -----------------------------------------------------------------------------
+
+snowkap:tcfd_governance a snowkap:FrameworkSection ;
+    snowkap:sectionCode "TCFD:Governance" ;
+    snowkap:sectionTitle "Board oversight of climate-related risks" ;
+    snowkap:hasRationale "Triggered whenever climate risk is elevated to board-level — SBTi commitment, transition-capex approval, or climate-stress-test response." .
+
+snowkap:tcfd_strategy a snowkap:FrameworkSection ;
+    snowkap:sectionCode "TCFD:Strategy" ;
+    snowkap:sectionTitle "Strategy + scenario analysis" ;
+    snowkap:hasRationale "Triggered by any 1.5°C / 2°C / 4°C scenario impact, transition-plan changes, or stranded-asset events. Aligns with IEA NZE / SSP pathways." .
+
+snowkap:tcfd_risk a snowkap:FrameworkSection ;
+    snowkap:sectionCode "TCFD:Risk" ;
+    snowkap:sectionTitle "Risk management — transition + physical" ;
+    snowkap:hasRationale "Triggered by physical-risk events (floods, droughts, heatwaves) or transition-risk events (carbon pricing, CBAM). Distinct from generic ESG risk." .
+
+snowkap:tcfd_metrics a snowkap:FrameworkSection ;
+    snowkap:sectionCode "TCFD:Metrics" ;
+    snowkap:sectionTitle "Climate metrics + targets" ;
+    snowkap:hasRationale "Triggered by GHG disclosure events, SBTi validation, internal carbon pricing, or climate-linked executive compensation." .
+
+# -----------------------------------------------------------------------------
+# CSRD (4 sections)
+# -----------------------------------------------------------------------------
+
+snowkap:csrd_article_8 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "CSRD:Article8" ;
+    snowkap:sectionTitle "Taxonomy alignment disclosure" ;
+    snowkap:hasRationale "Triggered when EU-exposed revenue/capex must be reported as taxonomy-aligned. Relevant for Reliance, Tata Steel, Adani Ports with EU customer exposure." .
+
+snowkap:csrd_article_19a a snowkap:FrameworkSection ;
+    snowkap:sectionCode "CSRD:Article19a" ;
+    snowkap:sectionTitle "Sustainability reporting mandatory scope" ;
+    snowkap:hasRationale "Triggered for large EU undertakings (>250 employees, €40M turnover). Phased to non-EU companies with significant EU revenue from FY28." .
+
+snowkap:csrd_double_materiality a snowkap:FrameworkSection ;
+    snowkap:sectionCode "CSRD:DoubleMateriality" ;
+    snowkap:sectionTitle "Financial + impact materiality" ;
+    snowkap:hasRationale "Triggered for any material ESG event; requires reporting BOTH impact on company (financial) AND impact of company on world (outward). Core CSRD principle." .
+
+snowkap:csrd_assurance a snowkap:FrameworkSection ;
+    snowkap:sectionCode "CSRD:Assurance" ;
+    snowkap:sectionTitle "Limited + reasonable assurance" ;
+    snowkap:hasRationale "Triggered for mandatory third-party assurance; limited assurance FY25-29, reasonable assurance FY30+. Indian auditors need ISAE 3000 certification." .
+
+# -----------------------------------------------------------------------------
+# ISSB IFRS S-standards (2)
+# -----------------------------------------------------------------------------
+
+snowkap:issb_s1 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ISSB:IFRS S1" ;
+    snowkap:sectionTitle "General requirements for sustainability disclosure" ;
+    snowkap:hasRationale "Triggered for all material sustainability risk disclosure; baseline for global-capital-market participation. India Institute of Chartered Accountants considering adoption from FY27." .
+
+snowkap:issb_s2 a snowkap:FrameworkSection ;
+    snowkap:sectionCode "ISSB:IFRS S2" ;
+    snowkap:sectionTitle "Climate-related disclosures" ;
+    snowkap:hasRationale "Triggered for all climate-material events; builds on TCFD pillars. Critical for firms raising international capital — ADRs, foreign bond issuance." .
+
+# -----------------------------------------------------------------------------
+# SASB (2)
+# -----------------------------------------------------------------------------
+
+snowkap:sasb_if_el a snowkap:FrameworkSection ;
+    snowkap:sectionCode "SASB:IF-EL" ;
+    snowkap:sectionTitle "Electric Utilities & Power Generators" ;
+    snowkap:hasRationale "Triggered for NTPC/Adani Power/JSW Energy/Tata Power specific disclosures: GHG intensity, water management, coal-ash handling, customer affordability." .
+
+snowkap:sasb_fn_cb a snowkap:FrameworkSection ;
+    snowkap:sectionCode "SASB:FN-CB" ;
+    snowkap:sectionTitle "Commercial Banks" ;
+    snowkap:hasRationale "Triggered for ICICI/HDFC/YES/IDFC First specific disclosures: financed emissions (PCAF), data security, discriminatory lending, systemic risk management." .

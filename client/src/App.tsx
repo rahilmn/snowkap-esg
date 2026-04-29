@@ -4,8 +4,10 @@
  * Returning user: / → /home (skips everything)
  */
 
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { admin as adminApi } from "@/lib/api";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { LoginPage } from "@/pages/LoginPage";
 import { SwipeFeedPage } from "@/pages/SwipeFeedPage";
@@ -16,6 +18,8 @@ import IntroPage from "@/pages/IntroPage";
 import OnboardingPage from "@/pages/OnboardingPage";
 import HomePage from "@/pages/HomePage";
 import PreferencesPage from "@/pages/PreferencesPage";
+import SettingsCampaignsPage from "@/pages/SettingsCampaignsPage";
+import SettingsOnboardPage from "@/pages/SettingsOnboardPage";
 
 /** Entry point — decides where to send the user */
 function EntryRedirect() {
@@ -65,8 +69,37 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Phase 13 B7 — Sync server-side email-backend liveness into the auth
+ * store on app boot + after each login. Components that gate UI on the
+ * Share button read `useAuthStore((s) => s.emailConfigured)`.
+ */
+function EmailConfigSync() {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const setEmailConfig = useAuthStore((s) => s.setEmailConfig);
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+    adminApi
+      .emailConfigStatus()
+      .then((cfg) => {
+        if (cancelled) return;
+        setEmailConfig(cfg);
+      })
+      .catch(() => {
+        // Swallow — leaves emailConfigured=false which is the safe default.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, setEmailConfig]);
+  return null;
+}
+
 export function App() {
   return (
+    <>
+      <EmailConfigSync />
     <Routes>
       {/* Entry point — redirects based on auth state */}
       <Route path="/" element={<EntryRedirect />} />
@@ -91,6 +124,10 @@ export function App() {
                 <Route path="/saved" element={<SavedNewsPage />} />
                 <Route path="/agent" element={<AgentChatPage />} />
                 <Route path="/preferences" element={<PreferencesPage />} />
+                {/* Phase 10: drip campaigns (gated inside the page by manage_drip_campaigns) */}
+                <Route path="/settings/campaigns" element={<SettingsCampaignsPage />} />
+                {/* Phase 16.1: admin onboarding for new prospect companies */}
+                <Route path="/settings/onboard" element={<SettingsOnboardPage />} />
                 {/* Catch any unknown route → home */}
                 <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
@@ -99,5 +136,6 @@ export function App() {
         }
       />
     </Routes>
+    </>
   );
 }

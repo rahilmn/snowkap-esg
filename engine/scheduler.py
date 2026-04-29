@@ -41,6 +41,30 @@ def run_ingest_job(max_per_query: int | None, limit: int | None) -> None:
     logger.info("scheduler: finished scheduled ingestion")
 
 
+def run_promote_job() -> None:
+    """Phase 19 — periodic discovery promoter.
+
+    Drains the candidate buffer (`data/ontology/discovery_staging.json`),
+    applies confidence + frequency thresholds, and inserts qualifying
+    candidates into `data/ontology/discovered.ttl`. Auto-promotes for
+    entity / event / framework categories; theme / edge / weight /
+    stakeholder candidates remain pending until a human approves them
+    via the discovery review endpoint.
+
+    Pre-fix: the design called for this to run every 30 min but it was
+    never wired up — the only time it ran was when an admin manually
+    POSTed `/api/discovery/promote`. As a result `discovered.ttl` had
+    one promotion (April 15) and 17 candidates accumulated in the buffer
+    for 12 days. Now it runs as part of the scheduler loop.
+    """
+    try:
+        from engine.ontology.discovery.promoter import batch_promote
+        result = batch_promote()
+        logger.info("scheduler: discovery promoter ran -> %s", result)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("scheduler: discovery promoter failed: %s", exc)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Scheduled ingestion for the Snowkap ESG engine"
@@ -68,11 +92,32 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Run the ingest job once and exit (useful for cron)",
     )
+    parser.add_argument(
+        "--promote-interval-minutes",
+        type=int,
+        default=30,
+        help=(
+            "Phase 19 — discovery promoter interval (default: 30 min). "
+            "Set to 0 to disable the promoter (ingest-only mode)."
+        ),
+    )
+    parser.add_argument(
+        "--promote-once",
+        action="store_true",
+        help="Run only the discovery promoter once and exit (no ingest).",
+    )
     args = parser.parse_args(argv)
     setup_logging("INFO")
 
+    if args.promote_once:
+        run_promote_job()
+        return 0
+
     if args.once:
         run_ingest_job(args.max_per_query, args.limit)
+        # Phase 19 — also drain the discovery buffer at the end of a one-shot
+        # run so cron-based deployments don't need a separate cron entry.
+        run_promote_job()
         return 0
 
     try:
@@ -91,9 +136,21 @@ def main(argv: list[str] | None = None) -> int:
         args=[args.max_per_query, args.limit],
         next_run_time=None,  # wait for first interval
     )
+    # Phase 19 — discovery promoter on its own cadence (default 30 min).
+    # Decoupled from ingestion because promotion is cheap (<1s) and we
+    # want to drain the buffer even during quiet ingest periods.
+    if args.promote_interval_minutes > 0:
+        scheduler.add_job(
+            run_promote_job,
+            trigger="interval",
+            minutes=args.promote_interval_minutes,
+            next_run_time=None,
+        )
     logger.info(
-        "scheduler: started, interval=%s minutes, max_per_query=%s, limit=%s",
+        "scheduler: started, ingest_interval=%s min, promote_interval=%s min, "
+        "max_per_query=%s, limit=%s",
         args.interval_minutes,
+        args.promote_interval_minutes,
         args.max_per_query,
         args.limit,
     )

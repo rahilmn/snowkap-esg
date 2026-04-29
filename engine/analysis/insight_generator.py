@@ -121,6 +121,13 @@ FINANCIAL ACCURACY RULES — SCALE TO COMPANY SIZE:
 - revenue_at_risk: distinguish DIRECT revenue loss from INDIRECT (precedent, contagion). Format: "₹50 Cr direct + ₹X Cr indirect (if precedent established)".
 - If CAUSAL PRIMITIVES CONTEXT provides β elasticity, use it to COMPUTE the impact: Δ = β × Δsource × base. Show the computation.
 
+SOURCE TAGGING RULES — EVERY ₹ FIGURE MUST CARRY ITS ORIGIN:
+- Every ₹ amount must be immediately followed by either "(from article)" or "(engine estimate)".
+- "(from article)": the figure is explicitly stated in the article text. E.g., "₹50 Cr GST demand (from article)".
+- "(engine estimate)": the figure is derived from the causal primitives cascade, company calibration, or precedent. E.g., "₹180 Cr margin compression (engine estimate)".
+- NEVER present an engine estimate as if it came from the article. Example output: "₹50 Cr GST demand (from article) + ~₹120 Cr indirect contingent exposure (engine estimate)".
+- The verifier auto-appends missing tags. Mandatory for every top-level financial field.
+
 FRAMEWORK ACCURACY RULES — MATCH EVENT TYPE:
 - ESRS E1 = Climate Change ONLY. For tax/governance events, use ESRS G1 (Business Conduct).
 - ESRS E2 = Pollution. ESRS E3 = Water. ESRS E4 = Biodiversity. ESRS E5 = Resource use.
@@ -142,6 +149,43 @@ PERSPECTIVE ACCURACY RULES:
 - Every claim must trace to article content or pipeline context. Do not invent facts, but DO extrapolate reasonable ₹ estimates from company scale.
 
 - Return ONLY the JSON object, no markdown, no preamble."""
+
+
+# Phase 14.4 — POSITIVE-EVENT polarity directive appended to _SYSTEM_PROMPT
+# when the dispatcher detects a positive event (contract win, capacity
+# addition, ESG cert, green-finance milestone, etc).
+#
+# Without this, Stage 10 defaults to defensive framing on positive events:
+# the LLM has been seen to inject "₹10-50 Cr SEBI penalty risk" into
+# key_risk and financial_exposure on contract-win articles. Those fields
+# then cascade into the CFO impact-grid bullets and the CEO board paragraph
+# (both consume Stage 10's decision_summary verbatim), producing a
+# Frankenstein output where the headline is positive but the risk language
+# is defensive.
+#
+# This directive flips key_risk and financial_exposure toward upside-
+# capture phrasing while leaving the rest of the schema unchanged.
+_POSITIVE_INSIGHT_DIRECTIVE = """
+
+POSITIVE-EVENT POLARITY DIRECTIVE (Phase 14.4):
+This article describes a POSITIVE event for the company (contract win,
+capacity addition, ESG cert / rating upgrade, green-finance milestone,
+ESG partnership, or analogous upside). When you fill in decision_summary:
+
+- financial_exposure: frame as REVENUE / VALUATION uplift, not "risk".
+  Format: "₹X Cr direct revenue (engine estimate) + ₹Y Cr indirect (margin/order book)"
+- key_risk: ONLY name a risk if the article itself describes a concrete
+  downside (regulatory action, missed deadline, peer threat). Otherwise
+  use the field for "execution risk" or "missed opportunity if delayed",
+  e.g. "Slow ramp execution could leave ~₹X Cr revenue on the table" — NEVER
+  inject "₹10-50 Cr SEBI penalty" or other fictional regulatory threats.
+- top_opportunity: ALWAYS specific upside lever — green bond timing,
+  investor-day amplification, capacity utilisation, premium pricing.
+- impact_score: positive events score 5-8, NOT 8-10. Reserve 9-10 for
+  catastrophic risk events.
+
+Recommendations + perspectives downstream WILL inherit this framing —
+do NOT inject defensive language that contradicts the headline polarity."""
 
 
 def _build_user_prompt(result: PipelineResult, company: Company) -> str:
@@ -390,11 +434,32 @@ def generate_deep_insight(
     client = OpenAI(api_key=get_openai_api_key())
     user_prompt = _build_user_prompt(result, company)
 
+    # Phase 14.4 — append a POSITIVE-EVENT polarity directive when the event
+    # is a contract win / capacity addition / ESG cert / green bond etc.
+    # Pre-fix the Stage-10 deep insight defaulted to defensive framing
+    # (e.g. injecting "₹10-50 Cr SEBI penalty risk" into key_risk on a
+    # Waaree contract win). The CFO + CEO downstream prompts inherited this
+    # defensive framing. The directive flips key_risk + financial_exposure
+    # toward upside-capture language for positive events.
+    system_prompt = _SYSTEM_PROMPT
+    try:
+        from engine.analysis.recommendation_archetypes import is_positive_event
+        event_id = getattr(result.event, "event_id", "") or ""
+        # Phase 17: pass NLP sentiment so AMBIGUOUS events
+        # (event_quarterly_results / dividend_policy / ma_deal / rating_change
+        # / climate_disclosure_index) route by sentiment, not by static map.
+        nlp_sentiment = getattr(result.nlp, "sentiment", 0) if result.nlp else 0
+        if is_positive_event(event_id, sentiment=nlp_sentiment):
+            system_prompt = _SYSTEM_PROMPT + _POSITIVE_INSIGHT_DIRECTIVE
+    except Exception:
+        # Polarity directive is additive; never block insight generation.
+        pass
+
     try:
         resp = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
             temperature=temperature,
@@ -421,6 +486,52 @@ def generate_deep_insight(
     raw_score = float(parsed.get("impact_score", result.relevance.adjusted_total) or 0)
     clamped_score, warning = enforce_score_bounds(raw_score, result.event)
     warnings = [warning] if warning else []
+
+    # Phase 3: post-LLM verification — math reconciliation + source tagging
+    # + framework rationale injection (data now live via framework_rationales.ttl).
+    try:
+        from engine.analysis.output_verifier import verify_and_correct
+        from engine.ontology.intelligence import query_framework_rationales
+        # Build article excerpts from PipelineResult fields — these are the
+        # derived narrative fragments, not raw article HTML. Enough signal
+        # for the source-tag heuristic to compare ₹ figures against.
+        article_excerpts = [
+            result.title or "",
+            getattr(result.nlp, "narrative_core_claim", "") or "",
+            getattr(result.nlp, "narrative_implied_causation", "") or "",
+            getattr(result.nlp, "narrative_stakeholder_framing", "") or "",
+        ]
+        rationale_lookup = query_framework_rationales()
+        parsed, verifier_report = verify_and_correct(
+            parsed,
+            revenue_cr=company.revenue_cr,
+            article_excerpts=article_excerpts,
+            rationale_lookup=rationale_lookup,
+            # Phase 12.4: coherence checker reads event + sentiment
+            event_id=getattr(result.event, "event_id", "") or "",
+            nlp_sentiment=getattr(result.nlp, "sentiment", None),
+            # Phase 13 S4: low-confidence classification check needs the
+            # event keyword-match list + financial-quantum flag.
+            event_matched_keywords=list(getattr(result.event, "matched_keywords", []) or []),
+            has_financial_quantum=bool(getattr(result.event, "has_financial_quantum", False)),
+        )
+        if verifier_report.corrections:
+            warnings.extend(f"verifier: {c}" for c in verifier_report.corrections)
+        # math_ok is a piggyback flag that both margin-drift + narrative-coherence
+        # use. Only emit the margin-specific warning when we actually have
+        # margin numbers (coherence mismatch leaves those as None).
+        if (
+            not verifier_report.math_ok
+            and verifier_report.margin_bps_original is not None
+            and verifier_report.margin_bps_corrected is not None
+        ):
+            warnings.append(
+                f"verifier: margin math auto-corrected "
+                f"(original {verifier_report.margin_bps_original:.1f} bps, "
+                f"computed {verifier_report.margin_bps_corrected:.1f} bps)"
+            )
+    except Exception as exc:  # noqa: BLE001 — verifier is additive, never block
+        logger.warning("output_verifier failed (non-fatal): %s", exc)
 
     return DeepInsight(
         headline=str(parsed.get("headline", "") or result.title)[:200],

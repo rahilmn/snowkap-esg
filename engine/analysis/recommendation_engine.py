@@ -43,6 +43,17 @@ class Recommendation:
     roi_percentage: float | None = None
     payback_months: float | None = None
     peer_benchmark: str | None = None
+    # Phase 3: surfaces ROI cap hit so UI can render tooltip
+    roi_capped: bool = False
+    roi_cap_reason: str = ""
+    # Phase 13 S1: per-recommendation audit trail. Each entry maps a
+    # claim in the recommendation back to its source in the ontology /
+    # primitive cascade / article body so a CFO can ask "why this rec?"
+    # and get a concrete answer. Items have shape
+    #   {"source": "ontology|article|primitive|peer|precedent|benchmark",
+    #    "ref": "BRSR:P6:Q14" | "P2::SC→OX" | etc.,
+    #    "value": "human-readable evidence string"}
+    audit_trail: list[dict[str, str]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -167,10 +178,99 @@ Return a JSON object:
       "estimated_impact": "<High|Medium|Low>",
       "roi_percentage": <estimated ROI % over 3 years, or null>,
       "payback_months": <months to break even, or null>,
-      "peer_benchmark": "<what competitors did in similar situations, or null>"
+      "peer_benchmark": "<what competitors did in similar situations, or null>",
+      "audit_trail": [
+        {"source": "ontology|article|primitive|peer|precedent|benchmark",
+         "ref": "<framework section, primitive edge id, peer name, etc.>",
+         "value": "<the specific evidence anchoring the recommendation, in 1 line>"}
+      ]
     }
   ]
 }
+
+CRITICAL: every recommendation MUST include audit_trail with 1-3 entries
+linking the rec back to: (a) framework citations from the FRAMEWORKS block,
+(b) ₹ figures from the article or primitive cascade, or (c) named precedents
+from the PRECEDENTS block. A recommendation without traceable evidence is
+unverifiable; the verifier will flag it.
+
+Return ONLY the JSON, no preamble."""
+
+
+# Phase 14.3 — Dedicated POSITIVE-event generator system prompt.
+#
+# Background: even with the Phase 13 archetype routing's polarity warning,
+# the default `_GENERATOR_SYSTEM` prompt above is implicitly oriented
+# toward defensive remediation framing (see "REMEDIATION and PREVENTION"
+# language). On positive events (contract wins, capacity adds, ESG cert
+# upgrades, green-finance milestones) the LLM consistently injected
+# fictional "₹10-50 Cr SEBI penalty" risks even though the article had
+# no regulatory failure to remediate.
+#
+# This prompt rewrites the rules with positive-event semantics:
+#   - "leverage the upside" replaces "remediate risk"
+#   - "investor-comms / capital deployment / pipeline momentum" replaces
+#     "compliance / monitoring / assurance"
+#   - explicit ban on inventing penalty risks unless the article describes
+#     a concrete regulatory action
+#
+# Dispatcher (in _generate_recommendations) routes to this prompt when
+# `is_positive_event(event_id)` returns True.
+_POSITIVE_GENERATOR_SYSTEM = """You are an ESG action generator. The article describes a POSITIVE event for the company (contract win, capacity addition, ESG certification, green-finance milestone, etc). Produce %%REC_COUNT%% actionable, company-specific recommendations that LEVERAGE the upside.
+
+RULES:
+- Recommendations must extract value from the event: investor communication, capacity scaling, capital deployment, pipeline momentum, premium pricing, framework-tier advancement.
+- Every recommendation MUST reference a specific framework section (e.g. BRSR:P6:Q14, EU Taxonomy Article 8, GRI:305-1) — used for transparency / disclosure leverage, NOT compliance remediation.
+- Every profitability_link MUST include a ₹ amount or % quantification. Frame as upside: "₹500 Cr green bond at 50 bps coupon save" or "₹200 Cr revenue uplift FY26 once commissioning ramps".
+- Deadlines must be future dates in YYYY-MM-DD format.
+- Budgets must be calibrated to company market cap and the specific event. Investor-comms ₹0.5-1 Cr; framework-tier advancement ₹1-3 Cr; capacity scaling ₹50-500 Cr depending on the event.
+- title must be a SPECIFIC action verb phrase: "Issue ₹500 Cr Green Bond by Sep 2026" not "Pursue green finance".
+- roi_percentage: estimate the upside capture. For investor comms, ROI = valuation premium / cost. For capital deployment, ROI = revenue uplift / capex. ROI caps: 500% (compliance — rarely applies here), 400% (strategic/ESG), 300% (financial), 200% (operational).
+- payback_months: for capex use industry-standard payback. For investor comms / framework advancement, 3-12 mo. NEVER use null.
+
+CRITICAL — POSITIVE-EVENT POLARITY GUARDRAILS:
+- DO NOT recommend "engage SEBI / engage regulator" UNLESS the article explicitly mentions a regulatory action against the company.
+- DO NOT cite "₹X-Y Cr SEBI penalty per violation" or "regulatory enforcement risk" — there is no enforcement event in this article.
+- DO NOT recommend "third-party BRSR assurance" as a defensive measure — only recommend it as a credibility-amplification step IF the company is announcing certification.
+- DO NOT recommend "monitor and escalate if X exceeds Y" as a generic risk-monitor on a positive event. If you include monitoring, frame it as KPI tracking for the new asset/contract/certification.
+- The "key_risk" framing belongs in NEGATIVE-event prompts, not here. Frame this as opportunity capture.
+
+GOOD POSITIVE-EVENT REC SHAPES (pick from these archetypes for ≥80% of the rec set):
+  • Investor communication — IR roadshow, earnings-call narrative refresh, ESG-fund pitch deck update
+  • Capacity / order ramp — utilization plan, supply-chain readiness, workforce mobilisation
+  • Capital deployment — green bond / SLL issuance timing, refinance optionality
+  • Framework advancement — DJSI inclusion, MSCI ESG upgrade pathway, CDP A-list pursuit
+  • Premium-pricing capture — ESG / quality differentiation in B2B procurement positioning
+  • Co-marketing — case-study publication, partnership amplification
+
+Return a JSON object with the same schema as the negative-event prompt:
+{
+  "recommendations": [
+    {
+      "title": "<action title, max 10 words>",
+      "type": "<strategic|financial|esg_positioning|operational|compliance>",
+      "description": "<1-2 sentences, specific to the company>",
+      "responsible_party": "<specific role>",
+      "framework_section": "<BRSR:P6, EU Taxonomy Art 8, GRI:305-1, etc.>",
+      "deadline": "<YYYY-MM-DD>",
+      "estimated_budget": "<₹X-Y Cr>",
+      "profitability_link": "<upside quantified with ₹ or % numbers>",
+      "urgency": "<immediate|short_term|medium_term|long_term>",
+      "estimated_impact": "<High|Medium|Low>",
+      "roi_percentage": <estimated ROI % over 3 years>,
+      "payback_months": <months to capture the upside>,
+      "peer_benchmark": "<comparable competitor move, or null>",
+      "audit_trail": [
+        {"source": "ontology|article|primitive|peer|precedent|benchmark",
+         "ref": "<framework section, primitive edge id, peer name, etc.>",
+         "value": "<the specific evidence anchoring the recommendation>"}
+      ]
+    }
+  ]
+}
+
+Every recommendation MUST include audit_trail with 1-3 entries linking back
+to ontology / article / primitive / precedent / peer / benchmark sources.
 
 Return ONLY the JSON, no preamble."""
 
@@ -209,6 +309,21 @@ def _build_generator_prompt(
                     lines.append(f"  - {pa.company}: {pa.action} → {pa.outcome}")
         except Exception:
             pass
+
+    # Phase 3: Real-world precedents — authored library, LLM cites by reference
+    try:
+        from engine.ontology.intelligence import query_precedents_for_event
+        event_id = result.event.event_id if result.event and hasattr(result.event, "event_id") else ""
+        if event_id:
+            precedents = query_precedents_for_event(event_id, company.industry, limit=3)
+            if precedents:
+                lines.append("NAMED PRECEDENTS (cite these by company + year + ₹ cost; do NOT invent new precedents):")
+                for p in precedents:
+                    lines.append(f"  - {p.as_citation()}")
+                    if p.recovery_path:
+                        lines.append(f"    Recovery: {p.recovery_path[:180]}")
+    except Exception:
+        pass
 
     # Phase 14: ROI benchmarks
     try:
@@ -250,10 +365,120 @@ def _build_generator_prompt(
     except Exception:
         pass
 
+    # Phase 13 B1 — event-archetype routing. Inject event-appropriate
+    # recommendation categories so the LLM picks levers that fit the event
+    # type instead of defaulting to a one-size template (file BRSR + monitor
+    # + assurance + capex). Live verified on the Waaree contract-win article
+    # (2026-04-24): pre-fix produced 5 disclosure-shaped recs for a positive
+    # business event; post-fix picks operational-readiness + investor-comms +
+    # pipeline-momentum archetypes appropriate to a contract win.
+    try:
+        from engine.analysis.recommendation_archetypes import (
+            get_archetypes_for_event,
+            is_positive_event,
+        )
+        event_id_for_arch = result.event.event_id if result.event and hasattr(result.event, "event_id") else ""
+        # Phase 17 — pass sentiment so ambiguous events (quarterly_results etc.)
+        # route by tone rather than defaulting to negative-event archetypes.
+        nlp_sent_arch = getattr(result.nlp, "sentiment", 0) if result.nlp else 0
+        archetypes = get_archetypes_for_event(event_id_for_arch)
+        # Phase 17 — fallback: if no event-specific archetypes (event_id empty
+        # or unmapped), pick archetypes from the primary theme so the LLM
+        # doesn't fall through to the generic 5-rec disclosure template.
+        if not archetypes:
+            from engine.analysis.recommendation_archetypes import get_archetypes_for_theme
+            primary_theme = (
+                result.themes.primary_theme if result.themes and hasattr(result.themes, "primary_theme") else ""
+            )
+            archetypes = get_archetypes_for_theme(primary_theme)
+        if archetypes:
+            lines.append("")
+            lines.append(
+                f"EVENT-SPECIFIC GUIDANCE (event={event_id_for_arch}). "
+                f"Pick {min(len(archetypes), 5)} of these archetypes — pick distinct ones, "
+                f"not five variants of a single category. Do NOT default to "
+                f"'file BRSR + monitor compliance + third-party assurance' "
+                f"unless the article explicitly describes a regulatory or "
+                f"disclosure failure."
+            )
+            for label, desc in archetypes:
+                lines.append(f"  • {label} — {desc}")
+            if is_positive_event(event_id_for_arch, sentiment=nlp_sent_arch):
+                lines.append("")
+                lines.append(
+                    "POLARITY: this is a POSITIVE event. Recommendations should "
+                    "leverage the upside (growth / pricing / signal value), not "
+                    "remediate a fabricated crisis. Avoid 'engage regulator', "
+                    "'remediate violation', and 'governance review' framing "
+                    "unless the article itself raises that concern."
+                )
+    except Exception:
+        # Archetype routing is additive; never block recommendation generation.
+        pass
+
     lines.append("")
     rec_count = _get_rec_count(insight)
     lines.append(f"Generate exactly {rec_count} actionable recommendations for this company. Today's date is 2026-04-13.")
     return "\n".join(lines)
+
+
+def _repair_truncated_json(raw: str) -> dict:
+    """Phase 13 hotfix — salvage a partially-truncated LLM JSON response.
+
+    When the LLM hits max_tokens mid-array, the response looks like:
+        {"recommendations": [{"title": "...", ...}, {"title": "...", "ty
+    Classic JSON parsers reject this with `Unterminated string starting at`.
+    This helper finds the last fully-closed object inside the recommendations
+    array and returns `{"recommendations": [<those complete objects>]}` so
+    the pipeline keeps the salvageable recs instead of returning zero.
+
+    Returns `{"recommendations": []}` if no complete object can be salvaged.
+    """
+    if not raw or "recommendations" not in raw:
+        return {"recommendations": []}
+    # Find the start of the recommendations array
+    start_idx = raw.find('"recommendations"')
+    if start_idx < 0:
+        return {"recommendations": []}
+    bracket_idx = raw.find("[", start_idx)
+    if bracket_idx < 0:
+        return {"recommendations": []}
+
+    # Walk forward inside the array, tracking brace nesting + string state.
+    # When depth returns to 1 (top of array, between objects), record the
+    # last successful close. Salvage by truncating at that close + a "]}".
+    depth = 0
+    in_string = False
+    escape = False
+    last_complete_close = -1
+    for i in range(bracket_idx, len(raw)):
+        c = raw[i]
+        if in_string:
+            if escape:
+                escape = False
+            elif c == "\\":
+                escape = True
+            elif c == '"':
+                in_string = False
+            continue
+        if c == '"':
+            in_string = True
+            continue
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+            if depth == 0:
+                last_complete_close = i  # complete object inside array
+    if last_complete_close < 0:
+        return {"recommendations": []}
+    # Build a salvageable string: everything up through the last complete
+    # close, then close the array + outer object.
+    salvaged = raw[: last_complete_close + 1] + "]}"
+    try:
+        return json.loads(salvaged)
+    except json.JSONDecodeError:
+        return {"recommendations": []}
 
 
 def _generate_recommendations(
@@ -262,13 +487,40 @@ def _generate_recommendations(
     settings = load_settings()
     llm_cfg = settings.get("llm", {})
     model = llm_cfg.get("model_light", "gpt-4.1-mini")
-    max_tokens = llm_cfg.get("max_tokens_recommendation", 1500)
+    # Phase 13 hotfix — bump token budget from 1500 → 3000 because the new
+    # `audit_trail` field (S1) adds ~150-300 tokens per rec. The 1500-cap
+    # was being hit mid-JSON, producing JSONDecodeError and empty rec
+    # lists for HIGH-materiality articles (caught by the 2026-04-27 fuzz
+    # run at 70% pass rate vs 90% baseline).
+    max_tokens = llm_cfg.get("max_tokens_recommendation", 3000)
 
+    # Phase 14.3 — dispatch to a dedicated positive-event prompt when the
+    # event_id is in our POSITIVE_EVENTS set. Eliminates the "₹10-50 Cr SEBI
+    # penalty" defensive injection on contract-win / certification articles.
+    raw_content = ""
+    try:
+        from engine.analysis.recommendation_archetypes import is_positive_event
+        event_id_for_dispatch = (
+            result.event.event_id
+            if result.event and hasattr(result.event, "event_id")
+            else ""
+        )
+        # Phase 17 — sentiment-aware routing for ambiguous events
+        # (event_quarterly_results +1 sentiment → positive prompt path).
+        nlp_sent_disp = getattr(result.nlp, "sentiment", 0) if result.nlp else 0
+        system_prompt_template = (
+            _POSITIVE_GENERATOR_SYSTEM
+            if is_positive_event(event_id_for_dispatch, sentiment=nlp_sent_disp)
+            else _GENERATOR_SYSTEM
+        )
+    except Exception:
+        # Failsafe: archetype routing is additive, never block generation
+        system_prompt_template = _GENERATOR_SYSTEM
     try:
         resp = client.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content": _GENERATOR_SYSTEM.replace("%%REC_COUNT%%", str(_get_rec_count(insight)))},
+                {"role": "system", "content": system_prompt_template.replace("%%REC_COUNT%%", str(_get_rec_count(insight)))},
                 {
                     "role": "user",
                     "content": _build_generator_prompt(insight, result, company),
@@ -278,10 +530,29 @@ def _generate_recommendations(
             max_tokens=max_tokens,
             response_format={"type": "json_object"},
         )
-        parsed = json.loads(resp.choices[0].message.content or "{}")
-    except (APIError, APITimeoutError, json.JSONDecodeError, IndexError) as exc:
-        logger.warning("recommendation generator failed: %s", type(exc).__name__)
+        raw_content = resp.choices[0].message.content or "{}"
+        parsed = json.loads(raw_content)
+    except (APIError, APITimeoutError, IndexError) as exc:
+        logger.warning("recommendation generator failed (api): %s", type(exc).__name__)
         return []
+    except json.JSONDecodeError as exc:
+        # Phase 13 hotfix — defensive JSON repair on token-truncated outputs.
+        # If the response was cut mid-list, salvage whatever complete recs
+        # we got rather than returning zero. The Phase 13 audit_trail field
+        # makes truncation more likely until token caps stabilise.
+        parsed = _repair_truncated_json(raw_content)
+        if not parsed.get("recommendations"):
+            logger.warning(
+                "recommendation generator failed (json decode at line %d col %d) "
+                "and repair yielded no recs",
+                exc.lineno, exc.colno,
+            )
+            return []
+        logger.warning(
+            "recommendation generator: salvaged %d rec(s) from truncated JSON "
+            "(error at line %d col %d)",
+            len(parsed.get("recommendations") or []), exc.lineno, exc.colno,
+        )
 
     raw_recs = parsed.get("recommendations", []) or []
     recommendations: list[Recommendation] = []
@@ -305,9 +576,37 @@ def _generate_recommendations(
                 "operational": 200.0,    # Max: monitoring, process improvement
             }
             max_roi = roi_caps.get(rec_type, 300.0)
+            roi_was_capped = False
+            roi_cap_reason = ""
             if roi is not None and roi > max_roi:
                 logger.info("ROI clamped: %s from %.0f%% to %.0f%%", r.get("title", "")[:40], roi, max_roi)
+                roi_was_capped = True
+                roi_cap_reason = (
+                    f"Capped at {max_roi:.0f}% ({rec_type} ceiling). "
+                    f"Raw estimate was {roi:.0f}%; cap prevents over-claim."
+                )
                 roi = max_roi
+
+            # Phase 13 S1 — pull audit_trail from LLM JSON. Defensive parse:
+            # accept the field whether it's a list of dicts (canonical),
+            # a single dict (LLM occasionally produces that shape), or
+            # missing (older prompts / partial LLM output).
+            raw_trail = r.get("audit_trail")
+            audit_trail: list[dict[str, str]] = []
+            if isinstance(raw_trail, list):
+                for entry in raw_trail[:5]:
+                    if isinstance(entry, dict):
+                        audit_trail.append({
+                            "source": str(entry.get("source", "") or "")[:30],
+                            "ref": str(entry.get("ref", "") or "")[:120],
+                            "value": str(entry.get("value", "") or "")[:300],
+                        })
+            elif isinstance(raw_trail, dict):
+                audit_trail.append({
+                    "source": str(raw_trail.get("source", "") or "")[:30],
+                    "ref": str(raw_trail.get("ref", "") or "")[:120],
+                    "value": str(raw_trail.get("value", "") or "")[:300],
+                })
 
             recommendations.append(
                 Recommendation(
@@ -326,6 +625,9 @@ def _generate_recommendations(
                     roi_percentage=roi,
                     payback_months=payback,
                     peer_benchmark=peer,
+                    roi_capped=roi_was_capped,
+                    roi_cap_reason=roi_cap_reason,
+                    audit_trail=audit_trail,  # Phase 13 S1
                 )
             )
         except Exception as exc:  # noqa: BLE001
@@ -399,19 +701,81 @@ def _post_process(recs: list[Recommendation]) -> list[Recommendation]:
 # ---------------------------------------------------------------------------
 
 
+def _build_monitoring_recommendation(
+    insight: DeepInsight, result: PipelineResult, company: Company, reason: str
+) -> Recommendation:
+    """Emit a single monitoring rec for SECONDARY / non-material articles.
+
+    Phase 3: removes the silent-drop that left CFOs wondering if the system
+    crashed. A do-nothing article still gets a tracked recommendation — "what
+    to monitor and when to escalate" — so the UI never shows an empty panel.
+    """
+    theme = (result.themes.primary_theme if result.themes else "") or "general ESG signal"
+    horizon_days = 30  # default review cadence
+    trigger = "materiality escalation (event severity ↑ or ₹ figure > ₹10 Cr)"
+
+    # Pull a threshold from the causal primitives ontology if available.
+    try:
+        from engine.ontology.intelligence import query_primitives_for_event, query_thresholds_for_primitive
+        event_id = result.event.event_id if result.event and hasattr(result.event, "event_id") else ""
+        if event_id:
+            prims = query_primitives_for_event(event_id)
+            if prims:
+                thr = query_thresholds_for_primitive(prims[0].slug)
+                if thr:
+                    trigger = f"{thr[0]['label']}: τ = {thr[0]['range']} ({thr[0]['unit']})"
+    except Exception:  # noqa: BLE001 — best-effort threshold
+        pass
+
+    from datetime import datetime, timedelta, timezone
+
+    deadline = (datetime.now(timezone.utc) + timedelta(days=horizon_days)).date().isoformat()
+
+    return Recommendation(
+        title=f"Monitor — {theme} (no action required yet)",
+        description=(
+            f"Track this signal for materiality drift. Reason for monitor-only "
+            f"stance: {reason}. Escalation trigger: {trigger}. "
+            f"If crossed, run full analysis and revisit within 14 days."
+        ),
+        type="operational",
+        responsible_party="ESG / Risk team",
+        framework_section="BRSR:P1:Q1 (stakeholder review cycle)",
+        deadline=deadline,
+        estimated_budget="₹0 Cr (internal monitoring)",
+        profitability_link=(
+            "Prevents materiality drift surprise — no active cost, only watch-list inclusion. "
+            "Cost-of-inaction: learning-lag if signal escalates without observation."
+        ),
+        priority="LOW",
+        urgency="short_term",
+        estimated_impact="Low",
+        risk_of_inaction=3,
+        roi_percentage=None,
+        payback_months=None,
+        peer_benchmark="Standard practice — all 7 target companies run monthly materiality reviews",
+    )
+
+
 def generate_recommendations(
     insight: DeepInsight, result: PipelineResult, company: Company
 ) -> RecommendationResult:
-    """Run the full REREACT chain (gate → generate → post-process)."""
+    """Run the full REREACT chain (gate → generate → post-process).
+
+    Phase 3 change: non-material / low-impact articles no longer return empty.
+    They get a single monitoring recommendation so the UI never shows silence.
+    The `do_nothing` flag stays True so callers can distinguish active vs monitor.
+    """
     skip, reason = _should_skip(insight, result)
     if skip:
-        logger.info("REREACT gate: skip (%s)", reason)
+        logger.info("REREACT gate: monitor-only (%s)", reason)
+        monitor_rec = _build_monitoring_recommendation(insight, result, company, reason)
         return RecommendationResult(
-            recommendations=[],
+            recommendations=[monitor_rec],
             do_nothing=True,
             gate_reason=reason,
-            generator_count=0,
-            validated_count=0,
+            generator_count=1,
+            validated_count=1,
         )
 
     client = OpenAI(api_key=get_openai_api_key())

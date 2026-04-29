@@ -1,0 +1,582 @@
+{
+  "article": {
+    "id": "e38afe778dd3d207",
+    "title": "ICICI Bank Approves ₹250 Billion Bond Funding and $1.5 Billion Overseas Borrowing - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxPUXpiXzhTZ096X0loc1V1RHY2UGlaY0s3b095ZkZ6WVAzSFZxRGh3MWZmWDMwU2lmall3bTNWYmtTd1hjQWdJejVBOEtvalBXNnlpb3AxSEhKbzg0NWdvVktZbHJEeEJZRkptQ09Gb0hKUU10NTJsbThpRHBzckZNM0sxME1uejNSc2dXZkViN3ZwR2tILWc0cWg0SFg5aHU5RDNsOTNub0FTYzlyYVZqZV9uOUhfb3lLSHY0RTRhVG5QbnFTU2hxNGxua0w5WS1Ha0hmSXl4dkhjZll3ZGJmRG0xZ3Fva3ZyVXo5YjhNZzJ4SjRB?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-04-18T07:00:00+00:00",
+    "company_slug": "icici-bank"
+  },
+  "pipeline": {
+    "article_id": "e38afe778dd3d207",
+    "title": "ICICI Bank Approves ₹250 Billion Bond Funding and $1.5 Billion Overseas Borrowing - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMi9AFBVV95cUxPUXpiXzhTZ096X0loc1V1RHY2UGlaY0s3b095ZkZ6WVAzSFZxRGh3MWZmWDMwU2lmall3bTNWYmtTd1hjQWdJejVBOEtvalBXNnlpb3AxSEhKbzg0NWdvVktZbHJEeEJZRkptQ09Gb0hKUU10NTJsbThpRHBzckZNM0sxME1uejNSc2dXZkViN3ZwR2tILWc0cWg0SFg5aHU5RDNsOTNub0FTYzlyYVZqZV9uOUhfb3lLSHY0RTRhVG5QbnFTU2hxNGxua0w5WS1Ha0hmSXl4dkhjZll3ZGJmRG0xZ3Fva3ZyVXo5YjhNZzJ4SjRB?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-04-18T07:00:00+00:00",
+    "company_slug": "icici-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 41,
+    "elapsed_seconds": 10.949,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "analytical",
+        "neutral",
+        "optimistic"
+      ],
+      "narrative_core_claim": "ICICI Bank has approved ₹250 billion bond funding and $1.5 billion overseas borrowing.",
+      "narrative_implied_causation": "To raise capital and strengthen financial resources, ICICI Bank approved significant bond funding and overseas borrowing.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist seeking capital; stakeholders and investors are affected by the funding decisions.",
+      "entities": [
+        "ICICI Bank",
+        "₹250 Billion",
+        "$1.5 Billion"
+      ],
+      "entity_types": {
+        "ICICI Bank": "company",
+        "₹250 Billion": "financial amount",
+        "$1.5 Billion": "financial amount"
+      },
+      "financial_signal": {
+        "amount": 250,
+        "unit": "billion",
+        "context": "bond funding"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "governance",
+        "financial strategy"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Risk Management",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "business_continuity",
+        "erm_maturity",
+        "risk_committees"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
+        }
+      ],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_credit_rating",
+      "label": "Credit Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 8,
+      "financial_transmission": "rating -> cost of capital, bond spreads",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 20750.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "ICICI Bank"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "ICICI Bank"
+      },
+      {
+        "nodes": [
+          "ICICI Bank Bangalore Ops",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "ICICI Bank Bangalore Ops -> ICICI Bank"
+      },
+      {
+        "nodes": [
+          "ICICI Bank HQ",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "ICICI Bank HQ -> ICICI Bank"
+      },
+      {
+        "nodes": [
+          "ICICI Bank Hyderabad Ops",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "ICICI Bank Hyderabad Ops -> ICICI Bank"
+      },
+      {
+        "nodes": [
+          "Risk Management",
+          "Financials/Banking",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Risk Management is material for Financials/Banking → impacts ICICI Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 0.9299999999999999,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Governance",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Perf"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Governance",
+          "TCFD:RM"
+        ]
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.43000000000000005,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Market & Uncertainty",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.4,
+          "adjusted_score": 8.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.6,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.4,
+          "adjusted_score": 5.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Market & Uncertainty",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.4,
+          "adjusted_score": 8.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.6,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.4,
+          "adjusted_score": 5.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "aggregate_score": 0.122,
+      "ontology_queries": 10
+    },
+    "stakeholders": [
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": []
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-04-29T09:40:09.339673+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

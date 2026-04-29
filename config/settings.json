@@ -16,10 +16,18 @@
     "max_tokens_per_article": 10000
   },
   "ingestion": {
-    "news_sources": ["google_news_rss", "newsapi"],
-    "max_articles_per_company_per_run": 20,
+    "news_sources": ["newsapi_ai", "newsapi", "google_news_rss"],
+    "max_articles_per_company_per_run": 30,
+    "daily_ingestion_cap": 200,
     "dedup_via_url_hash": true,
-    "dedup_file": "data/processed/article_hashes.json"
+    "dedup_file": "data/processed/article_hashes.json",
+    "semantic_dedup_enabled": true,
+    "semantic_dedup_threshold": 0.75,
+    "semantic_dedup_window_hours": 48,
+    "freshness_max_age_days": 90,
+    "demo_ready_max_age_hours": 72,
+    "demo_ready_min_exposure_cr": 10.0,
+    "demo_ready_min_relevance": 7
   },
   "output": {
     "format": "json",

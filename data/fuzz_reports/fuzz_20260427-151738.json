@@ -1,0 +1,230 @@
+{
+  "started_at": "2026-04-27T09:32:40Z",
+  "finished_at": "2026-04-27T09:47:38Z",
+  "total_articles": 10,
+  "passed": 10,
+  "failed": 0,
+  "total_elapsed_sec": 892.09,
+  "avg_elapsed_sec": 89.21,
+  "p95_elapsed_sec": 129.77,
+  "rejected_count": 0,
+  "home_count": 5,
+  "secondary_count": 5,
+  "hallucination_audit_count": 7,
+  "cross_section_drift_count": 7,
+  "coherence_mismatch_count": 4,
+  "results": [
+    {
+      "id": "jsw-energy-ieefa-lng",
+      "company_slug": "jsw-energy",
+      "title": "IEEFA: West Asia's Woes Widen India's Steel Energy Security Chasm | OREACO",
+      "elapsed_seconds": 129.77,
+      "event_id": "event_supply_chain_disruption",
+      "event_keywords_matched": 15,
+      "tier": "HOME",
+      "materiality": "HIGH",
+      "rec_count": 4,
+      "warning_count": 4,
+      "warnings": [
+        "verifier: margin math at financial_timeline.immediate: cited 10.0 bps, computed 27.2 bps (dev 63.2%)",
+        "verifier: added 3 source tags on ₹ figures",
+        "verifier: cross-section consistency: 4 drift warning(s)",
+        "verifier: margin math auto-corrected (original 10.0 bps, computed 27.2 bps)"
+      ],
+      "headline": "West Asia conflict triggers ₹31.2 Cr (engine estimate) supply chain risk for JSW Energy, raising margin pressure and disclosure scrutiny",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 58
+    },
+    {
+      "id": "waaree-pspcl-auction-win",
+      "company_slug": "waaree-energies",
+      "title": "Daily News Wrap-Up: PSPCL Announces Winners of 500 MW Solar Auction - Mercom India",
+      "elapsed_seconds": 78.89,
+      "event_id": "event_contract_win",
+      "event_keywords_matched": 4,
+      "tier": "HOME",
+      "materiality": "HIGH",
+      "rec_count": 5,
+      "warning_count": 3,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 8 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 3 source tags on ₹ figures",
+        "verifier: narrative coherence mismatch (event=+1, sentiment=+0, insight=-1); materiality downgraded CRITICAL → HIGH"
+      ],
+      "headline": "Waaree Energies secures 500 MW solar order, adding ₹477.5 Cr (engine estimate) revenue and boosting ESG profile amid regulatory scrutiny",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 53
+    },
+    {
+      "id": "waaree-antidumping",
+      "company_slug": "waaree-energies",
+      "title": "Waaree Energies and Other Solar Stocks Fall by up to 5% Today; Here's Why",
+      "elapsed_seconds": 73.64,
+      "event_id": "event_transition_announcement",
+      "event_keywords_matched": 1,
+      "tier": "SECONDARY",
+      "materiality": "MODERATE",
+      "rec_count": 4,
+      "warning_count": 5,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 7 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 4 source tags on ₹ figures",
+        "verifier: injected 1 framework rationales",
+        "verifier: narrative coherence mismatch (event=+1, sentiment=-1, insight=-1); materiality downgraded HIGH → MODERATE",
+        "verifier: cross-section consistency: 3 drift warning(s)"
+      ],
+      "headline": "US anti-dumping duties on Indian solar imports put ₹604.3 Cr (engine estimate) revenue at risk for Waaree Energies, triggering 246 bps margin pressure",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 48
+    },
+    {
+      "id": "icici-private-banks-valuation",
+      "company_slug": "icici-bank",
+      "title": "Indian private banks trade below long-term valuation multiples despite robust asset quality and fundamentals",
+      "elapsed_seconds": 71.94,
+      "event_id": "event_quarterly_results",
+      "event_keywords_matched": 3,
+      "tier": "SECONDARY",
+      "materiality": "HIGH",
+      "rec_count": 4,
+      "warning_count": 2,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 7 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 4 source tags on ₹ figures"
+      ],
+      "headline": "₹45,000 Cr (engine estimate) FII outflow triggers valuation compression for ICICI Bank despite strong fundamentals",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 46
+    },
+    {
+      "id": "idfc-q4-results",
+      "company_slug": "idfc-first-bank",
+      "title": "IDFC First Bank Q4 Results: Date, Time, Dividend News, Earnings Call Details And More",
+      "elapsed_seconds": 79.73,
+      "event_id": "event_quarterly_results",
+      "event_keywords_matched": 7,
+      "tier": "HOME",
+      "materiality": "MODERATE",
+      "rec_count": 4,
+      "warning_count": 4,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 8 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 2 source tags on ₹ figures",
+        "verifier: narrative coherence mismatch (event=+0, sentiment=+1, insight=-1); materiality downgraded HIGH → MODERATE",
+        "verifier: cross-section consistency: 1 drift warning(s)"
+      ],
+      "headline": "IDFC First Bank's strong Q3FY26 profit signals positive Q4 outlook, boosting investor confidence and valuation",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 50
+    },
+    {
+      "id": "synth-sebi-penalty-adani",
+      "company_slug": "adani-power",
+      "title": "SEBI imposes Rs 50 Cr penalty on Adani Power for BRSR disclosure lapse",
+      "elapsed_seconds": 72.51,
+      "event_id": "event_regulatory_policy",
+      "event_keywords_matched": 1,
+      "tier": "HOME",
+      "materiality": "CRITICAL",
+      "rec_count": 5,
+      "warning_count": 3,
+      "warnings": [
+        "verifier: added 5 source tags on ₹ figures",
+        "verifier: injected 2 framework rationales",
+        "verifier: cross-section consistency: 1 drift warning(s)"
+      ],
+      "headline": "SEBI imposes ₹50 Cr (from article) penalty on Adani Power for BRSR disclosure lapse, triggering ₹181.8 Cr total exposure",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 52
+    },
+    {
+      "id": "synth-jsw-capacity-add",
+      "company_slug": "jsw-energy",
+      "title": "JSW Energy commissions 500 MW solar plant in Karnataka",
+      "elapsed_seconds": 89.38,
+      "event_id": "event_capacity_addition",
+      "event_keywords_matched": 4,
+      "tier": "SECONDARY",
+      "materiality": "MODERATE",
+      "rec_count": 4,
+      "warning_count": 3,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 4 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 4 source tags on ₹ figures",
+        "verifier: cross-section consistency: 1 drift warning(s)"
+      ],
+      "headline": "JSW Energy commissions ₹2500 Cr (engine estimate) 500 MW solar plant, boosting renewables and unlocking green financing upside",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 45
+    },
+    {
+      "id": "synth-offtopic-ameriprise",
+      "company_slug": "yes-bank",
+      "title": "Ameriprise Financial Q1 2026 earnings exceed expectations",
+      "elapsed_seconds": 107.87,
+      "event_id": "event_quarterly_results",
+      "event_keywords_matched": 2,
+      "tier": "SECONDARY",
+      "materiality": "LOW",
+      "rec_count": 3,
+      "warning_count": 1,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 6 unsupported '(from article)' claim(s) to '(engine estimate)'"
+      ],
+      "headline": "Ameriprise Financial's strong Q1 results signal sector leadership, offering benchmarking insights for YES Bank",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 42
+    },
+    {
+      "id": "synth-wrapup-daily",
+      "company_slug": "adani-power",
+      "title": "Daily News Wrap-Up: Adani Power and Sector Updates - Energy Briefs",
+      "elapsed_seconds": 93.54,
+      "event_id": "event_supply_chain_disruption",
+      "event_keywords_matched": 1,
+      "tier": "SECONDARY",
+      "materiality": "LOW",
+      "rec_count": 4,
+      "warning_count": 3,
+      "warnings": [
+        "verifier: added 2 source tags on ₹ figures",
+        "verifier: cross-section consistency: 2 drift warning(s)",
+        "verifier: low-confidence classification — review before sending (single weak keyword + neutral sentiment + no ₹ in article); materiality MODERATE → LOW"
+      ],
+      "headline": "Adani Power faces ₹152.4 Cr (engine estimate) supply chain disruption risk, triggering disclosure and margin impact",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 55
+    },
+    {
+      "id": "synth-icici-iso-cert",
+      "company_slug": "icici-bank",
+      "title": "ICICI Bank receives ISO 14001 certification and MSCI ESG upgrade to AA",
+      "elapsed_seconds": 94.82,
+      "event_id": "event_esg_certification",
+      "event_keywords_matched": 4,
+      "tier": "HOME",
+      "materiality": "MODERATE",
+      "rec_count": 4,
+      "warning_count": 4,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 7 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 2 source tags on ₹ figures",
+        "verifier: narrative coherence mismatch (event=+1, sentiment=+1, insight=-1); materiality downgraded HIGH → MODERATE",
+        "verifier: cross-section consistency: 3 drift warning(s)"
+      ],
+      "headline": "ICICI Bank's ISO 14001 and MSCI AA ESG upgrade unlocks ₹27 Cr (engine estimate) cost-of-capital benefit, boosting investor appeal",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 48
+    }
+  ]
+}

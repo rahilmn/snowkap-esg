@@ -1,0 +1,81 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Ethics & Compliance is material for Power/Energy → impacts Adani Power"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "BRSR",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers BRSR disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "GRI",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers GRI disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "ESRS",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers ESRS disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "SEBI Disclosure Violation",
+        "BRSR",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "SEBI Disclosure Violation -> BRSR -> Power/Energy -> Adani Power"
+    }
+  ]
+}

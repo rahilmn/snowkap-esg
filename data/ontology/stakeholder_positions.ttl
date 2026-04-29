@@ -1,0 +1,175 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — Stakeholder Positions (Phase 4)
+#
+# 8 stakeholder types × topic triggers. Used by the CEO narrative generator
+# to produce a stakeholder map a listed-company CEO would recognise: named
+# stakeholders, their likely stance on the topic, and precedent behaviour.
+# =============================================================================
+
+snowkap:StakeholderPosition a owl:Class ;
+    rdfs:label "Stakeholder Position"@en ;
+    rdfs:comment "How a named stakeholder category is likely to respond to a topic-type event."@en .
+
+snowkap:stakeholderLabel a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string .
+snowkap:stakeholderType a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string ;
+    rdfs:comment "regulator | rating_agency | investor | proxy_advisor | ngo | employee | customer | community"@en .
+snowkap:stakeholderTopicTrigger a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string ;
+    rdfs:comment "comma-separated topic slugs that this stakeholder reacts to"@en .
+snowkap:stakeholderDefaultStance a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string .
+snowkap:stakeholderPrecedent a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string .
+snowkap:stakeholderEscalationWindow a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string .
+
+# Phase 15 — POSITIVE-POLARITY stance + precedent.
+#
+# The default stakeholderDefaultStance + stakeholderPrecedent above are
+# negative-event-flavored (regulator escalation, rating downgrade, AGM-
+# vote-against). Pre-Phase-15, on positive events (contract wins, capacity
+# adds, ESG cert upgrades) the CEO narrative still cited "Vedanta 2020 SCN"
+# and "Wells Fargo 2016 BBB→B over fraud" as the per-stakeholder precedents
+# — completely incongruous on a positive article.
+#
+# These two new predicates carry the upside-flavored counterpart for each
+# stakeholder. The query_stakeholder_positions function picks the
+# appropriate field at runtime based on event polarity (is_positive_event).
+# Stakeholders without a positive-stance entry are SKIPPED on positive
+# events (better to omit a stakeholder than emit a wrong stance).
+snowkap:stakeholderPositiveStance a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string ;
+    rdfs:comment "Stance for upside / endorsement events. Phase 15."@en .
+snowkap:stakeholderPositivePrecedent a owl:DatatypeProperty ;
+    rdfs:domain snowkap:StakeholderPosition ; rdfs:range xsd:string ;
+    rdfs:comment "Precedent for upside / endorsement events. Phase 15."@en .
+
+# -----------------------------------------------------------------------------
+# 1. SEBI (securities regulator)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_sebi_governance a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "SEBI (Securities & Exchange Board of India)" ;
+    snowkap:stakeholderType "regulator" ;
+    snowkap:stakeholderTopicTrigger "regulatory_policy, governance_failure, fraud_disclosure, related_party_transactions, insider_trading, mandatory_disclosure" ;
+    snowkap:stakeholderDefaultStance "Enforcement escalation if remediation plan absent within 30-60 days. Formal show-cause → interim penalty → appeal window. Settlement via Consent Mechanism in 40-60% of cases." ;
+    snowkap:stakeholderPrecedent "Vedanta 2020 SCN → ₹450 Cr settlement; ICICI Bank 2018-23 CEO clawback ₹450 Cr + 5-year debarment recommendation; Kotak 2018 promoter-stake dispute resolved via SC" ;
+    snowkap:stakeholderEscalationWindow "60-90 days between SCN and formal order; 12-18 months to SAT resolution on appeal" ;
+    snowkap:stakeholderPositiveStance "No enforcement signal expected. SEBI typically acknowledges high-quality disclosure via positive mention in stewardship reports; expedited approvals for green-bond / sustainability-linked filings (8-12 weeks vs 16-20 weeks baseline)." ;
+    snowkap:stakeholderPositivePrecedent "SEBI 2024 stewardship circular cited 12 'leading' BRSR filers; Tata Power green-bond filing approved in 9 weeks vs 18-week median; HDFC Bank 2023 expedited AT-1 issuance review post-DJSI inclusion" .
+
+snowkap:stk_sebi_climate a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "SEBI (BRSR + climate stewardship)" ;
+    snowkap:stakeholderType "regulator" ;
+    snowkap:stakeholderTopicTrigger "climate_disclosure, BRSR_filing, TCFD_disclosure, stewardship, sustainable_bonds" ;
+    snowkap:stakeholderDefaultStance "Top-100 companies mandatory BRSR since FY23; top-250 from FY25; expansion to top-1000 planned by FY27. SEBI has signalled post-FY26 enforcement action for material non-compliance (missing Principle 6 data, incomplete Scope 1/2 reporting)." ;
+    snowkap:stakeholderPrecedent "SEBI Circular Jul 2023 outlining assurance requirements; FY24 pilot on 250 companies; no monetary penalties yet, but 'Inadequate Disclosure' notations in 12 cases" ;
+    snowkap:stakeholderEscalationWindow "Quarterly filing; deficiency notice within 30 days; rectification window 60 days" ;
+    snowkap:stakeholderPositiveStance "Likely include the company in next BRSR 'leading practice' list; expedited green-bond / sustainability-linked filing review; potential featured mention in next stewardship circular as a benchmark." ;
+    snowkap:stakeholderPositivePrecedent "Tata Power 2024 cited as BRSR leader by SEBI; Infosys + HDFC Bank named in stewardship circular FY24; SECI auctions consistently cleared by leaders inside committed timelines" .
+
+# -----------------------------------------------------------------------------
+# 2. RBI (banking regulator)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_rbi_governance a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "RBI (Reserve Bank of India)" ;
+    snowkap:stakeholderType "regulator" ;
+    snowkap:stakeholderTopicTrigger "regulatory_policy, governance_failure, NPA_disclosure, cyber_incident, climate_disclosure" ;
+    snowkap:stakeholderDefaultStance "Direct intervention via moratorium, AQR, or governance restructuring for material asset-quality or fraud events. Climate stress test framework applies to top-16 banks from FY27." ;
+    snowkap:stakeholderPrecedent "YES Bank 2020 moratorium; HDFC Bank 2020-21 tech-freeze; Kotak promoter dispute 2018-20; RBI AQR 2015-18 exposed ₹5 lakh Cr hidden NPAs" ;
+    snowkap:stakeholderEscalationWindow "AQR: 30-60 days; moratorium: days; CEO extension denial: 30 days pre-term" ;
+    snowkap:stakeholderPositiveStance "Generally neutral on positive ESG / capacity events. May cite the company in financial-stability reports as exemplar of climate-aligned lending or governance reform; supportive of green-bond / sustainability-linked debt issuance." ;
+    snowkap:stakeholderPositivePrecedent "RBI Climate Stress Test consultation 2024 cited HDFC + ICICI as advanced participants; State Bank of India 2024 sustainability-linked loan supported in RBI green-finance roadmap" .
+
+# -----------------------------------------------------------------------------
+# 3. ISS / Glass Lewis (proxy advisors)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_iss_glasslewis a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "ISS + Glass Lewis (proxy advisors)" ;
+    snowkap:stakeholderType "proxy_advisor" ;
+    snowkap:stakeholderTopicTrigger "governance_failure, related_party_transactions, board_governance, audit_committee, executive_compensation, succession_planning" ;
+    snowkap:stakeholderDefaultStance "AGAINST vote recommendation on audit committee chair or CEO re-election for material governance failures. Downgrade of governance rating (MSCI/ISS QualityScore) by 1-2 bands. AGM season cadence: April-September." ;
+    snowkap:stakeholderPrecedent "Infosys 2017 Sikka exit → ISS flagged 2 AGMs; Tata Sons-Mistry 2016-18 dispute → multiple ISS downgrades; Zee Entertainment 2023 Sony merger collapse → ISS against AGM resolutions" ;
+    snowkap:stakeholderEscalationWindow "60-90 days before AGM; analyst notes published 3 weeks pre-vote" ;
+    snowkap:stakeholderPositiveStance "Likely FOR vote on board / re-elections + supportive AGM notes; potential 1-band lift in MSCI/ISS QualityScore reflecting governance momentum from the positive event. Endorsement in 'sustainable-leader' AGM packages." ;
+    snowkap:stakeholderPositivePrecedent "Tata Power FY24 green capex disclosure → ISS QualityScore G6→G4 upgrade; Infosys FY23 RE100 commitment → ISS supportive notes for 3 consecutive AGMs; HDFC Bank FY24 ISO 14001 → Glass Lewis 'sustainability leader' classification" .
+
+# -----------------------------------------------------------------------------
+# 4. MSCI ESG Ratings
+# -----------------------------------------------------------------------------
+
+snowkap:stk_msci_esg a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "MSCI ESG Ratings" ;
+    snowkap:stakeholderType "rating_agency" ;
+    snowkap:stakeholderTopicTrigger "esg_rating_change, governance_failure, social_violation, environmental_violation, fraud_disclosure, regulatory_policy" ;
+    snowkap:stakeholderDefaultStance "Rating action (e.g., BBB → BB) within 90-180 days of material event. Watch-list status in interim. Flow-through to MSCI ESG Leaders / SRI indices triggers 1-3% AUM outflow from passive strategies." ;
+    snowkap:stakeholderPrecedent "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion; Adani Group 2023 free-float weight cut; Wells Fargo 2016 BBB→B over fraud" ;
+    snowkap:stakeholderEscalationWindow "Watch-list: 30 days; formal downgrade: 90-180 days" ;
+    snowkap:stakeholderPositiveStance "1-2 band rating upgrade pathway over 6-12 months as the new disclosure / capacity / certification flows through MSCI's annual review. Inclusion eligibility in MSCI ESG Leaders / SRI indices triggers 1-2% incremental passive AUM flow." ;
+    snowkap:stakeholderPositivePrecedent "Infosys 2023 A→AA upgrade post Scope-3 PCAF disclosure; HDFC Bank 2023 BBB→A on DJSI inclusion; JSW Energy 2024 BB→BBB after Vijayanagar commissioning; Tata Power 2024 BBB→A on renewable capex pace" .
+
+# -----------------------------------------------------------------------------
+# 5. Sustainalytics (rating agency)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_sustainalytics a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "Sustainalytics (Morningstar)" ;
+    snowkap:stakeholderType "rating_agency" ;
+    snowkap:stakeholderTopicTrigger "esg_rating_change, governance_failure, social_violation, environmental_violation, supply_chain_disruption" ;
+    snowkap:stakeholderDefaultStance "ESG Risk Rating increase (lower = better); severity category escalation (medium → high → severe) triggers flow-through to EU Article 8/9 fund screens. Sign review cycle quarterly. Corporate Governance Risk Rating separate scale." ;
+    snowkap:stakeholderPrecedent "Adani Mundra 2020 NGT → medium→high risk; Reliance 2024 controversy review; Hindustan Coca-Cola Plachimada → severe risk" ;
+    snowkap:stakeholderEscalationWindow "Controversy review: 60 days; formal rating update: quarterly" ;
+    snowkap:stakeholderPositiveStance "ESG Risk Rating reduction (severity downgrade) over 6-9 months; potential category move (high→medium or medium→low) if disclosure / capacity / cert event sustains. Triggers EU Article 8 fund eligibility and 50-150 bps green-bond pricing differential." ;
+    snowkap:stakeholderPositivePrecedent "Tata Steel 2023 risk severity high→medium post Scope-3 reduction; Larsen & Toubro 2024 Corporate Governance Risk medium→low after audit-committee refresh; Mahindra 2023 medium→low on RE100 progress" .
+
+# -----------------------------------------------------------------------------
+# 6. BlackRock + Norges Bank Investment Management (top institutional investors)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_blackrock_nbim a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "BlackRock + Norges Bank IM + CalPERS (Top-10 AUM)" ;
+    snowkap:stakeholderType "investor" ;
+    snowkap:stakeholderTopicTrigger "governance_failure, fraud_disclosure, social_violation, regulatory_policy, climate_disclosure, transition_announcement" ;
+    snowkap:stakeholderDefaultStance "Private engagement first (letter/meeting) within 30-60 days. Vote against if remediation absent by next AGM. Exclusion from ESG mandate AUM if severity=high sustained 2+ quarters. Position review on 8-12% AUM flows." ;
+    snowkap:stakeholderPrecedent "NBIM 2017 excluded 11 coal miners incl. Adani Ports; BlackRock 2020 engagement with Exxon led to board shake-up; CalPERS 2023 Japanese corp governance push" ;
+    snowkap:stakeholderEscalationWindow "Private engagement: 30-90 days; vote decision: AGM timing; exclusion: 6-12 months" ;
+    snowkap:stakeholderPositiveStance "Re-weighting in ESG / climate-aligned mandates over 1-2 quarters; potential 0.5-1.5% incremental passive AUM flow from index inclusion / weight uplift. Public endorsement at investor day or stewardship report; supportive AGM votes." ;
+    snowkap:stakeholderPositivePrecedent "BlackRock 2024 Tata Power weight uplift post-Khavda commissioning; NBIM 2024 included Mahindra in Climate Transition mandate; CalPERS 2023 added Infosys to ESG-leader allocation post AA upgrade" .
+
+# -----------------------------------------------------------------------------
+# 7. Workforce / Employees (via attrition, unions, whistleblowers)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_workforce a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "Workforce (via attrition, unions, whistleblowers, review platforms)" ;
+    snowkap:stakeholderType "employee" ;
+    snowkap:stakeholderTopicTrigger "social_violation, occupational_health, workforce_policy, governance_failure, labour_strike, compensation" ;
+    snowkap:stakeholderDefaultStance "Attrition spike 5-15% in 6-12 months post-event; Glassdoor ratings drop 0.3-0.5; recruitment cost rises 20-40%. Union/works council engagement triggers NLRA-style litigation for covered entities. Whistleblower filings rise 2-4× after material event." ;
+    snowkap:stakeholderPrecedent "Infosys 2022 moonlighting → 28% attrition spike; Maruti Manesar 2012 → 33-day shutdown + 546 terminations; TCS bench policy 2023 → Glassdoor -0.4 rating" ;
+    snowkap:stakeholderEscalationWindow "Attrition visibility: 1-2 quarters; litigation: 6-18 months" ;
+    snowkap:stakeholderPositiveStance "Improved Glassdoor / AmbitionBox ratings (+0.2-0.4 over 2-3 quarters); reduced attrition; recruitment cost falls 5-15%; positive employer-brand signal supports talent acquisition for ramp / new-asset commissioning." ;
+    snowkap:stakeholderPositivePrecedent "Tata Power post-Khavda commissioning → 8% attrition decrease + Glassdoor +0.3 in 2 quarters; Adani Green hiring premium reduced after Khavda phase-1 commissioning; HDFC Bank ISO 14001 → positive Glassdoor lift in environment-related reviews" .
+
+# -----------------------------------------------------------------------------
+# 8. Civil society / NGO coalition (Amnesty, BHRRC, CSE, etc.)
+# -----------------------------------------------------------------------------
+
+snowkap:stk_civil_society a snowkap:StakeholderPosition ;
+    snowkap:stakeholderLabel "Civil Society + NGO Coalition (Amnesty, BHRRC, CSE, Oxfam)" ;
+    snowkap:stakeholderType "ngo" ;
+    snowkap:stakeholderTopicTrigger "social_violation, community_conflict, environmental_violation, supply_chain_disruption, forced_labour, child_labour" ;
+    snowkap:stakeholderDefaultStance "Investigation + public report within 60-120 days; media campaign + amplification through multinational boycott networks. Shadow-reporting to OECD National Contact Points, UN Working Group on Business & HR." ;
+    snowkap:stakeholderPrecedent "Amnesty Vedanta Konkola 2020 → MSCI downgrade + bond spread widening 28 bps; Amnesty Adani Carmichael 2019 → 4 global banks declined financing; Oxfam Tata Steel Mozambique 2022 report" ;
+    snowkap:stakeholderEscalationWindow "Investigation: 60-120 days; public report + campaign: 12-18 months" ;
+    snowkap:stakeholderPositiveStance "Public acknowledgement in coalition report or 'progressive companies' index; muting of campaign pressure; potential constructive dialogue invitations replacing adversarial advocacy. Reduced media-amplification cycle." ;
+    snowkap:stakeholderPositivePrecedent "BHRRC 2023 listed 8 'leading transparency' Indian companies including Tata Power; Oxfam 2024 acknowledged Mahindra Rural Housing Finance for inclusive practices; Amnesty 2024 noted 12 Indian firms with strengthened human-rights due diligence" .

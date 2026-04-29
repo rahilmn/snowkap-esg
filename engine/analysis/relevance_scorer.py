@@ -8,12 +8,18 @@ Output tier:
 - HOME (total >= 7 AND esg_correlation > 0) — deep insight generation
 - SECONDARY (4-6) — feed-only
 - REJECTED (< 4 OR esg_correlation == 0) — filtered out
+
+Phase 1 additions:
+- `is_demo_ready()` — gate for the public demo surface. An article is
+  demo-ready only if relevance is strong, freshness is tight, and (when
+  provided) computed financial exposure clears the minimum bar.
 """
 
 from __future__ import annotations
 
 import logging
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from engine.nlp.extractor import NLPExtraction
@@ -212,3 +218,61 @@ def score_relevance(
         rejection_reason=rejection_reason,
         ontology_queries=ontology_queries,
     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 1: demo-ready gate
+# ---------------------------------------------------------------------------
+
+
+def _parse_iso(ts: str | None) -> datetime | None:
+    if not ts:
+        return None
+    try:
+        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+    except (TypeError, ValueError):
+        return None
+
+
+def is_demo_ready(
+    score: RelevanceScore,
+    published_at: str,
+    computed_exposure_cr: float | None = None,
+    min_relevance: float = 7.0,
+    max_age_hours: int = 72,
+    min_exposure_cr: float = 10.0,
+    now: datetime | None = None,
+) -> tuple[bool, str]:
+    """Return (is_ready, reason). Reason is diagnostic — empty on pass.
+
+    An article qualifies for the public demo surface only when:
+      1. Tier is HOME (only CRITICAL/HIGH materiality surface)
+      2. Adjusted relevance score >= min_relevance
+      3. Published within max_age_hours
+      4. Computed financial exposure >= min_exposure_cr (if provided)
+
+    The exposure check is skipped when `computed_exposure_cr` is None — the
+    caller is responsible for running it through `primitive_engine.compute_cascade`
+    before making the demo_ready call in the production path.
+    """
+    if score.tier != TIER_HOME:
+        return False, f"tier is {score.tier} (need HOME)"
+
+    if score.adjusted_total < min_relevance:
+        return False, f"adjusted_total {score.adjusted_total} < {min_relevance}"
+
+    ts = _parse_iso(published_at)
+    if ts is None:
+        return False, "published_at unparseable"
+    now = now or datetime.now(timezone.utc)
+    age = now - ts
+    if age > timedelta(hours=max_age_hours):
+        return False, f"age {age.total_seconds() / 3600:.1f}h > {max_age_hours}h"
+
+    if computed_exposure_cr is not None and computed_exposure_cr < min_exposure_cr:
+        return False, f"exposure ₹{computed_exposure_cr:.1f} Cr < ₹{min_exposure_cr} Cr"
+
+    return True, ""

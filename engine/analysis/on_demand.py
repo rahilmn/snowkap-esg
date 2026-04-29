@@ -35,6 +35,8 @@ def enrich_on_demand(
 
     Returns the full enriched payload dict, or None on failure.
     """
+    from engine.analysis.ceo_narrative_generator import generate_ceo_narrative_perspective
+    from engine.analysis.esg_analyst_generator import generate_esg_analyst_perspective
     from engine.analysis.insight_generator import generate_deep_insight
     from engine.analysis.perspective_engine import transform_for_perspective
     from engine.analysis.pipeline import PipelineResult
@@ -103,9 +105,24 @@ def enrich_on_demand(
         return payload
 
     # 6. Stage 11: Perspective transformation
+    # Phase 17 fix — mirror the ingest path (engine/main.py::_run_article).
+    # Pre-fix the on-demand path used the legacy `transform_for_perspective`
+    # for ALL THREE lenses, producing thin ESG Analyst + CEO panels missing
+    # stakeholder_map / kpi_table / audit_trail / three_year_trajectory.
+    # The ingest path correctly uses the Phase 4 dedicated generators for
+    # ESG Analyst + CEO and only uses the legacy transform for CFO.
     perspectives: dict[str, Any] = {}
-    for lens in ("esg-analyst", "cfo", "ceo"):
-        perspectives[lens] = transform_for_perspective(insight, result, lens)
+    try:
+        perspectives["esg-analyst"] = generate_esg_analyst_perspective(insight, result, company)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("esg_analyst generator failed (%s); falling back to legacy transform", exc)
+        perspectives["esg-analyst"] = transform_for_perspective(insight, result, "esg-analyst")
+    try:
+        perspectives["ceo"] = generate_ceo_narrative_perspective(insight, result, company)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("ceo_narrative generator failed (%s); falling back to legacy transform", exc)
+        perspectives["ceo"] = transform_for_perspective(insight, result, "ceo")
+    perspectives["cfo"] = transform_for_perspective(insight, result, "cfo")
 
     # 7. Stage 12: Recommendations
     recs = generate_recommendations(insight, result, company)

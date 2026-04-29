@@ -1,0 +1,46 @@
+# Snowkap ESG — Single-container stack (Phase 16)
+#
+# Use this file (not the legacy docker-compose.yml which targets the old
+# PostgreSQL/Redis/Jena/MinIO/Anthropic stack we no longer ship).
+#
+# Quick start:
+#   cp .env.production.example .env && edit .env
+#   docker compose -f docker-compose.snowkap.yml up --build
+#
+# This boots the API + frontend (single container) on http://localhost:8000.
+# Open that URL — the FastAPI server serves the built React SPA from
+# /client/dist as well as /api/...
+
+services:
+  snowkap:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: snowkap-esg:local
+    container_name: snowkap-esg
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Persist SQLite + ontology + outputs across restarts
+      - ./data:/opt/snowkap/data
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # Drip scheduler tick — runs every 15 min via host cron OR a sidecar
+  # container. Uncomment the sidecar below if you don't want host cron.
+  #
+  # snowkap-drip:
+  #   image: snowkap-esg:local
+  #   restart: unless-stopped
+  #   env_file: [.env]
+  #   volumes:
+  #     - ./data:/opt/snowkap/data
+  #   entrypoint: ["sh", "-c"]
+  #   command: ["while true; do python -m engine.output.campaign_runner --tick; sleep 900; done"]

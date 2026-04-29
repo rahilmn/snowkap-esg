@@ -3,15 +3,16 @@ import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
 
-// Force clear all caches on app boot (v2 cache bust)
+// Force clear all caches on app boot (v2 cache bust).
+// No console.log on success — Phase 13 B5 ESLint rule enforces that.
 const CACHE_VERSION = "v5";
 if (localStorage.getItem("snowkap-cache-version") !== CACHE_VERSION) {
   // Clear React Query cache, Zustand saved store, and old data
   localStorage.removeItem("snowkap-saved");
   localStorage.setItem("snowkap-cache-version", CACHE_VERSION);
-  console.log("[Snowkap] Cache cleared for version", CACHE_VERSION);
 }
 
 const queryClient = new QueryClient({
@@ -28,10 +29,12 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ErrorBoundary>
   </StrictMode>,
 );

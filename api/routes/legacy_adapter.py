@@ -33,7 +33,9 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Qu
 from pydantic import BaseModel
 
 from api.auth import require_auth
+from api.auth_context import SUPER_ADMIN_PERMISSIONS, is_snowkap_super_admin, mint_bearer
 from engine.config import Company, get_data_path, load_companies, load_settings
+from engine.index import tenant_registry
 from engine.index import sqlite_index
 from engine.ontology import intelligence as onto_q
 from engine.ontology.causal_engine import find_causal_chains
@@ -42,15 +44,34 @@ from engine.ontology.graph import OntologyGraph
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["legacy"])
 
-# Lazy-loaded ontology graph singleton
+# Phase 13 S3 — ontology graph is eager-loaded at app startup (see
+# api/main.py::_startup) so a corrupt or missing TTL fails the boot health
+# check rather than the FIRST user request mid-demo. The lazy fallback
+# stays here for tests/scripts that import `_graph()` without booting the
+# full FastAPI app.
 _GRAPH: OntologyGraph | None = None
 
 
 def _graph() -> OntologyGraph:
-    """Return the ontology graph, loading it on first access."""
+    """Return the ontology graph, loading it if not already cached.
+
+    Phase 13 S3: in production this is a hot cache hit because
+    `eager_load_ontology()` runs at startup. For test/script callers
+    that haven't booted the API, falls back to lazy load.
+    """
     global _GRAPH
     if _GRAPH is None:
         _GRAPH = OntologyGraph().load()
+    return _GRAPH
+
+
+def eager_load_ontology() -> OntologyGraph:
+    """Phase 13 S3 — explicit eager-load entry point invoked at FastAPI
+    app startup. Surfaces TTL syntax errors / missing files at boot rather
+    than at first request mid-demo. Returns the loaded graph for tests
+    that want to assert load success."""
+    global _GRAPH
+    _GRAPH = OntologyGraph().load()
     return _GRAPH
 
 
@@ -547,10 +568,24 @@ def _load_row_and_payload(article_id: str) -> tuple[dict[str, Any], dict[str, An
 
 
 def _mint_token(claims: dict[str, Any]) -> str:
-    """Construct an unsigned base64 JWT-style token. No signature check."""
-    header = base64.urlsafe_b64encode(b'{"alg":"none","typ":"JWT"}').rstrip(b"=").decode()
-    payload = base64.urlsafe_b64encode(json.dumps(claims).encode()).rstrip(b"=").decode()
-    return f"{header}.{payload}."
+    """Mint a signed JWT for this user's session.
+
+    Phase 11A: signs with HS256 + JWT_SECRET via `mint_bearer`. Previously
+    this was an unsigned base64 token — clients still holding those will be
+    accepted for the 24h compat window (see `decode_bearer` + the
+    REQUIRE_SIGNED_JWT env flag).
+    """
+    return mint_bearer(claims, exp_days=7)
+
+
+def _tenant_has_indexed_articles(slug: str) -> bool:
+    """Phase 11B: only consider a tenant "real" if the pipeline has
+    produced ≥1 analysed article for it. Prevents the empty-shell
+    pollution bug on the super-admin's CompanySwitcher."""
+    try:
+        return sqlite_index.count(company_slug=slug) > 0
+    except Exception:
+        return False
 
 
 class ResolveDomainIn(BaseModel):
@@ -574,7 +609,9 @@ def resolve_domain(body: ResolveDomainIn) -> dict[str, Any]:
                 "tenant_id": "snowkap-dev",
             }
 
-    # Open shim — accept any domain
+    # Open shim — accept any domain. Prospects get auto-registered into
+    # the tenant_registry at LOGIN time (below), not here — we don't want
+    # someone probing the endpoint to pollute the list.
     guest = domain.split(".")[0].replace("-", " ").title()
     return {
         "domain": domain,
@@ -626,11 +663,40 @@ def _slug_for_company(name: str | None, domain: str | None = None) -> str | None
 
 @router.post("/auth/login")
 def auth_login(body: LoginIn) -> dict[str, Any]:
+    # Phase 10: Snowkap internal emails on the allowlist get super-admin perms,
+    # which unlock the CompanySwitcher, RoleViewSwitcher, and /settings/campaigns.
+    is_super = is_snowkap_super_admin(body.email)
+    permissions = (
+        list(SUPER_ADMIN_PERMISSIONS)
+        if is_super
+        else ["read", "chat", "view_analysis", "view_news"]
+    )
+
+    # Phase 11B: only record tenants that already have analysed articles in
+    # the index. This prevents random client logins from polluting the
+    # super-admin's switcher with empty-shell rows (the Phase 10 bug).
+    # Real prospects get onboarded via POST /api/admin/onboard which runs
+    # the full pipeline — the tenant_registry write happens there, not here.
+    #
+    # Snowkap internal logins are still NOT registered (we're the sellers).
+    if not is_super and body.domain:
+        try:
+            slug = tenant_registry._slug_from_domain(body.domain)
+            if _tenant_has_indexed_articles(slug):
+                tenant_registry.register_tenant(
+                    domain=body.domain,
+                    name=body.company_name or None,
+                    industry=None,
+                    source="onboarded",
+                )
+        except Exception as exc:  # never block login on a registry write failure
+            logger.warning("tenant registry upsert failed: %s", exc)
     claims = {
         "sub": body.email,
         "name": body.name,
         "company": body.company_name,
         "designation": body.designation,
+        "permissions": permissions,
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400 * 30,
     }
@@ -641,7 +707,7 @@ def auth_login(body: LoginIn) -> dict[str, Any]:
         "tenant_id": "snowkap-dev",
         "company_id": _slug_for_company(body.company_name, body.domain),
         "designation": body.designation,
-        "permissions": ["read", "chat", "view_analysis", "view_news"],
+        "permissions": permissions,
         "domain": body.domain,
         "name": body.name,
     }
@@ -655,9 +721,16 @@ class ReturningUserIn(BaseModel):
 def auth_returning_user(body: ReturningUserIn) -> dict[str, Any]:
     email = body.email.strip()
     domain = email.split("@")[-1] if "@" in email else ""
+    is_super = is_snowkap_super_admin(email)
+    permissions = (
+        list(SUPER_ADMIN_PERMISSIONS)
+        if is_super
+        else ["read", "chat", "view_analysis", "view_news"]
+    )
     claims = {
         "sub": email,
         "name": email.split("@")[0].title(),
+        "permissions": permissions,
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400 * 30,
     }
@@ -667,7 +740,7 @@ def auth_returning_user(body: ReturningUserIn) -> dict[str, Any]:
         "tenant_id": "snowkap-dev",
         "company_id": _slug_for_company(None, domain),
         "designation": "analyst",
-        "permissions": ["read", "chat", "view_analysis", "view_news"],
+        "permissions": permissions,
         "domain": domain,
         "name": email.split("@")[0].title(),
     }
@@ -749,10 +822,20 @@ def news_stats(
     total = sqlite_index.count(company_slug=company_id if company_id else None)
     high_impact = sqlite_index.count_high_impact(company_slug=company_id if company_id else None)
     new_24h = sqlite_index.count_new_last_24h(company_slug=company_id if company_id else None)
+    # Phase 13 B8 — Replace the always-zero "predictions_count" stub with
+    # a real count of HOME-tier CRITICAL/HIGH articles in the last 7 days.
+    # Frontend renders this under the label "Active Signals" so a journalist
+    # sees a meaningful non-zero number across the dashboard. The original
+    # `predictions_count` key is preserved for backwards compatibility but
+    # now mirrors `active_signals_count`.
+    active_signals = sqlite_index.count_active_signals(
+        company_slug=company_id if company_id else None
+    )
     return {
         "total": total,
         "high_impact_count": high_impact,
-        "predictions_count": 0,
+        "active_signals_count": active_signals,
+        "predictions_count": active_signals,  # back-compat alias
         "new_last_24h": new_24h,
     }
 
@@ -841,22 +924,84 @@ def news_trigger_analysis(
                 and existing_insight.get("core_mechanism")):
             return {"status": "cached", "message": "Analysis already computed"}
 
-    # Run enrichment in background thread — return immediately so frontend can poll
+    # Run enrichment in background thread — return immediately so frontend can poll.
+    # Phase 13 B2: structured status tracking + error reporting via the
+    # article_analysis_status table. Frontend polls
+    # GET /news/{id}/analysis-status to render explicit pending/running/ready/
+    # failed states instead of an indefinite spinner on crash.
     import threading
+    import time as _time
     from engine.analysis.on_demand import enrich_on_demand
+    from engine.models import article_analysis_status as analysis_status
 
     company_slug = row.get("company_slug", "")
+    analysis_status.mark_pending(article_id, company_slug)
 
     def _bg_enrich() -> None:
+        import logging
+        log = logging.getLogger(__name__)
+        t0 = _time.perf_counter()
         try:
+            analysis_status.mark_running(article_id)
             enrich_on_demand(article_id, company_slug, force=force)
-        except Exception as exc:
-            import logging
-            logging.getLogger(__name__).error("bg enrich failed: %s", exc)
+            analysis_status.mark_ready(article_id, t0)
+        except Exception as exc:  # noqa: BLE001 — must record + classify
+            klass = analysis_status.classify_pipeline_error(exc)
+            log.exception("bg enrich failed (class=%s) for %s/%s", klass, company_slug, article_id)
+            analysis_status.mark_failed(article_id, klass, str(exc), started_perf_counter=t0)
 
     thread = threading.Thread(target=_bg_enrich, daemon=True)
     thread.start()
     return {"status": "triggered", "message": "Enrichment started in background"}
+
+
+@router.get("/news/{article_id}/analysis-status")
+def news_analysis_status(
+    article_id: str,
+    _: None = Depends(require_auth),
+) -> dict[str, Any]:
+    """Phase 13 B2 — On-demand pipeline status poll.
+
+    Returns the current state of the on-demand enrichment job for an article:
+      { "state": "pending|running|ready|failed|unknown",
+        "elapsed_seconds": 42.0,
+        "error_class": "openai_rate_limit"|null,
+        "error": "..."|null,
+        "retry_after_seconds": 30 (only for transient failures) }
+
+    Frontend polls every 2-3 seconds while state in {pending, running} and
+    surfaces ready / failed states explicitly. Replaces the previous
+    indefinite spinner that hung forever on pipeline crash.
+    """
+    from engine.models import article_analysis_status as analysis_status
+
+    status = analysis_status.get_status(article_id)
+    if not status:
+        # No tracked job yet — caller may have hit /analysis directly.
+        # Return 'unknown' so the UI knows it's not pending or in flight.
+        return {
+            "state": "unknown",
+            "article_id": article_id,
+            "elapsed_seconds": 0.0,
+            "error_class": None,
+            "error": None,
+        }
+
+    payload: dict[str, Any] = {
+        "state": status.state,
+        "article_id": status.article_id,
+        "elapsed_seconds": status.elapsed_seconds,
+        "error_class": status.error_class,
+        "error": status.error,
+    }
+    # For transient failures, hint at retry timing so the UI can render
+    # a specific banner ("Rate limited; retrying in 30s").
+    if status.state == "failed":
+        if status.error_class in {"openai_rate_limit", "openai_timeout"}:
+            payload["retry_after_seconds"] = 30
+        else:
+            payload["retry_after_seconds"] = 0  # not retryable, manual fix needed
+    return payload
 
 
 @router.get("/news/{article_id}/analysis")
@@ -1382,13 +1527,8 @@ def ontology_explore(body: ExploreIn, _: None = Depends(require_auth)) -> dict[s
 
 
 # =============================================================================
-# Admin (stubbed — Hybrid scope drops the Admin UI entirely)
+# Admin (users + usage stubs — /admin/tenants owned by api/routes/admin.py)
 # =============================================================================
-
-
-@router.get("/admin/tenants")
-def admin_tenants(_: None = Depends(require_auth)) -> list[dict[str, Any]]:
-    return [{"id": "snowkap-dev", "name": "Snowkap Dev", "companies": len(load_companies())}]
 
 
 @router.get("/admin/users")

@@ -1,6 +1,20 @@
 # =============================================================================
-# SNOWKAP ESG Platform — Docker Compose (8 Services)
-# Per CLAUDE.md: esg-api, esg-worker, mirofish, postgres, redis, jena-fuseki, minio, nginx
+# SNOWKAP ESG Platform — LEGACY Docker Compose (DO NOT USE IN PRODUCTION)
+# =============================================================================
+#
+# NOT THE CURRENT PRODUCTION DEPLOYMENT TARGET.
+#
+# The engine was rewritten to a minimal stack (see CLAUDE.md line 7, 14, 34):
+#     Python engine + SQLite index + thin FastAPI + React frontend.
+#     NO PostgreSQL, NO Redis, NO Celery, NO Docker, NO Nginx.
+#
+# Production deployment (Phase 11+):
+#     uvicorn api.main:app --host 0.0.0.0 --port 8000
+#     + cron: */5 * * * * python -m engine.output.campaign_runner run-due
+#     + cron: 0 * * * * bash scripts/backup_db.sh
+#     + Resend for email (SMTP-less)
+#
+# This compose file is retained ONLY for historical reference.
 # =============================================================================
 
 services:

@@ -1,19 +1,34 @@
+# Replit configuration for Snowkap ESG Intelligence Engine.
+#
+# Modern stack (rewritten 2026-04-29 for Track A internal launch):
+#   - FastAPI thin layer at api/main.py (port 8000)
+#   - SQLite WAL index at data/snowkap.db
+#   - Built React SPA served from client/dist by api/main.py StaticFiles
+#   - In-process scheduler (60-min ingest + 30-min discovery promote)
+#     auto-starts when SNOWKAP_INPROCESS_SCHEDULER=1 OR SNOWKAP_ENV=production
+#
+# Secrets (set in Replit Secrets tab, NEVER inline here):
+#   OPENAI_API_KEY, RESEND_API_KEY, NEWSAPI_AI_API_KEY, JWT_SECRET,
+#   SNOWKAP_API_KEY, SNOWKAP_INTERNAL_EMAILS,
+#   SNOWKAP_FROM_ADDRESS=Snowkap ESG <newsletter@snowkap.co.in>,
+#   SNOWKAP_ENV=production, REQUIRE_SIGNED_JWT=1, SENTRY_DSN (optional)
+#
+# Custom domain: powerofnow.snowkap.co.in via Replit Deployments → Custom Domain.
+
 run = "bash run.sh"
-entrypoint = "backend/main.py"
 modules = ["python-3.12", "nodejs-20", "bash"]
+entrypoint = "api/main.py"
 
 [nix]
 channel = "stable-25_05"
 
 [env]
 PYTHONPATH = "/home/runner/${REPL_SLUG}"
+PYTHONUNBUFFERED = "1"
 
 [deployment]
 run = ["bash", "run.sh"]
-
-[[ports]]
-localPort = 5000
-externalPort = 5000
+deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 8000
@@ -21,15 +36,6 @@ externalPort = 80
 
 [agent]
 expertMode = true
-
-[userenv]
-
-[userenv.shared]
-JWT_SECRET = "snowkap-esg-jwt-secret-2026-production-key-change-me-64chars!!"
-SECRET_KEY = "snowkap-esg-secret-key-2026-production-change-me-64chars-long!!"
-ENVIRONMENT = "production"
-DEBUG = "false"
-DATABASE_URL_SYNC = "postgresql://postgres:password@helium/heliumdb?sslmode=disable"
 
 [workflows]
 runButton = "Project"
@@ -41,15 +47,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "Start API"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Start API"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000"
+args = "bash run.sh"
 waitForPort = 8000
 
 [workflows.workflow.metadata]

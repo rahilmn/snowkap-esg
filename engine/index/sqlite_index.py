@@ -106,9 +106,59 @@ def _connect() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
+_WAL_ENABLED = False
+
+
+def _ensure_wal_mode() -> None:
+    """Phase 11A: enable SQLite WAL mode so concurrent readers + one writer
+    don't lock. Idempotent — `PRAGMA journal_mode` is a per-DB persistent
+    setting so this runs once at first-access. `synchronous=FULL` (SQLite
+    default) is kept for durability; in WAL mode it's still fast because
+    fsync happens at commit + checkpoint, not per-page.
+
+    The crit-win is moving from default `DELETE` rollback-journal mode to
+    `WAL`: reads never block writes + writes never block reads."""
+    global _WAL_ENABLED
+    if _WAL_ENABLED:
+        return
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(DB_PATH) as conn:
+        mode = conn.execute("PRAGMA journal_mode=WAL;").fetchone()
+        if mode and mode[0].lower() != "wal":
+            logger.warning("sqlite_index: failed to enable WAL (got %r)", mode[0])
+        conn.commit()
+    _WAL_ENABLED = True
+
+
 def ensure_schema() -> None:
+    _ensure_wal_mode()
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
+
+
+def purge_rejected_articles(older_than_days: int = 90) -> int:
+    """Phase 11D: trim REJECTED articles older than N days. Keep HOME +
+    SECONDARY forever (they're intellectual property).
+
+    Returns the number of rows deleted. Safe to run from cron:
+        0 3 * * 0 python -m engine.index.sqlite_index purge-rejected
+    """
+    ensure_schema()
+    cutoff_sql = f"datetime('now', '-{int(older_than_days)} days')"
+    with _connect() as conn:
+        result = conn.execute(
+            f"""
+            DELETE FROM article_index
+            WHERE tier = 'REJECTED'
+              AND COALESCE(written_at, published_at, '') != ''
+              AND COALESCE(written_at, published_at) < {cutoff_sql}
+            """
+        )
+        deleted = result.rowcount
+    if deleted > 0:
+        logger.info("purge_rejected_articles: removed %d REJECTED rows older than %d days",
+                    deleted, older_than_days)
+    return deleted
 
 
 # ---------------------------------------------------------------------------
@@ -295,6 +345,31 @@ def count_new_last_24h(company_slug: str | None = None) -> int:
     ensure_schema()
     clauses = ["published_at >= datetime('now', '-1 day')"]
     params: list[Any] = []
+    if company_slug:
+        clauses.append("company_slug = ?")
+        params.append(company_slug)
+    where = "WHERE " + " AND ".join(clauses)
+    with _connect() as conn:
+        return int(conn.execute(f"SELECT COUNT(*) FROM article_index {where}", params).fetchone()[0])
+
+
+def count_active_signals(company_slug: str | None = None, days: int = 7) -> int:
+    """Phase 13 B8 — count of forward-looking risk signals.
+
+    Backs the dashboard's "Active Signals" tile (formerly the always-zero
+    "Predictions" stub). Definition: HOME-tier articles published in the
+    last `days` days with materiality CRITICAL or HIGH. This is a
+    meaningful, non-zero number for any active company and gives the demo
+    a credible "live risk surface" feel without needing the full Phase I6
+    sentiment-prediction engine.
+    """
+    ensure_schema()
+    clauses = [
+        "tier = 'HOME'",
+        "(materiality IN ('CRITICAL', 'HIGH') OR relevance_score >= 7.0)",
+        "published_at >= datetime('now', ?)",
+    ]
+    params: list[Any] = [f"-{int(max(1, days))} days"]
     if company_slug:
         clauses.append("company_slug = ?")
         params.append(company_slug)

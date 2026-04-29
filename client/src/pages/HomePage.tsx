@@ -3,8 +3,8 @@
  * Shows: FOMO stats + #1 priority card + 3 mini-cards + competitor section + Feed link.
  */
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { news } from "../lib/api";
 import { useAuthStore } from "../stores/authStore";
@@ -27,9 +27,26 @@ export default function HomePage() {
   const queryClient = useQueryClient();
   const name = useAuthStore((s) => s.name) || "there";
   const companyId = useAuthStore((s) => s.companyId);
+  const setCompanyId = useAuthStore((s) => s.setCompanyId);
   const firstName = name.split(" ")[0];
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
+
+  // Phase 18 — honour `?company=<slug>` URL param so the "Open dashboard"
+  // button on the onboarding success screen actually switches the
+  // CompanySwitcher to the freshly-onboarded tenant. Pre-fix the user
+  // had to manually find the new company in the dropdown after onboarding.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const fromUrl = searchParams.get("company");
+    if (fromUrl && fromUrl !== companyId) {
+      setCompanyId(fromUrl);
+      // Clean the URL so back-nav / refresh doesn't keep re-applying.
+      const next = new URLSearchParams(searchParams);
+      next.delete("company");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, companyId, setCompanyId, setSearchParams]);
 
   const { data: feedData, isLoading } = useQuery({
     queryKey: ["home-articles", companyId],
@@ -45,6 +62,12 @@ export default function HomePage() {
   const { data: statsData } = useQuery({
     queryKey: ["news-stats", companyId],
     queryFn: () => news.stats(companyId || undefined),
+    // Phase 13 S6: auto-refresh every 30s so the dashboard reflects new
+    // articles ingested in the background without forcing the user to
+    // click "Scan Now". Avoids the demo-day surprise where stats look
+    // stale despite a fresh fetch having completed seconds earlier.
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
   });
 
   const refreshMutation = useMutation({
@@ -60,6 +83,58 @@ export default function HomePage() {
       setTimeout(() => setScanResult(null), 3000);
     },
   });
+
+  // Phase A2 (Track A launch) — on-page-open background fetch.
+  //
+  // When an analyst opens the news page, fire `news.refresh()` in the
+  // background IF the last fetch was > 10 minutes ago. The dashboard renders
+  // immediately from the SQLite cache; the refresh runs silently and React
+  // Query invalidates the stat tiles + feed when it lands.
+  //
+  // Cooldown guard via localStorage (not Zustand) so it survives hard
+  // refresh + tab switch. Five analysts each opening the page in a
+  // 10-minute window only triggers ONE upstream fetch.
+  //
+  // Failure-mode: if news.refresh() errors (NewsAPI rate-limit, etc), we
+  // do NOT surface a toast — this is a silent background optimisation,
+  // not a user-initiated action. The "Scan Now" button still does the
+  // foreground version with feedback.
+  useEffect(() => {
+    const COOLDOWN_KEY = "snowkap-last-scan";
+    const COOLDOWN_MS = 10 * 60 * 1000;
+    const now = Date.now();
+    let lastScanAt = 0;
+    try {
+      const raw = localStorage.getItem(COOLDOWN_KEY);
+      if (raw) {
+        const parsed = parseInt(raw, 10);
+        if (Number.isFinite(parsed)) lastScanAt = parsed;
+      }
+    } catch {
+      /* localStorage disabled (private browsing) — treat as cold */
+    }
+    if (now - lastScanAt < COOLDOWN_MS) return;
+    // Optimistically write the new timestamp BEFORE firing so concurrent
+    // mounts (multiple tabs opening within milliseconds) don't double-fetch.
+    try {
+      localStorage.setItem(COOLDOWN_KEY, String(now));
+    } catch {
+      /* ignore */
+    }
+    // Fire-and-forget. We invalidate the queries on success to refresh the
+    // visible feed + stats without the user clicking anything.
+    news
+      .refresh()
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["home-articles"] });
+        queryClient.invalidateQueries({ queryKey: ["news-stats"] });
+      })
+      .catch(() => {
+        /* Silent failure — Scan Now button is the user-facing path */
+      });
+    // Empty deps: run exactly once per HomePage mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const topArticle = feedData?.[0] as Article | undefined;
   const moreArticles = (feedData?.slice(1, 4) || []) as Article[];
@@ -100,7 +175,15 @@ export default function HomePage() {
               { value: statsData.total, label: "Articles", color: COLORS.textPrimary },
               { value: statsData.high_impact_count, label: "High Impact", color: COLORS.riskHigh },
               { value: statsData.new_last_24h, label: "New Today", color: COLORS.brand },
-              { value: statsData.predictions_count, label: "Predictions", color: COLORS.framework },
+              // Phase 13 B8 — Replaced the always-zero "Predictions" stub
+              // with "Active Signals" backed by HOME-tier CRITICAL/HIGH
+              // articles in the last 7 days. Back-compat: prefer the new
+              // `active_signals_count` field, fall back to `predictions_count`.
+              {
+                value: statsData.active_signals_count ?? statsData.predictions_count,
+                label: "Active Signals",
+                color: COLORS.framework,
+              },
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <p style={{ fontSize: "18px", fontWeight: 700, color: stat.color }}>{stat.value}</p>
@@ -149,9 +232,13 @@ export default function HomePage() {
       {!isLoading && !topArticle && (
         <div style={{ padding: "24px" }}>
           <div style={{ textAlign: "center", marginBottom: "24px" }}>
-            <p style={{ fontSize: "16px", color: COLORS.textSecondary }}>Setting up your intelligence feed...</p>
+            <p style={{ fontSize: "16px", color: COLORS.textSecondary }}>
+              {companyId ? `No analysed articles yet for this company.` : "Setting up your intelligence feed..."}
+            </p>
             <p style={{ fontSize: "13px", color: COLORS.textMuted, marginTop: "8px" }}>
-              Articles are being analyzed. This usually takes 1-2 minutes.
+              {companyId
+                ? "If you just onboarded this company, the pipeline is still ingesting + analysing articles. Refresh in 2-3 minutes, or click below to retry the news scan."
+                : "Articles are being analyzed. This usually takes 1-2 minutes."}
             </p>
             <button
               onClick={() => refreshMutation.mutate()}

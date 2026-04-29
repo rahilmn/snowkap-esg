@@ -16,6 +16,11 @@ env/
 .env.production
 .env.local
 
+# Phase 11A: SQLite WAL sidecar files + backups (never commit these)
+data/snowkap.db-wal
+data/snowkap.db-shm
+data/backups/
+
 # IDE
 .vscode/
 .idea/

@@ -1,0 +1,158 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — TCFD Scenario Templates (Phase 4)
+#
+# 1.5°C / 2°C / 4°C scenarios per industry, aligned with TCFD transition +
+# physical risk framing. Used by the ESG Analyst generator to produce scenario
+# analysis a senior climate analyst would recognise as IEA NZE / SDS / STEPS-
+# equivalent.
+# =============================================================================
+
+snowkap:ScenarioTemplate a owl:Class ;
+    rdfs:label "TCFD Scenario Template"@en ;
+    rdfs:comment "Industry-specific narrative for 1.5°C / 2°C / 4°C pathways. Anchored in IEA NZE / SDS / STEPS + IPCC SSP scenarios."@en .
+
+snowkap:scenarioPath a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string ;
+    rdfs:comment "'1.5C' | '2C' | '4C'"@en .
+snowkap:scenarioIndustry a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string .
+snowkap:scenarioTransitionRisk a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string .
+snowkap:scenarioPhysicalRisk a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string .
+snowkap:scenarioFinancialImpact a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string .
+snowkap:scenarioTimeframe a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string .
+snowkap:scenarioReference a owl:DatatypeProperty ;
+    rdfs:domain snowkap:ScenarioTemplate ; rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# Power/Energy sector — 3 paths
+# -----------------------------------------------------------------------------
+
+snowkap:scn_power_1_5c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "1.5C" ;
+    snowkap:scenarioIndustry "Power/Energy" ;
+    snowkap:scenarioTimeframe "2025-2035" ;
+    snowkap:scenarioTransitionRisk "Accelerated coal phase-out by 2035; carbon price $100-150/t CO2e in India by 2030 (vs current ~₹8/t implicit); mandatory thermal PPA renegotiations. CERC tariff revisions compressing IPP margins by 300-500 bps." ;
+    snowkap:scenarioPhysicalRisk "Moderate — managed via adaptation capex; 15-20% increase in cooling-water stress at 70% of thermal sites by 2030" ;
+    snowkap:scenarioFinancialImpact "Coal IPPs: stranded asset writedowns ₹10,000-25,000 Cr sector-wide; renewable IPPs: +30-50 bps margin uplift as RE PPA premiums compress; WACC rises 100-200 bps for coal-heavy generators due to stranded-asset exposure" ;
+    snowkap:scenarioReference "IEA NZE 2050 + CEA National Electricity Plan 2023 + MNRE 500 GW RE target" .
+
+snowkap:scn_power_2c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "2C" ;
+    snowkap:scenarioIndustry "Power/Energy" ;
+    snowkap:scenarioTimeframe "2025-2040" ;
+    snowkap:scenarioTransitionRisk "Gradual coal phase-out by 2045; carbon pricing in India rises to $40-60/t CO2e by 2030; RE share target 50% by 2030. Coal capex freeze from 2028 onwards. CBAM on exports begins costing Indian power-intensive manufacturers 3-5% of EU revenue." ;
+    snowkap:scenarioPhysicalRisk "Moderate-high — water stress hotspots (Chennai, Bangalore, Pune) impact 30% of thermal capacity; increased monsoon variability disrupts hydro output by 10-15%" ;
+    snowkap:scenarioFinancialImpact "Coal IPPs: margin compression 100-200 bps; thermal asset book value haircuts 10-20% post-2035; renewable IPPs: steady state with fewer subsidy windfalls; WACC 60-100 bps rise for coal, flat for RE" ;
+    snowkap:scenarioReference "IEA APS (Announced Pledges) + India NDC updated 2022" .
+
+snowkap:scn_power_4c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "4C" ;
+    snowkap:scenarioIndustry "Power/Energy" ;
+    snowkap:scenarioTimeframe "2025-2050" ;
+    snowkap:scenarioTransitionRisk "Low — no carbon pricing, coal continues; policy stagnation but rising litigation risk from NGT and state PCBs for pollution; sporadic community conflicts as land acquisition accelerates" ;
+    snowkap:scenarioPhysicalRisk "SEVERE — sustained heatwaves curtail 10-20 GW of thermal output annually by 2035; water scarcity forces capacity curtailment for 60+ days/yr at inland thermal sites; extreme flooding damages coastal infrastructure repeatedly. ₹5,000-15,000 Cr/yr sector-wide damages by 2040" ;
+    snowkap:scenarioFinancialImpact "Coal IPPs: high near-term margins, but insurance costs rise 300-500 bps, and FII/ESG fund outflows push WACC +150 bps. Rising climate litigation risk ₹100-500 Cr per major event. Coastal assets: stranded by rising seas for 5-10% of sites by 2050" ;
+    snowkap:scenarioReference "IPCC SSP5-8.5 + IEA STEPS" .
+
+# -----------------------------------------------------------------------------
+# Financials/Banking — 3 paths
+# -----------------------------------------------------------------------------
+
+snowkap:scn_banking_1_5c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "1.5C" ;
+    snowkap:scenarioIndustry "Financials/Banking" ;
+    snowkap:scenarioTimeframe "2025-2035" ;
+    snowkap:scenarioTransitionRisk "Green lending mandates 30%+ portfolio by 2030; RBI transition finance framework; fossil-fuel loan book writedowns 20-40% of coal/oil exposure; PCAF Scope 3 mandatory reporting from FY26; EU CSRD disclosure required for Europe-exposed clients" ;
+    snowkap:scenarioPhysicalRisk "Low direct; indirect via borrower defaults — up to 5-8% NPA spike in power/real-estate/transport books concentrated in stressed geographies" ;
+    snowkap:scenarioFinancialImpact "Large Cap banks: ₹500-2000 Cr PCAF-driven portfolio repositioning; capital relief of 10-15 bps on ESG-compliant book; stranded-asset writedowns concentrated in PSU banks — private sector banks lose 2-5% NIM via fossil-fuel exit but gain 4-7% via green lending" ;
+    snowkap:scenarioReference "RBI Climate Risk Discussion Paper 2023 + ECB stress test 2024" .
+
+snowkap:scn_banking_2c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "2C" ;
+    snowkap:scenarioIndustry "Financials/Banking" ;
+    snowkap:scenarioTimeframe "2025-2040" ;
+    snowkap:scenarioTransitionRisk "Gradual green lending increase; RBI climate disclosure from FY27; moderate fossil-fuel loan writedowns 10-20%; corporate lending shifts toward transition/adaptation projects" ;
+    snowkap:scenarioPhysicalRisk "Moderate NPA risk in agri + real-estate books from extreme weather; 2-4% sector-wide NPA uptick by 2035" ;
+    snowkap:scenarioFinancialImpact "Banks: steady capital buildup; modest NIM compression 20-40 bps from fossil-exit + transition finance; ₹200-500 Cr/yr provisioning uplift for climate-sensitive books" ;
+    snowkap:scenarioReference "RBI Financial Stability Report FY25 + PCAF guidance" .
+
+snowkap:scn_banking_4c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "4C" ;
+    snowkap:scenarioIndustry "Financials/Banking" ;
+    snowkap:scenarioTimeframe "2025-2050" ;
+    snowkap:scenarioTransitionRisk "Low — no accelerated policy, but rising claims liability for loans to fossil-fuel and deforestation-linked borrowers; class-action/ESG litigation exposure" ;
+    snowkap:scenarioPhysicalRisk "HIGH — repeated climate shocks drive agri/MSME NPAs up 8-12%; property-backed mortgage book faces 3-5% haircut in coastal + flood-prone geographies; insurance premium escalation hits 30-50% of borrower EBITDA" ;
+    snowkap:scenarioFinancialImpact "Banks: cumulative climate-driven NPAs ₹50,000-200,000 Cr sector-wide by 2040; cost of equity rises 100-200 bps for fossil-heavy exposures; insurance-like product innovation becomes major revenue driver" ;
+    snowkap:scenarioReference "IPCC SSP5-8.5 + RBI banking outlook stress scenarios" .
+
+# -----------------------------------------------------------------------------
+# Renewable Energy — 3 paths
+# -----------------------------------------------------------------------------
+
+snowkap:scn_renewable_1_5c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "1.5C" ;
+    snowkap:scenarioIndustry "Renewable Energy" ;
+    snowkap:scenarioTimeframe "2025-2035" ;
+    snowkap:scenarioTransitionRisk "Highly favourable — global RE installations 3× current pace; UFLPA-compliant sourcing becomes revenue driver; India domestic content requirement (DCR) creates moat for local manufacturers; module pricing volatility from tight polysilicon supply" ;
+    snowkap:scenarioPhysicalRisk "Moderate — solar farm output degradation from extreme heat (1-2% annual); cyclone damage to offshore wind rises; water scarcity impacts solar panel cleaning in Rajasthan/Gujarat" ;
+    snowkap:scenarioFinancialImpact "RE manufacturers: 50-100% topline CAGR 2025-30; UFLPA-compliant margin premium 8-12%; supply-chain labour audit requirement adds 2-4% opex but secures US/EU market access worth ₹5,000+ Cr/yr" ;
+    snowkap:scenarioReference "IEA NZE 2050 RE targets + UFLPA + India ALMM policy" .
+
+snowkap:scn_renewable_2c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "2C" ;
+    snowkap:scenarioIndustry "Renewable Energy" ;
+    snowkap:scenarioTimeframe "2025-2040" ;
+    snowkap:scenarioTransitionRisk "Moderate-favourable — 2× current RE pace; DCR continues; polysilicon supply tight through 2028; China production dominance eases after 2030; UFLPA adherence remains a sort key" ;
+    snowkap:scenarioPhysicalRisk "Moderate — more frequent extreme weather impacts balance-of-system; 5-8% additional capex on resilience" ;
+    snowkap:scenarioFinancialImpact "RE manufacturers: 25-50% CAGR; UFLPA premium 4-6%; mass manufacturing commoditisation squeezes module margins post-2030 but project EPC margins hold" ;
+    snowkap:scenarioReference "IEA APS + MNRE 500 GW target FY30" .
+
+snowkap:scn_renewable_4c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "4C" ;
+    snowkap:scenarioIndustry "Renewable Energy" ;
+    snowkap:scenarioTimeframe "2025-2050" ;
+    snowkap:scenarioTransitionRisk "Low — RE growth slows without policy push; higher competition from incumbent fossil providers; global trade barriers and export restrictions tighten" ;
+    snowkap:scenarioPhysicalRisk "HIGH — sustained extreme weather impacts solar yield (3-5% annual degradation vs 1% baseline); supply chain for critical minerals (lithium, cobalt, tellurium) disrupted by climate and geopolitical shocks" ;
+    snowkap:scenarioFinancialImpact "RE manufacturers: 10-25% CAGR; supply chain cost volatility 15-25% opex swing; insurance premium 5-8% of revenue; project development cost overruns 20-30% post-2035" ;
+    snowkap:scenarioReference "IPCC SSP5-8.5 + IEA STEPS + World Bank Critical Minerals Outlook 2024" .
+
+# -----------------------------------------------------------------------------
+# Asset Management — 3 paths
+# -----------------------------------------------------------------------------
+
+snowkap:scn_am_1_5c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "1.5C" ;
+    snowkap:scenarioIndustry "Asset Management" ;
+    snowkap:scenarioTimeframe "2025-2035" ;
+    snowkap:scenarioTransitionRisk "Green fund AUM grows 4-5×; SEBI mandatory ESG stewardship reporting from FY26; TCFD disclosure required for all AMC products; fossil-fuel divestment mandates from sovereign wealth + Nordic pension funds cascade through Indian equity markets" ;
+    snowkap:scenarioPhysicalRisk "Low direct; indirect via holdings — portfolio NAV impact 2-5% from climate shocks in 4C-exposed sectors (coal, real estate, agri)" ;
+    snowkap:scenarioFinancialImpact "AMCs with strong ESG product: AUM CAGR 25-40% vs industry 12-15%; management fee expansion 10-20 bps on Article 9 (deep green) products; stranded holdings in fossil funds trigger 2-5% outflows" ;
+    snowkap:scenarioReference "SEBI Stewardship Code + SFDR + Glasgow Financial Alliance for Net Zero" .
+
+snowkap:scn_am_2c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "2C" ;
+    snowkap:scenarioIndustry "Asset Management" ;
+    snowkap:scenarioTimeframe "2025-2040" ;
+    snowkap:scenarioTransitionRisk "Moderate ESG integration; ESG fund AUM grows 2-3×; greenwashing enforcement by SEBI picks up post-2027 (modelled on SEC 2023 Rule 35d-1)" ;
+    snowkap:scenarioPhysicalRisk "Moderate portfolio exposure; 3-5% NAV volatility from climate events" ;
+    snowkap:scenarioFinancialImpact "Moderate AUM growth; product spread narrows; greenwashing penalties 5-10 bps hit revenue" ;
+    snowkap:scenarioReference "RBI + SEBI framework updates" .
+
+snowkap:scn_am_4c a snowkap:ScenarioTemplate ;
+    snowkap:scenarioPath "4C" ;
+    snowkap:scenarioIndustry "Asset Management" ;
+    snowkap:scenarioTimeframe "2025-2050" ;
+    snowkap:scenarioTransitionRisk "ESG becomes anti-ESG backlash in certain markets (Texas/FL style); AUM flows volatile; stewardship value proposition challenged" ;
+    snowkap:scenarioPhysicalRisk "HIGH portfolio NAV impact — cumulative 15-25% drag from physical climate damages on holdings by 2040" ;
+    snowkap:scenarioFinancialImpact "Traditional AMC AUM declines 10-20% in real terms by 2040; climate-specialist AMCs (catastrophe-linked, adaptation) emerge as growth segment" ;
+    snowkap:scenarioReference "IPCC SSP5-8.5 + asset owner scenario testing" .

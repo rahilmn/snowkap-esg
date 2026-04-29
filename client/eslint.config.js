@@ -49,6 +49,15 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-empty-object-type": "off",
       "@typescript-eslint/ban-ts-comment": "warn",
+
+      // Phase 13 B5: forbid console.log/info/debug in production code so a
+      // demo-day journalist with DevTools open doesn't see dev-debug
+      // breadcrumbs. console.warn / console.error are still allowed for
+      // genuine error reporting paths.
+      "no-console": [
+        "error",
+        { allow: ["warn", "error"] },
+      ],
     },
   },
 );

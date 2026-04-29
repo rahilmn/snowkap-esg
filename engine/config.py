@@ -44,6 +44,9 @@ class Company:
     headquarter_region: str
     news_queries: list[str]
     primitive_calibration: dict[str, Any] | None = None
+    # Phase 2: tickers for live financial data refresh
+    yfinance_ticker: str | None = None
+    eodhd_ticker: str | None = None
 
     @property
     def revenue_cr(self) -> float:
@@ -95,6 +98,8 @@ class Company:
             headquarter_region=data["headquarter_region"],
             news_queries=list(data.get("news_queries", [])),
             primitive_calibration=data.get("primitive_calibration"),
+            yfinance_ticker=data.get("yfinance_ticker"),
+            eodhd_ticker=data.get("eodhd_ticker"),
         )
 
 
@@ -145,6 +150,11 @@ def get_openai_api_key() -> str:
 def get_newsapi_key() -> str | None:
     """Read the NewsAPI.org key (optional — Google News RSS works without it)."""
     return os.environ.get("NEWSAPI_KEY") or None
+
+
+def get_eodhd_key() -> str | None:
+    """Read the EODHD API key (Phase 2). Returns None if not set or empty."""
+    return os.environ.get("EODHD_API_KEY") or None
 
 
 def get_data_path(*parts: str) -> Path:

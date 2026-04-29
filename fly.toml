@@ -1,0 +1,53 @@
+# Snowkap ESG — Fly.io one-click deploy
+# https://fly.io/docs/reference/configuration/
+#
+# Setup:
+#   1. brew install flyctl  (or curl -L https://fly.io/install.sh | sh)
+#   2. fly auth login
+#   3. fly launch --no-deploy --copy-config       # auto-detects this file
+#   4. fly secrets set SNOWKAP_ENV=production \
+#                      JWT_SECRET=$(python -c "import secrets;print(secrets.token_hex(32))") \
+#                      REQUIRE_SIGNED_JWT=1 \
+#                      SNOWKAP_API_KEY=<random> \
+#                      OPENAI_API_KEY=sk-proj-... \
+#                      RESEND_API_KEY=re_... \
+#                      SNOWKAP_FROM_ADDRESS="Snowkap ESG <newsletter@snowkap.co.in>" \
+#                      NEWSAPI_AI_KEY=<uuid>
+#   5. fly volumes create snowkap_data --size 10 --region sin
+#   6. fly deploy
+
+app = "snowkap-esg"
+primary_region = "sin"  # Singapore — closest to India
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8000"
+  PYTHONUNBUFFERED = "1"
+  # SNOWKAP_ENV / secrets are set via `fly secrets`, NOT in this file
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = false   # ingestion + cron need to keep running
+  auto_start_machines = true
+  min_machines_running = 1     # always-on for the drip scheduler
+
+  [http_service.checks]
+    [http_service.checks.health]
+      interval = "30s"
+      timeout = "5s"
+      grace_period = "10s"
+      method = "GET"
+      path = "/health"
+
+[[vm]]
+  size = "shared-cpu-2x"  # 2 vCPU / 2 GB RAM. Bump to "shared-cpu-4x" if
+                          # ingestion is heavy.
+  memory = "2gb"
+  cpus = 2
+
+[[mounts]]
+  source = "snowkap_data"
+  destination = "/opt/snowkap/data"

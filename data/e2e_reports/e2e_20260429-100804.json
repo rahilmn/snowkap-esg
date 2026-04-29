@@ -1,0 +1,76 @@
+{
+  "started": "2026-04-29T10:06:00.658294+00:00",
+  "finished": "2026-04-29T10:08:04.610266+00:00",
+  "summary": {
+    "pass": 3,
+    "fail": 2,
+    "warn": 0
+  },
+  "findings": [
+    {
+      "step": "T1",
+      "status": "PASS",
+      "message": "Login OK + super-admin permissions",
+      "timestamp": "2026-04-29T10:06:00.908222+00:00",
+      "perm_count": 28
+    },
+    {
+      "step": "T2a",
+      "status": "PASS",
+      "message": "All 7 target companies present",
+      "timestamp": "2026-04-29T10:06:00.963404+00:00",
+      "slugs": "icici-bank, yes-bank, idfc-first-bank, waaree-energies, singularity-amc, adani-power, jsw-energy"
+    },
+    {
+      "step": "T2b",
+      "status": "PASS",
+      "message": "adani-power: 20 articles (3 look like HOME tier)",
+      "timestamp": "2026-04-29T10:06:02.594124+00:00",
+      "total": 20,
+      "home_count": 3
+    },
+    {
+      "step": "T3a",
+      "status": "INFO",
+      "message": "Analysis triggered \u2014 polling...",
+      "timestamp": "2026-04-29T10:06:02.780723+00:00",
+      "article_id": "7bc239c6"
+    },
+    {
+      "step": "T3a",
+      "status": "INFO",
+      "message": "Analysis state: unknown",
+      "timestamp": "2026-04-29T10:06:02.840387+00:00",
+      "elapsed": 0
+    },
+    {
+      "step": "T3",
+      "status": "FAIL",
+      "message": "Analysis returned but deep_insight.headline is empty",
+      "timestamp": "2026-04-29T10:08:04.608718+00:00",
+      "keys": [
+        "status",
+        "analysis"
+      ]
+    },
+    {
+      "step": "T4",
+      "status": "FAIL",
+      "message": "Missing perspective lenses: ['esg-analyst', 'cfo', 'ceo']",
+      "timestamp": "2026-04-29T10:08:04.608931+00:00",
+      "present": []
+    },
+    {
+      "step": "T5",
+      "status": "INFO",
+      "message": "share test skipped via --skip-share",
+      "timestamp": "2026-04-29T10:08:04.608961+00:00"
+    },
+    {
+      "step": "T6",
+      "status": "INFO",
+      "message": "onboard test skipped via --skip-onboard",
+      "timestamp": "2026-04-29T10:08:04.608975+00:00"
+    }
+  ]
+}

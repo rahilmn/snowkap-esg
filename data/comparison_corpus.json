@@ -1,0 +1,65 @@
+{
+  "_meta": {
+    "description": "Curated articles for Phase 5 comparison harness. 8 articles across 7 companies and 5 topic clusters. Each entry has the article text inline so the harness can run deterministically without live news dependency.",
+    "created": "2026-04-22",
+    "topic_categories": ["sebi_enforcement", "labour_social", "climate_physical", "governance_fraud", "transition_capex"]
+  },
+  "articles": [
+    {
+      "id": "adani_sebi_rpt_2026",
+      "company_slug": "adani-power",
+      "topic_category": "sebi_enforcement",
+      "title": "SEBI imposes ₹275 crore penalty on Adani Power for alleged disclosure lapses in related-party transactions",
+      "prompt_file": "data/inputs/prompts/test_phase3_adani_sebi.txt"
+    },
+    {
+      "id": "icici_gst_2026",
+      "company_slug": "icici-bank",
+      "topic_category": "sebi_enforcement",
+      "title": "ICICI Bank faces ₹50 crore GST demand notice over input credit classification",
+      "article_text": "The Directorate General of GST Intelligence (DGGI) has issued a show-cause notice to ICICI Bank seeking ₹50.38 crore in disputed GST dues, citing alleged misclassification of input tax credit on lease rentals across FY22-FY25. The bank has 30 days to respond before the matter escalates to adjudication. ICICI Bank's stock dipped 2% on the disclosure, with analysts at Jefferies noting that while the direct impact is limited (~1 bps on NIM), the precedent risk could extend to HDFC Bank and Axis Bank which use similar input credit mechanisms. The bank is expected to challenge the demand at the GSTAT Appellate Tribunal, a process that historically takes 18-24 months. For context, HDFC Bank faced a similar ₹49 crore demand in 2019 which was settled at ₹25 crore after 2 years. ICICI Bank is on track to file its FY26 BRSR by May 30, 2026 and will likely have to disclose the GST contingent liability under BRSR Principle 5. Sustainalytics may flag the event in its Q2 update."
+    },
+    {
+      "id": "waaree_xinjiang_2026",
+      "company_slug": "waaree-energies",
+      "topic_category": "labour_social",
+      "title": "Waaree Energies discloses zero-Xinjiang polysilicon sourcing in updated supplier audit",
+      "article_text": "Waaree Energies has completed an independent supply chain audit confirming that its polysilicon sourcing is 100% UFLPA-compliant (no Xinjiang exposure), positioning the company to absorb US market share as Chinese integrated SPVs face increased CBP detention under the Uyghur Forced Labor Prevention Act. The audit, conducted by ERM over 6 months at a cost of ~₹12 crore, covers Waaree's entire Tier-1 and Tier-2 supplier base across Malaysia, South Korea, and Europe. The company expects to absorb 8-12% cost premium (~₹120 crore annually) vs Chinese-integrated peers but gains preferred-supplier status for US IRA-qualified projects worth an estimated $1.5 billion over 3 years. MSCI ESG Ratings upgraded Waaree from BBB to A on the back of the audit, triggering inclusion in 3 ESG-focused Indian mutual funds. Industry observers note this mirrors First Solar's (US) and REC Group's (Norway) market positioning strategy. Waaree also committed to BRSR Principle 5 Question 4 (human rights) compliance with annual third-party audits through FY30."
+    },
+    {
+      "id": "adani_power_flood_2026",
+      "company_slug": "adani-power",
+      "topic_category": "climate_physical",
+      "title": "Monsoon floods disrupt Adani Power Godda operations; 10-day forced outage",
+      "article_text": "Severe monsoon flooding in Jharkhand has forced Adani Power to shut down 2 units (1,200 MW combined capacity) at its 1,600 MW Godda thermal plant for 10 days, with an estimated ₹180 crore in lost revenue and restart costs. The plant supplies 100% of its output to Bangladesh under a long-term PPA, triggering force majeure clauses but also potential contractual penalties. Critical coal handling infrastructure sustained water damage estimated at ₹45 crore. Insurance recovery under the business interruption policy is expected but will likely take 6-8 months. Munich Re, the primary insurer, is expected to increase premium by 15-20% at renewal (additional ~₹25 crore/year). This event follows similar 2023 Himachal/Uttarakhand flooding that affected NTPC hydro operations (₹9,500 crore sector-wide damages). Adani Power had flagged physical climate risk in its TCFD disclosure but the Godda site was classified as 'moderate risk' — this event may trigger a re-assessment to 'high risk' and require additional ₹300-500 crore in adaptation capex over FY26-27. The company's BRSR P6 climate-related risk disclosure will need updating."
+    },
+    {
+      "id": "yes_bank_npa_2026",
+      "company_slug": "yes-bank",
+      "topic_category": "governance_fraud",
+      "title": "YES Bank reports 12% QoQ rise in slippage; RBI AQR concerns resurface",
+      "article_text": "YES Bank reported Q4 FY26 slippages of ₹1,450 crore, up 12% sequentially, with analysts raising concerns about the bank's corporate lending book quality. The disclosure comes against the backdrop of RBI's asset quality review framework which imposed stricter provisioning requirements from FY26. The bank's gross NPA ratio moved from 8.9% to 9.4%, still above peer median of 3.5-4.0% for private banks. CreditSights and CARE Ratings both placed YES Bank on negative watch, flagging potential Tier-1 capital inadequacy if slippages continue at this pace through FY27. The bank's cost of capital has risen 45 bps in the past 6 months, and its 5-year CDS spread has widened 60 bps. The RBI is expected to conduct a special supervisory review of the bank's corporate lending book in Q2 FY27. For context, the March 2020 RBI moratorium on YES Bank had wiped out ₹8,415 crore in AT1 bondholder capital; current concerns do not yet indicate that severity but establish a pattern of governance and asset-quality transparency questions that institutional investors monitor. SEBI's BRSR Principle 1 (Governance) disclosure will require detailed commentary on the slippage trend in the upcoming filing."
+    },
+    {
+      "id": "jsw_green_h2_capex_2026",
+      "company_slug": "jsw-energy",
+      "topic_category": "transition_capex",
+      "title": "JSW Energy commits ₹8,500 crore green hydrogen capex; secures 400 MW electrolyser partnership",
+      "article_text": "JSW Energy has announced a ₹8,500 crore capex commitment over FY27-FY30 to build 400 MW of electrolyser capacity for green hydrogen production at its Ratnagiri complex. The project, a joint venture with Nel Hydrogen (Norway), targets 90,000 tonnes per year of green hydrogen output with first production by Q4 FY28. The investment is financed through a combination of ₹3,500 crore sustainable linked loan from a consortium led by SBI (at 10 bps spread discount vs conventional financing) and ₹5,000 crore internal accruals. SBI's sustainability-linked loan is contingent on JSW Energy meeting carbon intensity reduction targets aligned with SBTi 1.5°C pathway. The announcement triggered a 4% share price gain and positive commentary from MSCI ESG Ratings (BBB → A watch). Analysts at Macquarie flagged execution risk given the pre-commercial nature of large-scale electrolysers; they compare this to Reliance Industries' 2021 green hydrogen capex commitment of ₹75,000 crore which has faced delays. JSW Energy's peer Adani Green had pulled back on its own green hydrogen target in 2024. The commitment aligns with SDG 7.2 (renewable energy share) and SDG 9.4 (sustainable industry retrofit) and supports India's 5 million tonnes green hydrogen target by 2030 under the National Green Hydrogen Mission."
+    },
+    {
+      "id": "idfc_cyber_2026",
+      "company_slug": "idfc-first-bank",
+      "topic_category": "governance_fraud",
+      "title": "IDFC First Bank reports cyber incident affecting 2 lakh customer records",
+      "article_text": "IDFC First Bank disclosed a cybersecurity incident that may have exposed personally identifiable information of approximately 2 lakh customers, following unauthorized access to a third-party customer service platform. The bank activated its incident response plan and notified CERT-In within the mandatory 6-hour window under the 2022 directive. No financial fraud has been reported. The bank estimates direct incident response costs at ₹15 crore and has proactively offered 12-month credit monitoring to affected customers (estimated cost ₹8 crore). More material concerns are reputational and regulatory: the RBI may initiate a special cyber-resilience audit and impose enhanced capital charge (similar to HDFC Bank's 2020-21 digital freeze which cost the bank ~₹85 crore in lost fee income over 10 months). Sustainalytics flagged the event in its controversy monitoring; the bank's cyber incident count for FY26 is now 4 (vs peer median of 5). The incident comes as SEBI prepares to mandate enhanced cyber disclosure under BRSR Principle 9 from FY27. Board-level Q&A on cybersecurity governance is expected at the upcoming AGM."
+    },
+    {
+      "id": "singularity_sebi_stewardship_2026",
+      "company_slug": "singularity-amc",
+      "topic_category": "sebi_enforcement",
+      "title": "Singularity AMC faces SEBI scrutiny over stewardship disclosure gap",
+      "article_text": "SEBI has issued an inspection observation to Singularity AMC flagging inadequate disclosure of stewardship activities including voting decisions on 45 portfolio company AGMs during FY25. The observation cites possible non-compliance with the SEBI Stewardship Code which mandates detailed disclosure of voting rationale and engagement activities. Singularity AMC has 30 days to respond with remediation steps. The direct financial impact is limited (potential penalty ₹50 lakh if confirmed), but reputational impact among ESG-mandated institutional investors could be significant. Norway's sovereign wealth fund (NBIM) and BlackRock iShares have historically treated stewardship transparency as a Tier-1 criterion for Indian equity mandates. The incident highlights SEBI's intensified focus on asset manager accountability following the Franklin Templeton 2020 debt fund closure precedent (₹28,000 crore investor funds frozen; subsequent SEBI barred FT from new debt schemes for 2 years). Singularity AMC will need to strengthen its BRSR Principle 1 (Governance) disclosure and establish a publicly visible stewardship policy by Q2 FY27. This also connects to SDG 16.6 (accountable institutions) and could affect the firm's ability to attract ESG-mandated AUM."
+    }
+  ]
+}

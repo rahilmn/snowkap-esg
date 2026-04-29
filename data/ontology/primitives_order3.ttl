@@ -1,0 +1,576 @@
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+# =============================================================================
+# SNOWKAP ESG — Order-3 (P3) and Order-4 (P4) Causal Chains
+# Source: PART 2.md lines 203–3480 (full P3/P4 cascade documentation)
+#
+# Representation:
+#   - Each chain is a snw:CausalEdge with edgeOrder 3 or 4
+#   - cause = chain source primitive, effect = chain terminal primitive
+#   - chainPath stored in edgeId (e.g., "P3::EP→OX→SC")
+#   - operatorExpression holds composed cascade formula
+#   - Composed elasticity = product/composition of constituent β ranges
+#   - Composed lag = sum of hop lags
+# =============================================================================
+
+# =============================================================================
+# SECTION 1 — Top 50 High-Confidence P3 Chains
+# =============================================================================
+
+snw:chain_P3_EP_FR_SC a snw:CausalEdge ;
+    snw:edgeId "P3::EP→FR→SC" ; snw:cause snw:prim_EP ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔEP(t−k₁))(t−k₂)" ;
+    snw:elasticityOrWeight "0.04–0.12" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Fuel surcharge spike → freight stress → safety-stock cuts. Fastest EP chain. Path: EP→FR→SC" .
+
+snw:chain_P3_XW_DT_RV a snw:CausalEdge ;
+    snw:edgeId "P3::XW→DT→RV" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·XW_hazard)(t−k)" ;
+    snw:elasticityOrWeight "0.05–0.18" ; snw:lagK "0–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Asset damage/outage → lost production. Empirically well-documented (hurricane/flood). Path: XW→DT→RV" .
+
+snw:chain_P3_XW_DT_SC a snw:CausalEdge ;
+    snw:edgeId "P3::XW→DT→SC" ; snw:cause snw:prim_XW ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·XW_hazard·𝟙[DT>τ])(t−k)" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Facility/port outage → supply disruption propagates regionally. τ=systemic scale. Path: XW→DT→SC" .
+
+snw:chain_P3_XW_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P3::XW→SC→DT" ; snw:cause snw:prim_XW ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.14" ; snw:lagK "1–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Logistics/supplier disruption → production halted by input shortage. Empirically documented. Path: XW→SC→DT" .
+
+snw:chain_P3_XW_SC_RV a snw:CausalEdge ;
+    snw:edgeId "P3::XW→SC→RV" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·XW·𝟙[SC>τ])(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.14" ; snw:lagK "1–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Supply stress → stockouts, delivery failures, lost orders. τ=SC stress threshold. Path: XW→SC→RV" .
+
+snw:chain_P3_XW_EP_RV a snw:CausalEdge ;
+    snw:edgeId "P3::XW→EP→RV" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·XW·𝟙[hazard>τ])(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Energy cost destroys demand / compresses margin. Threshold at XW hazard severity. Path: XW→EP→RV" .
+
+snw:chain_P3_CM_FR_SC a snw:CausalEdge ;
+    snw:edgeId "P3::CM→FR→SC" ; snw:cause snw:prim_CM ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.12" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Commodity-driven fuel surcharges → freight cost spike → reduced shipment frequency. Fast-acting. Path: CM→FR→SC" .
+
+snw:chain_P3_CM_FR_OX a snw:CausalEdge ;
+    snw:edgeId "P3::CM→FR→OX" ; snw:cause snw:prim_CM ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Freight is direct opex component for logistics. 0–3m lag. Path: CM→FR→OX" .
+
+snw:chain_P3_EP_OX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::EP→OX→SC" ; snw:cause snw:prim_EP ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.12" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cost pressure → safety-stock cuts, supplier stress. Manufacturing & logistics. Path: EP→OX→SC" .
+
+snw:chain_P3_EP_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P3::EP→OX→RV" ; snw:cause snw:prim_EP ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.14" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Margin squeeze via price pass-through → demand destruction. Price-elastic sectors. Path: EP→OX→RV" .
+
+snw:chain_P3_EP_OX_DT a snw:CausalEdge ;
+    snw:edgeId "P3::EP→OX→DT" ; snw:cause snw:prim_EP ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Maintenance deferred under margin pressure. Asset-intensive sectors. Path: EP→OX→DT" .
+
+snw:chain_P3_EP_OX_CX a snw:CausalEdge ;
+    snw:edgeId "P3::EP→OX→CX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔCX = β₂₃·ln(1+β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cost pressure → capex deferred to protect earnings. Log-linear diminishing. Path: EP→OX→CX" .
+
+snw:chain_P3_EP_FR_RV a snw:CausalEdge ;
+    snw:edgeId "P3::EP→FR→RV" ; snw:cause snw:prim_EP ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Freight cost spike → customer demand reduced. Consumer goods, retail. Path: EP→FR→RV" .
+
+snw:chain_P3_EP_CX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::EP→CX→SC" ; snw:cause snw:prim_EP ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "6–18m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Underinvestment in supplier/logistics resilience. Very long lag; capital cycle. Path: EP→CX→SC" .
+
+snw:chain_P3_EP_EU_OX a snw:CausalEdge ;
+    snw:edgeId "P3::EP→EU→OX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.06" ; snw:lagK "1–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Energy costs compound in opex. Short lag; reinforcing. Energy-intensive industries. Path: EP→EU→OX" .
+
+snw:chain_P3_EP_CX_OX a snw:CausalEdge ;
+    snw:edgeId "P3::EP→CX→OX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "4–12m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Capex cut → aging assets → higher unit costs. Long lag; capital cycle. Path: EP→CX→OX" .
+
+snw:chain_P3_XW_OX_CX a snw:CausalEdge ;
+    snw:edgeId "P3::XW→OX→CX" ; snw:cause snw:prim_XW ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔCX = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Disaster recovery opex crowds out resilience/growth capex. Well-documented. Path: XW→OX→CX" .
+
+snw:chain_P3_XW_WA_OX a snw:CausalEdge ;
+    snw:edgeId "P3::XW→WA→OX" ; snw:cause snw:prim_XW ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Water scarcity → premium sourcing cost. Agriculture, beverages, semicon. Path: XW→WA→OX" .
+
+snw:chain_P3_XW_WA_DT a snw:CausalEdge ;
+    snw:edgeId "P3::XW→WA→DT" ; snw:cause snw:prim_XW ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cooling water restrictions → thermal generation/process halt. Water-intensive. Path: XW→WA→DT" .
+
+snw:chain_P3_XW_WF_DT a snw:CausalEdge ;
+    snw:edgeId "P3::XW→WF→DT" ; snw:cause snw:prim_XW ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "0–3m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Worker displacement → understaffing → delayed restart. Post-disaster. Path: XW→WF→DT" .
+
+snw:chain_P3_XW_HS_CL a snw:CausalEdge ;
+    snw:edgeId "P3::XW→HS→CL" ; snw:cause snw:prim_XW ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔCL = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Weather incidents → OSHA/EPA investigation → fines. Path: XW→HS→CL" .
+
+snw:chain_P3_XW_OX_DT a snw:CausalEdge ;
+    snw:edgeId "P3::XW→OX→DT" ; snw:cause snw:prim_XW ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Opex pressure → maintenance deferral on non-disaster assets. Secondary effect. Path: XW→OX→DT" .
+
+snw:chain_P3_XW_EP_EU a snw:CausalEdge ;
+    snw:edgeId "P3::XW→EP→EU" ; snw:cause snw:prim_XW ; snw:effect snw:prim_EU ;
+    snw:edgeOrder 3 ; snw:directionSign "mixed" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔEU = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "0–2m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Energy spike → mixed EU effect (conservation vs. backup generation). Partial. Path: XW→EP→EU" .
+
+snw:chain_P3_XW_EP_GE a snw:CausalEdge ;
+    snw:edgeId "P3::XW→EP→GE" ; snw:cause snw:prim_XW ; snw:effect snw:prim_GE ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔGE = β₂₃·(β₁₂·XW)(t−k)" ;
+    snw:elasticityOrWeight "0.01–0.05" ; snw:lagK "2–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Grid intensity rises as renewables offline → backup fossil activated. Path: XW→EP→GE" .
+
+snw:chain_P3_CM_OX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::CM→OX→SC" ; snw:cause snw:prim_CM ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.14" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Input cost pass-through → supplier stress, safety-stock cuts. Commodity sectors. Path: CM→OX→SC" .
+
+snw:chain_P3_CM_OX_DT a snw:CausalEdge ;
+    snw:edgeId "P3::CM→OX→DT" ; snw:cause snw:prim_CM ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Maintenance deferred under margin pressure. Process industries. Path: CM→OX→DT" .
+
+snw:chain_P3_CM_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P3::CM→OX→RV" ; snw:cause snw:prim_CM ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.14" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Margin squeeze → price pass-through destroys demand. Path: CM→OX→RV" .
+
+snw:chain_P3_CM_OX_CX a snw:CausalEdge ;
+    snw:edgeId "P3::CM→OX→CX" ; snw:cause snw:prim_CM ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔCX = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Margin pressure → capex deferred. Capital-intensive commodity sectors. Path: CM→OX→CX" .
+
+snw:chain_P3_CM_FR_RV a snw:CausalEdge ;
+    snw:edgeId "P3::CM→FR→RV" ; snw:cause snw:prim_CM ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Freight cost spike → delivered-product prices rise → demand reduced. Consumer goods. Path: CM→FR→RV" .
+
+snw:chain_P3_CM_RV_OX a snw:CausalEdge ;
+    snw:edgeId "P3::CM→RV→OX" ; snw:cause snw:prim_CM ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.01–0.03" ; snw:lagK "2–8m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Revenue decline → reduced throughput shrinks variable opex. Minor dampening. Path: CM→RV→OX" .
+
+snw:chain_P3_CM_CX_OX a snw:CausalEdge ;
+    snw:edgeId "P3::CM→CX→OX" ; snw:cause snw:prim_CM ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "4–12m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Capex suppression → aging assets → higher unit costs. Long lag. Path: CM→CX→OX" .
+
+snw:chain_P3_CM_CX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::CM→CX→SC" ; snw:cause snw:prim_CM ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔCM)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "6–18m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Underinvestment in supplier/logistics resilience. Very long lag. Path: CM→CX→SC" .
+
+snw:chain_P3_LC_OX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::LC→OX→SC" ; snw:cause snw:prim_LC ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔLC)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.09" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Labor cost → opex spike → safety-stock cuts. Labour-intensive manufacturing. Path: LC→OX→SC" .
+
+snw:chain_P3_LC_OX_DT a snw:CausalEdge ;
+    snw:edgeId "P3::LC→OX→DT" ; snw:cause snw:prim_LC ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·ΔLC)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Maintenance deferred under labour cost pressure. Asset-intensive sectors. Path: LC→OX→DT" .
+
+snw:chain_P3_LC_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P3::LC→OX→RV" ; snw:cause snw:prim_LC ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔLC)(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.12" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Margin squeeze → price pass-through reduces demand. Price-elastic sectors. Path: LC→OX→RV" .
+
+snw:chain_P3_LC_OX_CX a snw:CausalEdge ;
+    snw:edgeId "P3::LC→OX→CX" ; snw:cause snw:prim_LC ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "log-linear" ;
+    snw:operatorExpression "ΔCX = β₂₃·ln(1+β₁₂·ΔLC)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Margin pressure → capex deferred. Log-linear. Path: LC→OX→CX" .
+
+snw:chain_P3_LC_WF_DT a snw:CausalEdge ;
+    snw:edgeId "P3::LC→WF→DT" ; snw:cause snw:prim_LC ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·ΔLC)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Workforce reduction → understaffing → incidents → shutdown. Mining, offshore. Path: LC→WF→DT" .
+
+snw:chain_P3_LC_WF_HS a snw:CausalEdge ;
+    snw:edgeId "P3::LC→WF→HS" ; snw:cause snw:prim_LC ; snw:effect snw:prim_HS ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔHS = β₂₃·(β₁₂·ΔLC)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Overtime fatigue + understaffing of safety-critical roles. Empirically observed. Path: LC→WF→HS" .
+
+snw:chain_P3_RG_CL_RV a snw:CausalEdge ;
+    snw:edgeId "P3::RG→CL→RV" ; snw:cause snw:prim_RG ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔRG·𝟙[τ])(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "4–12m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Market access restriction, licence suspension. Step at enforcement τ. Path: RG→CL→RV" .
+
+snw:chain_P3_RG_OX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::RG→OX→SC" ; snw:cause snw:prim_RG ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔRG)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Compliance opex burden → cost pressure → safety-stock cuts. Path: RG→OX→SC" .
+
+snw:chain_P3_RG_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P3::RG→OX→RV" ; snw:cause snw:prim_RG ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₂₃·(β₁₂·ΔRG)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Compliance cost erodes margin; or product/market restrictions. CBAM, ETS, OSHA. Path: RG→OX→RV" .
+
+snw:chain_P3_RG_CX_SC a snw:CausalEdge ;
+    snw:edgeId "P3::RG→CX→SC" ; snw:cause snw:prim_RG ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔRG)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "6–18m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Underinvestment in supplier/resilience infrastructure. Very long lag. Path: RG→CX→SC" .
+
+snw:chain_P3_RG_CL_OX a snw:CausalEdge ;
+    snw:edgeId "P3::RG→CL→OX" ; snw:cause snw:prim_RG ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔRG·𝟙[τ])(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Compliance obligations → remediation, legal fees, fines. GDPR, CBAM, EPA. Path: RG→CL→OX" .
+
+snw:chain_P3_RG_CL_SC a snw:CausalEdge ;
+    snw:edgeId "P3::RG→CL→SC" ; snw:cause snw:prim_RG ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔSC = β₂₃·(β₁₂·ΔRG·𝟙[τ])(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "3–10m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "New standards → supplier non-compliance → re-qualification. Chemical, pharma, food. Path: RG→CL→SC" .
+
+snw:chain_P3_RG_OX_DT a snw:CausalEdge ;
+    snw:edgeId "P3::RG→OX→DT" ; snw:cause snw:prim_RG ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₂₃·(β₁₂·ΔRG)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Opex pressure defers resilience maintenance. Regulated industries. Path: RG→OX→DT" .
+
+snw:chain_P3_RG_OX_CX a snw:CausalEdge ;
+    snw:edgeId "P3::RG→OX→CX" ; snw:cause snw:prim_RG ; snw:effect snw:prim_CX ;
+    snw:edgeOrder 3 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔCX = β₂₃·(β₁₂·ΔRG)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Compliance opex crowds out capex budget. Decarbonisation regs. Path: RG→OX→CX" .
+
+snw:chain_P3_RG_CX_OX a snw:CausalEdge ;
+    snw:edgeId "P3::RG→CX→OX" ; snw:cause snw:prim_RG ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔRG)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.07" ; snw:lagK "4–12m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Regulatory uncertainty suppresses investment → aging assets → deferred maintenance. Path: RG→CX→OX" .
+
+snw:chain_P3_EP_EU_GE a snw:CausalEdge ;
+    snw:edgeId "P3::EP→EU→GE" ; snw:cause snw:prim_EP ; snw:effect snw:prim_GE ;
+    snw:edgeOrder 3 ; snw:directionSign "mixed" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔGE = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Substitution lag; partial conservation → Scope 2 emissions rise via grid. Carbon-heavy grids. Path: EP→EU→GE" .
+
+snw:chain_P3_EP_GE_OX a snw:CausalEdge ;
+    snw:edgeId "P3::EP→GE→OX" ; snw:cause snw:prim_EP ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₂₃·(β₁₂·ΔEP)(t−k)" ;
+    snw:elasticityOrWeight "0.01–0.04" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Carbon costs absorbed as opex: ETS levies, voluntary offsets. Path: EP→GE→OX" .
+
+snw:chain_P3_EP_GE_CL a snw:CausalEdge ;
+    snw:edgeId "P3::EP→GE→CL" ; snw:cause snw:prim_EP ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 3 ; snw:directionSign "+" ; snw:functionalForm "step" ;
+    snw:operatorExpression "ΔCL = β₂₃·(β₁₂·ΔEP·𝟙[GE>τ])(t−k)" ;
+    snw:elasticityOrWeight "0.01–0.05" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Grid intensity change → Scope 2 emissions → carbon pricing / ETS enforcement. Path: EP→GE→CL" .
+
+# =============================================================================
+# SECTION 2 — Top 19 P4 Chains
+# =============================================================================
+
+snw:chain_P4_XW_DT_SC_OX a snw:CausalEdge ;
+    snw:edgeId "P4::XW→DT→SC→OX" ; snw:cause snw:prim_XW ; snw:effect snw:prim_OX ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔOX = β₃₄·(β₂₃·(β₁₂·XW·𝟙[DT>τ]))(t−k)" ;
+    snw:elasticityOrWeight "0.05–0.15" ; snw:lagK "1–6m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Most empirically observed P4 chain. Floods → factory downtime → supply shortage → cost spike. τ=DT severity. Path: XW→DT→SC→OX" .
+
+snw:chain_P4_XW_SC_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P4::XW→SC→OX→RV" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·XW))(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.12" ; snw:lagK "2–8m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Disrupted logistics → rerouting cost → production loss. Empirically strong (hurricane/flood). Path: XW→SC→OX→RV" .
+
+snw:chain_P4_XW_EP_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P4::XW→EP→OX→RV" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·XW))(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "1–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Weather damages energy infrastructure → regional price spike → opex rise → revenue loss. Gulf Coast hurricanes. Path: XW→EP→OX→RV" .
+
+snw:chain_P4_XW_DT_OX_SC a snw:CausalEdge ;
+    snw:edgeId "P4::XW→DT→OX→SC" ; snw:cause snw:prim_XW ; snw:effect snw:prim_SC ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔSC = β₃₄·(β₂₃·(β₁₂·XW·𝟙[DT>τ]))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "high" ;
+    snw:edgeNotes "Facility/logistics-node outage → emergency restart/premium sourcing → elevated opex signals SC stress. Path: XW→DT→OX→SC" .
+
+snw:chain_P4_EP_OX_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P4::EP→OX→SC→DT" ; snw:cause snw:prim_EP ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₃₄·(β₂₃·(β₁₂·ΔEP))(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.12" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cost pressure → supplier stress → stockout-driven downtime. Manufacturing & logistics. Path: EP→OX→SC→DT" .
+
+snw:chain_P4_EP_OX_DT_RV a snw:CausalEdge ;
+    snw:edgeId "P4::EP→OX→DT→RV" ; snw:cause snw:prim_EP ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·ΔEP))(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.16" ; snw:lagK "2–7m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Cost squeeze → maintenance deferrals → downtime → lost production hours. Path: EP→OX→DT→RV" .
+
+snw:chain_P4_EP_OX_SC_RV a snw:CausalEdge ;
+    snw:edgeId "P4::EP→OX→SC→RV" ; snw:cause snw:prim_EP ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·ΔEP·𝟙[SC>τ]))(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.12" ; snw:lagK "1–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Supplier stress, safety-stock reduction → stockouts → lost orders. Manufacturing & retail. Path: EP→OX→SC→RV" .
+
+snw:chain_P4_EP_CX_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P4::EP→CX→SC→DT" ; snw:cause snw:prim_EP ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₃₄·(β₂₃·(β₁₂·ΔEP))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.09" ; snw:lagK "6–18m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Capex cut → underinvestment in supplier/logistics resilience → downtime. Very long lag. Utility & heavy industry. Path: EP→CX→SC→DT" .
+
+snw:chain_P4_CM_OX_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P4::CM→OX→SC→DT" ; snw:cause snw:prim_CM ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₃₄·(β₂₃·(β₁₂·ΔCM))(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.14" ; snw:lagK "3–9m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Input cost pass-through → supplier stress → downtime. Chemicals, food, metals. Path: CM→OX→SC→DT" .
+
+snw:chain_P4_CM_OX_DT_RV a snw:CausalEdge ;
+    snw:edgeId "P4::CM→OX→DT→RV" ; snw:cause snw:prim_CM ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·ΔCM))(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.16" ; snw:lagK "2–7m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Input cost → maintenance deferral → outage → lost production. Process industries. Path: CM→OX→DT→RV" .
+
+snw:chain_P4_CM_OX_SC_RV a snw:CausalEdge ;
+    snw:edgeId "P4::CM→OX→SC→RV" ; snw:cause snw:prim_CM ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·ΔCM·𝟙[SC>τ]))(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.12" ; snw:lagK "1–5m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Single-source suppliers fragile → safety stocks cut → stockouts → lost sales. Agriculture→food; mining→electronics. Path: CM→OX→SC→RV" .
+
+snw:chain_P4_CM_OX_RV_WF a snw:CausalEdge ;
+    snw:edgeId "P4::CM→OX→RV→WF" ; snw:cause snw:prim_CM ; snw:effect snw:prim_WF ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔWF = β₃₄·(β₂₃·(β₁₂·ΔCM))(t−k)" ;
+    snw:elasticityOrWeight "0.02–0.08" ; snw:lagK "3–10m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Margin squeeze, volume compression → headcount reductions follow sustained revenue decline. Consumer staples, food-service. Path: CM→OX→RV→WF" .
+
+snw:chain_P4_EP_EU_GE_CL a snw:CausalEdge ;
+    snw:edgeId "P4::EP→EU→GE→CL" ; snw:cause snw:prim_EP ; snw:effect snw:prim_CL ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔCL = β₃₄·(β₂₃·(β₁₂·ΔEP))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "4–12m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Price-induced partial conservation → grid intensity rises → Scope 2 emissions → carbon pricing/enforcement. Path: EP→EU→GE→CL" .
+
+snw:chain_P4_IR_CX_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P4::IR→CX→SC→DT" ; snw:cause snw:prim_IR ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₃₄·(β₂₃·(β₁₂·ΔIR))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.09" ; snw:lagK "6–20m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Credit tightening suppresses capex → underinvestment in supplier/logistics resilience → downtime. Very long lag. Rate-tightening cycles. Path: IR→CX→SC→DT" .
+
+snw:chain_P4_IR_CX_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P4::IR→CX→OX→RV" ; snw:cause snw:prim_IR ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·ΔIR))(t−k)" ;
+    snw:elasticityOrWeight "0.04–0.12" ; snw:lagK "4–14m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Capex deferred → older assets less efficient, maintenance costs rise → throughput constraint → lost deliverable volume. Path: IR→CX→OX→RV" .
+
+snw:chain_P4_IR_OX_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P4::IR→OX→SC→DT" ; snw:cause snw:prim_IR ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔDT = β₃₄·(β₂₃·(β₁₂·ΔIR))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.08" ; snw:lagK "3–10m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Financing cost rise → firms reduce safety-stock (working capital) → downtime. Retail, distribution, SME supply. Path: IR→OX→SC→DT" .
+
+snw:chain_P4_XW_WA_OX_RV a snw:CausalEdge ;
+    snw:edgeId "P4::XW→WA→OX→RV" ; snw:cause snw:prim_XW ; snw:effect snw:prim_RV ;
+    snw:edgeOrder 4 ; snw:directionSign "−" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔRV = β₃₄·(β₂₃·(β₁₂·XW))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "2–8m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Drought → water stress → water procurement cost/throughput reduction → revenue decline. Agriculture, beverages, semicon. Path: XW→WA→OX→RV" .
+
+snw:chain_P4_XW_DT_WF_HS a snw:CausalEdge ;
+    snw:edgeId "P4::XW→DT→WF→HS" ; snw:cause snw:prim_XW ; snw:effect snw:prim_HS ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "composite" ;
+    snw:operatorExpression "ΔHS = β₃₄·(β₂₃·(β₁₂·XW))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.09" ; snw:lagK "1–4m" ;
+    snw:aggregationRule "additive" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Facility disruption → worker displacement → rushed restart → elevated incident rates. Post-disaster restart consistently empirical. Path: XW→DT→WF→HS" .
+
+snw:chain_P4_CM_FR_SC_DT a snw:CausalEdge ;
+    snw:edgeId "P4::CM→FR→SC→DT" ; snw:cause snw:prim_CM ; snw:effect snw:prim_DT ;
+    snw:edgeOrder 4 ; snw:directionSign "+" ; snw:functionalForm "threshold" ;
+    snw:operatorExpression "ΔDT = β₃₄·(β₂₃·(β₁₂·ΔCM·𝟙[SC>τ]))(t−k)" ;
+    snw:elasticityOrWeight "0.03–0.10" ; snw:lagK "2–6m" ;
+    snw:aggregationRule "max" ; snw:confidenceLevel "medium" ;
+    snw:edgeNotes "Commodity-driven fuel surcharges → shipping cost spike → reduced shipment frequency → downtime only if SC>τ. Aggregation: max. Path: CM→FR→SC→DT" .

@@ -1,106 +1,150 @@
 {
-  "perspective": "esg-analyst",
-  "headline": "Adani Power faces ₹33.8 Cr exposure from child labor risks flagged in Jharkhand coal supply chain",
-  "impact_grid": {
-    "financial": "HIGH",
-    "regulatory": "HIGH",
-    "strategic": "HIGH"
+  "headline": "Adani Power faces ₹50.0 Cr (engine estimate) exposure from child labour risks flagged in Jharkhand coal supply chain by Amnesty International.",
+  "generated_by": "esg_analyst_generator_v1",
+  "kpi_table": [
+    {
+      "kpi_name": "Scope 1 Emissions",
+      "company_value": "80 Mt CO2e",
+      "unit": "Mt CO2e",
+      "peer_quartile": "P75 (above peer median 60 Mt)",
+      "peer_examples": "NTPC 250, Tata Power 20",
+      "data_source": "CDP 2024 + BRSR FY24",
+      "significance": "This KPI is material because coal-fired power generation is the primary driver of direct GHG emissions and regulatory risk for Adani Power and its peers."
+    }
+  ],
+  "confidence_bounds": [
+    {
+      "figure": "₹50.0 Cr (engine estimate)",
+      "source_type": "engine_estimate",
+      "beta_range": "0.15-0.40",
+      "lag": "1-4 quarters",
+      "functional_form": "step",
+      "confidence": "medium",
+      "rationale": "Primitive cascade P2::CL→RG applied to event_social_violation with calibration to Vedanta 2020 precedent and sectoral exposure."
+    },
+    {
+      "figure": "₹94.9 Cr (engine estimate)",
+      "source_type": "engine_estimate",
+      "beta_range": "0.065-0.225",
+      "lag": "0-4 quarters",
+      "functional_form": "step",
+      "confidence": "medium",
+      "rationale": "Computed financial cascade for event_social_violation, summing direct and indirect impacts per verified cascade."
+    }
+  ],
+  "double_materiality": {
+    "financial_impact": "The flagged child labour risk exposes Adani Power to direct remediation, regulatory penalties, and reputational damage, increasing WACC and compressing margins by 10.0 bps. Potential ESG fund exclusion and higher insurance costs may further elevate cost of capital.",
+    "impact_on_world": "Adani Power's coal supply chain exposure to child labour directly undermines SDG 8.7, perpetuating forced labour and modern slavery risks in Jharkhand mining communities."
   },
-  "what_matters": [
-    "Triggers BRSR Principle 5, GRI 408, SEBI disclosure obligations; non-compliance risks SEBI penalties of ₹10-50 Cr per violation and mandatory remediation under Child Labour Prohibition Act.",
-    "Tier 2/3 coal suppliers in Jharkhand implicated; remediation requires supplier substitution and independent audits, increasing operational costs.",
-    "Potential P/E compression of 0.1x as recurring social violations erode investor confidence; margin erosion of 4.4 bps; revenue at risk includes ₹2.5 Cr direct loss from procurement exclusion."
+  "tcfd_scenarios": {
+    "1_5c": "Accelerated coal phase-out and stricter social compliance under a 1.5C pathway would amplify scrutiny, increase remediation costs, and heighten ESG exclusion risk for Adani Power.",
+    "2c": "Gradual coal phase-out and rising social audit requirements under a 2C scenario sustain regulatory and reputational risks, with moderate financial penalties and margin compression.",
+    "4c": "Limited transition action in a 4C world reduces immediate regulatory pressure, but litigation and community conflict risks escalate, potentially triggering larger, sporadic financial impacts."
+  },
+  "sdg_targets": [
+    {
+      "code": "8.7",
+      "title": "Eradicate forced labour",
+      "applicability": "direct",
+      "rationale": "Child labour in the coal supply chain directly contravenes SDG 8.7, requiring immediate corporate action on supplier audits and remediation."
+    }
   ],
-  "action": [
-    "Immediate board-level action required: launch independent supply chain audits, disclose remediation plan, and engage with SEBI to mitigate penalty risk.",
-    "Key risk: ₹10-50 Cr SEBI penalty per violation if non-compliance persists; precedent risk from similar sector cases",
-    "Opportunity: Restore ESG fund access by implementing a ₹20 Cr independent audit and supplier remediation program"
+  "audit_trail": [
+    {
+      "claim": "total exposure ₹50.0 Cr (engine estimate)",
+      "derivation": "Primitive cascade event_social_violation → CL (β 0.15-0.40) × Adani Power energy_share 0.40 × base remediation quantum, calibrated to Vedanta 2020 precedent and Amnesty escalation.",
+      "sources": [
+        "ontology: P2::CL→RG",
+        "precedent: Vedanta Resources (2020)",
+        "article: Amnesty International report"
+      ]
+    }
   ],
-  "materiality": "CRITICAL",
-  "do_nothing": false,
-  "active_impact_dimensions": [
-    "brand",
-    "cost",
-    "financial",
-    "growth",
-    "operational",
-    "regulatory",
-    "reputational",
-    "strategic",
-    "volume"
+  "framework_citations": [
+    {
+      "code": "BRSR:P6:Q14",
+      "rationale": "Supply-chain labour audit is mandatory for Large Cap companies under BRSR, directly triggered by flagged child labour risks.",
+      "region": "India",
+      "deadline": "2026-05-30"
+    }
   ],
+  "warnings": [],
   "full_insight": {
-    "headline": "Adani Power faces ₹33.8 Cr exposure from child labor risks flagged in Jharkhand coal supply chain",
+    "headline": "Adani Power faces ₹33.8 Cr (engine estimate) exposure from child labor risks flagged in Jharkhand coal supply chain",
     "impact_score": 8.5,
-    "core_mechanism": "Amnesty International's report highlights insufficient labor audits in Adani Power's coal supply chain in Jharkhand, exposing the company to child labor risks. This triggers regulatory scrutiny under BRSR and GRI 408, requiring remediation, independent audits, and potential fines, while also risking reputational damage and ESG fund exclusion.",
-    "profitability_connection": "The event results in direct remediation and compliance costs of ₹20 Cr, with additional regulatory, operational, and reputational impacts totaling ₹33.8 Cr. This translates to a 4.4 bps margin pressure and potential revenue at risk from ESG fund outflows and procurement exclusion.",
-    "translation": "A major NGO has accused Adani Power of child labor risks in its coal supply chain, forcing the company to spend over ₹33 Cr on audits, compliance, and possible fines. This could hurt profits, damage its reputation, and make it harder to attract investors and customers.",
+    "core_mechanism": "Amnesty International's report highlights insufficient labor audits in Adani Power's Jharkhand coal supply chain, exposing the company to child labor risks. This triggers mandatory BRSR and GRI disclosures, potential SEBI scrutiny, and reputational damage, leading to remediation costs and possible regulatory penalties. The event transmits through direct operational exposure and regulatory contagion, affecting both financials and stakeholder trust.",
+    "profitability_connection": "The ₹20 Cr remediation cost (engine estimate) and additional regulatory and reputational impacts (totaling ₹33.8 Cr, engine estimate) will directly affect operating margins and may increase cost of capital by 20-40 bps due to ESG fund exclusion and index rebalancing. Margin pressure is calculated at 3.6 bps on annual revenue.",
+    "translation": "A major NGO has accused Adani Power of child labor risks in its coal supply chain, forcing the company to spend ₹20 Cr (engine estimate) on audits and restructuring, with total financial exposure reaching ₹33.8 Cr. This could lead to regulatory penalties, investor exits, and damage to the company's reputation, making it more expensive to raise money and potentially losing business from ESG-focused customers.",
     "impact_analysis": {
-      "esg_positioning": "Adani Power faces a significant ESG score gap versus peers like JSW Energy due to weak supply chain labor controls, risking index exclusion and analyst downgrades.",
-      "capital_allocation": "Cost of capital could rise by 20-40 bps as SEBI scrutiny and ESG rating downgrades trigger FII outflows and bond spread widening.",
-      "valuation_cashflow": "Potential P/E compression of 0.1x as recurring social violations erode investor confidence; margin erosion of 4.4 bps; revenue at risk includes ₹2.5 Cr direct loss from procurement exclusion.",
-      "compliance_regulatory": "Triggers BRSR Principle 5, GRI 408, SEBI disclosure obligations; non-compliance risks SEBI penalties of ₹10-50 Cr per violation and mandatory remediation under Child Labour Prohibition Act.",
-      "supply_chain_transmission": "Tier 2/3 coal suppliers in Jharkhand implicated; remediation requires supplier substitution and independent audits, increasing operational costs.",
-      "people_demand": "Employer brand damage may drive senior talent attrition and community backlash; B2B customers may exclude Adani Power from ESG-sensitive procurement."
+      "esg_positioning": "Adani Power faces a widening ESG score gap versus peers like JSW Energy due to flagged child labor risks, risking exclusion from ESG indices and DJSI, which can erode valuation premiums.",
+      "capital_allocation": "Cost of capital could rise by 20-40 bps as SEBI scrutiny and ESG fund outflows follow social/labor violations; passive index rebalancing may trigger FII outflows.",
+      "valuation_cashflow": "Potential P/E compression of 0.1x as a result of ESG rating downgrades and reputational damage; margin erosion of 3.6 bps; direct revenue at risk of ₹2.5 Cr (engine estimate) if procurement exclusion occurs.",
+      "compliance_regulatory": "Triggers BRSR Principle 5, GRI 408, and SEBI disclosure obligations; non-compliance risks SEBI penalties of ₹10 (engine estimate)-50 Cr per violation and mandatory remediation under Child Labour Prohibition Act.",
+      "supply_chain_transmission": "Tier 2/3 supply chain effects as child labor risks originate from coal suppliers in Jharkhand, requiring supplier audits, restructuring, and possible substitution.",
+      "people_demand": "Employer brand damage may increase senior talent attrition and reduce attractiveness to new hires; community outrage and NGO campaigns could escalate, affecting social licence to operate."
     },
     "financial_timeline": {
       "immediate": {
-        "headline": "₹20 Cr remediation and audit costs hit FY26 P&L",
-        "profitability_pathway": "Child labor risk → mandatory audits/remediation → ₹20 Cr direct spend",
-        "margin_pressure": "4.4 bps",
-        "revenue_at_risk": "₹2.5 Cr direct procurement loss + ₹1.3 Cr indirect investor outflow"
+        "headline": "₹20 Cr remediation and audit costs (engine estimate) plus ₹13.8 Cr regulatory/reputational impact (engine estimate)",
+        "profitability_pathway": "Child labor risk flagged → mandatory audits and supply chain restructuring → ₹20 Cr direct cost (engine estimate) + ₹13.8 Cr regulatory/reputational impact (engine estimate)",
+        "margin_pressure": "3.6 bps",
+        "revenue_at_risk": "₹2.5 Cr direct procurement exclusion risk (engine estimate)"
       },
       "structural": {
-        "valuation_rerating": "P/E compression of 0.1x due to recurring social risk and ESG fund exclusion",
-        "competitive_position": "Adani Power loses ESG ground to JSW Energy, risking index exclusion and procurement loss"
+        "valuation_rerating": "P/E compression of 0.1x due to ESG rating downgrade and index exclusion risk",
+        "competitive_position": "Adani Power at disadvantage vs JSW Energy, which has stronger ESG disclosures and fewer flagged labor risks"
       },
       "long_term": {
-        "secular_trajectory": "If unaddressed, recurring labor violations could trigger systemic regulatory action, sustained FII outflows, and long-term brand erosion",
-        "green_revenue_opportunity": "₹0 Cr — no immediate green revenue opportunity; focus is on risk mitigation, not opportunity capture"
+        "secular_trajectory": "If unaddressed, recurring social violations could lead to systemic ESG fund exclusion, higher cost of capital, and persistent discount to sector peers over 3-5 years.",
+        "green_revenue_opportunity": "Potential to regain ₹5-10 Cr in green procurement contracts (engine estimate) if robust remediation and disclosure are implemented"
       }
     },
     "esg_relevance_score": {
       "environment": {
         "score": 0,
-        "rationale": "No environmental dimension; event is purely social (labor rights violation) with no emissions or resource use impact."
+        "rationale": "No environmental dimension; event is purely social/labor rights related."
       },
       "social": {
         "score": 10,
-        "rationale": "Direct child labor risk in supply chain; triggers GRI 408 and BRSR Principle 5; high stakeholder and regulatory salience."
+        "rationale": "Direct child labor risk in supply chain triggers critical social/labor rights frameworks (GRI 408, BRSR P5)."
       },
       "governance": {
         "score": 8,
-        "rationale": "Governance failure in supplier oversight and disclosure; SEBI and BRSR compliance gaps increase board-level risk."
+        "rationale": "Governance risk from weak supplier oversight and potential SEBI disclosure violations."
       },
       "financial_materiality": {
         "score": 8,
-        "rationale": "₹33.8 Cr total exposure (direct and indirect); margin impact of 4.4 bps; triggers cost of capital and valuation risk."
+        "rationale": "₹33.8 Cr (engine estimate) total exposure (from article and engine estimate) is material for a Large Cap utility; triggers margin and valuation impact."
       },
       "regulatory_exposure": {
         "score": 9,
-        "rationale": "SEBI, BRSR, and Child Labour Prohibition Act all triggered; penalty precedents up to ₹50 Cr per violation."
+        "rationale": "High risk of SEBI penalties, BRSR and GRI non-compliance, and Child Labour Prohibition Act enforcement."
       },
       "stakeholder_impact": {
         "score": 9,
-        "rationale": "High impact on investors (ESG fund exclusion), employees (morale, attrition), and communities (NGO campaigns, protest risk)."
+        "rationale": "Critical impact on investors (ESG fund exclusion), employees (morale, attrition), and communities (NGO campaigns, social licence risk)."
       }
     },
-    "net_impact_summary": "Adani Power faces a material social risk event with a computed financial exposure of ₹33.8 Cr, including ₹20 Cr direct remediation costs and additional regulatory and reputational impacts. The event triggers BRSR Principle 5 and GRI 408, exposing the company to SEBI penalties and ESG fund exclusion. Margin pressure is calculated at 4.4 bps, with potential P/E compression of 0.1x. This places Adani Power at a disadvantage versus peers and increases its cost of capital.",
+    "net_impact_summary": "The Amnesty International report exposes Adani Power to a quantified ₹33.8 Cr financial impact, combining ₹20 Cr direct remediation costs (engine estimate) and additional regulatory and reputational risks (engine estimate). This event triggers BRSR Principle 5 and GRI 408 compliance obligations, with potential SEBI penalties and ESG fund exclusion. The resulting margin erosion and P/E compression place Adani Power at a disadvantage versus peers with stronger labor oversight, making this a structurally significant social risk event.",
     "decision_summary": {
       "materiality": "CRITICAL",
       "action": "ACT",
-      "verdict": "Immediate board-level action required: launch independent supply chain audits, disclose remediation plan, and engage with SEBI to mitigate penalty risk.",
-      "financial_exposure": "₹20 Cr direct remediation + ₹13.8 Cr indirect (regulatory, operational, reputational) = ₹33.8 Cr total exposure",
-      "key_risk": "₹10-50 Cr SEBI penalty per violation if non-compliance persists; precedent risk from similar sector cases",
-      "top_opportunity": "Restore ESG fund access by implementing a ₹20 Cr independent audit and supplier remediation program",
+      "verdict": "Immediate remediation, supplier audits, and enhanced disclosure are required to mitigate regulatory and reputational fallout.",
+      "financial_exposure": "₹20 Cr direct remediation (engine estimate) + ₹13.8 Cr regulatory/reputational impact (engine estimate)",
+      "key_risk": "SEBI penalty up to ₹50 Cr (engine estimate) per violation (precedent) plus ESG fund exclusion risk",
+      "top_opportunity": "Restore ESG index eligibility and unlock ₹5-10 Cr green procurement contracts by implementing robust supply chain audits (engine estimate)",
       "timeline": "within 8 weeks"
     },
     "causal_chain": {
       "event": "Amnesty International flags child labor risks in Adani Power's Jharkhand coal supply chain",
-      "mechanism": "NGO report triggers regulatory scrutiny (BRSR, GRI 408), requiring audits, remediation, and disclosure; failure to act risks SEBI penalties and ESG fund exclusion",
-      "company_impact": "₹33.8 Cr total exposure via direct remediation, regulatory fines, operational disruption, and reputational damage; margin pressure of 4.4 bps",
+      "mechanism": "NGO report triggers regulatory scrutiny (BRSR, GRI), mandatory supplier audits, remediation costs, and reputational damage, leading to increased cost of capital and potential exclusion from ESG indices.",
+      "company_impact": "Direct remediation and audit costs of ₹20 Cr (engine estimate), additional regulatory and reputational exposure of ₹13.8 Cr (engine estimate), margin erosion of 3.6 bps, and risk of procurement exclusion.",
       "transmission_type": "supply_chain"
     },
-    "warnings": []
+    "warnings": [
+      "verifier: hallucination audit: downgraded 6 unsupported '(from article)' claim(s) to '(engine estimate)'",
+      "verifier: added 5 source tags on ₹ figures",
+      "verifier: cross-section consistency: 2 drift warning(s)"
+    ]
   }
 }

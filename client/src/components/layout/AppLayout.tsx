@@ -4,8 +4,14 @@ import { type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { MinimalHeader } from "./MinimalHeader";
 import { BottomNav } from "./BottomNav";
+import { useSyncPerspectiveWithRole } from "@/stores/perspectiveStore";
 
 export function AppLayout({ children }: { children: ReactNode }) {
+  // Phase 10 / Phase D: pick the default perspective panel (CFO/CEO/ESG
+  // Analyst) from the user's active role — unless they've explicitly clicked
+  // the PerspectiveSwitcher, in which case their choice wins.
+  useSyncPerspectiveWithRole();
+
   const navigate = useNavigate();
   const location = useLocation();
   const isAgentPage = location.pathname === "/agent";

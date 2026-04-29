@@ -75,7 +75,18 @@ class OntologyGraph:
             ontology_dir / "primitives_thresholds.ttl",
         ]
         # Optional files (may not exist yet)
-        for opt in ("primitives_indicators.ttl", "primitives_order3.ttl"):
+        for opt in (
+            "primitives_indicators.ttl",
+            "primitives_order3.ttl",
+            "precedents.ttl",
+            # Phase 4: perspective-generation ontology
+            "kpis.ttl",
+            "scenarios.ttl",
+            "stakeholder_positions.ttl",
+            "sdg_targets.ttl",
+            # Phase 3 follow-up: framework section rationales
+            "framework_rationales.ttl",
+        ):
             p = ontology_dir / opt
             if p.exists():
                 primitives_files.append(p)
