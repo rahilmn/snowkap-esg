@@ -15,21 +15,32 @@
         "BRSR Core FY26 Filing",
         "SEBI Quarterly Corporate Governance Report"
       ],
-      "triggered_sections": [
-        "BRSR:P1",
-        "BRSR:P2",
-        "BRSR:P3"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "CDP",
       "framework_label": "CDP",
-      "relevance": 0.7100000000000001,
+      "relevance": 0.7700000000000001,
       "is_mandatory": false,
       "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
       "triggered_by_themes": [
         "Energy",
-        "Climate Change"
+        "Climate Change",
+        "Climate Adaptation"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "TCFD",
+      "framework_label": "TCFD",
+      "relevance": 0.7700000000000001,
+      "is_mandatory": false,
+      "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+      "triggered_by_themes": [
+        "Energy",
+        "Climate Change",
+        "Climate Adaptation"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []
@@ -50,23 +61,6 @@
       ]
     },
     {
-      "framework_id": "TCFD",
-      "framework_label": "TCFD",
-      "relevance": 0.7100000000000001,
-      "is_mandatory": false,
-      "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
-      "triggered_by_themes": [
-        "Energy",
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": [
-        "ESRS:E1",
-        "TCFD:Gov",
-        "TCFD:Metrics"
-      ]
-    },
-    {
       "framework_id": "EU_TAXONOMY",
       "framework_label": "EU Taxonomy",
       "relevance": 0.55,
@@ -74,6 +68,32 @@
       "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
       "triggered_by_themes": [
         "Energy"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "ESRS",
+      "framework_label": "ESRS",
+      "relevance": 0.39,
+      "is_mandatory": false,
+      "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+      "triggered_by_themes": [
+        "Climate Change",
+        "Climate Adaptation"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "ISSB",
+      "framework_label": "ISSB / IFRS S1 S2",
+      "relevance": 0.39,
+      "is_mandatory": false,
+      "profitability_link": "Global baseline — affects cross-border investor confidence",
+      "triggered_by_themes": [
+        "Climate Change",
+        "Climate Adaptation"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []
@@ -88,11 +108,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "CFA:Materiality",
-        "CFA:Valuation",
-        "CFA:WACC"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "COSO_ERM",
@@ -104,11 +120,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "COSO:Gov",
-        "COSO:Info",
-        "COSO:Perf"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "CSRD",
@@ -120,11 +132,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "ESRS:E1",
-        "ESRS:E2",
-        "ESRS:E3"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "DJSI",
@@ -136,27 +144,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "DJSI:Econ",
-        "DJSI:Env",
-        "DJSI:Social"
-      ]
-    },
-    {
-      "framework_id": "ESRS",
-      "framework_label": "ESRS",
-      "relevance": 0.33,
-      "is_mandatory": false,
-      "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
-      "triggered_by_themes": [
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": [
-        "ESRS:E1",
-        "ESRS:E2",
-        "ESRS:E3"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "EDELMAN",
@@ -168,26 +156,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "EDEL:Ethics",
-        "EDEL:TrustIndex"
-      ]
-    },
-    {
-      "framework_id": "ISSB",
-      "framework_label": "ISSB / IFRS S1 S2",
-      "relevance": 0.33,
-      "is_mandatory": false,
-      "profitability_link": "Global baseline — affects cross-border investor confidence",
-      "triggered_by_themes": [
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": [
-        "TCFD:Gov",
-        "TCFD:Metrics",
-        "TCFD:RM"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "PORTER_5_FORCES",
@@ -199,11 +168,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "P5F:Force1",
-        "P5F:Force2",
-        "P5F:Force3"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "SP_GLOBAL_ESG",
@@ -215,10 +180,7 @@
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "SPG:CSA",
-        "SPG:ESGScore"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "SBTI",

@@ -60,6 +60,11 @@ class Permission(StrEnum):
     IMPERSONATE_USER = "impersonate_user"
     VIEW_ALL_TENANTS = "view_all_tenants"
 
+    # Phase 10: sales super-admin
+    SUPER_ADMIN = "super_admin"
+    OVERRIDE_TENANT_CONTEXT = "override_tenant_context"
+    MANAGE_DRIP_CAMPAIGNS = "manage_drip_campaigns"
+
 
 class Role(StrEnum):
     """Platform roles mapped from designation at login."""
@@ -69,6 +74,8 @@ class Role(StrEnum):
     MEMBER = "member"
     TENANT_ADMIN = "admin"
     PLATFORM_ADMIN = "platform_admin"
+    # Phase 10: internal Snowkap sales users with cross-tenant + campaign perms
+    SUPER_ADMIN = "super_admin"
 
 
 # Role → Permissions mapping
@@ -140,6 +147,12 @@ ROLE_PERMISSIONS: dict[str, list[str]] = {
     ],
     Role.PLATFORM_ADMIN: [
         # Platform admins get everything
+        p.value for p in Permission
+    ],
+    Role.SUPER_ADMIN: [
+        # Snowkap sales super-admins: every platform permission + cross-tenant
+        # switching + drip-campaign management. Role is granted only via the
+        # SNOWKAP_INTERNAL_EMAILS allowlist in the auth flow.
         p.value for p in Permission
     ],
 }
