@@ -36,25 +36,45 @@ cd "$(dirname "$0")"
 echo "=== SNOWKAP ESG Intelligence Engine ==="
 echo "Boot start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-# 1. Python deps. Replit reuses the venv across boots so this is fast on
-#    subsequent runs. The Dockerfile multi-stage build also handles this,
-#    but harmless to re-check.
-if [ ! -f ".venv/.deps_installed" ]; then
-  echo "Installing Python dependencies..."
-  python -m pip install --quiet --upgrade pip
-  python -m pip install --quiet -r requirements.txt
-  mkdir -p .venv
-  touch .venv/.deps_installed
+# 1. Python deps. Different platforms install differently:
+#    - Docker: handled at image-build time via the Dockerfile
+#    - Replit: Nix-managed Python is PEP-668 "externally managed";
+#      Replit's deploy infra pre-installs to .pythonlibs/ from
+#      requirements.txt. Calling `pip install` directly fails with
+#      `error: externally-managed-environment`.
+#    - Local dev: a venv is expected to be activated already.
+#
+# Strategy: probe whether the core deps are already importable.
+# If they are, skip install entirely (Docker / Replit / local-with-venv).
+# Otherwise, fall back to `--user --break-system-packages` which is
+# Replit's documented escape hatch for Nix-managed Pythons.
+if ! python -c "import fastapi, uvicorn, openai, rdflib, jwt" 2>/dev/null; then
+  echo "Python deps not loadable — installing with --user --break-system-packages..."
+  python -m pip install --quiet --user --break-system-packages -r requirements.txt || {
+    echo "  (fallback) installing without --break-system-packages..."
+    python -m pip install --quiet --user -r requirements.txt
+  }
+else
+  echo "Python deps already loadable; skipping install."
 fi
 
 # 2. Frontend build. Skip if dist/ exists AND is newer than the latest
-#    src/ change — keeps boot time fast on Replit restarts.
-if [ ! -d "client/dist" ]; then
+#    src/ change — keeps boot time fast on Replit restarts. Wrap the
+#    npm install/build in `|| true` so a transient npm error doesn't
+#    block API boot — the OLD dist/ stays intact and serves the previous
+#    UI version. The "Rebuild Frontend" admin script can retry later.
+_build_frontend() {
+  ( cd client && npm install --silent && npm run build ) && return 0
+  echo "WARN: frontend build failed — keeping previous dist/ if any"
+  return 1
+}
+
+if [ ! -d "client/dist" ] || [ ! -f "client/dist/index.html" ]; then
   echo "Building frontend (first boot)..."
-  ( cd client && npm install --silent && npm run build )
+  _build_frontend || true
 elif [ -n "$(find client/src -newer client/dist -type f -print -quit 2>/dev/null)" ]; then
   echo "Frontend src changed since last build — rebuilding..."
-  ( cd client && npm install --silent && npm run build )
+  _build_frontend || true
 else
   echo "Frontend dist/ is up to date; skipping rebuild."
 fi
