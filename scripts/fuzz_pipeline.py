@@ -161,6 +161,36 @@ def _check_article(entry: dict, result: ArticleResult, full_payload: dict) -> No
     """
     exp = entry.get("expectations") or {}
 
+    # Phase 22.5 — when an expectation declares the article SHOULD be rejected
+    # (e.g. cross-entity gate on a sibling-group article that doesn't actually
+    # mention the target company), short-circuit: validate the rejection
+    # reason matches and skip the post-pipeline expectations (event_id,
+    # rec_count, etc.) since the pipeline never reached those stages.
+    expect_reject = exp.get("expect_rejection_reason")
+    if expect_reject:
+        if result.materiality != "REJECTED":
+            result.failures.append(
+                f"expected rejection with reason {expect_reject!r}, "
+                f"got materiality={result.materiality!r}"
+            )
+        else:
+            actual_reason = (full_payload.get("rejection_reason") or "")
+            if expect_reject not in actual_reason:
+                result.failures.append(
+                    f"rejection_reason: expected to contain {expect_reject!r}, "
+                    f"got {actual_reason!r}"
+                )
+        # `must_not_contain` is still relevant on rejected articles
+        if "must_not_contain" in exp:
+            full_text = json.dumps(full_payload, ensure_ascii=False)
+            for marker in exp["must_not_contain"]:
+                if marker in full_text:
+                    result.failures.append(
+                        f"forbidden phrase present: {marker!r}"
+                    )
+        result.passed = len(result.failures) == 0
+        return
+
     # Event classification
     if "event_id" in exp and exp["event_id"] != result.event_id:
         result.failures.append(
@@ -244,15 +274,23 @@ def _run_article(entry: dict) -> ArticleResult:
     try:
         company = get_company(result.company_slug)
         pipe = process_article(article, company)
-        result.event_id = pipe.event.event_id
-        result.event_keywords_matched = len(pipe.event.matched_keywords)
+        # Phase 22.1 — when the cross-entity gate rejects (or any pipeline
+        # gate that short-circuits before Stage 3 event classification),
+        # pipe.event is None. Treat as empty event for harness-level
+        # reporting; the rejection is captured separately in pipe.rejected.
+        result.event_id = pipe.event.event_id if pipe.event else ""
+        result.event_keywords_matched = (
+            len(pipe.event.matched_keywords) if pipe.event else 0
+        )
         result.tier = pipe.tier
         result.ontology_queries = pipe.ontology_query_count
 
         full_payload: dict[str, Any] = {
             "title": pipe.title,
             "tier": pipe.tier,
-            "event": pipe.event.event_id,
+            "event": pipe.event.event_id if pipe.event else "",
+            "rejected": pipe.rejected,
+            "rejection_reason": pipe.rejection_reason,
         }
 
         # Force HOME so we exercise stages 10-12 even on SECONDARY tier
