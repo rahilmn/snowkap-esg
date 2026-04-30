@@ -386,7 +386,16 @@ def test_news_stats_endpoint_emits_active_signals_count() -> None:
 
 
 def test_email_config_status_rejects_placeholder_key() -> None:
-    """B7: a placeholder like 'your_resend_key_here' must report disabled."""
+    """B7: a placeholder like 'your_resend_key_here' must report disabled.
+
+    Phase 22.4 hotfix — when this test runs in an environment that
+    already has SNOWKAP_ENV=production set (e.g. on the Replit deploy
+    that runs the test suite from the live shell), the production
+    env-guard fires during TestClient(app)'s startup hook because
+    we patch RESEND_API_KEY to a placeholder. Override SNOWKAP_ENV
+    to empty so the guard is bypassed for this specific test — we're
+    testing the endpoint behavior, not the boot behavior.
+    """
     from api.main import app
 
     with patch.dict(os.environ, {
@@ -394,6 +403,11 @@ def test_email_config_status_rejects_placeholder_key() -> None:
         "SNOWKAP_API_KEY": "test-api-key",
         "RESEND_API_KEY": "your_resend_key_here",
         "SNOWKAP_FROM_ADDRESS": "test@example.com",
+        # Bypass the production env-guard during the TestClient startup
+        # hook so the placeholder RESEND_API_KEY doesn't trip
+        # _check_production_env. Without this the test fails on Replit.
+        "SNOWKAP_ENV": "",
+        "REQUIRE_SIGNED_JWT": "",
     }, clear=False):
         with TestClient(app) as client:
             r = client.get("/api/admin/email-config-status", headers=_api_headers())
