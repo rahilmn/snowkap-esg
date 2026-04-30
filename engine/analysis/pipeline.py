@@ -79,6 +79,13 @@ class PipelineResult:
     elapsed_seconds: float = 0.0
     stages_executed: list[str] = field(default_factory=list)
 
+    # Phase 22.4 — Persist a truncated copy of the raw article body so the
+    # output verifier can ground "(from article)" tags + reused-number
+    # audits against actual source text (not just NLP-derived narrative
+    # fragments). Capped at 6000 chars; enough for ~3-4 KB articles which
+    # cover ~95% of corpus.
+    article_content: str = ""
+
     def to_dict(self) -> dict[str, Any]:
         def _safe(obj: Any) -> Any:
             if obj is None:
@@ -121,6 +128,10 @@ class PipelineResult:
             "risk": _safe(self.risk),
             "stakeholders": self.stakeholders,
             "sdgs": self.sdgs,
+            # Phase 22.4 — round-trip the raw article body so any path that
+            # serializes/deserializes PipelineResult before insight generation
+            # still has the grounding signal for source-tag verification.
+            "article_content": self.article_content,
         }
 
 
@@ -281,6 +292,7 @@ def process_article(
             stages_executed=stages + ["cross_entity_gate"],
             ontology_query_count=ontology_queries,
             elapsed_seconds=round(time.perf_counter() - started, 3),
+            article_content=(content or "")[:6000],
         )
         logger.info(
             "pipeline: %s REJECTED (cross_entity for %s)",
@@ -316,6 +328,7 @@ def process_article(
         relevance=relevance,
         tier=relevance.tier,
         stages_executed=stages,
+        article_content=(content or "")[:6000],
     )
 
     # Gate: reject early

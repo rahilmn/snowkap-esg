@@ -1,0 +1,57 @@
+{
+  "started_at": "2026-04-30T11:37:14Z",
+  "finished_at": "2026-04-30T11:38:31Z",
+  "total_articles": 2,
+  "passed": 2,
+  "failed": 0,
+  "total_elapsed_sec": 73.61,
+  "avg_elapsed_sec": 36.8,
+  "p95_elapsed_sec": 62.77,
+  "rejected_count": 1,
+  "home_count": 1,
+  "secondary_count": 0,
+  "hallucination_audit_count": 1,
+  "cross_section_drift_count": 1,
+  "coherence_mismatch_count": 0,
+  "results": [
+    {
+      "id": "jsw-energy-ieefa-lng",
+      "company_slug": "jsw-energy",
+      "title": "IEEFA: West Asia's Woes Widen India's Steel Energy Security Chasm | OREACO",
+      "elapsed_seconds": 10.84,
+      "event_id": "",
+      "event_keywords_matched": 0,
+      "tier": "REJECTED",
+      "materiality": "REJECTED",
+      "rec_count": 0,
+      "warning_count": 0,
+      "warnings": [],
+      "headline": "IEEFA: West Asia's Woes Widen India's Steel Energy Security Chasm | OREACO",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 0
+    },
+    {
+      "id": "waaree-pspcl-auction-win",
+      "company_slug": "waaree-energies",
+      "title": "Daily News Wrap-Up: PSPCL Announces Winners of 500 MW Solar Auction - Mercom India",
+      "elapsed_seconds": 62.77,
+      "event_id": "event_contract_win",
+      "event_keywords_matched": 4,
+      "tier": "HOME",
+      "materiality": "MODERATE",
+      "rec_count": 4,
+      "warning_count": 4,
+      "warnings": [
+        "verifier: hallucination audit: downgraded 8 unsupported '(from article)' claim(s) to '(engine estimate)'",
+        "verifier: added 5 source tags on ₹ figures",
+        "verifier: cross-section consistency: 1 drift warning(s)",
+        "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+      ],
+      "headline": "Waaree Energies secures 500 MW PSPCL solar contract, adding ₹477.5 Cr (engine estimate) revenue and boosting order book visibility",
+      "passed": true,
+      "failures": [],
+      "ontology_queries": 53
+    }
+  ]
+}
