@@ -79,7 +79,23 @@ def enrich_on_demand(
         result = _reconstruct_pipeline_result(pipeline_data)
 
     if result.rejected:
-        logger.info("enrich_on_demand: %s is rejected, skipping", article_id)
+        # Phase 22.1 — when re-analysis rejects (e.g. cross-entity gate
+        # fires), persist the new rejection to disk so the dashboard
+        # surfaces correctly. Pre-fix the OLD analysis stayed cached
+        # forever even though the article's tier should now be REJECTED.
+        # write_insight() also calls upsert_article() to refresh the
+        # SQLite index so the article drops out of company-feed queries.
+        logger.info(
+            "enrich_on_demand: %s REJECTED on re-analysis (%s) — persisting",
+            article_id, result.rejection_reason,
+        )
+        try:
+            write_insight(result, None, {}, None)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "enrich_on_demand: failed to persist rejection for %s: %s",
+                article_id, exc,
+            )
         return payload
 
     # 4c. Check content quality — flag paywall/thin articles
