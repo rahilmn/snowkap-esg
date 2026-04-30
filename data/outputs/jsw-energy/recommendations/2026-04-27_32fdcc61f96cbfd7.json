@@ -1,0 +1,157 @@
+{
+  "recommendations": [
+    {
+      "title": "Commission Third-Party CDP Validation for FY26",
+      "description": "Engage a third-party agency to validate and submit CDP disclosures for FY26 by 2026-05-30 to improve ESG ratings and investor confidence, aiming for A-list inclusion to support valuation premium.",
+      "type": "esg_positioning",
+      "responsible_party": "Head of Sustainability",
+      "framework_section": "CDP",
+      "deadline": "2026-05-30",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Potential 5-10% P/E premium translating to ₹50-100 Cr market cap uplift",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 9,
+      "roi_percentage": 150.0,
+      "payback_months": 18.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "CDP",
+          "value": "CDP score tracked by investors; A-list inclusion = premium valuation"
+        },
+        {
+          "source": "article",
+          "ref": "modest ESG disclosure impact",
+          "value": "Article highlights need to improve ESG disclosure quality"
+        }
+      ]
+    },
+    {
+      "title": "Issue ₹500-1000 Cr Green Bond Post-Taxonomy Alignment",
+      "description": "JSW Energy should prepare and issue a ₹500-1000 Cr green bond aligned with EU Taxonomy by 2026-12-31 to capitalize on lower cost of capital and investor demand, leveraging improved ESG disclosures to reduce borrowing costs by 20-40 bps.",
+      "type": "financial",
+      "responsible_party": "CFO",
+      "framework_section": "BRSR:P6, EU Taxonomy",
+      "deadline": "2026-12-31",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "₹10-20 Cr annual interest savings from 20-40 bps cost of capital reduction on ₹500-1000 Cr debt",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 200.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Tata Power issued ₹5000 Cr green bond achieving P/E rerating",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "₹500-1000 Cr green bond opportunity",
+          "value": "Article estimates ₹500-1000 Cr green bond opportunity with cost of capital reduction"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "BRSR disclosure linked to cost of capital +20-40 bps"
+        },
+        {
+          "source": "peer",
+          "ref": "Tata Power green bond",
+          "value": "Tata Power issued ₹5000 Cr green bond with valuation rerating"
+        }
+      ]
+    },
+    {
+      "title": "Monitor Regulatory Mandates and Energy Price Shocks Quarterly",
+      "description": "Establish a quarterly monitoring system to track regulatory mandates with compliance deadlines within 24 months and energy price shocks exceeding 25% YoY; escalate to CEO and CFO if thresholds are breached within 6 months to mitigate transition and economic risks.",
+      "type": "operational",
+      "responsible_party": "Risk Management Officer",
+      "framework_section": "BRSR:P6, Causal Primitives",
+      "deadline": "2026-07-15",
+      "estimated_budget": "₹0.2-0.5 Cr",
+      "profitability_link": "Avoid ₹5-10 Cr in potential cost overruns or penalties by early risk detection",
+      "priority": "HIGH",
+      "urgency": "short_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 6,
+      "roi_percentage": 200.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": true,
+      "roi_cap_reason": "Capped at 200% (operational ceiling). Raw estimate was 300%; cap prevents over-claim.",
+      "audit_trail": [
+        {
+          "source": "causal_primitive",
+          "ref": "τ = Binding standard with compliance deadline <= 24 months",
+          "value": "Threshold for regulatory mandate monitoring"
+        },
+        {
+          "source": "causal_primitive",
+          "ref": "τ = ΔEP >= 25% YoY",
+          "value": "Threshold for energy price shock monitoring"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "BRSR mandates monitoring for regulatory risks"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 1,
+        "title": "Issue ₹500-1000 Cr Green Bond Post-Taxonomy Alignment",
+        "type": "financial",
+        "roi": 200.0,
+        "budget": "₹1-2 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 0,
+        "title": "Commission Third-Party CDP Validation for FY26",
+        "type": "esg_positioning",
+        "roi": 150.0,
+        "budget": "₹0.5-1 Cr"
+      },
+      {
+        "index": 2,
+        "title": "Monitor Regulatory Mandates and Energy Price Shocks Quarterly",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹0.2-0.5 Cr"
+      }
+    ],
+    "deferred_high": [],
+    "deferred_low": []
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      2,
+      1,
+      0
+    ],
+    "ceo": [
+      0,
+      2,
+      1
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}

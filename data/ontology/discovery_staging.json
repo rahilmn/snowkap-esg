@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-29T10:33:36.778738+00:00",
-  "count": 32,
+  "updated_at": "2026-04-30T10:08:35.180028+00:00",
+  "count": 37,
   "candidates": {
     "entity:ntpc": {
       "category": "entity",
@@ -117,7 +117,8 @@
         "bb4b3e8a8bc9b94f",
         "65e6c3bb4f67bb45",
         "472d5ddabc580eb3",
-        "aa8f6485d9bd6b3f"
+        "aa8f6485d9bd6b3f",
+        "d2755f52d485c025"
       ],
       "sources": [],
       "companies": [
@@ -127,7 +128,7 @@
       ],
       "confidence": 0.0,
       "first_seen": "2026-04-15T10:35:58.637429+00:00",
-      "last_seen": "2026-04-29T10:33:36.451587+00:00",
+      "last_seen": "2026-04-30T09:18:06.088975+00:00",
       "data": {
         "topic": "Energy",
         "ontology_weight": 0.9,
@@ -355,17 +356,19 @@
       "label": "Adani Power Limited",
       "slug": "adani_power_limited",
       "article_ids": [
-        "65e6c3bb4f67bb45"
+        "65e6c3bb4f67bb45",
+        "a616d49441b7bb6e"
       ],
       "sources": [
-        "Business Standard"
+        "Business Standard",
+        "scanx.trade"
       ],
       "companies": [
         "adani-power"
       ],
       "confidence": 0.75,
       "first_seen": "2026-04-23T13:13:51.355653+00:00",
-      "last_seen": "2026-04-23T13:13:51.355653+00:00",
+      "last_seen": "2026-04-30T10:08:35.082205+00:00",
       "data": {
         "entity_type": "company"
       },
@@ -687,6 +690,115 @@
       "confidence": 0.75,
       "first_seen": "2026-04-29T10:33:36.451587+00:00",
       "last_seen": "2026-04-29T10:33:36.451587+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "entity:adani_energy_solutions": {
+      "category": "entity",
+      "label": "Adani Energy Solutions",
+      "slug": "adani_energy_solutions",
+      "article_ids": [
+        "d2755f52d485c025"
+      ],
+      "sources": [
+        "scanx.trade"
+      ],
+      "companies": [
+        "adani-power"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-04-30T08:19:54.217451+00:00",
+      "last_seen": "2026-04-30T09:18:06.088975+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "framework:care_esg": {
+      "category": "framework",
+      "label": "CARE ESG",
+      "slug": "care_esg",
+      "article_ids": [
+        "d2755f52d485c025",
+        "a616d49441b7bb6e"
+      ],
+      "sources": [
+        "scanx.trade"
+      ],
+      "companies": [
+        "adani-power"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-04-30T08:19:54.217451+00:00",
+      "last_seen": "2026-04-30T09:18:38.098313+00:00",
+      "data": {
+        "reference": "CARE ESG",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "framework:esg": {
+      "category": "framework",
+      "label": "ESG",
+      "slug": "esg",
+      "article_ids": [
+        "d2755f52d485c025"
+      ],
+      "sources": [
+        "scanx.trade"
+      ],
+      "companies": [
+        "adani-power"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-04-30T09:18:06.088975+00:00",
+      "last_seen": "2026-04-30T09:18:06.088975+00:00",
+      "data": {
+        "reference": "ESG",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "weight:weight_transparency_&_disclosure": {
+      "category": "weight",
+      "label": "Transparency & Disclosure weight divergence",
+      "slug": "weight_transparency_&_disclosure",
+      "article_ids": [
+        "a616d49441b7bb6e"
+      ],
+      "sources": [],
+      "companies": [
+        "adani-power"
+      ],
+      "confidence": 0.0,
+      "first_seen": "2026-04-30T09:18:38.098313+00:00",
+      "last_seen": "2026-04-30T10:08:35.082205+00:00",
+      "data": {
+        "topic": "Transparency & Disclosure",
+        "ontology_weight": 0.8,
+        "observed_weight": 0.5,
+        "divergence": 0.3
+      },
+      "status": "pending"
+    },
+    "entity:care_esg_ratings_limited": {
+      "category": "entity",
+      "label": "CARE ESG Ratings Limited",
+      "slug": "care_esg_ratings_limited",
+      "article_ids": [
+        "a616d49441b7bb6e"
+      ],
+      "sources": [
+        "scanx.trade"
+      ],
+      "companies": [
+        "adani-power"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-04-30T09:43:18.283135+00:00",
+      "last_seen": "2026-04-30T10:08:35.082205+00:00",
       "data": {
         "entity_type": "company"
       },

@@ -1,0 +1,803 @@
+{
+  "article": {
+    "id": "6edf8de77a50b064",
+    "title": "Waaree Energies Set to Report Q4 Results Amid Sector Boom, Valuation Worries - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPTTNRcTFhV0IwLUJzZjFFVk1pd1ZPSjJvRnotZ3ZJd3lrV1RobUotOERLZGstdjRPdXJSeTVRQ2VENlFQVEEycy13WEdiakd4LU9ONm9QWkV1NFROSWtBTmszZklsa2taWVZWdzhDTk9lUjNZWkZIdkpWYzZzMGhRT29LYnNaZ2lKLVNjaVlPbjNGN1BEd05rV2ZDZkdGN1RYNmlubVBFOTVIQzljUVE5Q0JsYjRQOW9seEUtMHJSS0RfRE41WlJsNVQ2MUV5OFJpSGRpVVY4bVBIMFNBMlV2S09pa3ktQQ?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-04-22T10:35:23+00:00",
+    "company_slug": "waaree-energies"
+  },
+  "pipeline": {
+    "article_id": "6edf8de77a50b064",
+    "title": "Waaree Energies Set to Report Q4 Results Amid Sector Boom, Valuation Worries - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxPTTNRcTFhV0IwLUJzZjFFVk1pd1ZPSjJvRnotZ3ZJd3lrV1RobUotOERLZGstdjRPdXJSeTVRQ2VENlFQVEEycy13WEdiakd4LU9ONm9QWkV1NFROSWtBTmszZklsa2taWVZWdzhDTk9lUjNZWkZIdkpWYzZzMGhRT29LYnNaZ2lKLVNjaVlPbjNGN1BEd05rV2ZDZkdGN1RYNmlubVBFOTVIQzljUVE5Q0JsYjRQOW9seEUtMHJSS0RfRE41WlJsNVQ2MUV5OFJpSGRpVVY4bVBIMFNBMlV2S09pa3ktQQ?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-04-22T10:35:23+00:00",
+    "company_slug": "waaree-energies",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 5.862,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.7,
+      "tone": [
+        "neutral",
+        "analytical",
+        "cautionary"
+      ],
+      "narrative_core_claim": "Waaree Energies is about to report Q4 results amid a booming sector but faces valuation concerns.",
+      "narrative_implied_causation": "The sector boom is driving interest in Waaree Energies, but worries about valuation may affect investor sentiment.",
+      "narrative_stakeholder_framing": "Waaree Energies is the protagonist, investors and market participants are the affected stakeholders.",
+      "entities": [
+        "Waaree Energies",
+        "Whalesbook"
+      ],
+      "entity_types": {
+        "Waaree Energies": "company",
+        "Whalesbook": "source"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "sector growth",
+        "valuation risk"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Waaree Energies"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.3,
+          "adjusted_score": 11.7,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 0.8,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.3,
+          "adjusted_score": 11.7,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 0.8,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "aggregate_score": 0.126,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Waaree Energies faces valuation concerns despite sector boom ahead of Q4 results, risking investor sentiment shift",
+    "impact_score": 4.0,
+    "core_mechanism": "Waaree Energies is set to report Q4 results during a period of strong sector growth, but market participants are increasingly concerned about overvaluation. This sentiment is compounded by moderate ESG disclosure gaps, which may trigger regulatory scrutiny and affect access to green capital.",
+    "profitability_connection": "Valuation worries could lead to analyst downgrades and FII outflows, increasing the company's cost of capital by 20-40 bps and compressing P/E multiples. This may result in a direct exposure of ₹14.4 Cr (engine estimate) and a 10.0 bps margin impact.",
+    "translation": "Although the solar sector is booming, investors are worried Waaree Energies may be overvalued. If these concerns persist, the company could see less interest from big investors, higher borrowing costs, and a small but real hit to profits.",
+    "impact_analysis": {
+      "esg_positioning": "Waaree Energies has moderate ESG disclosure gaps relative to peers like Adani Power and JSW Energy, risking index exclusion and lower ESG ratings.",
+      "capital_allocation": "Potential cost of capital increase by 20-40 bps (engine estimate) due to BRSR and TCFD disclosure gaps, leading to possible FII outflows.",
+      "valuation_cashflow": "P/E compression of 0.05-0.1x (engine estimate) and margin erosion of 10.0 bps (engine estimate), with ₹14.4 Cr direct exposure (engine estimate).",
+      "compliance_regulatory": "Triggered frameworks: BRSR (SEBI), GRI, TCFD; non-disclosure could result in SEBI scrutiny and trading restrictions, but no immediate penalty reported.",
+      "supply_chain_transmission": "No supply chain transmission; event is investor sentiment and disclosure-driven, not operational or supplier-related.",
+      "people_demand": "No direct talent or consumer impact; event is limited to investor and capital market stakeholders."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹14.4 Cr direct exposure from valuation sentiment shift (engine estimate)",
+        "profitability_pathway": "ESG disclosure gap and valuation concerns → FII outflow, P/E compression → ₹14.4 Cr direct exposure (engine estimate)",
+        "margin_pressure": "10.0 bps (engine estimate)",
+        "revenue_at_risk": "₹14.4 Cr direct (engine estimate); no indirect revenue at risk as event is sentiment-driven"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.05-0.1x due to ESG disclosure gap and investor caution (engine estimate)",
+        "competitive_position": "Potential loss vs Adani Power and JSW Energy if ESG disclosure is not improved; peers may attract more ESG-aligned capital"
+      },
+      "long_term": {
+        "secular_trajectory": "If disclosure gaps persist, Waaree Energies may face ongoing cost of capital disadvantages and lag in ESG fund inclusion over 3-5 years.",
+        "green_revenue_opportunity": "₹0 Cr (engine estimate); no new green revenue opportunity identified in this event"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 4,
+        "rationale": "Moderate relevance as event is sectoral (renewable energy), but no direct environmental incident."
+      },
+      "social": {
+        "score": 1,
+        "rationale": "No social dimension; event is not workforce or community related."
+      },
+      "governance": {
+        "score": 5,
+        "rationale": "Moderate governance relevance due to disclosure obligations and regulatory scrutiny risk."
+      },
+      "financial_materiality": {
+        "score": 4,
+        "rationale": "Direct exposure of ₹14.4 Cr (engine estimate) and 10.0 bps margin impact; not a systemic threat."
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "Triggered BRSR, GRI, TCFD frameworks; risk of SEBI scrutiny but no penalty yet."
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Investor sentiment and FII outflow risk; no direct impact on employees or consumers."
+      }
+    },
+    "net_impact_summary": "Waaree Energies' Q4 results are overshadowed by valuation concerns and moderate ESG disclosure gaps, exposing the company to a direct financial impact of ₹14.4 Cr (engine estimate) and a 10.0 bps margin compression. Regulatory frameworks such as BRSR, GRI, and TCFD are triggered, increasing the risk of SEBI scrutiny and potential index exclusion. While the sector boom supports long-term growth, failure to address disclosure gaps could erode competitive positioning against peers like Adani Power and JSW Energy.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "No immediate action required; monitor for further regulatory developments or investor downgrades.",
+      "financial_exposure": "₹14.4 Cr direct exposure (engine estimate); no indirect or contingent risk identified.",
+      "key_risk": "P/E compression and FII outflow risk leading to ₹14.4 Cr direct exposure (engine estimate)",
+      "top_opportunity": "Improve ESG disclosure to unlock lower cost of capital and potential ESG fund inflows (~20-40 bps benefit, engine estimate)",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Waaree Energies faces valuation concerns and moderate ESG disclosure gaps ahead of Q4 results.",
+      "mechanism": "Investor sentiment shifts due to overvaluation fears and incomplete ESG reporting, triggering potential FII outflows and regulatory scrutiny.",
+      "company_impact": "Direct exposure of ₹14.4 Cr (engine estimate) and 10.0 bps margin impact via P/E compression and higher cost of capital.",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": [
+      "verifier: added 1 source tags on ₹ figures",
+      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+      "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
+    ]
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Monitor Regulatory Mandates and Trigger ESG Action Plan",
+        "description": "Implement a monitoring system to track regulatory mandates with compliance deadlines within 24 months; escalate to ESG and legal teams if binding standards are enacted to avoid penalties and trading restrictions, with a review every quarter starting 2026-04-30.",
+        "type": "compliance",
+        "responsible_party": "Chief Compliance Officer",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-04-30",
+        "estimated_budget": "₹0.1-0.2 Cr",
+        "profitability_link": "Avoid ₹14.4 Cr valuation loss and potential SEBI trading restrictions",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 10,
+        "roi_percentage": 500.0,
+        "payback_months": 3.0,
+        "peer_benchmark": null,
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "Regulatory mandate enacted τ ≤ 24 months",
+            "value": "Threshold for triggering compliance escalation"
+          },
+          {
+            "source": "framework",
+            "ref": "BRSR:P6:Q14",
+            "value": "Regulatory risk linked to disclosure and compliance"
+          },
+          {
+            "source": "article",
+            "ref": "₹14.4 Cr exposure from regulatory and valuation risks",
+            "value": "Article quantifies risk exposure"
+          }
+        ]
+      },
+      {
+        "title": "Enhance ESG Disclosure for FY26 BRSR Filing",
+        "description": "Waaree Energies should improve ESG disclosures in line with BRSR requirements by 2026-05-30 to avoid SEBI scrutiny and unlock a 20-40 bps reduction in cost of capital, potentially improving valuation and attracting ₹10-20 Cr in ESG fund inflows.",
+        "type": "esg_positioning",
+        "responsible_party": "Head of Sustainability Reporting",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "₹10-20 Cr ESG fund inflows from 20-40 bps cost of capital reduction",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 7,
+        "roi_percentage": 300.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power's ESG commitment led to P/E rerating and ₹5000 Cr green bond issuance",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "BRSR:P6:Q14",
+            "value": "BRSR disclosure linked to SEBI scrutiny and cost of capital impact"
+          },
+          {
+            "source": "article",
+            "ref": "₹14.4 Cr exposure and 20-40 bps cost of capital benefit",
+            "value": "Article estimates ₹14.4 Cr exposure and 20-40 bps cost of capital benefit from ESG disclosure"
+          },
+          {
+            "source": "peer",
+            "ref": "Tata Power",
+            "value": "Tata Power's ESG commitment improved valuation and financing"
+          }
+        ]
+      },
+      {
+        "title": "Conduct Investor-Day on Transition Capex and Abatement Curve",
+        "description": "Organize an investor-day by 2026-07-15 to communicate Waaree Energies' renewable transition capex plans and abatement strategies, aiming to mitigate P/E compression risk and FII outflows, potentially preserving ₹14.4 Cr market capitalization.",
+        "type": "strategic",
+        "responsible_party": "Chief Investor Relations Officer",
+        "framework_section": "TCFD: Governance and Strategy",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.3-0.6 Cr",
+        "profitability_link": "Preserve ₹14.4 Cr valuation by reducing P/E compression and FII outflows",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": null,
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "TCFD: Strategy",
+            "value": "Investor communication reduces FII outflow and P/E compression"
+          },
+          {
+            "source": "article",
+            "ref": "₹14.4 Cr direct exposure from valuation concerns",
+            "value": "Article highlights ₹14.4 Cr exposure risk due to valuation concerns"
+          }
+        ]
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 3,
+    "validated_count": 3,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Monitor Regulatory Mandates and Trigger ESG Action Plan",
+          "type": "compliance",
+          "roi": 500.0,
+          "budget": "₹0.1-0.2 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 1,
+          "title": "Enhance ESG Disclosure for FY26 BRSR Filing",
+          "type": "esg_positioning",
+          "roi": 300.0,
+          "budget": "₹0.5-1 Cr"
+        },
+        {
+          "index": 2,
+          "title": "Conduct Investor-Day on Transition Capex and Abatement Curve",
+          "type": "strategic",
+          "roi": 200.0,
+          "budget": "₹0.3-0.6 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        1,
+        2
+      ],
+      "ceo": [
+        1,
+        2,
+        0
+      ],
+      "esg-analyst": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Waaree Energies faces valuation concerns despite sector boom ahead of Q4 results, risking investor sentiment shift",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission; event is investor sentiment and disclosure-driven, not operational or supplier-related.",
+        "P/E compression of 0.05-0.1x (engine estimate) and margin erosion of 10.0 bps (engine estimate), with ₹14.4 Cr direct exposure (engine estimate).",
+        "Potential cost of capital increase by 20-40 bps (engine estimate) due to BRSR and TCFD disclosure gaps, leading to possible FII outflows."
+      ],
+      "action": [
+        "No immediate action required; monitor for further regulatory developments or investor downgrades.",
+        "Key risk: P/E compression and FII outflow risk leading to ₹14.4 Cr direct exposure (engine estimate)",
+        "Opportunity: Improve ESG disclosure to unlock lower cost of capital and potential ESG fund inflows (~20-40 bps benefit, engine estimate)"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Waaree Energies faces valuation concerns despite sector boom ahead of Q4 results, risking investor sentiment shift",
+        "impact_score": 4.0,
+        "core_mechanism": "Waaree Energies is set to report Q4 results during a period of strong sector growth, but market participants are increasingly concerned about overvaluation. This sentiment is compounded by moderate ESG disclosure gaps, which may trigger regulatory scrutiny and affect access to green capital.",
+        "profitability_connection": "Valuation worries could lead to analyst downgrades and FII outflows, increasing the company's cost of capital by 20-40 bps and compressing P/E multiples. This may result in a direct exposure of ₹14.4 Cr (engine estimate) and a 10.0 bps margin impact.",
+        "translation": "Although the solar sector is booming, investors are worried Waaree Energies may be overvalued. If these concerns persist, the company could see less interest from big investors, higher borrowing costs, and a small but real hit to profits.",
+        "impact_analysis": {
+          "esg_positioning": "Waaree Energies has moderate ESG disclosure gaps relative to peers like Adani Power and JSW Energy, risking index exclusion and lower ESG ratings.",
+          "capital_allocation": "Potential cost of capital increase by 20-40 bps (engine estimate) due to BRSR and TCFD disclosure gaps, leading to possible FII outflows.",
+          "valuation_cashflow": "P/E compression of 0.05-0.1x (engine estimate) and margin erosion of 10.0 bps (engine estimate), with ₹14.4 Cr direct exposure (engine estimate).",
+          "compliance_regulatory": "Triggered frameworks: BRSR (SEBI), GRI, TCFD; non-disclosure could result in SEBI scrutiny and trading restrictions, but no immediate penalty reported.",
+          "supply_chain_transmission": "No supply chain transmission; event is investor sentiment and disclosure-driven, not operational or supplier-related.",
+          "people_demand": "No direct talent or consumer impact; event is limited to investor and capital market stakeholders."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹14.4 Cr direct exposure from valuation sentiment shift (engine estimate)",
+            "profitability_pathway": "ESG disclosure gap and valuation concerns → FII outflow, P/E compression → ₹14.4 Cr direct exposure (engine estimate)",
+            "margin_pressure": "10.0 bps (engine estimate)",
+            "revenue_at_risk": "₹14.4 Cr direct (engine estimate); no indirect revenue at risk as event is sentiment-driven"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.05-0.1x due to ESG disclosure gap and investor caution (engine estimate)",
+            "competitive_position": "Potential loss vs Adani Power and JSW Energy if ESG disclosure is not improved; peers may attract more ESG-aligned capital"
+          },
+          "long_term": {
+            "secular_trajectory": "If disclosure gaps persist, Waaree Energies may face ongoing cost of capital disadvantages and lag in ESG fund inclusion over 3-5 years.",
+            "green_revenue_opportunity": "₹0 Cr (engine estimate); no new green revenue opportunity identified in this event"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 4,
+            "rationale": "Moderate relevance as event is sectoral (renewable energy), but no direct environmental incident."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No social dimension; event is not workforce or community related."
+          },
+          "governance": {
+            "score": 5,
+            "rationale": "Moderate governance relevance due to disclosure obligations and regulatory scrutiny risk."
+          },
+          "financial_materiality": {
+            "score": 4,
+            "rationale": "Direct exposure of ₹14.4 Cr (engine estimate) and 10.0 bps margin impact; not a systemic threat."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Triggered BRSR, GRI, TCFD frameworks; risk of SEBI scrutiny but no penalty yet."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Investor sentiment and FII outflow risk; no direct impact on employees or consumers."
+          }
+        },
+        "net_impact_summary": "Waaree Energies' Q4 results are overshadowed by valuation concerns and moderate ESG disclosure gaps, exposing the company to a direct financial impact of ₹14.4 Cr (engine estimate) and a 10.0 bps margin compression. Regulatory frameworks such as BRSR, GRI, and TCFD are triggered, increasing the risk of SEBI scrutiny and potential index exclusion. While the sector boom supports long-term growth, failure to address disclosure gaps could erode competitive positioning against peers like Adani Power and JSW Energy.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for further regulatory developments or investor downgrades.",
+          "financial_exposure": "₹14.4 Cr direct exposure (engine estimate); no indirect or contingent risk identified.",
+          "key_risk": "P/E compression and FII outflow risk leading to ₹14.4 Cr direct exposure (engine estimate)",
+          "top_opportunity": "Improve ESG disclosure to unlock lower cost of capital and potential ESG fund inflows (~20-40 bps benefit, engine estimate)",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Waaree Energies faces valuation concerns and moderate ESG disclosure gaps ahead of Q4 results.",
+          "mechanism": "Investor sentiment shifts due to overvaluation fears and incomplete ESG reporting, triggering potential FII outflows and regulatory scrutiny.",
+          "company_impact": "Direct exposure of ₹14.4 Cr (engine estimate) and 10.0 bps margin impact via P/E compression and higher cost of capital.",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": [
+          "verifier: added 1 source tags on ₹ figures",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+          "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
+        ]
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹14.4 Cr direct exposure (engine estimate); no indirect or contingent risk identified.",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "No supply chain transmission; event is investor sentiment and disclosure-driven, not operational or supplier-related.",
+        "P/E compression of 0.05-0.1x (engine estimate) and margin erosion of 10.0 bps (engine estimate), with ₹14.4 Cr direct exposure (engine estimate).",
+        "Potential cost of capital increase by 20-40 bps (engine estimate) due to BRSR and TCFD disclosure gaps, leading to possible FII outflows."
+      ],
+      "action": [
+        "Quantify exposure: ₹14.4 Cr direct exposure (engine estimate); no indirect or contingent risk identified.",
+        "Revenue at risk: ₹14.4 Cr direct (engine estimate); no indirect revenue at risk as event is sentiment-driven"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Improve ESG disclosure to unlock lower cost of capital and potential ESG fund inflows (~20-40 bps benefit, engine estimate)",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "Waaree Energies has moderate ESG disclosure gaps relative to peers like Adani Power and JSW Energy, risking index exclusion and lower ESG ratings.",
+        "No direct talent or consumer impact; event is limited to investor and capital market stakeholders.",
+        "Triggered frameworks: BRSR (SEBI), GRI, TCFD; non-disclosure could result in SEBI scrutiny and trading restrictions, but no immediate penalty reported."
+      ],
+      "action": [
+        "Strategic opportunity: Improve ESG disclosure to unlock lower cost of capital and potential ESG fund inflows (~20-40 bps benefit, engine estimate)",
+        "Competitive position: Potential loss vs Adani Power and JSW Energy if ESG disclosure is not improved; peers may attract more ESG-aligned capital"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-30T08:31:22.283810+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

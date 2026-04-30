@@ -1,0 +1,152 @@
+{
+  "recommendations": [
+    {
+      "title": "Monitor Energy Price Shock and Escalate if Threshold Breached",
+      "description": "Implement monthly monitoring of energy price changes, escalating to the CFO and Risk Committee if year-on-year energy price change exceeds 25% or surpasses 2 standard deviations above the 5-year rolling mean, to proactively manage exposure and hedge strategies.",
+      "type": "operational",
+      "responsible_party": "Chief Risk Officer",
+      "framework_section": "BRSR:P6:Q14",
+      "deadline": "2026-05-31",
+      "estimated_budget": "₹0.1-0.3 Cr",
+      "profitability_link": "Avoid ₹10-20 Cr losses from unhedged energy price volatility by timely risk mitigation",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 200.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "primitive",
+          "ref": "Energy price shock τ",
+          "value": "Threshold defined as ΔEP >= 25% YoY or EP >= 2σ above 5-yr mean"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6:Q14",
+          "value": "BRSR requires monitoring of key operational risks"
+        }
+      ]
+    },
+    {
+      "title": "Commission Third-Party Validation for FY26 BRSR Filing",
+      "description": "Engage an accredited third-party assurance provider by 2026-03-31 to validate FY26 BRSR disclosures, ensuring compliance with SEBI requirements and enhancing ESG credibility to avoid cost of capital penalties and support future green financing opportunities.",
+      "type": "esg_positioning",
+      "responsible_party": "Head of Sustainability",
+      "framework_section": "BRSR:P6",
+      "deadline": "2026-05-30",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Avoid ₹15-30 Cr annual compliance cost and 20-40 bps cost of capital increase",
+      "priority": "HIGH",
+      "urgency": "short_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 7,
+      "roi_percentage": 300.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "Mandatory BRSR third-party assurance to avoid SEBI scrutiny"
+        },
+        {
+          "source": "article",
+          "ref": "Regulatory deadlines",
+          "value": "FY26 BRSR filing deadline 2026-05-30"
+        }
+      ]
+    },
+    {
+      "title": "Conduct Investor-Day Update on Transition Capex",
+      "description": "Organize an investor-day by 2026-09-30 to present Adani Power's transition capital expenditure plans and abatement curve, highlighting progress towards renewable portfolio expansion to match peers like Tata Power. This will support valuation uplift and investor confidence in line with BRSR and TCFD disclosure expectations.",
+      "type": "strategic",
+      "responsible_party": "Head of Investor Relations",
+      "framework_section": "BRSR:P6, TCFD",
+      "deadline": "2026-09-30",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "Potential 5-10% P/E uplift translating to ₹500-1000 Cr market cap increase by reinforcing positive sentiment",
+      "priority": "HIGH",
+      "urgency": "short_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 6,
+      "roi_percentage": 150.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Tata Power's investor communication on renewable transition",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "BRSR mandates enhanced disclosure to avoid cost of capital increase"
+        },
+        {
+          "source": "peer",
+          "ref": "Tata Power",
+          "value": "Tata Power's investor-day on renewables led to P/E rerating"
+        },
+        {
+          "source": "article",
+          "ref": "market sentiment",
+          "value": "Positive share price movement signals investor confidence opportunity"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 0,
+        "title": "Monitor Energy Price Shock and Escalate if Threshold Breached",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹0.1-0.3 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 1,
+        "title": "Commission Third-Party Validation for FY26 BRSR Filing",
+        "type": "esg_positioning",
+        "roi": 300.0,
+        "budget": "₹0.5-1 Cr"
+      },
+      {
+        "index": 2,
+        "title": "Conduct Investor-Day Update on Transition Capex",
+        "type": "strategic",
+        "roi": 150.0,
+        "budget": "₹1-2 Cr"
+      }
+    ],
+    "deferred_high": [],
+    "deferred_low": []
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      1,
+      0,
+      2
+    ],
+    "ceo": [
+      1,
+      2,
+      0
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}

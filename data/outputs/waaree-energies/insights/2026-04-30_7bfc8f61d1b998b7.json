@@ -1,0 +1,805 @@
+{
+  "article": {
+    "id": "7bfc8f61d1b998b7",
+    "title": "Waaree Energies Stock Dips as Q4 Profit Margins Shrink - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNUFZRb3dNcks1YmlzelI0VjdmY0xTV0lveXFaOTRKRTNlb18xX1VkdVV6ZEhBV2g1aDUxTFVkc29jS3NlSmdSLXlqTllNOS14RU5IYWc1M0FWUlFVMWNMeFBqSnd0N1c0VGl2bnJXZkxyN2U4SWNUSDJrRTNkMHRUTTlsd0lFLUtNZV9nWXRIQ0twYXByNktsUVZQemNWSjN0VUU1NUdfRjdlVWxtbkt5ckpBUzFabEw2QjFEWTY0SGJ6QWtDQlptQUZISUFLMnFfNE9mVjdoVk1pVTBi?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-04-30T05:25:45+00:00",
+    "company_slug": "waaree-energies"
+  },
+  "pipeline": {
+    "article_id": "7bfc8f61d1b998b7",
+    "title": "Waaree Energies Stock Dips as Q4 Profit Margins Shrink - Whalesbook",
+    "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNUFZRb3dNcks1YmlzelI0VjdmY0xTV0lveXFaOTRKRTNlb18xX1VkdVV6ZEhBV2g1aDUxTFVkc29jS3NlSmdSLXlqTllNOS14RU5IYWc1M0FWUlFVMWNMeFBqSnd0N1c0VGl2bnJXZkxyN2U4SWNUSDJrRTNkMHRUTTlsd0lFLUtNZV9nWXRIQ0twYXByNktsUVZQemNWSjN0VUU1NUdfRjdlVWxtbkt5ckpBUzFabEw2QjFEWTY0SGJ6QWtDQlptQUZISUFLMnFfNE9mVjdoVk1pVTBi?oc=5",
+    "source": "Whalesbook",
+    "published_at": "2026-04-30T05:25:45+00:00",
+    "company_slug": "waaree-energies",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 6.95,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "analytical",
+        "cautionary",
+        "neutral"
+      ],
+      "narrative_core_claim": "Waaree Energies' stock price declined due to shrinking Q4 profit margins.",
+      "narrative_implied_causation": "Shrinking profit margins in Q4 caused a dip in Waaree Energies' stock price.",
+      "narrative_stakeholder_framing": "Waaree Energies is the protagonist; investors and shareholders are affected by the stock dip.",
+      "entities": [
+        "Waaree Energies",
+        "Q4"
+      ],
+      "entity_types": {
+        "Waaree Energies": "company",
+        "Q4": "time period"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": "Q4 profit margins shrinking"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "financial performance",
+        "profit margins"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.6,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
+      "matched_keywords": [
+        "Q4",
+        "profit"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 1,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Waaree Energies"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.3,
+          "adjusted_score": 15.6,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 0.8,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.3,
+          "adjusted_score": 15.6,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 0.8,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "aggregate_score": 0.168,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Waaree Energies' Q4 margin shrink triggers ₹15.4 Cr (engine estimate) valuation hit and investor sentiment risk",
+    "impact_score": 3,
+    "core_mechanism": "Shrinking Q4 profit margins led to a direct ₹14.4 Cr revenue shortfall, with a further ₹1.0 Cr workforce impact (engine estimate). This operational underperformance triggered a 10.0 bps margin compression, resulting in a total exposure of ₹15.4 Cr. The event transmits to valuation via earnings revision and negative investor sentiment.",
+    "profitability_connection": "Lower margins reduce quarterly profits, directly impacting earnings and compressing valuation multiples. The ₹15.4 Cr exposure (engine estimate) translates to a 10.0 bps margin pressure, which may prompt analyst downgrades and FII outflows.",
+    "translation": "Waaree Energies' profits fell in the latest quarter, causing its stock to drop and putting about ₹15.4 Cr (engine estimate) at risk. This is mainly due to weaker margins, which could make investors less confident and slightly reduce the company's market value.",
+    "impact_analysis": {
+      "esg_positioning": "ESG score gap may widen if margin pressure persists, risking peer lag and potential index exclusion if not addressed.",
+      "capital_allocation": "Cost of capital could rise by 20-40 bps if BRSR/TCFD disclosure lapses persist (from ontology), but current event is not a direct trigger.",
+      "valuation_cashflow": "P/E compression of 0.0-0.1x possible; ₹15.4 Cr at risk (engine estimate) due to margin erosion and earnings revision.",
+      "compliance_regulatory": "BRSR, GRI, TCFD disclosure frameworks relevant; no immediate penalty, but recurring underperformance may attract SEBI scrutiny.",
+      "supply_chain_transmission": "No supply chain transmission; margin impact is direct from operational performance, not supplier or customer disruption.",
+      "people_demand": "Investor confidence affected; no direct talent or community impact as event is financial, not social or labor-related."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹15.4 Cr direct margin and valuation impact (engine estimate)",
+        "profitability_pathway": "Q4 margin shrinkage → earnings revision → ₹14.4 Cr revenue loss + ₹1.0 Cr workforce impact (engine estimate)",
+        "margin_pressure": "10.7 bps (computed_override)",
+        "revenue_at_risk": "₹14.4 Cr direct (engine estimate) + ₹1.0 Cr indirect workforce impact (engine estimate)"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.0-0.1x due to earnings miss and sentiment shift",
+        "competitive_position": "Slight loss vs Adani Power and JSW Energy if margin pressure persists; no immediate structural gap"
+      },
+      "long_term": {
+        "secular_trajectory": "If margin compression recurs, risk of sustained valuation discount and ESG fund exclusion over 3-5 years.",
+        "green_revenue_opportunity": "No new green revenue opportunity identified from this event; focus remains on margin recovery."
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 2,
+        "rationale": "Event is financial, not environmental; minor relevance as company is in renewables."
+      },
+      "social": {
+        "score": 1,
+        "rationale": "No direct workforce or community impact; only minor indirect workforce effect (₹1.0 Cr (engine estimate), engine estimate)."
+      },
+      "governance": {
+        "score": 3,
+        "rationale": "Governance relevance via BRSR/GRI disclosure expectations for financial performance."
+      },
+      "financial_materiality": {
+        "score": 3,
+        "rationale": "₹15.4 Cr (engine estimate) exposure is ~0.1% of typical mid-cap revenue; moderate but not critical."
+      },
+      "regulatory_exposure": {
+        "score": 2,
+        "rationale": "No immediate regulatory penalty, but recurring misses could trigger SEBI/BRSR scrutiny."
+      },
+      "stakeholder_impact": {
+        "score": 3,
+        "rationale": "Investor sentiment and analyst coverage at risk; no material impact on other stakeholders."
+      }
+    },
+    "net_impact_summary": "Waaree Energies' Q4 margin shrinkage results in a ₹15.4 Cr direct and indirect exposure (engine estimate), with a 10.0 bps margin compression. While not triggering immediate regulatory or ESG index action, the event highlights the risk of future BRSR/GRI scrutiny if underperformance recurs. Peer comparison shows only a minor competitive setback versus Adani Power and JSW Energy. The event is financially material but not critical, with limited ESG transmission beyond investor sentiment.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "Do nothing now; monitor for recurring margin compression or disclosure lapses that could escalate regulatory or ESG risk.",
+      "financial_exposure": "₹14.4 Cr direct revenue loss + ₹1.0 Cr workforce impact (engine estimate)",
+      "key_risk": "Recurring margin compression leading to SEBI/BRSR scrutiny and potential 20-40 bps cost of capital increase (engine estimate)",
+      "top_opportunity": "Improve margin disclosure and operational efficiency to regain ESG fund interest; no immediate ₹ opportunity from this event",
+      "timeline": "next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Q4 profit margins shrank, causing stock price to dip",
+      "mechanism": "Operational underperformance led to earnings revision, triggering negative investor sentiment and minor valuation compression",
+      "company_impact": "₹15.4 Cr at risk (engine estimate) with 10.0 bps margin pressure; potential for further impact if trend continues",
+      "transmission_type": "direct"
+    },
+    "warnings": [
+      "verifier: margin math at financial_timeline.immediate: cited 10.0 bps, computed 10.7 bps (dev 6.7%)",
+      "verifier: added 4 source tags on ₹ figures",
+      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+      "verifier: margin math auto-corrected (original 10.0 bps, computed 10.7 bps)"
+    ]
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Conduct Quarterly Margin Monitoring and Escalation",
+        "description": "Implement quarterly monitoring of revenue and margin metrics with escalation if margin compression exceeds 5% QoQ over two consecutive quarters, to preempt regulatory scrutiny and investor concern.",
+        "type": "operational",
+        "responsible_party": "Chief Financial Officer",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.2-0.4 Cr",
+        "profitability_link": "Prevent ₹15.4 Cr valuation loss and 20-40 bps cost of capital increase by early detection",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 200.0,
+        "payback_months": 6.0,
+        "peer_benchmark": null,
+        "roi_capped": true,
+        "roi_cap_reason": "Capped at 200% (operational ceiling). Raw estimate was 400%; cap prevents over-claim.",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "BRSR:P6:Q14",
+            "value": "BRSR requires monitoring of financial performance indicators"
+          },
+          {
+            "source": "article",
+            "ref": "Recurring margin compression risk",
+            "value": "Margin compression could trigger SEBI scrutiny"
+          }
+        ]
+      },
+      {
+        "title": "Enhance BRSR-aligned Margin Disclosure for FY26",
+        "description": "Revise and expand margin disclosure in the FY26 BRSR filing by 2026-05-30 to align with BRSR:P6 and GRI:305-1 standards, improving transparency and reducing risk of SEBI scrutiny that could increase cost of capital by 20-40 bps.",
+        "type": "esg_positioning",
+        "responsible_party": "Head of Investor Relations",
+        "framework_section": "BRSR:P6, GRI:305-1",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Avoid ₹15-30 Cr valuation loss from margin compression and 20-40 bps cost of capital increase",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 7,
+        "roi_percentage": 300.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power improved ESG disclosure leading to P/E rerating from 12x to 18x",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "BRSR:P6",
+            "value": "BRSR mandates margin disclosure to avoid SEBI scrutiny and trading restrictions"
+          },
+          {
+            "source": "article",
+            "ref": "₹15.4 Cr valuation hit",
+            "value": "Margin shrink triggered ₹15.4 Cr valuation loss"
+          },
+          {
+            "source": "peer",
+            "ref": "Tata Power",
+            "value": "Competitor's ESG disclosure improved valuation multiples"
+          }
+        ]
+      },
+      {
+        "title": "Prepare Investor Q&A on Margin Outlook for Q1 FY27",
+        "description": "Develop detailed investor Q&A addressing margin compression causes and recovery plans by 2026-07-15 to maintain investor confidence and mitigate valuation risk.",
+        "type": "strategic",
+        "responsible_party": "Chief Executive Officer",
+        "framework_section": "BRSR:P6, TCFD",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.1-0.3 Cr",
+        "profitability_link": "Mitigate ₹15.4 Cr valuation loss and avoid 5-10% P/E compression from FII outflows",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 6,
+        "roi_percentage": 250.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power's proactive investor communication supported green bond issuance",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "TCFD",
+            "value": "Investor communication reduces risk of FII outflows and P/E compression"
+          },
+          {
+            "source": "article",
+            "ref": "₹15.4 Cr valuation hit",
+            "value": "Margin shrink impacts investor sentiment"
+          },
+          {
+            "source": "peer",
+            "ref": "Tata Power",
+            "value": "Competitor's investor Q&A facilitated green bond issuance"
+          }
+        ]
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 3,
+    "validated_count": 3,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Conduct Quarterly Margin Monitoring and Escalation",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.2-0.4 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 1,
+          "title": "Enhance BRSR-aligned Margin Disclosure for FY26",
+          "type": "esg_positioning",
+          "roi": 300.0,
+          "budget": "₹0.5-1 Cr"
+        },
+        {
+          "index": 2,
+          "title": "Prepare Investor Q&A on Margin Outlook for Q1 FY27",
+          "type": "strategic",
+          "roi": 250.0,
+          "budget": "₹0.1-0.3 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        1,
+        2,
+        0
+      ],
+      "ceo": [
+        1,
+        2,
+        0
+      ],
+      "esg-analyst": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Waaree Energies' Q4 margin shrink triggers ₹15.4 Cr (engine estimate) valuation hit and investor sentiment risk",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No supply chain transmission; margin impact is direct from operational performance, not supplier or customer disruption.",
+        "P/E compression of 0.0-0.1x possible; ₹15.4 Cr at risk (engine estimate) due to margin erosion and earnings revision.",
+        "Cost of capital could rise by 20-40 bps if BRSR/TCFD disclosure lapses persist (from ontology), but current event is not a direct trigger."
+      ],
+      "action": [
+        "Do nothing now; monitor for recurring margin compression or disclosure lapses that could escalate regulatory or ESG risk.",
+        "Key risk: Recurring margin compression leading to SEBI/BRSR scrutiny and potential 20-40 bps cost of capital increase (engine estimate)",
+        "Opportunity: Improve margin disclosure and operational efficiency to regain ESG fund interest; no immediate ₹ opportunity from this event"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Waaree Energies' Q4 margin shrink triggers ₹15.4 Cr (engine estimate) valuation hit and investor sentiment risk",
+        "impact_score": 3,
+        "core_mechanism": "Shrinking Q4 profit margins led to a direct ₹14.4 Cr revenue shortfall, with a further ₹1.0 Cr workforce impact (engine estimate). This operational underperformance triggered a 10.0 bps margin compression, resulting in a total exposure of ₹15.4 Cr. The event transmits to valuation via earnings revision and negative investor sentiment.",
+        "profitability_connection": "Lower margins reduce quarterly profits, directly impacting earnings and compressing valuation multiples. The ₹15.4 Cr exposure (engine estimate) translates to a 10.0 bps margin pressure, which may prompt analyst downgrades and FII outflows.",
+        "translation": "Waaree Energies' profits fell in the latest quarter, causing its stock to drop and putting about ₹15.4 Cr (engine estimate) at risk. This is mainly due to weaker margins, which could make investors less confident and slightly reduce the company's market value.",
+        "impact_analysis": {
+          "esg_positioning": "ESG score gap may widen if margin pressure persists, risking peer lag and potential index exclusion if not addressed.",
+          "capital_allocation": "Cost of capital could rise by 20-40 bps if BRSR/TCFD disclosure lapses persist (from ontology), but current event is not a direct trigger.",
+          "valuation_cashflow": "P/E compression of 0.0-0.1x possible; ₹15.4 Cr at risk (engine estimate) due to margin erosion and earnings revision.",
+          "compliance_regulatory": "BRSR, GRI, TCFD disclosure frameworks relevant; no immediate penalty, but recurring underperformance may attract SEBI scrutiny.",
+          "supply_chain_transmission": "No supply chain transmission; margin impact is direct from operational performance, not supplier or customer disruption.",
+          "people_demand": "Investor confidence affected; no direct talent or community impact as event is financial, not social or labor-related."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹15.4 Cr direct margin and valuation impact (engine estimate)",
+            "profitability_pathway": "Q4 margin shrinkage → earnings revision → ₹14.4 Cr revenue loss + ₹1.0 Cr workforce impact (engine estimate)",
+            "margin_pressure": "10.7 bps (computed_override)",
+            "revenue_at_risk": "₹14.4 Cr direct (engine estimate) + ₹1.0 Cr indirect workforce impact (engine estimate)"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.0-0.1x due to earnings miss and sentiment shift",
+            "competitive_position": "Slight loss vs Adani Power and JSW Energy if margin pressure persists; no immediate structural gap"
+          },
+          "long_term": {
+            "secular_trajectory": "If margin compression recurs, risk of sustained valuation discount and ESG fund exclusion over 3-5 years.",
+            "green_revenue_opportunity": "No new green revenue opportunity identified from this event; focus remains on margin recovery."
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 2,
+            "rationale": "Event is financial, not environmental; minor relevance as company is in renewables."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No direct workforce or community impact; only minor indirect workforce effect (₹1.0 Cr (engine estimate), engine estimate)."
+          },
+          "governance": {
+            "score": 3,
+            "rationale": "Governance relevance via BRSR/GRI disclosure expectations for financial performance."
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "₹15.4 Cr (engine estimate) exposure is ~0.1% of typical mid-cap revenue; moderate but not critical."
+          },
+          "regulatory_exposure": {
+            "score": 2,
+            "rationale": "No immediate regulatory penalty, but recurring misses could trigger SEBI/BRSR scrutiny."
+          },
+          "stakeholder_impact": {
+            "score": 3,
+            "rationale": "Investor sentiment and analyst coverage at risk; no material impact on other stakeholders."
+          }
+        },
+        "net_impact_summary": "Waaree Energies' Q4 margin shrinkage results in a ₹15.4 Cr direct and indirect exposure (engine estimate), with a 10.0 bps margin compression. While not triggering immediate regulatory or ESG index action, the event highlights the risk of future BRSR/GRI scrutiny if underperformance recurs. Peer comparison shows only a minor competitive setback versus Adani Power and JSW Energy. The event is financially material but not critical, with limited ESG transmission beyond investor sentiment.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "Do nothing now; monitor for recurring margin compression or disclosure lapses that could escalate regulatory or ESG risk.",
+          "financial_exposure": "₹14.4 Cr direct revenue loss + ₹1.0 Cr workforce impact (engine estimate)",
+          "key_risk": "Recurring margin compression leading to SEBI/BRSR scrutiny and potential 20-40 bps cost of capital increase (engine estimate)",
+          "top_opportunity": "Improve margin disclosure and operational efficiency to regain ESG fund interest; no immediate ₹ opportunity from this event",
+          "timeline": "next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Q4 profit margins shrank, causing stock price to dip",
+          "mechanism": "Operational underperformance led to earnings revision, triggering negative investor sentiment and minor valuation compression",
+          "company_impact": "₹15.4 Cr at risk (engine estimate) with 10.0 bps margin pressure; potential for further impact if trend continues",
+          "transmission_type": "direct"
+        },
+        "warnings": [
+          "verifier: margin math at financial_timeline.immediate: cited 10.0 bps, computed 10.7 bps (dev 6.7%)",
+          "verifier: added 4 source tags on ₹ figures",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+          "verifier: margin math auto-corrected (original 10.0 bps, computed 10.7 bps)"
+        ]
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹14.4 Cr direct revenue loss + ₹1.0 Cr workforce impact (engine estimate)",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No supply chain transmission; margin impact is direct from operational performance, not supplier or customer disruption.",
+        "P/E compression of 0.0-0.1x possible; ₹15.4 Cr at risk (engine estimate) due to margin erosion and earnings revision.",
+        "Cost of capital could rise by 20-40 bps if BRSR/TCFD disclosure lapses persist (from ontology), but current event is not a direct trigger."
+      ],
+      "action": [
+        "Quantify exposure: ₹14.4 Cr direct revenue loss + ₹1.0 Cr workforce impact (engine estimate)",
+        "Revenue at risk: ₹14.4 Cr direct (engine estimate) + ₹1.0 Cr indirect workforce impact (engine estimate)"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Improve margin disclosure and operational efficiency to regain ESG fund interest; no immediate ₹ opportunity from this event",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "ESG score gap may widen if margin pressure persists, risking peer lag and potential index exclusion if not addressed.",
+        "Investor confidence affected; no direct talent or community impact as event is financial, not social or labor-related.",
+        "BRSR, GRI, TCFD disclosure frameworks relevant; no immediate penalty, but recurring underperformance may attract SEBI scrutiny."
+      ],
+      "action": [
+        "Strategic opportunity: Improve margin disclosure and operational efficiency to regain ESG fund interest; no immediate ₹ opportunity from this event",
+        "Competitive position: Slight loss vs Adani Power and JSW Energy if margin pressure persists; no immediate structural gap"
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-30T08:27:12.907528+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

@@ -1,0 +1,799 @@
+{
+  "article": {
+    "id": "551793fcc29ccded",
+    "title": "Why are Waaree Energies shares down nearly 5% today? Explained - Dailyhunt",
+    "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxOUEltWVlQQ0JZZkJadW1DUmJuanphNWoxZGRNcUtOVzQzNWhZUHJfdnlPX0d1Smt6M0pfVVVtVkVVUHM2aTV0ZFdPSW8xQTlpZmhZWFlhV0VlTkFRUFN4dlE0RXVkYVJQbHhENUIwQ1p5d0YyOGFjMGU1VDRUcjk0TnRYOUJjcE9zQjRRalhUZXM5akRCVjg0Umc5MmVrX0tPNXRseTZvaVg0dTN3U2VRNXJTX3gtc3NTUDhZVVRLanVPWVNvaHE0bmVTZkdSYmxUZkd5dGFydEVxZmpacS0zbGh0R2FNZw?oc=5",
+    "source": "Dailyhunt",
+    "published_at": "2026-04-25T03:47:25+00:00",
+    "company_slug": "waaree-energies"
+  },
+  "pipeline": {
+    "article_id": "551793fcc29ccded",
+    "title": "Why are Waaree Energies shares down nearly 5% today? Explained - Dailyhunt",
+    "url": "https://news.google.com/rss/articles/CBMi5gFBVV95cUxOUEltWVlQQ0JZZkJadW1DUmJuanphNWoxZGRNcUtOVzQzNWhZUHJfdnlPX0d1Smt6M0pfVVVtVkVVUHM2aTV0ZFdPSW8xQTlpZmhZWFlhV0VlTkFRUFN4dlE0RXVkYVJQbHhENUIwQ1p5d0YyOGFjMGU1VDRUcjk0TnRYOUJjcE9zQjRRalhUZXM5akRCVjg0Umc5MmVrX0tPNXRseTZvaVg0dTN3U2VRNXJTX3gtc3NTUDhZVVRLanVPWVNvaHE0bmVTZkdSYmxUZkd5dGFydEVxZmpacS0zbGh0R2FNZw?oc=5",
+    "source": "Dailyhunt",
+    "published_at": "2026-04-25T03:47:25+00:00",
+    "company_slug": "waaree-energies",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 8.513,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.7,
+      "tone": [
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "Waaree Energies shares declined nearly 5% today.",
+      "narrative_implied_causation": "Market or company-specific factors caused a nearly 5% drop in Waaree Energies shares.",
+      "narrative_stakeholder_framing": "Investors are the protagonists affected by the share price decline.",
+      "entities": [
+        "Waaree Energies",
+        "Dailyhunt"
+      ],
+      "entity_types": {
+        "Waaree Energies": "company",
+        "Dailyhunt": "media"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": "share price decline"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.6,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 1,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Waaree Energies"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.3,
+          "adjusted_score": 15.6,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 0.8,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.3,
+          "adjusted_score": 15.6,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 0.8,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "aggregate_score": 0.168,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ]
+  },
+  "insight": {
+    "headline": "Waaree Energies shares fall nearly 5% on routine market factors; no material ESG trigger identified",
+    "impact_score": 3.0,
+    "core_mechanism": "The share price decline is attributed to routine market or company-specific factors, with no evidence of an ESG-related event or regulatory action. There is no immediate operational, regulatory, or reputational transmission to the company's P&L or balance sheet. The event does not trigger any direct ESG disclosure or compliance breach.",
+    "profitability_connection": "The 5% share price drop reflects short-term investor sentiment rather than a structural change in cash flows or margins. No direct impact on revenue, cost, or capital allocation is evident from the event.",
+    "translation": "Waaree Energies' stock fell by nearly 5% today, but there is no sign that this is due to an ESG issue or regulatory problem. The drop appears to be routine market movement, not a signal of deeper business or compliance risk.",
+    "impact_analysis": {
+      "esg_positioning": "No ESG score gap or peer pressure triggered; no index exclusion risk as event is not ESG-related.",
+      "capital_allocation": "No impact on cost of capital, bond spreads, or FII flows; no green financing implications.",
+      "valuation_cashflow": "No P/E compression, margin erosion, or revenue at risk; share price movement is not tied to ESG fundamentals.",
+      "compliance_regulatory": "No BRSR, GRI, or TCFD compliance breach; no regulatory deadlines or penalties triggered.",
+      "supply_chain_transmission": "No supply chain transmission; event is limited to secondary market trading.",
+      "people_demand": "No impact on talent, consumer, or community sentiment; event is not related to social or labor issues."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹14.4 Cr notional market cap loss (engine estimate)",
+        "profitability_pathway": "Share price drop → market cap reduction → no direct P&L impact (engine estimate)",
+        "margin_pressure": "10.0 bps (engine estimate)",
+        "revenue_at_risk": "No revenue at risk; event is not operational or regulatory in nature."
+      },
+      "structural": {
+        "valuation_rerating": "No P/E compression; share price movement is not ESG-driven.",
+        "competitive_position": "No gain or loss versus Adani Power or JSW Energy; all sector peers unaffected."
+      },
+      "long_term": {
+        "secular_trajectory": "No change to 3-5 year outlook; event does not alter business fundamentals.",
+        "green_revenue_opportunity": "No green revenue opportunity identified; event is not linked to ESG strategy."
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 0,
+        "rationale": "No environmental dimension; event is purely a market price movement."
+      },
+      "social": {
+        "score": 0,
+        "rationale": "No social dimension; no workforce, community, or consumer impact."
+      },
+      "governance": {
+        "score": 1,
+        "rationale": "Minimal governance relevance; no disclosure or compliance issue triggered."
+      },
+      "financial_materiality": {
+        "score": 3,
+        "rationale": "Share price drop is financially visible but not tied to ESG or operational fundamentals."
+      },
+      "regulatory_exposure": {
+        "score": 0,
+        "rationale": "No regulatory exposure; no compliance or reporting breach."
+      },
+      "stakeholder_impact": {
+        "score": 2,
+        "rationale": "Minor investor sentiment shift; no escalation to institutional engagement or fund exclusion."
+      }
+    },
+    "net_impact_summary": "The nearly 5% decline in Waaree Energies' share price represents a notional ₹14.4 Cr market cap loss (engine estimate), but there is no evidence of an ESG, regulatory, or compliance trigger. No BRSR, GRI, or TCFD framework breach is implicated, and the event does not affect operational cash flows or sector positioning. This is a routine market fluctuation with no structural significance for ESG or financial fundamentals.",
+    "decision_summary": {
+      "materiality": "LOW",
+      "action": "MONITOR",
+      "verdict": "Do nothing; monitor for any subsequent regulatory or ESG disclosures, but no action required at this time.",
+      "financial_exposure": "₹14.4 Cr notional market cap loss (engine estimate); no direct P&L or regulatory exposure.",
+      "key_risk": "Potential for investor sentiment contagion if further negative news emerges, but no current quantifiable risk.",
+      "top_opportunity": "None; no actionable ESG or financial opportunity identified.",
+      "timeline": "Next quarterly review"
+    },
+    "causal_chain": {
+      "event": "Waaree Energies shares declined nearly 5% in a single trading session.",
+      "mechanism": "Market or company-specific factors led to a share price drop, with no ESG, regulatory, or operational event identified.",
+      "company_impact": "No direct impact on P&L, cash flow, or compliance; only a notional reduction in market capitalization.",
+      "transmission_type": "market_sentiment"
+    },
+    "warnings": [
+      "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
+    ]
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Monitor Regulatory Mandate Enactments and Market Sentiment",
+        "description": "Establish a monitoring system to track regulatory mandates with compliance deadlines within 24 months and investor sentiment shifts; escalate to the board if energy price shocks exceed 25% YoY or if SEBI scrutiny indicators rise, to preempt trading restrictions and cost of capital increases.",
+        "type": "compliance",
+        "responsible_party": "Head of Compliance",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Avoid ₹15-30 Cr in increased cost of capital from SEBI scrutiny and trading restrictions",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 10,
+        "roi_percentage": 300.0,
+        "payback_months": 3.0,
+        "peer_benchmark": null,
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "BRSR:P6:Q14",
+            "value": "BRSR links non-disclosure to SEBI scrutiny and cost of capital increase"
+          },
+          {
+            "source": "primitive",
+            "ref": "τ = Binding standard with compliance deadline <= 24 months",
+            "value": "Threshold for regulatory mandate monitoring"
+          },
+          {
+            "source": "article",
+            "ref": "Impact Score 3.0, Low Materiality",
+            "value": "No material ESG trigger but risk of investor sentiment contagion"
+          }
+        ]
+      },
+      {
+        "title": "Conduct Investor-Day Update on Transition Capex and Abatement Curve",
+        "description": "Organize an investor-day by 2026-09-30 to communicate Waaree Energies' renewable transition capex plans and abatement strategies, highlighting alignment with Tata Power's 80% renewable portfolio commitment to improve valuation and investor confidence.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Investor Relations Officer",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-09-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "Potential ₹200-400 Cr valuation premium from improved P/E multiple by matching peer renewable commitments",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 9,
+        "roi_percentage": 150.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power committed 80% renewable portfolio by 2030, achieved P/E rerating from 12x to 18x",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "peer",
+            "ref": "Tata Power",
+            "value": "Peer committed 80% renewable portfolio and issued ₹5000 Cr green bonds"
+          },
+          {
+            "source": "framework",
+            "ref": "BRSR:P6:Q14",
+            "value": "Investor communication on transition capex improves ESG positioning"
+          },
+          {
+            "source": "article",
+            "ref": "No material ESG trigger but shares down 5% on routine factors",
+            "value": "Opportunity to leverage momentum via investor engagement"
+          }
+        ]
+      },
+      {
+        "title": "Commission Third-Party Validation for CDP Submission FY26",
+        "description": "Engage a third-party consultant to validate Waaree Energies' CDP submission for FY26 by 2026-05-30 to enhance disclosure quality, aiming for improved CDP scoring and potential A-list inclusion to attract green financing and lower cost of capital.",
+        "type": "compliance",
+        "responsible_party": "Chief Sustainability Officer",
+        "framework_section": "CDP",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹1-1.5 Cr",
+        "profitability_link": "₹100-200 Cr green bond opportunity at 50bps discount from improved CDP rating",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 200.0,
+        "payback_months": 18.0,
+        "peer_benchmark": null,
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "framework",
+            "ref": "CDP",
+            "value": "CDP score tracked by investors; A-list inclusion yields premium valuation"
+          },
+          {
+            "source": "regulatory",
+            "ref": "BRSR FY26 Filing Deadline 2026-05-30",
+            "value": "Align third-party validation with FY26 disclosure deadlines"
+          },
+          {
+            "source": "article",
+            "ref": "Low materiality event but disclosure improvements recommended",
+            "value": "No immediate ESG trigger but disclosure readiness advised"
+          }
+        ]
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 3,
+    "validated_count": 3,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 1,
+          "title": "Conduct Investor-Day Update on Transition Capex and Abatement Curve",
+          "type": "esg_positioning",
+          "roi": 150.0,
+          "budget": "₹1-2 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 0,
+          "title": "Monitor Regulatory Mandate Enactments and Market Sentiment",
+          "type": "compliance",
+          "roi": 300.0,
+          "budget": "₹0.5-1 Cr"
+        },
+        {
+          "index": 2,
+          "title": "Commission Third-Party Validation for CDP Submission FY26",
+          "type": "compliance",
+          "roi": 200.0,
+          "budget": "₹1-1.5 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        0,
+        2,
+        1
+      ],
+      "ceo": [
+        0,
+        2,
+        1
+      ],
+      "esg-analyst": [
+        0,
+        2,
+        1
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Waaree Energies shares fall nearly 5% on routine market factors; no material ESG trigger identified",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No supply chain transmission; event is limited to secondary market trading.",
+        "No P/E compression, margin erosion, or revenue at risk; share price movement is not tied to ESG fundamentals.",
+        "No impact on cost of capital, bond spreads, or FII flows; no green financing implications."
+      ],
+      "action": [
+        "Do nothing; monitor for any subsequent regulatory or ESG disclosures, but no action required at this time.",
+        "Key risk: Potential for investor sentiment contagion if further negative news emerges, but no current quantifiable risk.",
+        "Opportunity: None; no actionable ESG or financial opportunity identified."
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Waaree Energies shares fall nearly 5% on routine market factors; no material ESG trigger identified",
+        "impact_score": 3.0,
+        "core_mechanism": "The share price decline is attributed to routine market or company-specific factors, with no evidence of an ESG-related event or regulatory action. There is no immediate operational, regulatory, or reputational transmission to the company's P&L or balance sheet. The event does not trigger any direct ESG disclosure or compliance breach.",
+        "profitability_connection": "The 5% share price drop reflects short-term investor sentiment rather than a structural change in cash flows or margins. No direct impact on revenue, cost, or capital allocation is evident from the event.",
+        "translation": "Waaree Energies' stock fell by nearly 5% today, but there is no sign that this is due to an ESG issue or regulatory problem. The drop appears to be routine market movement, not a signal of deeper business or compliance risk.",
+        "impact_analysis": {
+          "esg_positioning": "No ESG score gap or peer pressure triggered; no index exclusion risk as event is not ESG-related.",
+          "capital_allocation": "No impact on cost of capital, bond spreads, or FII flows; no green financing implications.",
+          "valuation_cashflow": "No P/E compression, margin erosion, or revenue at risk; share price movement is not tied to ESG fundamentals.",
+          "compliance_regulatory": "No BRSR, GRI, or TCFD compliance breach; no regulatory deadlines or penalties triggered.",
+          "supply_chain_transmission": "No supply chain transmission; event is limited to secondary market trading.",
+          "people_demand": "No impact on talent, consumer, or community sentiment; event is not related to social or labor issues."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹14.4 Cr notional market cap loss (engine estimate)",
+            "profitability_pathway": "Share price drop → market cap reduction → no direct P&L impact (engine estimate)",
+            "margin_pressure": "10.0 bps (engine estimate)",
+            "revenue_at_risk": "No revenue at risk; event is not operational or regulatory in nature."
+          },
+          "structural": {
+            "valuation_rerating": "No P/E compression; share price movement is not ESG-driven.",
+            "competitive_position": "No gain or loss versus Adani Power or JSW Energy; all sector peers unaffected."
+          },
+          "long_term": {
+            "secular_trajectory": "No change to 3-5 year outlook; event does not alter business fundamentals.",
+            "green_revenue_opportunity": "No green revenue opportunity identified; event is not linked to ESG strategy."
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 0,
+            "rationale": "No environmental dimension; event is purely a market price movement."
+          },
+          "social": {
+            "score": 0,
+            "rationale": "No social dimension; no workforce, community, or consumer impact."
+          },
+          "governance": {
+            "score": 1,
+            "rationale": "Minimal governance relevance; no disclosure or compliance issue triggered."
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "Share price drop is financially visible but not tied to ESG or operational fundamentals."
+          },
+          "regulatory_exposure": {
+            "score": 0,
+            "rationale": "No regulatory exposure; no compliance or reporting breach."
+          },
+          "stakeholder_impact": {
+            "score": 2,
+            "rationale": "Minor investor sentiment shift; no escalation to institutional engagement or fund exclusion."
+          }
+        },
+        "net_impact_summary": "The nearly 5% decline in Waaree Energies' share price represents a notional ₹14.4 Cr market cap loss (engine estimate), but there is no evidence of an ESG, regulatory, or compliance trigger. No BRSR, GRI, or TCFD framework breach is implicated, and the event does not affect operational cash flows or sector positioning. This is a routine market fluctuation with no structural significance for ESG or financial fundamentals.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "Do nothing; monitor for any subsequent regulatory or ESG disclosures, but no action required at this time.",
+          "financial_exposure": "₹14.4 Cr notional market cap loss (engine estimate); no direct P&L or regulatory exposure.",
+          "key_risk": "Potential for investor sentiment contagion if further negative news emerges, but no current quantifiable risk.",
+          "top_opportunity": "None; no actionable ESG or financial opportunity identified.",
+          "timeline": "Next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Waaree Energies shares declined nearly 5% in a single trading session.",
+          "mechanism": "Market or company-specific factors led to a share price drop, with no ESG, regulatory, or operational event identified.",
+          "company_impact": "No direct impact on P&L, cash flow, or compliance; only a notional reduction in market capitalization.",
+          "transmission_type": "market_sentiment"
+        },
+        "warnings": [
+          "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
+        ]
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹14.4 Cr notional market cap loss (engine estimate); no direct P&L or regulatory exposure.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No supply chain transmission; event is limited to secondary market trading.",
+        "No P/E compression, margin erosion, or revenue at risk; share price movement is not tied to ESG fundamentals.",
+        "No impact on cost of capital, bond spreads, or FII flows; no green financing implications."
+      ],
+      "action": [
+        "Quantify exposure: ₹14.4 Cr notional market cap loss (engine estimate); no direct P&L or regulatory exposure.",
+        "Revenue at risk: No revenue at risk; event is not operational or regulatory in nature."
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": null
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — None; no actionable ESG or financial opportunity identified.",
+      "impact_grid": {
+        "financial": "LOW",
+        "regulatory": "LOW",
+        "strategic": "LOW"
+      },
+      "what_matters": [
+        "No ESG score gap or peer pressure triggered; no index exclusion risk as event is not ESG-related.",
+        "No impact on talent, consumer, or community sentiment; event is not related to social or labor issues.",
+        "No BRSR, GRI, or TCFD compliance breach; no regulatory deadlines or penalties triggered."
+      ],
+      "action": [
+        "Strategic opportunity: None; no actionable ESG or financial opportunity identified.",
+        "Competitive position: No gain or loss versus Adani Power or JSW Energy; all sector peers unaffected."
+      ],
+      "materiality": "LOW",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": null
+    }
+  },
+  "meta": {
+    "written_at": "2026-04-30T08:34:28.283556+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Waaree Energies"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "Waaree Energies"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "BRSR",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers BRSR disclosure obligation for Waaree Energies"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "GRI",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers GRI disclosure obligation for Waaree Energies"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "TCFD",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
+    },
+    {
+      "nodes": [
+        "BRSR FY26 Filing",
+        "BRSR",
+        "Renewable Energy",
+        "Waaree Energies"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "BRSR FY26 Filing -> BRSR -> Renewable Energy -> Waaree Energies"
+    }
+  ]
+}

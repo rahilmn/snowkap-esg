@@ -1,0 +1,163 @@
+{
+  "recommendations": [
+    {
+      "title": "Issue ₹500 Cr Green Bond by 2026-09-30",
+      "description": "Leverage strong solar module sales momentum to issue a ₹500 Cr green bond by 2026-09-30, targeting a 20-40 bps cost of capital reduction per BRSR and EU Taxonomy alignment, with CFO oversight.",
+      "type": "financial",
+      "responsible_party": "CFO",
+      "framework_section": "BRSR:P6:Q14, EU Taxonomy",
+      "deadline": "2026-09-30",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "₹5-10 Cr annual financing cost savings at 20 bps discount on ₹500 Cr green bond",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 300.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Tata Power issued ₹5000 Cr green bond with 20-40 bps discount",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "₹500 Cr green bond opportunity at 20-40 bps cost of capital reduction",
+          "value": "Strong solar sales enable green bond issuance"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6:Q14",
+          "value": "BRSR disclosure impacts cost of capital"
+        },
+        {
+          "source": "peer",
+          "ref": "Tata Power green bond issuance",
+          "value": "Competitor green bond issuance led to P/E rerating"
+        }
+      ]
+    },
+    {
+      "title": "Conduct Investor Day on Transition Capex by 2026-07-31",
+      "description": "Host an investor day by 2026-07-31 to present transition capex plans and abatement curve, highlighting growth from solar sales and ESG strategy, led by CEO and Investor Relations.",
+      "type": "strategic",
+      "responsible_party": "CEO",
+      "framework_section": "BRSR:P7, TCFD",
+      "deadline": "2026-07-31",
+      "estimated_budget": "₹0.2-0.5 Cr",
+      "profitability_link": "Potential 5-10% P/E multiple uplift from improved investor confidence and ESG transparency",
+      "priority": "HIGH",
+      "urgency": "short_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 6,
+      "roi_percentage": 150.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P7",
+          "value": "Investor communication on transition capex improves ESG ratings"
+        },
+        {
+          "source": "framework",
+          "ref": "TCFD",
+          "value": "Disclosure reduces FII outflow risk and P/E compression"
+        },
+        {
+          "source": "article",
+          "ref": "Strong solar sales momentum",
+          "value": "Opportunity to leverage growth story"
+        }
+      ]
+    },
+    {
+      "title": "Monitor Energy Price Shock; Escalate if ΔEP ≥ 25% YoY",
+      "description": "Implement monthly monitoring of energy price changes; escalate to CEO and CFO if energy price shock threshold ΔEP ≥ 25% YoY is breached within 6 months to adjust capex and hedge strategies accordingly.",
+      "type": "operational",
+      "responsible_party": "Head of Risk Management",
+      "framework_section": "BRSR:P5, Causal Primitive: Energy Price Shock",
+      "deadline": "2026-10-13",
+      "estimated_budget": "₹0.05-0.1 Cr",
+      "profitability_link": "Avoid ₹10-20 Cr losses from unhedged energy price volatility impacting capex returns",
+      "priority": "MEDIUM",
+      "urgency": "medium_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 4,
+      "roi_percentage": 200.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "causal_primitive",
+          "ref": "Energy price shock τ = ΔEP ≥ 25% YoY",
+          "value": "Threshold for monitoring energy price volatility"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P5",
+          "value": "Risk monitoring required for operational resilience"
+        },
+        {
+          "source": "article",
+          "ref": "Capex exposure primary affected",
+          "value": "Capex vulnerable to energy price shocks"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 0,
+        "title": "Issue ₹500 Cr Green Bond by 2026-09-30",
+        "type": "financial",
+        "roi": 300.0,
+        "budget": "₹0.5-1 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 1,
+        "title": "Conduct Investor Day on Transition Capex by 2026-07-31",
+        "type": "strategic",
+        "roi": 150.0,
+        "budget": "₹0.2-0.5 Cr"
+      }
+    ],
+    "deferred_high": [],
+    "deferred_low": [
+      {
+        "index": 2,
+        "title": "Monitor Energy Price Shock; Escalate if ΔEP ≥ 25% YoY",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹0.05-0.1 Cr"
+      }
+    ]
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      0,
+      2,
+      1
+    ],
+    "ceo": [
+      1,
+      2,
+      0
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}

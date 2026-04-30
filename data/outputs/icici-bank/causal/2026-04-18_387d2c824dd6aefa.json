@@ -1,0 +1,68 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "ICICI Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "ICICI Bank"
+    },
+    {
+      "nodes": [
+        "ICICI Bank Bangalore Ops",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "ICICI Bank Bangalore Ops -> ICICI Bank"
+    },
+    {
+      "nodes": [
+        "ICICI Bank HQ",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "ICICI Bank HQ -> ICICI Bank"
+    },
+    {
+      "nodes": [
+        "ICICI Bank Hyderabad Ops",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "ICICI Bank Hyderabad Ops -> ICICI Bank"
+    },
+    {
+      "nodes": [
+        "Human Capital",
+        "Financials/Banking",
+        "ICICI Bank"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Human Capital is material for Financials/Banking → impacts ICICI Bank"
+    }
+  ]
+}
