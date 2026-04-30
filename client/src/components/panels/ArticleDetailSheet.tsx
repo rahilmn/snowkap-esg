@@ -1038,17 +1038,23 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
                   { key: "structural", label: "Structural (6-24 months)", accent: "#d97706", accentBg: "rgba(217,119,6,0.06)" },
                   { key: "long_term", label: "Long-term (2-5+ years)", accent: "#2563eb", accentBg: "rgba(37,99,235,0.06)" },
                 ];
+                // Phase 22.3 — polarity-aware labels. Positive events get
+                // "Margin Benefit" / "Revenue Opportunity" labels;
+                // negative/neutral keep the legacy "Margin Pressure" /
+                // "Revenue at Risk". The polarity flag is set by the
+                // backend in DeepInsight.event_polarity (Phase 22.3).
+                const isPositive = (di as Record<string, unknown>)?.event_polarity === "positive";
                 const metricLabels: Record<string, string> = {
                   cost_of_capital_impact: "Cost of Capital",
-                  margin_pressure: "Margin Pressure",
+                  margin_pressure: isPositive ? "Margin Benefit" : "Margin Pressure",
                   cash_flow_impact: "Cash Flow",
-                  revenue_at_risk: "Revenue at Risk",
+                  revenue_at_risk: isPositive ? "Revenue Opportunity" : "Revenue at Risk",
                   valuation_rerating: "Valuation Re-rating",
                   investor_flow_impact: "Investor Flows",
                   competitive_position: "Competitive Position",
-                  credit_rating_risk: "Credit Rating",
+                  credit_rating_risk: isPositive ? "Credit Rating Upside" : "Credit Rating",
                   secular_trajectory: "Secular Trajectory",
-                  stranded_asset_risk: "Stranded Assets",
+                  stranded_asset_risk: isPositive ? "Asset Repositioning" : "Stranded Assets",
                   green_revenue_opportunity: "Green Revenue",
                   market_share_shift: "Market Share",
                 };

@@ -733,8 +733,30 @@ def audit_source_tags(
                 if cr_value is None:
                     return m.group(0)
                 inferred = _infer_source_tag(figure_text, article_excerpts)
-                if inferred == "(from article)":
-                    return m.group(0)  # claim is justified — leave it
+                if inferred != "(from article)":
+                    # Numerical match failed — definite hallucination.
+                    downgraded += 1
+                    return f"{figure_text}{middle}(engine estimate)"
+
+                # Phase 22.2 — numerical match succeeded BUT we also need
+                # noun-phrase proximity. Live-fail (Adani Energy Solutions
+                # ESG-rating, 2026-04-29): the article body contained
+                # "Rs 503 crore Q3 net profit" while the LLM wrote
+                # "₹500 Cr (from article) capital and valuation uplift" —
+                # numerical match passes (±10% of 500 covers 503), but
+                # the article context (q3, net, profit) shares zero
+                # tokens with the claim context (capital, valuation,
+                # uplift). Without proximity, the audit is too generous.
+                claim_tokens = _extract_claim_tokens(middle)
+                if not claim_tokens:
+                    # No semantic load in the claim middle — accept the
+                    # numerical match (claim is bare like "₹500 Cr").
+                    return m.group(0)
+                article_ok = _article_context_overlaps(
+                    cr_value, claim_tokens, article_excerpts
+                )
+                if article_ok:
+                    return m.group(0)  # claim + article context align
                 downgraded += 1
                 return f"{figure_text}{middle}(engine estimate)"
 
@@ -748,6 +770,123 @@ def audit_source_tags(
 
     out = _walk(out)
     return out, downgraded
+
+
+# Phase 22.2 — Finance synonym groups. When the LLM claim uses one
+# member of a group, the article body matching ANY other member of
+# the same group counts as proximity overlap.
+#
+# Live-fail surfaced 2026-04-30: IDFC article writes "bottom-line of
+# Rs 503 crore" but the LLM claim says "₹503 Cr Q3 profit" — same
+# concept, different word. Without synonyms, the exact-match check
+# would falsely downgrade.
+_FINANCE_SYNONYMS = [
+    {"profit", "profits", "earnings", "earning", "bottom-line", "bottomline",
+     "net-income", "income", "pat", "net-profit"},
+    {"revenue", "revenues", "sales", "top-line", "topline", "turnover"},
+    {"outflow", "outflows", "outflowing"},
+    {"inflow", "inflows", "inflowing"},
+    {"exposure", "exposures", "risk", "risks"},
+    {"penalty", "penalties", "fine", "fines", "sanction", "sanctions"},
+    {"capex", "capital-expenditure", "investment", "investments", "spending"},
+    {"opex", "operating-expense", "operating-expenses", "operating-cost", "cost", "costs"},
+    {"opportunity", "opportunities", "uplift", "upside", "benefit", "benefits", "gain", "gains"},
+    {"loss", "losses", "drag", "headwind", "headwinds", "writeoff", "writedown"},
+    {"capital", "fund", "funds", "capitalization", "capitalisation"},
+    {"valuation", "value", "marketcap", "market-cap", "mcap", "p-e", "pe", "multiple"},
+    {"premium", "discount", "spread"},
+    {"loan", "loans", "debt", "borrowing", "borrowings", "credit"},
+    {"green-bond", "greenbond", "sustainable-bond", "ssa", "sustainability-linked"},
+    {"q1", "q2", "q3", "q4", "quarter", "quarterly"},
+]
+
+
+def _stem_token(t: str) -> str:
+    """Trivial Porter-lite stemmer for finance/ESG vocabulary.
+
+    Only strips common plurals so "outflow"/"outflows" both → "outflow"
+    and "loss"/"losses" both → "loss". Not a full Porter stemmer.
+    """
+    if len(t) > 4 and t.endswith("ies"):
+        return t[:-3] + "y"
+    if len(t) > 4 and t.endswith("es"):
+        return t[:-2]
+    if len(t) > 3 and t.endswith("s") and not t.endswith("ss"):
+        return t[:-1]
+    return t
+
+
+def _expand_with_synonyms(tokens: set[str]) -> set[str]:
+    """Given a set of claim tokens, expand to include all members of
+    any finance-synonym group that contains at least one match. So
+    {"profit"} → {"profit", "profits", "earnings", "bottom-line", ...}.
+    """
+    expanded = set(tokens)
+    expanded |= {_stem_token(t) for t in tokens}
+    for group in _FINANCE_SYNONYMS:
+        if expanded & group:
+            expanded |= group
+    return expanded
+
+
+def _extract_claim_tokens(middle_clause: str) -> set[str]:
+    """Extract meaningful (non-stopword) tokens from the LLM's claim
+    descriptor, e.g. 'capital and valuation uplift' → {capital, valuation, uplift}.
+    """
+    if not middle_clause:
+        return set()
+    raw = re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", middle_clause)
+    return {t.lower() for t in raw} - _SEMANTIC_STOPWORDS
+
+
+def _article_context_overlaps(
+    cr_value: float,
+    claim_tokens: set[str],
+    article_excerpts: list[str] | None,
+) -> bool:
+    """Return True if any article excerpt contains a ₹ figure within ±10%
+    of `cr_value` AND the article body (anywhere) shares at least one
+    token with the claim's expanded synonym set.
+
+    Phase 22.2 (revised after first round of test feedback) — uses
+    whole-article tokens (not just ±50-char proximity) and finance-term
+    synonyms (so "profit"/"bottom-line" match). Prevents both:
+      a. False-positives — legit Q3-profit citations got downgraded
+         because article said "bottom-line" not "profit".
+      b. False-negatives — hallucinated "₹500 Cr capital uplift" claims
+         get caught because the article doesn't mention capital/uplift
+         anywhere in any synonym form.
+    """
+    if not article_excerpts or not claim_tokens:
+        return False
+
+    expanded_claim = _expand_with_synonyms(claim_tokens)
+
+    # Step 1 — must have numerical match (within ±10%) somewhere in the body
+    v_int = int(round(cr_value))
+    candidates = {v_int, int(round(cr_value * 0.9)), int(round(cr_value * 1.1))}
+    has_numerical_match = False
+    article_text_blob = ""
+    for excerpt in article_excerpts:
+        if not excerpt:
+            continue
+        normalised = re.sub(r"(\d),(\d)", r"\1\2", excerpt)
+        article_text_blob += " " + normalised
+        for v in candidates:
+            if re.search(rf"\b{v}\b", normalised):
+                has_numerical_match = True
+
+    if not has_numerical_match:
+        return False
+
+    # Step 2 — claim's noun-phrase tokens (or synonyms / stems) must appear
+    # somewhere in the article body
+    article_tokens_raw = re.findall(
+        r"[A-Za-z][A-Za-z0-9-]{2,}", article_text_blob
+    )
+    article_tokens = {t.lower() for t in article_tokens_raw} - _SEMANTIC_STOPWORDS
+    article_tokens |= {_stem_token(t) for t in article_tokens}
+    return bool(article_tokens & expanded_claim)
 
 
 def enforce_source_tags(

@@ -37,6 +37,11 @@ class DeepInsight:
     decision_summary: dict[str, Any] = field(default_factory=dict)
     causal_chain: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    # Phase 22.3 — polarity flag drives frontend label flips
+    # ("Margin Pressure" vs "Margin Benefit", "Revenue at Risk" vs
+    # "Revenue Opportunity") so positive events don't surface defensive
+    # framing in the financial-timeline blocks.
+    event_polarity: str = "neutral"  # "positive" | "negative" | "neutral"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -533,6 +538,23 @@ def generate_deep_insight(
     except Exception as exc:  # noqa: BLE001 — verifier is additive, never block
         logger.warning("output_verifier failed (non-fatal): %s", exc)
 
+    # Phase 22.3 — emit event_polarity so the frontend can flip
+    # "Margin Pressure" → "Margin Benefit" on positive events.
+    polarity = "neutral"
+    try:
+        from engine.analysis.recommendation_archetypes import is_positive_event
+        event_id_str = (
+            getattr(result.event, "event_id", "") or ""
+            if result.event else ""
+        )
+        sentiment_val = getattr(result.nlp, "sentiment", 0) if result.nlp else 0
+        if is_positive_event(event_id_str, sentiment=sentiment_val):
+            polarity = "positive"
+        elif sentiment_val <= -1:
+            polarity = "negative"
+    except Exception:
+        pass
+
     return DeepInsight(
         headline=str(parsed.get("headline", "") or result.title)[:200],
         impact_score=clamped_score,
@@ -546,4 +568,5 @@ def generate_deep_insight(
         decision_summary=dict(parsed.get("decision_summary", {}) or {}),
         causal_chain=dict(parsed.get("causal_chain", {}) or {}),
         warnings=warnings,
+        event_polarity=polarity,
     )
