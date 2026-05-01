@@ -633,6 +633,15 @@ def _ensure_tenant_for_login(
         return target_slug
 
     # Case 2: brand-new prospect — register + onboard.
+    # Phase 22.1 hardening (architect feedback): never return None for a
+    # non-super-admin login. If `register_tenant` raises or returns
+    # falsy, fall back to a deterministic domain-derived slug so the
+    # user still lands on their own concrete tenant. The caller minted
+    # `company_id=None` previously which broke the Phase 22 contract
+    # ("every non-super-admin login lands on its own company") and
+    # silently dropped the user into the cross-tenant view they
+    # shouldn't have access to.
+    fallback_slug = tenant_registry._slug_from_domain(body_domain) if body_domain else None
     try:
         slug = tenant_registry.register_tenant(
             domain=body_domain,
@@ -640,11 +649,22 @@ def _ensure_tenant_for_login(
             source="onboarded",
         )
     except Exception as exc:
-        logger.warning("tenant_registry.register_tenant failed: %s", exc)
-        return None
+        logger.warning(
+            "tenant_registry.register_tenant failed for %s; falling back to %s: %s",
+            body_domain, fallback_slug, exc,
+        )
+        slug = None
 
     if not slug:
-        return None
+        slug = fallback_slug
+    if not slug:
+        # Truly unrecoverable — no domain to derive a slug from. Fail
+        # closed so the JWT never carries `company_id=None` for a
+        # regular user.
+        raise HTTPException(
+            status_code=400,
+            detail="Could not resolve a tenant for this login. Provide a valid corporate domain.",
+        )
 
     # Atomically reserve the right to schedule onboarding. `claim_pending`
     # does an INSERT OR IGNORE under the PRIMARY KEY so two parallel
