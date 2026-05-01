@@ -246,9 +246,17 @@ def test_stage10_has_positive_event_directive_constant() -> None:
     )
     assert "POSITIVE-EVENT" in directive
     # Must explicitly forbid the SEBI-penalty injection that the live audit
-    # caught on contract wins.
-    assert "SEBI penalty" in directive
-    assert "do not" in directive.lower() or "never inject" in directive.lower()
+    # caught on contract wins. The directive may format the phrase with a
+    # line-wrap between SEBI and penalty (Phase 22.4 reformatted the bullet
+    # into a longer "FORBIDDEN" example), so collapse whitespace before
+    # asserting.
+    directive_collapsed = " ".join(directive.split())
+    assert "SEBI penalty" in directive_collapsed
+    assert (
+        "do not" in directive.lower()
+        or "never inject" in directive.lower()
+        or "forbidden" in directive.lower()
+    )
     # Must guide key_risk + financial_exposure framing
     assert "key_risk" in directive
     assert "financial_exposure" in directive
