@@ -33,7 +33,12 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Qu
 from pydantic import BaseModel
 
 from api.auth import require_auth
-from api.auth_context import SUPER_ADMIN_PERMISSIONS, is_snowkap_super_admin, mint_bearer
+from api.auth_context import (
+    SUPER_ADMIN_PERMISSIONS,
+    get_bearer_claims,
+    is_snowkap_super_admin,
+    mint_bearer,
+)
 from engine.config import Company, get_data_path, load_companies, load_settings
 from engine.index import tenant_registry
 from engine.index import sqlite_index
@@ -588,6 +593,116 @@ def _tenant_has_indexed_articles(slug: str) -> bool:
         return False
 
 
+# Snowkap's own internal mail domains. Logins from these domains are sales
+# accounts (or staff) and must NOT be registered as tenants — Snowkap is
+# the seller, not a customer. Super-admin status is granted separately via
+# the SNOWKAP_INTERNAL_EMAILS allowlist.
+_SNOWKAP_DOMAINS = ("snowkap.com", "snowkap.co.in")
+
+
+def _is_snowkap_domain(domain: str | None) -> bool:
+    d = (domain or "").strip().lower()
+    if not d:
+        return False
+    return d in _SNOWKAP_DOMAINS or any(d.endswith("." + sd) for sd in _SNOWKAP_DOMAINS)
+
+
+def _ensure_tenant_for_login(
+    *,
+    body_email: str,
+    body_domain: str,
+    body_company_name: str | None,
+    background: BackgroundTasks | None,
+) -> str | None:
+    """Resolve the company_id any non-super-admin login should land on.
+
+    Phase 22 contract: every non-super-admin login MUST resolve to a
+    concrete tenant slug — never None — so the dashboard can scope to
+    the user's own company on Home. The `is_super` gate at the caller
+    is the only path that returns None (drops the user into the
+    cross-tenant view).
+
+    Two cases, in priority order:
+
+      1. The login matches one of the 7 hardcoded target companies (by
+         name OR domain). Return that target slug — no registration
+         needed (target rows are pre-seeded by /api/admin/tenants).
+      2. The domain is a real prospect we've never seen. Register the
+         tenant immediately AND kick off a background onboarding task
+         (yfinance → news fetch → 12-stage pipeline) so the next
+         dashboard load has fresh signals. Returns the registered slug.
+
+    Note: even Snowkap-internal domains (`snowkap.co.in`, `snowkap.com`)
+    flow through this function for non-super-admin staff — they get a
+    "snowkap" tenant of their own. Only `sales@snowkap.co.in` (or
+    whoever is on the `SNOWKAP_INTERNAL_EMAILS` allowlist) gets the
+    cross-tenant view.
+
+    `background` is the request's FastAPI BackgroundTasks — passed
+    through so we don't block the login response on the pipeline.
+    """
+    # Case 1: known target company
+    target_slug = _slug_for_company(body_company_name, body_domain)
+    if target_slug:
+        return target_slug
+
+    # Case 2: brand-new prospect — register + onboard.
+    try:
+        slug = tenant_registry.register_tenant(
+            domain=body_domain,
+            name=body_company_name or None,
+            source="onboarded",
+        )
+    except Exception as exc:
+        logger.warning("tenant_registry.register_tenant failed: %s", exc)
+        return None
+
+    if not slug:
+        return None
+
+    # Atomically reserve the right to schedule onboarding. `claim_pending`
+    # does an INSERT OR IGNORE under the PRIMARY KEY so two parallel
+    # first-time logins for the same prospect can't both enqueue the
+    # pipeline (which would double-charge NewsAPI and produce duplicate
+    # PipelineResult rows).
+    if background is not None:
+        try:
+            from engine.models import onboarding_status
+
+            if onboarding_status.claim_pending(slug):
+                from api.routes.admin_onboard import _background_onboard
+
+                background.add_task(
+                    _background_onboard,
+                    slug=slug,
+                    name=body_company_name,
+                    ticker_hint=None,
+                    domain=body_domain,
+                    limit=10,
+                )
+                logger.info(
+                    "auth_login_kicked_onboarding",
+                    extra={"slug": slug, "domain": body_domain, "email": body_email},
+                )
+        except Exception as exc:
+            # Never block login on a pipeline failure. The tenant is already
+            # registered; the sales admin can re-trigger onboarding manually.
+            logger.warning("background onboarding kickoff failed for %s: %s", slug, exc)
+
+    return slug
+
+
+def _has_super_admin(authorization: str | None) -> bool:
+    """Returns True iff the bearer token carries the super_admin permission.
+    Used to gate the cross-tenant 'All Companies' view on /news/feed and
+    /news/stats — a regular user passing company_id=null gets 403."""
+    from api.auth_context import decode_bearer
+
+    claims = decode_bearer(authorization) or {}
+    perms = claims.get("permissions") or []
+    return isinstance(perms, list) and "super_admin" in perms
+
+
 class ResolveDomainIn(BaseModel):
     domain: str
 
@@ -662,7 +777,7 @@ def _slug_for_company(name: str | None, domain: str | None = None) -> str | None
 
 
 @router.post("/auth/login")
-def auth_login(body: LoginIn) -> dict[str, Any]:
+def auth_login(body: LoginIn, background: BackgroundTasks) -> dict[str, Any]:
     # Phase 10: Snowkap internal emails on the allowlist get super-admin perms,
     # which unlock the CompanySwitcher, RoleViewSwitcher, and /settings/campaigns.
     is_super = is_snowkap_super_admin(body.email)
@@ -672,31 +787,33 @@ def auth_login(body: LoginIn) -> dict[str, Any]:
         else ["read", "chat", "view_analysis", "view_news"]
     )
 
-    # Phase 11B: only record tenants that already have analysed articles in
-    # the index. This prevents random client logins from polluting the
-    # super-admin's switcher with empty-shell rows (the Phase 10 bug).
-    # Real prospects get onboarded via POST /api/admin/onboard which runs
-    # the full pipeline — the tenant_registry write happens there, not here.
-    #
-    # Snowkap internal logins are still NOT registered (we're the sellers).
-    if not is_super and body.domain:
-        try:
-            slug = tenant_registry._slug_from_domain(body.domain)
-            if _tenant_has_indexed_articles(slug):
-                tenant_registry.register_tenant(
-                    domain=body.domain,
-                    name=body.company_name or None,
-                    industry=None,
-                    source="onboarded",
-                )
-        except Exception as exc:  # never block login on a registry write failure
-            logger.warning("tenant registry upsert failed: %s", exc)
+    # Phase 22: every corporate login lands on its OWN company. For new
+    # prospects we register the tenant immediately AND kick off the
+    # onboarding pipeline (yfinance → news fetch → 12-stage analysis)
+    # so the dashboard isn't empty by the time they swipe to Home.
+    # Super-admin logins (sales@snowkap.co.in) skip this — they get
+    # company_id=None and see the cross-tenant "All Companies" view.
+    if is_super:
+        company_slug: str | None = None
+    else:
+        company_slug = _ensure_tenant_for_login(
+            body_email=body.email,
+            body_domain=body.domain,
+            body_company_name=body.company_name,
+            background=background,
+        )
+
     claims = {
         "sub": body.email,
         "name": body.name,
         "company": body.company_name,
         "designation": body.designation,
         "permissions": permissions,
+        # Phase 22: bind the user to a single tenant in the JWT itself so
+        # /news/feed et al. can reject cross-tenant requests by slug
+        # enumeration. Super-admins keep `company_id=None` so they can
+        # query any tenant.
+        "company_id": company_slug,
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400 * 30,
     }
@@ -705,7 +822,7 @@ def auth_login(body: LoginIn) -> dict[str, Any]:
         "token": token,
         "user_id": body.email,
         "tenant_id": "snowkap-dev",
-        "company_id": _slug_for_company(body.company_name, body.domain),
+        "company_id": company_slug,
         "designation": body.designation,
         "permissions": permissions,
         "domain": body.domain,
@@ -718,7 +835,7 @@ class ReturningUserIn(BaseModel):
 
 
 @router.post("/auth/returning-user")
-def auth_returning_user(body: ReturningUserIn) -> dict[str, Any]:
+def auth_returning_user(body: ReturningUserIn, background: BackgroundTasks) -> dict[str, Any]:
     email = body.email.strip()
     domain = email.split("@")[-1] if "@" in email else ""
     is_super = is_snowkap_super_admin(email)
@@ -727,10 +844,20 @@ def auth_returning_user(body: ReturningUserIn) -> dict[str, Any]:
         if is_super
         else ["read", "chat", "view_analysis", "view_news"]
     )
+    if is_super:
+        company_slug: str | None = None
+    else:
+        company_slug = _ensure_tenant_for_login(
+            body_email=email,
+            body_domain=domain,
+            body_company_name=None,
+            background=background,
+        )
     claims = {
         "sub": email,
         "name": email.split("@")[0].title(),
         "permissions": permissions,
+        "company_id": company_slug,  # Phase 22 tenant-scope binding
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400 * 30,
     }
@@ -738,7 +865,7 @@ def auth_returning_user(body: ReturningUserIn) -> dict[str, Any]:
         "token": _mint_token(claims),
         "user_id": email,
         "tenant_id": "snowkap-dev",
-        "company_id": _slug_for_company(None, domain),
+        "company_id": company_slug,
         "designation": "analyst",
         "permissions": permissions,
         "domain": domain,
@@ -783,6 +910,64 @@ def get_company_legacy(company_id: str, _: None = Depends(require_auth)) -> dict
 # =============================================================================
 
 
+def _is_super_admin(claims: dict[str, Any]) -> bool:
+    perms = claims.get("permissions") or []
+    return isinstance(perms, list) and "super_admin" in perms
+
+
+def _require_tenant_scope(company_id: str | None, claims: dict[str, Any]) -> None:
+    """Phase 22 cross-tenant gate. Two enforcements in one:
+
+      1. **Cross-tenant view**: a request with `company_id` null/empty is
+         only allowed for super-admins. Regular users get 403 (the frontend
+         hides the 'All Companies' button but we still gate the API so a
+         hand-rolled curl can't bypass it).
+      2. **Slug enumeration**: a request with an EXPLICIT `company_id` must
+         match the user's own `company_id` claim. Otherwise any
+         authenticated user could pass `company_id=icici-bank` and read
+         other tenants' analysis. Super-admins are exempt — they may
+         scope to any tenant.
+
+    Together these guarantee that a regular user can ONLY see their own
+    tenant's data, regardless of how the request is shaped.
+    """
+    super_admin = _is_super_admin(claims)
+    requested = (company_id or "").strip() or None
+
+    if requested is None:
+        if not super_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="Cross-tenant view requires super_admin. Pass company_id.",
+            )
+        return
+
+    if super_admin:
+        return  # super-admins may scope to any tenant
+
+    # Regular user: enforce slug binding from JWT.
+    own = (claims.get("company_id") or "").strip() or None
+    if own is None:
+        # Token was minted before Phase 22 (no company_id claim) — refuse.
+        raise HTTPException(
+            status_code=403,
+            detail="Token has no tenant scope. Re-authenticate.",
+        )
+    if requested != own:
+        logger.warning(
+            "cross_tenant_access_denied",
+            extra={"sub": claims.get("sub"), "own": own, "requested": requested},
+        )
+        raise HTTPException(
+            status_code=403,
+            detail="Cross-tenant access denied.",
+        )
+
+
+# Back-compat alias retained for any internal caller that imports the old name.
+_require_super_admin_for_cross_tenant = _require_tenant_scope
+
+
 @router.get("/news/feed")
 def news_feed(
     limit: int = Query(20, ge=1, le=200),
@@ -792,7 +977,9 @@ def news_feed(
     pillar: str | None = None,
     content_type: str | None = None,
     _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
+    _require_tenant_scope(company_id, claims)
     rows = sqlite_index.query_feed(
         company_slug=company_id,
         tier=None,
@@ -818,7 +1005,9 @@ def news_feed(
 def news_stats(
     company_id: str | None = None,
     _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
+    _require_tenant_scope(company_id, claims)
     total = sqlite_index.count(company_slug=company_id if company_id else None)
     high_impact = sqlite_index.count_high_impact(company_slug=company_id if company_id else None)
     new_24h = sqlite_index.count_new_last_24h(company_slug=company_id if company_id else None)

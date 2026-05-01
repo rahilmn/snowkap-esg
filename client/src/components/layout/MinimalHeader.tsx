@@ -1,32 +1,43 @@
-/** Minimal header — Phase 12: adds a PerspectiveSwitcher sub-bar below the
- * top row so the CFO / CEO / ESG Analyst lens is globally accessible. The
- * Admin and Campaigns menu items are removed (Hybrid scope).
- * Phase 16: adds company selector dropdown for switching between companies.
+/**
+ * MinimalHeader — top bar shown on every authenticated page.
+ *
+ * Layout: [logo] [company name / switcher] [avatar dropdown].
+ *
+ * Two surfaces depending on whether the caller is a Snowkap super-admin:
+ *
+ *   - **Super-admin** (allowlisted via SNOWKAP_INTERNAL_EMAILS): renders the
+ *     full `<CompanySwitcher />` listing every target company + every
+ *     onboarded prospect, with an "All Companies" entry that sets
+ *     `companyId=null`. This is the cross-tenant view.
+ *
+ *   - **Regular user**: renders the user's own company name as plain text.
+ *     There is intentionally NO dropdown and NO "All Companies" option —
+ *     the cross-tenant view is restricted to Snowkap staff. The backend
+ *     also enforces this on `/news/feed` and `/news/stats`, so any client
+ *     that tries to omit `company_id` will get a 403.
  */
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore, useIsSuperAdmin } from "@/stores/authStore";
 import { companies as companiesApi } from "@/lib/api";
-import { COLORS } from "../../lib/designTokens";
-import { PerspectiveSwitcher } from "@/components/PerspectiveSwitcher";
+import { COLORS } from "@/lib/designTokens";
 import { CompanySwitcher } from "@/components/admin/CompanySwitcher";
+import { PerspectiveSwitcher } from "@/components/PerspectiveSwitcher";
 import { RoleViewSwitcher } from "@/components/admin/RoleViewSwitcher";
 
 export function MinimalHeader() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const name = useAuthStore((s) => s.name);
-  const logout = useAuthStore((s) => s.logout);
-  const companyId = useAuthStore((s) => s.companyId);
-  const setCompanyId = useAuthStore((s) => s.setCompanyId);
-  const isSuperAdmin = useIsSuperAdmin();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [companyOpen, setCompanyOpen] = useState(false);
 
-  // Non-admins get the 7-target list; admins use CompanySwitcher which pulls
-  // from /api/admin/tenants (targets + every onboarded prospect).
+  const name = useAuthStore((s) => s.name);
+  const companyId = useAuthStore((s) => s.companyId);
+  const logout = useAuthStore((s) => s.logout);
+  const isSuperAdmin = useIsSuperAdmin();
+
+  // Regular users get a fixed company name (their own). Skip the network
+  // round-trip for super-admins — they get their list via CompanySwitcher.
   const { data: companyList } = useQuery({
     queryKey: ["companies"],
     queryFn: () => companiesApi.list(),
@@ -38,12 +49,21 @@ export function MinimalHeader() {
     ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "SN";
 
+  // Resolve the user's own company name. Falls back to the slug-cased
+  // version of `companyId` so a brand-new prospect (whose slug isn't in
+  // the curated companies list) still sees a recognisable label.
+  const ownCompanyLabel =
+    companyList?.find((c) => c.slug === companyId)?.name
+    ?? (companyId
+      ? companyId.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+      : "");
+
   return (
     <div
       className="sticky top-0 z-40 bg-white border-b border-gray-100"
       style={{ maxWidth: "440px", margin: "0 auto" }}
     >
-      {/* Row 1: Logo + SNOWKAP text + avatar dropdown */}
+      {/* Row 1: Logo + center label + avatar dropdown */}
       <header
         className="h-12 grid grid-cols-3 items-center"
         style={{ paddingLeft: "12px", paddingRight: "16px" }}
@@ -53,112 +73,95 @@ export function MinimalHeader() {
           <img src="/assets/snowkap-icon.png" alt="Snowkap" style={{ width: "36px", height: "36px" }} />
         </div>
 
-        {/* Center: Company selector. Super-admins see the full list from
-            /api/admin/tenants (targets + every onboarded prospect). Regular
-            users see the 7 hardcoded targets. */}
+        {/* Center: Company label.
+            - Super-admins see the cross-tenant CompanySwitcher (All Companies + every tenant).
+            - Regular users see their OWN company name as plain text. No dropdown,
+              no "All Companies" option — the cross-tenant view is gated. */}
         {isSuperAdmin ? (
           <CompanySwitcher />
         ) : (
-          <div className="relative flex items-center justify-center">
-            <button
-              onClick={() => setCompanyOpen(!companyOpen)}
-              className="flex items-center gap-1"
-              style={{ fontSize: "13px", fontWeight: 600, color: COLORS.textPrimary, background: "none", border: "none", cursor: "pointer" }}
+          <div className="flex items-center justify-center">
+            <span
+              style={{
+                fontSize: "13px",
+                fontWeight: 600,
+                color: COLORS.textPrimary,
+                maxWidth: "180px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={ownCompanyLabel || undefined}
             >
-              <span style={{ maxWidth: "140px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {companyList?.find((c) => c.slug === companyId)?.name || "All Companies"}
-              </span>
-              <span style={{ fontSize: "10px", color: COLORS.textMuted }}>{companyOpen ? "\u25B2" : "\u25BC"}</span>
-            </button>
+              {ownCompanyLabel || "Snowkap"}
+            </span>
+          </div>
+        )}
 
-            {companyOpen && (
+        {/* Right: Avatar dropdown */}
+        <div className="flex items-center justify-end">
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex items-center justify-center text-xs font-bold"
+              style={{
+                width: "34px",
+                height: "34px",
+                borderRadius: "50%",
+                backgroundColor: COLORS.brandLight,
+                color: COLORS.brand,
+                border: "none",
+                cursor: "pointer",
+              }}
+              title={name || "Account"}
+              aria-label="User menu"
+            >
+              {initials}
+            </button>
+            {menuOpen && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setCompanyOpen(false)} />
+                <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
                 <div
-                  className="absolute top-8 z-50 bg-white rounded-lg border shadow-lg py-1"
-                  style={{ minWidth: "200px", boxShadow: "0px 4px 12px rgba(0,0,0,0.12)" }}
+                  className="absolute right-0 top-10 z-50 bg-white rounded-lg border shadow-lg py-1"
+                  style={{ minWidth: "180px", boxShadow: "0px 4px 12px rgba(0,0,0,0.12)" }}
                 >
                   <button
-                    onClick={() => { setCompanyId(null); setCompanyOpen(false); queryClient.invalidateQueries(); }}
+                    onClick={() => { setMenuOpen(false); navigate("/preferences"); }}
                     className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                    style={{ fontSize: "13px", color: !companyId ? COLORS.brand : COLORS.textPrimary, fontWeight: !companyId ? 600 : 400 }}
+                    style={{ fontSize: "13px", color: COLORS.textPrimary }}
                   >
-                    All Companies
+                    Preferences
                   </button>
-                  {companyList?.map((c) => (
-                    <button
-                      key={c.slug}
-                      onClick={() => { setCompanyId(c.slug); setCompanyOpen(false); queryClient.invalidateQueries(); }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                      style={{ fontSize: "13px", color: companyId === c.slug ? COLORS.brand : COLORS.textPrimary, fontWeight: companyId === c.slug ? 600 : 400 }}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
+                  {isSuperAdmin && (
+                    <>
+                      <button
+                        onClick={() => { setMenuOpen(false); navigate("/settings/campaigns"); }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                        style={{ fontSize: "13px", color: COLORS.textPrimary }}
+                      >
+                        Campaigns
+                      </button>
+                      <button
+                        onClick={() => { setMenuOpen(false); navigate("/settings/onboard"); }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                        style={{ fontSize: "13px", color: COLORS.textPrimary }}
+                      >
+                        Onboard company
+                      </button>
+                    </>
+                  )}
+                  <div className="border-t my-1" />
+                  <button
+                    onClick={() => { setMenuOpen(false); logout(); navigate("/login"); }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                    style={{ fontSize: "13px", color: "#ff4044" }}
+                  >
+                    Sign out
+                  </button>
                 </div>
               </>
             )}
           </div>
-        )}
-
-        {/* Right: Profile avatar with dropdown */}
-        <div className="relative flex justify-end">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="flex items-center justify-center text-xs font-bold"
-            style={{
-              width: "34px",
-              height: "34px",
-              borderRadius: "50%",
-              backgroundColor: COLORS.brandLight,
-              color: COLORS.brand,
-            }}
-            title={name || "Account"}
-          >
-            {initials}
-          </button>
-
-          {menuOpen && (
-            <>
-              <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
-              <div
-                className="absolute right-0 top-10 z-50 bg-white rounded-lg border shadow-lg py-1"
-                style={{ minWidth: "180px", boxShadow: "0px 4px 12px rgba(0,0,0,0.12)" }}
-              >
-                <div className="px-4 py-2 border-b" style={{ color: COLORS.textSecondary, fontSize: "12px" }}>
-                  {name || "User"}
-                </div>
-
-                <button
-                  onClick={() => { setMenuOpen(false); navigate("/preferences"); }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                  style={{ fontSize: "14px", color: COLORS.textPrimary }}
-                >
-                  Preferences
-                </button>
-
-                {isSuperAdmin && (
-                  <button
-                    onClick={() => { setMenuOpen(false); navigate("/settings/campaigns"); }}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                    style={{ fontSize: "14px", color: COLORS.textPrimary }}
-                  >
-                    Drip campaigns
-                  </button>
-                )}
-
-                <div className="border-t" />
-
-                <button
-                  onClick={() => { setMenuOpen(false); logout(); }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-50"
-                  style={{ fontSize: "14px", color: COLORS.riskHigh }}
-                >
-                  Sign Out
-                </button>
-              </div>
-            </>
-          )}
         </div>
       </header>
 

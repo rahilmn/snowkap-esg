@@ -23,6 +23,48 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
 - `SECRET_KEY` — Application secret
 - `ENVIRONMENT` — Set to "production"
 - `DEBUG` — Set to "false"
+- `SNOWKAP_INTERNAL_EMAILS` — Comma-separated allowlist of emails granted
+  `super_admin` permission on login (cross-tenant "All Companies" view,
+  CompanySwitcher, RoleViewSwitcher). Phase 22: must contain ONLY
+  `sales@snowkap.co.in`. Anyone outside this list lands on their own
+  company even if they sign in from `@snowkap.co.in`.
+- `REQUIRE_SIGNED_JWT` — **MUST be `1` in production**. When unset,
+  `api/auth_context.decode_bearer` falls back to accepting unsigned
+  base64-only tokens (legacy compat), which would let an attacker forge
+  `permissions:["super_admin"]` or another tenant's `company_id` and
+  bypass the Phase 22 tenant-scope gate. The Replit secret is set.
+
+## Phase 22 — Onboarding & Tenant Gating
+- **Login auto-onboarding** (`api/routes/legacy_adapter.py::auth_login` /
+  `auth_returning_user`): every corporate login derives a `company_id`
+  via `_ensure_tenant_for_login`. If the email matches one of the 7
+  hardcoded targets, that slug is returned. Otherwise the prospect is
+  registered in `tenant_registry` immediately and a background task is
+  scheduled (FastAPI `BackgroundTasks` → `_background_onboard` from
+  `api/routes/admin_onboard.py`, idempotent on `onboarding_status`) so
+  the dashboard isn't empty when the user reaches Home. Snowkap-internal
+  domains (`snowkap.com`, `snowkap.co.in`) skip both registration and
+  onboarding — we're the seller, not a customer.
+- **Tenant scope gate** (`_require_tenant_scope` in `legacy_adapter.py`):
+  `/api/news/feed` and `/api/news/stats` enforce TWO checks: (a) a
+  request with `company_id` null/empty is only allowed for super-admins;
+  (b) a regular user's bearer token carries a `company_id` claim and the
+  API rejects (403) any request whose `company_id` query param doesn't
+  match — closes the "slug enumeration" hole where an `@yesbank.com`
+  user could read ICICI's data by passing `?company_id=icici-bank`.
+  The frontend `MinimalHeader` reinforces this by hiding the
+  CompanySwitcher (and its "All Companies" entry) for non-admins —
+  regular users see their company name as plain text.
+- **Atomic onboarding scheduling**
+  (`engine/models/onboarding_status.claim_pending`): wraps an
+  `INSERT OR IGNORE` against the slug PK so two parallel first-time
+  logins for the same prospect can't both enqueue `_background_onboard`
+  (which would double-charge NewsAPI and produce duplicate rows).
+- **Frontend abort fix** (`client/src/lib/api.ts`): `controller.abort()`
+  now passes a `DOMException("Request timed out", "TimeoutError")` so the
+  console no longer logs "signal is aborted without reason"; default
+  request timeout raised to 60 s and `auth.login` accepts a `_timeout`
+  override (its first call kicks off the pipeline and can be slow).
 
 ## Running
 - Workflow "Start application" runs `python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000`

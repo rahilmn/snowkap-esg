@@ -34,7 +34,13 @@ async function request<T>(
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), customTimeout || 30000);
+  const timeoutMs = customTimeout || 60000;
+  // Pass an explicit reason so the browser doesn't surface a noisy
+  // "signal is aborted without reason" warning in the console.
+  const timeout = setTimeout(
+    () => controller.abort(new DOMException(`Request timed out after ${timeoutMs}ms`, "TimeoutError")),
+    timeoutMs,
+  );
   try {
     const res = await fetch(`${BASE}${path}`, { ...fetchOptions, headers, signal: controller.signal });
 
@@ -75,10 +81,14 @@ export const auth = {
     company_name: string;
     name: string;
   }) =>
+    // First-time onboarding kicks off a background pipeline write; the
+    // synchronous handler still returns in <1s, but we give it a generous
+    // timeout so a slow cold start can't surface as a Toast error.
     request<LoginResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
-    }),
+      _timeout: 60000,
+    } as RequestInit & { _timeout?: number }),
 
   returningUser: (email: string) =>
     request<LoginResponse>("/auth/returning-user", {

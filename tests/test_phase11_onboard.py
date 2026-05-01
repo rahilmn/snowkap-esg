@@ -132,14 +132,19 @@ def test_onboard_status_unknown_slug_returns_404():
 # ---------------------------------------------------------------------------
 
 
-def test_unknown_domain_login_does_not_pollute_tenant_registry():
-    """Phase 11B.3: a regular client logging in from a domain with no
-    indexed articles should NOT appear in the super-admin's switcher."""
+def test_unknown_domain_login_registers_tenant_immediately():
+    """Phase 22 (supersedes Phase 11B.3): every corporate login lands on
+    its OWN company. New prospects are registered in tenant_registry
+    immediately AND scheduled for background onboarding so the dashboard
+    isn't empty when the user reaches Home. The Phase 11B 'pollution'
+    concern is resolved by gating the cross-tenant view in the UI and
+    on the API instead of by suppressing the registry write."""
+    from unittest.mock import patch as _patch
     from engine.index import tenant_registry
 
     client = TestClient(app)
 
-    # Make sure this domain isn't already registered
+    # Clear any prior run's row
     try:
         import sqlite3
         from engine.index.sqlite_index import DB_PATH
@@ -149,24 +154,31 @@ def test_unknown_domain_login_does_not_pollute_tenant_registry():
     except Exception:
         pass
 
-    # Ensure zero articles indexed for this slug (it's a never-seen domain)
-    r = client.post(
-        "/api/auth/login",
-        json={
-            "email": "ceo@random-prospect-co.test",
-            "domain": "random-prospect-co.test",
-            "designation": "ceo",
-            "company_name": "Random Prospect Co",
-            "name": "CEO",
-        },
-    )
-    assert r.status_code == 200
+    # Patch the heavy onboarding task so the test doesn't actually call
+    # yfinance / OpenAI — we're testing the registry write + slug return.
+    with _patch("api.routes.admin_onboard._background_onboard"):
+        r = client.post(
+            "/api/auth/login",
+            json={
+                "email": "ceo@random-prospect-co.test",
+                "domain": "random-prospect-co.test",
+                "designation": "ceo",
+                "company_name": "Random Prospect Co",
+                "name": "CEO",
+            },
+        )
+    assert r.status_code == 200, r.text
+    body = r.json()
 
-    # Confirm NOT registered (no indexed articles → no registry entry)
-    slug = tenant_registry._slug_from_domain("random-prospect-co.test")
-    assert tenant_registry.get_tenant(slug) is None, (
-        "Login should NOT auto-register a domain with zero indexed articles. "
-        "This is the Phase 11B.3 fix."
+    # Login response carries the prospect's own company_id (NOT null)
+    expected_slug = tenant_registry._slug_from_domain("random-prospect-co.test")
+    assert body["company_id"] == expected_slug, (
+        f"login should return the prospect's own slug, got {body['company_id']!r}"
+    )
+
+    # Tenant is now registered so the super-admin's switcher shows it
+    assert tenant_registry.get_tenant(expected_slug) is not None, (
+        "Phase 22: prospect logins must register a tenant immediately."
     )
 
 

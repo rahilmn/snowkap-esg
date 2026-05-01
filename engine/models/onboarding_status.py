@@ -159,6 +159,33 @@ def upsert(slug: str, **fields: Any) -> OnboardingStatus:
     return get(slug)  # type: ignore[return-value]
 
 
+def claim_pending(slug: str) -> bool:
+    """Atomically reserve the right to schedule onboarding for `slug`.
+
+    Returns True iff this caller inserted a fresh `state='pending'` row.
+    Returns False if a row already exists (another login already kicked
+    off the pipeline). Used by `_ensure_tenant_for_login` so two
+    simultaneous first-time logins for the same prospect don't both
+    enqueue `_background_onboard` and double-charge the news API.
+
+    Implementation note: `INSERT OR IGNORE` against the PRIMARY KEY
+    (`slug`) is atomic in SQLite — `cursor.rowcount == 1` only when
+    the insert actually happened.
+    """
+    ensure_schema()
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT OR IGNORE INTO onboarding_status
+                (slug, state, fetched, analysed, home_count, started_at, finished_at, error)
+            VALUES
+                (?, 'pending', 0, 0, 0, ?, NULL, NULL)
+            """,
+            (slug, _now()),
+        )
+        return cur.rowcount == 1
+
+
 def get(slug: str) -> OnboardingStatus | None:
     ensure_schema()
     with _connect() as conn:

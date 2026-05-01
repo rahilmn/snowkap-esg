@@ -92,8 +92,10 @@ export function LoginPage() {
     try {
       const result = await auth.login({ email, domain, designation, company_name: companyName, name });
       loginStore(result);
-      // Store actual credentials so OnboardingPage can re-login on page refresh
-      sessionStorage.setItem("pending_login", JSON.stringify({ email, domain, designation, company_name: companyName, name }));
+      // Presence flag for PendingLoginRoute. We don't store credentials
+      // anymore — the login is already complete and the auth store is
+      // hydrated, so OnboardingPage just plays the welcome animation.
+      sessionStorage.setItem("pending_login", "1");
       navigate("/welcome", { replace: true });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to sign in");

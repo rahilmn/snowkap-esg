@@ -6,7 +6,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
-import { auth } from "../lib/api";
 import { COLORS } from "../lib/designTokens";
 
 const LOADING_STEPS = [
@@ -20,37 +19,21 @@ type Step = "loading" | "complete";
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const loginStore = useAuthStore((s) => s.login);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [step, setStep] = useState<Step>("loading");
   const [loadingIndex, setLoadingIndex] = useState(0);
 
-  // Complete pending login in background while loading screens show
+  // The login API call already happened on LoginPage — by the time this
+  // mounts the auth store is hydrated. We just play the loading visuals
+  // (which double as onboarding pipeline warm-up time) and then move on.
+  // If the user somehow lands here without auth (deep link, refresh after
+  // a timeout, etc.), bounce them back to the login screen.
   useEffect(() => {
-    const pendingRaw = sessionStorage.getItem("pending_login");
-    if (pendingRaw && !isAuthenticated) {
-      try {
-        const pending = JSON.parse(pendingRaw);
-        // Only attempt re-login if we have actual credentials (not just a completion flag)
-        if (pending.email && pending.domain) {
-          auth.login(pending).then((result) => {
-            loginStore(result);
-            sessionStorage.removeItem("pending_login");
-          }).catch(() => {
-            sessionStorage.removeItem("pending_login");
-            navigate("/login", { replace: true });
-          });
-        } else {
-          // No credentials stored — redirect to login
-          sessionStorage.removeItem("pending_login");
-          navigate("/login", { replace: true });
-        }
-      } catch {
-        sessionStorage.removeItem("pending_login");
-        navigate("/login", { replace: true });
-      }
+    const hasPendingFlag = !!sessionStorage.getItem("pending_login");
+    if (!isAuthenticated && !hasPendingFlag) {
+      navigate("/login", { replace: true });
     }
-  }, [isAuthenticated, loginStore, navigate]);
+  }, [isAuthenticated, navigate]);
 
   // Advance loading steps — 2 seconds per step (matches backend processing time)
   useEffect(() => {
