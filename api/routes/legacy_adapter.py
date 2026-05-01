@@ -593,20 +593,6 @@ def _tenant_has_indexed_articles(slug: str) -> bool:
         return False
 
 
-# Snowkap's own internal mail domains. Logins from these domains are sales
-# accounts (or staff) and must NOT be registered as tenants — Snowkap is
-# the seller, not a customer. Super-admin status is granted separately via
-# the SNOWKAP_INTERNAL_EMAILS allowlist.
-_SNOWKAP_DOMAINS = ("snowkap.com", "snowkap.co.in")
-
-
-def _is_snowkap_domain(domain: str | None) -> bool:
-    d = (domain or "").strip().lower()
-    if not d:
-        return False
-    return d in _SNOWKAP_DOMAINS or any(d.endswith("." + sd) for sd in _SNOWKAP_DOMAINS)
-
-
 def _ensure_tenant_for_login(
     *,
     body_email: str,
@@ -692,15 +678,6 @@ def _ensure_tenant_for_login(
     return slug
 
 
-def _has_super_admin(authorization: str | None) -> bool:
-    """Returns True iff the bearer token carries the super_admin permission.
-    Used to gate the cross-tenant 'All Companies' view on /news/feed and
-    /news/stats — a regular user passing company_id=null gets 403."""
-    from api.auth_context import decode_bearer
-
-    claims = decode_bearer(authorization) or {}
-    perms = claims.get("permissions") or []
-    return isinstance(perms, list) and "super_admin" in perms
 
 
 class ResolveDomainIn(BaseModel):
