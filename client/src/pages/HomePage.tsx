@@ -70,6 +70,41 @@ export default function HomePage() {
     refetchOnWindowFocus: true,
   });
 
+  // Phase 22.1 — Poll the user's own onboarding status so the empty-
+  // state copy distinguishes "still ingesting" (state in pending/
+  // fetching/analysing) from "ingestion finished but found nothing"
+  // (state=ready, total=0). Pre-fix a German prospect whose 2 articles
+  // were both relevance-rejected got a permanent "still being analysed"
+  // message even after the pipeline had given up.
+  const { data: onboarding } = useQuery({
+    queryKey: ["onboarding-status", companyId],
+    queryFn: () => news.onboardingStatus(companyId || undefined),
+    enabled: !!companyId,
+    refetchInterval: (q) => {
+      const s = q.state.data?.state;
+      return s === "pending" || s === "fetching" || s === "analysing" ? 5_000 : false;
+    },
+  });
+  const onboardingState = onboarding?.state ?? "ready";
+  const onboardingInProgress =
+    onboardingState === "pending" ||
+    onboardingState === "fetching" ||
+    onboardingState === "analysing";
+  const onboardingFailed = onboardingState === "failed";
+
+  // Phase 22.1 — When the polled onboarding state transitions from
+  // in-progress → ready (or → failed), invalidate the feed + stats
+  // queries so the user sees freshly-indexed articles without having
+  // to refresh manually. Without this, the initial empty `home-articles`
+  // result is cached forever after the polling interval stops.
+  useEffect(() => {
+    if (!companyId) return;
+    if (onboardingState === "ready" || onboardingState === "failed") {
+      queryClient.invalidateQueries({ queryKey: ["home-articles", companyId] });
+      queryClient.invalidateQueries({ queryKey: ["news-stats", companyId] });
+    }
+  }, [onboardingState, companyId, queryClient]);
+
   const refreshMutation = useMutation({
     mutationFn: () => news.refresh(),
     onSuccess: (data) => {
@@ -233,12 +268,22 @@ export default function HomePage() {
         <div style={{ padding: "24px" }}>
           <div style={{ textAlign: "center", marginBottom: "24px" }}>
             <p style={{ fontSize: "16px", color: COLORS.textSecondary }}>
-              {companyId ? `No analysed articles yet for this company.` : "Setting up your intelligence feed..."}
+              {!companyId
+                ? "Setting up your intelligence feed..."
+                : onboardingInProgress
+                  ? "Setting up your dashboard…"
+                  : onboardingFailed
+                    ? "We hit a snag onboarding your company."
+                    : "No ESG-relevant news for your company in the latest scan."}
             </p>
             <p style={{ fontSize: "13px", color: COLORS.textMuted, marginTop: "8px" }}>
-              {companyId
-                ? "If you just onboarded this company, the pipeline is still ingesting + analysing articles. Refresh in 2-3 minutes, or click below to retry the news scan."
-                : "Articles are being analyzed. This usually takes 1-2 minutes."}
+              {!companyId
+                ? "Articles are being analyzed. This usually takes 1-2 minutes."
+                : onboardingInProgress
+                  ? `${onboarding?.analysed ?? 0} of ${onboarding?.fetched ?? 0} articles processed. Hang tight — this usually takes 1-2 minutes.`
+                  : onboardingFailed
+                    ? "Try Scan Now to retry, or contact your administrator if this keeps happening."
+                    : "We searched the web for your company but didn't find ESG-relevant articles in this scan. The platform is optimised for Indian listed companies. Tap Scan Now to refetch."}
             </p>
             <button
               onClick={() => refreshMutation.mutate()}

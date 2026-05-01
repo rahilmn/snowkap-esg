@@ -1,7 +1,7 @@
 /** Swipe Feed Page — main news experience (Stage 6.9) */
 
-import React, { useState, useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { news } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import { useNewsStore } from "@/stores/newsStore";
@@ -20,6 +20,7 @@ const PAGE_SIZE = 20;
 export function SwipeFeedPage() {
   const { articles, setArticles } = useNewsStore();
   const companyId = useAuthStore((s) => s.companyId);
+  const queryClient = useQueryClient();
 
   // Clear stale data on mount
   React.useEffect(() => {
@@ -29,6 +30,36 @@ export function SwipeFeedPage() {
   const { hasSeenIntro, markIntroSeen, dismissedIds, setRefreshTime } = useFeedStore();
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [offset, setOffset] = useState(0);
+
+  // Phase 22.1 — Poll the user's own onboarding status so we can
+  // differentiate "still ingesting" from "ingestion finished but
+  // produced nothing" in the empty state. Without this, prospects
+  // whose articles all got relevance-rejected see a permanent
+  // "Fetching ESG intelligence..." spinner.
+  const { data: onboarding } = useQuery({
+    queryKey: ["onboarding-status", companyId],
+    queryFn: () => news.onboardingStatus(companyId || undefined),
+    enabled: !!companyId,
+    refetchInterval: (q) => {
+      const s = q.state.data?.state;
+      return s === "pending" || s === "fetching" || s === "analysing" ? 5_000 : false;
+    },
+  });
+  const onboardingState = onboarding?.state ?? "ready";
+  const onboardingInProgress =
+    onboardingState === "pending" ||
+    onboardingState === "fetching" ||
+    onboardingState === "analysing";
+
+  // Phase 22.1 — refetch the feed when the polled onboarding state
+  // transitions from in-progress → ready/failed, so freshly-indexed
+  // articles appear without a manual refresh after the pipeline lands.
+  useEffect(() => {
+    if (!companyId) return;
+    if (onboardingState === "ready" || onboardingState === "failed") {
+      queryClient.invalidateQueries({ queryKey: ["news-feed", companyId] });
+    }
+  }, [onboardingState, companyId, queryClient]);
 
   const { isLoading, refetch } = useQuery({
     queryKey: ["news-feed", companyId, offset],
@@ -138,18 +169,29 @@ export function SwipeFeedPage() {
 
       {hasSeenIntro && visibleArticles.length === 0 && !isLoading && (
         <div className="text-center px-8" style={{ color: "#888" }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>&#128640;</div>
+          <div style={{ fontSize: "48px", marginBottom: "16px" }}>
+            {onboardingInProgress ? "\u{1F680}" : onboardingState === "failed" ? "\u26A0\uFE0F" : "\u{1F50D}"}
+          </div>
           <p className="text-lg font-medium" style={{ color: "#111" }}>
-            Fetching ESG intelligence...
+            {onboardingInProgress
+              ? "Fetching ESG intelligence..."
+              : onboardingState === "failed"
+                ? "We hit a snag onboarding your company."
+                : "No ESG-relevant news yet."}
           </p>
           <p className="text-sm mt-2" style={{ lineHeight: "1.6" }}>
-            We&apos;re gathering and analyzing news for your company.
-            Articles will appear here as they&apos;re processed.
+            {onboardingInProgress
+              ? `${onboarding?.analysed ?? 0} of ${onboarding?.fetched ?? 0} articles processed. We're gathering and analysing news for your company; articles will appear here as they're scored.`
+              : onboardingState === "failed"
+                ? "Pull down to retry the scan, or contact your administrator if this keeps happening."
+                : "We searched the web for your company but didn't find ESG-relevant articles in the latest scan. The platform is optimised for Indian listed companies. Pull down to refetch."}
           </p>
-          <p className="text-xs mt-4" style={{ color: "#999" }}>
-            This usually takes 1-2 minutes for new accounts.
-            <br />Pull down to refresh.
-          </p>
+          {onboardingInProgress && (
+            <p className="text-xs mt-4" style={{ color: "#999" }}>
+              This usually takes 1-2 minutes for new accounts.
+              <br />Pull down to refresh.
+            </p>
+          )}
         </div>
       )}
 

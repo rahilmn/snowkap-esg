@@ -1006,6 +1006,48 @@ def news_stats(
     }
 
 
+@router.get("/news/onboarding-status")
+def news_onboarding_status(
+    company_id: str | None = None,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 22.1 — Self-service onboarding progress for the caller's tenant.
+
+    Frontend (Home + Feeds) polls this every few seconds while a newly
+    onboarded prospect's pipeline is still running, then flips the
+    empty-state copy from "Setting up..." to either the populated feed
+    or "no ESG news found in this scan, try Scan Now" depending on the
+    final state.
+
+    Gating: same `_require_tenant_scope` rules as `/news/feed` — a
+    regular user can only ask about their own slug; super-admins may
+    pass any slug or omit it. When no `onboarding_status` row exists
+    for the slug (e.g. a fully-curated target like icici-bank) we
+    return `state="ready"` rather than 404 so the frontend can treat
+    "no row" identically to "ready with data".
+    """
+    # Resolve the target slug BEFORE the gate so a regular user calling
+    # without `company_id` falls back to their JWT slug (the common case
+    # — frontend polls without args). Only then enforce slug-binding.
+    target = (company_id or "").strip() or (claims.get("company_id") or "").strip() or None
+    _require_tenant_scope(target, claims)
+    from engine.models import onboarding_status as os_model
+
+    if not target:
+        # Super-admin asking about cross-tenant view — there's no single
+        # tenant to report on. Frontend should not be polling this.
+        return {"slug": None, "state": "ready", "fetched": 0, "analysed": 0,
+                "home_count": 0, "started_at": None, "finished_at": None,
+                "error": None}
+    row = os_model.get(target)
+    if row is None:
+        return {"slug": target, "state": "ready", "fetched": 0, "analysed": 0,
+                "home_count": 0, "started_at": None, "finished_at": None,
+                "error": None}
+    return row.to_dict()
+
+
 @router.post("/news/{article_id}/bookmark")
 def news_bookmark(article_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
     # savedStore is client-side localStorage — this is a no-op acknowledgement

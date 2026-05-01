@@ -129,6 +129,28 @@ export const news = {
     return res.articles;
   },
 
+  /**
+   * Phase 22.1 — Self-service onboarding progress for the caller's
+   * own tenant. Used by HomePage + SwipeFeedPage to differentiate
+   * "still onboarding" from "onboarding finished but found nothing"
+   * so the empty-state copy isn't a permanent "Fetching..." spinner.
+   * Unlike `admin.onboardStatus`, this endpoint is NOT super-admin
+   * gated — backend enforces the same tenant-scope rules as /news/feed.
+   */
+  onboardingStatus: (companyId?: string) => {
+    const q = companyId ? `?company_id=${encodeURIComponent(companyId)}` : "";
+    return request<{
+      slug: string | null;
+      state: "pending" | "fetching" | "analysing" | "ready" | "failed";
+      fetched: number;
+      analysed: number;
+      home_count: number;
+      started_at: string | null;
+      finished_at: string | null;
+      error: string | null;
+    }>(`/news/onboarding-status${q}`);
+  },
+
   stats: (companyId?: string) => {
     const q = companyId ? `?company_id=${encodeURIComponent(companyId)}` : "";
     return request<{

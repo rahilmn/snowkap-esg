@@ -376,3 +376,157 @@ def test_super_admin_can_query_any_tenant():
         headers={"Authorization": f"Bearer {_admin_token()}"},
     )
     assert r2.status_code == 200
+
+
+# ---------------------------------------------------------------------------
+# Phase 22.1 — alias mirroring + self-service onboarding-status endpoint
+# ---------------------------------------------------------------------------
+
+
+def _purge_alias(slug: str) -> None:
+    try:
+        with sqlite3.connect(str(DB_PATH)) as conn:
+            try:
+                conn.execute("DELETE FROM slug_aliases WHERE alias = ?", (slug,))
+            except sqlite3.OperationalError:
+                pass
+            conn.commit()
+    except Exception:
+        pass
+
+
+def test_resolve_slug_unifies_alias_to_canonical():
+    """Phase 22.1 — sqlite_index.resolve_slug() must transparently rewrite
+    a registered alias to its canonical slug so that user sessions bound
+    to the login-time slug ("puma") see articles indexed under the
+    canonical slug ("puma-se")."""
+    from engine.index import sqlite_index
+
+    alias, canonical = "phase22-alias-test", "phase22-canonical-test"
+    _purge_alias(alias)
+
+    # Before registration: alias passes through unchanged
+    assert sqlite_index.resolve_slug(alias) == alias
+
+    sqlite_index.register_alias(alias, canonical)
+    try:
+        assert sqlite_index.resolve_slug(alias) == canonical
+        # Canonical itself is unchanged (not a recursion target)
+        assert sqlite_index.resolve_slug(canonical) == canonical
+        # None passes through
+        assert sqlite_index.resolve_slug(None) is None
+        # Same-slug self-alias is a no-op (defensive against onboarder edge cases)
+        sqlite_index.register_alias(canonical, canonical)
+        assert sqlite_index.resolve_slug(canonical) == canonical
+    finally:
+        _purge_alias(alias)
+
+
+def test_count_and_query_feed_use_alias_resolution():
+    """A query for the alias slug must return rows physically stored under
+    the canonical slug — this is the actual user-visible bug fix."""
+    from engine.index import sqlite_index
+
+    alias, canonical = "phase22-aliasq", "phase22-canonq"
+    article_id = "phase22-aliasq-art1"
+    _purge_alias(alias)
+    with sqlite3.connect(str(DB_PATH)) as conn:
+        conn.execute("DELETE FROM article_index WHERE id = ?", (article_id,))
+        conn.commit()
+
+    try:
+        # Seed an article under canonical slug only. Use direct SQL so
+        # the test isn't coupled to the exact insight-payload schema.
+        sqlite_index.ensure_schema()
+        with sqlite3.connect(str(DB_PATH)) as conn:
+            conn.execute(
+                """
+                INSERT INTO article_index (
+                    id, company_slug, title, source, url, published_at,
+                    tier, materiality, action, relevance_score, impact_score,
+                    esg_pillar, primary_theme, content_type, framework_count,
+                    do_nothing, recommendations_count, json_path, written_at,
+                    ontology_queries
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    article_id, canonical, "Canonical-only article",
+                    "test", "https://example.test/x", "2026-04-30T00:00:00Z",
+                    "HOME", "HIGH", "monitor", 8.0, 7.0,
+                    "Environment", "Climate", "news", 0,
+                    0, 0, "data/outputs/dummy.json", "2026-04-30T00:00:00Z",
+                    0,
+                ),
+            )
+            conn.commit()
+
+        # Without alias: querying the alias slug returns nothing
+        assert sqlite_index.count(company_slug=alias) == 0
+        assert sqlite_index.query_feed(company_slug=alias, limit=10) == []
+
+        # After alias registration: query rewrites and returns the canonical row
+        sqlite_index.register_alias(alias, canonical)
+        assert sqlite_index.count(company_slug=alias) == 1
+        rows = sqlite_index.query_feed(company_slug=alias, limit=10)
+        assert len(rows) == 1
+        assert rows[0]["id"] == article_id
+        assert rows[0]["company_slug"] == canonical
+    finally:
+        _purge_alias(alias)
+        with sqlite3.connect(str(DB_PATH)) as conn:
+            conn.execute("DELETE FROM article_index WHERE id = ?", (article_id,))
+            conn.commit()
+
+
+def test_news_onboarding_status_self_returns_state():
+    """A regular user can ask `/api/news/onboarding-status` for their own
+    slug and receives the live row from `onboarding_status`. The
+    endpoint is NOT super-admin gated (unlike /api/admin/onboard/.../status)."""
+    from engine.models import onboarding_status as os_model
+
+    slug = "phase22-status-self"
+    os_model.upsert(slug, state="analysing", fetched=5, analysed=2, home_count=1)
+    try:
+        client = TestClient(app)
+        r = client.get(
+            f"/api/news/onboarding-status?company_id={slug}",
+            headers={"Authorization": f"Bearer {_client_token(slug)}"},
+        )
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["slug"] == slug
+        assert body["state"] == "analysing"
+        assert body["fetched"] == 5
+        assert body["analysed"] == 2
+        assert body["home_count"] == 1
+    finally:
+        with sqlite3.connect(str(DB_PATH)) as conn:
+            conn.execute("DELETE FROM onboarding_status WHERE slug = ?", (slug,))
+            conn.commit()
+
+
+def test_news_onboarding_status_cross_tenant_denied():
+    """A regular user MUST NOT be able to read another tenant's onboarding
+    progress (slug enumeration). Same gate as /news/feed."""
+    client = TestClient(app)
+    r = client.get(
+        "/api/news/onboarding-status?company_id=icici-bank",
+        headers={"Authorization": f"Bearer {_client_token('yes-bank')}"},
+    )
+    assert r.status_code == 403, r.text
+
+
+def test_news_onboarding_status_falls_back_to_token_slug():
+    """When the caller omits `company_id`, the endpoint should default
+    to the JWT's `company_id` claim. A curated tenant with no
+    `onboarding_status` row returns `state='ready'` so the frontend
+    can treat absence-of-row identically to ready."""
+    client = TestClient(app)
+    r = client.get(
+        "/api/news/onboarding-status",
+        headers={"Authorization": f"Bearer {_client_token('icici-bank')}"},
+    )
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["slug"] == "icici-bank"
+    assert body["state"] == "ready"

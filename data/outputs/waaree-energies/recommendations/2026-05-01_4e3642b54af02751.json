@@ -1,0 +1,163 @@
+{
+  "recommendations": [
+    {
+      "title": "Enhance BRSR and GRI Disclosure for FY26 Filing",
+      "description": "Commission third-party assurance and improve BRSR and GRI disclosures by 2026-05-30 to avoid SEBI scrutiny and trading restrictions, protecting valuation and investor confidence.",
+      "type": "esg_positioning",
+      "responsible_party": "Head of ESG & Compliance",
+      "framework_section": "BRSR:P6, GRI:102-56",
+      "deadline": "2026-05-30",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Avoid potential cost of capital increase by 20-40 bps and P/E compression losses estimated at ₹50-100 Cr",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 9,
+      "roi_percentage": 400.0,
+      "payback_months": 12.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "Non-disclosure risks SEBI scrutiny and trading restrictions"
+        },
+        {
+          "source": "framework",
+          "ref": "GRI:102-56",
+          "value": "GRI disclosure quality impacts ESG ratings and fund inflows"
+        },
+        {
+          "source": "article",
+          "ref": "SEBI scrutiny risk",
+          "value": "Article highlights risk of disclosure non-compliance"
+        }
+      ]
+    },
+    {
+      "title": "Issue ₹3,000 Cr Green Bonds by 2026-12-31",
+      "description": "Leverage the ₹30,000 Cr full-stack energy capex to issue green bonds worth ₹3,000 Cr to access lower-cost capital pools, reducing cost of capital by 20-40 bps as per BRSR guidelines. This aligns with EU Taxonomy and enhances investor appeal.",
+      "type": "financial",
+      "responsible_party": "CFO",
+      "framework_section": "BRSR:P6:Q14, EU Taxonomy",
+      "deadline": "2026-12-31",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "₹60-120 Cr annual interest cost savings at 20-40 bps lower yield on ₹3,000 Cr green bonds",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 300.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Tata Power issued ₹5,000 Cr green bonds achieving P/E rerating",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6:Q14",
+          "value": "BRSR links green financing to 20-40 bps cost of capital reduction"
+        },
+        {
+          "source": "article",
+          "ref": "₹30,000 Cr capex",
+          "value": "Article states ₹30,000 Cr full-stack energy investment"
+        },
+        {
+          "source": "peer",
+          "ref": "Tata Power green bond",
+          "value": "Competitor Tata Power issued ₹5,000 Cr green bonds"
+        }
+      ]
+    },
+    {
+      "title": "Monitor Energy Price Shock; Escalate if ΔEP ≥ 25% YoY",
+      "description": "Implement monitoring of energy price changes monthly; escalate to management if energy price shock threshold (≥25% YoY increase) is breached within 6 months to adjust procurement and hedging strategies.",
+      "type": "operational",
+      "responsible_party": "Head of Risk Management",
+      "framework_section": "BRSR:P6, Causal Primitives: Energy price shock τ",
+      "deadline": "2026-10-13",
+      "estimated_budget": "₹0.1-0.3 Cr",
+      "profitability_link": "Mitigates risk of cost overruns and margin erosion potentially impacting ₹500-700 Cr capex returns",
+      "priority": "MEDIUM",
+      "urgency": "medium_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 4,
+      "roi_percentage": 150.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "primitive",
+          "ref": "Energy price shock τ",
+          "value": "Threshold ΔEP ≥ 25% YoY for escalation"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "Operational risk monitoring recommended under BRSR"
+        },
+        {
+          "source": "article",
+          "ref": "₹30,000 Cr capex exposure",
+          "value": "Large capex exposure necessitates price risk monitoring"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 1,
+        "title": "Issue ₹3,000 Cr Green Bonds by 2026-12-31",
+        "type": "financial",
+        "roi": 300.0,
+        "budget": "₹1-2 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 0,
+        "title": "Enhance BRSR and GRI Disclosure for FY26 Filing",
+        "type": "esg_positioning",
+        "roi": 400.0,
+        "budget": "₹0.5-1 Cr"
+      }
+    ],
+    "deferred_high": [],
+    "deferred_low": [
+      {
+        "index": 2,
+        "title": "Monitor Energy Price Shock; Escalate if ΔEP ≥ 25% YoY",
+        "type": "operational",
+        "roi": 150.0,
+        "budget": "₹0.1-0.3 Cr"
+      }
+    ]
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      0,
+      1,
+      2
+    ],
+    "ceo": [
+      0,
+      2,
+      1
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}

@@ -123,12 +123,19 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
         onboarding_status.upsert(canonical_slug, state="analysing", fetched=len(fresh))
         logger.info("[onboard %s] fetched %d articles", canonical_slug, len(fresh))
 
-        # Stage 3: run each article through the full 12-stage pipeline
+        # Stage 3: run each article through the full 12-stage pipeline.
+        # Phase 22.1 — only count NON-rejected articles in `analysed` so
+        # the dashboard's "fetched/analysed" stats match the indexed
+        # rows the user will actually see. Pre-fix: a German prospect
+        # whose 2 articles were both relevance-rejected showed
+        # "ready 2/2 analysed" but the feed was empty.
+        attempted = 0
         analysed = 0
         home_count = 0
         for article in fresh:
-            if analysed >= limit:
+            if attempted >= limit:
                 break
+            attempted += 1
             article_dict = {
                 "id": article.id,
                 "title": article.title,
@@ -141,14 +148,24 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
             }
             try:
                 summary = _run_article(article_dict, company_obj)
-                analysed += 1
-                if summary.tier == "HOME":
-                    home_count += 1
+                if not summary.rejected:
+                    analysed += 1
+                    if summary.tier == "HOME":
+                        home_count += 1
                 onboarding_status.upsert(canonical_slug, analysed=analysed, home_count=home_count)
             except Exception as exc:
                 logger.exception("[onboard %s] article %s failed: %s", canonical_slug, article.id, exc)
                 # Continue with the rest — one bad article shouldn't fail the whole onboarding.
                 continue
+
+        # Phase 22.1 — register the alias→canonical mapping so the
+        # user's session (JWT bound to `alias_slug` from the login-time
+        # domain stem) transparently reads the article_index rows the
+        # pipeline wrote under `canonical_slug`. Without this the
+        # dashboard stays empty even when the analysis succeeded.
+        if alias_slug:
+            from engine.index import sqlite_index
+            sqlite_index.register_alias(alias_slug, canonical_slug)
 
         onboarding_status.mark_ready(canonical_slug,
                                      fetched=len(fresh),
@@ -162,7 +179,8 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
                                          fetched=len(fresh),
                                          analysed=analysed,
                                          home_count=home_count)
-        logger.info("[onboard %s] done: %d analysed, %d HOME", canonical_slug, analysed, home_count)
+        logger.info("[onboard %s] done: %d/%d analysed (rejected %d), %d HOME",
+                    canonical_slug, analysed, attempted, attempted - analysed, home_count)
     except Exception as exc:
         logger.exception("[onboard] unexpected failure: %s", exc)
         tb = traceback.format_exc()[:500]

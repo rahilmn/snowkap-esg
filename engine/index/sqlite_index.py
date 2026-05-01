@@ -83,6 +83,17 @@ CREATE INDEX IF NOT EXISTS idx_tier
 
 CREATE INDEX IF NOT EXISTS idx_content_type
     ON article_index(content_type);
+
+-- Phase 22.1 — Alias slugs for tenants whose login-time slug ("puma", from
+-- the email domain) differs from the canonical slug yfinance assigns
+-- ("puma-se" for "PUMA SE"). The login JWT is bound to the alias, but
+-- the analysis pipeline writes article_index rows under the canonical
+-- slug. resolve_slug() unifies them at read time so the user's queries
+-- find their own data without re-issuing the JWT.
+CREATE TABLE IF NOT EXISTS slug_aliases (
+    alias     TEXT PRIMARY KEY,
+    canonical TEXT NOT NULL
+);
 """
 
 
@@ -282,7 +293,7 @@ def query_feed(
     params: dict[str, Any] = {"limit": limit, "offset": offset}
     if company_slug:
         clauses.append("company_slug = :company_slug")
-        params["company_slug"] = company_slug
+        params["company_slug"] = resolve_slug(company_slug)
     if tier:
         clauses.append("tier = :tier")
         params["tier"] = tier
@@ -296,6 +307,38 @@ def query_feed(
     with _connect() as conn:
         rows = conn.execute(sql, params).fetchall()
         return [dict(r) for r in rows]
+
+
+def register_alias(alias: str, canonical: str) -> None:
+    """Map an alias slug to its canonical slug.
+
+    Phase 22.1 — called from `_background_onboard` once yfinance returns
+    the canonical company name (e.g. login slug "puma" → canonical
+    "puma-se"). All subsequent read queries against `alias` are
+    transparently rewritten to `canonical` via `resolve_slug`. A no-op
+    when alias == canonical.
+    """
+    if not alias or not canonical or alias == canonical:
+        return
+    ensure_schema()
+    with _connect() as conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO slug_aliases (alias, canonical) VALUES (?, ?)",
+            (alias, canonical),
+        )
+
+
+def resolve_slug(slug: str | None) -> str | None:
+    """Return the canonical slug for `slug`, or `slug` itself if it isn't
+    an alias. Read-only — never raises. None passes through."""
+    if not slug:
+        return slug
+    ensure_schema()
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT canonical FROM slug_aliases WHERE alias = ?", (slug,)
+        ).fetchone()
+        return row[0] if row else slug
 
 
 def get_by_id(article_id: str) -> dict[str, Any] | None:
@@ -313,7 +356,7 @@ def count(company_slug: str | None = None, tier: str | None = None) -> int:
     params: list[Any] = []
     if company_slug:
         clauses.append("company_slug = ?")
-        params.append(company_slug)
+        params.append(resolve_slug(company_slug))
     if tier:
         clauses.append("tier = ?")
         params.append(tier)
@@ -335,7 +378,7 @@ def count_high_impact(company_slug: str | None = None) -> int:
     params: list[Any] = []
     if company_slug:
         clause += " AND company_slug = ?"
-        params.append(company_slug)
+        params.append(resolve_slug(company_slug))
     with _connect() as conn:
         return int(conn.execute(f"SELECT COUNT(*) FROM article_index {clause}", params).fetchone()[0])
 
@@ -347,7 +390,7 @@ def count_new_last_24h(company_slug: str | None = None) -> int:
     params: list[Any] = []
     if company_slug:
         clauses.append("company_slug = ?")
-        params.append(company_slug)
+        params.append(resolve_slug(company_slug))
     where = "WHERE " + " AND ".join(clauses)
     with _connect() as conn:
         return int(conn.execute(f"SELECT COUNT(*) FROM article_index {where}", params).fetchone()[0])
@@ -372,7 +415,7 @@ def count_active_signals(company_slug: str | None = None, days: int = 7) -> int:
     params: list[Any] = [f"-{int(max(1, days))} days"]
     if company_slug:
         clauses.append("company_slug = ?")
-        params.append(company_slug)
+        params.append(resolve_slug(company_slug))
     where = "WHERE " + " AND ".join(clauses)
     with _connect() as conn:
         return int(conn.execute(f"SELECT COUNT(*) FROM article_index {where}", params).fetchone()[0])

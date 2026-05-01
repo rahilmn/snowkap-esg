@@ -34,6 +34,44 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
   `permissions:["super_admin"]` or another tenant's `company_id` and
   bypass the Phase 22 tenant-scope gate. The Replit secret is set.
 
+## Phase 22.1 — Empty-state honesty for newly-onboarded prospects
+- **Slug aliasing** (`engine/index/sqlite_index.py`): a new
+  `slug_aliases` table stores `alias → canonical` mappings. All read
+  paths (`query_feed`, `count`, `count_high_impact`,
+  `count_new_last_24h`, `count_active_signals`) call
+  `resolve_slug(slug)` so a JWT bound to the login-time slug (e.g.
+  `puma`, derived from the email domain) transparently sees rows the
+  pipeline indexed under the canonical slug yfinance returned (e.g.
+  `puma-se`). Without this the dashboard stayed empty even when the
+  pipeline succeeded. Aliases are registered in
+  `_background_onboard` after the analysis loop completes.
+- **Honest analysed counter**
+  (`api/routes/admin_onboard.py::_background_onboard`): pre-fix,
+  `analysed += 1` ran for every article including ones rejected by the
+  India-only relevance scorer, so a German prospect whose 2 articles
+  were both rejected showed "ready 2/2" but had no feed rows. We now
+  only count `not summary.rejected`, track `attempted` separately, and
+  log both numbers.
+- **Self-service onboarding-status endpoint**
+  (`GET /api/news/onboarding-status` in `api/routes/legacy_adapter.py`):
+  returns `{slug, state, fetched, analysed, home_count, started_at,
+  finished_at, error}` for the caller's own tenant (super-admins may
+  scope to any). Slug enumeration is gated by `_require_tenant_scope`
+  (the same gate as `/news/feed`); the JWT slug is used as the default
+  target so the frontend can poll without args. Curated tenants with
+  no `onboarding_status` row return `state="ready"`.
+- **Frontend empty-state branching** (`client/src/pages/HomePage.tsx`,
+  `client/src/pages/SwipeFeedPage.tsx`): both pages poll
+  `news.onboardingStatus()` every 5 s while state is `pending|fetching|
+  analysing` and stop on `ready|failed`. Empty-state copy now
+  distinguishes (a) "Setting up your dashboard… N/M articles
+  processed" while the pipeline runs, (b) "We searched the web for
+  your company but didn't find ESG-relevant articles in this scan…"
+  when state=ready and total=0, and (c) "We hit a snag onboarding
+  your company" with a Scan Now button when state=failed. Removes the
+  permanent "Fetching ESG intelligence…" spinner that prospects like
+  PUMA hit after onboarding completed with zero relevant articles.
+
 ## Phase 22 — Onboarding & Tenant Gating
 - **Login auto-onboarding** (`api/routes/legacy_adapter.py::auth_login` /
   `auth_returning_user`): every non-super-admin login derives a concrete
