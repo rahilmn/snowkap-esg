@@ -36,15 +36,18 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
 
 ## Phase 22 — Onboarding & Tenant Gating
 - **Login auto-onboarding** (`api/routes/legacy_adapter.py::auth_login` /
-  `auth_returning_user`): every corporate login derives a `company_id`
-  via `_ensure_tenant_for_login`. If the email matches one of the 7
-  hardcoded targets, that slug is returned. Otherwise the prospect is
-  registered in `tenant_registry` immediately and a background task is
-  scheduled (FastAPI `BackgroundTasks` → `_background_onboard` from
-  `api/routes/admin_onboard.py`, idempotent on `onboarding_status`) so
-  the dashboard isn't empty when the user reaches Home. Snowkap-internal
-  domains (`snowkap.com`, `snowkap.co.in`) skip both registration and
-  onboarding — we're the seller, not a customer.
+  `auth_returning_user`): every non-super-admin login derives a concrete
+  `company_id` via `_ensure_tenant_for_login` — the function never
+  returns `None`. If the email matches one of the 7 hardcoded targets,
+  that slug is returned. Otherwise the prospect is registered in
+  `tenant_registry` immediately and a background task is scheduled
+  (FastAPI `BackgroundTasks` → `_background_onboard` from
+  `api/routes/admin_onboard.py`, atomic via
+  `onboarding_status.claim_pending`) so the dashboard isn't empty when
+  the user reaches Home. The ONLY path to `company_id=None` is the
+  super-admin allowlist check (`is_snowkap_super_admin`) at the caller —
+  so a non-allowlisted `@snowkap.co.in` employee correctly lands on
+  their own concrete tenant ("snowkap"), not on the cross-tenant view.
 - **Tenant scope gate** (`_require_tenant_scope` in `legacy_adapter.py`):
   `/api/news/feed` and `/api/news/stats` enforce TWO checks: (a) a
   request with `company_id` null/empty is only allowed for super-admins;
