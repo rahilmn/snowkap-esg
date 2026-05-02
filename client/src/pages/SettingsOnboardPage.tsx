@@ -130,10 +130,11 @@ function SettingsOnboardInner() {
           Personalize Snowkap for any company
         </h1>
         <p style={{ fontSize: 13, color: "#64748B", margin: "8px 0 0", lineHeight: 1.55 }}>
-          Just paste a company website. The system resolves the NSE/BSE ticker,
-          industry, financials, and 28 ESG news queries — then ingests 10 articles
-          and runs them through the full 12-stage analysis pipeline.
-          Typically ready in <strong>~4 minutes</strong>.
+          Just paste a company website. The system auto-detects the listing
+          across NSE / BSE / NYSE / NASDAQ / LSE / Xetra / Euronext / HKEX,
+          fetches financials, and tunes 28 ESG news queries to the company's
+          regulatory region — then runs 10 articles through the full 12-stage
+          analysis pipeline. Typically ready in <strong>~4 minutes</strong>.
         </p>
       </header>
 
@@ -270,9 +271,10 @@ function SettingsOnboardInner() {
       )}
 
       <footer style={{ marginTop: 36, fontSize: 11, color: "#94A3B8", lineHeight: 1.6 }}>
-        India-only V1: NSE / BSE listed companies only. Non-Indian onboarding
-        is on the V2 backlog. Errors typically mean the company name didn't
-        resolve to a yfinance ticker — try the ticker hint field if so.
+        Works for listed companies across NSE, BSE, NYSE, NASDAQ, LSE, Xetra,
+        Euronext, and HKEX. If the resolver picks the wrong listing (or fails
+        to find one), pass an explicit ticker hint — e.g. <code>TATACHEM.NS</code>,
+        <code> AAPL</code>, <code>SAP.DE</code>, <code>BARC.L</code>.
       </footer>
     </div>
   );

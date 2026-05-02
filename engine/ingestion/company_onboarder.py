@@ -124,19 +124,16 @@ def _slugify(name: str) -> str:
     return re.sub(r"-+", "-", s).strip("-")
 
 
-# The 25 common query terms from Phase 1. Industry-specific suffixes are
-# appended after. Every company gets the same 5 topic clusters: SEBI,
-# compliance, labour, climate, land/waste.
-_COMMON_QUERIES = [
-    "{company} SEBI fine",
-    "{company} SEBI penalty",
-    "{company} SEBI show cause",
-    "{company} SEBI enforcement",
-    "{company} BRSR filing",
-    "{company} CSRD",
-    "{company} TCFD disclosure",
-    "{company} climate stress test",
+# Phase 23B — common query terms, region-aware.
+#
+# Universal terms apply to every company. Region-specific terms layer on
+# top so an Indian company gets BRSR + SEBI flavour while an EU company
+# gets CSRD + ESRS flavour, instead of every onboarded company getting
+# the Indian regulator names regardless of HQ.
+_UNIVERSAL_QUERIES = [
+    "{company} ESG rating",
     "{company} climate disclosure",
+    "{company} TCFD disclosure",
     "{company} mandatory disclosure",
     "{company} forced labour",
     "{company} child labour",
@@ -151,9 +148,57 @@ _COMMON_QUERIES = [
     "{company} land acquisition",
     "{company} biodiversity",
     "{company} hazardous waste",
-    "{company} EPR compliance",
-    "{company} ESG rating",
 ]
+
+# Region-specific regulator + framework flavour. Keys must match the values
+# returned by ``_region_for_country`` below.
+_REGIONAL_QUERIES: dict[str, list[str]] = {
+    "INDIA": [
+        "{company} SEBI fine",
+        "{company} SEBI penalty",
+        "{company} SEBI show cause",
+        "{company} SEBI enforcement",
+        "{company} BRSR filing",
+        "{company} climate stress test",
+        "{company} EPR compliance",
+    ],
+    "EU": [
+        "{company} CSRD compliance",
+        "{company} ESRS disclosure",
+        "{company} EU Taxonomy",
+        "{company} CBAM",
+        "{company} SFDR",
+        "{company} EU emissions trading",
+    ],
+    "US": [
+        "{company} SEC climate disclosure",
+        "{company} 10-K ESG",
+        "{company} EPA enforcement",
+        "{company} OSHA citation",
+        "{company} ESG proxy resolution",
+    ],
+    "UK": [
+        "{company} FCA climate disclosure",
+        "{company} SDR sustainability",
+        "{company} UK Modern Slavery Act",
+        "{company} TCFD UK mandatory",
+    ],
+    "APAC": [
+        "{company} climate disclosure",
+        "{company} sustainability bond",
+        "{company} carbon levy",
+    ],
+    "GLOBAL": [
+        "{company} CSRD",
+        "{company} SEC climate disclosure",
+        "{company} CDP disclosure",
+    ],
+}
+
+# Back-compat alias — `_COMMON_QUERIES` was the historical name. Some
+# tests import it. Construct the union so existing callers still see
+# the universal + Indian flavour (matches the previous behaviour).
+_COMMON_QUERIES = _UNIVERSAL_QUERIES + _REGIONAL_QUERIES["INDIA"]
 
 # Phase 17 — industry-specific calibration defaults for onboarded companies.
 # Numbers mirror the hand-calibrated values for the 7 target companies in
@@ -267,14 +312,75 @@ _INDUSTRY_SUFFIXES: dict[str, list[str]] = {
 }
 
 
-def _build_queries(company_name: str, industry: str) -> list[str]:
-    common = [q.format(company=company_name) for q in _COMMON_QUERIES]
+# Phase 23B — country → region bucket. Drives both the regional query
+# flavour above and the framework_matcher's mandatory-rule lookup.
+_COUNTRY_TO_REGION: dict[str, str] = {
+    "India": "INDIA",
+    "United States": "US",
+    "USA": "US",
+    "United Kingdom": "UK",
+    "UK": "UK",
+    # EU member states (the framework_matcher treats this as one bucket
+    # for CSRD / ESRS mandatory rules).
+    "Germany": "EU",
+    "France": "EU",
+    "Netherlands": "EU",
+    "Italy": "EU",
+    "Spain": "EU",
+    "Sweden": "EU",
+    "Belgium": "EU",
+    "Ireland": "EU",
+    "Poland": "EU",
+    "Denmark": "EU",
+    "Finland": "EU",
+    "Austria": "EU",
+    "Portugal": "EU",
+    # APAC sample
+    "Singapore": "APAC",
+    "Australia": "APAC",
+    "Japan": "APAC",
+    "China": "APAC",
+    "Hong Kong": "APAC",
+    "South Korea": "APAC",
+    # Other notable markets
+    "Canada": "US",  # SEC-aligned disclosure; CSA TCFD rules are similar
+    "Switzerland": "EU",  # follows ESRS guidance
+}
+
+
+def _region_for_country(country: str | None) -> str:
+    """Return the framework region bucket for an HQ country.
+
+    Falls back to ``GLOBAL`` (uses CDP / SEC / CSRD as the broadest set)
+    so a newly-onboarded company in an unmapped country still gets
+    sensible regulator-aware queries instead of silently defaulting to
+    the previous Indian flavour.
+    """
+    if not country:
+        return "GLOBAL"
+    return _COUNTRY_TO_REGION.get(country.strip(), "GLOBAL")
+
+
+def _build_queries(
+    company_name: str,
+    industry: str,
+    region: str = "INDIA",
+) -> list[str]:
+    """Compose news-search queries for a company.
+
+    Pulls the universal terms (climate, labour, biodiversity, …) and layers
+    the region-specific regulator + framework flavour on top. Keeps an
+    Indian default for back-compat with the original 7 target companies.
+    """
+    universal = [q.format(company=company_name) for q in _UNIVERSAL_QUERIES]
+    regional_template = _REGIONAL_QUERIES.get(region, _REGIONAL_QUERIES["GLOBAL"])
+    regional = [q.format(company=company_name) for q in regional_template]
     suffixes = _INDUSTRY_SUFFIXES.get(industry, _INDUSTRY_SUFFIXES["Other"])
     industry_specific = [f"{company_name} {s}" for s in suffixes]
     # Dedupe while preserving order
     seen = set()
     out = []
-    for q in common + industry_specific:
+    for q in universal + regional + industry_specific:
         if q in seen:
             continue
         seen.add(q)
@@ -404,10 +510,26 @@ def _resolve_from_domain(domain: str) -> tuple[str, dict] | None:
             if info.get("totalRevenue"):
                 return sym, info
 
-    # Pass 2 — prefer NSE listing with revenue
-    for q in quotes[:8]:
-        sym = q.get("symbol", "")
-        if sym.endswith(".NS"):
+    # Pass 2 — prefer the home-country listing first (NSE for India,
+    # .L for UK, .DE / .F for Germany, …) before falling back to a plain
+    # ticker (which is usually a US-listed ADR for non-US companies).
+    # Phase 23B: previously NSE-only, which silently broke onboarding for
+    # any non-Indian company. Plain-ticker ("") is intentionally LAST so
+    # that e.g. SAP.DE wins over the SAP NYSE ADR when both appear in
+    # the search hits.
+    preferred_suffixes = (".NS", ".BO", ".L", ".DE", ".PA", ".AS", ".F", ".T", ".HK", ".SS", "")
+    for suffix in preferred_suffixes:
+        for q in quotes[:8]:
+            sym = q.get("symbol", "")
+            if not sym:
+                continue
+            # Empty suffix matches plain (no-dot) tickers like AAPL, MSFT.
+            matches = (
+                (suffix == "" and "." not in sym)
+                or (suffix and sym.endswith(suffix))
+            )
+            if not matches:
+                continue
             try:
                 tk = yf.Ticker(sym)
                 info = tk.info or {}
@@ -416,7 +538,7 @@ def _resolve_from_domain(domain: str) -> tuple[str, dict] | None:
             except Exception:
                 continue
 
-    # Pass 3 — first hit with revenue
+    # Pass 3 — first hit with revenue (any exchange, last resort)
     for q in quotes[:8]:
         sym = q.get("symbol", "")
         if not sym:
@@ -610,15 +732,61 @@ def onboard_company(
     if fin:
         calibration.update(fin.to_calibration_dict(calibration))
 
-    # 5. News queries
-    queries = _build_queries(resolved_name, industry)
-
-    # 6. Domain + HQ heuristics
-    hq_city = info.get("city") or "Mumbai"
+    # 6. Domain + HQ heuristics. Compute country/region BEFORE queries so
+    # `_build_queries` can pick the right regional flavour (Phase 23B).
+    # yfinance gives back a free-form country string ("United States",
+    # "Germany", "India" …) which we map onto our region buckets.
     hq_country = info.get("country") or "India"
-    hq_region = "Asia-Pacific" if hq_country == "India" else "Other"
+    region = _region_for_country(hq_country)
+    # Phase 23B fix: ``headquarter_region`` is a free-form label, but
+    # ``framework_matcher._region_key()`` does a substring match on it
+    # (``"eu" in region`` returns True for "Europe"). Keep UK distinct so
+    # UK companies don't silently get tagged as EU by the framework
+    # matcher and inherit CSRD / ESRS mandatory rules they shouldn't.
+    hq_region_label = {
+        "INDIA": "Asia-Pacific",
+        "APAC": "Asia-Pacific",
+        "EU": "Europe",
+        "UK": "United Kingdom",
+        "US": "Americas",
+        "GLOBAL": "Other",
+    }.get(region, "Other")
 
-    # 7. Build company entry
+    # Pick a sensible default city if yfinance didn't return one. Use a
+    # country-anchored default instead of always "Mumbai".
+    _DEFAULT_CITY_BY_REGION = {
+        "INDIA": "Mumbai",
+        "EU": "Frankfurt",
+        "UK": "London",
+        "US": "New York",
+        "APAC": "Singapore",
+        "GLOBAL": "Unknown",
+    }
+    hq_city = info.get("city") or _DEFAULT_CITY_BY_REGION.get(region, "Unknown")
+
+    # 5. News queries — region-aware so a US company gets SEC + EPA
+    # flavour instead of SEBI / BRSR.
+    queries = _build_queries(resolved_name, industry, region=region)
+
+    # 7. Build company entry. ``listing_exchange`` is now derived from the
+    # actual ticker suffix instead of an India-only NSE/BSE binary.
+    _EXCHANGE_BY_SUFFIX = {
+        ".NS": "NSE",
+        ".BO": "BSE",
+        ".L": "LSE",
+        ".DE": "Xetra",
+        ".F": "Frankfurt",
+        ".PA": "Euronext Paris",
+        ".AS": "Euronext Amsterdam",
+        ".T": "TSE",
+        ".HK": "HKEX",
+        ".SS": "SSE",
+    }
+    listing_exchange = "NASDAQ/NYSE"  # plain ticker (AAPL, MSFT) → US listing
+    for suffix, exch in _EXCHANGE_BY_SUFFIX.items():
+        if ticker.endswith(suffix):
+            listing_exchange = exch
+            break
     entry = {
         "name": resolved_name,
         "slug": slug,
@@ -626,10 +794,11 @@ def onboard_company(
         "industry": industry,
         "sasb_category": sasb_category,
         "market_cap": cap_tier,
-        "listing_exchange": "NSE" if ticker.endswith(".NS") else "BSE",
+        "listing_exchange": listing_exchange,
         "headquarter_city": hq_city,
         "headquarter_country": hq_country,
-        "headquarter_region": hq_region,
+        "headquarter_region": hq_region_label,
+        "framework_region": region,
         "news_queries": queries,
         "primitive_calibration": calibration,
         "yfinance_ticker": ticker,
