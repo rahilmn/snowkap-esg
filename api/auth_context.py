@@ -1,16 +1,11 @@
 """Bearer-token context helpers for the running api/ stack.
 
-Phase 11A — Signed JWT verification.
+Phase 11A — Signed JWT verification (strict).
 
-Tokens are now minted by `legacy_adapter.auth_login` with `HS256` signatures
+Tokens are minted by `legacy_adapter.auth_login` with `HS256` signatures
 using the `JWT_SECRET` env var (PyJWT). `decode_bearer` verifies the
-signature before trusting any claims.
-
-Back-compat window (24h from the flip): if `REQUIRE_SIGNED_JWT` env var is
-unset OR falsy, unsigned base64 tokens are still accepted (with a warning
-logged) so existing sessionStorage tokens keep working. Once the last
-unsigned client is flushed, set `REQUIRE_SIGNED_JWT=1` to reject unsigned
-with 401.
+signature before trusting any claims — unsigned tokens are always
+rejected (return `{}`).
 
 This module provides:
   * `mint_bearer(claims, exp_days=7)` — sign + return token string for /login
@@ -23,8 +18,6 @@ This module provides:
 
 from __future__ import annotations
 
-import base64
-import json
 import logging
 import os
 import time
@@ -36,10 +29,6 @@ from fastapi import Depends, Header, HTTPException, status
 logger = logging.getLogger(__name__)
 
 
-def _pad_b64(s: str) -> str:
-    return s + "=" * (-len(s) % 4)
-
-
 def _jwt_secret() -> str:
     """Read JWT_SECRET from env. Refusing to sign without one is explicit."""
     secret = os.environ.get("JWT_SECRET", "").strip()
@@ -48,11 +37,6 @@ def _jwt_secret() -> str:
             "JWT_SECRET env var is empty. Set it before minting / verifying tokens."
         )
     return secret
-
-
-def _require_signed() -> bool:
-    """Feature flag. When truthy, unsigned tokens are rejected with 401."""
-    return os.environ.get("REQUIRE_SIGNED_JWT", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def mint_bearer(claims: dict[str, Any], exp_days: int = 7) -> str:
@@ -67,36 +51,14 @@ def mint_bearer(claims: dict[str, Any], exp_days: int = 7) -> str:
     return token if isinstance(token, str) else token.decode("utf-8")
 
 
-def _unsigned_decode(token: str) -> dict[str, Any]:
-    """Fallback path: base64-decode the payload without signature check.
-
-    Kept for the back-compat window. Logs a warning and tags the claims dict
-    with `_unsigned: True` so downstream callers can observe the legacy path.
-    """
-    segments = token.split(".")
-    if len(segments) < 2:
-        return {}
-    try:
-        payload_bytes = base64.urlsafe_b64decode(_pad_b64(segments[1]))
-        payload = json.loads(payload_bytes.decode("utf-8"))
-        if isinstance(payload, dict):
-            payload["_unsigned"] = True
-            return payload
-        return {}
-    except (ValueError, json.JSONDecodeError):
-        return {}
-
-
 def decode_bearer(authorization: str | None) -> dict[str, Any]:
     """Verify + decode a Bearer JWT. Returns {} on failure — never raises.
 
     Verification path:
       1. Parse `Bearer <token>` header.
-      2. Try `jwt.decode` with HS256 + secret → if OK, return claims.
-      3. If signature fails AND `REQUIRE_SIGNED_JWT` is falsy, fall back to
-         unsigned base64 decode (legacy compat). Log a warning.
-      4. If signature fails AND `REQUIRE_SIGNED_JWT` is truthy → return {}.
-      5. Expired tokens always return {} (reject even in compat mode).
+      2. `jwt.decode` with HS256 + secret. Anything that isn't a valid
+         HS256-signed token (unsigned, tampered, expired, malformed) returns
+         {}. There is no compat fallback.
     """
     if not authorization:
         return {}
@@ -114,7 +76,6 @@ def decode_bearer(authorization: str | None) -> dict[str, Any]:
         logger.error("decode_bearer: JWT_SECRET missing, refusing to decode")
         return {}
 
-    # 1) Try signed verification
     try:
         claims = _jwt.decode(token, secret, algorithms=["HS256"])
         if isinstance(claims, dict):
@@ -124,27 +85,14 @@ def decode_bearer(authorization: str | None) -> dict[str, Any]:
         logger.info("decode_bearer: token expired")
         return {}
     except _jwt.InvalidSignatureError:
-        # Signature mismatch — could be legacy unsigned OR forged.
-        pass
+        logger.info("decode_bearer: invalid signature, token rejected")
+        return {}
     except _jwt.DecodeError:
-        # Malformed JWT structure — could still be legacy base64-only.
-        pass
+        logger.info("decode_bearer: malformed token, rejected")
+        return {}
     except Exception as exc:  # defensive — never crash auth path
         logger.warning("decode_bearer: jwt.decode raised %s: %s", type(exc).__name__, exc)
-
-    # 2) Compat fallback (only if env flag is NOT set to strict)
-    if _require_signed():
-        logger.info("decode_bearer: unsigned token rejected (REQUIRE_SIGNED_JWT on)")
         return {}
-
-    claims = _unsigned_decode(token)
-    if claims:
-        logger.warning(
-            "decode_bearer: accepted UNSIGNED legacy token (sub=%s). "
-            "Set REQUIRE_SIGNED_JWT=1 when every client has refreshed.",
-            claims.get("sub", "?"),
-        )
-    return claims
 
 
 def get_bearer_claims(

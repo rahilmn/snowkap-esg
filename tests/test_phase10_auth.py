@@ -10,9 +10,12 @@ Covers:
 
 from __future__ import annotations
 
-import base64
-import json
+import os
 from unittest.mock import patch
+
+# decode_bearer / mint_bearer require JWT_SECRET. Set a stable test value
+# before importing api.auth_context so module-level import paths see it.
+os.environ.setdefault("JWT_SECRET", "test-secret-xxxxxxxxxxxxxxxxxxxxxx")
 
 from fastapi.testclient import TestClient
 
@@ -20,6 +23,7 @@ from api.auth_context import (
     SUPER_ADMIN_PERMISSIONS,
     decode_bearer,
     is_snowkap_super_admin,
+    mint_bearer,
 )
 from api.main import app
 
@@ -61,9 +65,8 @@ def test_super_admin_accepts_both_internal_domains():
 
 
 def _mint(claims: dict) -> str:
-    header = base64.urlsafe_b64encode(b'{"alg":"none","typ":"JWT"}').rstrip(b"=").decode()
-    payload = base64.urlsafe_b64encode(json.dumps(claims).encode()).rstrip(b"=").decode()
-    return f"Bearer {header}.{payload}."
+    """Mint a signed bearer-header value using the production helper."""
+    return f"Bearer {mint_bearer(claims)}"
 
 
 def test_decode_bearer_roundtrip():
@@ -78,7 +81,22 @@ def test_decode_bearer_malformed_returns_empty():
     assert decode_bearer("") == {}
     assert decode_bearer("NotBearer abc") == {}
     assert decode_bearer("Bearer not-a-jwt") == {}
-    assert decode_bearer("Bearer a.b.c.d.e") != {} or True  # still parses payload segment
+    # Garbage with the right number of dots is also rejected (no signature).
+    assert decode_bearer("Bearer a.b.c.d.e") == {}
+
+
+def test_decode_bearer_rejects_unsigned_token():
+    """Regression guard: legacy `alg:none` base64 tokens MUST be rejected
+    so a future env regression cannot re-open the cross-tenant bypass."""
+    import base64
+    import json
+
+    header = base64.urlsafe_b64encode(b'{"alg":"none","typ":"JWT"}').rstrip(b"=").decode()
+    payload = base64.urlsafe_b64encode(
+        json.dumps({"sub": "attacker@evil.test", "permissions": ["super_admin"]}).encode()
+    ).rstrip(b"=").decode()
+    unsigned = f"Bearer {header}.{payload}."
+    assert decode_bearer(unsigned) == {}
 
 
 # ---------------------------------------------------------------------------
@@ -192,9 +210,18 @@ def test_share_preview_endpoint_rejects_regular_user():
     assert r.status_code == 403
 
 
-def test_share_endpoint_missing_token_rejects():
+def test_share_endpoint_missing_token_rejects(monkeypatch):
+    """No Authorization header at all → 403 (no permissions claim).
+
+    Explicitly clears the strict-mode signals (`SNOWKAP_API_KEY`,
+    `REQUIRE_SIGNED_JWT`) so the test asserts the permission-gate
+    behaviour deterministically — without this, an outer environment
+    that has either flag set would surface 401 from `require_auth`
+    before the permission gate ever fires.
+    """
+    monkeypatch.delenv("SNOWKAP_API_KEY", raising=False)
+    monkeypatch.delenv("REQUIRE_SIGNED_JWT", raising=False)
     client = TestClient(app)
-    # No Authorization header at all — still 403 (no permissions claim)
     r = client.post(
         "/api/news/any-article-id/share",
         json={"recipient_email": "target@example.com"},

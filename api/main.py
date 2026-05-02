@@ -118,13 +118,6 @@ def _check_production_env() -> None:
     if jwt_secret and len(jwt_secret) < 32:
         missing.append("  - JWT_SECRET is set but shorter than 32 chars (weak HS256)")
 
-    # Recommend REQUIRE_SIGNED_JWT=1 in prod so the unsigned compat window
-    # doesn't silently linger.
-    if os.environ.get("REQUIRE_SIGNED_JWT", "").strip() not in {"1", "true", "yes"}:
-        missing.append(
-            "  - REQUIRE_SIGNED_JWT is not '1' (unsigned JWTs still accepted in prod)"
-        )
-
     if missing:
         msg = (
             "SNOWKAP_ENV=production but required secrets are missing or "

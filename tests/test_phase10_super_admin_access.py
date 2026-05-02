@@ -12,17 +12,21 @@ Covers:
 
 from __future__ import annotations
 
-import base64
 import json
+import os
 import sqlite3
 import uuid
 from pathlib import Path
 from unittest.mock import patch
 
+# decode_bearer / mint_bearer require JWT_SECRET. Set a stable test value
+# before importing api.auth_context so module-level import paths see it.
+os.environ.setdefault("JWT_SECRET", "test-secret-xxxxxxxxxxxxxxxxxxxxxx")
+
 import pytest
 from fastapi.testclient import TestClient
 
-from api.auth_context import SUPER_ADMIN_PERMISSIONS
+from api.auth_context import SUPER_ADMIN_PERMISSIONS, mint_bearer
 from api.main import app
 from engine.config import get_data_path
 from engine.index.sqlite_index import DB_PATH, upsert_article
@@ -34,9 +38,8 @@ from engine.index.sqlite_index import DB_PATH, upsert_article
 
 
 def _mint(claims: dict) -> str:
-    header = base64.urlsafe_b64encode(b'{"alg":"none","typ":"JWT"}').rstrip(b"=").decode()
-    payload = base64.urlsafe_b64encode(json.dumps(claims).encode()).rstrip(b"=").decode()
-    return f"Bearer {header}.{payload}."
+    """Mint a signed bearer-header value using the production helper."""
+    return f"Bearer {mint_bearer(claims)}"
 
 
 def _admin_token() -> str:

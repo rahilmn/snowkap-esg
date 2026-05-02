@@ -5,8 +5,7 @@ Covers:
   * decode_bearer() accepts valid signed tokens
   * decode_bearer() rejects tokens with tampered signatures
   * decode_bearer() rejects expired tokens
-  * Legacy unsigned tokens accepted during compat window
-  * Unsigned tokens rejected when REQUIRE_SIGNED_JWT=1
+  * Unsigned tokens are always rejected (legacy compat window removed)
   * /api/auth/login now returns a signed token
 """
 
@@ -79,7 +78,7 @@ def test_mint_bearer_requires_secret():
 
 
 def test_decode_rejects_tampered_signature():
-    with _env_with_secret(REQUIRE_SIGNED_JWT="1"):
+    with _env_with_secret():
         token = mint_bearer({"sub": "x", "permissions": ["super_admin"]})
         # Flip one character in the signature segment
         header, payload, sig = token.split(".")
@@ -88,8 +87,8 @@ def test_decode_rejects_tampered_signature():
         assert decode_bearer(tampered) == {}
 
 
-def test_decode_rejects_expired_token_even_in_compat_mode():
-    """Expired tokens are always rejected — compat mode doesn't override exp."""
+def test_decode_rejects_expired_token():
+    """Expired tokens are always rejected."""
     with _env_with_secret():
         now = int(time.time())
         # Manually craft an expired but otherwise valid token
@@ -104,32 +103,36 @@ def test_decode_rejects_expired_token_even_in_compat_mode():
 def test_decode_rejects_wrong_secret():
     """Token signed with different secret is rejected."""
     other = _jwt.encode({"sub": "x"}, "other-secret", algorithm="HS256")
-    with _env_with_secret(REQUIRE_SIGNED_JWT="1"):
+    with _env_with_secret():
         assert decode_bearer(f"Bearer {other}") == {}
 
 
 # ---------------------------------------------------------------------------
-# Compat window
+# Unsigned-token rejection (compat window removed — Task #4)
 # ---------------------------------------------------------------------------
 
 
-def test_compat_mode_accepts_legacy_unsigned_tokens():
-    """Until REQUIRE_SIGNED_JWT is flipped, legacy unsigned tokens pass."""
-    unsigned = _mint_unsigned({"sub": "legacy@x.com", "permissions": ["read"]})
-    with _env_with_secret():  # REQUIRE_SIGNED_JWT unset → compat on
-        claims = decode_bearer(f"Bearer {unsigned}")
-    assert claims.get("sub") == "legacy@x.com"
-    assert claims.get("_unsigned") is True, "legacy path should tag claims"
+def test_unsigned_tokens_always_rejected():
+    """Legacy `alg:none` base64 tokens are unconditionally rejected.
 
-
-def test_strict_mode_rejects_legacy_unsigned_tokens():
+    The pre-Phase-11 compat fallback in `decode_bearer` is gone — there is
+    no env flag that can re-enable it, so a future config regression cannot
+    silently re-open the cross-tenant bypass.
+    """
     unsigned = _mint_unsigned({"sub": "legacy@x.com", "permissions": ["read"]})
-    with _env_with_secret(REQUIRE_SIGNED_JWT="1"):
+    # No env flag, with secret set
+    with _env_with_secret():
+        assert decode_bearer(f"Bearer {unsigned}") == {}
+    # Even setting the old REQUIRE_SIGNED_JWT flag back to empty/0 must NOT
+    # re-enable the unsigned path — the helper has been deleted entirely.
+    with _env_with_secret(REQUIRE_SIGNED_JWT=""):
+        assert decode_bearer(f"Bearer {unsigned}") == {}
+    with _env_with_secret(REQUIRE_SIGNED_JWT="0"):
         assert decode_bearer(f"Bearer {unsigned}") == {}
 
 
-def test_strict_mode_still_accepts_valid_signed_tokens():
-    with _env_with_secret(REQUIRE_SIGNED_JWT="1"):
+def test_signed_tokens_still_accepted():
+    with _env_with_secret():
         token = mint_bearer({"sub": "x", "permissions": ["super_admin"]})
         claims = decode_bearer(f"Bearer {token}")
     assert claims["sub"] == "x"

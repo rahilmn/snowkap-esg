@@ -10,10 +10,10 @@ Two modes:
     * ``Authorization: Bearer <jwt>`` where the JWT is signed with
       ``JWT_SECRET`` — verified via ``api.auth_context.decode_bearer``.
 
-Phase 11A tightened this: previously any non-empty Bearer string passed.
-Now the Bearer path verifies the signature. Legacy unsigned tokens still
-work during the compat window (controlled by ``REQUIRE_SIGNED_JWT`` env flag
-— see ``api.auth_context``).
+``decode_bearer`` only accepts HS256-signed tokens; unsigned/legacy
+``alg:none`` tokens are always rejected (Task #4). ``REQUIRE_SIGNED_JWT``
+here is just the strict-mode toggle for whether ``require_auth`` enforces
+authentication on every request — it no longer affects the decoder.
 """
 
 from __future__ import annotations
@@ -56,9 +56,9 @@ def require_auth(
     if authorization:
         claims = decode_bearer(authorization)
         if claims:
-            # claims may be signed OR unsigned-in-compat-window. Either way,
-            # decode_bearer vetoed tampered signatures, expired tokens,
-            # and (when REQUIRE_SIGNED_JWT=1) unsigned legacy tokens.
+            # decode_bearer vetoes tampered signatures, expired tokens,
+            # and unsigned legacy tokens — only HS256-signed tokens reach
+            # here with non-empty claims.
             return
 
     raise HTTPException(
