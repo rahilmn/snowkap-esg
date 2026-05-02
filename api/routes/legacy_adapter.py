@@ -39,6 +39,8 @@ from api.auth_context import (
     is_snowkap_super_admin,
     mint_bearer,
 )
+from api import auth_otp
+from api.rate_limit import LOGIN_LIMITER, LOGIN_PER_HOUR, LOGIN_PER_MIN
 from engine.config import Company, get_data_path, load_companies, load_settings
 from engine.index import tenant_registry
 from engine.index import sqlite_index
@@ -773,68 +775,40 @@ def _slug_for_company(name: str | None, domain: str | None = None) -> str | None
     return None
 
 
-@router.post("/auth/login")
-def auth_login(body: LoginIn, background: BackgroundTasks) -> dict[str, Any]:
-    # Phase 10: Snowkap internal emails on the allowlist get super-admin perms,
-    # which unlock the CompanySwitcher, RoleViewSwitcher, and /settings/campaigns.
-    is_super = is_snowkap_super_admin(body.email)
-    permissions = (
-        list(SUPER_ADMIN_PERMISSIONS)
-        if is_super
-        else ["read", "chat", "view_analysis", "view_news"]
-    )
+def _enforce_login_rate_limit(scope: str, email: str, request: Request) -> None:
+    """Phase 22.3 — token-bucket throttle on /auth/login + /auth/verify.
 
-    # Phase 22: every corporate login lands on its OWN company. For new
-    # prospects we register the tenant immediately AND kick off the
-    # onboarding pipeline (yfinance → news fetch → 12-stage analysis)
-    # so the dashboard isn't empty by the time they swipe to Home.
-    # Super-admin logins (sales@snowkap.co.in) skip this — they get
-    # company_id=None and see the cross-tenant "All Companies" view.
-    if is_super:
-        company_slug: str | None = None
-    else:
-        company_slug = _ensure_tenant_for_login(
-            body_email=body.email,
-            body_domain=body.domain,
-            body_company_name=body.company_name,
-            background=background,
+    Keyed by both ``email`` AND client IP so a brute-forcer can't hop
+    between accounts on a single IP, and a shared NAT egress can't take
+    out an entire customer. 5 attempts/min, 20/hr per key.
+    """
+    client_ip = request.client.host if request.client else "unknown"
+    for key in (f"email:{email}", f"ip:{client_ip}"):
+        ok, retry_after = LOGIN_LIMITER.check(
+            scope, key, max_per_minute=LOGIN_PER_MIN, max_per_hour=LOGIN_PER_HOUR,
         )
-
-    claims = {
-        "sub": body.email,
-        "name": body.name,
-        "company": body.company_name,
-        "designation": body.designation,
-        "permissions": permissions,
-        # Phase 22: bind the user to a single tenant in the JWT itself so
-        # /news/feed et al. can reject cross-tenant requests by slug
-        # enumeration. Super-admins keep `company_id=None` so they can
-        # query any tenant.
-        "company_id": company_slug,
-        "iat": int(time.time()),
-        "exp": int(time.time()) + 86400 * 30,
-    }
-    token = _mint_token(claims)
-    return {
-        "token": token,
-        "user_id": body.email,
-        "tenant_id": "snowkap-dev",
-        "company_id": company_slug,
-        "designation": body.designation,
-        "permissions": permissions,
-        "domain": body.domain,
-        "name": body.name,
-    }
+        if not ok:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Too many attempts. Retry after {retry_after}s.",
+                headers={"Retry-After": str(retry_after)},
+            )
 
 
-class ReturningUserIn(BaseModel):
-    email: str
+def _mint_login_response(
+    *,
+    email: str,
+    name: str | None,
+    company_name: str | None,
+    designation: str | None,
+    domain: str | None,
+    background: BackgroundTasks,
+) -> dict[str, Any]:
+    """Shared JWT-mint path used by both legacy direct-login and OTP verify.
 
-
-@router.post("/auth/returning-user")
-def auth_returning_user(body: ReturningUserIn, background: BackgroundTasks) -> dict[str, Any]:
-    email = body.email.strip()
-    domain = email.split("@")[-1] if "@" in email else ""
+    Extracted so the OTP flow doesn't drift from the legacy flow's
+    permission + tenant-binding semantics.
+    """
     is_super = is_snowkap_super_admin(email)
     permissions = (
         list(SUPER_ADMIN_PERMISSIONS)
@@ -846,15 +820,18 @@ def auth_returning_user(body: ReturningUserIn, background: BackgroundTasks) -> d
     else:
         company_slug = _ensure_tenant_for_login(
             body_email=email,
-            body_domain=domain,
-            body_company_name=None,
+            body_domain=domain or (email.split("@")[-1] if "@" in email else ""),
+            body_company_name=company_name,
             background=background,
         )
+    display_name = name or email.split("@")[0].title()
     claims = {
         "sub": email,
-        "name": email.split("@")[0].title(),
+        "name": display_name,
+        "company": company_name,
+        "designation": designation,
         "permissions": permissions,
-        "company_id": company_slug,  # Phase 22 tenant-scope binding
+        "company_id": company_slug,
         "iat": int(time.time()),
         "exp": int(time.time()) + 86400 * 30,
     }
@@ -863,11 +840,140 @@ def auth_returning_user(body: ReturningUserIn, background: BackgroundTasks) -> d
         "user_id": email,
         "tenant_id": "snowkap-dev",
         "company_id": company_slug,
-        "designation": "analyst",
+        "designation": designation or "analyst",
         "permissions": permissions,
-        "domain": domain,
-        "name": email.split("@")[0].title(),
+        "domain": domain or (email.split("@")[-1] if "@" in email else ""),
+        "name": display_name,
     }
+
+
+def _maybe_issue_otp_and_email(
+    email: str,
+    name: str | None,
+    background: BackgroundTasks,
+) -> dict[str, Any] | None:
+    """Phase 22.3 — return a verify-challenge payload iff OTP is enabled.
+
+    When ``RESEND_API_KEY`` is unset (dev / CI), returns None so the
+    caller falls through to the legacy direct-token path. When set,
+    issues a 6-digit code, fires the email in the background, and
+    returns ``{"step": "verify", ...}`` (NO token).
+    """
+    if not auth_otp.is_email_otp_enabled():
+        return None
+    code, expires_at = auth_otp.issue(email)
+    subject, html = auth_otp.render_otp_email(code, name=name)
+    # Background task — keep the HTTP request fast even if Resend is slow.
+    from engine.output.email_sender import send_email
+
+    background.add_task(send_email, email, subject, html)
+    return {
+        "step": "verify",
+        "email": email,
+        "expires_in": max(0, int(expires_at - time.time())),
+    }
+
+
+@router.post("/auth/login")
+def auth_login(
+    body: LoginIn,
+    request: Request,
+    background: BackgroundTasks,
+) -> dict[str, Any]:
+    # Phase 22.3 — throttle brute force on email/IP before doing any work.
+    _enforce_login_rate_limit("login", body.email.strip().lower(), request)
+
+    # Phase 22.3 — OTP-first when Resend is configured. Returns
+    # `{"step": "verify"}` with NO token; client must call /auth/verify
+    # with the 6-digit code to actually mint a JWT. When Resend is
+    # missing (dev / CI), fall through to the legacy single-step path.
+    challenge = _maybe_issue_otp_and_email(
+        body.email.strip(), body.name, background,
+    )
+    if challenge is not None:
+        return challenge
+
+    return _mint_login_response(
+        email=body.email,
+        name=body.name,
+        company_name=body.company_name,
+        designation=body.designation,
+        domain=body.domain,
+        background=background,
+    )
+
+
+class ReturningUserIn(BaseModel):
+    email: str
+
+
+@router.post("/auth/returning-user")
+def auth_returning_user(
+    body: ReturningUserIn,
+    request: Request,
+    background: BackgroundTasks,
+) -> dict[str, Any]:
+    email = body.email.strip()
+    domain = email.split("@")[-1] if "@" in email else ""
+
+    _enforce_login_rate_limit("login", email.lower(), request)
+
+    challenge = _maybe_issue_otp_and_email(email, name=None, background=background)
+    if challenge is not None:
+        return challenge
+
+    return _mint_login_response(
+        email=email,
+        name=None,
+        company_name=None,
+        designation=None,
+        domain=domain,
+        background=background,
+    )
+
+
+class VerifyOtpIn(BaseModel):
+    """Phase 22.3 — second-step body for the magic-link OTP flow."""
+
+    email: str
+    code: str
+    # Optional signup data — passed back from the client when this
+    # verify follows an /auth/login (signup) call so the same name +
+    # company + designation land in the JWT. Returning users omit them.
+    name: str | None = None
+    company_name: str | None = None
+    domain: str | None = None
+    designation: str | None = None
+
+
+@router.post("/auth/verify")
+def auth_verify(
+    body: VerifyOtpIn,
+    request: Request,
+    background: BackgroundTasks,
+) -> dict[str, Any]:
+    """Phase 22.3 — exchange OTP for a JWT.
+
+    Mirrors `auth_login`'s rate-limit + tenant-binding semantics. On
+    success the OTP is consumed (one-time-use). On failure surfaces
+    the OTP module's error verbatim (`Code expired.`, `Incorrect
+    code.`, etc.) so the UI can render an actionable message.
+    """
+    email = body.email.strip()
+    _enforce_login_rate_limit("verify", email.lower(), request)
+
+    ok, err = auth_otp.verify(email, body.code)
+    if not ok:
+        raise HTTPException(status_code=400, detail=err or "Invalid code")
+
+    return _mint_login_response(
+        email=email,
+        name=body.name,
+        company_name=body.company_name,
+        designation=body.designation,
+        domain=body.domain,
+        background=background,
+    )
 
 
 # =============================================================================
@@ -950,10 +1056,23 @@ def _require_tenant_scope(company_id: str | None, claims: dict[str, Any]) -> Non
             status_code=403,
             detail="Token has no tenant scope. Re-authenticate.",
         )
-    if requested != own:
+    # Phase 22.3 — alias-aware compare. A user whose JWT carries the
+    # login slug "basf" must still match a query for the canonical
+    # "basf-se" (registered via slug_aliases by the onboarder). Without
+    # this both sides got string-compared raw → 403 even though they
+    # point at the same tenant.
+    requested_canon = sqlite_index.resolve_slug(requested) or requested
+    own_canon = sqlite_index.resolve_slug(own) or own
+    if requested_canon != own_canon:
         logger.warning(
             "cross_tenant_access_denied",
-            extra={"sub": claims.get("sub"), "own": own, "requested": requested},
+            extra={
+                "sub": claims.get("sub"),
+                "own": own,
+                "own_canonical": own_canon,
+                "requested": requested,
+                "requested_canonical": requested_canon,
+            },
         )
         raise HTTPException(
             status_code=403,
@@ -1050,7 +1169,14 @@ def news_feed(
         articles.append(build_legacy_article(row, payload))
         if len(articles) >= limit:
             break
-    total = sqlite_index.count(company_slug=company_id)
+    # Phase 22.3 — count must honour the same pillar/content_type filters
+    # the loop applies, otherwise `total` and `len(articles)` disagree
+    # and the empty-state UX shows "5 articles" next to "no items".
+    total = sqlite_index.count(
+        company_slug=company_id,
+        pillar=pillar,
+        content_type=content_type,
+    )
     return {"articles": articles, "total": total}
 
 
@@ -1121,6 +1247,72 @@ def news_onboarding_status(
                 "home_count": 0, "started_at": None, "finished_at": None,
                 "error": None}
     return row.to_dict()
+
+
+@router.post("/news/onboarding-retry")
+def news_onboarding_retry(
+    background: BackgroundTasks,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 22.3 — Self-service retry for a failed/empty onboarding.
+
+    Pre-fix the only remediation path for a prospect whose pipeline
+    failed (NewsAPI 429, yfinance timeout, etc.) was to email the
+    sales admin and ask them to hit /admin/onboard. Now the user can
+    click "Retry" on the empty-state and we re-claim the pending row +
+    schedule a fresh `_background_onboard` run with their JWT-bound
+    slug. No body args — the JWT carries everything we need.
+
+    Same tenant-scope rules as `/news/feed`: a regular user can only
+    retry their OWN slug; super-admins should use `/admin/onboard`
+    directly.
+    """
+    target = (claims.get("company_id") or "").strip() or None
+    _require_tenant_scope(target, claims)
+    if not target:
+        raise HTTPException(
+            status_code=400,
+            detail="No tenant scope on token. Re-authenticate and try again.",
+        )
+
+    from engine.models import onboarding_status
+    from api.routes.admin_onboard import _background_onboard
+
+    # Resolve the canonical slug — login-slug aliases (e.g. `basf`)
+    # MUST be re-pointed to the canonical (`basf-se`) so the retry
+    # claim hits the same row as the original onboard.
+    canonical = sqlite_index.resolve_slug(target) or target
+    # `force_claim_pending` does DELETE + INSERT OR IGNORE in ONE
+    # transaction (BEGIN IMMEDIATE) so two parallel retry calls can't
+    # both schedule the background pipeline. Returns False if another
+    # caller raced ahead — surface 409 to the loser.
+    if not onboarding_status.force_claim_pending(canonical):
+        raise HTTPException(
+            status_code=409,
+            detail="Onboarding already in progress.",
+        )
+
+    # Look up domain/name from the user's claims so the same enrichment
+    # signal flows through. Domain is recoverable from the email; name
+    # is best-effort.
+    sub = claims.get("sub") or ""
+    domain = sub.split("@")[-1] if "@" in sub else None
+    company_name = claims.get("company")
+
+    background.add_task(
+        _background_onboard,
+        slug=canonical,
+        name=company_name,
+        ticker_hint=None,
+        domain=domain,
+        limit=10,
+    )
+    logger.info(
+        "onboarding_retry_kicked",
+        extra={"slug": canonical, "domain": domain, "sub": sub},
+    )
+    return {"status": "queued", "slug": canonical}
 
 
 @router.post("/news/{article_id}/bookmark")

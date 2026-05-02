@@ -697,16 +697,27 @@ def onboard_company(
             added_to_config=False, already_existed=True,
         )
 
-    # 2. Industry + cap tier
+    # 2. Industry
     industry = _infer_our_industry(info.get("industry", ""), info.get("sector", ""))
-    cap_tier = _infer_cap_tier(info.get("marketCap", 0) or 0)
 
     # 3. SASB category
     sasb_category = _INDUSTRY_TO_SASB.get(industry, "Other / General")
 
-    # 4. Fetch financials via Phase 2 module
+    # 4. Fetch financials via Phase 2 module — must run BEFORE cap-tier
+    # classification so a non-INR ticker (BASF in EUR, Lloyds in GBP)
+    # gets correctly converted to ₹ Cr first. Pre-Phase-22.3 we
+    # threshold-classified the raw foreign-currency `marketCap` and
+    # mis-tagged BASF as "Small Cap" at €4.8B.
     from engine.ingestion.financial_fetcher import fetch_yfinance_financials
     fin = fetch_yfinance_financials(ticker)
+
+    # Phase 22.3 — re-classify cap tier using INR-converted figure when
+    # the live fetch succeeded; fall back to raw marketCap (assumed INR
+    # for `.NS` / `.BO` tickers) otherwise.
+    if fin and fin.market_cap_cr and fin.market_cap_cr > 0:
+        cap_tier = _infer_cap_tier(fin.market_cap_cr * 1e7)
+    else:
+        cap_tier = _infer_cap_tier(info.get("marketCap", 0) or 0)
     # Phase 17 — industry-aware calibration defaults so the cascade engine
     # produces meaningful ₹ figures for any onboarded company, not just the
     # 7 hand-calibrated targets. Each row mirrors the energy / labor / freight

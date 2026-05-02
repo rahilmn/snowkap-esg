@@ -149,6 +149,26 @@ export default function HomePage() {
     },
   });
 
+  // Phase 22.3 — Self-service onboarding retry. Reachable from the
+  // empty-state when the prospect's pipeline failed OR finished
+  // ready-but-empty. After the request returns we invalidate the
+  // onboarding-status query so the polling resumes (the in-progress
+  // state will then re-render the OnboardingProgressModal).
+  const retryOnboardingMutation = useMutation({
+    mutationFn: () => news.retryOnboarding(),
+    onSuccess: () => {
+      setScanResult("Onboarding queued — refreshing…");
+      queryClient.invalidateQueries({ queryKey: ["onboarding-status", companyId] });
+      queryClient.invalidateQueries({ queryKey: ["home-articles", companyId] });
+      queryClient.invalidateQueries({ queryKey: ["news-stats", companyId] });
+      setTimeout(() => setScanResult(null), 5000);
+    },
+    onError: (e: unknown) => {
+      setScanResult(e instanceof Error ? e.message : "Retry failed");
+      setTimeout(() => setScanResult(null), 5000);
+    },
+  });
+
   // Phase A2 (Track A launch) — on-page-open background fetch.
   //
   // When an analyst opens the news page, fire `news.refresh()` in the
@@ -293,45 +313,92 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Empty state — FTUX educational content */}
+      {/* Empty state — FTUX educational content.
+          Phase 22.3 — copy nuance. Pre-fix every empty state read
+          "didn't find ESG-relevant articles", which was misleading
+          when the prospect's pipeline HAD found N SECONDARY-tier
+          articles but nothing high-impact. Now we differentiate:
+            • totalArticles == 0 → genuine empty
+            • totalArticles  > 0 but no HOME-tier → "found N, none high-impact yet"
+          Plus a self-service Retry CTA when the pipeline failed. */}
       {!isLoading && !topArticle && (
         <div style={{ padding: "24px" }}>
           <div style={{ textAlign: "center", marginBottom: "24px" }}>
-            <p style={{ fontSize: "16px", color: COLORS.textSecondary }}>
-              {!companyId
-                ? "Setting up your intelligence feed..."
-                : onboardingInProgress
-                  ? "Setting up your dashboard…"
-                  : onboardingFailed
-                    ? "We hit a snag onboarding your company."
-                    : "No ESG-relevant news for your company in the latest scan."}
-            </p>
-            <p style={{ fontSize: "13px", color: COLORS.textMuted, marginTop: "8px" }}>
-              {!companyId
-                ? "Articles are being analyzed. This usually takes 1-2 minutes."
-                : onboardingInProgress
-                  ? `${onboarding?.analysed ?? 0} of ${onboarding?.fetched ?? 0} articles processed. Hang tight — this usually takes 1-2 minutes.`
-                  : onboardingFailed
-                    ? "Try Scan Now to retry, or contact your administrator if this keeps happening."
-                    : "We searched the web for your company but didn't find ESG-relevant articles in this scan. The platform is optimised for listed companies across major exchanges. Tap Scan Now to refetch."}
-            </p>
-            <button
-              onClick={() => refreshMutation.mutate()}
-              disabled={refreshMutation.isPending}
-              style={{
-                marginTop: "12px",
-                fontSize: "13px",
-                fontWeight: 600,
-                color: "#fff",
-                backgroundColor: refreshMutation.isPending ? COLORS.textMuted : COLORS.brand,
-                border: "none",
-                borderRadius: "20px",
-                padding: "8px 20px",
-                cursor: refreshMutation.isPending ? "not-allowed" : "pointer",
-              }}
-            >
-              {refreshMutation.isPending ? "Scanning..." : "⟳ Scan for News Now"}
-            </button>
+            {(() => {
+              // headline + subline, derived from the most-specific signal
+              // we have: still onboarding > failed > we've-got-articles-
+              // but-none-HOME-tier > genuinely empty.
+              let headline: string;
+              let subline: string;
+              if (!companyId) {
+                headline = "Setting up your intelligence feed…";
+                subline = "Articles are being analyzed. This usually takes 1-2 minutes.";
+              } else if (onboardingInProgress) {
+                headline = "Setting up your dashboard…";
+                subline = `${onboarding?.analysed ?? 0} of ${onboarding?.fetched ?? 0} articles processed. Hang tight — this usually takes 1-2 minutes.`;
+              } else if (onboardingFailed) {
+                headline = "We hit a snag onboarding your company.";
+                subline = onboarding?.error
+                  ? `Reason: ${onboarding.error}. Tap Retry to run the pipeline again.`
+                  : "Tap Retry to run the onboarding pipeline again, or Scan Now to fetch fresh news.";
+              } else if (totalArticles > 0) {
+                // SECONDARY/TERTIARY-tier articles exist but none high-impact.
+                headline = totalArticles === 1
+                  ? "We found 1 article — nothing high-impact yet."
+                  : `We found ${totalArticles} articles — nothing high-impact yet.`;
+                subline = "Snowkap surfaces only the highest-priority items here. Open the Feed to see everything we've collected, or tap Scan Now to widen the net.";
+              } else {
+                headline = "No ESG-relevant news for your company in the latest scan.";
+                subline = "We searched the web for your company but didn't find ESG-relevant articles. The platform is optimised for listed companies across major exchanges. Tap Scan Now to refetch.";
+              }
+              return (
+                <>
+                  <p style={{ fontSize: "16px", color: COLORS.textSecondary }}>{headline}</p>
+                  <p style={{ fontSize: "13px", color: COLORS.textMuted, marginTop: "8px" }}>{subline}</p>
+                </>
+              );
+            })()}
+            <div className="flex flex-col items-center gap-2" style={{ marginTop: "12px" }}>
+              <button
+                onClick={() => refreshMutation.mutate()}
+                disabled={refreshMutation.isPending}
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "#fff",
+                  backgroundColor: refreshMutation.isPending ? COLORS.textMuted : COLORS.brand,
+                  border: "none",
+                  borderRadius: "20px",
+                  padding: "8px 20px",
+                  cursor: refreshMutation.isPending ? "not-allowed" : "pointer",
+                }}
+              >
+                {refreshMutation.isPending ? "Scanning..." : "⟳ Scan for News Now"}
+              </button>
+              {/* Phase 22.3 — Retry button. Reachable whenever the
+                  pipeline failed OR finished ready-but-empty. The
+                  in-progress state has its own progress modal. */}
+              {companyId && !onboardingInProgress && (onboardingFailed || totalArticles === 0) && (
+                <button
+                  onClick={() => retryOnboardingMutation.mutate()}
+                  disabled={retryOnboardingMutation.isPending}
+                  style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: COLORS.brand,
+                    backgroundColor: "transparent",
+                    border: `1px solid ${COLORS.brand}`,
+                    borderRadius: "20px",
+                    padding: "8px 20px",
+                    cursor: retryOnboardingMutation.isPending ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {retryOnboardingMutation.isPending
+                    ? "Queuing retry…"
+                    : "↻ Retry onboarding"}
+                </button>
+              )}
+            </div>
             {scanResult && (
               <p style={{ fontSize: "12px", color: COLORS.brand, marginTop: "8px", fontWeight: 600 }}>{scanResult}</p>
             )}

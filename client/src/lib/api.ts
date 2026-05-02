@@ -67,6 +67,24 @@ async function request<T>(
 }
 
 // ---- Auth ----
+
+/**
+ * Phase 22.3 — When `RESEND_API_KEY` is configured server-side, the
+ * /auth/login + /auth/returning-user endpoints return this challenge
+ * shape instead of a JWT. The client must collect the 6-digit code
+ * the user receives by email and POST it to /auth/verify alongside
+ * the same signup data to mint the token.
+ */
+export interface VerifyChallenge {
+  step: "verify";
+  email: string;
+  expires_in: number;
+}
+
+function isVerifyChallenge(x: unknown): x is VerifyChallenge {
+  return typeof x === "object" && x !== null && (x as { step?: unknown }).step === "verify";
+}
+
 export const auth = {
   resolveDomain: (domain: string) =>
     request<ResolveDomainResponse>("/auth/resolve-domain", {
@@ -84,17 +102,39 @@ export const auth = {
     // First-time onboarding kicks off a background pipeline write; the
     // synchronous handler still returns in <1s, but we give it a generous
     // timeout so a slow cold start can't surface as a Toast error.
-    request<LoginResponse>("/auth/login", {
+    request<LoginResponse | VerifyChallenge>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
       _timeout: 60000,
     } as RequestInit & { _timeout?: number }),
 
   returningUser: (email: string) =>
-    request<LoginResponse>("/auth/returning-user", {
+    request<LoginResponse | VerifyChallenge>("/auth/returning-user", {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
+
+  /**
+   * Phase 22.3 — Step 2 of magic-link login. Submits the 6-digit OTP
+   * + the same signup data the user entered in step 1 (so the JWT
+   * carries name/company/designation just like the legacy single-step
+   * flow). Server burns the OTP on success.
+   */
+  verify: (data: {
+    email: string;
+    code: string;
+    name?: string;
+    company_name?: string;
+    domain?: string;
+    designation?: string;
+  }) =>
+    request<LoginResponse>("/auth/verify", {
+      method: "POST",
+      body: JSON.stringify(data),
+      _timeout: 60000,
+    } as RequestInit & { _timeout?: number }),
+
+  isVerifyChallenge,
 };
 
 // ---- Companies ----
@@ -172,6 +212,22 @@ export const news = {
     request<{ status: string; articles_fetched: number; articles_stored: number; sources: string[] }>(
       "/news/refresh",
       { method: "POST" }
+    ),
+
+  /**
+   * Phase 22.3 — Self-service retry for the caller's own onboarding.
+   * Wipes the existing onboarding_status row, re-claims pending, and
+   * schedules a fresh `_background_onboard` run against the JWT-bound
+   * tenant slug. No body args — backend reads everything off the JWT.
+   *
+   * Returns 409 when an onboarding is already in flight (UI should
+   * surface "still running, please wait"); 400 when the JWT lacks a
+   * tenant scope (legacy token before Phase 22 — re-authenticate).
+   */
+  retryOnboarding: () =>
+    request<{ status: "queued"; slug: string }>(
+      "/news/onboarding-retry",
+      { method: "POST", body: JSON.stringify({}) },
     ),
 
   triggerAnalysis: (articleId: string, force = false) =>

@@ -388,6 +388,10 @@ def process_article(
         company_country=company.headquarter_country,
         company_region=company.headquarter_region,
         market_cap=company.market_cap,
+        # Phase 23 reviewer fix — explicit framework jurisdiction wins
+        # over the country/region heuristic so a UK bank doesn't get
+        # tagged as EU via the "europ" substring match.
+        framework_region=company.framework_region,
     )
     result.frameworks = frameworks
     ontology_queries += fq

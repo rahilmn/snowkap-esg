@@ -373,7 +373,20 @@ def get_by_id(article_id: str) -> dict[str, Any] | None:
         return dict(row) if row else None
 
 
-def count(company_slug: str | None = None, tier: str | None = None) -> int:
+def count(
+    company_slug: str | None = None,
+    tier: str | None = None,
+    pillar: str | None = None,
+    content_type: str | None = None,
+) -> int:
+    """Count articles matching the optional filters.
+
+    Phase 22.3 — accepts `pillar` and `content_type` so /news/feed's
+    `total` agrees with the actually-rendered list when those filters
+    are set. Pre-fix, the feed handler post-filtered rows in Python
+    while `count()` ignored those filters, so the UI saw "5 total"
+    next to an empty list.
+    """
     ensure_schema()
     clauses: list[str] = []
     params: list[Any] = []
@@ -383,6 +396,12 @@ def count(company_slug: str | None = None, tier: str | None = None) -> int:
     if tier:
         clauses.append("tier = ?")
         params.append(tier)
+    if pillar:
+        clauses.append("esg_pillar = ?")
+        params.append(pillar)
+    if content_type:
+        clauses.append("content_type = ?")
+        params.append(content_type)
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
     with _connect() as conn:
         return int(conn.execute(f"SELECT COUNT(*) FROM article_index {where}", params).fetchone()[0])

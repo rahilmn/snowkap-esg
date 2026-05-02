@@ -279,7 +279,39 @@ def find_causal_chains(
 
     target_uri = _find_company_uri(company_slug, g)
     if not target_uri:
-        logger.warning("causal_engine: unknown company slug '%s'", company_slug)
+        # Phase 22.3 — onboarded prospects exist in companies.json + the
+        # SQLite tenant registry but the ontology TTL is built at deploy
+        # time and doesn't yet have a node for them. Demote the noise to
+        # DEBUG for known tenants (curated targets OR registered onboards)
+        # and reserve WARNING for truly-unknown slugs (typo / bug). We
+        # bust the lru_cache on load_companies() so a freshly-onboarded
+        # slug becomes "known" without a process restart.
+        is_known = False
+        try:
+            from engine.config import load_companies
+            load_companies.cache_clear()
+            for c in load_companies():
+                if c.slug == company_slug:
+                    is_known = True
+                    break
+        except Exception:  # noqa: BLE001 — defensive
+            pass
+        if not is_known:
+            try:
+                from engine.index import tenant_registry
+                for t in tenant_registry.list_tenants():
+                    if t.get("slug") == company_slug:
+                        is_known = True
+                        break
+            except Exception:  # noqa: BLE001
+                pass
+        if is_known:
+            logger.debug(
+                "causal_engine: %s not in ontology yet — skipping causal chains",
+                company_slug,
+            )
+        else:
+            logger.warning("causal_engine: unknown company slug '%s'", company_slug)
         return []
 
     sources = _resolve_entity(entity_text, g)

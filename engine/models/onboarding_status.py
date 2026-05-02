@@ -215,6 +215,63 @@ def mark_ready(slug: str, *, fetched: int | None = None, analysed: int | None = 
     upsert(slug, state="ready", finished_at=_now(), **extras)
 
 
+def reset(slug: str) -> None:
+    """Phase 22.3 — wipe the onboarding row for `slug` so a subsequent
+    `claim_pending(slug)` succeeds.
+
+    Used by the self-service `/news/onboarding-retry` endpoint: a
+    prospect whose first run failed (or finished ready-but-empty) can
+    request a fresh attempt from the UI without an admin in the loop.
+    Idempotent — no-op if the row doesn't exist.
+    """
+    ensure_schema()
+    with _connect() as conn:
+        conn.execute("DELETE FROM onboarding_status WHERE slug = ?", (slug,))
+
+
+def force_claim_pending(slug: str) -> bool:
+    """Phase 22.3 (race-fix) — atomically reset+re-claim in ONE
+    transaction so two parallel `/news/onboarding-retry` calls for the
+    same slug can't BOTH end up scheduling `_background_onboard`.
+
+    Pre-fix the retry endpoint did `reset(); claim_pending()` as two
+    separate transactions: under load, both callers could observe an
+    empty row after each other's DELETE and both INSERTs would
+    succeed (the second under `INSERT OR IGNORE` because the row was
+    just gone), spawning duplicate background pipelines and
+    double-charging NewsAPI.
+
+    Returns True iff this caller inserted a fresh `state='pending'`
+    row. Returns False if another caller raced ahead — the loser
+    should surface 409 to the user.
+
+    Atomicity: SQLite serialises writers per-database; we wrap
+    DELETE + INSERT in a single connection so the writer lock isn't
+    released between them. The IMMEDIATE transaction upgrade ensures
+    we hold the write lock across both statements.
+    """
+    ensure_schema()
+    with _connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            conn.execute("DELETE FROM onboarding_status WHERE slug = ?", (slug,))
+            cur = conn.execute(
+                """
+                INSERT OR IGNORE INTO onboarding_status
+                    (slug, state, fetched, analysed, home_count, started_at, finished_at, error)
+                VALUES
+                    (?, 'pending', 0, 0, 0, ?, NULL, NULL)
+                """,
+                (slug, _now()),
+            )
+            inserted = cur.rowcount == 1
+            conn.execute("COMMIT")
+            return inserted
+        except Exception:
+            conn.execute("ROLLBACK")
+            raise
+
+
 def _truncate_all() -> None:
     ensure_schema()
     with _connect() as conn:

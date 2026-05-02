@@ -47,11 +47,40 @@ class FrameworkMatch:
         return asdict(self)
 
 
-def _region_key(country: str, region: str) -> str:
+_VALID_FRAMEWORK_REGIONS = {"INDIA", "EU", "UK", "US", "APAC", "GLOBAL"}
+
+
+def _region_key(
+    country: str,
+    region: str,
+    framework_region: str | None = None,
+) -> str:
+    """Resolve the framework jurisdiction key.
+
+    Phase 23 reviewer fix — explicit `framework_region` (set by the
+    onboarder from yfinance country) wins over the country/region
+    heuristic. Pre-fix UK companies routed via "Europe" substring
+    matching inherited CSRD / ESRS mandatory rules they shouldn't.
+    Falls back to the legacy heuristic when `framework_region` is
+    None or invalid (preserves behaviour for pre-Phase-23 fixtures).
+    """
+    if framework_region:
+        upper = framework_region.upper().strip()
+        if upper in _VALID_FRAMEWORK_REGIONS:
+            return upper
     country = (country or "").lower()
     region = (region or "").lower()
     if "india" in country:
         return "INDIA"
+    # Phase 23 reviewer fix — split UK from Europe BEFORE the EU bucket
+    # so a Lloyds / HSBC headcount doesn't get tagged with CSRD/ESRS.
+    if (
+        "united kingdom" in country
+        or "britain" in country
+        or country == "uk"
+        or "united kingdom" in region
+    ):
+        return "UK"
     if "europ" in country or "eu" in region:
         return "EU"
     if "us" in country or "united states" in country or "america" in region:
@@ -65,6 +94,7 @@ def match_frameworks(
     company_country: str,
     company_region: str,
     market_cap: str,
+    framework_region: str | None = None,
 ) -> tuple[list[FrameworkMatch], int]:
     """Return frameworks triggered by the article's themes for this company.
 
@@ -101,7 +131,7 @@ def match_frameworks(
                 )
 
     # Regional boost — ontology-driven
-    region_key = _region_key(company_country, company_region)
+    region_key = _region_key(company_country, company_region, framework_region)
     boosts = query_regional_boosts(region_key)
     queries += 1
     for boost in boosts:
@@ -119,7 +149,14 @@ def match_frameworks(
                 match.is_mandatory = True
 
     # Attach regulatory deadlines for mandatory frameworks
-    jurisdiction = {"INDIA": "India", "EU": "EU", "US": "US", "GLOBAL": None}[region_key]
+    jurisdiction = {
+        "INDIA": "India",
+        "EU": "EU",
+        "UK": "UK",
+        "US": "US",
+        "APAC": None,
+        "GLOBAL": None,
+    }.get(region_key)
     deadlines = query_compliance_deadlines(jurisdiction)
     queries += 1
     for match in collected.values():

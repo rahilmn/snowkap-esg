@@ -47,6 +47,12 @@ class Company:
     # Phase 2: tickers for live financial data refresh
     yfinance_ticker: str | None = None
     eodhd_ticker: str | None = None
+    # Phase 23 reviewer fix — explicit framework jurisdiction. Decouples
+    # "where the HQ is" (free-form `headquarter_region` label like
+    # "Europe" / "United Kingdom") from "which framework regime applies"
+    # (one of INDIA / EU / UK / US / APAC / GLOBAL). When None, the
+    # framework matcher falls back to its country/region heuristic.
+    framework_region: str | None = None
 
     @property
     def revenue_cr(self) -> float:
@@ -100,6 +106,7 @@ class Company:
             primitive_calibration=data.get("primitive_calibration"),
             yfinance_ticker=data.get("yfinance_ticker"),
             eodhd_ticker=data.get("eodhd_ticker"),
+            framework_region=data.get("framework_region"),
         )
 
 

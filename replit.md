@@ -34,6 +34,100 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
   `permissions:["super_admin"]` or another tenant's `company_id` and
   bypass the Phase 22 tenant-scope gate. The Replit secret is set.
 
+## Phase 22.3 — BASF walkthrough punch list + Phase 23 reviewer follow-up + magic-link OTP
+
+Surgical small/medium fixes shipped together so the platform is hostable
+to a small allowlist of prospects (BASF, Lloyds, etc.) without an admin
+in the loop. End-to-end retested with Lloyds Banking Group.
+
+- **T1 Alias-aware tenant scope gate** (`api/routes/legacy_adapter.py::_require_tenant_scope`):
+  pre-fix the JWT-bound slug was compared verbatim against
+  `?company_id=`, so a tenant whose login slug got remapped to a
+  canonical (e.g. `basf` → `basf-se` after yfinance) couldn't query
+  their own data via the canonical. Both sides now run through
+  `sqlite_index.resolve_slug` before equality check. Pinned by
+  `tests/test_phase22_3_alias_gate.py` (5 cases).
+- **T2 Reconcile `total` vs `query_feed` default tier**
+  (`engine/index/sqlite_index.py`): `count` and `query_feed` now thread
+  the same pillar/content_type filters end-to-end so a feed call no
+  longer returns `{"total": 1, "items": []}`. Verified with Lloyds
+  (total=0, len(items)=0, reconciled=True).
+- **T3 Empty-Home copy nuance** (`client/src/pages/HomePage.tsx`): the
+  empty state now picks one of four messages based on the most-specific
+  signal (still-onboarding / failed / found-but-none-high-impact /
+  genuinely-empty) instead of always saying "didn't find anything".
+- **T4 Self-service prospect retry** (`POST /api/news/onboarding-retry`
+  in `api/routes/legacy_adapter.py` + `client/src/pages/HomePage.tsx`
+  retry button): a prospect whose pipeline failed or finished
+  ready-but-empty can re-run onboarding from the empty state without
+  emailing sales. Backend resets `onboarding_status`, re-claims pending,
+  schedules `_background_onboard`. Returns 409 if a run is already in
+  flight, 400 if JWT lacks tenant scope. Added
+  `engine/models/onboarding_status.reset(slug)`.
+- **T5 Login rate-limit** (`api/rate_limit.py` +
+  `_enforce_login_rate_limit` helper): in-memory token-bucket per
+  (email, ip) — 5/min and 20/hr each. Applied to `/auth/login`,
+  `/auth/returning-user`, `/auth/verify`. Returns 429 with `Retry-After`.
+  Pinned by `tests/test_phase22_3_rate_limit.py` (6 cases).
+- **T6 causal_engine hot-reload for new slugs** (cache-bust on cache
+  miss, consults tenant_registry): post-onboarding queries for the
+  freshly canonical slug no longer log `unknown company slug`.
+- **T7 Currency-aware financial fetch** (`engine/ingestion/financial_fetcher.py`):
+  pre-fix `_cr` figures were yfinance's raw foreign-currency values
+  re-labelled "crore", so BASF's €42B market cap classified as "Small
+  Cap" because 42000 << 50000-cr threshold. Now reads
+  `info.financialCurrency`, multiplies by hardcoded FX→INR rates
+  (`_FX_TO_INR`: INR/USD/EUR/GBP/JPY/CHF/CAD/AUD/CNY/HKD/SGD/ZAR/BRL/MXN/KRW/TWD,
+  Jan 2026 spot, no live FX call), tags `FinancialData.currency`. Tier
+  classification (`_infer_cap_tier`) runs AFTER conversion in
+  `company_onboarder._kickoff`. BASF backfilled in `config/companies.json`
+  (market_cap_cr=378000.0, market_cap=Large Cap, currency=EUR). Pinned
+  by `tests/test_phase22_3_currency.py` (9 cases).
+- **T8 Phase 23 reviewer fix — framework_region threading**
+  (`engine/config.py` + `engine/analysis/framework_matcher.py` +
+  `engine/analysis/pipeline.py:385`): added explicit `framework_region`
+  field to `Company` dataclass that wins over country/region heuristic
+  in `_region_key`. Pinned by
+  `tests/test_phase23x_framework_region_routing.py` (6 cases).
+- **T9 OTP magic-link auth** (`api/auth_otp.py` +
+  `api/routes/legacy_adapter.py` + `client/src/pages/LoginPage.tsx` +
+  `client/src/lib/api.ts`): when `RESEND_API_KEY` is set, `/auth/login`
+  and `/auth/returning-user` no longer mint a JWT directly — they
+  generate a 6-digit OTP (10-min TTL, max 5 attempts), email it via
+  Resend, and return `{step:"verify", email, expires_in}`. The new
+  `POST /auth/verify` consumes the OTP and returns the same
+  `LoginResponse` shape as before. Frontend renders a step-2 OTP entry
+  panel with resend + countdown. SQLite `auth_otp(email PK, code,
+  expires_at, attempts, created_at)` table created on first use. When
+  `RESEND_API_KEY` is unset (dev mode), the legacy direct-token path
+  remains for tests + smoke. Pinned by `tests/test_phase22_3_otp.py`
+  (9 cases).
+
+### Documented for follow-up (NOT shipped this phase)
+The walkthrough surfaced four larger items deferred to dedicated tasks:
+- **Postgres migration of the analysis layer**: `data/snowkap.db`
+  (article_index, article_signals, slug_aliases, onboarding_status,
+  auth_otp) is still SQLite. The async FastAPI engine + LangGraph already
+  use Replit Postgres for app data; the analysis SQLite store needs to
+  follow so multi-instance deployments (replit autoscale, multi-region)
+  see the same article corpus. Tracking work: schema parity migration
+  + replace `_connect()` shims with the asyncpg session factory in
+  `backend/core/database.py`.
+- **Worker isolation for `_background_onboard`**: pipeline runs inside
+  the API process via `BackgroundTasks`, so a slow yfinance/NewsAPI call
+  blocks event-loop threads. Move to a dedicated Celery/ARQ worker
+  consuming a Redis/Postgres queue.
+- **GDPR controls**: prospect emails (incl. EU residents like BASF/PUMA)
+  now persist in `tenant_registry` + `auth_otp`. Need: export endpoint,
+  delete endpoint, retention policy on `auth_otp` rows, DPA documentation.
+- **Observability**: structured request logging with trace IDs across
+  ingestion → analysis → feed; OTP issue/verify counters; rate-limit
+  buckets exposed as Prom metrics. Currently only Python `logging`.
+- **X-API-Key audit**: confirm every admin/internal endpoint either
+  requires JWT super_admin OR a valid `X-API-Key` (not both bypass).
+  Smoke #7 still flags `/api/news/stats.active_signals_count` mismatch
+  between the two auth paths.
+
 ## Phase 22.2 — Alias mirror helper + on_demand alias-bypass fix
 - **`sqlite_index.mirror_to_slug(canonical, alias)`** — explicit
   named helper called from `_background_onboard` after the analysis

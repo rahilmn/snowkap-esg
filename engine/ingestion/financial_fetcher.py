@@ -54,6 +54,12 @@ class FinancialData:
     operating_margin_pct: float | None = None
     gross_margin_pct: float | None = None
     market_cap_cr: float | None = None
+    # Phase 22.3 — original reporting currency from yfinance
+    # `financialCurrency` (e.g. EUR for BASF, GBP for Lloyds, USD for
+    # AAPL, INR for an .NS ticker). All `_cr` figures above are ALREADY
+    # converted to ₹ Cr at the FX rates in `_FX_TO_INR`. Stored only for
+    # audit + UI tooltips. None == unknown / no conversion applied.
+    currency: str | None = None
 
     def to_calibration_dict(
         self,
@@ -80,6 +86,8 @@ class FinancialData:
             merged["gross_margin_pct"] = round(self.gross_margin_pct, 2)
         if self.market_cap_cr is not None:
             merged["market_cap_cr"] = round(self.market_cap_cr, 1)
+        if self.currency is not None:
+            merged["_currency"] = self.currency
         return merged
 
 
@@ -88,16 +96,69 @@ class FinancialData:
 # ---------------------------------------------------------------------------
 
 
-# 1 INR Crore = 10^7 INR. yfinance reports all figures in raw INR for .NS tickers.
+# 1 INR Crore = 10^7 INR. yfinance reports all figures in `financialCurrency`
+# for non-`.NS` tickers (raw EUR, GBP, USD…). Pre-Phase-22.3 we assumed
+# everything was already in INR — which made BASF look like a Small Cap
+# at €4.8B (4840 Cr "INR" instead of ₹4.35L Cr). FX rates below are
+# hardcoded to Jan 2026 spot (no live FX call — keeps the engine offline-
+# friendly and stops a third-party rate API outage from blocking onboarding).
 _INR_PER_CR = 1e7
+
+_FX_TO_INR: dict[str, float] = {
+    "INR": 1.0,
+    "USD": 83.0,
+    "EUR": 90.0,
+    "GBP": 105.0,
+    "JPY": 0.55,
+    "CHF": 95.0,
+    "CAD": 60.0,
+    "AUD": 55.0,
+    "CNY": 11.5,
+    "HKD": 10.6,
+    "SGD": 62.0,
+    "ZAR": 4.5,
+    "BRL": 14.0,
+    "MXN": 4.1,
+    "KRW": 0.062,
+    "TWD": 2.65,
+}
 
 
 def _cr(raw: Any) -> float:
-    """Convert raw INR (or None) to Cr. Returns 0.0 for missing."""
+    """Legacy helper — convert raw INR (or None) to ₹ Cr. Returns 0.0 for missing.
+
+    Kept for the EODHD path which already discriminates by ticker suffix.
+    The yfinance path now uses `_to_inr_cr` to handle non-INR currencies.
+    """
     if raw is None:
         return 0.0
     try:
         return float(raw) / _INR_PER_CR
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def _to_inr_cr(raw: Any, currency: str | None) -> float:
+    """Convert raw amount in `currency` to ₹ Cr. Returns 0.0 for missing.
+
+    Phase 22.3 — `currency` is yfinance's `financialCurrency` for the
+    income statement (e.g. EUR for BASF, GBP for Lloyds). Unknown
+    currencies fall back to a 1:1 multiplier with a WARNING — better
+    to surface a wrong-but-finite number than silently zero out the
+    cascade engine's calibration.
+    """
+    if raw is None:
+        return 0.0
+    cur = (currency or "INR").upper().strip()
+    rate = _FX_TO_INR.get(cur)
+    if rate is None:
+        logger.warning(
+            "_to_inr_cr: unknown currency %r — defaulting to 1.0 multiplier",
+            cur,
+        )
+        rate = 1.0
+    try:
+        return (float(raw) * rate) / _INR_PER_CR
     except (TypeError, ValueError):
         return 0.0
 
@@ -232,20 +293,32 @@ def fetch_yfinance_financials(ticker: str) -> FinancialData | None:
     else:
         wacc = re_pct  # fallback to cost of equity
 
+    # Phase 22.3 — yfinance reports income statement / market cap in
+    # `financialCurrency` (e.g. EUR for BASF, GBP for Lloyds). Convert
+    # to ₹ Cr at fetch time so downstream calibration + cap-tier
+    # classification operate on a single unit. `currency` is None for
+    # truly unknown — caller can decide whether to trust the raw _cr
+    # numbers in that case.
+    currency = (
+        info.get("financialCurrency")
+        or info.get("currency")
+        or "INR"
+    )
     return FinancialData(
         ticker=ticker,
         source="yfinance",
         fetched_at=datetime.now(timezone.utc).isoformat(),
         fy_year=fy_year,
-        revenue_cr=_cr(revenue_raw),
-        opex_cr=_cr(opex_raw),
-        capex_cr=_cr(capex_raw),
+        revenue_cr=_to_inr_cr(revenue_raw, currency),
+        opex_cr=_to_inr_cr(opex_raw, currency),
+        capex_cr=_to_inr_cr(capex_raw, currency),
         debt_to_equity=debt_to_equity,
         cost_of_capital_pct=wacc,
-        ebitda_cr=_cr(info.get("ebitda")),
+        ebitda_cr=_to_inr_cr(info.get("ebitda"), currency),
         operating_margin_pct=(info.get("operatingMargins") or 0) * 100,
         gross_margin_pct=(info.get("grossMargins") or 0) * 100,
-        market_cap_cr=_cr(market_cap_raw),
+        market_cap_cr=_to_inr_cr(market_cap_raw, currency),
+        currency=str(currency).upper(),
     )
 
 
