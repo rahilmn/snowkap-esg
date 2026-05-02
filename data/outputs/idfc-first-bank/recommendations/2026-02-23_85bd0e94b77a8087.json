@@ -1,0 +1,189 @@
+{
+  "recommendations": [
+    {
+      "title": "Commission Forensic Audit on Fraud Incident",
+      "description": "Engage an independent forensic audit firm to investigate the ₹590 Cr fraud, with findings reported to the board by 2026-06-30 to meet BRSR and SEBI governance standards, budgeting ₹3-5 Cr. This will mitigate litigation risk and support regulatory compliance under BRSR:P6:Q14 and GRI:207-1.",
+      "type": "compliance",
+      "responsible_party": "Chief Compliance Officer",
+      "framework_section": "BRSR:P6:Q14, GRI:207-1",
+      "deadline": "2026-06-30",
+      "estimated_budget": "₹3-5 Cr",
+      "profitability_link": "Avoid ₹11,313.2 Cr potential regulatory and litigation losses, with an estimated ROI of 400% by preventing further penalties and reputational damage.",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "High",
+      "risk_of_inaction": 10,
+      "roi_percentage": 400.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Peer banks conducted forensic audits within 3 months post-fraud to restore investor confidence.",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6:Q14",
+          "value": "BRSR mandates enhanced governance disclosure post-fraud."
+        },
+        {
+          "source": "article",
+          "ref": "₹590 Cr fraud disclosure",
+          "value": "Fraud amount triggering governance risk and market cap loss."
+        }
+      ]
+    },
+    {
+      "title": "Implement Board-Level Governance Reforms",
+      "description": "Revise board composition to include 40% independent directors with ESG and risk expertise by 2026-09-30, aligning with COSO ERM and BRSR governance best practices, with an estimated budget of ₹2-3 Cr for recruitment and training. This will enhance oversight and reduce governance risk.",
+      "type": "strategic",
+      "responsible_party": "Chairman of the Board",
+      "framework_section": "COSO ERM, BRSR:P6",
+      "deadline": "2026-09-30",
+      "estimated_budget": "₹2-3 Cr",
+      "profitability_link": "Expected to recover ₹2,049.5 Cr in lost revenue by restoring investor trust, with a valuation premium of 5-10% per DJSI benchmarks, ROI estimated at 350%.",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 350.0,
+      "payback_months": 18.0,
+      "peer_benchmark": "Competitors enhanced board independence post-crisis to regain ESG index eligibility.",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "COSO ERM",
+          "value": "ERM maturity linked to improved credit rating and cost of capital."
+        },
+        {
+          "source": "article",
+          "ref": "₹16,396 Cr market cap loss",
+          "value": "Governance failure causing significant valuation decline."
+        }
+      ]
+    },
+    {
+      "title": "File SEBI Quarterly Corporate Governance Report",
+      "description": "Submit the next SEBI Quarterly Corporate Governance Report by 2026-07-15 detailing fraud remediation steps and governance reforms, ensuring compliance with BRSR and SEBI regulations, with a budget allocation of ₹0.5-1 Cr for report preparation and audit.",
+      "type": "compliance",
+      "responsible_party": "Company Secretary",
+      "framework_section": "BRSR:P6, SEBI Quarterly Report",
+      "deadline": "2026-07-15",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Avoid ₹15-30 Cr in SEBI penalties and trading restrictions, with an ROI of 500% due to compliance cost avoidance.",
+      "priority": "HIGH",
+      "urgency": "short_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 8,
+      "roi_percentage": 500.0,
+      "payback_months": 3.0,
+      "peer_benchmark": "Peers filed timely SEBI reports post-fraud to prevent trading halts and maintain investor confidence.",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "BRSR requires timely governance disclosures."
+        },
+        {
+          "source": "article",
+          "ref": "SEBI scrutiny risk",
+          "value": "Regulatory risk from fraud disclosure."
+        }
+      ]
+    },
+    {
+      "title": "Monitor Cyber Vulnerability and Data Breach Metrics",
+      "description": "Establish continuous monitoring of cyber vulnerability scores (CVSS) and data breach incidents, escalating to board-level ACT if CVSS ≥7.0 or public data breach exceeds 1000 PII records within 6 months, to prevent further reputational and regulatory damage.",
+      "type": "operational",
+      "responsible_party": "Chief Information Security Officer",
+      "framework_section": "BRSR:P6, GRI:418-1",
+      "deadline": "2026-10-31",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "Mitigates risk of additional ₹500 Cr in fines and market cap erosion, with an estimated ROI of 200% through risk reduction.",
+      "priority": "HIGH",
+      "urgency": "medium_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 7,
+      "roi_percentage": 200.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Top banks implemented threshold-based cyber risk monitoring post-fraud to prevent escalation.",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "primitive",
+          "ref": "CVSS >=7.0 threshold",
+          "value": "Cyber vulnerability criticality threshold for escalation."
+        },
+        {
+          "source": "primitive",
+          "ref": "Data breach ≥1000 PII records",
+          "value": "Regulatory notification trigger threshold."
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 4,
+  "validated_count": 4,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 0,
+        "title": "Commission Forensic Audit on Fraud Incident",
+        "type": "compliance",
+        "roi": 400.0,
+        "budget": "₹3-5 Cr"
+      },
+      {
+        "index": 1,
+        "title": "Implement Board-Level Governance Reforms",
+        "type": "strategic",
+        "roi": 350.0,
+        "budget": "₹2-3 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 2,
+        "title": "File SEBI Quarterly Corporate Governance Report",
+        "type": "compliance",
+        "roi": 500.0,
+        "budget": "₹0.5-1 Cr"
+      }
+    ],
+    "deferred_high": [
+      {
+        "index": 3,
+        "title": "Monitor Cyber Vulnerability and Data Breach Metrics",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹1-2 Cr"
+      }
+    ],
+    "deferred_low": []
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      2,
+      0,
+      1,
+      3
+    ],
+    "ceo": [
+      2,
+      0,
+      1,
+      3
+    ],
+    "esg-analyst": [
+      0,
+      2,
+      1,
+      3
+    ]
+  }
+}
