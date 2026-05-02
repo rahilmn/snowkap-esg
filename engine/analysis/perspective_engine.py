@@ -81,12 +81,41 @@ def _build_impact_grid(
     return {col: _classify_grid_level(score) for col, score in columns.items()}
 
 
+_NEGATIVE_LEAD_PATTERNS = (
+    "no supply chain",
+    "no direct",
+    "no immediate",
+    "no material",
+    "not material",
+    "no impact",
+    "no exposure",
+    "no regulatory",
+    "no governance",
+    "no people",
+    "n/a",
+)
+
+
+def _is_negative_lead(value: str) -> bool:
+    """A bullet 'leads negative' if its first ~80 chars say the dimension does
+    not apply (e.g., 'No supply chain transmission; ...'). These are factual
+    but make weak top-of-list bullets for CFO/CEO summaries — they should be
+    pushed to the bottom rather than dropped, so we still surface them as the
+    last bullet when there's room."""
+    head = value.strip().lower()[:80]
+    return any(head.startswith(p) for p in _NEGATIVE_LEAD_PATTERNS)
+
+
 def _extract_what_matters(
     insight: DeepInsight, active_dims: set[str], max_items: int = 3
 ) -> list[str]:
-    """Pick 2-3 impact_analysis entries aligned with the active perspective."""
+    """Pick 2-3 impact_analysis entries aligned with the active perspective.
+
+    Phase 22.5: bullets that lead with a negative finding ('No supply chain
+    transmission', 'No direct revenue at risk') are stable-sorted to the
+    bottom so the top of the list is always positive/material content.
+    """
     impact_analysis = insight.impact_analysis or {}
-    # Dim-to-key mapping sourced from ontology
     dim_to_key = query_dim_to_insight_keys()
     priority_keys: list[str] = []
     for dim in active_dims:
@@ -96,14 +125,20 @@ def _extract_what_matters(
     # If perspective has no ontology dims, fall back to all
     if not priority_keys:
         priority_keys = list(impact_analysis.keys())
-    ordered = []
+
+    positive: list[str] = []
+    negative: list[str] = []
     for key in priority_keys:
         value = impact_analysis.get(key)
-        if value and value != "N/A":
-            ordered.append(str(value))
-        if len(ordered) >= max_items:
+        if not value or value == "N/A":
+            continue
+        s = str(value)
+        (negative if _is_negative_lead(s) else positive).append(s)
+        if len(positive) + len(negative) >= max_items * 2:
             break
-    return ordered[:max_items]
+
+    ordered = (positive + negative)[:max_items]
+    return ordered
 
 
 def _extract_action(
@@ -258,7 +293,11 @@ def transform_for_perspective(
             what_matters.pop()
             total_words = sum(len(b.split()) for b in what_matters)
 
-    full = insight.to_dict() if perspective == "esg-analyst" else None
+    # Phase 22.5: populate full_insight for ALL perspectives (was esg-analyst
+    # only). The CFO + CEO lenses need it for the in-app drill-down panel
+    # and for downstream renderers that want the canonical impact_analysis,
+    # decision_summary, financial_timeline, etc. without an extra round trip.
+    full = insight.to_dict()
 
     return CrispOutput(
         perspective=perspective,

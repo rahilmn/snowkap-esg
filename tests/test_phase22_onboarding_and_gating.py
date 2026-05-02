@@ -26,6 +26,11 @@ from engine.index.sqlite_index import DB_PATH
 
 @pytest.fixture(autouse=True)
 def _jwt_env():
+    # Phase 22.3 — clear the in-memory LOGIN_LIMITER between tests so the
+    # 5/min cap from a prior test in the same process doesn't trip a
+    # later /auth/login with 429.
+    from api.rate_limit import LOGIN_LIMITER
+    LOGIN_LIMITER.reset()
     with patch.dict(
         "os.environ",
         {
@@ -35,6 +40,7 @@ def _jwt_env():
         clear=False,
     ):
         yield
+    LOGIN_LIMITER.reset()
 
 
 def _admin_token() -> str:

@@ -98,7 +98,12 @@ def test_render_otp_email_contains_code():
 
 
 def test_is_email_otp_enabled_reflects_resend(monkeypatch):
+    # Phase 22.4 — OTP login disabled at user request; the flag is
+    # hard-False regardless of RESEND_API_KEY. The OTP module is left
+    # in place (DB schema + issue/verify + /auth/verify endpoint) so
+    # we can re-enable later by flipping that one flag. See
+    # `is_email_otp_enabled()` docstring for the full rationale.
     monkeypatch.delenv("RESEND_API_KEY", raising=False)
     assert not auth_otp.is_email_otp_enabled()
     monkeypatch.setenv("RESEND_API_KEY", "re_test_xxx")
-    assert auth_otp.is_email_otp_enabled()
+    assert not auth_otp.is_email_otp_enabled()

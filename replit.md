@@ -101,6 +101,39 @@ in the loop. End-to-end retested with Lloyds Banking Group.
   `tests/test_phase22_3_otp.py` cases still pass — they exercise the
   module directly, not the route gate.
 
+### Phase 22.3 orthogonal quality fixes (Reliance perspectives)
+Three small fixes shipped alongside the BASF/Lloyds work to clean up
+the deep-insight panel without re-architecting the perspective engine:
+- **`engine/analysis/perspective_engine.py`** — `full_insight` is now
+  populated for ALL three perspectives (executive / operations /
+  capital), not just executive. Pre-fix the ops/capital tabs rendered
+  the trimmed `summary` only and lost the supporting paragraph.
+- **`engine/analysis/perspective_engine.py::_extract_what_matters`**
+  now reorders bullets that lead with negation patterns
+  (`_NEGATIVE_LEAD_PATTERNS`: "no impact", "no exposure", "no material",
+  "not material", "no supply chain", "no regulatory", "n/a", …) to the
+  bottom of the list so positive / actionable bullets surface first in
+  the UI.
+- **`data/ontology/knowledge_base.ttl::event_routine_capex`** — keyword
+  list expanded to cover green ammonia, hydrogen, and decarbonisation
+  capex announcements that were previously misclassified as
+  `event_unspecified` and dropped from the framework matcher.
+
+### T10 E2E retest (Lloyds Banking Group, UK prospect, 2026-05-02)
+- Login: `analyst@lloydsbankinggroup.com` mints JWT with
+  `company_id=lloyds-banking-group-plc` (canonical slug from yfinance
+  resolution), single-step (no OTP challenge per Phase 22.4).
+- Tenant gate: same JWT querying `?company_id=lloyds-banking-group-plc`
+  → 200; querying `?company_id=basf-se` → 403.
+- Stats/feed reconcile: `/news/stats.total=0` matches
+  `/news/feed.total=0, items=[]` (no `{total:1, items:[]}` mismatch).
+- Currency conversion: `config/companies.json` records Lloyds with
+  `market_cap_cr=602285.8` (~£57B at GBP 105/INR), `market_cap=Large
+  Cap` (was Small Cap pre-fix), `_currency=GBP` audit-tagged.
+- Self-service retry: `POST /api/news/onboarding-retry` → 200.
+- All 86 surgical-fix tests pass (alias gate, currency, rate limit,
+  framework_region, OTP module, onboarder region, entity gate).
+
 ## Phase 22.4 — OTP login disabled (single-step restored)
 - **`api/auth_otp.is_email_otp_enabled()`** now returns False
   unconditionally. The 2-step magic-link UX has been removed.
