@@ -84,7 +84,7 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
         if result is None:
             onboarding_status.mark_failed(
                 slug,
-                "could not resolve ticker (India-only V1 — try a valid NSE/BSE company or pass ticker_hint like 'TATACHEM.NS')",
+                "could not resolve ticker — try passing ticker_hint (e.g. 'TATACHEM.NS', 'PUM.DE', 'AAPL')",
             )
             return
 

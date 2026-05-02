@@ -98,20 +98,102 @@ def _infer_our_industry(yf_industry: str, yf_sector: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Market-cap tiering (INR Cr)
+# Market-cap tiering — currency-aware
 # ---------------------------------------------------------------------------
 
+# Phase 23B — USD thresholds so non-Indian companies don't all land in
+# "Small Cap" because their market cap (in USD/EUR) is tiny in INR-Cr terms.
+# USD bands mirror SEBI's INR bands at a ~85 INR/USD FX rate:
+#   Large Cap ≥ $2.4 B  (≈ ₹20,000 Cr),  Mid Cap ≥ $590 M (≈ ₹5,000 Cr).
+# We round to $2 B / $500 M for simplicity.
+_USD_LARGE_CAP = 2_000_000_000   # $2 B
+_USD_MID_CAP   =   500_000_000   # $500 M
+_INR_LARGE_CAP = 200_000_000_000 # ₹20,000 Cr in raw INR
+_INR_MID_CAP   =  50_000_000_000 # ₹5,000 Cr in raw INR
 
-def _infer_cap_tier(market_cap_raw_inr: float) -> str:
-    """Follow SEBI's broad bands (simplified):
-    Large Cap ≥ ₹20,000 Cr; Mid Cap ₹5,000-20,000 Cr; Small Cap < ₹5,000 Cr.
+# Currencies whose raw market-cap values are in USD-scale (not INR)
+_USD_SCALE_CURRENCIES = {
+    "USD", "EUR", "GBP", "CHF", "SEK", "NOK", "DKK", "AUD", "CAD",
+    "SGD", "JPY", "KRW", "HKD", "CNY", "BRL", "ZAR",
+}
+
+
+def _infer_cap_tier(market_cap_raw: float, currency: str = "INR") -> str:
+    """Return Large / Mid / Small Cap from a raw market-cap figure.
+
+    Phase 23B: accepts `currency` so non-Indian listings (EUR, USD, …) are
+    compared against USD-scale thresholds instead of INR-Cr thresholds.
+    JPY and KRW are intentionally lumped into USD-scale because their raw
+    figures (billions of JPY ≈ millions of USD) sit in the right ballpark
+    for the USD bands above.
     """
-    cr = market_cap_raw_inr / 1e7
-    if cr >= 20_000:
+    if currency.upper() == "INR":
+        if market_cap_raw >= _INR_LARGE_CAP:
+            return "Large Cap"
+        if market_cap_raw >= _INR_MID_CAP:
+            return "Mid Cap"
+        return "Small Cap"
+    # Non-INR: use USD-scale thresholds (EUR/GBP close enough at ±20%)
+    if market_cap_raw >= _USD_LARGE_CAP:
         return "Large Cap"
-    if cr >= 5_000:
+    if market_cap_raw >= _USD_MID_CAP:
         return "Mid Cap"
     return "Small Cap"
+
+
+# ---------------------------------------------------------------------------
+# Region + exchange helpers
+# ---------------------------------------------------------------------------
+
+_REGION_MAP: dict[str, str] = {
+    "India":          "Asia-Pacific",
+    "China":          "Asia-Pacific",
+    "Japan":          "Asia-Pacific",
+    "South Korea":    "Asia-Pacific",
+    "Australia":      "Asia-Pacific",
+    "Singapore":      "Asia-Pacific",
+    "Hong Kong":      "Asia-Pacific",
+    "United States":  "North America",
+    "Canada":         "North America",
+    "United Kingdom": "Europe",
+    "Germany":        "Europe",
+    "France":         "Europe",
+    "Netherlands":    "Europe",
+    "Switzerland":    "Europe",
+    "Sweden":         "Europe",
+    "Norway":         "Europe",
+    "Denmark":        "Europe",
+    "Brazil":         "Latin America",
+    "Mexico":         "Latin America",
+    "South Africa":   "Africa",
+}
+
+
+def _infer_region(country: str | None) -> str:
+    """Map a country name to a broad geographic region."""
+    return _REGION_MAP.get(country or "", "Global")
+
+
+def _infer_exchange(ticker: str) -> str:
+    """Derive the primary listing exchange from a yfinance ticker suffix."""
+    if ticker.endswith(".NS"):  return "NSE"
+    if ticker.endswith(".BO"):  return "BSE"
+    if ticker.endswith(".L"):   return "LSE"
+    if ticker.endswith(".DE"):  return "XETRA"
+    if ticker.endswith(".PA"):  return "Euronext"
+    if ticker.endswith(".AS"):  return "Euronext"
+    if ticker.endswith(".SW"):  return "SIX"
+    if ticker.endswith(".ST"):  return "Nasdaq Nordic"
+    if ticker.endswith(".T"):   return "TSE"
+    if ticker.endswith(".HK"):  return "HKEX"
+    if ticker.endswith(".AX"):  return "ASX"
+    if ticker.endswith(".SI"):  return "SGX"
+    if ticker.endswith(".KS"):  return "KRX"
+    if ticker.endswith(".SS") or ticker.endswith(".SZ"):  return "SSE/SZSE"
+    if ticker.endswith(".SA"):  return "B3"
+    if "." not in ticker:       return "NYSE/NASDAQ"
+    suffix = ticker.rsplit(".", 1)[-1]
+    return suffix.upper()
 
 
 # ---------------------------------------------------------------------------
@@ -575,9 +657,10 @@ def onboard_company(
             added_to_config=False, already_existed=True,
         )
 
-    # 2. Industry + cap tier
+    # 2. Industry + cap tier (Phase 23B: pass currency for non-INR listings)
     industry = _infer_our_industry(info.get("industry", ""), info.get("sector", ""))
-    cap_tier = _infer_cap_tier(info.get("marketCap", 0) or 0)
+    currency = (info.get("currency") or "INR").upper()
+    cap_tier = _infer_cap_tier(info.get("marketCap", 0) or 0, currency=currency)
 
     # 3. SASB category
     sasb_category = _INDUSTRY_TO_SASB.get(industry, "Other / General")
@@ -613,10 +696,10 @@ def onboard_company(
     # 5. News queries
     queries = _build_queries(resolved_name, industry)
 
-    # 6. Domain + HQ heuristics
-    hq_city = info.get("city") or "Mumbai"
-    hq_country = info.get("country") or "India"
-    hq_region = "Asia-Pacific" if hq_country == "India" else "Other"
+    # 6. Domain + HQ heuristics (Phase 23B: proper global region mapping)
+    hq_city = info.get("city") or ""
+    hq_country = info.get("country") or "Unknown"
+    hq_region = _infer_region(hq_country)
 
     # 7. Build company entry
     entry = {
@@ -626,7 +709,7 @@ def onboard_company(
         "industry": industry,
         "sasb_category": sasb_category,
         "market_cap": cap_tier,
-        "listing_exchange": "NSE" if ticker.endswith(".NS") else "BSE",
+        "listing_exchange": _infer_exchange(ticker),
         "headquarter_city": hq_city,
         "headquarter_country": hq_country,
         "headquarter_region": hq_region,

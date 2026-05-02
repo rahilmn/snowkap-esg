@@ -34,9 +34,45 @@ from engine.ingestion.dedup import SemanticDedup, is_fresh
 
 logger = logging.getLogger(__name__)
 
-GOOGLE_NEWS_URL = (
-    "https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
-)
+# Phase 23A — country-aware locale so non-Indian companies get news in their
+# own market's language/region instead of the India-filtered feed that was
+# silently returning 0 results for every non-Indian prospect.
+#
+# Format: (hl, gl, ceid). Default = English-US (deliberate departure from the
+# previous India-only default that silently broke non-Indian onboarding).
+_COUNTRY_LOCALE: dict[str, tuple[str, str, str]] = {
+    "India":          ("en-IN", "IN",  "IN:en"),
+    "United States":  ("en-US", "US",  "US:en"),
+    "United Kingdom": ("en-GB", "GB",  "GB:en"),
+    "Germany":        ("de",    "DE",  "DE:de"),
+    "France":         ("fr",    "FR",  "FR:fr"),
+    "Netherlands":    ("nl",    "NL",  "NL:nl"),
+    "Switzerland":    ("de-CH", "CH",  "CH:de"),
+    "Sweden":         ("sv",    "SE",  "SE:sv"),
+    "Japan":          ("ja",    "JP",  "JP:ja"),
+    "China":          ("zh-CN", "CN",  "CN:zh-Hans"),
+    "Australia":      ("en-AU", "AU",  "AU:en"),
+    "Canada":         ("en-CA", "CA",  "CA:en"),
+    "Singapore":      ("en-SG", "SG",  "SG:en"),
+    "South Korea":    ("ko",    "KR",  "KR:ko"),
+    "Brazil":         ("pt-BR", "BR",  "BR:pt-419"),
+    "South Africa":   ("en-ZA", "ZA",  "ZA:en"),
+}
+_DEFAULT_LOCALE: tuple[str, str, str] = ("en", "US", "US:en")
+
+_GOOGLE_NEWS_BASE = "https://news.google.com/rss/search?q={query}&hl={hl}&gl={gl}&ceid={ceid}"
+
+
+def _locale_for_country(country: str | None) -> dict[str, str]:
+    """Return the hl/gl/ceid Google News params for the given country name.
+
+    Falls back to English-US for unknown / None countries so non-Indian
+    prospects don't silently get India-filtered results.
+    """
+    hl, gl, ceid = _COUNTRY_LOCALE.get(country or "", _DEFAULT_LOCALE)
+    return {"hl": hl, "gl": gl, "ceid": ceid}
+
+
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
 HTML_TAG = re.compile(r"<[^>]+>")
 WHITESPACE = re.compile(r"\s+")
@@ -126,9 +162,15 @@ def _write_article(article: IngestedArticle) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def fetch_google_news(query: str, max_results: int = 20) -> list[dict]:
-    """Fetch Google News RSS for a search query."""
-    feed_url = GOOGLE_NEWS_URL.format(query=quote(query))
+def fetch_google_news(query: str, max_results: int = 20, country: str | None = None) -> list[dict]:
+    """Fetch Google News RSS for a search query.
+
+    Phase 23A: `country` controls the locale params so non-Indian companies
+    get results from their own market instead of the India-filtered feed.
+    Defaults to English-US when omitted or unrecognised.
+    """
+    locale = _locale_for_country(country)
+    feed_url = _GOOGLE_NEWS_BASE.format(query=quote(query), **locale)
     logger.debug("Fetching Google News RSS: %s", feed_url)
     try:
         parsed = feedparser.parse(feed_url)
@@ -475,6 +517,10 @@ def fetch_for_company(
 
     raw_articles: list[dict] = []
     seen_urls: set[str] = set()
+    # Phase 23A — pass the company's home country so Google News returns
+    # results in the correct locale, not India-filtered results for everyone.
+    hq_country = getattr(company, "headquarter_country", None) or None
+
     for query in company.news_queries:
         # Prioritize NewsAPI.ai (full text) → NewsAPI.org → Google News RSS (headline only)
         for source_type, fetcher in (
@@ -482,7 +528,10 @@ def fetch_for_company(
             ("newsapi", fetch_newsapi),
             ("google_news", fetch_google_news),
         ):
-            for art in fetcher(query, max_results=limit):
+            kwargs: dict = {"max_results": limit}
+            if source_type == "google_news":
+                kwargs["country"] = hq_country
+            for art in fetcher(query, **kwargs):
                 if art["url"] in seen_urls:
                     continue
                 seen_urls.add(art["url"])
