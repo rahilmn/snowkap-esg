@@ -33,11 +33,12 @@ import logging
 import traceback
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from api.auth import require_auth
 from api.auth_context import require_bearer_permission
+from engine.jobs import onboard_queue
 from engine.models import onboarding_status
 
 logger = logging.getLogger(__name__)
@@ -63,11 +64,58 @@ class OnboardRequest(BaseModel):
     limit: int = Field(default=10, ge=1, le=50)
 
 
+def enqueue_onboarding(
+    *,
+    slug: str,
+    name: str | None,
+    ticker_hint: str | None,
+    domain: str | None,
+    limit: int,
+) -> int:
+    """Append an onboarding job to the SQLite queue drained by
+    ``scripts/onboarding_worker.py``.
+
+    This replaced ``BackgroundTasks.add_task(_background_onboard, ...)``
+    so the API event loop is never on the hook for a slow yfinance
+    lookup, NewsAPI rate-limit retry, or 12-stage LLM pipeline. The
+    queue lives in the same SQLite DB as ``onboarding_status``, and
+    the existing ``claim_pending`` / ``force_claim_pending`` checks on
+    that table continue to gate against duplicate enqueues.
+
+    Returns the new queue row id (handy for logging / future tracing).
+    Falls back to a logged warning + still returns 0 if the enqueue
+    write itself fails — the API request must never fail because of a
+    queue error; the user can retry from the empty-Home state.
+    """
+    try:
+        return onboard_queue.enqueue(
+            slug=slug,
+            name=name,
+            ticker_hint=ticker_hint,
+            domain=domain,
+            item_limit=int(limit),
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("failed to enqueue onboarding job for slug=%s: %s", slug, exc)
+        return 0
+
+
 def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, domain: str | None, limit: int) -> None:
-    """Runs in FastAPI's BackgroundTasks pool. `slug` is already computed by
-    the HTTP handler and the row is already seeded (state=pending). All
-    state changes happen on this same slug. Exceptions are written to
-    onboarding_status.error rather than raised."""
+    """Body of the onboarding pipeline.
+
+    Pre-Phase-23: this was registered as a FastAPI ``BackgroundTask``
+    so it ran inside the API process. That blocked event-loop threads
+    on slow third-party calls. It now runs ONLY inside
+    ``scripts/onboarding_worker.py`` (a separate Replit workflow); the
+    API enqueues via :func:`enqueue_onboarding` and never invokes this
+    function inline. The signature is preserved so the worker, the
+    direct-call tests in ``tests/test_phase22_2_mirror_and_counter.py``,
+    and any operational backfill scripts continue to work unchanged.
+
+    ``slug`` is already computed by the HTTP handler and the row is
+    already seeded (state=pending). All state changes happen on this
+    same slug. Exceptions are written to ``onboarding_status.error``
+    rather than raised."""
     # Lazy imports keep the HTTP request fast when the task is queued.
     from engine.config import load_companies
     from engine.index import tenant_registry
@@ -206,7 +254,6 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
 @router.post("/onboard", status_code=202)
 def onboard(
     body: OnboardRequest,
-    background: BackgroundTasks,
 ) -> dict[str, Any]:
     """Kick off the onboarding pipeline. Returns immediately with 202.
 
@@ -229,8 +276,9 @@ def onboard(
     # Seed the status row up-front so pollers never race with the task start.
     onboarding_status.upsert(expected_slug, state="pending")
 
-    background.add_task(
-        _background_onboard,
+    # Hand off to the dedicated onboarding worker (separate Replit
+    # workflow). The API process never runs the pipeline inline.
+    enqueue_onboarding(
         slug=expected_slug,
         name=body.name,
         ticker_hint=body.ticker_hint,

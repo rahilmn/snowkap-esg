@@ -72,9 +72,12 @@ def test_onboard_status_requires_super_admin():
 def test_onboard_returns_202_and_seeds_status():
     client = TestClient(app)
 
-    # Patch the background task to a no-op so the test is fast + deterministic
+    # Patch the queue helper so the test is fast + deterministic
     # (we're testing the HTTP boundary + status seeding, not the pipeline).
-    with patch("api.routes.admin_onboard._background_onboard") as mock_bg:
+    # Phase 23 — onboarding now goes through `enqueue_onboarding` instead
+    # of FastAPI BackgroundTasks; the actual pipeline runs in the
+    # standalone `scripts/onboarding_worker.py` process.
+    with patch("api.routes.admin_onboard.enqueue_onboarding") as mock_enqueue:
         r = client.post(
             "/api/admin/onboard",
             headers={"Authorization": f"Bearer {_admin_token()}"},
@@ -92,9 +95,10 @@ def test_onboard_returns_202_and_seeds_status():
     assert status is not None
     assert status.state == "pending"
 
-    # BackgroundTasks.add_task was invoked with our callable + kwargs
-    mock_bg.assert_called_once()
-    call_kwargs = mock_bg.call_args.kwargs
+    # enqueue_onboarding was invoked with our kwargs — meaning a row
+    # is now waiting in the queue for the worker to drain.
+    mock_enqueue.assert_called_once()
+    call_kwargs = mock_enqueue.call_args.kwargs
     assert call_kwargs["slug"] == "hero-motocorp"
     assert call_kwargs["name"] == "Hero MotoCorp"
     assert call_kwargs["ticker_hint"] == "HEROMOTOCO.NS"
@@ -154,9 +158,11 @@ def test_unknown_domain_login_registers_tenant_immediately():
     except Exception:
         pass
 
-    # Patch the heavy onboarding task so the test doesn't actually call
-    # yfinance / OpenAI — we're testing the registry write + slug return.
-    with _patch("api.routes.admin_onboard._background_onboard"):
+    # Patch the queue enqueue so we don't actually write to the
+    # onboarding queue — we're testing the registry write + slug return.
+    # Phase 23 — first-login onboarding kickoff routes through
+    # `enqueue_onboarding`, not the in-process background task.
+    with _patch("api.routes.admin_onboard.enqueue_onboarding"):
         r = client.post(
             "/api/auth/login",
             json={

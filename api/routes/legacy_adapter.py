@@ -673,29 +673,33 @@ def _ensure_tenant_for_login(
     # first-time logins for the same prospect can't both enqueue the
     # pipeline (which would double-charge NewsAPI and produce duplicate
     # PipelineResult rows).
-    if background is not None:
-        try:
-            from engine.models import onboarding_status
+    #
+    # Phase 23 — onboarding now runs in the dedicated worker process
+    # (`scripts/onboarding_worker.py`); the API only enqueues. The
+    # `background` BackgroundTasks parameter is kept on the caller's
+    # signature for legacy reasons but is no longer required for this
+    # path.
+    try:
+        from engine.models import onboarding_status
 
-            if onboarding_status.claim_pending(slug):
-                from api.routes.admin_onboard import _background_onboard
+        if onboarding_status.claim_pending(slug):
+            from api.routes.admin_onboard import enqueue_onboarding
 
-                background.add_task(
-                    _background_onboard,
-                    slug=slug,
-                    name=body_company_name,
-                    ticker_hint=None,
-                    domain=body_domain,
-                    limit=10,
-                )
-                logger.info(
-                    "auth_login_kicked_onboarding",
-                    extra={"slug": slug, "domain": body_domain, "email": body_email},
-                )
-        except Exception as exc:
-            # Never block login on a pipeline failure. The tenant is already
-            # registered; the sales admin can re-trigger onboarding manually.
-            logger.warning("background onboarding kickoff failed for %s: %s", slug, exc)
+            enqueue_onboarding(
+                slug=slug,
+                name=body_company_name,
+                ticker_hint=None,
+                domain=body_domain,
+                limit=10,
+            )
+            logger.info(
+                "auth_login_kicked_onboarding",
+                extra={"slug": slug, "domain": body_domain, "email": body_email},
+            )
+    except Exception as exc:
+        # Never block login on a pipeline failure. The tenant is already
+        # registered; the sales admin can re-trigger onboarding manually.
+        logger.warning("background onboarding kickoff failed for %s: %s", slug, exc)
 
     return slug
 
@@ -1251,7 +1255,6 @@ def news_onboarding_status(
 
 @router.post("/news/onboarding-retry")
 def news_onboarding_retry(
-    background: BackgroundTasks,
     _: None = Depends(require_auth),
     claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
@@ -1277,7 +1280,7 @@ def news_onboarding_retry(
         )
 
     from engine.models import onboarding_status
-    from api.routes.admin_onboard import _background_onboard
+    from api.routes.admin_onboard import enqueue_onboarding
 
     # Resolve the canonical slug — login-slug aliases (e.g. `basf`)
     # MUST be re-pointed to the canonical (`basf-se`) so the retry
@@ -1300,8 +1303,10 @@ def news_onboarding_retry(
     domain = sub.split("@")[-1] if "@" in sub else None
     company_name = claims.get("company")
 
-    background.add_task(
-        _background_onboard,
+    # Phase 23 — enqueue to the dedicated worker queue rather than
+    # FastAPI BackgroundTasks. The retry call returns immediately even
+    # if the upstream news/yfinance fetch is slow.
+    enqueue_onboarding(
         slug=canonical,
         name=company_name,
         ticker_hint=None,

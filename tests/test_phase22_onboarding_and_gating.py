@@ -86,7 +86,7 @@ def test_corporate_login_assigns_own_company_id():
     _purge(domain)
 
     client = TestClient(app)
-    with patch("api.routes.admin_onboard._background_onboard"):
+    with patch("api.routes.admin_onboard.enqueue_onboarding"):
         r = client.post(
             "/api/auth/login",
             json={
@@ -114,7 +114,7 @@ def test_returning_user_login_also_assigns_own_company_id():
     _purge(domain)
 
     client = TestClient(app)
-    with patch("api.routes.admin_onboard._background_onboard"):
+    with patch("api.routes.admin_onboard.enqueue_onboarding"):
         r = client.post(
             "/api/auth/returning-user",
             json={"email": f"user@{domain}"},
@@ -171,7 +171,7 @@ def test_non_allowlisted_snowkap_email_lands_on_own_tenant():
     NOT the cross-tenant view. Otherwise any @snowkap.co.in employee
     bypasses the super_admin gate just by sharing the company domain."""
     client = TestClient(app)
-    with patch("api.routes.admin_onboard._background_onboard"):
+    with patch("api.routes.admin_onboard.enqueue_onboarding"):
         r = client.post(
             "/api/auth/login",
             json={
@@ -197,7 +197,7 @@ def test_login_kicks_off_background_onboarding_for_new_prospects():
     _purge(domain)
 
     client = TestClient(app)
-    with patch("api.routes.admin_onboard._background_onboard") as mock_bg:
+    with patch("api.routes.admin_onboard.enqueue_onboarding") as mock_enqueue:
         r = client.post(
             "/api/auth/login",
             json={
@@ -210,11 +210,12 @@ def test_login_kicks_off_background_onboarding_for_new_prospects():
         )
     assert r.status_code == 200
 
-    # FastAPI runs BackgroundTasks AFTER the response is sent. With
-    # TestClient that happens in the same thread before .post() returns —
-    # so by here the patched function has been invoked exactly once.
-    assert mock_bg.called, "Background onboarding task was not scheduled"
-    call_kwargs = mock_bg.call_args.kwargs
+    # Phase 23 — first-time prospect login enqueues an onboarding job
+    # to the SQLite queue drained by `scripts/onboarding_worker.py`,
+    # rather than scheduling a FastAPI BackgroundTask. The route still
+    # returns synchronously, but no pipeline work happens in-process.
+    assert mock_enqueue.called, "Onboarding job was not enqueued"
+    call_kwargs = mock_enqueue.call_args.kwargs
     assert call_kwargs["slug"] == tenant_registry._slug_from_domain(domain)
     assert call_kwargs["domain"] == domain
 

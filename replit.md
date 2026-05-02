@@ -305,3 +305,30 @@ trips through `to_dict()` and is wrapped in
 `<<<ARTICLE_BODY_START>>>…<<<ARTICLE_BODY_END>>>` delimiters in the
 Stage 10 prompt, marked as UNTRUSTED quoted source so any embedded
 prompt-injection attempts are ignored.
+
+## Phase 23 — Onboarding off the API event loop
+Onboarding (yfinance ticker resolution + NewsAPI fetch + 12-stage
+pipeline) used to run inside the FastAPI process via
+`BackgroundTasks`. A slow third-party call could block event-loop
+threads and degrade login / feed latency for every other tenant on
+the same worker.
+
+The pipeline now runs in a dedicated worker process under its own
+Replit workflow (`Onboarding Worker` → `python scripts/onboarding_worker.py`).
+The handoff is a tiny SQLite-backed queue (`onboard_jobs` table in
+`data/snowkap.db`, atomically claimed via `BEGIN IMMEDIATE`) — no
+Redis needed.
+
+- `engine/jobs/onboard_queue.py` — queue with `enqueue` / `claim_next`
+  / `mark_done` / `mark_failed`.
+- `api/routes/admin_onboard.enqueue_onboarding` — single helper called
+  by `POST /api/admin/onboard`, `POST /api/news/onboarding-retry`, and
+  the new-prospect first-login path in `_ensure_tenant_for_login`.
+- `_background_onboard` (the pipeline body) is unchanged in signature —
+  it now runs ONLY inside the worker process. Direct-call tests in
+  `tests/test_phase22_2_mirror_and_counter.py` still work.
+- The polling-based `onboarding_status` UX (HomePage retry button,
+  modal progress) is unchanged: status rows are still written by
+  `_background_onboard` regardless of which process runs it.
+- Restart the worker independently of the API when needed
+  (`Onboarding Worker` workflow).
