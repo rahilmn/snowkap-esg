@@ -31,6 +31,10 @@ run = ["bash", "run.sh"]
 deploymentTarget = "cloudrun"
 
 [[ports]]
+localPort = 5000
+externalPort = 5000
+
+[[ports]]
 localPort = 8000
 externalPort = 80
 
@@ -53,13 +57,13 @@ args = "Start API"
 name = "Start API"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash run.sh"
-waitForPort = 8000
-
-[workflows.workflow.metadata]
-outputType = "webview"
+waitForPort = 5000
 
 [postMerge]
 path = "scripts/post-merge.sh"

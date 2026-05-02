@@ -87,7 +87,13 @@ python -c "from engine.index.sqlite_index import ensure_schema; ensure_schema()"
 #    AND SNOWKAP_INPROCESS_SCHEDULER=0 (run the scheduler as a separate
 #    Replit scheduled task instead).
 WORKERS="${SNOWKAP_WORKERS:-1}"
-PORT="${PORT:-8000}"
+PORT="${PORT:-5000}"
+
+# Clear any stale process holding the port before binding (avoids
+# "address already in use" on Replit restarts / post-merge workflow
+# reconciliation where two uvicorn instances briefly overlap).
+fuser -k "${PORT}/tcp" 2>/dev/null || true
+sleep 0.5
 
 echo "Starting API on 0.0.0.0:${PORT} with ${WORKERS} worker(s)..."
 exec python -m uvicorn api.main:app \
