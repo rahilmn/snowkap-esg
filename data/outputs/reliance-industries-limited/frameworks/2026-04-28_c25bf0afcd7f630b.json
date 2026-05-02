@@ -7,8 +7,8 @@
       "is_mandatory": true,
       "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
       "triggered_by_themes": [
-        "Energy",
         "Climate Change",
+        "Energy",
         "Community Impact",
         "Health & Safety"
       ],
@@ -26,15 +26,13 @@
       "is_mandatory": false,
       "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
       "triggered_by_themes": [
-        "Energy",
         "Climate Change",
+        "Energy",
         "Community Impact",
         "Health & Safety"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": [
-        "GRI:302"
-      ]
+      "triggered_sections": []
     },
     {
       "framework_id": "CDP",
@@ -43,8 +41,8 @@
       "is_mandatory": false,
       "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
       "triggered_by_themes": [
-        "Energy",
-        "Climate Change"
+        "Climate Change",
+        "Energy"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []
@@ -56,28 +54,22 @@
       "is_mandatory": false,
       "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
       "triggered_by_themes": [
-        "Energy",
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": []
-    },
-    {
-      "framework_id": "EU_TAXONOMY",
-      "framework_label": "EU Taxonomy",
-      "relevance": 0.55,
-      "is_mandatory": false,
-      "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
-      "triggered_by_themes": [
+        "Climate Change",
         "Energy"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": []
+      "triggered_sections": [
+        "ESRS:E1",
+        "ESRS:E1",
+        "TCFD:Gov",
+        "TCFD:Governance",
+        "TCFD:Metrics"
+      ]
     },
     {
       "framework_id": "ESRS",
       "framework_label": "ESRS",
-      "relevance": 0.45,
+      "relevance": 0.6700000000000002,
       "is_mandatory": false,
       "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
       "triggered_by_themes": [
@@ -86,12 +78,15 @@
         "Health & Safety"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": []
+      "triggered_sections": [
+        "ESRS:E1",
+        "ESRS:E1"
+      ]
     },
     {
       "framework_id": "DJSI",
       "framework_label": "Dow Jones Sustainability Index",
-      "relevance": 0.39,
+      "relevance": 0.6100000000000001,
       "is_mandatory": false,
       "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
       "triggered_by_themes": [
@@ -99,12 +94,14 @@
         "Community Impact"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": []
+      "triggered_sections": [
+        "DJSI:Env"
+      ]
     },
     {
       "framework_id": "EDELMAN",
       "framework_label": "Edelman Trust Barometer",
-      "relevance": 0.39,
+      "relevance": 0.6100000000000001,
       "is_mandatory": false,
       "profitability_link": "Trust score correlates with customer retention, talent acquisition",
       "triggered_by_themes": [
@@ -117,7 +114,7 @@
     {
       "framework_id": "CFA_ESG",
       "framework_label": "CFA ESG Integration",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
       "triggered_by_themes": [
@@ -129,7 +126,7 @@
     {
       "framework_id": "COSO_ERM",
       "framework_label": "COSO ERM",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
       "triggered_by_themes": [
@@ -141,31 +138,38 @@
     {
       "framework_id": "CSRD",
       "framework_label": "CSRD",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
       "triggered_by_themes": [
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": []
+      "triggered_sections": [
+        "ESRS:E1",
+        "ESRS:E1"
+      ]
     },
     {
       "framework_id": "ISSB",
       "framework_label": "ISSB / IFRS S1 S2",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "Global baseline — affects cross-border investor confidence",
       "triggered_by_themes": [
         "Climate Change"
       ],
       "applicable_deadlines": [],
-      "triggered_sections": []
+      "triggered_sections": [
+        "TCFD:Gov",
+        "TCFD:Governance",
+        "TCFD:Metrics"
+      ]
     },
     {
       "framework_id": "PORTER_5_FORCES",
       "framework_label": "Porter Five Forces",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
       "triggered_by_themes": [
@@ -177,7 +181,7 @@
     {
       "framework_id": "SP_GLOBAL_ESG",
       "framework_label": "S&P Global ESG",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
       "triggered_by_themes": [
@@ -189,7 +193,7 @@
     {
       "framework_id": "SBTI",
       "framework_label": "SBTi",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "Credibility for net-zero claims → investor confidence",
       "triggered_by_themes": [
@@ -201,11 +205,23 @@
     {
       "framework_id": "SEC_CLIMATE",
       "framework_label": "SEC Climate Rule",
-      "relevance": 0.33,
+      "relevance": 0.55,
       "is_mandatory": false,
       "profitability_link": "US-listed companies face enforcement + litigation risk",
       "triggered_by_themes": [
         "Climate Change"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "EU_TAXONOMY",
+      "framework_label": "EU Taxonomy",
+      "relevance": 0.33,
+      "is_mandatory": false,
+      "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+      "triggered_by_themes": [
+        "Energy"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []

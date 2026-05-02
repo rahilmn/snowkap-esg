@@ -34,6 +34,28 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
   `permissions:["super_admin"]` or another tenant's `company_id` and
   bypass the Phase 22 tenant-scope gate. The Replit secret is set.
 
+## Demo seed + NewsAPI.ai key alias
+
+- `scripts/seed_demo_article.py` — idempotent seeder for a HOME-tier demo
+  article on Reliance Industries (Surya-1 ₹75,000 Cr green hydrogen +
+  ammonia mega-hub at Jamnagar, 20-yr Saudi Aramco offtake). Drives the
+  full 12-stage pipeline and prints all three perspectives. Article id
+  `c25bf0afcd7f630b`, route `/article/c25bf0afcd7f630b`. Result: HOME
+  tier, impact_score 6.5, 4 recommendations, full ESG-Analyst /
+  CEO / CFO outputs.
+- `engine/ingestion/news_fetcher.py::fetch_newsapi_ai` and
+  `scripts/backfill_article_images.py` now both accept any of
+  `NEWSAPI_AI_API_KEY` (Replit secret), `NEWSAPI_AI_KEY`, or
+  `EVENT_REGISTRY_API_KEY`. Previously the fetcher silently no-opped
+  because the env var name didn't match the Replit secret name, causing
+  the orchestrator to fall back to Google News RSS (87-char snippets)
+  and miss HOME-tier scoring on real articles.
+- `data/ontology/knowledge_base.ttl` — added explicit Energy×industry
+  materialFor weights (oil_gas 0.95, power 0.95, renewable 1.0,
+  chemicals 0.85, steel 0.9, mining 0.8, auto 0.8). Previously these
+  pairs fell back to the 0.5 default and blocked HOME tier for energy
+  transition stories.
+
 ## Phase 22.3 — BASF walkthrough punch list + Phase 23 reviewer follow-up + magic-link OTP
 
 Surgical small/medium fixes shipped together so the platform is hostable

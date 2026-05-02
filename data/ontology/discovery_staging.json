@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-02T21:25:31.562508+00:00",
-  "count": 51,
+  "updated_at": "2026-05-02T22:09:20.488907+00:00",
+  "count": 52,
   "candidates": {
     "entity:ntpc": {
       "category": "entity",
@@ -878,7 +878,7 @@
       ],
       "confidence": 0.75,
       "first_seen": "2026-05-02T21:21:46.320914+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "entity_type": "company"
       },
@@ -899,7 +899,7 @@
       ],
       "confidence": 0.75,
       "first_seen": "2026-05-02T21:21:46.320914+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "entity_type": "company"
       },
@@ -920,7 +920,7 @@
       ],
       "confidence": 0.75,
       "first_seen": "2026-05-02T21:21:46.320914+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "entity_type": "company"
       },
@@ -962,7 +962,7 @@
       ],
       "confidence": 0.5,
       "first_seen": "2026-05-02T21:21:46.320914+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "source_primitive": "CX",
         "target_primitive": "GE",
@@ -1051,7 +1051,7 @@
       ],
       "confidence": 0.75,
       "first_seen": "2026-05-02T21:25:30.991799+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "entity_type": "company"
       },
@@ -1072,7 +1072,7 @@
       ],
       "confidence": 0.6,
       "first_seen": "2026-05-02T21:25:30.991799+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "reference": "ICMA Green Bond Principles",
         "tier1": false
@@ -1094,7 +1094,7 @@
       ],
       "confidence": 0.6,
       "first_seen": "2026-05-02T21:25:30.991799+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "reference": "GHG Protocol",
         "tier1": false
@@ -1116,10 +1116,32 @@
       ],
       "confidence": 0.6,
       "first_seen": "2026-05-02T21:25:30.991799+00:00",
-      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
       "data": {
         "reference": "UN Guiding Principles on Business and Human Rights",
         "tier1": false
+      },
+      "status": "pending"
+    },
+    "weight:weight_climate_change": {
+      "category": "weight",
+      "label": "Climate Change weight divergence",
+      "slug": "weight_climate_change",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.0,
+      "first_seen": "2026-05-02T22:08:36.026916+00:00",
+      "last_seen": "2026-05-02T22:09:20.023388+00:00",
+      "data": {
+        "topic": "Climate Change",
+        "ontology_weight": 1.0,
+        "observed_weight": 0.6,
+        "divergence": 0.4
       },
       "status": "pending"
     }

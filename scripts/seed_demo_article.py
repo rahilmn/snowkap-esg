@@ -246,17 +246,71 @@ def main(argv: list[str] | None = None) -> int:
     print("Net impact  :", (insight.get("net_impact_summary") or "")[:200], "…")
 
     print("\n--- Perspectives ---")
-    for lens, crisp in (payload.get("perspectives") or {}).items():
-        print(f"\n[{lens.upper()}] {crisp.get('headline')}")
-        for k, v in (crisp.get("impact_grid") or {}).items():
-            print(f"   grid {k}: {v}")
+    perspectives = payload.get("perspectives") or {}
+
+    # ESG-Analyst — dedicated LLM generator (kpi_table, double_materiality,
+    # tcfd_scenarios, sdg_targets, framework_citations, audit_trail)
+    esg = perspectives.get("esg-analyst") or {}
+    if esg:
+        print(f"\n[ESG-ANALYST] {esg.get('headline')}")
+        for kpi in (esg.get('kpi_table') or [])[:3]:
+            print(f"   KPI: {kpi.get('kpi_name')} = {kpi.get('company_value')} "
+                  f"(quartile {kpi.get('peer_quartile')})")
+        dm = esg.get('double_materiality') or {}
+        if dm:
+            def _dm_render(node: object) -> str:
+                if isinstance(node, dict):
+                    return str(node.get('rating') or node.get('summary') or list(node.values())[0] if node else 'n/a')[:120]
+                return str(node)[:120]
+            print(f"   Double materiality — financial impact: "
+                  f"{_dm_render(dm.get('financial_impact'))}")
+            print(f"   Double materiality — impact on world : "
+                  f"{_dm_render(dm.get('impact_on_world'))}")
+        for sdg in (esg.get('sdg_targets') or [])[:3]:
+            print(f"   SDG {sdg.get('code')}: {sdg.get('title')} "
+                  f"({sdg.get('applicability')})")
+        for fc in (esg.get('framework_citations') or [])[:3]:
+            print(f"   Framework: {fc.get('code')} — deadline {fc.get('deadline')} "
+                  f"({fc.get('region')})")
+
+    # CEO — dedicated LLM generator (board_paragraph, stakeholder_map,
+    # analogous_precedent, three_year_trajectory, qna_drafts)
+    ceo = perspectives.get("ceo") or {}
+    if ceo:
+        print(f"\n[CEO] {ceo.get('headline')}")
+        bp = (ceo.get('board_paragraph') or '').strip()
+        if bp:
+            print(f"   Board paragraph: {bp[:280]}…")
+        for sh in (ceo.get('stakeholder_map') or [])[:3]:
+            print(f"   Stakeholder: {sh.get('stakeholder')} — "
+                  f"{(sh.get('stance') or '')[:120]}…")
+        ap = ceo.get('analogous_precedent') or {}
+        if ap:
+            print(f"   Precedent : {ap.get('case_name')} ({ap.get('company')}, "
+                  f"{ap.get('year')}) → {ap.get('outcome')}")
+        traj = ceo.get('three_year_trajectory') or {}
+        if traj:
+            an = (traj.get('act_now') or '')
+            dn = (traj.get('do_nothing') or '')
+            print(f"   3-yr act-now : {an[:160]}…" if an else "")
+            print(f"   3-yr inaction: {dn[:160]}…" if dn else "")
+        qna = ceo.get('qna_drafts') or {}
+        if qna.get('earnings_call'):
+            print(f"   Earnings-call draft: {qna['earnings_call'][:200]}…")
+
+    # CFO — legacy CrispOutput (impact_grid, what_matters, action, materiality)
+    cfo = perspectives.get("cfo") or {}
+    if cfo:
+        print(f"\n[CFO] {cfo.get('headline')}")
+        for k, v in (cfo.get("impact_grid") or {}).items():
+            print(f"   grid {k:10s}: {v}")
         print("   What matters:")
-        for b in (crisp.get("what_matters") or [])[:3]:
+        for b in (cfo.get("what_matters") or [])[:3]:
             print(f"     - {b}")
         print("   Action:")
-        for b in (crisp.get("action") or [])[:3]:
+        for b in (cfo.get("action") or [])[:3]:
             print(f"     - {b}")
-        print(f"   Materiality: {crisp.get('materiality')}")
+        print(f"   Materiality: {cfo.get('materiality')}")
 
     print("\n--- Recommendations ---")
     recs = (payload.get("recommendations") or {}).get("recommendations") or []

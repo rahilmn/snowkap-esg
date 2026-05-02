@@ -41,11 +41,11 @@
     {
       "category": "Regulatory Risk",
       "probability": 3,
-      "exposure": 4,
-      "raw_score": 12,
+      "exposure": 3,
+      "raw_score": 9,
       "industry_weight": 1.0,
-      "adjusted_score": 12.0,
-      "level": "HIGH",
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
       "lead_indicators": [
         "draft regulations",
         "public consultations",
@@ -328,25 +328,25 @@
       ]
     },
     {
-      "category": "Regulatory Risk",
+      "category": "Human Capital Risk",
       "probability": 3,
-      "exposure": 4,
-      "raw_score": 12,
+      "exposure": 3,
+      "raw_score": 9,
       "industry_weight": 1.0,
-      "adjusted_score": 12.0,
-      "level": "HIGH",
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
       "lead_indicators": [
-        "draft regulations",
-        "public consultations",
-        "regulator speeches"
+        "employee engagement surveys",
+        "turnover trends",
+        "union activity"
       ],
       "lag_indicators": [
-        "enforcement actions",
-        "fines",
-        "license conditions"
+        "mass attrition",
+        "strikes",
+        "talent gaps"
       ]
     }
   ],
-  "aggregate_score": 0.592,
+  "aggregate_score": 0.58,
   "ontology_queries": 26
 }

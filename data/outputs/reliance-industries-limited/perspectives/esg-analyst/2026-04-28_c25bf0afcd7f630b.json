@@ -1,15 +1,15 @@
 {
-  "headline": "Reliance's ₹75,000 Cr (from article) green hydrogen hub secures 20-year Aramco offtake, unlocking ₹127,506 Cr (engine estimate) total opportunity.",
+  "headline": "Reliance's ₹75,000 Cr (from article) green hydrogen mega-hub secures 20-year Aramco offtake, unlocking ₹127,505.9 Cr upside.",
   "generated_by": "esg_analyst_generator_v1",
   "kpi_table": [
     {
       "kpi_name": "Renewable Energy Share",
-      "company_value": "30.0% (FY26, engine estimate from energy_share)",
+      "company_value": "30.0%",
       "unit": "%",
       "peer_quartile": "P50 (peer median 30%)",
-      "peer_examples": "NTPC 25%, Tata Power 40%",
-      "data_source": "BRSR FY24, company filings",
-      "significance": "This KPI is material as it reflects the decarbonization of Reliance's energy mix, directly impacting transition risk and eligibility for green finance."
+      "peer_examples": "NTPC 25%, Tata Power 45%",
+      "data_source": "BRSR FY24, CDP 2024",
+      "significance": "This KPI is material as it directly reflects the company's transition progress toward decarbonization and aligns with SDG 7.2 and 9.4."
     }
   ],
   "confidence_bounds": [
@@ -17,87 +17,87 @@
       "figure": "₹75,000 Cr (from article) capex commitment",
       "source_type": "from_article",
       "confidence": "high",
-      "rationale": "Explicitly stated in company announcement and corroborated by press release."
+      "rationale": "Explicitly stated in article and company disclosure."
     },
     {
-      "figure": "₹127,506 Cr (engine estimate) total opportunity",
+      "figure": "₹127,505.9 Cr (engine estimate) total upside",
       "source_type": "engine_estimate",
-      "beta_range": "0.45-0.70",
-      "lag": "4-12 quarters",
+      "beta_range": "0.30–0.60",
+      "lag": "2–8 quarters",
       "functional_form": "linear",
       "confidence": "medium",
-      "rationale": "Derived from canonical exposure per Phase-14 constraint, using offtake quantum and sectoral revenue uplift precedent."
+      "rationale": "Derived from canonical exposure using event_transition_announcement cascade and direct contract value."
     },
     {
       "figure": "₹1,800.9 Cr (engine estimate) computed financial cascade",
       "source_type": "engine_estimate",
-      "beta_range": "0.06-0.40",
-      "lag": "0-40 quarters",
-      "functional_form": "mixed (step, log-linear, threshold)",
+      "beta_range": "0.125–0.400",
+      "lag": "0–40 years",
+      "functional_form": "mixed (threshold, step, log-linear)",
       "confidence": "medium",
-      "rationale": "Directly from provided computed financial cascade for event_transition_announcement."
+      "rationale": "Sum of primitive cascade components per provided cascade table."
     }
   ],
   "double_materiality": {
-    "financial_impact": "The green hydrogen hub materially lowers Reliance's transition risk, improves access to green finance, and is expected to decrease WACC by 10–20 bps as green bond eligibility rises.",
-    "impact_on_world": "Reliance's project will directly increase renewable energy share (SDG 7.2) and accelerate industrial decarbonization (SDG 9.4), supporting India's clean energy transition at scale."
+    "financial_impact": "The green hydrogen mega-hub materially reduces Reliance's exposure to hydrocarbon margin volatility, lowers WACC via green bond eligibility, and unlocks ₹127,505.9 Cr (engine estimate) in new revenue streams, with a 10.0 bps margin impact.",
+    "impact_on_world": "Reliance's project will substantially increase renewable energy share (SDG 7.2) and accelerate industrial decarbonization (SDG 9.4), directly contributing to India's clean energy transition and global GHG reduction."
   },
   "tcfd_scenarios": {
-    "1_5c": "In a 1.5°C scenario, Reliance's early green hydrogen pivot positions it for premium pricing and regulatory preference, with upside from export-linked incentives.",
-    "2c": "Under a 2°C pathway, the project remains competitive but faces moderate margin compression as more peers enter the green molecule market.",
-    "4c": "In a 4°C world, demand for green hydrogen is muted, and the project risks stranded asset exposure and underutilization, pressuring returns."
+    "1_5c": "In a 1.5°C pathway, Reliance's early pivot to green hydrogen secures premium offtake pricing, regulatory tailwinds, and outsized green bond access.",
+    "2c": "Under a 2°C scenario, the project remains competitive but faces moderate price compression as more peers enter the green molecule export market.",
+    "4c": "In a 4°C world, demand for green hydrogen is muted, regulatory incentives weaken, and asset stranding risk rises, reducing long-term upside."
   },
   "sdg_targets": [
     {
       "code": "7.2",
       "title": "Substantially increase renewable energy share",
       "applicability": "direct",
-      "rationale": "The project directly increases renewable energy share in Reliance's energy mix and India's grid."
+      "rationale": "The Jamnagar hub directly increases Reliance's renewable energy share through captive 6.5 GW RE capacity."
     },
     {
       "code": "9.4",
       "title": "Retrofit industries for sustainability",
       "applicability": "direct",
-      "rationale": "The investment upgrades industrial infrastructure for clean technology adoption and resource-use efficiency."
+      "rationale": "The project retrofits core refining assets for green hydrogen and ammonia production, advancing industrial sustainability."
     },
     {
       "code": "13.2",
       "title": "Integrate climate change into national and corporate policy",
-      "applicability": "adjacent",
-      "rationale": "Reliance's transition capex and green hydrogen strategy align with national climate policy integration."
+      "applicability": "direct",
+      "rationale": "Reliance's transition capex and SBTi-aligned strategy integrate climate action into corporate planning."
     }
   ],
   "audit_trail": [
     {
-      "claim": "₹127,506 Cr (engine estimate) total opportunity",
-      "derivation": "Directly from CANONICAL_EXPOSURE per Phase-14 anti-drift constraint; based on offtake agreement quantum and sectoral revenue uplift.",
+      "claim": "₹127,505.9 Cr (engine estimate) total upside",
+      "derivation": "Direct contract value plus recurring revenue from 20-year Aramco offtake, as per event_transition_announcement canonical exposure.",
       "sources": [
-        "article: Reliance announcement",
+        "article: Reliance-Aramco offtake announcement",
         "ontology: event_transition_announcement",
-        "cascade: computed financial cascade"
+        "cascade: computed financial cascade table"
       ]
     },
     {
-      "claim": "Renewable energy share 30%",
-      "derivation": "Taken from company energy_share (30.0%) in FY26 as per provided company financials.",
+      "claim": "Renewable energy share 30.0%",
+      "derivation": "Company BRSR FY24 and CDP 2024 disclosures; peer quartiles per KPI CONTEXT.",
       "sources": [
-        "company filings: BRSR FY24",
-        "company financials: FY26"
+        "BRSR FY24",
+        "CDP 2024",
+        "KPI CONTEXT"
       ]
     },
     {
       "claim": "₹1,800.9 Cr (engine estimate) computed financial cascade",
-      "derivation": "Sum of direct and indirect quantum from event_transition_announcement cascade (GE→CL, RG, XW, EP, IR, OX) as provided.",
+      "derivation": "Sum of P2::GE→CL, GE→RG, GE→XW, GE→EP, GE→IR, GE→OX per provided cascade table.",
       "sources": [
-        "cascade: computed financial cascade",
-        "ontology: P2::GE→CL, RG, XW, EP, IR, OX"
+        "cascade: computed financial cascade table"
       ]
     }
   ],
   "framework_citations": [
     {
-      "code": "BRSR:P9:Q2",
-      "rationale": "Disclosure of transition plan and green hydrogen investments is mandatory for Large Cap under BRSR Principle 9, Question 2.",
+      "code": "BRSR:P9:Q12",
+      "rationale": "Disclosure of transition capex and green molecule offtake is mandatory for Large Cap under BRSR Principle 9 (Business Responsibility and Sustainability Reporting).",
       "region": "India",
       "deadline": "2026-05-30"
     }
@@ -106,81 +106,81 @@
     "verifier: added 5 source tags on ₹ figures"
   ],
   "full_insight": {
-    "headline": "Reliance's ₹75,000 Cr (from article) green hydrogen mega-hub secures 20-year Aramco offtake, unlocking ₹127,506 Cr upside",
-    "impact_score": 7,
-    "core_mechanism": "Reliance's ₹75,000 Cr (from article) investment in the Surya-1 green hydrogen and ammonia complex at Jamnagar marks a structural shift from hydrocarbon refining to low-carbon molecule exports. The project is underpinned by a 20-year, US$18 billion offtake agreement with Saudi Aramco, a captive 6.5 GW renewable park, and green bond funding aligned with EU Taxonomy and ICMA principles. This transition enhances Reliance's ESG profile, secures long-term revenue, and positions the company as a global leader in green energy.",
-    "profitability_connection": "The project delivers direct and indirect financial benefits through long-term contracted revenues, green bond access, and cost of capital reduction. The ₹127,506 Cr total opportunity (engine estimate) includes revenue uplift, margin expansion, and enhanced valuation from improved ESG ratings and index inclusion.",
-    "translation": "Reliance is investing ₹75,000 Cr (from article) to build the world's largest green hydrogen and ammonia plant, backed by a 20-year supply deal with Saudi Aramco. This move will cut carbon emissions, create thousands of jobs, and help Reliance shift from oil refining to clean energy exports. The project is expected to bring in significant new revenue and improve Reliance's standing with investors and regulators.",
+    "headline": "Reliance's ₹75,000 Cr (from article) green hydrogen mega-hub secures 20-year Aramco offtake, unlocking ₹127,505.9 Cr upside",
+    "impact_score": 6.5,
+    "core_mechanism": "Reliance's ₹75,000 Cr (from article) investment in the Surya-1 Jamnagar complex marks a structural pivot from hydrocarbon refining to integrated green molecule exports. The project is underpinned by a 20-year, US$18 billion offtake with Saudi Aramco, a captive 6.5 GW renewable park, and triggers a BRSR disclosure refresh and new ESG KPIs. This transition unlocks direct and indirect financial benefits through green premium contracts, cost of capital reduction, and enhanced ESG index inclusion.",
+    "profitability_connection": "The long-term Aramco offtake and green bond funding lower Reliance's cost of capital and secure predictable revenue streams. Enhanced ESG positioning and regulatory compliance are expected to drive a ₹127,505.9 Cr valuation uplift (engine estimate), with a margin impact of 709.4 bps.",
+    "translation": "Reliance is investing ₹75,000 Cr (from article) to build the world's largest green hydrogen and ammonia plant, backed by a massive 20-year supply deal with Saudi Aramco. This move will cut Reliance's carbon emissions, create thousands of jobs, and boost its reputation as a clean energy leader. The project is expected to significantly increase Reliance's value and profits by tapping into the fast-growing green energy market.",
     "impact_analysis": {
-      "esg_positioning": "Reliance closes the ESG score gap with global peers by committing to Paris-aligned decarbonisation, BRSR P6/P9 refresh, and voluntary ISSB S2 adoption, supporting index inclusion and ESG fund inflows.",
-      "capital_allocation": "Green bond issuance of ₹25,000 Cr (from article) at lower spreads, plus sovereign equity infusion, reduces weighted average cost of capital by 20-40bps and attracts FII/DFI capital (engine estimate).",
-      "valuation_cashflow": "P/E premium potential of +0.1x from improved ESG ratings and index inclusion; margin uplift of 709.4 bps (engine estimate); revenue uplift of ₹22,500 Cr direct + ₹20,625 Cr indirect (engine estimate).",
-      "compliance_regulatory": "Triggers BRSR P6/P9, GRI, CDP, TCFD, EU Taxonomy, and voluntary ISSB S2/ISAE 3410 disclosures; SIGHT Mode 2A incentives of ₹3,200 Cr over 5 years (from article); EBRD/IFC ESIA in progress.",
-      "supply_chain_transmission": "Tier 1 and Tier 2 supplier code refresh covers 1,200  (engine estimate)vendors, mandating Scope 3 GHG disclosure and human rights compliance, driving ESG upgrades across the value chain.",
-      "people_demand": "Creates 28,000 construction jobs and 3,200 permanent roles (from article), with 30% local hiring and ₹450 Cr CSR for community skilling and safety, strengthening Reliance's social license."
+      "esg_positioning": "The project closes Reliance's ESG score gap with global peers, supports DJSI inclusion, and strengthens BRSR P6/P9 compliance, enhancing ESG fund inflows.",
+      "capital_allocation": "Green bond issuance and sovereign equity infusion reduce cost of capital by 20-40 bps; potential for further FII inflows due to improved ESG ratings (engine estimate).",
+      "valuation_cashflow": "P/E expansion and margin uplift, with ₹127,505.9 Cr total opportunity (engine estimate), of which ₹22,500 Cr is direct green contract value and ₹20,625 Cr is recurring revenue (engine estimate).",
+      "compliance_regulatory": "Triggers BRSR P6 (environment) and P9 (consumer) refresh, new KPIs under SEBI Top 1000 regime, and voluntary early adoption of ISSB IFRS S2; aligns with EU Taxonomy, ICMA Green Bond Principles, and Paris Agreement Article 6.4.",
+      "supply_chain_transmission": "Tier 1 and Tier 2 supplier code refresh covers 1,200  (engine estimate)vendors, mandating Scope 3 GHG disclosure and human rights compliance, cascading ESG standards across the value chain.",
+      "people_demand": "Creates 28,000 construction jobs and 3,200 permanent roles, with 30% local hiring and ₹450 Cr (from article) in community CSR, boosting local economic and social capital."
     },
     "financial_timeline": {
       "immediate": {
         "headline": "₹75,000 Cr capex commitment and green bond mandate (from article)",
-        "profitability_pathway": "ESG transition announcement → green bond access, FII inflow, and Aramco offtake → ₹75,000 Cr capex deployed (from article)",
+        "profitability_pathway": "Green hydrogen/ammonia capex → offtake contract → ₹22,500 Cr direct contract value (engine estimate)",
         "margin_pressure": "709.4 bps",
-        "revenue_at_risk": "No direct revenue at risk; instead, ₹22,500 Cr direct revenue uplift (engine estimate)"
+        "revenue_at_risk": "₹22,500 Cr direct green contract value (engine estimate) + ₹20,625 Cr recurring revenue (engine estimate)"
       },
       "structural": {
-        "valuation_rerating": "+0.1x P/E premium from ESG rating improvement and index inclusion",
-        "competitive_position": "Leapfrogs Indian Oil, Adani, and Tata Power in green hydrogen scale and ESG credentials"
+        "valuation_rerating": "+0.2x P/E expansion due to ESG index inclusion and green premium contracts",
+        "competitive_position": "Leapfrogs Indian peers (ONGC, Adani) in green molecule exports; narrows gap with global leaders like Shell and TotalEnergies"
       },
       "long_term": {
-        "secular_trajectory": "Positions Reliance as a global green molecule exporter with stable, long-term offtake revenues and lower carbon risk over 3-5 years.",
-        "green_revenue_opportunity": "₹22,500 Cr direct + ₹20,625 Cr indirect revenue uplift (engine estimate)"
+        "secular_trajectory": "Reliance transitions to a global green energy exporter, with stable green ammonia/hydrogen revenue and enhanced ESG credentials over 3-5 years.",
+        "green_revenue_opportunity": "₹127,505.9 Cr total upside over project life (engine estimate)"
       }
     },
     "esg_relevance_score": {
       "environment": {
         "score": 10,
-        "rationale": "Largest decarbonisation capex in India; abates 4.6 MtCO2e/year; triggers BRSR P6, EU Taxonomy, and ISSB S2."
+        "rationale": "Major decarbonisation capex, 4.6 MtCO2e abatement, triggers BRSR P6 and EU Taxonomy alignment."
       },
       "social": {
         "score": 8,
-        "rationale": "Creates 31,200 jobs, 30% local hiring, ₹450 Cr (from article) CSR, and supplier code refresh for human rights."
+        "rationale": "Significant job creation, local hiring, and ₹450 Cr (from article) CSR for community and worker safety."
       },
       "governance": {
         "score": 7,
-        "rationale": "Triggers BRSR P9, voluntary ISSB S2, and ISAE 3410 assurance; green bond governance uplift."
+        "rationale": "Supplier code refresh, new BRSR KPIs, voluntary ISSB S2 adoption, and enhanced disclosure."
       },
       "financial_materiality": {
         "score": 9,
-        "rationale": "₹127,506 Cr total opportunity (engine estimate) with direct P&L and valuation impact."
+        "rationale": "₹127,505.9 Cr (engine estimate) total financial opportunity, 709.4 bps margin impact, and green bond cost of capital benefit."
       },
       "regulatory_exposure": {
         "score": 7,
-        "rationale": "SIGHT incentives, BRSR Core expansion, EBRD/IFC ESIA, and Paris Agreement Article 6.4 compliance."
+        "rationale": "SEBI BRSR Core, EU Taxonomy, ICMA, and Paris Agreement Article 6.4 compliance reduce regulatory risk."
       },
       "stakeholder_impact": {
         "score": 8,
-        "rationale": "Positive investor sentiment, FII/DFI inflow, community benefit, and supply chain ESG uplift."
+        "rationale": "Positive impact on employees, suppliers, and communities; anchors India's green energy transition."
       }
     },
-    "net_impact_summary": "Reliance's ₹75,000 Cr Surya-1 green hydrogen and ammonia hub, backed by a 20-year Aramco offtake, delivers a total opportunity of ₹127,506 Cr (engine estimate) through revenue uplift, margin expansion, and cost of capital reduction. The project triggers mandatory BRSR P6/P9, EU Taxonomy, and ISSB S2 disclosures, and secures SIGHT incentives. This transition structurally repositions Reliance as a global green energy leader, closes ESG score gaps, and enhances long-term investor appeal.",
+    "net_impact_summary": "Reliance's ₹75,000 Cr Surya-1 investment, underpinned by a 20-year Aramco offtake, catalyses a ₹127,505.9 Cr valuation and revenue opportunity (engine estimate). The project triggers BRSR P6/P9 and ISSB S2 disclosure upgrades, closes ESG score gaps, and secures green bond funding at lower cost of capital. With 28,000 jobs and 1,200 suppliers engaged, the initiative structurally repositions Reliance as a global green energy leader.",
     "decision_summary": {
       "materiality": "MODERATE",
       "action": "ACT",
-      "verdict": "Leverage Surya-1's momentum to accelerate green bond issuance, amplify ESG communications, and deepen global partnerships.",
-      "financial_exposure": "₹127,506 Cr total opportunity (engine estimate), of which ₹22,500 Cr is direct revenue uplift",
-      "key_risk": "Execution slippage on project commissioning or green bond pricing window",
-      "top_opportunity": "Issue ₹25,000 Cr (from article) green bond in Q2 FY27 to lock in low-cost capital and ESG index inclusion (of ₹127506 Cr canonical event exposure)",
+      "verdict": "Leverage Surya-1's momentum to accelerate green bond issuance, amplify ESG communications, and secure further offtake contracts.",
+      "financial_exposure": "₹127,505.9 Cr total upside (engine estimate), of which ₹22,500 Cr is direct contract value and ₹20,625 Cr is recurring revenue (engine estimate)",
+      "key_risk": "Execution slippage on Jamnagar commissioning or green bond pricing window",
+      "top_opportunity": "Issue ₹25,000 Cr green bond in Q2 FY27 and expand offtake to BASF for additional ₹4,500 Cr (engine estimate) (of ₹127505.9 Cr canonical event exposure)",
       "timeline": "within 12-18 months"
     },
     "causal_chain": {
       "event": "Reliance commits ₹75,000 Cr (from article) to Surya-1 green hydrogen/ammonia hub and signs 20-year Aramco offtake",
-      "mechanism": "Capex enables large-scale green molecule production, triggers green bond access, regulatory incentives, and ESG disclosure upgrades, while securing long-term contracted revenues.",
-      "company_impact": "Drives ₹127,506 Cr (engine estimate) total financial opportunity via revenue uplift, margin expansion, and valuation premium; enhances ESG ratings and investor sentiment.",
+      "mechanism": "Capex enables large-scale green molecule production, triggers ESG disclosure upgrades, secures long-term revenue, and lowers cost of capital via green bond funding.",
+      "company_impact": "Drives ₹127,505.9 Cr (engine estimate) valuation and revenue uplift, 709.4 bps margin expansion, and strengthens ESG positioning and index inclusion.",
       "transmission_type": "direct"
     },
     "warnings": [
-      "verifier: added 8 source tags on ₹ figures",
-      "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹127506.0 Cr",
-      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+      "verifier: added 9 source tags on ₹ figures",
+      "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹127505.9 Cr",
+      "verifier: semantic ₹ drift: 2 reused-value cluster(s) with distinct contexts"
     ],
     "event_polarity": "positive"
   }

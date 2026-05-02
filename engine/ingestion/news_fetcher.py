@@ -268,8 +268,20 @@ def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
     """
     import os
 
-    api_key = os.environ.get("NEWSAPI_AI_KEY", "")
+    # Accept either env-var name. Replit's secrets UI defaults to suffixing
+    # `_API_KEY`, so legacy `NEWSAPI_AI_KEY` and `NEWSAPI_AI_API_KEY` (and the
+    # generic Event Registry name) all resolve here. Without this, a key set
+    # in Secrets silently no-ops and the orchestrator falls back to Google
+    # News RSS — losing the full article body that makes HOME-tier scoring
+    # possible.
+    api_key = (
+        os.environ.get("NEWSAPI_AI_KEY")
+        or os.environ.get("NEWSAPI_AI_API_KEY")
+        or os.environ.get("EVENT_REGISTRY_API_KEY")
+        or ""
+    )
     if not api_key:
+        logger.debug("NewsAPI.ai: no API key in env (NEWSAPI_AI_KEY / NEWSAPI_AI_API_KEY / EVENT_REGISTRY_API_KEY)")
         return []
 
     try:

@@ -130,17 +130,26 @@ def main(argv: list[str] | None = None) -> int:
                         help="cap queries per company (NewsAPI.ai quota).")
     args = parser.parse_args(argv)
 
-    api_key = os.environ.get("NEWSAPI_AI_KEY", "")
+    api_key = (
+        os.environ.get("NEWSAPI_AI_API_KEY")
+        or os.environ.get("NEWSAPI_AI_KEY")
+        or os.environ.get("EVENT_REGISTRY_API_KEY")
+        or ""
+    )
     if not api_key:
-        # Fallback: read from .env
+        # Fallback: read from .env (accept any of the supported aliases)
         env = _ROOT / ".env"
         if env.exists():
             for line in env.read_text().splitlines():
-                if line.startswith("NEWSAPI_AI_KEY="):
-                    api_key = line.split("=", 1)[1].strip()
+                for alias in ("NEWSAPI_AI_API_KEY=", "NEWSAPI_AI_KEY=", "EVENT_REGISTRY_API_KEY="):
+                    if line.startswith(alias):
+                        api_key = line.split("=", 1)[1].strip()
+                        break
+                if api_key:
                     break
     if not api_key:
-        logger.error("NEWSAPI_AI_KEY not set — cannot backfill.")
+        logger.error("NewsAPI.ai key not set — cannot backfill. "
+                     "Set NEWSAPI_AI_API_KEY (or NEWSAPI_AI_KEY / EVENT_REGISTRY_API_KEY).")
         return 2
 
     companies = load_companies()
