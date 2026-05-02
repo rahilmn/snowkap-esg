@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-04-30T10:08:35.180028+00:00",
-  "count": 37,
+  "updated_at": "2026-05-02T07:51:27.403492+00:00",
+  "count": 39,
   "candidates": {
     "entity:ntpc": {
       "category": "entity",
@@ -801,6 +801,49 @@
       "last_seen": "2026-04-30T10:08:35.082205+00:00",
       "data": {
         "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "entity:au_small_finance_bank": {
+      "category": "entity",
+      "label": "AU Small Finance Bank",
+      "slug": "au_small_finance_bank",
+      "article_ids": [
+        "615d7277ef6ce793"
+      ],
+      "sources": [
+        "Whalesbook"
+      ],
+      "companies": [
+        "idfc-first-bank"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-05-02T07:51:27.075917+00:00",
+      "last_seen": "2026-05-02T07:51:27.075917+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "weight:weight_ethics_&_compliance": {
+      "category": "weight",
+      "label": "Ethics & Compliance weight divergence",
+      "slug": "weight_ethics_&_compliance",
+      "article_ids": [
+        "615d7277ef6ce793"
+      ],
+      "sources": [],
+      "companies": [
+        "idfc-first-bank"
+      ],
+      "confidence": 0.0,
+      "first_seen": "2026-05-02T07:51:27.075917+00:00",
+      "last_seen": "2026-05-02T07:51:27.075917+00:00",
+      "data": {
+        "topic": "Ethics & Compliance",
+        "ontology_weight": 1.0,
+        "observed_weight": 0.5,
+        "divergence": 0.5
       },
       "status": "pending"
     }
