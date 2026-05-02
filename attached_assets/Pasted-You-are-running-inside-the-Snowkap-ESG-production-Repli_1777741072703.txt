@@ -1,0 +1,181 @@
+You are running inside the Snowkap ESG production Replit workspace. We just merged PR #1 (commit 59b7e5b on master) which ships Phase 23 — globalises the platform so non-Indian companies can be onboarded end-to-end. Your job: pull the new code, redeploy, run the full smoke gate, and FIX any error you find before reporting back.
+
+===========================
+CONTEXT — what changed
+===========================
+Phase 23 fixes 2 hard blockers from the May 2 hosting audit:
+- 23A: Google News locale was hardcoded en-IN/IN; now per-country via _locale_for_country() in engine/ingestion/news_fetcher.py
+- 23B: Company onboarder collapsed everything outside India into "Other"; now maps to INDIA / EU / US / UK / APAC / GLOBAL via _region_for_country() in engine/ingestion/company_onboarder.py
+- 23C: Frontend copy globalised (SettingsOnboardPage / HomePage / SwipeFeedPage)
+- 23D: SNOWKAP_INPROCESS_SCHEDULER thread already wired in api/main.py:230-293 (60-min ingest + 30-min promote)
+- Codex review fixes (b4a674a): UK label changed from "Europe" to "United Kingdom" so framework_matcher._region_key doesn't substring-match "eu"; pass-2 ticker resolver moved "" (plain US tickers) to the END of preferred_suffixes so SAP.DE wins over SAP NYSE-ADR.
+- 39/39 new tests added (tests/test_phase23a_news_locale.py, tests/test_phase23b_onboarder_region.py).
+
+Replit Secrets confirmed already set: JWT_SECRET, SNOWKAP_API_KEY, OPENAI_API_KEY, RESEND_API_KEY, NEWSAPI_AI_API_KEY, SNOWKAP_INTERNAL_EMAILS, SNOWKAP_ENV=production, REQUIRE_SIGNED_JWT=1, SNOWKAP_FROM_ADDRESS, SNOWKAP_INPROCESS_SCHEDULER=1, SESSION_SECRET.
+
+===========================
+STEP 1 — Pull the merge
+===========================
+git fetch origin master
+git checkout master
+git pull --ff-only origin master
+git log --oneline -2     # top line MUST be: "Phase 23: Globalise hosting readiness for non-Indian onboarding (#1)"
+
+If the pull fails with merge conflicts, STOP and report — do not auto-resolve.
+
+===========================
+STEP 2 — Refresh dependencies
+===========================
+pip install -r requirements.txt
+cd client && npm install --no-audit --no-fund && npm run build && cd ..
+
+If `npm run build` fails:
+- Look for "Cannot find module @eslint/js" → run `cd client && npm i -D @eslint/js` then retry
+- Look for TypeScript errors that reference SettingsOnboardPage.tsx, HomePage.tsx, or SwipeFeedPage.tsx → these are the Phase 23C copy edits; paste the error text into your reply, do NOT silently mask it
+- Any other error → paste it, do not auto-suppress
+
+===========================
+STEP 3 — Restart the deployment
+===========================
+Restart the deployed app (kill the existing uvicorn / gunicorn / replit run process and let the Run button respawn it, OR use the Replit Deploy → Redeploy button if the project is on a Reserved-VM deployment).
+
+Tail the boot log. Confirm you see ALL three of these lines (any missing line is a regression):
+1. "ontology eager-loaded: 9947 triples"   (or similar count >= 9000)
+2. "in-process scheduler started (ingest_every=60min, promote_every=30min)"
+3. "Application startup complete."
+
+If "production env guard" raises at boot:
+- Read the error — it names the missing var
+- Cross-check against Replit Secrets (Tools → Secrets)
+- DO NOT add SNOWKAP_ENV=development as a workaround — that disables the guard. Instead set the missing secret to its real value.
+
+If ontology fails to load with a TTL parse error:
+- The fault is in data/ontology/*.ttl — paste the underlying error and STOP. Do not auto-edit ontology files.
+
+===========================
+STEP 4 — Health checks
+===========================
+curl -fsS <http://localhost:8000/health>
+curl -fsS <http://localhost:8000/metrics> | head -40
+
+Both must return 200 with non-empty bodies.
+
+===========================
+STEP 5 — Full unit suite
+===========================
+python -m pytest tests/ -q --tb=short
+
+Expected: 161 passed (122 existing + 39 new Phase 23). If any test fails:
+- If it's a new Phase 23 test (test_phase23a_*, test_phase23b_*) — paste the diff between actual and expected, do not auto-edit production code to make it pass.
+- If it's a Phase 11–16 test — the failure is unrelated to Phase 23; paste the trace and ask me before editing anything.
+
+===========================
+STEP 6 — Smoke harness
+===========================
+python scripts/smoke_test.py
+
+Expected: 10/10 pass. If any check fails, paste the output before fixing.
+
+===========================
+STEP 7 — Phase 23E live test (the proof Phase 23 works)
+===========================
+# Get a sales super-admin token
+TOKEN=$(curl -s -X POST <http://localhost:8000/api/auth/login> \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"sales@snowkap.co.in","name":"Sales","company":"Snowkap"}' | jq -r .token)
+
+# Confirm super-admin perms
+curl -s <http://localhost:8000/api/auth/login> \
+  -X POST -H 'Content-Type: application/json' \
+  -d '{"email":"sales@snowkap.co.in","name":"Sales","company":"Snowkap"}' \
+  | jq '.permissions | contains(["super_admin"])'
+# MUST print: true
+
+# Onboard Siemens (German, EU)
+curl -s -X POST <http://localhost:8000/api/admin/onboard> \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"<siemens.com>"}'
+
+# Poll up to 6 minutes for ready state
+for i in $(seq 1 36); do
+  STATE=$(curl -s -H "Authorization: Bearer $TOKEN" <http://localhost:8000/api/admin/onboard/siemens/status> | jq -r .state)
+  echo "[$i] siemens state=$STATE"
+  [ "$STATE" = "ready" ] && break
+  [ "$STATE" = "failed" ] && { echo "FAILED — paste the error field of the status response"; break; }
+  sleep 10
+done
+
+If the state stays "fetching" or "analysing" past 6 minutes:
+- Tail the API log; look for OPENAI errors, NEWSAPI 429, or yfinance lookup failures
+- A <NewsAPI.ai> 429 means free-tier quota exhausted — this is operational, not a code bug; paste the error and STOP
+- A yfinance "could not resolve ticker" means the resolver didn't find SAP.DE — paste the API log line; this is the Codex P2 fix path, ping me before changing code
+
+If state == "failed":
+- Print the full status row (curl -s ... /status | jq .)
+- DO NOT retry the onboard — paste the error first
+
+===========================
+STEP 8 — Verify the Phase 23 fixes worked end-to-end
+===========================
+# A) framework_region must be EU, not "Other"
+python -c "
+import json
+c = json.load(open('config/companies.json'))['companies']
+s = next((x for x in c if x['slug']=='siemens'), None)
+assert s, 'siemens not in companies.json'
+print('framework_region:', s.get('framework_region'))
+print('headquarter_region:', s.get('headquarter_region'))
+print('listing_exchange:', s.get('listing_exchange'))
+assert s.get('framework_region') == 'EU', f'expected EU, got {s.get(\"framework_region\")}'
+assert 'eu' not in s.get('headquarter_region','').lower(), 'EU substring leak — UK/EU label bug'
+print('✓ framework_region check passed')
+"
+
+# B) Indian regulator queries must NOT appear; CSRD must
+python -c "
+import json
+c = json.load(open('config/companies.json'))['companies']
+s = next(x for x in c if x['slug']=='siemens')
+qs = ' '.join(s['news_queries'])
+assert 'BRSR' not in qs, 'BRSR leaked into a German company — Phase 23B regression'
+assert 'SEBI' not in qs, 'SEBI leaked into a German company — Phase 23B regression'
+assert 'CSRD' in qs and 'ESRS' in qs, 'CSRD/ESRS missing for EU company'
+print('✓ regional query flavour passed')
+"
+
+# C) News articles should be majority non-`.in` sources
+ls data/inputs/news/siemens/ 2>/dev/null | head -10
+python -c "
+import json, glob
+files = glob.glob('data/inputs/news/siemens/*.json')
+print(f'Total articles: {len(files)}')
+sources = []
+for f in files:
+    with open(f) as fp:
+        d = json.load(fp)
+        sources.append((d.get('source','?'), d.get('url','')))
+in_count = sum(1 for _, u in sources if '.in/' in u or '.in?' in u or u.endswith('.in'))
+non_in = len(sources) - in_count
+print(f'.in domains: {in_count}; non-.in: {non_in}')
+assert non_in > in_count, '⚠️ >50% .in sources — Google News locale fix may not be working'
+print('✓ locale fix verified')
+"
+
+If any of A / B / C fails, the Phase 23 deploy is broken — paste the failing assertion AND the relevant file (companies.json siemens entry, or `cat data/inputs/news/siemens/*.json | head -50`) and STOP.
+
+===========================
+STEP 9 — Final report
+===========================
+Reply with:
+1. Deployment URL
+2. Commit SHA on master (must be 59b7e5b or a later one)
+3. Test count from step 5 (e.g. "161 passed")
+4. Smoke gate result from step 6 (e.g. "10/10 passed")
+5. Siemens onboard final state from step 7 ("ready" / "failed:<reason>")
+6. Phase 23 verification from step 8 (✓ all three / ✗ which one failed)
+7. ANY error encountered (verbatim, not paraphrased) and how you resolved it
+
+If everything is green: confirm "Phase 23 hosted, ready for first non-Indian customer onboarding."
+
+If anything is red: STOP and report — do NOT auto-merge fixes, do NOT silence errors, do NOT add try/except around the failing call. The whole point of Phase 12 + 13 hardening is that errors are surfaced, not masked.
