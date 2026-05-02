@@ -328,6 +328,29 @@ def register_alias(alias: str, canonical: str) -> None:
         )
 
 
+def mirror_to_slug(canonical: str, alias: str) -> int:
+    """Phase 22.2 — Make `article_index` rows owned by `canonical` visible
+    when queried by `alias`.
+
+    Implemented as a thin wrapper around `register_alias` because
+    `article_index.id` is the PRIMARY KEY: physically duplicating rows
+    under the alias `company_slug` would force synthetic IDs and fan
+    out to every downstream lookup (`get_by_id`, `_require_article_in_scope`,
+    on-demand enrichment, etc.). The read-time alias rewrite via
+    `resolve_slug` is uniformly applied by every read helper in this
+    module, achieving the same user-visible outcome (the alias-bound
+    session sees the canonical's articles) without duplication risk.
+
+    Returns the count of canonical rows that the alias now resolves
+    to — useful for callers (and tests) that want a sanity number.
+    Safe to call repeatedly; no-op when alias == canonical.
+    """
+    if not alias or not canonical or alias == canonical:
+        return 0
+    register_alias(alias, canonical)
+    return count(company_slug=canonical)
+
+
 def resolve_slug(slug: str | None) -> str | None:
     """Return the canonical slug for `slug`, or `slug` itself if it isn't
     an alias. Read-only — never raises. None passes through."""

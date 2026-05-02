@@ -313,7 +313,7 @@ export default function HomePage() {
                   ? `${onboarding?.analysed ?? 0} of ${onboarding?.fetched ?? 0} articles processed. Hang tight — this usually takes 1-2 minutes.`
                   : onboardingFailed
                     ? "Try Scan Now to retry, or contact your administrator if this keeps happening."
-                    : `We searched the web for ${resolvedCompanyName} but didn't find ESG-relevant articles in this scan. Tap Scan Now to refetch.`}
+                    : "We searched the web for your company but didn't find ESG-relevant articles in this scan. The platform is optimised for listed companies across major exchanges. Tap Scan Now to refetch."}
             </p>
             <button
               onClick={() => refreshMutation.mutate()}

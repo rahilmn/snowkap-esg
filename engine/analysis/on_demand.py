@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from engine.config import Company, get_company, get_data_path
+from engine.index.sqlite_index import resolve_slug
 
 logger = logging.getLogger(__name__)
 
@@ -331,6 +332,11 @@ def _run_intelligence_layers(
         logger.warning("anticipated_qa failed: %s", exc)
 
     # I6: Sentiment trajectory
+    # Phase 22.2 — route through `resolve_slug` so a session bound to
+    # an alias slug ("puma") still pulls the canonical's history
+    # ("puma-se"). Pre-fix this raw SQL bypassed the alias rewrite,
+    # so on-demand enrichment for an alias-tenant article saw zero
+    # prior context even when the pipeline had indexed plenty.
     try:
         import sqlite3
 
@@ -340,7 +346,7 @@ def _run_intelligence_layers(
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT title, json_path FROM article_index WHERE company_slug = ? ORDER BY published_at DESC LIMIT 6",
-                (company.slug,),
+                (resolve_slug(company.slug),),
             ).fetchall()
             conn.close()
 

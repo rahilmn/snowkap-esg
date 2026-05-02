@@ -34,6 +34,24 @@ ESG (Environmental, Social, and Governance) intelligence platform with Smart Ont
   `permissions:["super_admin"]` or another tenant's `company_id` and
   bypass the Phase 22 tenant-scope gate. The Replit secret is set.
 
+## Phase 22.2 — Alias mirror helper + on_demand alias-bypass fix
+- **`sqlite_index.mirror_to_slug(canonical, alias)`** — explicit
+  named helper called from `_background_onboard` after the analysis
+  loop. Delegates to `register_alias` (because `article_index.id` is
+  the primary key, physical row duplication would force synthetic IDs
+  and fan out to every downstream lookup). Returns the canonical row
+  count for caller diagnostics. The user-visible outcome is identical
+  to Phase 22.1 (alias session sees canonical's articles) but the call
+  site now reads as the intent it serves.
+- **`on_demand.py` alias bypass** (`engine/analysis/on_demand.py` I6
+  sentiment-trajectory block): the raw SQL bound `company.slug`
+  directly, silently bypassing the alias rewrite for any session
+  whose JWT slug differed from the canonical. Now imports
+  `resolve_slug` at module scope and binds `resolve_slug(company.slug)`
+  so on-demand enrichment for an alias-tenant article pulls its
+  canonical's prior history. Pinned by source-level + behavioural
+  tests in `tests/test_phase22_2_mirror_and_counter.py`.
+
 ## Phase 22.1 — Empty-state honesty for newly-onboarded prospects
 - **Slug aliasing** (`engine/index/sqlite_index.py`): a new
   `slug_aliases` table stores `alias → canonical` mappings. All read

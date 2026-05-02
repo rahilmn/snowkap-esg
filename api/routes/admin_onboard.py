@@ -21,8 +21,10 @@ New flow:
   4. `onboarding_status` table tracks progress so the frontend modal can
      poll GET `/api/admin/onboard/{slug}/status` every 5s.
 
-Gated by `manage_drip_campaigns` (super-admin only). Scope: India-only V1 —
-non-Indian companies fall back to a clear "not supported" error.
+Gated by `manage_drip_campaigns` (super-admin only). Phase 23B — auto-detects
+listings across NSE/BSE/NYSE/NASDAQ/LSE/Xetra/Euronext/HKEX and applies the
+right framework region (INDIA / EU / US / UK / APAC / GLOBAL) so news
+queries + mandatory frameworks match the company's home jurisdiction.
 """
 
 from __future__ import annotations
@@ -84,7 +86,9 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
         if result is None:
             onboarding_status.mark_failed(
                 slug,
-                "could not resolve ticker — try passing ticker_hint (e.g. 'TATACHEM.NS', 'PUM.DE', 'AAPL')",
+                "could not resolve ticker — pass an explicit ticker_hint "
+                "(e.g. 'TATACHEM.NS' for NSE, 'AAPL' for NASDAQ, 'SAP.DE' "
+                "for Xetra, 'BARC.L' for LSE).",
             )
             return
 
@@ -158,14 +162,19 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
                 # Continue with the rest — one bad article shouldn't fail the whole onboarding.
                 continue
 
-        # Phase 22.1 — register the alias→canonical mapping so the
-        # user's session (JWT bound to `alias_slug` from the login-time
-        # domain stem) transparently reads the article_index rows the
-        # pipeline wrote under `canonical_slug`. Without this the
+        # Phase 22.1/22.2 — make the canonical's article_index rows
+        # visible to a session bound to the alias slug (login-time
+        # slug from the email domain stem, e.g. "puma" vs canonical
+        # "puma-se"). `mirror_to_slug` is the explicit name used in
+        # the Phase 22.2 plan; it delegates to `register_alias` since
+        # `article_index.id` is the primary key and all read helpers
+        # already route through `resolve_slug`. Without this call the
         # dashboard stays empty even when the analysis succeeded.
         if alias_slug:
             from engine.index import sqlite_index
-            sqlite_index.register_alias(alias_slug, canonical_slug)
+            mirrored = sqlite_index.mirror_to_slug(canonical_slug, alias_slug)
+            logger.info("[onboard %s] mirrored %d rows to alias=%s",
+                        canonical_slug, mirrored, alias_slug)
 
         onboarding_status.mark_ready(canonical_slug,
                                      fetched=len(fresh),
