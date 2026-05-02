@@ -130,3 +130,64 @@ def test_region_buckets_non_empty():
 def test_universal_template_uses_company_placeholder():
     for q in _UNIVERSAL_QUERIES:
         assert "{company}" in q, f"universal query missing placeholder: {q}"
+
+
+# -- Codex review fixes (PR #1) --------------------------------------------
+
+
+def test_uk_label_does_not_collide_with_eu_substring_match():
+    """Regression for PR #1 P1.
+
+    ``framework_matcher._region_key`` does a substring match
+    ``"eu" in region.lower()`` and returns "EU" if true. If we labelled
+    UK companies' ``headquarter_region`` as "Europe", the matcher would
+    incorrectly assign them CSRD / ESRS mandatory rules. The label must
+    NOT contain the substring "eu" so UK falls through to GLOBAL (the
+    same bucket UK got pre-Phase 23) until proper UK rules are added
+    to the ontology.
+    """
+    from engine.analysis.framework_matcher import _region_key
+
+    # Simulate what onboarder writes for a UK company
+    uk_label = "United Kingdom"
+    assert "eu" not in uk_label.lower()
+
+    # And the matcher must NOT classify UK as EU.
+    key = _region_key("United Kingdom", uk_label)
+    assert key != "EU", (
+        f"UK with label {uk_label!r} resolved to EU — substring leak. "
+        "Make sure the UK headquarter_region label doesn't contain 'eu'."
+    )
+
+
+def test_pass2_suffix_order_prefers_home_listing_over_plain_ticker():
+    """Regression for PR #1 P2.
+
+    The pass-2 resolver iterates ``preferred_suffixes`` and picks the
+    first match. The empty-string suffix matches plain US-style tickers
+    (e.g. ``AAPL``, ``SAP``); it must come AFTER the country-suffixed
+    options (``.L``, ``.DE``, ``.PA``…) so that for a German company
+    whose search hits return both ``SAP`` (NYSE ADR) and ``SAP.DE``
+    (Xetra), the ``.DE`` suffix wins.
+    """
+    import inspect
+    import re
+
+    from engine.ingestion import company_onboarder
+
+    src = inspect.getsource(company_onboarder)
+    match = re.search(r"preferred_suffixes\s*=\s*\(([^)]*)\)", src)
+    assert match, "preferred_suffixes tuple not found"
+    items = [s.strip().strip('"').strip("'") for s in match.group(1).split(",") if s.strip()]
+    # Empty-suffix must be last (or absent — but we expect it as a last-resort fallback)
+    assert "" in items, "preferred_suffixes must include the empty-string fallback"
+    assert items[-1] == "", (
+        f"empty-string suffix must be LAST so home-country listings win; "
+        f"current order: {items}"
+    )
+    # Non-US suffixes must come before "".
+    for non_us in (".L", ".DE", ".PA", ".AS"):
+        assert items.index(non_us) < items.index(""), (
+            f"{non_us} must precede empty-suffix in preferred_suffixes; "
+            f"current order: {items}"
+        )

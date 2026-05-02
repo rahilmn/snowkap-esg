@@ -511,11 +511,13 @@ def _resolve_from_domain(domain: str) -> tuple[str, dict] | None:
                 return sym, info
 
     # Pass 2 — prefer the home-country listing first (NSE for India,
-    # plain ticker for US, .L for UK, .DE for Germany …) so we don't
-    # accidentally pick a thinly-traded foreign listing of the same name.
+    # .L for UK, .DE / .F for Germany, …) before falling back to a plain
+    # ticker (which is usually a US-listed ADR for non-US companies).
     # Phase 23B: previously NSE-only, which silently broke onboarding for
-    # any non-Indian company.
-    preferred_suffixes = (".NS", ".BO", "", ".L", ".DE", ".PA", ".AS", ".F", ".T", ".HK", ".SS")
+    # any non-Indian company. Plain-ticker ("") is intentionally LAST so
+    # that e.g. SAP.DE wins over the SAP NYSE ADR when both appear in
+    # the search hits.
+    preferred_suffixes = (".NS", ".BO", ".L", ".DE", ".PA", ".AS", ".F", ".T", ".HK", ".SS", "")
     for suffix in preferred_suffixes:
         for q in quotes[:8]:
             sym = q.get("symbol", "")
@@ -736,11 +738,16 @@ def onboard_company(
     # "Germany", "India" …) which we map onto our region buckets.
     hq_country = info.get("country") or "India"
     region = _region_for_country(hq_country)
+    # Phase 23B fix: ``headquarter_region`` is a free-form label, but
+    # ``framework_matcher._region_key()`` does a substring match on it
+    # (``"eu" in region`` returns True for "Europe"). Keep UK distinct so
+    # UK companies don't silently get tagged as EU by the framework
+    # matcher and inherit CSRD / ESRS mandatory rules they shouldn't.
     hq_region_label = {
         "INDIA": "Asia-Pacific",
         "APAC": "Asia-Pacific",
         "EU": "Europe",
-        "UK": "Europe",
+        "UK": "United Kingdom",
         "US": "Americas",
         "GLOBAL": "Other",
     }.get(region, "Other")
