@@ -184,7 +184,7 @@ export function SwipeFeedPage() {
               ? `${onboarding?.analysed ?? 0} of ${onboarding?.fetched ?? 0} articles processed. We're gathering and analysing news for your company; articles will appear here as they're scored.`
               : onboardingState === "failed"
                 ? "Pull down to retry the scan, or contact your administrator if this keeps happening."
-                : "We searched the web for your company but didn't find ESG-relevant articles in the latest scan. The platform is optimised for Indian listed companies. Pull down to refetch."}
+                : "We searched the web for your company but didn't find ESG-relevant articles in the latest scan. The platform is optimised for listed companies across major exchanges. Pull down to refetch."}
           </p>
           {onboardingInProgress && (
             <p className="text-xs mt-4" style={{ color: "#999" }}>

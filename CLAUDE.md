@@ -1191,6 +1191,94 @@ Designed to be cron-able (nightly or pre-deploy). Exits 0 on success, non-zero w
 
 **Verdict**: ready to deploy + run a real pilot. The 5-minute "any-Indian-company onboarding" promise (CLAUDE.md production roadmap) is now a sales-self-serve flow, not a dev shell command.
 
+### Phase 23: Global-Company Hosting Readiness (2026-05-02)
+
+Pre-hosting audit ahead of public launch surfaced 2 hard blockers in the
+backend that broke the "any company in 5 min" promise for non-Indian
+domains: Google News was hardcoded to India locale, and the company
+onboarder treated everything outside India as a single "Other" bucket
+so EU / US / UK companies missed CSRD / SEC / SDR mandatory frameworks
+and got SEBI / BRSR queries that returned zero hits. Phase 23 fixes
+those blockers + the supporting frontend copy. The 24h news refresh
+(P4) was confirmed already wired via `SNOWKAP_INPROCESS_SCHEDULER`
+in `api/main.py:230` (60-min ingest + 30-min promote, default-on in
+production) — no code change needed. Replit production secrets confirmed
+present (`JWT_SECRET`, `SNOWKAP_API_KEY`, `OPENAI_API_KEY`,
+`RESEND_API_KEY`, `NEWSAPI_AI_API_KEY`, `SNOWKAP_INTERNAL_EMAILS`,
+`SNOWKAP_ENV`, `REQUIRE_SIGNED_JWT`, `SNOWKAP_FROM_ADDRESS`,
+`SNOWKAP_INPROCESS_SCHEDULER`).
+
+**23A — Globalise news ingestion locale** — [engine/ingestion/news_fetcher.py](engine/ingestion/news_fetcher.py)
+- Replaced the hardcoded `hl=en-IN&gl=IN&ceid=IN:en` URL with `_locale_for_country()` returning `(hl, gl, ceid)` for 14 countries (India, US, UK, DE, FR, NL, IT, ES, SE, SG, AU, CA, JP, CN). Default fallback is English-US — a deliberate departure from the previous India-only default that silently broke any non-Indian onboarding.
+- `fetch_google_news()` now takes a `country` kwarg; `fetch_for_company()` reads `company.headquarter_country` and passes it through.
+- **Validation Gate 23A**:
+  - [x] `_locale_for_country('Germany')` → `('de','DE','DE:de')`
+  - [x] `_locale_for_country('India')` → `('en-IN','IN','IN:en')`
+  - [x] `grep -n 'hl=en-IN' engine/` returns nothing outside the locale map
+  - [x] [tests/test_phase23a_news_locale.py](tests/test_phase23a_news_locale.py) — 15 tests green (parametrised over 6 known countries + 5 unknown / missing inputs + signature regression)
+
+**23B — Globalise company onboarder** — [engine/ingestion/company_onboarder.py](engine/ingestion/company_onboarder.py), [api/routes/admin_onboard.py](api/routes/admin_onboard.py)
+- New `_region_for_country()` maps free-form yfinance country strings onto framework regions: `INDIA | EU | US | UK | APAC | GLOBAL`. EU bucket includes 13 member states; UK is its own bucket so SDR (UK) rules can be added later. Falls back to `GLOBAL` for unmapped countries.
+- `_REGIONAL_QUERIES` splits regulator-flavoured queries by region: India gets BRSR / SEBI; EU gets CSRD / ESRS / EU Taxonomy / CBAM; US gets SEC climate / 10-K / EPA / OSHA; UK gets FCA / SDR / Modern Slavery Act; APAC and GLOBAL get neutral disclosure terms. The 17 universal terms (climate, labour, biodiversity, …) are kept in `_UNIVERSAL_QUERIES` and applied to every region. Back-compat `_COMMON_QUERIES` alias preserved.
+- Resolver Pass-2 now prefers home-country listings in order `.NS, .BO, "" (US plain), .L, .DE, .PA, .AS, .F, .T, .HK, .SS` instead of NSE-only.
+- `listing_exchange` derived from the actual ticker suffix (NSE/BSE/LSE/Xetra/Frankfurt/Euronext-Paris/Euronext-Amsterdam/TSE/HKEX/SSE/NASDAQ-NYSE) instead of an India-only NSE/BSE binary.
+- New `framework_region` field written on every onboarded company so `framework_matcher.match()` can pick the right mandatory rules.
+- Default HQ city is region-anchored (Mumbai for India, Frankfurt for EU, London for UK, New York for US, Singapore for APAC) instead of always Mumbai.
+- Admin endpoint copy: docstring now says "auto-detects listing across NSE / BSE / NYSE / NASDAQ / LSE / Xetra"; failure message hints at all 4 exchange suffix conventions instead of NSE-only.
+- **Validation Gate 23B**:
+  - [x] `_region_for_country('Germany')` → `EU`; `'United States'` → `US`; `'Singapore'` → `APAC`; unknown → `GLOBAL`
+  - [x] `_build_queries('Apple Inc.', 'IT', region='US')` contains `SEC climate` + `EPA`, NOT `SEBI` or `BRSR`
+  - [x] `_build_queries('Siemens AG', 'Power/Energy', region='EU')` contains `CSRD` + `ESRS`, NOT `SEBI`
+  - [x] `_build_queries('Barclays plc', ..., region='UK')` contains `FCA` + `Modern Slavery`, NOT `SEBI`
+  - [x] Universal terms (`forced labour`, `biodiversity`, …) appear in every region
+  - [x] Back-compat `_COMMON_QUERIES` import still works (still includes BRSR for legacy callers)
+  - [x] [tests/test_phase23b_onboarder_region.py](tests/test_phase23b_onboarder_region.py) — 22 tests green
+
+**23C — Globalise frontend copy** — [client/src/pages/SettingsOnboardPage.tsx](client/src/pages/SettingsOnboardPage.tsx), [client/src/pages/HomePage.tsx](client/src/pages/HomePage.tsx), [client/src/pages/SwipeFeedPage.tsx](client/src/pages/SwipeFeedPage.tsx)
+- Onboarding modal description now says "auto-detects the listing across NSE / BSE / NYSE / NASDAQ / LSE / Xetra / Euronext / HKEX, fetches financials, and tunes 28 ESG news queries to the company's regulatory region".
+- Replaced footer "India-only V1: NSE / BSE listed companies only. Non-Indian onboarding is on the V2 backlog" with a global-friendly hint listing 4 ticker suffix conventions (`TATACHEM.NS`, `AAPL`, `SAP.DE`, `BARC.L`).
+- HomePage + SwipeFeedPage empty-state copy: "platform is optimised for Indian listed companies" → "platform is optimised for listed companies across major exchanges".
+- **Validation Gate 23C**:
+  - [x] `grep -ri 'India-only' client/src/` returns nothing
+  - [x] `grep -ri 'Indian listed' client/src/` returns nothing
+  - [x] `grep -ri 'NSE/BSE' client/src/` returns nothing (the only `NSE / BSE` match is the new multi-exchange listing string)
+  - [ ] Manual `cd client && npm run build` (deferred to host — the audit env doesn't have node)
+
+**23D — Already wired, audit-only** — [api/main.py:230-293](api/main.py)
+- `_start_inprocess_scheduler()` already runs `engine.scheduler.run_ingest_job` every 60 min and `engine.scheduler.run_promote_job` every 30 min as APScheduler `BackgroundScheduler` threads, gated by `SNOWKAP_INPROCESS_SCHEDULER` env var (default-on in production). Tunable via `SNOWKAP_INGEST_INTERVAL_MIN`, `SNOWKAP_PROMOTE_INTERVAL_MIN`, `SNOWKAP_MAX_PER_QUERY`, `SNOWKAP_PER_RUN_LIMIT`. Graceful shutdown wired at `app.on_event("shutdown")`. The 60-min cadence comfortably satisfies the "every 24h" SLA.
+- **Validation Gate 23D**: confirmed present in code; the secret `SNOWKAP_INPROCESS_SCHEDULER` is already set in Replit (visible in the May-2 secrets screenshot). No code change required.
+
+**23E — Hosting smoke gate** (manual, run on the host after deploy)
+
+```bash
+# Run the 9-step smoke gate from the plan file:
+#   /root/.claude/plans/audit-the-entire-app-effervescent-emerson.md
+python -c "from engine.config import load_companies; print(len(load_companies()))"
+python -c "from engine.ontology.intelligence import get_graph; print(len(get_graph()))"
+python scripts/smoke_test.py
+python -m pytest tests/ -q --tb=short
+
+# Onboard a non-Indian company end-to-end (proves 23A + 23B + 23C)
+curl -X POST https://<host>/api/admin/onboard \
+  -H "Authorization: Bearer <sales token>" \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"siemens.com"}'
+curl https://<host>/api/admin/onboard/siemens/status   # poll until "ready"
+ls data/inputs/news/siemens/ | head   # majority should be non-`.in` sources
+```
+
+**Gate 23E (Hostable)**:
+- [ ] All 9 smoke steps pass on the host
+- [ ] Step 7 shows non-India sources (≥ 50% non-`.in` for siemens.com)
+- [ ] No 4xx/5xx in API logs during steps 4–7
+- [ ] Verifier warning rate on first 10 ingested articles < 2/article
+
+**Test additions** (37 new):
+- [tests/test_phase23a_news_locale.py](tests/test_phase23a_news_locale.py) — 15 tests covering the 14-country locale map, fallback behaviour, URL template integrity, and `fetch_google_news` signature regression
+- [tests/test_phase23b_onboarder_region.py](tests/test_phase23b_onboarder_region.py) — 22 tests covering the country→region map, region-aware query flavour for 5 regions (INDIA / US / EU / UK / GLOBAL), universal-term presence in every region, back-compat alias, structural sanity
+
+**Verdict**: 37/37 new tests green. The 5-minute "any-company onboarding" promise now extends to companies on NSE, BSE, NYSE, NASDAQ, LSE, Xetra, Euronext, HKEX. The original 7 target Indian companies still get the same Indian regulator flavour they always had.
+
 ---
 
 ## CLI Commands

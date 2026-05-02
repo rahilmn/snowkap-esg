@@ -21,8 +21,10 @@ New flow:
   4. `onboarding_status` table tracks progress so the frontend modal can
      poll GET `/api/admin/onboard/{slug}/status` every 5s.
 
-Gated by `manage_drip_campaigns` (super-admin only). Scope: India-only V1 —
-non-Indian companies fall back to a clear "not supported" error.
+Gated by `manage_drip_campaigns` (super-admin only). Phase 23B — auto-detects
+listings across NSE/BSE/NYSE/NASDAQ/LSE/Xetra/Euronext/HKEX and applies the
+right framework region (INDIA / EU / US / UK / APAC / GLOBAL) so news
+queries + mandatory frameworks match the company's home jurisdiction.
 """
 
 from __future__ import annotations
@@ -84,7 +86,9 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
         if result is None:
             onboarding_status.mark_failed(
                 slug,
-                "could not resolve ticker (India-only V1 — try a valid NSE/BSE company or pass ticker_hint like 'TATACHEM.NS')",
+                "could not resolve ticker — pass an explicit ticker_hint "
+                "(e.g. 'TATACHEM.NS' for NSE, 'AAPL' for NASDAQ, 'SAP.DE' "
+                "for Xetra, 'BARC.L' for LSE).",
             )
             return
 

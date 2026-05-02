@@ -35,9 +35,43 @@ from engine.ingestion.dedup import SemanticDedup, is_fresh
 logger = logging.getLogger(__name__)
 
 GOOGLE_NEWS_URL = (
-    "https://news.google.com/rss/search?q={query}&hl=en-IN&gl=IN&ceid=IN:en"
+    "https://news.google.com/rss/search?q={query}&hl={hl}&gl={gl}&ceid={ceid}"
 )
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
+
+# Phase 23A — Google News locale per HQ country. Default to English-US so a
+# newly-onboarded German or American company doesn't get India-filtered news.
+# Add new countries as they come up — keys are exact `headquarter_country`
+# strings from `config/companies.json`.
+_GOOGLE_NEWS_LOCALES: dict[str, tuple[str, str, str]] = {
+    "India": ("en-IN", "IN", "IN:en"),
+    "United States": ("en-US", "US", "US:en"),
+    "United Kingdom": ("en-GB", "GB", "GB:en"),
+    "Germany": ("de", "DE", "DE:de"),
+    "France": ("fr", "FR", "FR:fr"),
+    "Netherlands": ("nl", "NL", "NL:nl"),
+    "Italy": ("it", "IT", "IT:it"),
+    "Spain": ("es", "ES", "ES:es"),
+    "Sweden": ("sv", "SE", "SE:sv"),
+    "Singapore": ("en-SG", "SG", "SG:en"),
+    "Australia": ("en-AU", "AU", "AU:en"),
+    "Canada": ("en-CA", "CA", "CA:en"),
+    "Japan": ("ja", "JP", "JP:ja"),
+    "China": ("zh-CN", "CN", "CN:zh-Hans"),
+}
+_GOOGLE_NEWS_DEFAULT_LOCALE: tuple[str, str, str] = ("en", "US", "US:en")
+
+
+def _locale_for_country(country: str | None) -> tuple[str, str, str]:
+    """Return ``(hl, gl, ceid)`` for the given HQ country.
+
+    Falls back to English-US when the country is unknown — a deliberate
+    departure from the previous India-only default so non-Indian onboarded
+    companies don't silently get India-filtered news.
+    """
+    if not country:
+        return _GOOGLE_NEWS_DEFAULT_LOCALE
+    return _GOOGLE_NEWS_LOCALES.get(country.strip(), _GOOGLE_NEWS_DEFAULT_LOCALE)
 HTML_TAG = re.compile(r"<[^>]+>")
 WHITESPACE = re.compile(r"\s+")
 
@@ -126,9 +160,19 @@ def _write_article(article: IngestedArticle) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def fetch_google_news(query: str, max_results: int = 20) -> list[dict]:
-    """Fetch Google News RSS for a search query."""
-    feed_url = GOOGLE_NEWS_URL.format(query=quote(query))
+def fetch_google_news(
+    query: str,
+    max_results: int = 20,
+    country: str | None = None,
+) -> list[dict]:
+    """Fetch Google News RSS for a search query.
+
+    ``country`` is the company's ``headquarter_country``; it controls the
+    ``hl`` / ``gl`` / ``ceid`` locale params so a German company gets
+    German-language results instead of India-filtered ones (Phase 23A).
+    """
+    hl, gl, ceid = _locale_for_country(country)
+    feed_url = GOOGLE_NEWS_URL.format(query=quote(query), hl=hl, gl=gl, ceid=ceid)
     logger.debug("Fetching Google News RSS: %s", feed_url)
     try:
         parsed = feedparser.parse(feed_url)
@@ -475,14 +519,18 @@ def fetch_for_company(
 
     raw_articles: list[dict] = []
     seen_urls: set[str] = set()
+    hq_country = getattr(company, "headquarter_country", None)
     for query in company.news_queries:
         # Prioritize NewsAPI.ai (full text) → NewsAPI.org → Google News RSS (headline only)
-        for source_type, fetcher in (
-            ("newsapi_ai", fetch_newsapi_ai),
-            ("newsapi", fetch_newsapi),
-            ("google_news", fetch_google_news),
-        ):
-            for art in fetcher(query, max_results=limit):
+        for source_type in ("newsapi_ai", "newsapi", "google_news"):
+            if source_type == "google_news":
+                # Phase 23A: pass HQ country so locale matches the company.
+                results = fetch_google_news(query, max_results=limit, country=hq_country)
+            elif source_type == "newsapi":
+                results = fetch_newsapi(query, max_results=limit)
+            else:
+                results = fetch_newsapi_ai(query, max_results=limit)
+            for art in results:
                 if art["url"] in seen_urls:
                     continue
                 seen_urls.add(art["url"])
