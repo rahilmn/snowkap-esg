@@ -436,6 +436,17 @@ snowkap:mat_water_steel snowkap:materialityWeight 1.0 ; rdf:subject snowkap:topi
 snowkap:mat_water_chemicals snowkap:materialityWeight 0.9 ; rdf:subject snowkap:topic_water ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_chemicals .
 snowkap:mat_water_fmcg snowkap:materialityWeight 0.8 ; rdf:subject snowkap:topic_water ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_fmcg .
 
+# Energy materiality (energy transition is existential for hydrocarbons,
+# core operating cost for power/chemicals, and the core product for renewables)
+snowkap:topic_energy snowkap:materialFor snowkap:industry_oil_gas, snowkap:industry_power, snowkap:industry_renewable, snowkap:industry_chemicals, snowkap:industry_steel, snowkap:industry_mining, snowkap:industry_auto .
+snowkap:mat_energy_oil snowkap:materialityWeight 0.95 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_oil_gas .
+snowkap:mat_energy_power snowkap:materialityWeight 0.95 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_power .
+snowkap:mat_energy_renewable snowkap:materialityWeight 1.0 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_renewable .
+snowkap:mat_energy_chemicals snowkap:materialityWeight 0.85 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_chemicals .
+snowkap:mat_energy_steel snowkap:materialityWeight 0.9 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_steel .
+snowkap:mat_energy_mining snowkap:materialityWeight 0.8 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_mining .
+snowkap:mat_energy_auto snowkap:materialityWeight 0.8 ; rdf:subject snowkap:topic_energy ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_auto .
+
 # Emissions materiality
 snowkap:topic_emissions snowkap:materialFor snowkap:industry_power, snowkap:industry_renewable, snowkap:industry_oil_gas, snowkap:industry_mining, snowkap:industry_steel, snowkap:industry_chemicals, snowkap:industry_auto, snowkap:industry_banking .
 snowkap:mat_emissions_power snowkap:materialityWeight 1.0 ; rdf:subject snowkap:topic_emissions ; rdf:predicate snowkap:materialFor ; rdf:object snowkap:industry_power .

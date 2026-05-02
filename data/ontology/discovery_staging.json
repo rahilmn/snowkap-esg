@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-05-02T19:04:17.388160+00:00",
-  "count": 39,
+  "updated_at": "2026-05-02T21:25:31.562508+00:00",
+  "count": 51,
   "candidates": {
     "entity:ntpc": {
       "category": "entity",
@@ -120,7 +120,8 @@
         "aa8f6485d9bd6b3f",
         "d2755f52d485c025",
         "fe0eddf22992a104",
-        "d1cdce06ad08dfb4"
+        "d1cdce06ad08dfb4",
+        "c25bf0afcd7f630b"
       ],
       "sources": [],
       "companies": [
@@ -132,7 +133,7 @@
       ],
       "confidence": 0.0,
       "first_seen": "2026-04-15T10:35:58.637429+00:00",
-      "last_seen": "2026-05-02T19:04:17.370089+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
       "data": {
         "topic": "Energy",
         "ontology_weight": 0.9,
@@ -256,19 +257,22 @@
       "slug": "sebi",
       "article_ids": [
         "7bc239c6b7d7184f",
-        "8463357bd78aa4ba"
+        "8463357bd78aa4ba",
+        "c25bf0afcd7f630b"
       ],
       "sources": [
         "Amnesty International / Reuters",
-        "scanx.trade"
+        "scanx.trade",
+        "Snowkap Demo Wire"
       ],
       "companies": [
         "adani-power",
-        "hindustan-unilever-limited"
+        "hindustan-unilever-limited",
+        "reliance-industries-limited"
       ],
       "confidence": 0.85,
       "first_seen": "2026-04-15T10:38:10.719099+00:00",
-      "last_seen": "2026-05-02T18:34:03.981596+00:00",
+      "last_seen": "2026-05-02T21:21:46.320914+00:00",
       "data": {
         "reference": "SEBI",
         "tier1": true
@@ -856,6 +860,266 @@
         "ontology_weight": 1.0,
         "observed_weight": 0.5,
         "divergence": 0.5
+      },
+      "status": "pending"
+    },
+    "entity:saudi_aramco": {
+      "category": "entity",
+      "label": "Saudi Aramco",
+      "slug": "saudi_aramco",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "entity:basf_se": {
+      "category": "entity",
+      "label": "BASF SE",
+      "slug": "basf_se",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "entity:landt_energy_greentech": {
+      "category": "entity",
+      "label": "L&T Energy GreenTech",
+      "slug": "landt_energy_greentech",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "entity:larsen_and_toubro": {
+      "category": "entity",
+      "label": "Larsen & Toubro",
+      "slug": "larsen_and_toubro",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:21:46.320914+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "edge:cx_ge": {
+      "category": "edge",
+      "label": "CX→GE",
+      "slug": "cx_ge",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.5,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "source_primitive": "CX",
+        "target_primitive": "GE",
+        "causation_text": "The large investment in green hydrogen and ammonia production will reduce Reliance's carbon emissions by 4.6 million tonnes annually and reposition the company as a low-carbon molecule exporter."
+      },
+      "status": "pending"
+    },
+    "framework:issb_ifrs_s2": {
+      "category": "framework",
+      "label": "ISSB IFRS S2",
+      "slug": "issb_ifrs_s2",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:21:46.320914+00:00",
+      "data": {
+        "reference": "ISSB IFRS S2",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "framework:paris_agreement_article_6.4": {
+      "category": "framework",
+      "label": "Paris Agreement Article 6.4",
+      "slug": "paris_agreement_article_6.4",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:21:46.320914+00:00",
+      "data": {
+        "reference": "Paris Agreement Article 6.4",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "framework:ifc_performance_standards": {
+      "category": "framework",
+      "label": "IFC Performance Standards",
+      "slug": "ifc_performance_standards",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-05-02T21:21:46.320914+00:00",
+      "last_seen": "2026-05-02T21:21:46.320914+00:00",
+      "data": {
+        "reference": "IFC Performance Standards",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "entity:larsen_and_toubro___toyo_engineering_jv": {
+      "category": "entity",
+      "label": "Larsen & Toubro / Toyo Engineering JV",
+      "slug": "larsen_and_toubro___toyo_engineering_jv",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.75,
+      "first_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "entity_type": "company"
+      },
+      "status": "pending"
+    },
+    "framework:icma_green_bond_principles": {
+      "category": "framework",
+      "label": "ICMA Green Bond Principles",
+      "slug": "icma_green_bond_principles",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "reference": "ICMA Green Bond Principles",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "framework:ghg_protocol": {
+      "category": "framework",
+      "label": "GHG Protocol",
+      "slug": "ghg_protocol",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "reference": "GHG Protocol",
+        "tier1": false
+      },
+      "status": "pending"
+    },
+    "framework:un_guiding_principles_on_business_and_human_rights": {
+      "category": "framework",
+      "label": "UN Guiding Principles on Business and Human Rights",
+      "slug": "un_guiding_principles_on_business_and_human_rights",
+      "article_ids": [
+        "c25bf0afcd7f630b"
+      ],
+      "sources": [
+        "Snowkap Demo Wire"
+      ],
+      "companies": [
+        "reliance-industries-limited"
+      ],
+      "confidence": 0.6,
+      "first_seen": "2026-05-02T21:25:30.991799+00:00",
+      "last_seen": "2026-05-02T21:25:30.991799+00:00",
+      "data": {
+        "reference": "UN Guiding Principles on Business and Human Rights",
+        "tier1": false
       },
       "status": "pending"
     }
