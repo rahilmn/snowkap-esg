@@ -546,7 +546,7 @@ export const admin = {
    * polls onboardStatus() every 5s while state ∈ {pending, fetching,
    * analysing} and shows a progress card.
    */
-  onboard: (req: { name: string; ticker_hint?: string; domain?: string; limit?: number }) =>
+  onboard: (req: { name?: string; ticker_hint?: string; domain?: string; limit?: number }) =>
     request<{ slug: string; status: string; message: string }>(
       "/admin/onboard",
       {

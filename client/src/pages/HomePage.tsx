@@ -6,14 +6,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { news } from "../lib/api";
-import { useAuthStore } from "../stores/authStore";
+import { companies as companiesApi, news } from "../lib/api";
+import { useAuthStore, useIsSuperAdmin } from "../stores/authStore";
 import { COLORS, SHADOWS, RADII } from "../lib/designTokens";
 import { PriorityBadge } from "../components/ui/PriorityBadge";
 import { MiniArticleCard } from "../components/cards/MiniArticleCard";
 import { ArticleDetailSheet } from "../components/panels/ArticleDetailSheet";
+import { OnboardingProgressModal } from "../components/panels/OnboardingProgressModal";
 import { formatCurrency } from "../lib/utils";
 import type { Article } from "../types";
+
+function humanizeSlug(slug: string | null): string {
+  if (!slug) return "your company";
+  return slug
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -27,7 +35,9 @@ export default function HomePage() {
   const queryClient = useQueryClient();
   const name = useAuthStore((s) => s.name) || "there";
   const companyId = useAuthStore((s) => s.companyId);
+  const userDomain = useAuthStore((s) => s.domain);
   const setCompanyId = useAuthStore((s) => s.setCompanyId);
+  const isSuperAdmin = useIsSuperAdmin();
   const firstName = name.split(" ")[0];
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [scanResult, setScanResult] = useState<string | null>(null);
@@ -91,6 +101,26 @@ export default function HomePage() {
     onboardingState === "fetching" ||
     onboardingState === "analysing";
   const onboardingFailed = onboardingState === "failed";
+
+  // Resolve a friendly company name for the modal headline. Regular users
+  // get it from the curated /companies/ list (cached by MinimalHeader for
+  // 1h, so this query is usually a no-op cache hit). Brand-new prospects
+  // whose slug isn't in the list yet fall back to a titleized slug.
+  const { data: companyList } = useQuery({
+    queryKey: ["companies"],
+    queryFn: () => companiesApi.list(),
+    staleTime: 60_000 * 60,
+    enabled: !isSuperAdmin && !!companyId,
+  });
+  const resolvedCompanyName =
+    companyList?.find((c) => c.slug === companyId)?.name
+    ?? humanizeSlug(companyId);
+
+  // Show the modal whenever the pipeline is actively working OR after a
+  // failure (so the user has a clear retry path). Once `state==="ready"`
+  // the parent stops rendering it — auto-dismiss is implicit.
+  const showOnboardingModal =
+    !!companyId && (onboardingInProgress || onboardingFailed);
 
   // Phase 22.1 — When the polled onboarding state transitions from
   // in-progress → ready (or → failed), invalidate the feed + stats
@@ -453,6 +483,27 @@ export default function HomePage() {
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
       />
+
+      {/* Task #2 — non-blocking 'preparing your dashboard' progress modal.
+          Renders only while the prospect's pipeline is fetching/analysing
+          or has failed. Auto-dismisses on `ready` because the parent stops
+          rendering it. Retry CTA re-calls /api/admin/onboard with the
+          user's domain. */}
+      {showOnboardingModal && (
+        <OnboardingProgressModal
+          state={onboardingState as "pending" | "fetching" | "analysing" | "failed"}
+          fetched={onboarding?.fetched ?? 0}
+          analysed={onboarding?.analysed ?? 0}
+          companyName={resolvedCompanyName}
+          error={onboarding?.error ?? null}
+          domain={userDomain}
+          onRetryQueued={() => {
+            // Force the polling query to re-pick the row immediately
+            // instead of waiting for the next 5s tick.
+            queryClient.invalidateQueries({ queryKey: ["onboarding-status", companyId] });
+          }}
+        />
+      )}
     </div>
   );
 }
