@@ -136,10 +136,20 @@ def verify(email: str, code: str) -> tuple[bool, str | None]:
 
 
 def is_email_otp_enabled() -> bool:
-    """Return True iff Resend is configured (so we can actually deliver
-    the OTP). When False, the legacy single-step login is allowed and
-    the OTP is returned inline as a "preview" — useful for tests + dev."""
-    return bool(os.environ.get("RESEND_API_KEY", "").strip())
+    """Phase 22.4 — OTP login disabled at user request.
+
+    Originally this returned True iff `RESEND_API_KEY` was configured,
+    forcing all logins through a 2-step email-code challenge. The
+    feedback after the BASF/Lloyds walkthrough was that the extra
+    friction wasn't worth it for the current allowlist of prospects,
+    so this now returns False unconditionally — every login mints a
+    JWT in one step (the legacy single-step path).
+
+    The OTP module is left in place (DB schema, issue/verify, /auth/verify
+    endpoint) so we can re-enable it later by flipping this flag without
+    re-implementing the flow.
+    """
+    return False
 
 
 def render_otp_email(code: str, name: str | None = None) -> tuple[str, str]:

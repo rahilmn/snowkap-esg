@@ -2,21 +2,22 @@
  * LoginPage — matches UX/Create account/ "Identity Setup" design.
  * Underline-style inputs, black CTA button, Snowkap logo.
  *
- * Phase 22.3 — two-step magic-link OTP. When the API returns a
- * `{step:"verify"}` challenge (RESEND_API_KEY configured server-side)
- * we transition to step="otp", collect the 6-digit code, and finalise
- * via auth.verify(). When it returns a full LoginResponse (legacy /
- * dev-mode), we keep the original single-step behaviour.
+ * Phase 22.4 — single-step login restored. The OTP magic-link flow
+ * shipped in Phase 22.3 was removed at user request to keep onboarding
+ * simple. The /auth/verify endpoint + auth.verify client method are
+ * still available behind the `is_email_otp_enabled()` server flag if
+ * we want to re-enable it later, but the login UI no longer surfaces
+ * the OTP step.
  */
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { auth } from "@/lib/api";
 import { COLORS, RADII } from "@/lib/designTokens";
 import type { LoginResponse } from "@/types";
 
-type Step = "domain" | "confirm" | "returning" | "otp";
+type Step = "domain" | "confirm" | "returning";
 
 /* Underline-only input matching UX Create Account design */
 function UnderlineInput({
@@ -74,31 +75,6 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Phase 22.3 — OTP step state. `pendingEmail` is the email we issued
-  // the OTP to (sticky across resend); `otpCode` is the 6-digit input;
-  // `otpExpiresIn` is a soft countdown; `otpFromSignup` distinguishes
-  // signup-verify (replays signup data) from returning-user-verify.
-  // `resendCooldown` prevents the user from spamming Resend and
-  // tripping the LOGIN_LIMITER (5/min, 20/hr) — would otherwise lock
-  // them out of their own account for an hour.
-  const [pendingEmail, setPendingEmail] = useState("");
-  const [otpCode, setOtpCode] = useState("");
-  const [otpExpiresIn, setOtpExpiresIn] = useState(0);
-  const [otpFromSignup, setOtpFromSignup] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-
-  useEffect(() => {
-    if (step !== "otp" || otpExpiresIn <= 0) return;
-    const t = setInterval(() => setOtpExpiresIn((s) => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(t);
-  }, [step, otpExpiresIn]);
-
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const t = setInterval(() => setResendCooldown((s) => Math.max(0, s - 1)), 1000);
-    return () => clearInterval(t);
-  }, [resendCooldown]);
-
   function finalise(result: LoginResponse) {
     loginStore(result);
     sessionStorage.setItem("pending_login", "1");
@@ -128,12 +104,12 @@ export function LoginPage() {
     setError("");
     try {
       const result = await auth.login({ email, domain, designation, company_name: companyName, name });
+      // Phase 22.4 — server returns LoginResponse directly (OTP path
+      // disabled). Defensive guard kept: if the server is reconfigured
+      // to issue a verify challenge, we treat that as an error rather
+      // than silently dropping the user.
       if (auth.isVerifyChallenge(result)) {
-        setPendingEmail(result.email);
-        setOtpExpiresIn(result.expires_in || 600);
-        setOtpFromSignup(true);
-        setOtpCode("");
-        setStep("otp");
+        setError("Email verification is currently disabled. Please contact support.");
         return;
       }
       finalise(result);
@@ -150,64 +126,12 @@ export function LoginPage() {
     try {
       const result = await auth.returningUser(returningEmail);
       if (auth.isVerifyChallenge(result)) {
-        setPendingEmail(result.email);
-        setOtpExpiresIn(result.expires_in || 600);
-        setOtpFromSignup(false);
-        setOtpCode("");
-        setStep("otp");
+        setError("Email verification is currently disabled. Please contact support.");
         return;
       }
       finalise(result);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : typeof e === "string" ? e : "Check your email");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleVerifyOtp() {
-    if (otpCode.replace(/\D/g, "").length !== 6) {
-      setError("Enter the 6-digit code from your email.");
-      return;
-    }
-    setLoading(true);
-    setError("");
-    try {
-      const payload = otpFromSignup
-        ? { email: pendingEmail, code: otpCode.trim(), name, company_name: companyName, domain, designation }
-        : { email: pendingEmail, code: otpCode.trim() };
-      const result = await auth.verify(payload);
-      finalise(result);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Invalid code");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleResendOtp() {
-    if (resendCooldown > 0) return;
-    setLoading(true);
-    setError("");
-    // Optimistically arm the cooldown so a double-click during the
-    // in-flight request doesn't fire two backend calls.
-    setResendCooldown(30);
-    try {
-      const result = otpFromSignup
-        ? await auth.login({ email: pendingEmail, domain, designation, company_name: companyName, name })
-        : await auth.returningUser(pendingEmail);
-      if (auth.isVerifyChallenge(result)) {
-        setOtpExpiresIn(result.expires_in || 600);
-        setOtpCode("");
-      } else {
-        // Server flipped to legacy mode mid-flow — just sign them in.
-        finalise(result);
-      }
-    } catch (e: unknown) {
-      // On error, release the cooldown so the user can immediately
-      // retry (they didn't actually consume a server-side bucket slot).
-      setResendCooldown(0);
-      setError(e instanceof Error ? e.message : "Could not resend code");
     } finally {
       setLoading(false);
     }
@@ -236,7 +160,6 @@ export function LoginPage() {
         >
           {step === "domain" ? "Welcome"
             : step === "returning" ? "Welcome Back"
-            : step === "otp" ? "Check your inbox"
             : "Identity Setup"}
         </h1>
 
@@ -377,69 +300,6 @@ export function LoginPage() {
               >
                 &larr; New account
               </button>
-            </div>
-          )}
-
-          {/* Phase 22.3 — OTP entry. Reached when /auth/login or
-              /auth/returning-user returned a {step:"verify"} challenge. */}
-          {step === "otp" && (
-            <div className="space-y-6">
-              <p style={{ fontSize: "14px", color: COLORS.textSecondary, lineHeight: 1.5 }}>
-                We sent a 6-digit code to <strong>{pendingEmail}</strong>. Enter it
-                below to finish signing in. The code expires in{" "}
-                {Math.max(0, Math.floor(otpExpiresIn / 60))}m{" "}
-                {String(Math.max(0, otpExpiresIn % 60)).padStart(2, "0")}s.
-              </p>
-              <UnderlineInput
-                label="6-digit code"
-                name="otp"
-                value={otpCode}
-                onChange={(v) => setOtpCode(v.replace(/\D/g, "").slice(0, 6))}
-                placeholder="123456"
-                onKeyDown={(e) => e.key === "Enter" && handleVerifyOtp()}
-              />
-              <button
-                onClick={handleVerifyOtp}
-                disabled={otpCode.length !== 6 || loading}
-                style={{
-                  width: "345px",
-                  maxWidth: "100%",
-                  height: "54px",
-                  backgroundColor: COLORS.darkCard,
-                  color: COLORS.bgWhite,
-                  borderRadius: RADII.button,
-                  fontSize: "20px",
-                  fontWeight: 500,
-                  border: "none",
-                  cursor: loading || otpCode.length !== 6 ? "not-allowed" : "pointer",
-                  opacity: loading || otpCode.length !== 6 ? 0.6 : 1,
-                  marginTop: "16px",
-                  boxShadow: "0px 4px 4px rgba(0,0,0,0.12)",
-                }}
-              >
-                {loading ? "Verifying..." : "Verify & Sign In"}
-              </button>
-              <div className="flex justify-between" style={{ marginTop: "8px" }}>
-                <button
-                  onClick={handleResendOtp}
-                  disabled={loading || resendCooldown > 0}
-                  style={{
-                    fontSize: "13px",
-                    color: resendCooldown > 0 ? COLORS.textMuted : COLORS.brand,
-                    background: "none",
-                    border: "none",
-                    cursor: loading || resendCooldown > 0 ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend code"}
-                </button>
-                <button
-                  onClick={() => { setStep(otpFromSignup ? "confirm" : "returning"); setError(""); }}
-                  style={{ fontSize: "13px", color: COLORS.textSecondary, background: "none", border: "none", cursor: "pointer" }}
-                >
-                  &larr; Use a different email
-                </button>
-              </div>
             </div>
           )}
         </div>

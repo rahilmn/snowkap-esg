@@ -89,19 +89,27 @@ in the loop. End-to-end retested with Lloyds Banking Group.
   field to `Company` dataclass that wins over country/region heuristic
   in `_region_key`. Pinned by
   `tests/test_phase23x_framework_region_routing.py` (6 cases).
-- **T9 OTP magic-link auth** (`api/auth_otp.py` +
-  `api/routes/legacy_adapter.py` + `client/src/pages/LoginPage.tsx` +
-  `client/src/lib/api.ts`): when `RESEND_API_KEY` is set, `/auth/login`
-  and `/auth/returning-user` no longer mint a JWT directly — they
-  generate a 6-digit OTP (10-min TTL, max 5 attempts), email it via
-  Resend, and return `{step:"verify", email, expires_in}`. The new
-  `POST /auth/verify` consumes the OTP and returns the same
-  `LoginResponse` shape as before. Frontend renders a step-2 OTP entry
-  panel with resend + countdown. SQLite `auth_otp(email PK, code,
-  expires_at, attempts, created_at)` table created on first use. When
-  `RESEND_API_KEY` is unset (dev mode), the legacy direct-token path
-  remains for tests + smoke. Pinned by `tests/test_phase22_3_otp.py`
-  (9 cases).
+- **T9 OTP magic-link auth — REVERTED in Phase 22.4** (see below).
+  Originally shipped: when `RESEND_API_KEY` was set, `/auth/login` +
+  `/auth/returning-user` returned a `{step:"verify"}` challenge and
+  `POST /auth/verify` consumed a 6-digit OTP to mint the JWT. After
+  user feedback the extra friction was deemed too high for the current
+  prospect allowlist, so `is_email_otp_enabled()` now returns False
+  unconditionally (Phase 22.4) and login is single-step again. The OTP
+  module + DB schema + `/auth/verify` endpoint are retained dormant
+  so we can re-enable later by flipping that one flag. The 9
+  `tests/test_phase22_3_otp.py` cases still pass — they exercise the
+  module directly, not the route gate.
+
+## Phase 22.4 — OTP login disabled (single-step restored)
+- **`api/auth_otp.is_email_otp_enabled()`** now returns False
+  unconditionally. The 2-step magic-link UX has been removed.
+- **`client/src/pages/LoginPage.tsx`**: OTP step deleted; Step type
+  is back to `"domain" | "confirm" | "returning"`. Defensive guard
+  retained: if the server ever returns a verify challenge again, the
+  UI surfaces an explicit error instead of silently dropping the user.
+- **`auth.verify` + `news.retryOnboarding` client methods retained**
+  for future use. Backend `/auth/verify` route also retained.
 
 ### Documented for follow-up (NOT shipped this phase)
 The walkthrough surfaced four larger items deferred to dedicated tasks:
