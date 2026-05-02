@@ -1,0 +1,137 @@
+Pick option B. Authorize the destructive git op via Project Task — overwrite Replit's local Phase 23 attempt with the actual PR #1 from GitHub master (commit 59b7e5b).
+
+===========================
+STEP 1 — Sync to GitHub master (one-time)
+===========================
+git fetch origin master
+git status                        # show me uncommitted files first
+# Stash anything truly local that shouldn't be lost (config, .replit, etc.)
+# Then hard-reset master to origin:
+git checkout master
+git reset --hard origin/master
+git log --oneline -3              # top line MUST be: "Phase 23: Globalise hosting readiness for non-Indian onboarding (#1)" / 59b7e5b
+
+If the reset wipes a Replit-specific config file (.replit, replit.nix, run.sh), restore it from the stash. Do NOT restore any engine/* or tests/* files — those should match GitHub.
+
+After this:
+- tests/test_phase23a_news_locale.py and tests/test_phase23b_onboarder_region.py MUST exist
+- engine/ingestion/news_fetcher.py MUST contain `_locale_for_country`
+- engine/ingestion/company_onboarder.py MUST contain `_region_for_country` AND each onboarded entry now writes `framework_region` (a NEW field, alongside the existing `headquarter_region`)
+
+===========================
+STEP 2 — Refresh deps (fast)
+===========================
+pip install -r requirements.txt
+cd client && npm install --no-audit --no-fund && npm run build && cd ..
+
+===========================
+STEP 3 — Restart the deployment
+===========================
+Restart the Repl. Tail the boot log; confirm:
+- "ontology eager-loaded: ~9947 triples"
+- "in-process scheduler started (ingest_every=60min, promote_every=30min)"
+- "Application startup complete."
+
+If port mapping prevents 8000 — IGNORE port 8000 in the prompt I had you run before. Use whatever port run.sh binds (5000). Substitute <http://localhost:5000> for every curl below.
+
+===========================
+STEP 4 — Targeted health check (use port 5000)
+===========================
+curl -fsS <http://localhost:5000/health>
+curl -fsS <http://localhost:5000/metrics> | head -40
+
+===========================
+STEP 5 — Run ONLY the new Phase 23 tests
+===========================
+DO NOT run the full pytest suite — there are known pre-existing red tests
+(test_security.py missing python-jose, Phase 10/11 auth tests against PG)
+that are unrelated to Phase 23 and will only create noise.
+
+Run exactly these:
+python -m pytest tests/test_phase23a_news_locale.py tests/test_phase23b_onboarder_region.py -v --tb=short
+
+Expected: 39 passed.
+
+If anything fails, paste the trace verbatim — do NOT auto-edit Phase 23 source to make tests green.
+
+===========================
+STEP 6 — Smoke harness
+===========================
+python scripts/smoke_test.py
+Expected: 10/10. Paste output if any check fails.
+
+===========================
+STEP 7 — Live Siemens onboard (the actual proof)
+===========================
+TOKEN=$(curl -s -X POST <http://localhost:5000/api/auth/login> \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"sales@snowkap.co.in","name":"Sales","company":"Snowkap"}' | jq -r .token)
+
+# Confirm super-admin
+curl -s -X POST <http://localhost:5000/api/auth/login> \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"sales@snowkap.co.in","name":"Sales","company":"Snowkap"}' \
+  | jq '.permissions | contains(["super_admin"])'
+# MUST print: true
+
+# Onboard
+curl -s -X POST <http://localhost:5000/api/admin/onboard> \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"domain":"<siemens.com>"}'
+
+# Poll up to 6 minutes
+for i in $(seq 1 36); do
+  STATE=$(curl -s -H "Authorization: Bearer $TOKEN" <http://localhost:5000/api/admin/onboard/siemens/status> | jq -r .state)
+  echo "[$i] siemens state=$STATE"
+  [ "$STATE" = "ready" ] && break
+  [ "$STATE" = "failed" ] && { curl -s -H "Authorization: Bearer $TOKEN" <http://localhost:5000/api/admin/onboard/siemens/status> | jq .; break; }
+  sleep 10
+done
+
+===========================
+STEP 8 — Verify Phase 23 wired correctly
+===========================
+python <<'PY'
+import json
+c = json.load(open('config/companies.json'))['companies']
+s = next((x for x in c if x['slug']=='siemens'), None)
+assert s, 'siemens not in companies.json'
+
+# Phase 23B added a NEW field: framework_region (alongside the EXISTING headquarter_region)
+assert s.get('framework_region') == 'EU', f"expected framework_region=EU, got {s.get('framework_region')}"
+assert 'eu' not in s.get('headquarter_region','').lower(), f"EU substring leak in {s.get('headquarter_region')!r}"
+
+qs = ' '.join(s['news_queries'])
+assert 'BRSR' not in qs, 'BRSR leaked into German company — Phase 23B regression'
+assert 'SEBI' not in qs, 'SEBI leaked into German company'
+assert 'CSRD' in qs and 'ESRS' in qs, 'CSRD/ESRS missing for EU company'
+
+import glob
+files = glob.glob('data/inputs/news/siemens/*.json')
+print(f"Articles ingested: {len(files)}")
+in_count = 0
+for f in files:
+    d = json.load(open(f))
+    u = d.get('url','')
+    if '.in/' in u or u.endswith('.in') or '.in?' in u:
+        in_count += 1
+print(f".in: {in_count}; non-.in: {len(files)-in_count}")
+assert (len(files)-in_count) > in_count, 'majority .in — Google News locale bug'
+print('✓ all 23A + 23B + 23C verifications passed')
+PY
+
+===========================
+STEP 9 — Final report
+===========================
+Reply with:
+1. Replit URL (e.g. <https://snowkap-esg>.<user>.replit.app)
+2. Commit SHA on local master (must match 59b7e5b)
+3. Phase 23 test result from STEP 5 (39 passed?)
+4. Smoke harness from STEP 6 (10/10?)
+5. Siemens onboard final state (ready / failed:<reason>)
+6. STEP 8 output verbatim
+
+If everything green: confirm "Phase 23 hosted, ready for first non-Indian customer onboarding."
+
+If anything red: paste the error and STOP — no try/except wrappers, no field renames, no auto-fixes.
