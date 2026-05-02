@@ -1,0 +1,88 @@
+Two tasks today: (1) walk a real prospect onboarding end-to-end via the browser UI while you watch the API logs, then (2) close the framework_region pipeline gap that Phase 23 reviewer flagged as fragile.
+
+===========================
+TASK 1 — Live UI onboarding (you watch the logs, I drive the browser)
+===========================
+Pick a real, unfamiliar non-Indian company so we surface real UX papercuts. Suggested: a German chemical (<basf.com>), a UK bank (<lloydsbankinggroup.com>), or a US bank (<jpmorganchase.com>). Reply with which one you'll watch and I'll drive the browser side.
+
+While I click through:
+
+A) Tail the API log live in your shell:
+   tail -f $(ls -t /tmp/*.log | head -1) | grep -E "ERROR|WARNING|onboard|siemens|basf|lloyd|jpmorgan|verifier"
+
+B) Watch for ANY of these red flags and STOP me + paste the trace:
+   - 4xx / 5xx on /api/admin/onboard/* or /api/news/*
+   - "verifier WARNING" lines averaging > 2 per article (Phase 12 baseline)
+   - OpenAI rate-limit (429) or timeout
+   - yfinance "could not resolve ticker"
+   - Any unhandled exception in the in-process scheduler thread
+
+C) After the browser shows ≥ 1 article on the dashboard, capture:
+   - Time from "submit domain" to "dashboard renders first article" (target: < 5 min)
+   - Which view (CFO / CEO / ESG Analyst) loads cleanly vs blank
+   - Any console errors visible in browser DevTools (I'll paste them to you)
+   - Final companies.json entry: cat config/companies.json | jq '.companies[] | select(.slug=="<slug>")'
+
+Reply with a punch list of what's broken or rough — DO NOT auto-fix anything during the live walkthrough. We patch in Task 2 / a follow-up.
+
+===========================
+TASK 2 — Thread framework_region into the pipeline matcher
+===========================
+The reviewer's non-blocking comment from PR #1 was correct: framework_region is written into companies.json by the onboarder but framework_matcher.match() still reads headquarter_region and substring-matches "eu" / "europ". Live behaviour is correct today (Codex P1 fix made UK label "United Kingdom" so it doesn't substring-collide), but a future label like "Eurozone" would break it.
+
+Fix scope (small, surgical — DO NOT refactor more than this):
+
+A) engine/config.py — Company dataclass:
+   Add an optional field:
+       framework_region: str | None = None
+   Populate it in load_companies() from the JSON dict (default to None when absent so the existing 7 target companies still load cleanly).
+
+B) engine/analysis/framework_matcher.py:
+   Change the _region_key signature:
+       def _region_key(country: str, region: str, framework_region: str | None = None) -> str:
+   At the TOP of the function, if framework_region is set AND non-empty, return it.upper() directly — no substring matching. Otherwise fall through to the existing country/region heuristic (back-compat).
+
+   Update match_frameworks() signature to accept and forward framework_region:
+       def match_frameworks(tags, company_industry, company_country, company_region,
+                            market_cap, framework_region: str | None = None) -> ...:
+       ...
+       region_key = _region_key(company_country, company_region, framework_region)
+
+C) Find every call site of match_frameworks() and pass company.framework_region:
+   grep -rn "match_frameworks(" engine/ api/
+   Each caller already has access to the Company object — pass company.framework_region as the new kwarg.
+
+D) Add tests/test_phase23x_framework_region_routing.py with these 5 cases:
+   1. UK company with framework_region="UK" → _region_key returns "UK" (NOT EU, NOT GLOBAL)
+   2. EU company with framework_region="EU" → returns "EU"
+   3. Indian target company with framework_region=None (legacy entry) → returns "INDIA" via country heuristic (back-compat)
+   4. A company with framework_region="EU" but headquarter_region="Pan-European Union" (substring would have leaked to EU anyway, but proves the explicit field wins)
+   5. A company with framework_region="GLOBAL" but country="India" (substring would have routed to INDIA but explicit wins) → returns "GLOBAL"
+
+E) Acceptance:
+   python -m pytest tests/test_phase23a_news_locale.py tests/test_phase23b_onboarder_region.py tests/test_phase23x_framework_region_routing.py -v --tb=short
+   Expected: 39 + 5 = 44 passed.
+   
+   Then re-run the Phase 22.2 suite to make sure no regression:
+   python -m pytest tests/test_phase22_2_mirror_and_counter.py -v --tb=short
+   Expected: 8 passed (90 → 95 across the whole green-test set).
+
+F) Report back:
+   - The grep -rn match_frameworks output (so I can verify all callers were updated)
+   - Test result
+   - The diff stats (files touched, lines added) — should be small; if it's > 100 lines you've over-refactored
+
+DO NOT:
+- Touch _region_for_country in company_onboarder.py — it's the producer side, already correct
+- Rename headquarter_region — leave it as the human-readable label
+- Edit existing tests
+- Add try/except around the new path
+
+If anything in Task 2 fails, paste the trace verbatim and STOP. We can iterate.
+
+===========================
+Order
+===========================
+Do TASK 1 first — surface UX issues while the live system is fresh. Then TASK 2 (it's pure code, no live system needed). If TASK 1 surfaces a blocker that supersedes TASK 2, STOP and tell me before working on TASK 2.
+
+Reply when ready for me to start clicking through the browser onboarding.
