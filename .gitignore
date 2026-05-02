@@ -68,3 +68,6 @@ credentials.json
 # Local dev scripts / Claude Code state
 .local/
 setup_db.py
+
+# Local SQLite DB (transient runtime state — keeps re-conflicting on every rebase)
+data/snowkap.db
