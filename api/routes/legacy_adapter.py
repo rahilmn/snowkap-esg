@@ -29,7 +29,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from api.auth import require_auth
@@ -965,6 +965,63 @@ def _require_tenant_scope(company_id: str | None, claims: dict[str, Any]) -> Non
 _require_super_admin_for_cross_tenant = _require_tenant_scope
 
 
+def tenant_scoped(company_id_param: str = "company_id"):
+    """FastAPI dependency factory that wraps `_require_tenant_scope`.
+
+    Resolves the tenant slug from a query OR path parameter (named by
+    `company_id_param`, default `"company_id"`) and routes it through the
+    same gate that protects `/news/feed`. Apply via `Depends(tenant_scoped())`
+    on every legacy_adapter endpoint that accepts a tenant slug as a
+    query/path arg — without this a regular user can still read another
+    tenant's data simply by passing `?company_id=icici-bank`.
+
+    Returns the decoded JWT claims so the endpoint can chain on it (and
+    drop a separate `Depends(get_bearer_claims)`) if it needs the claims.
+
+    For endpoints whose tenant slug lives inside a JSON body (where
+    FastAPI dependencies can't read the body), call
+    `_require_tenant_scope(body.<slug_field>, claims)` directly inside
+    the handler instead.
+    """
+
+    def _dep(
+        request: Request,
+        claims: dict[str, Any] = Depends(get_bearer_claims),
+    ) -> dict[str, Any]:
+        cid: str | None = request.query_params.get(company_id_param)
+        if cid is None and request.path_params:
+            raw = request.path_params.get(company_id_param)
+            cid = raw if isinstance(raw, str) else None
+        _require_tenant_scope(cid, claims)
+        return claims
+
+    return _dep
+
+
+def _require_article_in_scope(
+    article_id: str, claims: dict[str, Any]
+) -> dict[str, Any]:
+    """Resolve an article's `company_slug` via the SQLite index, then
+    enforce `_require_tenant_scope` on it.
+
+    Used by endpoints whose only tenant signal is the `article_id` path/
+    body parameter (article detail, on-demand analysis, agent chat
+    context, etc.). Without this gate a regular user could read another
+    tenant's analysed insight by guessing or harvesting an article id.
+
+    Raises 404 if the article id is unknown — same behaviour as the
+    existing `_load_row_and_payload` helper, so we don't leak existence
+    information to callers who would otherwise hit a different error path.
+    Returns the row dict so callers don't have to re-query the index.
+    """
+    row = sqlite_index.get_by_id(article_id)
+    if not row:
+        raise HTTPException(status_code=404, detail=f"Article {article_id} not found")
+    slug = (row.get("company_slug") or "").strip() or None
+    _require_tenant_scope(slug, claims)
+    return row
+
+
 @router.get("/news/feed")
 def news_feed(
     limit: int = Query(20, ge=1, le=200),
@@ -974,9 +1031,8 @@ def news_feed(
     pillar: str | None = None,
     content_type: str | None = None,
     _: None = Depends(require_auth),
-    claims: dict[str, Any] = Depends(get_bearer_claims),
+    _claims: dict[str, Any] = Depends(tenant_scoped()),
 ) -> dict[str, Any]:
-    _require_tenant_scope(company_id, claims)
     rows = sqlite_index.query_feed(
         company_slug=company_id,
         tier=None,
@@ -1002,9 +1058,8 @@ def news_feed(
 def news_stats(
     company_id: str | None = None,
     _: None = Depends(require_auth),
-    claims: dict[str, Any] = Depends(get_bearer_claims),
+    _claims: dict[str, Any] = Depends(tenant_scoped()),
 ) -> dict[str, Any]:
-    _require_tenant_scope(company_id, claims)
     total = sqlite_index.count(company_slug=company_id if company_id else None)
     high_impact = sqlite_index.count_high_impact(company_slug=company_id if company_id else None)
     new_24h = sqlite_index.count_new_last_24h(company_slug=company_id if company_id else None)
@@ -1069,8 +1124,15 @@ def news_onboarding_status(
 
 
 @router.post("/news/{article_id}/bookmark")
-def news_bookmark(article_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
-    # savedStore is client-side localStorage — this is a no-op acknowledgement
+def news_bookmark(
+    article_id: str,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # savedStore is client-side localStorage — this is a no-op acknowledgement.
+    # Still gate on the article's owning tenant so a regular user can't probe
+    # another tenant's article-id space via this endpoint.
+    _require_article_in_scope(article_id, claims)
     return {"status": "ok", "article_id": article_id}
 
 
@@ -1134,12 +1196,13 @@ def news_trigger_analysis(
     article_id: str,
     force: bool = Query(False, description="Force re-enrichment even if cached"),
     _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
     """Phase 17b: On-demand enrichment — runs deep insight + perspectives +
     recommendations with primitive-enriched prompts when user opens an article."""
-    row = sqlite_index.get_by_id(article_id)
-    if not row:
-        return {"status": "failed", "message": "Article not found"}
+    # Tenant gate first: an attacker shouldn't be able to kick off (and pay
+    # for) an OpenAI enrichment job against another tenant's article.
+    row = _require_article_in_scope(article_id, claims)
 
     CURRENT_SCHEMA = "2.0-primitives-l2"
     if not force:
@@ -1187,6 +1250,7 @@ def news_trigger_analysis(
 def news_analysis_status(
     article_id: str,
     _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
     """Phase 13 B2 — On-demand pipeline status poll.
 
@@ -1202,6 +1266,20 @@ def news_analysis_status(
     indefinite spinner that hung forever on pipeline crash.
     """
     from engine.models import article_analysis_status as analysis_status
+
+    # Tenant gate: don't reveal another tenant's pipeline progress.
+    # Important nuance vs the other article endpoints: this poller is
+    # the ONE legacy_adapter route that legitimately receives article
+    # ids that have NEVER been indexed (the UI starts polling the
+    # moment it fires `/trigger-analysis`, before the bg worker writes
+    # the index row). For unknown ids we therefore fall through to the
+    # `state="unknown"` branch below — that response carries no tenant
+    # info so it is not a leak surface. We only gate when the index
+    # actually knows about the article (i.e. it has a real owner).
+    indexed_row = sqlite_index.get_by_id(article_id)
+    if indexed_row:
+        slug = (indexed_row.get("company_slug") or "").strip() or None
+        _require_tenant_scope(slug, claims)
 
     status = analysis_status.get_status(article_id)
     if not status:
@@ -1233,7 +1311,16 @@ def news_analysis_status(
 
 
 @router.get("/news/{article_id}/analysis")
-def news_analysis(article_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
+def news_analysis(
+    article_id: str,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # Tenant gate FIRST — this returns the full deep insight payload, which
+    # is the most sensitive surface in legacy_adapter. Without this, a
+    # regular user could read another tenant's analysed insight by simply
+    # hitting /api/news/{id}/analysis with a guessed article id.
+    _require_article_in_scope(article_id, claims)
     row, payload = _load_row_and_payload(article_id)
     if not payload:
         return {"status": "idle", "analysis": None}
@@ -1370,7 +1457,17 @@ class NewsChatIn(BaseModel):
 
 
 @router.post("/news/{article_id}/chat")
-def news_chat(article_id: str, body: NewsChatIn, _: None = Depends(require_auth)) -> dict[str, Any]:
+def news_chat(
+    article_id: str,
+    body: NewsChatIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # Two gates: the path-param article_id (resolves to a tenant via the
+    # index) AND the body's company_id (which the agent uses to scope its
+    # ontology query). Both must belong to the caller's tenant.
+    _require_article_in_scope(article_id, claims)
+    _require_tenant_scope(body.company_id, claims)
     response = _run_agent_chat(
         question=body.message,
         agent_id="executive",
@@ -1422,6 +1519,7 @@ def predictions_list(
     company_id: str | None = None,
     limit: int = 10,
     _: None = Depends(require_auth),
+    _claims: dict[str, Any] = Depends(tenant_scoped()),
 ) -> list[dict[str, Any]]:
     return []
 
@@ -1438,7 +1536,16 @@ class PredictionTriggerIn(BaseModel):
 
 
 @router.post("/predictions/trigger")
-def predictions_trigger(body: PredictionTriggerIn, _: None = Depends(require_auth)) -> dict[str, Any]:
+def predictions_trigger(
+    body: PredictionTriggerIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # body.company_id is in JSON, so the dependency wrapper can't see it —
+    # gate inline. Also gate the article_id so neither field can be used
+    # to point at another tenant.
+    _require_tenant_scope(body.company_id, claims)
+    _require_article_in_scope(body.article_id, claims)
     return {"status": "stubbed", "message": "Predictions are disabled in Hybrid scope"}
 
 
@@ -1590,7 +1697,16 @@ class AgentChatIn(BaseModel):
 
 
 @router.post("/agent/chat")
-def agent_chat(body: AgentChatIn, _: None = Depends(require_auth)) -> dict[str, Any]:
+def agent_chat(
+    body: AgentChatIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # If the caller pins the chat to a specific article, that article must
+    # belong to their tenant — otherwise the agent's ontology context would
+    # leak details about another tenant's analysed insight.
+    if body.article_id:
+        _require_article_in_scope(body.article_id, claims)
     answer = _run_agent_chat(body.question, body.agent_id, body.article_id)
     agent = next((a for a in AGENT_ROSTER if a["id"] == body.agent_id), AGENT_ROSTER[3])
     return {
@@ -1609,12 +1725,18 @@ class AskAboutNewsIn(BaseModel):
 
 
 @router.post("/agent/ask-about-news")
-def agent_ask_about_news(body: AskAboutNewsIn, _: None = Depends(require_auth)) -> dict[str, Any]:
+def agent_ask_about_news(
+    body: AskAboutNewsIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # Tenant gate — body.article_id is required here, so the resolution
+    # always runs (unlike /agent/chat where it's optional).
+    row = _require_article_in_scope(body.article_id, claims)
     q = body.question or "What are the top ESG risks and opportunities for this company?"
     answer = _run_agent_chat(q, "executive", body.article_id)
 
     # Pull top causal chains for the CausalChainViz panel in chat UI
-    row = sqlite_index.get_by_id(body.article_id) or {}
     payload = _load_payload(row.get("json_path"))
     chains_raw = ((payload or {}).get("pipeline") or {}).get("causal_chains") or []
     causal_chains = [
@@ -1728,8 +1850,22 @@ class ExploreIn(BaseModel):
 
 
 @router.post("/ontology/explore")
-def ontology_explore(body: ExploreIn, _: None = Depends(require_auth)) -> dict[str, Any]:
-    target = body.company_slug or (load_companies()[0].slug if load_companies() else None)
+def ontology_explore(
+    body: ExploreIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    # The ontology snapshot returned here is scoped to a single company
+    # (causal chains anchored on `target`). Gate so a regular user can't
+    # explore another tenant's chains. When the caller omits company_slug
+    # we default to their JWT's tenant (avoids the stale "first target
+    # company" fallback that would have leaked icici-bank to every user).
+    own_slug = (claims.get("company_id") or "").strip() or None
+    requested = (body.company_slug or "").strip() or None
+    if requested is None:
+        requested = own_slug
+    _require_tenant_scope(requested, claims)
+    target = requested or (load_companies()[0].slug if load_companies() else None)
     if not target:
         return {"chains": []}
     try:
