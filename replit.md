@@ -394,3 +394,38 @@ article through the full pipeline. The current pinned demo article
 impact score, four recommendations, and fully populated ESG-Analyst /
 CEO / CFO perspectives — and a real Economic Times hero image that
 flows all the way through to the UI cards.
+
+## Phase 23B — Retest & Deploy-Readiness Audit (2026-05-03)
+
+Status: GREEN for deploy. Both workflows healthy, /health 200, Adani
+demo article (`fba97e682228b066`) returns 200 with hero `image_url`
+populated end-to-end. All Phase 22.x / 23.x feature tests pass.
+
+### Test suite snapshot (725 collected)
+- 692 passing; 33 known-bad failures isolated to four pre-existing
+  buckets unrelated to Phase 23B image plumbing:
+  - `tests/test_api_endpoints.py`, `tests/test_tenant_isolation.py`,
+    `tests/test_auth.py` — orphan tests targeting an unused
+    `backend.main` legacy app expecting Postgres tables
+    (`relation "articles" does not exist`). The live app is
+    `api.main` on SQLite; these tests have never been wired into CI.
+  - `tests/test_phase8_onboarding.py` (3 tests) — `MagicMock > 0`
+    breaks against the T7 currency-aware `fin.market_cap_cr > 0`
+    guard added in `engine/ingestion/company_onboarder.py:717`.
+  - `tests/test_phase13_demo_resilience::test_news_stats_endpoint…`
+    — `/news/stats` now requires `tenant_scoped()` JWT but the
+    test only sends the X-API-Key header.
+  - `tests/test_phase10_super_admin_access::test_super_admin_can_fetch_feed…`
+    — passes in isolation; rate-limit collision when run with
+    siblings.
+- `python-jose[cryptography]==3.5.0` pinned in `requirements.txt`
+  so `tests/test_security.py` collects in CI.
+
+### Environment audit
+- All required secrets SET: `JWT_SECRET`, `SNOWKAP_API_KEY`,
+  `OPENAI_API_KEY`, `NEWSAPI_AI_API_KEY`, `RESEND_API_KEY`,
+  `REQUIRE_SIGNED_JWT=1`, `SNOWKAP_INTERNAL_EMAILS`,
+  `SNOWKAP_FROM_ADDRESS`.
+- SQLite store: `data/snowkap.db` (~324 KB).
+- `.replit` deployment target: `cloudrun` (autoscale), `bash run.sh`.
+- `client/dist/` pre-built and served by FastAPI catch-all.
