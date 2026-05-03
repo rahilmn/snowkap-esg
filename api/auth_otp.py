@@ -14,16 +14,17 @@ from __future__ import annotations
 import logging
 import os
 import secrets
-import sqlite3
 import time
 from contextlib import contextmanager
 from pathlib import Path
 
+from engine.db import connect as _db_connect
+
 logger = logging.getLogger(__name__)
 
-# Reuse the same SQLite database as the article index so we don't grow
-# the deployment footprint with a separate DB file. The file path is
-# resolved lazily so a test can monkey-patch it before the first call.
+# Reuse the same SQLite database as the article index (legacy back-compat
+# default). On Postgres mode (SNOWKAP_DB_BACKEND=postgres) the auth_otp
+# table lives alongside everything else in the Supabase Postgres database.
 _DEFAULT_DB_PATH = Path(__file__).resolve().parent.parent / "data" / "snowkap.db"
 
 OTP_LENGTH = 6
@@ -32,19 +33,25 @@ MAX_ATTEMPTS = 5  # before we burn the OTP and force a re-request
 
 
 def _db_path() -> Path:
+    """Resolve the SQLite path (only consulted when backend=sqlite).
+
+    Tests monkey-patch ``SNOWKAP_DB_PATH`` to point at a temp file.
+    """
     return Path(os.environ.get("SNOWKAP_DB_PATH", str(_DEFAULT_DB_PATH)))
 
 
 @contextmanager
 def _connect():
-    path = _db_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(str(path))
-    try:
+    """Backend-aware connection (Phase 24).
+
+    Honours ``SNOWKAP_DB_PATH`` only on the sqlite path so existing
+    tests that point this at a temp file keep working. On Postgres,
+    the path is ignored (the URL is read from ``SUPABASE_DATABASE_URL``).
+    """
+    sqlite_path = _db_path()
+    sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+    with _db_connect(sqlite_path=sqlite_path) as conn:
         yield conn
-        conn.commit()
-    finally:
-        conn.close()
 
 
 def ensure_schema() -> None:

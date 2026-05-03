@@ -23,13 +23,13 @@ Schema:
 from __future__ import annotations
 
 import logging
-import sqlite3
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterator
 
-from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode
+from engine.db import connect as _db_connect
+from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -76,14 +76,10 @@ def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
 
 
 @contextmanager
-def _connect() -> Iterator[sqlite3.Connection]:
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    try:
+def _connect() -> Iterator[Any]:
+    """Backend-aware connection (Phase 24)."""
+    with _db_connect() as conn:
         yield conn
-        conn.commit()
-    finally:
-        conn.close()
 
 
 def ensure_schema() -> None:

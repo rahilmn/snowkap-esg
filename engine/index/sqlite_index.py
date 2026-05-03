@@ -44,9 +44,14 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from engine.config import get_data_path
+from engine.db import connect as _db_connect, get_backend, is_postgres
 
 logger = logging.getLogger(__name__)
 
+# Phase 24 — DB_PATH is still emitted for back-compat callers (e.g. the
+# smoke test that checks WAL mode on the SQLite file). It points at the
+# legacy SQLite location regardless of backend; in Postgres mode it's
+# unused.
 DB_PATH = get_data_path("snowkap.db")
 
 # Default freshness window for the feed and dashboard counters. Articles
@@ -147,34 +152,36 @@ CREATE TABLE IF NOT EXISTS slug_aliases (
 
 
 @contextmanager
-def _connect() -> Iterator[sqlite3.Connection]:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    try:
+def _connect() -> Iterator[Any]:
+    """Yield a backend-aware connection.
+
+    Phase 24 — switched from raw ``sqlite3.connect()`` to the
+    :mod:`engine.db` abstraction, which routes to either SQLite or
+    Postgres based on ``SNOWKAP_DB_BACKEND``. Call sites use the same
+    sqlite-flavoured SQL (``?`` placeholders, ``datetime('now', ...)``,
+    ``INSERT OR REPLACE``); the dialect translator rewrites them at
+    execute time when the active backend is Postgres.
+    """
+    with _db_connect() as conn:
         yield conn
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        conn.close()
 
 
 _WAL_ENABLED = False
 
 
 def _ensure_wal_mode() -> None:
-    """Phase 11A: enable SQLite WAL mode so concurrent readers + one writer
-    don't lock. Idempotent — `PRAGMA journal_mode` is a per-DB persistent
-    setting so this runs once at first-access. `synchronous=FULL` (SQLite
-    default) is kept for durability; in WAL mode it's still fast because
-    fsync happens at commit + checkpoint, not per-page.
+    """Phase 11A: enable SQLite WAL mode (no-op when running on Postgres).
 
-    The crit-win is moving from default `DELETE` rollback-journal mode to
-    `WAL`: reads never block writes + writes never block reads."""
+    Idempotent — runs once at first-access. WAL is a sqlite-only setting;
+    on Postgres the call is short-circuited because Postgres has its own
+    WAL implementation enabled by default.
+    """
     global _WAL_ENABLED
     if _WAL_ENABLED:
+        return
+    if is_postgres():
+        # Postgres has WAL on by default; no client-side toggle needed.
+        _WAL_ENABLED = True
         return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:

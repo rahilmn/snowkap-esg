@@ -560,22 +560,35 @@ def fetch_for_company(
     seen_urls: set[str] = set()
     hq_country = getattr(company, "headquarter_country", None)
     for query in company.news_queries:
-        # Prioritize NewsAPI.ai (full text) → NewsAPI.org → Google News RSS (headline only)
-        for source_type in ("newsapi_ai", "newsapi", "google_news"):
-            if source_type == "google_news":
-                # Phase 23A: pass HQ country so locale matches the company.
-                results = fetch_google_news(query, max_results=limit, country=hq_country)
-            elif source_type == "newsapi":
-                results = fetch_newsapi(query, max_results=limit)
-            else:
-                results = fetch_newsapi_ai(query, max_results=limit)
-            for art in results:
+        # Phase 24 — NewsAPI.ai is the primary source (full article body,
+        # 2,000-5,000+ chars). Google News RSS is only used as a fallback
+        # when NewsAPI.ai returns zero results for this query (key
+        # missing, rate-limited, or genuinely no matches). NewsAPI.org
+        # was removed: it added a third API call per query for marginal
+        # extra coverage and frequent paywall-snippet noise.
+        primary = fetch_newsapi_ai(query, max_results=limit)
+        if primary:
+            for art in primary:
                 if art["url"] in seen_urls:
                     continue
                 seen_urls.add(art["url"])
-                art.setdefault("source_type", source_type)
+                art.setdefault("source_type", "newsapi_ai")
                 art["query"] = query
                 raw_articles.append(art)
+            continue
+
+        # Fallback path: Google News RSS with HQ-country locale (Phase 23A).
+        logger.info(
+            "news_fetcher: NewsAPI.ai returned 0 for %r — falling back to Google News RSS",
+            query,
+        )
+        for art in fetch_google_news(query, max_results=limit, country=hq_country):
+            if art["url"] in seen_urls:
+                continue
+            seen_urls.add(art["url"])
+            art.setdefault("source_type", "google_news")
+            art["query"] = query
+            raw_articles.append(art)
 
     # Phase 1: semantic dedup across all sources/queries for this company
     dedup = SemanticDedup(threshold=sem_threshold, window_hours=sem_window) if sem_enabled else None

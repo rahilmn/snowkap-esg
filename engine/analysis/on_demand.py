@@ -338,17 +338,24 @@ def _run_intelligence_layers(
     # so on-demand enrichment for an alias-tenant article saw zero
     # prior context even when the pipeline had indexed plenty.
     try:
-        import sqlite3
+        # Phase 24 — route through engine.db so this lookup respects the
+        # active backend (SQLite or Postgres). The legacy db_path.exists()
+        # gate doesn't make sense on Postgres; we just attempt the query
+        # and treat empty results as "no prior context" the same way.
+        from engine.db import connect as _db_connect, is_sqlite
 
-        db_path = get_data_path("snowkap.db")
-        if db_path.exists():
-            conn = sqlite3.connect(str(db_path))
-            conn.row_factory = sqlite3.Row
-            rows = conn.execute(
-                "SELECT title, json_path FROM article_index WHERE company_slug = ? ORDER BY published_at DESC LIMIT 6",
-                (resolve_slug(company.slug),),
-            ).fetchall()
-            conn.close()
+        skip = False
+        if is_sqlite():
+            db_path = get_data_path("snowkap.db")
+            if not db_path.exists():
+                skip = True
+
+        if not skip:
+            with _db_connect() as conn:
+                rows = conn.execute(
+                    "SELECT title, json_path FROM article_index WHERE company_slug = ? ORDER BY published_at DESC LIMIT 6",
+                    (resolve_slug(company.slug),),
+                ).fetchall()
 
             if len(rows) >= 2:
                 prev_summaries = []

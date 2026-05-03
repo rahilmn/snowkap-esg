@@ -134,8 +134,17 @@ def t02_env_guard() -> None:
                 os.environ[k] = v
 
 
-@check("3. SQLite WAL mode is enabled on data/snowkap.db")
+@check("3. WAL mode is enabled (sqlite) or backend is Postgres")
 def t03_wal() -> None:
+    """Phase 24 — when SNOWKAP_DB_BACKEND=postgres, this check is N/A
+    because Postgres has WAL on by default. Otherwise verify the
+    SQLite file is in WAL mode the way Phase 11A required.
+    """
+    import os
+    if os.environ.get("SNOWKAP_DB_BACKEND", "sqlite").strip().lower() == "postgres":
+        # Postgres always has WAL — nothing to assert client-side.
+        return
+
     import sqlite3
     db = _ROOT / "data" / "snowkap.db"
     if not db.exists():

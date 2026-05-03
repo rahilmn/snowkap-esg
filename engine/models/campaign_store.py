@@ -27,14 +27,14 @@ from __future__ import annotations
 
 import json
 import logging
-import sqlite3
 import uuid
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Iterator, Literal
 
-from engine.index.sqlite_index import DB_PATH
+from engine.db import connect as _db_connect, is_postgres
+from engine.index.sqlite_index import DB_PATH  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -106,16 +106,17 @@ _SCHEMA_READY = False
 
 
 @contextmanager
-def _connect() -> Iterator[sqlite3.Connection]:
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    # Enforce ON DELETE CASCADE on the recipients table
-    conn.execute("PRAGMA foreign_keys = ON")
-    try:
+def _connect() -> Iterator[Any]:
+    """Backend-aware connection (Phase 24).
+
+    On SQLite, ``PRAGMA foreign_keys = ON`` is set so the
+    ``ON DELETE CASCADE`` on ``campaign_recipients`` actually fires.
+    On Postgres, foreign keys are always enforced — no toggle needed.
+    """
+    with _db_connect() as conn:
+        if not is_postgres():
+            conn.execute("PRAGMA foreign_keys = ON")
         yield conn
-        conn.commit()
-    finally:
-        conn.close()
 
 
 def ensure_schema() -> None:

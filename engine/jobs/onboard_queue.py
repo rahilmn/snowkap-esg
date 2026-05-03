@@ -37,13 +37,13 @@ from __future__ import annotations
 
 import logging
 import os
-import sqlite3
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode
+from engine.db import connect as _db_connect
+from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
@@ -74,14 +74,10 @@ _SCHEMA_READY = False
 
 
 @contextmanager
-def _connect() -> Iterator[sqlite3.Connection]:
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    try:
+def _connect() -> Iterator[Any]:
+    """Backend-aware connection (Phase 24)."""
+    with _db_connect() as conn:
         yield conn
-        conn.commit()
-    finally:
-        conn.close()
 
 
 def ensure_schema() -> None:
