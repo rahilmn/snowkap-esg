@@ -26,8 +26,16 @@ import logging
 import os
 import time
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+
+def _now_iso() -> str:
+    """ISO-8601 UTC timestamp with `+00:00` offset — same shape as
+    pinned_until column, lex-comparable for the is_pinned check.
+    """
+    return datetime.now(timezone.utc).isoformat()
 
 from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
@@ -556,6 +564,18 @@ def build_legacy_article(row: dict[str, Any], payload: dict[str, Any] | None) ->
         "image_url": art.get("image_url") or _resolve_image_url_from_input(art, row),
         "published_at": row.get("published_at") or art.get("published_at"),
         "esg_pillar": row.get("esg_pillar"),
+        # Phase 24.5 — surface routing + pin status as top-level fields so
+        # the frontend can render the HOME/SECONDARY tier badge and the
+        # "Pinned" indicator without digging into relevance_breakdown.
+        # Pre-fix the SQLite index had these set correctly but the API
+        # response dropped them; the pin would still SORT to the top
+        # (server-side sort), but the frontend couldn't show a badge.
+        "tier": tier,
+        "pinned_until": row.get("pinned_until"),
+        "is_pinned": bool(
+            row.get("pinned_until")
+            and str(row.get("pinned_until")) > _now_iso()
+        ),
         "sentiment": nlp.get("sentiment_label") or ("negative" if (nlp.get("sentiment", 0) or 0) < 0 else "positive" if (nlp.get("sentiment", 0) or 0) > 0 else "neutral"),
         "entities": nlp.get("entities") or nlp.get("named_entities") or [],
         "impact_scores": impact_scores,
