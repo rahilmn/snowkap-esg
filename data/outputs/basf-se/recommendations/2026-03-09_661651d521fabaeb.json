@@ -1,0 +1,162 @@
+{
+  "recommendations": [
+    {
+      "title": "Monitor Energy Price Shock and Escalate if Threshold Breached",
+      "description": "Implement a real-time monitoring system for energy price changes; escalate to senior management if energy price shock exceeds 25% YoY or 2σ above 5-year rolling mean within 6 months to mitigate ₹50 Cr margin erosion risk.",
+      "type": "operational",
+      "responsible_party": "Head of Risk Management",
+      "framework_section": "BRSR:P6:Q14",
+      "deadline": "2026-10-13",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Avoid ₹50 Cr cumulative margin erosion by proactive risk management",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 200.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": true,
+      "roi_cap_reason": "Capped at 200% (operational ceiling). Raw estimate was 400%; cap prevents over-claim.",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "₹50 Cr margin erosion risk",
+          "value": "Sustained margin erosion from energy risks could accumulate to >₹50 Cr"
+        },
+        {
+          "source": "primitive",
+          "ref": "Energy price shock τ",
+          "value": "Threshold for energy price shock defined as ΔEP >= 25% YoY or EP >= 2σ above 5-yr mean"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6:Q14",
+          "value": "Monitoring and escalation aligned with BRSR risk disclosure requirements"
+        }
+      ]
+    },
+    {
+      "title": "Accelerate Renewable Energy Sourcing for EU Taxonomy Alignment",
+      "description": "Develop and implement a plan to increase renewable energy sourcing to at least 50% by 2028, unlocking EU Taxonomy-aligned green financing and reducing cost of capital by 20-40 bps, with a budget of ₹10-15 Cr for capex and project management.",
+      "type": "strategic",
+      "responsible_party": "Chief Sustainability Officer",
+      "framework_section": "EU Taxonomy",
+      "deadline": "2028-12-31",
+      "estimated_budget": "₹10-15 Cr",
+      "profitability_link": "Potential ₹200 Cr green bond opportunity at 30 bps discount due to EU Taxonomy alignment",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 300.0,
+      "payback_months": 36.0,
+      "peer_benchmark": "Tata Power committed 80% renewable portfolio by 2030 and issued ₹5000 Cr green bonds",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "EU Taxonomy opportunity",
+          "value": "Accelerate renewable energy sourcing to unlock EU Taxonomy-aligned green financing"
+        },
+        {
+          "source": "peer",
+          "ref": "Tata Power",
+          "value": "Competitor committed to 80% renewable portfolio by 2030 and issued ₹5000 Cr green bonds"
+        },
+        {
+          "source": "framework",
+          "ref": "EU Taxonomy",
+          "value": "Alignment with EU Taxonomy mandatory for green financing eligibility"
+        }
+      ]
+    },
+    {
+      "title": "Publish Investor-Day Update on Transition Capex and Abatement Curve",
+      "description": "Organize an investor-day by 2026-11-30 to disclose detailed transition capex plans and abatement curve progress, improving transparency under ESRS and BRSR frameworks to enhance ESG ratings and reduce fund outflow risk.",
+      "type": "esg_positioning",
+      "responsible_party": "Head of Investor Relations",
+      "framework_section": "ESRS:S1, BRSR:P7",
+      "deadline": "2026-11-30",
+      "estimated_budget": "₹1-2 Cr",
+      "profitability_link": "Mitigate 5-10% P/E compression risk by improving ESG disclosure and investor confidence",
+      "priority": "HIGH",
+      "urgency": "short_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 7,
+      "roi_percentage": 150.0,
+      "payback_months": 12.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "ESG disclosure risk",
+          "value": "Weak GRI disclosure leads to lower ESG ratings and fund outflow"
+        },
+        {
+          "source": "framework",
+          "ref": "ESRS:S1, BRSR:P7",
+          "value": "Investor communication aligned with ESRS and BRSR disclosure requirements"
+        },
+        {
+          "source": "primitive",
+          "ref": "event_routine_capex",
+          "value": "Investor-day update archetype recommended for transition capex disclosure"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 0,
+        "title": "Monitor Energy Price Shock and Escalate if Threshold Breached",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹0.5-1 Cr"
+      },
+      {
+        "index": 1,
+        "title": "Accelerate Renewable Energy Sourcing for EU Taxonomy Alignment",
+        "type": "strategic",
+        "roi": 300.0,
+        "budget": "₹10-15 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 2,
+        "title": "Publish Investor-Day Update on Transition Capex and Abatement Curve",
+        "type": "esg_positioning",
+        "roi": 150.0,
+        "budget": "₹1-2 Cr"
+      }
+    ],
+    "deferred_high": [],
+    "deferred_low": []
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      1,
+      0,
+      2
+    ],
+    "ceo": [
+      2,
+      0,
+      1
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}

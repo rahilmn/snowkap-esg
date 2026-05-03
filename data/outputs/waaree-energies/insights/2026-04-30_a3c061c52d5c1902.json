@@ -5,7 +5,8 @@
     "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQMEVOaGNWZjBEQU9rVkNNRHhFVVotYXpFVXhic1lJZmxsSURnNXAtWEtFVEpsRGxjWE8wVkFVS09JWGVBQnBsQ1NkQzNvZS1LX2RZZVFJVkN2QmhZZEFpRjdZM0cwZWxmTjVkNFpXZkRlUjBEZ01WTFlNUUdQdTZoWjBpa05EZHlUeVpkODNnQUxEU041Y1doREhaMnhYMXdZVzYzN0tkcXlPVUVqVUV4dTlNaVVOUHUxS0V5cGFqNTQ4a1VWQ053?oc=5",
     "source": "scanx.trade",
     "published_at": "2026-04-30T06:26:55+00:00",
-    "company_slug": "waaree-energies"
+    "company_slug": "waaree-energies",
+    "image_url": ""
   },
   "pipeline": {
     "article_id": "a3c061c52d5c1902",
@@ -18,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 29,
-    "elapsed_seconds": 6.645,
+    "elapsed_seconds": 5.515,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -35,11 +36,12 @@
       "sentiment_confidence": 0.8,
       "tone": [
         "optimistic",
-        "analytical"
+        "analytical",
+        "neutral"
       ],
       "narrative_core_claim": "Waaree Energies projects an operating EBITDA of ₹7,000-7,700 crore for FY27.",
-      "narrative_implied_causation": "Projected financial growth is due to operational expansion and market opportunities.",
-      "narrative_stakeholder_framing": "Waaree Energies is the protagonist, investors and market stakeholders are affected.",
+      "narrative_implied_causation": "Projected growth in operations is expected to drive EBITDA to ₹7,000-7,700 crore by FY27.",
+      "narrative_stakeholder_framing": "Waaree Energies is the protagonist aiming for financial growth, benefiting investors and stakeholders.",
       "entities": [
         "Waaree Energies",
         "FY27",
@@ -47,8 +49,8 @@
       ],
       "entity_types": {
         "Waaree Energies": "company",
-        "FY27": "time period",
-        "₹7,000-7,700 Crore": "financial amount"
+        "FY27": "time_period",
+        "₹7,000-7,700 Crore": "financial_amount"
       },
       "financial_signal": {
         "amount": 7000,
@@ -59,7 +61,7 @@
       "esg_pillar": "mixed",
       "esg_topics": [
         "financial performance",
-        "renewable energy operations"
+        "energy sector"
       ],
       "content_type": "financial",
       "urgency": "low",
@@ -77,7 +79,7 @@
         "power_purchase_agreements"
       ],
       "secondary_themes": [],
-      "confidence": 0.7,
+      "confidence": 0.6,
       "method": "llm"
     },
     "event": {
@@ -93,15 +95,15 @@
       "financial_amount_cr": 7700.0
     },
     "relevance": {
-      "total": 4,
+      "total": 3,
       "tier": "SECONDARY",
-      "esg_correlation": 2,
+      "esg_correlation": 1,
       "financial_impact": 2,
       "compliance_risk": 0,
       "supply_chain_impact": 0,
       "people_impact": 0,
       "materiality_weight": 1.0,
-      "adjusted_total": 4.0,
+      "adjusted_total": 3.0,
       "rejection_reason": "",
       "ontology_queries": 1
     },
@@ -115,6 +117,21 @@
         "relationship_type": "directOperational",
         "impact_score": 1.0,
         "explanation": "Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Renewable Energy",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Renewable Energy → impacts Waaree Energies"
       },
       {
         "nodes": [
@@ -394,192 +411,190 @@
     "sdgs": [
       "Affordable and Clean Energy",
       "Climate Action"
-    ]
+    ],
+    "article_content": "Waaree Energies Projects Operating EBITDA of ₹7,000-7,700 Crore for FY27 scanx.trade",
+    "image_url": ""
   },
   "insight": {
-    "headline": "Waaree Energies projects FY27 EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
-    "impact_score": 4.0,
-    "core_mechanism": "Waaree Energies' projected FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr reflects operational expansion and increased market demand for renewable energy. This growth is driven by capacity additions and favorable sector tailwinds, positioning the company to capture a larger share of the solar market.",
-    "profitability_connection": "Higher projected EBITDA directly enhances cash flow and strengthens the balance sheet, supporting future capex and potentially lowering the cost of capital. This outlook may improve investor sentiment and valuation multiples if sustained.",
-    "translation": "Waaree Energies expects to make much higher profits by 2027 thanks to its expansion in renewable energy. This could make the company more attractive to investors and help it grow even further.",
+    "headline": "Waaree Energies projects FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
+    "impact_score": 3.0,
+    "core_mechanism": "Waaree Energies' projection of ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27 reflects anticipated scale-up in renewable energy operations. This signals robust revenue and margin expansion, driven by increased demand for solar technology and project execution. The event is a forward-looking financial signal, not an immediate ESG event.",
+    "profitability_connection": "Higher projected EBITDA indicates improved operating leverage and profitability, potentially enhancing valuation multiples. However, as this is a management projection, the impact on P&L is contingent on execution and market conditions.",
+    "translation": "Waaree Energies expects to earn ₹7,000 (from article)-7,700 Cr in operating profit by FY27, showing confidence in its renewable energy business growth. This is a positive signal for investors, but actual results will depend on future performance.",
     "impact_analysis": {
-      "esg_positioning": "The positive renewable energy growth supports ESG positioning, but disclosure gaps (BRSR, GRI, TCFD) could limit index inclusion and peer comparison benefits.",
-      "capital_allocation": "Potential for lower cost of capital if EU Taxonomy alignment and CDP A-list achieved; otherwise, risk of 20-40bps increase if disclosure remains weak.",
-      "valuation_cashflow": "Upside to P/E if green credentials recognized; risk of 5-10% P/E compression if ESG disclosure lags peers like Adani Power and JSW Energy.",
-      "compliance_regulatory": "BRSR, GRI, TCFD disclosure obligations triggered; non-compliance could attract SEBI scrutiny and trading restrictions.",
-      "supply_chain_transmission": "No supply chain transmission; event is direct operational growth, not supply chain driven.",
-      "people_demand": "No direct talent or community impact; event is financial projection, not workforce or social event."
+      "esg_positioning": "The projection supports positive ESG positioning in renewable energy, but no immediate ESG score uplift as this is a forward-looking statement. Peer pressure is moderate, as Adani Power and JSW Energy also pursue renewables.",
+      "capital_allocation": "Potential to lower cost of capital by 20-40bps if projections are met and disclosed transparently (engine estimate). Green financing eligibility may improve if EU Taxonomy alignment is demonstrated.",
+      "valuation_cashflow": "If achieved, could support P/E expansion by 0.05-0.1x versus peers (engine estimate). No direct margin erosion; upside to cash flows if targets are met.",
+      "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy disclosure obligations. No immediate penalties, but non-disclosure could lead to SEBI scrutiny and trading restrictions.",
+      "supply_chain_transmission": "No supply chain transmission; event is internal to Waaree Energies' operations and projections.",
+      "people_demand": "No immediate impact on talent or community; positive investor sentiment may improve employer brand over time."
     },
     "financial_timeline": {
       "immediate": {
-        "headline": "₹7,000-7,700 Cr projected EBITDA benefit (from article)",
-        "profitability_pathway": "Operational expansion in renewables → higher EBITDA → ₹7,000-7,700 Cr projected for FY27 (from article)",
-        "margin_pressure": "No margin pressure; event is positive EBITDA growth (engine estimate)",
-        "revenue_at_risk": "No revenue at risk; event is upside projection (engine estimate)"
+        "headline": "No immediate ₹ impact; projection for FY27 (engine estimate)",
+        "profitability_pathway": "EBITDA projection → investor sentiment uplift → potential for green bond issuance, but no current P&L impact.",
+        "margin_pressure": "N/A — no margin pressure from projection alone.",
+        "revenue_at_risk": "N/A — no revenue at risk; this is a positive forward-looking signal."
       },
       "structural": {
-        "valuation_rerating": "Potential P/E expansion if ESG disclosure improves; risk of 0.1x compression if not addressed",
-        "competitive_position": "Potential gain vs Adani Power and JSW Energy if green credentials are leveraged; otherwise, risk of lagging on ESG ratings"
+        "valuation_rerating": "Potential for slight P/E expansion (0.05-0.1x) if projections are met and disclosed transparently.",
+        "competitive_position": "If achieved, Waaree could close the gap with Adani Power and JSW Energy in renewable EBITDA scale."
       },
       "long_term": {
-        "secular_trajectory": "3-5 year view: sustained EBITDA growth if renewable expansion continues and ESG disclosures are strengthened",
-        "green_revenue_opportunity": "₹7,000-7,700 Cr EBITDA opportunity by FY27 (from article)"
+        "secular_trajectory": "If targets are met, Waaree could establish itself as a leading renewable energy player over 3-5 years.",
+        "green_revenue_opportunity": "₹7,000-7,700 Cr operating EBITDA by FY27 (from article); actual green revenue will depend on execution."
       }
     },
     "esg_relevance_score": {
       "environment": {
-        "score": 6,
-        "rationale": "Event is renewable energy expansion, directly supporting environmental goals."
+        "score": 3,
+        "rationale": "Event is a forward-looking renewable energy projection, not a realized environmental impact."
       },
       "social": {
         "score": 1,
-        "rationale": "No direct social dimension; event is financial projection, not workforce or community related."
+        "rationale": "No direct social dimension; no workforce or community impact disclosed."
       },
       "governance": {
-        "score": 3,
-        "rationale": "Governance relevance via disclosure obligations (BRSR, GRI, TCFD), but no direct governance event."
+        "score": 2,
+        "rationale": "Governance relevance via disclosure obligations (BRSR, TCFD), but no immediate governance event."
       },
       "financial_materiality": {
-        "score": 4,
-        "rationale": "Material for long-term growth, but not an immediate P&L event."
+        "score": 3,
+        "rationale": "Material if achieved, but currently a projection with no immediate P&L impact."
       },
       "regulatory_exposure": {
         "score": 2,
-        "rationale": "Disclosure frameworks triggered, but no immediate regulatory penalty or deadline."
+        "rationale": "Triggers disclosure frameworks, but no penalty or regulatory action at this stage."
       },
       "stakeholder_impact": {
-        "score": 3,
-        "rationale": "Investors may react positively to growth, but ESG fund inclusion depends on disclosure quality."
+        "score": 2,
+        "rationale": "Positive investor sentiment, but no direct stakeholder impact until results are realized."
       }
     },
-    "net_impact_summary": "Waaree Energies' projected FY27 EBITDA of ₹7,000-7,700 Cr (from article) signals strong operational momentum in renewables, supporting environmental ESG themes. However, full value realization depends on meeting BRSR, GRI, and TCFD disclosure standards to unlock green financing and premium valuations. No immediate revenue at risk or margin pressure, but peer positioning versus Adani Power and JSW Energy will hinge on ESG transparency.",
+    "net_impact_summary": "Waaree Energies' projected FY27 EBITDA of ₹7,000-7,700 Cr (from article) signals strong growth ambitions in renewables, supporting positive ESG narratives under BRSR and EU Taxonomy frameworks. However, as this is a management projection, there is no immediate financial or ESG impact. The event presents a potential upside if targets are achieved, but does not alter current risk or valuation profiles.",
     "decision_summary": {
       "materiality": "LOW",
       "action": "MONITOR",
-      "verdict": "No immediate action required; monitor ESG disclosure progress to maximize valuation upside.",
-      "financial_exposure": "Potential upside: ₹7,000-7,700 Cr EBITDA benefit (from article); no downside exposure.",
-      "key_risk": "Missed green financing or index inclusion if BRSR/GRI/TCFD disclosure gaps persist (no quantified ₹ risk at this stage).",
-      "top_opportunity": "Pursue CDP A-list and EU Taxonomy alignment to lower cost of capital by 20-40bps (engine estimate).",
+      "verdict": "No immediate action required; monitor for actual delivery against projections and disclosure quality.",
+      "financial_exposure": "₹7,000-7,700 Cr potential EBITDA upside by FY27 (from article); no current exposure.",
+      "key_risk": "Execution risk — failure to achieve projected EBITDA could disappoint investors and trigger valuation compression.",
+      "top_opportunity": "Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate).",
       "timeline": "Next quarterly review"
     },
     "causal_chain": {
-      "event": "Waaree Energies projects FY27 EBITDA of ₹7,000 (from article)-7,700 Cr due to operational expansion.",
-      "mechanism": "Expansion in renewables increases operating cash flow and strengthens ESG profile if disclosures are improved.",
-      "company_impact": "Potential for higher valuation and lower cost of capital; risk of missing out if ESG transparency lags.",
+      "event": "Waaree Energies projects ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27.",
+      "mechanism": "Projection signals anticipated operational growth, boosting investor sentiment and potential access to green financing if disclosed transparently.",
+      "company_impact": "No immediate P&L impact; potential for valuation uplift and lower cost of capital if targets are met.",
       "transmission_type": "direct"
     },
     "warnings": [
-      "verifier: added 3 source tags on ₹ figures",
+      "verifier: added 4 source tags on ₹ figures",
       "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
-    ]
+    ],
+    "event_polarity": "neutral"
   },
   "recommendations": {
     "recommendations": [
       {
-        "title": "Commission Third-Party CDP Validation for FY26",
-        "description": "Engage a third-party auditor to validate Waaree Energies' CDP submission for FY26 by 2026-05-30 to target CDP A-list inclusion, potentially lowering cost of capital by 20-40 bps and enhancing investor confidence.",
+        "title": "Commission Third-Party CDP Validation for FY26 Disclosure",
+        "description": "Engage a third-party verifier to validate FY26 CDP submission by 2026-05-30 to improve disclosure quality, aiming for A-list inclusion to attract ESG-focused capital and support green bond issuance opportunities.",
         "type": "esg_positioning",
         "responsible_party": "Head of Sustainability",
-        "framework_section": "CDP",
+        "framework_section": "CDP:2026",
         "deadline": "2026-05-30",
         "estimated_budget": "₹1-2 Cr",
-        "profitability_link": "₹140-280 Cr cost of capital savings annually at 20-40 bps on ₹7,000 Cr EBITDA",
+        "profitability_link": "Achieving CDP A-list status can attract ₹500-700 Cr green bond issuance at 50 bps discount, reducing financing costs by ₹2.5-3.5 Cr annually",
         "priority": "CRITICAL",
-        "urgency": "short_term",
+        "urgency": "immediate",
         "estimated_impact": "High",
         "risk_of_inaction": 9,
         "roi_percentage": 350.0,
         "payback_months": 12.0,
-        "peer_benchmark": "Tata Power's CDP A-list inclusion contributed to ₹5000 Cr green bond issuance",
+        "peer_benchmark": "Tata Power issued ₹5,000 Cr green bond leveraging ESG credentials",
         "roi_capped": false,
         "roi_cap_reason": "",
         "audit_trail": [
           {
-            "source": "framework",
-            "ref": "CDP",
-            "value": "CDP A-list inclusion lowers cost of capital by 20-40 bps"
+            "source": "article",
+            "ref": "FY27 EBITDA growth potential",
+            "value": "Strong growth supports green financing"
           },
           {
-            "source": "article",
-            "ref": "EBITDA ₹7,000-7,700 Cr",
-            "value": "Projected EBITDA baseline for cost of capital savings calculation"
+            "source": "framework",
+            "ref": "CDP:2026",
+            "value": "Third-party validation improves CDP disclosure quality"
           },
           {
             "source": "peer",
             "ref": "Tata Power",
-            "value": "Competitor's ESG positioning via CDP led to green bond issuance"
+            "value": "Green bond issuance linked to strong ESG disclosure"
           }
         ]
       },
       {
-        "title": "Publish Investor-Day Update on Renewable Transition Capex",
-        "description": "Organize an investor-day by 2026-07-15 detailing Waaree Energies' renewable transition capital expenditure and abatement curve to strengthen strategic positioning and attract ESG-focused investors, targeting a 5-10% P/E multiple uplift.",
+        "title": "Monitor Execution Risk via Quarterly EBITDA Variance Analysis",
+        "description": "Implement quarterly monitoring of actual EBITDA against projections; escalate to executive committee if variance exceeds 10% for two consecutive quarters to mitigate execution risk and avoid valuation compression.",
+        "type": "operational",
+        "responsible_party": "Chief Financial Officer",
+        "framework_section": "BRSR:P6:Q15",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.1-0.3 Cr",
+        "profitability_link": "Early detection of execution risk can prevent valuation loss estimated at 5-10% P/E compression, protecting ₹350-700 Cr market cap value",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 200.0,
+        "payback_months": 3.0,
+        "peer_benchmark": null,
+        "roi_capped": true,
+        "roi_cap_reason": "Capped at 200% (operational ceiling). Raw estimate was 400%; cap prevents over-claim.",
+        "audit_trail": [
+          {
+            "source": "article",
+            "ref": "Execution risk noted as key risk",
+            "value": "Failure to meet EBITDA targets risks valuation compression"
+          },
+          {
+            "source": "framework",
+            "ref": "BRSR:P6:Q15",
+            "value": "Monitoring financial performance variance recommended"
+          }
+        ]
+      },
+      {
+        "title": "Conduct Investor-Day Update on FY27 EBITDA Projections",
+        "description": "Organize an investor-day by 2026-06-30 to present detailed transition capex plans and abatement curves aligned with the projected ₹7,000-7,700 Cr operating EBITDA, enhancing transparency and investor confidence to support potential valuation uplift.",
         "type": "strategic",
         "responsible_party": "Chief Investor Relations Officer",
         "framework_section": "BRSR:P6:Q14",
-        "deadline": "2026-07-15",
+        "deadline": "2026-06-30",
         "estimated_budget": "₹0.5-1 Cr",
-        "profitability_link": "₹350-770 Cr valuation premium from 5-10% P/E multiple uplift on ₹7,000-7,700 Cr EBITDA",
+        "profitability_link": "Improved investor confidence could reduce cost of capital by 20-40 bps, saving ₹14-28 Cr annually on ₹7,000 Cr EBITDA base",
         "priority": "HIGH",
         "urgency": "short_term",
         "estimated_impact": "Medium",
         "risk_of_inaction": 6,
         "roi_percentage": 300.0,
         "payback_months": 6.0,
-        "peer_benchmark": "Tata Power's renewable portfolio commitment drove P/E rerating from 12x to 18x",
+        "peer_benchmark": "Tata Power’s investor engagement contributed to P/E rerating from 12x to 18x",
         "roi_capped": false,
         "roi_cap_reason": "",
         "audit_trail": [
           {
-            "source": "framework",
-            "ref": "BRSR:P6:Q14",
-            "value": "Investor communication on transition capex recommended"
+            "source": "article",
+            "ref": "FY27 EBITDA ₹7,000-7,700 Cr projection",
+            "value": "Projected EBITDA range signals growth potential"
           },
           {
-            "source": "article",
-            "ref": "EBITDA ₹7,000-7,700 Cr",
-            "value": "Valuation uplift quantified on EBITDA base"
+            "source": "framework",
+            "ref": "BRSR:P6:Q14",
+            "value": "Investor-day updates recommended for transition capex disclosure"
           },
           {
             "source": "peer",
             "ref": "Tata Power",
-            "value": "Competitor's P/E rerating from renewable strategy disclosure"
-          }
-        ]
-      },
-      {
-        "title": "Monitor Extreme Weather Impact on Renewable Assets",
-        "description": "Implement a monitoring system to track extreme weather events (wind speed ≥ Cat 2 hurricane or EF2 tornado) with escalation protocols if thresholds are breached within 12 months to mitigate operational risks and protect EBITDA margins.",
-        "type": "operational",
-        "responsible_party": "Chief Risk Officer",
-        "framework_section": "BRSR:P7:Q16",
-        "deadline": "2027-04-13",
-        "estimated_budget": "₹0.5-1 Cr",
-        "profitability_link": "Avoid ₹50-100 Cr EBITDA loss from weather-related asset downtime annually",
-        "priority": "MEDIUM",
-        "urgency": "medium_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 4,
-        "roi_percentage": 200.0,
-        "payback_months": 24.0,
-        "peer_benchmark": null,
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "primitive",
-            "ref": "τ = Cat 2+ hurricane or EF2+ tornado",
-            "value": "Threshold for extreme weather monitoring"
-          },
-          {
-            "source": "article",
-            "ref": "Low materiality but operational risk noted",
-            "value": "Need for monitoring to protect EBITDA"
-          },
-          {
-            "source": "framework",
-            "ref": "BRSR:P7:Q16",
-            "value": "Operational risk monitoring recommended"
+            "value": "Investor engagement linked to P/E rerating and green bond issuance"
           }
         ]
       }
@@ -592,42 +607,41 @@
       "immediate_high": [
         {
           "index": 0,
-          "title": "Commission Third-Party CDP Validation for FY26",
+          "title": "Commission Third-Party CDP Validation for FY26 Disclosure",
           "type": "esg_positioning",
           "roi": 350.0,
           "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Monitor Execution Risk via Quarterly EBITDA Variance Analysis",
+          "type": "operational",
+          "roi": 200.0,
+          "budget": "₹0.1-0.3 Cr"
         }
       ],
       "immediate_low": [
         {
-          "index": 1,
-          "title": "Publish Investor-Day Update on Renewable Transition Capex",
+          "index": 2,
+          "title": "Conduct Investor-Day Update on FY27 EBITDA Projections",
           "type": "strategic",
           "roi": 300.0,
           "budget": "₹0.5-1 Cr"
         }
       ],
       "deferred_high": [],
-      "deferred_low": [
-        {
-          "index": 2,
-          "title": "Monitor Extreme Weather Impact on Renewable Assets",
-          "type": "operational",
-          "roi": 200.0,
-          "budget": "₹0.5-1 Cr"
-        }
-      ]
+      "deferred_low": []
     },
     "recommendation_rankings": {
       "cfo": [
         0,
-        1,
-        2
+        2,
+        1
       ],
       "ceo": [
-        1,
         2,
-        0
+        0,
+        1
       ],
       "esg-analyst": [
         0,
@@ -639,21 +653,21 @@
   "perspectives": {
     "esg-analyst": {
       "perspective": "esg-analyst",
-      "headline": "Waaree Energies projects FY27 EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
+      "headline": "Waaree Energies projects FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
       "impact_grid": {
-        "financial": "MEDIUM",
+        "financial": "LOW",
         "regulatory": "LOW",
-        "strategic": "MEDIUM"
+        "strategic": "LOW"
       },
       "what_matters": [
-        "No supply chain transmission; event is direct operational growth, not supply chain driven.",
-        "Upside to P/E if green credentials recognized; risk of 5-10% P/E compression if ESG disclosure lags peers like Adani Power and JSW Energy.",
-        "Potential for lower cost of capital if EU Taxonomy alignment and CDP A-list achieved; otherwise, risk of 20-40bps increase if disclosure remains weak."
+        "If achieved, could support P/E expansion by 0.05-0.1x versus peers (engine estimate). No direct margin erosion; upside to cash flows if targets are met.",
+        "Potential to lower cost of capital by 20-40bps if projections are met and disclosed transparently (engine estimate). Green financing eligibility may improve if EU Taxonomy alignment is demonstrated.",
+        "The projection supports positive ESG positioning in renewable energy, but no immediate ESG score uplift as this is a forward-looking statement. Peer pressure is moderate, as Adani Power and JSW Energy also pursue renewables."
       ],
       "action": [
-        "No immediate action required; monitor ESG disclosure progress to maximize valuation upside.",
-        "Key risk: Missed green financing or index inclusion if BRSR/GRI/TCFD disclosure gaps persist (no quantified ₹ risk at this stage).",
-        "Opportunity: Pursue CDP A-list and EU Taxonomy alignment to lower cost of capital by 20-40bps (engine estimate)."
+        "No immediate action required; monitor for actual delivery against projections and disclosure quality.",
+        "Key risk: Execution risk — failure to achieve projected EBITDA could disappoint investors and trigger valuation compression.",
+        "Opportunity: Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate)."
       ],
       "materiality": "LOW",
       "do_nothing": false,
@@ -668,99 +682,100 @@
         "volume"
       ],
       "full_insight": {
-        "headline": "Waaree Energies projects FY27 EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
-        "impact_score": 4.0,
-        "core_mechanism": "Waaree Energies' projected FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr reflects operational expansion and increased market demand for renewable energy. This growth is driven by capacity additions and favorable sector tailwinds, positioning the company to capture a larger share of the solar market.",
-        "profitability_connection": "Higher projected EBITDA directly enhances cash flow and strengthens the balance sheet, supporting future capex and potentially lowering the cost of capital. This outlook may improve investor sentiment and valuation multiples if sustained.",
-        "translation": "Waaree Energies expects to make much higher profits by 2027 thanks to its expansion in renewable energy. This could make the company more attractive to investors and help it grow even further.",
+        "headline": "Waaree Energies projects FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
+        "impact_score": 3.0,
+        "core_mechanism": "Waaree Energies' projection of ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27 reflects anticipated scale-up in renewable energy operations. This signals robust revenue and margin expansion, driven by increased demand for solar technology and project execution. The event is a forward-looking financial signal, not an immediate ESG event.",
+        "profitability_connection": "Higher projected EBITDA indicates improved operating leverage and profitability, potentially enhancing valuation multiples. However, as this is a management projection, the impact on P&L is contingent on execution and market conditions.",
+        "translation": "Waaree Energies expects to earn ₹7,000 (from article)-7,700 Cr in operating profit by FY27, showing confidence in its renewable energy business growth. This is a positive signal for investors, but actual results will depend on future performance.",
         "impact_analysis": {
-          "esg_positioning": "The positive renewable energy growth supports ESG positioning, but disclosure gaps (BRSR, GRI, TCFD) could limit index inclusion and peer comparison benefits.",
-          "capital_allocation": "Potential for lower cost of capital if EU Taxonomy alignment and CDP A-list achieved; otherwise, risk of 20-40bps increase if disclosure remains weak.",
-          "valuation_cashflow": "Upside to P/E if green credentials recognized; risk of 5-10% P/E compression if ESG disclosure lags peers like Adani Power and JSW Energy.",
-          "compliance_regulatory": "BRSR, GRI, TCFD disclosure obligations triggered; non-compliance could attract SEBI scrutiny and trading restrictions.",
-          "supply_chain_transmission": "No supply chain transmission; event is direct operational growth, not supply chain driven.",
-          "people_demand": "No direct talent or community impact; event is financial projection, not workforce or social event."
+          "esg_positioning": "The projection supports positive ESG positioning in renewable energy, but no immediate ESG score uplift as this is a forward-looking statement. Peer pressure is moderate, as Adani Power and JSW Energy also pursue renewables.",
+          "capital_allocation": "Potential to lower cost of capital by 20-40bps if projections are met and disclosed transparently (engine estimate). Green financing eligibility may improve if EU Taxonomy alignment is demonstrated.",
+          "valuation_cashflow": "If achieved, could support P/E expansion by 0.05-0.1x versus peers (engine estimate). No direct margin erosion; upside to cash flows if targets are met.",
+          "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy disclosure obligations. No immediate penalties, but non-disclosure could lead to SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission; event is internal to Waaree Energies' operations and projections.",
+          "people_demand": "No immediate impact on talent or community; positive investor sentiment may improve employer brand over time."
         },
         "financial_timeline": {
           "immediate": {
-            "headline": "₹7,000-7,700 Cr projected EBITDA benefit (from article)",
-            "profitability_pathway": "Operational expansion in renewables → higher EBITDA → ₹7,000-7,700 Cr projected for FY27 (from article)",
-            "margin_pressure": "No margin pressure; event is positive EBITDA growth (engine estimate)",
-            "revenue_at_risk": "No revenue at risk; event is upside projection (engine estimate)"
+            "headline": "No immediate ₹ impact; projection for FY27 (engine estimate)",
+            "profitability_pathway": "EBITDA projection → investor sentiment uplift → potential for green bond issuance, but no current P&L impact.",
+            "margin_pressure": "N/A — no margin pressure from projection alone.",
+            "revenue_at_risk": "N/A — no revenue at risk; this is a positive forward-looking signal."
           },
           "structural": {
-            "valuation_rerating": "Potential P/E expansion if ESG disclosure improves; risk of 0.1x compression if not addressed",
-            "competitive_position": "Potential gain vs Adani Power and JSW Energy if green credentials are leveraged; otherwise, risk of lagging on ESG ratings"
+            "valuation_rerating": "Potential for slight P/E expansion (0.05-0.1x) if projections are met and disclosed transparently.",
+            "competitive_position": "If achieved, Waaree could close the gap with Adani Power and JSW Energy in renewable EBITDA scale."
           },
           "long_term": {
-            "secular_trajectory": "3-5 year view: sustained EBITDA growth if renewable expansion continues and ESG disclosures are strengthened",
-            "green_revenue_opportunity": "₹7,000-7,700 Cr EBITDA opportunity by FY27 (from article)"
+            "secular_trajectory": "If targets are met, Waaree could establish itself as a leading renewable energy player over 3-5 years.",
+            "green_revenue_opportunity": "₹7,000-7,700 Cr operating EBITDA by FY27 (from article); actual green revenue will depend on execution."
           }
         },
         "esg_relevance_score": {
           "environment": {
-            "score": 6,
-            "rationale": "Event is renewable energy expansion, directly supporting environmental goals."
+            "score": 3,
+            "rationale": "Event is a forward-looking renewable energy projection, not a realized environmental impact."
           },
           "social": {
             "score": 1,
-            "rationale": "No direct social dimension; event is financial projection, not workforce or community related."
+            "rationale": "No direct social dimension; no workforce or community impact disclosed."
           },
           "governance": {
-            "score": 3,
-            "rationale": "Governance relevance via disclosure obligations (BRSR, GRI, TCFD), but no direct governance event."
+            "score": 2,
+            "rationale": "Governance relevance via disclosure obligations (BRSR, TCFD), but no immediate governance event."
           },
           "financial_materiality": {
-            "score": 4,
-            "rationale": "Material for long-term growth, but not an immediate P&L event."
+            "score": 3,
+            "rationale": "Material if achieved, but currently a projection with no immediate P&L impact."
           },
           "regulatory_exposure": {
             "score": 2,
-            "rationale": "Disclosure frameworks triggered, but no immediate regulatory penalty or deadline."
+            "rationale": "Triggers disclosure frameworks, but no penalty or regulatory action at this stage."
           },
           "stakeholder_impact": {
-            "score": 3,
-            "rationale": "Investors may react positively to growth, but ESG fund inclusion depends on disclosure quality."
+            "score": 2,
+            "rationale": "Positive investor sentiment, but no direct stakeholder impact until results are realized."
           }
         },
-        "net_impact_summary": "Waaree Energies' projected FY27 EBITDA of ₹7,000-7,700 Cr (from article) signals strong operational momentum in renewables, supporting environmental ESG themes. However, full value realization depends on meeting BRSR, GRI, and TCFD disclosure standards to unlock green financing and premium valuations. No immediate revenue at risk or margin pressure, but peer positioning versus Adani Power and JSW Energy will hinge on ESG transparency.",
+        "net_impact_summary": "Waaree Energies' projected FY27 EBITDA of ₹7,000-7,700 Cr (from article) signals strong growth ambitions in renewables, supporting positive ESG narratives under BRSR and EU Taxonomy frameworks. However, as this is a management projection, there is no immediate financial or ESG impact. The event presents a potential upside if targets are achieved, but does not alter current risk or valuation profiles.",
         "decision_summary": {
           "materiality": "LOW",
           "action": "MONITOR",
-          "verdict": "No immediate action required; monitor ESG disclosure progress to maximize valuation upside.",
-          "financial_exposure": "Potential upside: ₹7,000-7,700 Cr EBITDA benefit (from article); no downside exposure.",
-          "key_risk": "Missed green financing or index inclusion if BRSR/GRI/TCFD disclosure gaps persist (no quantified ₹ risk at this stage).",
-          "top_opportunity": "Pursue CDP A-list and EU Taxonomy alignment to lower cost of capital by 20-40bps (engine estimate).",
+          "verdict": "No immediate action required; monitor for actual delivery against projections and disclosure quality.",
+          "financial_exposure": "₹7,000-7,700 Cr potential EBITDA upside by FY27 (from article); no current exposure.",
+          "key_risk": "Execution risk — failure to achieve projected EBITDA could disappoint investors and trigger valuation compression.",
+          "top_opportunity": "Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate).",
           "timeline": "Next quarterly review"
         },
         "causal_chain": {
-          "event": "Waaree Energies projects FY27 EBITDA of ₹7,000 (from article)-7,700 Cr due to operational expansion.",
-          "mechanism": "Expansion in renewables increases operating cash flow and strengthens ESG profile if disclosures are improved.",
-          "company_impact": "Potential for higher valuation and lower cost of capital; risk of missing out if ESG transparency lags.",
+          "event": "Waaree Energies projects ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27.",
+          "mechanism": "Projection signals anticipated operational growth, boosting investor sentiment and potential access to green financing if disclosed transparently.",
+          "company_impact": "No immediate P&L impact; potential for valuation uplift and lower cost of capital if targets are met.",
           "transmission_type": "direct"
         },
         "warnings": [
-          "verifier: added 3 source tags on ₹ figures",
+          "verifier: added 4 source tags on ₹ figures",
           "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
-        ]
+        ],
+        "event_polarity": "neutral"
       }
     },
     "cfo": {
       "perspective": "cfo",
-      "headline": "P&L exposure: Potential upside: ₹7,000-7,700 Cr EBITDA benefit (from article); no downside exposure.",
+      "headline": "P&L exposure: ₹7,000-7,700 Cr potential EBITDA upside by FY27 (from article); no current exposure.",
       "impact_grid": {
-        "financial": "MEDIUM",
+        "financial": "LOW",
         "regulatory": "LOW",
-        "strategic": "MEDIUM"
+        "strategic": "LOW"
       },
       "what_matters": [
-        "No supply chain transmission; event is direct operational growth, not supply chain driven.",
-        "Upside to P/E if green credentials recognized; risk of 5-10% P/E compression if ESG disclosure lags peers like Adani Power and JSW Energy.",
-        "Potential for lower cost of capital if EU Taxonomy alignment and CDP A-list achieved; otherwise, risk of 20-40bps increase if disclosure remains weak."
+        "If achieved, could support P/E expansion by 0.05-0.1x versus peers (engine estimate). No direct margin erosion; upside to cash flows if targets are met.",
+        "Potential to lower cost of capital by 20-40bps if projections are met and disclosed transparently (engine estimate). Green financing eligibility may improve if EU Taxonomy alignment is demonstrated.",
+        "Triggers BRSR, CDP, TCFD, and EU Taxonomy disclosure obligations. No immediate penalties, but non-disclosure could lead to SEBI scrutiny and trading restrictions."
       ],
       "action": [
-        "Quantify exposure: Potential upside: ₹7,000-7,700 Cr EBITDA benefit (from article); no downside exposure.",
-        "Revenue at risk: No revenue at risk; event is upside projection (engine estimate)"
+        "Quantify exposure: ₹7,000-7,700 Cr potential EBITDA upside by FY27 (from article); no current exposure.",
+        "Revenue at risk: N/A — no revenue at risk; this is a positive forward-looking signal."
       ],
       "materiality": "LOW",
       "do_nothing": false,
@@ -771,24 +786,101 @@
         "regulatory",
         "volume"
       ],
-      "full_insight": null
+      "full_insight": {
+        "headline": "Waaree Energies projects FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
+        "impact_score": 3.0,
+        "core_mechanism": "Waaree Energies' projection of ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27 reflects anticipated scale-up in renewable energy operations. This signals robust revenue and margin expansion, driven by increased demand for solar technology and project execution. The event is a forward-looking financial signal, not an immediate ESG event.",
+        "profitability_connection": "Higher projected EBITDA indicates improved operating leverage and profitability, potentially enhancing valuation multiples. However, as this is a management projection, the impact on P&L is contingent on execution and market conditions.",
+        "translation": "Waaree Energies expects to earn ₹7,000 (from article)-7,700 Cr in operating profit by FY27, showing confidence in its renewable energy business growth. This is a positive signal for investors, but actual results will depend on future performance.",
+        "impact_analysis": {
+          "esg_positioning": "The projection supports positive ESG positioning in renewable energy, but no immediate ESG score uplift as this is a forward-looking statement. Peer pressure is moderate, as Adani Power and JSW Energy also pursue renewables.",
+          "capital_allocation": "Potential to lower cost of capital by 20-40bps if projections are met and disclosed transparently (engine estimate). Green financing eligibility may improve if EU Taxonomy alignment is demonstrated.",
+          "valuation_cashflow": "If achieved, could support P/E expansion by 0.05-0.1x versus peers (engine estimate). No direct margin erosion; upside to cash flows if targets are met.",
+          "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy disclosure obligations. No immediate penalties, but non-disclosure could lead to SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission; event is internal to Waaree Energies' operations and projections.",
+          "people_demand": "No immediate impact on talent or community; positive investor sentiment may improve employer brand over time."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No immediate ₹ impact; projection for FY27 (engine estimate)",
+            "profitability_pathway": "EBITDA projection → investor sentiment uplift → potential for green bond issuance, but no current P&L impact.",
+            "margin_pressure": "N/A — no margin pressure from projection alone.",
+            "revenue_at_risk": "N/A — no revenue at risk; this is a positive forward-looking signal."
+          },
+          "structural": {
+            "valuation_rerating": "Potential for slight P/E expansion (0.05-0.1x) if projections are met and disclosed transparently.",
+            "competitive_position": "If achieved, Waaree could close the gap with Adani Power and JSW Energy in renewable EBITDA scale."
+          },
+          "long_term": {
+            "secular_trajectory": "If targets are met, Waaree could establish itself as a leading renewable energy player over 3-5 years.",
+            "green_revenue_opportunity": "₹7,000-7,700 Cr operating EBITDA by FY27 (from article); actual green revenue will depend on execution."
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 3,
+            "rationale": "Event is a forward-looking renewable energy projection, not a realized environmental impact."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No direct social dimension; no workforce or community impact disclosed."
+          },
+          "governance": {
+            "score": 2,
+            "rationale": "Governance relevance via disclosure obligations (BRSR, TCFD), but no immediate governance event."
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "Material if achieved, but currently a projection with no immediate P&L impact."
+          },
+          "regulatory_exposure": {
+            "score": 2,
+            "rationale": "Triggers disclosure frameworks, but no penalty or regulatory action at this stage."
+          },
+          "stakeholder_impact": {
+            "score": 2,
+            "rationale": "Positive investor sentiment, but no direct stakeholder impact until results are realized."
+          }
+        },
+        "net_impact_summary": "Waaree Energies' projected FY27 EBITDA of ₹7,000-7,700 Cr (from article) signals strong growth ambitions in renewables, supporting positive ESG narratives under BRSR and EU Taxonomy frameworks. However, as this is a management projection, there is no immediate financial or ESG impact. The event presents a potential upside if targets are achieved, but does not alter current risk or valuation profiles.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for actual delivery against projections and disclosure quality.",
+          "financial_exposure": "₹7,000-7,700 Cr potential EBITDA upside by FY27 (from article); no current exposure.",
+          "key_risk": "Execution risk — failure to achieve projected EBITDA could disappoint investors and trigger valuation compression.",
+          "top_opportunity": "Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate).",
+          "timeline": "Next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Waaree Energies projects ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27.",
+          "mechanism": "Projection signals anticipated operational growth, boosting investor sentiment and potential access to green financing if disclosed transparently.",
+          "company_impact": "No immediate P&L impact; potential for valuation uplift and lower cost of capital if targets are met.",
+          "transmission_type": "direct"
+        },
+        "warnings": [
+          "verifier: added 4 source tags on ₹ figures",
+          "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
+        ],
+        "event_polarity": "neutral"
+      }
     },
     "ceo": {
       "perspective": "ceo",
-      "headline": "Strategic angle — Pursue CDP A-list and EU Taxonomy alignment to lower cost of capital by 20-40bps (engine estimate).",
+      "headline": "Strategic angle — Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate).",
       "impact_grid": {
-        "financial": "MEDIUM",
+        "financial": "LOW",
         "regulatory": "LOW",
-        "strategic": "MEDIUM"
+        "strategic": "LOW"
       },
       "what_matters": [
-        "The positive renewable energy growth supports ESG positioning, but disclosure gaps (BRSR, GRI, TCFD) could limit index inclusion and peer comparison benefits.",
-        "No direct talent or community impact; event is financial projection, not workforce or social event.",
-        "BRSR, GRI, TCFD disclosure obligations triggered; non-compliance could attract SEBI scrutiny and trading restrictions."
+        "The projection supports positive ESG positioning in renewable energy, but no immediate ESG score uplift as this is a forward-looking statement. Peer pressure is moderate, as Adani Power and JSW Energy also pursue renewables.",
+        "Triggers BRSR, CDP, TCFD, and EU Taxonomy disclosure obligations. No immediate penalties, but non-disclosure could lead to SEBI scrutiny and trading restrictions.",
+        "No immediate impact on talent or community; positive investor sentiment may improve employer brand over time."
       ],
       "action": [
-        "Strategic opportunity: Pursue CDP A-list and EU Taxonomy alignment to lower cost of capital by 20-40bps (engine estimate).",
-        "Competitive position: Potential gain vs Adani Power and JSW Energy if green credentials are leveraged; otherwise, risk of lagging on ESG ratings"
+        "Strategic opportunity: Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate).",
+        "Competitive position: If achieved, Waaree could close the gap with Adani Power and JSW Energy in renewable EBITDA scale."
       ],
       "materiality": "LOW",
       "do_nothing": false,
@@ -798,11 +890,88 @@
         "regulatory",
         "strategic"
       ],
-      "full_insight": null
+      "full_insight": {
+        "headline": "Waaree Energies projects FY27 operating EBITDA of ₹7,000 (from article)-7,700 Cr, signaling strong renewable growth potential",
+        "impact_score": 3.0,
+        "core_mechanism": "Waaree Energies' projection of ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27 reflects anticipated scale-up in renewable energy operations. This signals robust revenue and margin expansion, driven by increased demand for solar technology and project execution. The event is a forward-looking financial signal, not an immediate ESG event.",
+        "profitability_connection": "Higher projected EBITDA indicates improved operating leverage and profitability, potentially enhancing valuation multiples. However, as this is a management projection, the impact on P&L is contingent on execution and market conditions.",
+        "translation": "Waaree Energies expects to earn ₹7,000 (from article)-7,700 Cr in operating profit by FY27, showing confidence in its renewable energy business growth. This is a positive signal for investors, but actual results will depend on future performance.",
+        "impact_analysis": {
+          "esg_positioning": "The projection supports positive ESG positioning in renewable energy, but no immediate ESG score uplift as this is a forward-looking statement. Peer pressure is moderate, as Adani Power and JSW Energy also pursue renewables.",
+          "capital_allocation": "Potential to lower cost of capital by 20-40bps if projections are met and disclosed transparently (engine estimate). Green financing eligibility may improve if EU Taxonomy alignment is demonstrated.",
+          "valuation_cashflow": "If achieved, could support P/E expansion by 0.05-0.1x versus peers (engine estimate). No direct margin erosion; upside to cash flows if targets are met.",
+          "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy disclosure obligations. No immediate penalties, but non-disclosure could lead to SEBI scrutiny and trading restrictions.",
+          "supply_chain_transmission": "No supply chain transmission; event is internal to Waaree Energies' operations and projections.",
+          "people_demand": "No immediate impact on talent or community; positive investor sentiment may improve employer brand over time."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "No immediate ₹ impact; projection for FY27 (engine estimate)",
+            "profitability_pathway": "EBITDA projection → investor sentiment uplift → potential for green bond issuance, but no current P&L impact.",
+            "margin_pressure": "N/A — no margin pressure from projection alone.",
+            "revenue_at_risk": "N/A — no revenue at risk; this is a positive forward-looking signal."
+          },
+          "structural": {
+            "valuation_rerating": "Potential for slight P/E expansion (0.05-0.1x) if projections are met and disclosed transparently.",
+            "competitive_position": "If achieved, Waaree could close the gap with Adani Power and JSW Energy in renewable EBITDA scale."
+          },
+          "long_term": {
+            "secular_trajectory": "If targets are met, Waaree could establish itself as a leading renewable energy player over 3-5 years.",
+            "green_revenue_opportunity": "₹7,000-7,700 Cr operating EBITDA by FY27 (from article); actual green revenue will depend on execution."
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 3,
+            "rationale": "Event is a forward-looking renewable energy projection, not a realized environmental impact."
+          },
+          "social": {
+            "score": 1,
+            "rationale": "No direct social dimension; no workforce or community impact disclosed."
+          },
+          "governance": {
+            "score": 2,
+            "rationale": "Governance relevance via disclosure obligations (BRSR, TCFD), but no immediate governance event."
+          },
+          "financial_materiality": {
+            "score": 3,
+            "rationale": "Material if achieved, but currently a projection with no immediate P&L impact."
+          },
+          "regulatory_exposure": {
+            "score": 2,
+            "rationale": "Triggers disclosure frameworks, but no penalty or regulatory action at this stage."
+          },
+          "stakeholder_impact": {
+            "score": 2,
+            "rationale": "Positive investor sentiment, but no direct stakeholder impact until results are realized."
+          }
+        },
+        "net_impact_summary": "Waaree Energies' projected FY27 EBITDA of ₹7,000-7,700 Cr (from article) signals strong growth ambitions in renewables, supporting positive ESG narratives under BRSR and EU Taxonomy frameworks. However, as this is a management projection, there is no immediate financial or ESG impact. The event presents a potential upside if targets are achieved, but does not alter current risk or valuation profiles.",
+        "decision_summary": {
+          "materiality": "LOW",
+          "action": "MONITOR",
+          "verdict": "No immediate action required; monitor for actual delivery against projections and disclosure quality.",
+          "financial_exposure": "₹7,000-7,700 Cr potential EBITDA upside by FY27 (from article); no current exposure.",
+          "key_risk": "Execution risk — failure to achieve projected EBITDA could disappoint investors and trigger valuation compression.",
+          "top_opportunity": "Leverage projection to issue green bonds or attract ESG-focused capital if progress is demonstrated (engine estimate).",
+          "timeline": "Next quarterly review"
+        },
+        "causal_chain": {
+          "event": "Waaree Energies projects ₹7,000 (from article)-7,700 Cr operating EBITDA for FY27.",
+          "mechanism": "Projection signals anticipated operational growth, boosting investor sentiment and potential access to green financing if disclosed transparently.",
+          "company_impact": "No immediate P&L impact; potential for valuation uplift and lower cost of capital if targets are met.",
+          "transmission_type": "direct"
+        },
+        "warnings": [
+          "verifier: added 4 source tags on ₹ figures",
+          "verifier: low-confidence classification — review before sending (event matched only via theme fallback)"
+        ],
+        "event_polarity": "neutral"
+      }
     }
   },
   "meta": {
-    "written_at": "2026-04-30T08:27:17.174215+00:00",
+    "written_at": "2026-05-03T07:15:45.959520+00:00",
     "schema_version": "2.0-primitives-l2"
   }
 }

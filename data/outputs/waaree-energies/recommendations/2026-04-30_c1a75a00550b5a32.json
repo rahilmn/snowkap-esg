@@ -1,0 +1,153 @@
+{
+  "recommendations": [
+    {
+      "title": "Disclose EU Taxonomy Alignment in FY26 BRSR Filing",
+      "description": "Incorporate detailed EU Taxonomy alignment disclosures in the FY26 BRSR and Core BRSR filings by 2026-05-30 to unlock green financing opportunities and avoid SEBI scrutiny that could increase cost of capital by 20-40 bps.",
+      "type": "esg_positioning",
+      "responsible_party": "Head of Sustainability",
+      "framework_section": "BRSR:P6, EU Taxonomy",
+      "deadline": "2026-05-30",
+      "estimated_budget": "₹0.2-0.5 Cr",
+      "profitability_link": "Avoid ₹0.1-0.2 Cr annual cost from increased capital costs due to non-disclosure",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 9,
+      "roi_percentage": 200.0,
+      "payback_months": 1.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "BRSR non-disclosure leads to SEBI scrutiny and higher cost of capital"
+        },
+        {
+          "source": "article",
+          "ref": "EU Taxonomy disclosure gap",
+          "value": "Missed opportunity to disclose EU Taxonomy alignment"
+        }
+      ]
+    },
+    {
+      "title": "Issue ₹50 Cr Green Bond Leveraging Sales Momentum",
+      "description": "Leverage the ₹14.4 Cr revenue upside from strong solar module sales to issue a ₹50 Cr green bond by 2026-09-30, reducing cost of capital by 20-40 bps per BRSR and EU Taxonomy alignment, targeting a 30% ROI and 18-month payback.",
+      "type": "financial",
+      "responsible_party": "CFO",
+      "framework_section": "BRSR:P6, EU Taxonomy",
+      "deadline": "2026-09-30",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "₹50 Cr green bond opportunity at 30 bps discount saves ₹0.15 Cr annually in interest",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 30.0,
+      "payback_months": 18.0,
+      "peer_benchmark": "Tata Power issued ₹5000 Cr green bond achieving P/E rerating",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "₹14.4 Cr revenue upside",
+          "value": "Strong solar module sales driving ₹14.4 Cr revenue increase"
+        },
+        {
+          "source": "framework",
+          "ref": "BRSR:P6",
+          "value": "BRSR disclosure linked to cost of capital reduction by 20-40 bps"
+        },
+        {
+          "source": "peer",
+          "ref": "Tata Power green bond",
+          "value": "Competitor Tata Power issued ₹5000 Cr green bond with valuation premium"
+        }
+      ]
+    },
+    {
+      "title": "Monitor Energy Price Shock; Escalate if ΔEP ≥ 25% YoY",
+      "description": "Track energy price changes monthly; if energy price shock exceeds 25% YoY within 6 months, escalate to CFO and CEO for hedging or diversification actions to protect margins and capex plans.",
+      "type": "operational",
+      "responsible_party": "Head of Risk Management",
+      "framework_section": "Causal Primitives: Energy price shock",
+      "deadline": "2026-10-13",
+      "estimated_budget": "₹0.05-0.1 Cr",
+      "profitability_link": "Mitigates potential margin erosion of ₹5-10 Cr annually from energy price volatility",
+      "priority": "MEDIUM",
+      "urgency": "medium_term",
+      "estimated_impact": "Medium",
+      "risk_of_inaction": 4,
+      "roi_percentage": 150.0,
+      "payback_months": 6.0,
+      "peer_benchmark": null,
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "causal_primitive",
+          "ref": "Energy price shock τ = ΔEP ≥ 25% YoY",
+          "value": "Threshold for energy price shock triggering escalation"
+        },
+        {
+          "source": "article",
+          "ref": "Capex exposure",
+          "value": "Primary affected lever is capital expenditure (CX)"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 1,
+        "title": "Issue ₹50 Cr Green Bond Leveraging Sales Momentum",
+        "type": "financial",
+        "roi": 30.0,
+        "budget": "₹0.5-1 Cr"
+      }
+    ],
+    "immediate_low": [
+      {
+        "index": 0,
+        "title": "Disclose EU Taxonomy Alignment in FY26 BRSR Filing",
+        "type": "esg_positioning",
+        "roi": 200.0,
+        "budget": "₹0.2-0.5 Cr"
+      }
+    ],
+    "deferred_high": [],
+    "deferred_low": [
+      {
+        "index": 2,
+        "title": "Monitor Energy Price Shock; Escalate if ΔEP ≥ 25% YoY",
+        "type": "operational",
+        "roi": 150.0,
+        "budget": "₹0.05-0.1 Cr"
+      }
+    ]
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      0,
+      2,
+      1
+    ],
+    "ceo": [
+      0,
+      2,
+      1
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}
