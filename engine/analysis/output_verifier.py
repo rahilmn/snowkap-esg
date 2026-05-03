@@ -38,10 +38,19 @@ _FRAMEWORK_ID_RE = re.compile(
     r"\b(?:BRSR|GRI|ESRS|TCFD|CSRD|CDP|ISSB|SBTi|TNFD|SEC\s*Climate|SASB|DJSI|COSO|SFDR|MSCI|Sustainalytics)\s*[:]?\s*[A-Z0-9\-]+\b"
 )
 _RUPEE_FIGURE_RE = re.compile(
-    r"(?:₹|Rs\.?|INR)\s*\d+(?:,\d+)*(?:\.\d+)?\s*(?:Cr|crore|Lakh|Lkh|L)?",
+    # Phase 24.6 — alternation order MATTERS. Regex `|` is left-to-right;
+    # if "Cr" came before "crore", the engine would match "Cr" inside
+    # "crore" and the source-tag injector would write
+    # "₹58,000 Cr (engine estimate)ore" — visible bug. Put the longest
+    # alternatives first AND add a word boundary so "Cr" doesn't match
+    # "crore"'s prefix.
+    r"(?:₹|Rs\.?|INR)\s*\d+(?:,\d+)*(?:\.\d+)?\s*(?:crore|Lakh|Lkh|Cr|L)?\b",
     re.IGNORECASE,
 )
 _SOURCE_TAG_RE = re.compile(r"\((?:from\s+article|engine\s+estimate)\)", re.IGNORECASE)
+# Phase 24.6 — units that signal context-only references (market cap,
+# total addressable market, GDP) where source-tagging is meaningless.
+_BIG_UNIT_RE = re.compile(r"^(?:trillion|billion|million|tn|bn|mn)\b", re.IGNORECASE)
 
 CFO_MAX_WORDS = 100
 MARGIN_TOLERANCE = 0.05  # ±5%
@@ -72,12 +81,13 @@ def _extract_cr_amount(text: str) -> float | None:
     if not text:
         return None
     m = re.search(
-        r"(?:₹|Rs\.?|INR)\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(Cr|crore|Lakh|Lkh|L)?",
+        # 24.6 — `crore` before `Cr` to avoid prefix-match swallowing
+        r"(?:₹|Rs\.?|INR)\s*(\d+(?:,\d+)*(?:\.\d+)?)\s*(crore|Lakh|Lkh|Cr|L)?\b",
         text, re.IGNORECASE,
     )
     if not m:
         # Try bare number + Cr suffix
-        m = re.search(r"(\d+(?:,\d+)*(?:\.\d+)?)\s*(Cr|crore)", text, re.IGNORECASE)
+        m = re.search(r"(\d+(?:,\d+)*(?:\.\d+)?)\s*(crore|Cr)\b", text, re.IGNORECASE)
         if not m:
             return None
     try:
@@ -254,8 +264,9 @@ def _infer_source_tag(
     def _rupee_pattern(v: float) -> re.Pattern:
         v_int = int(round(v))
         return re.compile(
-            rf"(?:₹|Rs\.?|INR)\s*{v_int}(?:\.\d+)?\s*(?:Cr|crore|Lakh|Lkh|L)?\b"
-            rf"|\b{v_int}(?:\.\d+)?\s*(?:Cr|crore)\b",
+            # 24.6 — longest first; `\b` already present here, kept for safety
+            rf"(?:₹|Rs\.?|INR)\s*{v_int}(?:\.\d+)?\s*(?:crore|Lakh|Lkh|Cr|L)?\b"
+            rf"|\b{v_int}(?:\.\d+)?\s*(?:crore|Cr)\b",
             re.IGNORECASE,
         )
 
@@ -395,7 +406,7 @@ def _extract_all_cr_amounts(text: str) -> list[float]:
         return []
     values: list[float] = []
     pattern = re.compile(
-        r"(?:₹|Rs\.?|INR)\s*([\d,]+(?:\.\d+)?)\s*(?:Cr|crore)",
+        r"(?:₹|Rs\.?|INR)\s*([\d,]+(?:\.\d+)?)\s*(?:crore|Cr)\b",
         re.IGNORECASE,
     )
     for m in pattern.finditer(text):
@@ -405,7 +416,7 @@ def _extract_all_cr_amounts(text: str) -> list[float]:
         except ValueError:
             continue
     # Also catch bare "X Cr" without ₹ symbol (LLM sometimes drops it)
-    bare = re.compile(r"\b([\d,]+(?:\.\d+)?)\s*(?:Cr|crore)\b", re.IGNORECASE)
+    bare = re.compile(r"\b([\d,]+(?:\.\d+)?)\s*(?:crore|Cr)\b", re.IGNORECASE)
     for m in bare.finditer(text):
         raw = m.group(1).replace(",", "")
         try:
@@ -968,12 +979,21 @@ def enforce_source_tags(
             if not _RUPEE_FIGURE_RE.search(node) or _has_source_tag(node):
                 return node
             tag = _infer_source_tag(node, article_excerpts)
-            # Append tag after the first ₹ figure occurrence
-            new_node = _RUPEE_FIGURE_RE.sub(
-                lambda m: f"{m.group(0)} {tag}" if not _SOURCE_TAG_RE.search(node[m.end():m.end()+25]) else m.group(0),
-                node,
-                count=1,
-            )
+            # Phase 24.6 — skip tag injection when the figure is followed by
+            # trillion / billion / million (e.g. "₹4.27 trillion market cap").
+            # Those are context-only references that don't carry the
+            # "this number came from the article vs. our cascade" semantics
+            # that the tag is meant to flag. Append tag after the first ₹
+            # figure occurrence only when the figure looks like a specific
+            # claim ("X Cr" or just "X" treated as Cr by convention).
+            def _maybe_tag(m: re.Match) -> str:
+                tail = node[m.end():m.end()+25]
+                if _SOURCE_TAG_RE.search(tail):
+                    return m.group(0)
+                if _BIG_UNIT_RE.match(tail.lstrip()):
+                    return m.group(0)
+                return f"{m.group(0)} {tag}"
+            new_node = _RUPEE_FIGURE_RE.sub(_maybe_tag, node, count=1)
             if new_node != node:
                 added += 1
             return new_node

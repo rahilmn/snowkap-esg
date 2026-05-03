@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import date, timedelta
 from typing import Any
@@ -155,6 +156,19 @@ FRAMEWORK ACCURACY:
 - Match framework sections to the event type. Tax events → GRI:207, ESRS G1. Climate → GRI:305, ESRS E1. H&S → GRI:403, ESRS S1.
 - NEVER cite ESRS E1 for a non-climate event. NEVER cite GRI:305 for a tax/governance event.
 
+REGIONAL FRAMEWORK FIT (Phase 24.6 — applied via post-LLM filter, but also stated here so the LLM doesn't over-cite implausible frameworks):
+- For INDIA-headquartered companies: BRSR (mandatory), GRI, TCFD, ICMA Green Bond Principles, SEBI Green Bond Framework. EU Taxonomy / CSRD / SFDR are NOT applicable unless the company has explicit EU subsidiary / EU-listed debt.
+- For EU-headquartered companies: CSRD/ESRS, EU Taxonomy, SFDR, GRI, TCFD.
+- For US-headquartered companies: SEC Climate Disclosure, GRI, SASB, TCFD.
+- For UK-headquartered companies: FCA TCFD, SDR, GRI.
+- NEVER cite "EU Taxonomy Article 8" for an Indian company's green-bond recommendation — use SEBI Green Bond Framework or ICMA Green Bond Principles instead.
+
+MATH CORRECTNESS (Phase 24.6 — verifier auto-flags math errors; pre-empt by showing your work):
+- When stating savings from a basis-point coupon improvement: ₹P × (bps / 10,000) = ₹ saving per year. Example: ₹7,500 Cr × 30 bps = ₹7,500 × 0.003 = ₹22.5 Cr/year, NOT ₹75 Cr.
+- When stating market-cap uplift from a P/E multiple expansion: market_cap × (pe_change_%) = ₹ uplift. Example: ₹4,27,000 Cr × 5% = ₹21,350 Cr, NOT ₹1,000 Cr.
+- When stating revenue uplift from a contract: ₹contract_size / contract_years = annual revenue, NOT total contract size.
+- Show the multiplication explicitly when the arithmetic could mislead. The verifier will downgrade the rec if the cited figure is >50% off the computed figure.
+
 PERSPECTIVE-AWARE RECOMMENDATIONS:
 - CFO-relevant: focus on ₹ exposure quantification, cost avoidance, margin protection, ROI maximization.
 - CEO-relevant: focus on strategic positioning, competitive advantage, board-level decisions.
@@ -220,13 +234,18 @@ _POSITIVE_GENERATOR_SYSTEM = """You are an ESG action generator. The article des
 
 RULES:
 - Recommendations must extract value from the event: investor communication, capacity scaling, capital deployment, pipeline momentum, premium pricing, framework-tier advancement.
-- Every recommendation MUST reference a specific framework section (e.g. BRSR:P6:Q14, EU Taxonomy Article 8, GRI:305-1) — used for transparency / disclosure leverage, NOT compliance remediation.
+- Every recommendation MUST reference a specific framework section (e.g. BRSR:P6:Q14, ICMA Green Bond Principles, GRI:305-1) — used for transparency / disclosure leverage, NOT compliance remediation. CRITICAL: match framework to company HQ — Indian co's get BRSR/SEBI/ICMA, not EU Taxonomy. EU co's get CSRD/EU Taxonomy/SFDR. US co's get SEC Climate.
 - Every profitability_link MUST include a ₹ amount or % quantification. Frame as upside: "₹500 Cr green bond at 50 bps coupon save" or "₹200 Cr revenue uplift FY26 once commissioning ramps".
 - Deadlines must be future dates in YYYY-MM-DD format.
 - Budgets must be calibrated to company market cap and the specific event. Investor-comms ₹0.5-1 Cr; framework-tier advancement ₹1-3 Cr; capacity scaling ₹50-500 Cr depending on the event.
 - title must be a SPECIFIC action verb phrase: "Issue ₹500 Cr Green Bond by Sep 2026" not "Pursue green finance".
 - roi_percentage: estimate the upside capture. For investor comms, ROI = valuation premium / cost. For capital deployment, ROI = revenue uplift / capex. ROI caps: 500% (compliance — rarely applies here), 400% (strategic/ESG), 300% (financial), 200% (operational).
 - payback_months: for capex use industry-standard payback. For investor comms / framework advancement, 3-12 mo. NEVER use null.
+
+MATH CORRECTNESS (Phase 24.6 — same rules as the negative-event prompt):
+- ₹P × (bps / 10,000) = ₹ saving per year. Example: ₹7,500 Cr × 30 bps = ₹22.5 Cr/year, NOT ₹75 Cr.
+- market_cap × (pe_change_%) = ₹ uplift. Example: ₹4,27,000 Cr × 5% = ₹21,350 Cr, NOT ₹1,000 Cr.
+- Show the multiplication explicitly when arithmetic could mislead.
 
 CRITICAL — POSITIVE-EVENT POLARITY GUARDRAILS:
 - DO NOT recommend "engage SEBI / engage regulator" UNLESS the article explicitly mentions a regulatory action against the company.
@@ -696,6 +715,91 @@ def _post_process(recs: list[Recommendation]) -> list[Recommendation]:
     return recs
 
 
+# Phase 24.6 — region-incompatible framework citations get rewritten so a
+# coal-heavy Indian power company never gets "EU Taxonomy Article 8" cited
+# in its green-bond rec. The map is conservative: only the most obviously
+# wrong-fit citations are rewritten; everything else passes through.
+_FRAMEWORK_REGION_REWRITES: dict[str, dict[str, str]] = {
+    # Non-EU companies should not cite EU Taxonomy / CSRD / SFDR.
+    # The replacement preserves the recommendation's intent (green-bond
+    # alignment / climate disclosure) but with a region-appropriate cite.
+    "INDIA": {
+        "eu taxonomy": "ICMA Green Bond Principles",
+        "csrd": "BRSR Core",
+        "sfdr": "BRSR Core",
+        "esrs": "BRSR Core",
+    },
+    "US": {
+        "eu taxonomy": "ICMA Green Bond Principles",
+        "csrd": "SEC Climate Disclosure",
+        "sfdr": "SEC Climate Disclosure",
+        "esrs": "SEC Climate Disclosure",
+        "brsr": "SASB",
+    },
+    "UK": {
+        "eu taxonomy": "ICMA Green Bond Principles",
+        "csrd": "FCA TCFD",
+        "esrs": "FCA TCFD",
+        "brsr": "FCA TCFD",
+    },
+    "APAC": {
+        "eu taxonomy": "ICMA Green Bond Principles",
+        "csrd": "TCFD",
+        "esrs": "TCFD",
+        "brsr": "TCFD",
+    },
+    "GLOBAL": {
+        "eu taxonomy": "ICMA Green Bond Principles",
+        "csrd": "TCFD",
+        "esrs": "TCFD",
+        "brsr": "TCFD",
+    },
+}
+
+
+def _filter_regional_frameworks(
+    recs: list[Recommendation], region: str | None
+) -> list[Recommendation]:
+    """Rewrite framework citations that don't fit the company's region.
+
+    Catches things like "EU Taxonomy Article 8" cited for an Indian
+    coal-heavy power company. EU companies stay untouched (their region's
+    rewrite map isn't populated). Other regions get safe equivalents
+    that preserve the recommendation's intent.
+    """
+    if not region or region.upper() == "EU":
+        return recs
+    region_key = region.upper()
+    rewrites = _FRAMEWORK_REGION_REWRITES.get(region_key, _FRAMEWORK_REGION_REWRITES["GLOBAL"])
+    if not rewrites:
+        return recs
+
+    for rec in recs:
+        original = (rec.framework_section or "").strip()
+        if not original:
+            continue
+        lowered = original.lower()
+        for needle, replacement in rewrites.items():
+            if needle in lowered:
+                rec.framework_section = replacement
+                # Also scrub the description / profitability_link text
+                # to avoid leaving residual references.
+                if rec.description:
+                    rec.description = re.sub(
+                        rf"\b{re.escape(needle)}[^.,;]*", replacement, rec.description, flags=re.IGNORECASE
+                    )
+                if rec.profitability_link:
+                    rec.profitability_link = re.sub(
+                        rf"\b{re.escape(needle)}[^.,;]*", replacement, rec.profitability_link, flags=re.IGNORECASE
+                    )
+                logger.info(
+                    "regional framework rewrite: %s -> %s (region=%s)",
+                    original, replacement, region_key,
+                )
+                break
+    return recs
+
+
 # ---------------------------------------------------------------------------
 # Main entry
 # ---------------------------------------------------------------------------
@@ -781,6 +885,14 @@ def generate_recommendations(
     client = OpenAI(api_key=get_openai_api_key())
     raw_recs = _generate_recommendations(insight, result, company, client)
     validated = _post_process(raw_recs)
+    # Phase 24.6 — region-incompatible framework citations get rewritten
+    # so a coal-heavy Indian power company never sees "EU Taxonomy
+    # Article 8" in its green-bond rec. Falls through to a sensible
+    # regional alternative (ICMA Green Bond Principles for India,
+    # SEC Climate for US, FCA TCFD for UK).
+    validated = _filter_regional_frameworks(
+        validated, getattr(company, "framework_region", None)
+    )
 
     # Phase 14: Build priority matrix (urgency × impact)
     priority_matrix = _build_priority_matrix(validated)

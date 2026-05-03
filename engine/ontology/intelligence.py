@@ -1727,9 +1727,17 @@ def query_stakeholder_positions(
         if not any(n in triggers for n in needles):
             continue
         label = str(row.get("label", ""))
-        if label in seen:
+        # Phase 24.6 — dedup by ENTITY rather than by full label so we
+        # don't emit the same regulator twice with two different parenthetical
+        # angles (e.g. `SEBI (Securities & Exchange Board of India)` AND
+        # `SEBI (BRSR + climate stewardship)` both showed up in the live
+        # demo output, which looks redundant). Strip everything after the
+        # first ` (` so labels like `SEBI`, `RBI`, `MSCI ESG Ratings`
+        # collapse to a single canonical entity.
+        entity_key = label.split(" (", 1)[0].strip().lower()
+        if entity_key in seen:
             continue
-        seen.add(label)
+        seen.add(entity_key)
         out.append(StakeholderPosition(
             label=label,
             stakeholder_type=str(row.get("type", "")),
