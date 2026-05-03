@@ -80,6 +80,19 @@ _AUTOINCREMENT = re.compile(
     re.IGNORECASE,
 )
 
+# Manual transaction control used by the onboard-queue worker
+# (`BEGIN IMMEDIATE` for SQLite's reserved-lock semantics, plus the
+# matching `COMMIT` / `ROLLBACK`). Postgres has no `IMMEDIATE` keyword
+# and uses MVCC + `SELECT ... FOR UPDATE` for the same atomic-claim
+# pattern; the surrounding ``with connect() as conn:`` context manager
+# in the abstraction layer already commits/rolls-back on exit. We
+# rewrite these to no-op `SELECT 1` round-trips on Postgres so the
+# legacy SQLite-flavoured worker code keeps working unchanged.
+_BEGIN_IMMEDIATE = re.compile(r"^\s*BEGIN\s+IMMEDIATE\s*;?\s*$", re.IGNORECASE)
+_BARE_COMMIT = re.compile(r"^\s*COMMIT\s*;?\s*$", re.IGNORECASE)
+# (We do NOT translate `ROLLBACK` — Postgres accepts it natively, and
+# the context manager rolls back on exception anyway.)
+
 # `?` placeholder. We translate to `%s` for psycopg2. Be careful not to
 # match `?` inside string literals — for that we tokenize naively but
 # this is good enough because none of our SQL has literal question marks.
@@ -144,6 +157,12 @@ def translate_to_postgres(sql: str) -> str:
 
     # 1b. INTEGER PRIMARY KEY AUTOINCREMENT → BIGSERIAL PRIMARY KEY
     sql = _AUTOINCREMENT.sub("BIGSERIAL PRIMARY KEY", sql)
+
+    # 1c. SQLite-only `BEGIN IMMEDIATE` / `COMMIT` -> no-op SELECT.
+    # The abstraction's context manager handles real commit/rollback;
+    # the explicit SQL is a leftover from the legacy SQLite-only worker.
+    sql = _BEGIN_IMMEDIATE.sub("SELECT 1", sql)
+    sql = _BARE_COMMIT.sub("SELECT 1", sql)
 
     # 2. PRAGMA WAL → no-op (return a sentinel SELECT so .fetchone()
     # returns ('wal',) for the legacy assertion)

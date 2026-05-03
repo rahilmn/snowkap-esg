@@ -20,7 +20,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore, useIsSuperAdmin } from "@/stores/authStore";
+import { useAuthStore, useIsSalesAdmin, useIsSuperAdmin } from "@/stores/authStore";
 import { companies as companiesApi } from "@/lib/api";
 import { COLORS } from "@/lib/designTokens";
 import { CompanySwitcher } from "@/components/admin/CompanySwitcher";
@@ -35,14 +35,20 @@ export function MinimalHeader() {
   const companyId = useAuthStore((s) => s.companyId);
   const logout = useAuthStore((s) => s.logout);
   const isSuperAdmin = useIsSuperAdmin();
+  // Phase 24.1: ONLY the Sales admin sees the cross-tenant
+  // CompanySwitcher (with the "All Companies" option). Other Snowkap
+  // super-admins (ci@, newsletter@, etc.) see their own bound tenant
+  // as plain text — they keep super_admin permissions for onboarding /
+  // sharing but don't get the aggregated dashboard.
+  const isSalesAdmin = useIsSalesAdmin();
 
   // Regular users get a fixed company name (their own). Skip the network
-  // round-trip for super-admins — they get their list via CompanySwitcher.
+  // round-trip for the sales admin — they get their list via CompanySwitcher.
   const { data: companyList } = useQuery({
     queryKey: ["companies"],
     queryFn: () => companiesApi.list(),
     staleTime: 60_000 * 60,
-    enabled: !isSuperAdmin,
+    enabled: !isSalesAdmin,
   });
 
   const initials = name
@@ -74,10 +80,13 @@ export function MinimalHeader() {
         </div>
 
         {/* Center: Company label.
-            - Super-admins see the cross-tenant CompanySwitcher (All Companies + every tenant).
-            - Regular users see their OWN company name as plain text. No dropdown,
-              no "All Companies" option — the cross-tenant view is gated. */}
-        {isSuperAdmin ? (
+            - Sales admin (sales@snowkap.co.in) sees the cross-tenant
+              CompanySwitcher (All Companies + every tenant).
+            - Everyone else (regular customers AND other Snowkap super-admins
+              like ci@, newsletter@) sees their OWN company name as plain
+              text. No dropdown, no "All Companies" — the cross-tenant view
+              is sales-only per Phase 24.1. */}
+        {isSalesAdmin ? (
           <CompanySwitcher />
         ) : (
           <div className="flex items-center justify-center">

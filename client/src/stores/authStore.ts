@@ -194,6 +194,31 @@ export function useIsSuperAdmin(): boolean {
   return permissions.includes("super_admin");
 }
 
+/** Phase 24.1: is this user the Snowkap Sales admin specifically?
+ *
+ * Stricter than `useIsSuperAdmin`. Only the Sales admin gets the
+ * "All Companies" cross-tenant view in the company switcher. Other
+ * Snowkap super-admins (ci@, newsletter@, etc.) keep their super_admin
+ * permissions for onboarding / sharing — they just don't see the
+ * aggregated dashboard.
+ *
+ * Configurable via `VITE_SALES_ADMIN_EMAIL` (defaults to
+ * sales@snowkap.co.in) so the same code supports staging tenants and
+ * ops rotations without a redeploy. The backend mirrors this via
+ * SNOWKAP_SALES_ADMIN_EMAIL — keep them in sync.
+ */
+export function useIsSalesAdmin(): boolean {
+  const userId = useAuthStore((s) => s.userId);
+  if (!userId) return false;
+  const target = (
+    import.meta.env.VITE_SALES_ADMIN_EMAIL || "sales@snowkap.co.in"
+  )
+    .toString()
+    .trim()
+    .toLowerCase();
+  return userId.trim().toLowerCase() === target;
+}
+
 
 /** Phase 10 / Phase D: map the active role to the matching perspective panel.
  *
