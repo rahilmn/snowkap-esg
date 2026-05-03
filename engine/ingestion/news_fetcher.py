@@ -311,23 +311,36 @@ def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
         logger.debug("NewsAPI.ai: no API key in env (NEWSAPI_AI_KEY / NEWSAPI_AI_API_KEY / EVENT_REGISTRY_API_KEY)")
         return []
 
+    # Phase 24.1 — NewsAPI.ai treats a multi-word ``keyword`` STRING as a
+    # literal phrase ("Adani Power ESG" only matches articles containing
+    # that exact 4-word sequence — typically zero hits for our composed
+    # queries). Pass each whitespace-separated token as a list element
+    # with ``keywordOper:'and'`` so all words must appear somewhere in
+    # the article. Single-word queries pass through as-is.
+    tokens = [t for t in query.split() if t]
+    if len(tokens) > 1:
+        keyword_payload: Any = tokens
+        keyword_oper = "and"
+    else:
+        keyword_payload = query
+        keyword_oper = None
+
     try:
-        resp = requests.post(
-            NEWSAPI_AI_URL,
-            json={
-                "action": "getArticles",
-                "keyword": query,
-                "articlesPage": 1,
-                "articlesCount": min(max_results, 10),  # conserve free tier tokens
-                "articlesSortBy": "date",
-                "includeArticleBody": True,
-                "articleBodyLen": -1,  # full body
-                "resultType": "articles",
-                "lang": "eng",
-                "apiKey": api_key,
-            },
-            timeout=20,
-        )
+        body: dict[str, Any] = {
+            "action": "getArticles",
+            "keyword": keyword_payload,
+            "articlesPage": 1,
+            "articlesCount": min(max_results, 10),  # conserve free tier tokens
+            "articlesSortBy": "date",
+            "includeArticleBody": True,
+            "articleBodyLen": -1,  # full body
+            "resultType": "articles",
+            "lang": "eng",
+            "apiKey": api_key,
+        }
+        if keyword_oper:
+            body["keywordOper"] = keyword_oper
+        resp = requests.post(NEWSAPI_AI_URL, json=body, timeout=20)
         resp.raise_for_status()
     except requests.RequestException as exc:
         logger.error("NewsAPI.ai fetch failed for '%s': %s", query, exc)

@@ -162,6 +162,38 @@ def is_snowkap_super_admin(email: str) -> bool:
     return e in allowlist
 
 
+# Phase 24.1 — the "All Companies" cross-tenant view (company_id=null) is
+# strictly Snowkap Sales territory. Other Snowkap super-admins (ci@,
+# newsletter@, etc.) keep their super-admin permissions for actions like
+# onboarding and sharing, but the aggregated dashboard tab is reserved
+# for the sales account because that's the only role that legitimately
+# needs cross-tenant visibility for prospect-to-customer conversion.
+#
+# Tunable via SNOWKAP_SALES_ADMIN_EMAIL (default: sales@snowkap.co.in)
+# so the same code path supports staging tenants and ops rotations
+# without a redeploy.
+_DEFAULT_SALES_ADMIN_EMAIL = "sales@snowkap.co.in"
+
+
+def is_snowkap_sales_admin(email: str) -> bool:
+    """Return True iff `email` matches the Snowkap Sales admin account.
+
+    Stricter than ``is_snowkap_super_admin``. Only this email gets the
+    cross-tenant aggregate view ("All Companies" tab). Every other user
+    — even other Snowkap super-admins — sees only their bound tenant.
+    """
+    import os
+
+    if not email:
+        return False
+    target = (
+        os.environ.get("SNOWKAP_SALES_ADMIN_EMAIL", _DEFAULT_SALES_ADMIN_EMAIL)
+        .strip()
+        .lower()
+    )
+    return email.strip().lower() == target
+
+
 # Permissions granted to super-admins. Kept as a literal list (not imported
 # from backend.core.permissions) so api/ has zero dependency on the SQLAlchemy
 # stack when running in dev mode.

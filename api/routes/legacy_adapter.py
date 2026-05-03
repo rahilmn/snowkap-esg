@@ -36,6 +36,7 @@ from api.auth import require_auth
 from api.auth_context import (
     SUPER_ADMIN_PERMISSIONS,
     get_bearer_claims,
+    is_snowkap_sales_admin,
     is_snowkap_super_admin,
     mint_bearer,
 )
@@ -1064,14 +1065,76 @@ def _company_to_legacy(c: Company) -> dict[str, Any]:
 
 
 @router.get("/companies/")
-def list_companies_legacy(limit: int = 50, _: None = Depends(require_auth)) -> dict[str, Any]:
+def list_companies_legacy(
+    limit: int = 50,
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """List companies visible to the caller.
+
+    Phase 24.1 — only the Snowkap Sales admin (sales@snowkap.co.in by default,
+    overridable via SNOWKAP_SALES_ADMIN_EMAIL) sees every onboarded tenant.
+    Every other authenticated user — including other Snowkap super-admins —
+    sees ONLY their own tenant. This makes the "All Companies" tab effectively
+    a sales-only feature without changing the underlying super-admin permission
+    set used for onboarding / sharing.
+
+    Unauthenticated callers (no bearer claims at all) get the legacy
+    behaviour of the full list — left intact so the public landing page
+    and machine-to-machine API key flows keep working.
+    """
+    sub_email = (claims.get("sub") or "").strip()
+    is_sales = is_snowkap_sales_admin(sub_email)
     companies = load_companies()
-    data = [_company_to_legacy(c) for c in companies[:limit]]
-    return {"companies": data, "total": len(companies)}
+
+    # No claims → public/api-key path → return everything (back-compat).
+    if not sub_email:
+        data = [_company_to_legacy(c) for c in companies[:limit]]
+        return {"companies": data, "total": len(companies)}
+
+    if is_sales:
+        data = [_company_to_legacy(c) for c in companies[:limit]]
+        return {"companies": data, "total": len(companies)}
+
+    # Regular user (or non-sales Snowkap admin): scope to bound tenant.
+    own_slug = (claims.get("company_id") or "").strip() or None
+    if not own_slug:
+        # Token has no tenant scope (super-admin without binding, or stale
+        # legacy token). Return empty list — the UI will hide the switcher.
+        return {"companies": [], "total": 0}
+
+    own_canon = sqlite_index.resolve_slug(own_slug) or own_slug
+    visible = [
+        c for c in companies if c.slug == own_canon or c.slug == own_slug
+    ]
+    data = [_company_to_legacy(c) for c in visible[:limit]]
+    return {"companies": data, "total": len(data)}
 
 
 @router.get("/companies/{company_id}")
-def get_company_legacy(company_id: str, _: None = Depends(require_auth)) -> dict[str, Any]:
+def get_company_legacy(
+    company_id: str,
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Get a single company. Phase 24.1 — gates non-sales users to their
+    own tenant the same way ``_require_tenant_scope`` does for /news.
+
+    Sales admin can fetch any company. Regular users can only fetch the
+    one bound to their JWT (or its alias's canonical, via
+    ``sqlite_index.resolve_slug``). Unauthenticated/api-key callers
+    fall through to the legacy unrestricted path.
+    """
+    sub_email = (claims.get("sub") or "").strip()
+    if sub_email and not is_snowkap_sales_admin(sub_email):
+        own_slug = (claims.get("company_id") or "").strip() or None
+        if own_slug:
+            requested_canon = sqlite_index.resolve_slug(company_id) or company_id
+            own_canon = sqlite_index.resolve_slug(own_slug) or own_slug
+            if requested_canon != own_canon:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cross-tenant access denied — your account is bound "
+                    f"to {own_canon!r}, not {requested_canon!r}.",
+                )
     for c in load_companies():
         if c.slug == company_id:
             return _company_to_legacy(c)
@@ -1091,27 +1154,33 @@ def _is_super_admin(claims: dict[str, Any]) -> bool:
 def _require_tenant_scope(company_id: str | None, claims: dict[str, Any]) -> None:
     """Phase 22 cross-tenant gate. Two enforcements in one:
 
-      1. **Cross-tenant view**: a request with `company_id` null/empty is
-         only allowed for super-admins. Regular users get 403 (the frontend
-         hides the 'All Companies' button but we still gate the API so a
-         hand-rolled curl can't bypass it).
+      1. **Cross-tenant view** (``company_id`` null/empty): Phase 24.1 —
+         restricted to the Snowkap Sales admin only (sales@snowkap.co.in by
+         default, overridable via ``SNOWKAP_SALES_ADMIN_EMAIL``). Other
+         super-admins still have super-admin permissions for onboarding and
+         sharing, but they don't get the aggregated "All Companies"
+         dashboard — they need to pass an explicit company_id.
       2. **Slug enumeration**: a request with an EXPLICIT `company_id` must
-         match the user's own `company_id` claim. Otherwise any
+         match the user's own `company_id` claim. Super-admins are exempt
+         here so they can still operate per-tenant. Otherwise any
          authenticated user could pass `company_id=icici-bank` and read
-         other tenants' analysis. Super-admins are exempt — they may
-         scope to any tenant.
+         other tenants' analysis.
 
     Together these guarantee that a regular user can ONLY see their own
     tenant's data, regardless of how the request is shaped.
     """
     super_admin = _is_super_admin(claims)
+    sub_email = (claims.get("sub") or "").strip()
+    sales_admin = is_snowkap_sales_admin(sub_email)
     requested = (company_id or "").strip() or None
 
     if requested is None:
-        if not super_admin:
+        # Phase 24.1 — sales-only gate (was super_admin in Phase 22).
+        if not sales_admin:
             raise HTTPException(
                 status_code=403,
-                detail="Cross-tenant view requires super_admin. Pass company_id.",
+                detail="The cross-tenant 'All Companies' view is restricted "
+                "to the Snowkap Sales admin. Pass an explicit company_id.",
             )
         return
 
