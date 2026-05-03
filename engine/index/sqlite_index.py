@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -47,6 +48,49 @@ from engine.config import get_data_path
 logger = logging.getLogger(__name__)
 
 DB_PATH = get_data_path("snowkap.db")
+
+# Default freshness window for the feed and dashboard counters. Articles
+# older than this are hidden from /news/feed, /news/stats and the
+# high-impact / total counters so the prospect only ever sees recent
+# signals. Tunable via env var without a code change. Set to 0 (or any
+# value <= 0) to disable the filter entirely (legacy behaviour, every
+# row visible).
+def _parse_feed_max_age_days(raw: str | None, default: int = 20) -> int:
+    """Safely parse SNOWKAP_FEED_MAX_AGE_DAYS at import time.
+
+    Falls back to ``default`` (and emits a warning) on missing or
+    malformed values so a typo in the env var can never break startup.
+    """
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return int(raw.strip())
+    except (TypeError, ValueError):
+        logger.warning(
+            "Invalid SNOWKAP_FEED_MAX_AGE_DAYS=%r; falling back to %d",
+            raw,
+            default,
+        )
+        return default
+
+
+FEED_MAX_AGE_DAYS = _parse_feed_max_age_days(
+    os.environ.get("SNOWKAP_FEED_MAX_AGE_DAYS")
+)
+
+
+def _freshness_clause(max_age_days: int | None = None) -> tuple[str, str] | None:
+    """Return ``(sql_fragment, modifier_value)`` for the freshness filter,
+    or ``None`` when the filter is disabled.
+
+    Centralised so query_feed / count / count_high_impact stay in sync
+    on the cutoff. Pass ``max_age_days=0`` to bypass the filter for a
+    specific call (e.g. an admin "show everything" view).
+    """
+    days = FEED_MAX_AGE_DAYS if max_age_days is None else max_age_days
+    if not days or days <= 0:
+        return None
+    return ("published_at >= datetime('now', ?)", f"-{int(days)} days")
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS article_index (
@@ -286,8 +330,14 @@ def query_feed(
     tier: str | None = None,
     limit: int = 20,
     offset: int = 0,
+    max_age_days: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Return the feed ordered by relevance DESC, published_at DESC."""
+    """Return the feed ordered by relevance DESC, published_at DESC.
+
+    Articles older than ``max_age_days`` (default ``FEED_MAX_AGE_DAYS``,
+    20 days) are hidden so the prospect only sees recent signals. Pass
+    ``max_age_days=0`` to disable the filter for an admin/debug view.
+    """
     ensure_schema()
     clauses: list[str] = []
     params: dict[str, Any] = {"limit": limit, "offset": offset}
@@ -297,6 +347,10 @@ def query_feed(
     if tier:
         clauses.append("tier = :tier")
         params["tier"] = tier
+    fresh = _freshness_clause(max_age_days)
+    if fresh:
+        clauses.append(fresh[0].replace("?", ":__age"))
+        params["__age"] = fresh[1]
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
     sql = f"""
         SELECT * FROM article_index
@@ -378,6 +432,7 @@ def count(
     tier: str | None = None,
     pillar: str | None = None,
     content_type: str | None = None,
+    max_age_days: int | None = None,
 ) -> int:
     """Count articles matching the optional filters.
 
@@ -386,6 +441,9 @@ def count(
     are set. Pre-fix, the feed handler post-filtered rows in Python
     while `count()` ignored those filters, so the UI saw "5 total"
     next to an empty list.
+
+    Also honours the freshness window (default 20 days) so the
+    "Articles" tile on the dashboard agrees with the visible feed.
     """
     ensure_schema()
     clauses: list[str] = []
@@ -402,6 +460,10 @@ def count(
     if content_type:
         clauses.append("content_type = ?")
         params.append(content_type)
+    fresh = _freshness_clause(max_age_days)
+    if fresh:
+        clauses.append(fresh[0])
+        params.append(fresh[1])
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
     with _connect() as conn:
         return int(conn.execute(f"SELECT COUNT(*) FROM article_index {where}", params).fetchone()[0])
@@ -413,14 +475,22 @@ def distinct_companies() -> list[str]:
         return [r[0] for r in conn.execute("SELECT DISTINCT company_slug FROM article_index").fetchall()]
 
 
-def count_high_impact(company_slug: str | None = None) -> int:
-    """Count articles with materiality CRITICAL/HIGH or relevance_score >= 5."""
+def count_high_impact(company_slug: str | None = None, max_age_days: int | None = None) -> int:
+    """Count articles with materiality CRITICAL/HIGH or relevance_score >= 5.
+
+    Honours the freshness window (default 20 days) so the dashboard
+    "High Impact" tile only counts articles still visible in the feed.
+    """
     ensure_schema()
     clause = "WHERE (materiality IN ('CRITICAL', 'HIGH') OR relevance_score >= 5.0)"
     params: list[Any] = []
     if company_slug:
         clause += " AND company_slug = ?"
         params.append(resolve_slug(company_slug))
+    fresh = _freshness_clause(max_age_days)
+    if fresh:
+        clause += f" AND {fresh[0]}"
+        params.append(fresh[1])
     with _connect() as conn:
         return int(conn.execute(f"SELECT COUNT(*) FROM article_index {clause}", params).fetchone()[0])
 
