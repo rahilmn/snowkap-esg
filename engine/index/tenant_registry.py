@@ -158,6 +158,25 @@ def get_tenant(slug: str) -> dict[str, Any] | None:
         return dict(row) if row else None
 
 
+def get_tenant_by_domain(domain: str) -> dict[str, Any] | None:
+    """Look up a previously-registered tenant by its domain.
+
+    Used by /auth/resolve-domain so a returning prospect (e.g. someone
+    from idfcfirstbank.com who self-onboarded last week) is recognised
+    as `is_existing=true` with their real persisted company name —
+    instead of falling through to the "(Guest)" path every login.
+    """
+    ensure_schema()
+    d = (domain or "").strip().lower()
+    if not d:
+        return None
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM tenant_registry WHERE domain = ?", (d,)
+        ).fetchone()
+        return dict(row) if row else None
+
+
 def seed_target_companies(companies: list[Any]) -> int:
     """Seed the 7 target companies as source='target'. Returns rows touched.
 

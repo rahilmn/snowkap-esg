@@ -775,13 +775,31 @@ def resolve_domain(body: ResolveDomainIn) -> dict[str, Any]:
                 "tenant_id": "snowkap-dev",
             }
 
+    # Returning prospect — domain was registered on a previous login.
+    # Use the persisted name so the user doesn't get the "(Guest)" suffix
+    # every time they sign in.
+    try:
+        existing = tenant_registry.get_tenant_by_domain(domain)
+    except Exception:
+        existing = None
+    if existing and existing.get("name"):
+        return {
+            "domain": domain,
+            "company_name": existing["name"],
+            "industry": existing.get("industry"),
+            "is_existing": True,
+            "tenant_id": "snowkap-dev",
+        }
+
     # Open shim — accept any domain. Prospects get auto-registered into
     # the tenant_registry at LOGIN time (below), not here — we don't want
-    # someone probing the endpoint to pollute the list.
-    guest = domain.split(".")[0].replace("-", " ").title()
+    # someone probing the endpoint to pollute the list. Return a clean
+    # titleised guess (no "(Guest)" suffix — that label belongs in the UI
+    # via `is_existing=false`, not glued onto the persisted company name).
+    guess = domain.split(".")[0].replace("-", " ").title()
     return {
         "domain": domain,
-        "company_name": f"{guest} (Guest)",
+        "company_name": guess,
         "industry": None,
         "is_existing": False,
         "tenant_id": "snowkap-dev",
