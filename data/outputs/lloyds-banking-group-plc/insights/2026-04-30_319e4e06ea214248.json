@@ -1,0 +1,338 @@
+{
+  "article": {
+    "id": "319e4e06ea214248",
+    "title": "UBS upgrades Lloyds Banking Group plc - Depositary Receipt (LYG) - MSN",
+    "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNWUFrMGZlS00wZVBEcmhzQ2hhS3pWY3RaeFJDX1V5X3k2X2pRdkdNenFJUnA1SHFKWjRoWjNxbS14bjcwR2dtbmlqVUFqaDJyV3plR2g3NGZqRDVTQWRMemVBSXdXaGxzTHNadGVSakVzZmFCMGJGT1NpcFBMV1lsVGZabTQ5Qk1YOXBPS2JfX3RIZU96dmVRbzVYdHFPaGNkblFPc1VNempvbGktZldoTm9uLVo?oc=5",
+    "source": "MSN",
+    "published_at": "2026-04-30T07:00:00+00:00",
+    "company_slug": "lloyds-banking-group-plc",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "319e4e06ea214248",
+    "title": "UBS upgrades Lloyds Banking Group plc - Depositary Receipt (LYG) - MSN",
+    "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNWUFrMGZlS00wZVBEcmhzQ2hhS3pWY3RaeFJDX1V5X3k2X2pRdkdNenFJUnA1SHFKWjRoWjNxbS14bjcwR2dtbmlqVUFqaDJyV3plR2g3NGZqRDVTQWRMemVBSXdXaGxzTHNadGVSakVzZmFCMGJGT1NpcFBMV1lsVGZabTQ5Qk1YOXBPS2JfX3RIZU96dmVRbzVYdHFPaGNkblFPc1VNempvbGktZldoTm9uLVo?oc=5",
+    "source": "MSN",
+    "published_at": "2026-04-30T07:00:00+00:00",
+    "company_slug": "lloyds-banking-group-plc",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 5.0,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "analytical",
+        "optimistic",
+        "neutral"
+      ],
+      "narrative_core_claim": "UBS has upgraded its rating on Lloyds Banking Group plc Depositary Receipt.",
+      "narrative_implied_causation": "UBS's positive reassessment of Lloyds Banking Group's prospects caused the upgrade.",
+      "narrative_stakeholder_framing": "UBS acts as the analyst upgrading Lloyds Banking Group, which is the subject affected by the rating change.",
+      "entities": [
+        "UBS",
+        "Lloyds Banking Group plc - Depositary Receipt",
+        "MSN"
+      ],
+      "entity_types": {
+        "UBS": "company",
+        "Lloyds Banking Group plc - Depositary Receipt": "company",
+        "MSN": "media"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "governance",
+        "financial performance"
+      ],
+      "content_type": "financial",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.6,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_esg_rating_change",
+      "label": "ESG Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 7,
+      "financial_transmission": "passive fund rebalancing → ~5% share price impact",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 1,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:207"
+        ]
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.6,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.4,
+          "adjusted_score": 2.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.6,
+          "adjusted_score": 6.4,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.4,
+          "adjusted_score": 2.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.053,
+      "ontology_queries": 6
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [],
+    "article_content": "UBS upgrades Lloyds Banking Group plc - Depositary Receipt (LYG) MSN",
+    "image_url": ""
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:58:43.379275+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

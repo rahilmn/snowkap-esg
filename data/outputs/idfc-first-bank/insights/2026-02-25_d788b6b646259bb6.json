@@ -1,0 +1,487 @@
+{
+  "article": {
+    "id": "d788b6b646259bb6",
+    "title": "IDFC First Bank fraud: Lender pays Rs 583 crore to Haryana govt - Deccan Herald",
+    "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNWHY2OUJ0eUdkcHZvZklmVEhuTThuLThtSkt3RUxGVVpxQUo4eXNTWDNaSmdQZUx5OWZrMnRncjROMEh1Q3lpVW5jZmhvZFZuVWpGOHRHMmNraDYwWFpMU2VzaThwUkJ1RlFEa2lrYVo4MndIcDd6S1FkZ1NHU09JaDluWUJRc3M0QTNBelI0a1ZNNkM2ekNJX0JiSXdUcWhSTHhnekI1VGplVndDd2tQNQ?oc=5",
+    "source": "Deccan Herald",
+    "published_at": "2026-02-25T08:00:00+00:00",
+    "company_slug": "idfc-first-bank",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "d788b6b646259bb6",
+    "title": "IDFC First Bank fraud: Lender pays Rs 583 crore to Haryana govt - Deccan Herald",
+    "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNWHY2OUJ0eUdkcHZvZklmVEhuTThuLThtSkt3RUxGVVpxQUo4eXNTWDNaSmdQZUx5OWZrMnRncjROMEh1Q3lpVW5jZmhvZFZuVWpGOHRHMmNraDYwWFpMU2VzaThwUkJ1RlFEa2lrYVo4MndIcDd6S1FkZ1NHU09JaDluWUJRc3M0QTNBelI0a1ZNNkM2ekNJX0JiSXdUcWhSTHhnekI1VGplVndDd2tQNQ?oc=5",
+    "source": "Deccan Herald",
+    "published_at": "2026-02-25T08:00:00+00:00",
+    "company_slug": "idfc-first-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 33,
+    "elapsed_seconds": 6.529,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "cautionary",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "IDFC First Bank has paid Rs 583 crore to the Haryana government related to a fraud case.",
+      "narrative_implied_causation": "Due to a fraud incident, IDFC First Bank made a payment of Rs 583 crore to the Haryana government.",
+      "narrative_stakeholder_framing": "IDFC First Bank is the protagonist addressing the fraud issue; the Haryana government is the affected party receiving the payment.",
+      "entities": [
+        "IDFC First Bank",
+        "Haryana government",
+        "Rs 583 crore"
+      ],
+      "entity_types": {
+        "IDFC First Bank": "company",
+        "Haryana government": "government",
+        "Rs 583 crore": "financial amount"
+      },
+      "financial_signal": {
+        "amount": 583,
+        "unit": "crore",
+        "context": "payment by IDFC First Bank to Haryana government related to fraud"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "fraud",
+        "financial governance",
+        "regulatory compliance"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Ethics & Compliance",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "anti_corruption",
+        "fines",
+        "code_of_conduct"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_criminal_indictment",
+      "label": "Criminal Indictment",
+      "score_floor": 8,
+      "score_ceiling": 10,
+      "financial_transmission": "brand destruction → share price → cost of capital spike",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 583.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "IDFC First Bank"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "IDFC First Bank Chennai",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "IDFC First Bank Chennai -> IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "IDFC First Bank HQ",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "IDFC First Bank HQ -> IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "Financials/Banking",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Ethics & Compliance is material for Financials/Banking → impacts IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "BRSR",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Ethics & Compliance triggers BRSR disclosure obligation for IDFC First Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:G1"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Ethics & Compliance"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.5,
+          "adjusted_score": 18.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.6,
+          "adjusted_score": 12.8,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.4,
+          "adjusted_score": 11.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.5,
+          "adjusted_score": 18.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.6,
+          "adjusted_score": 12.8,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.4,
+          "adjusted_score": 11.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        }
+      ],
+      "aggregate_score": 0.248,
+      "ontology_queries": 10
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [
+      "Peace, Justice and Strong Institutions"
+    ],
+    "article_content": "IDFC First Bank fraud: Lender pays Rs 583 crore to Haryana govt Deccan Herald",
+    "image_url": ""
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:47:43.987558+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

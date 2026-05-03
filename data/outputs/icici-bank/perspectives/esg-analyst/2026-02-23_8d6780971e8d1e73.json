@@ -1,5 +1,5 @@
 {
-  "headline": "ICICI Bank faces ₹85.1 Cr (from article) GST and contingent exposure, triggering compliance risk and governance scrutiny with 10.0 bps margin impact.",
+  "headline": "ICICI Bank faces ₹85.1 Cr (engine estimate) GST exposure after ₹50.38 Cr demand, risking margin and regulatory scrutiny.",
   "generated_by": "esg_analyst_generator_v1",
   "kpi_table": [
     {
@@ -7,9 +7,9 @@
       "company_value": "45 Mt CO2e (financed)",
       "unit": "Mt CO2e",
       "peer_quartile": "P75 (above peer median 32 Mt)",
-      "peer_examples": "HDFC Bank 28, SBI 120",
-      "data_source": "CDP 2024 + PCAF FY24",
-      "significance": "This KPI is material as financed emissions represent the bank's indirect climate impact and regulatory risk under RBI and PCAF frameworks."
+      "peer_examples": "HDFC Bank 28, ICICI Bank 45, SBI 120",
+      "data_source": "CDP 2024 + BRSR FY24 + PCAF disclosures",
+      "significance": "This KPI is material because financed emissions represent the largest climate risk channel for banks, directly impacting regulatory scrutiny and future capital requirements."
     }
   ],
   "confidence_bounds": [
@@ -17,50 +17,59 @@
       "figure": "₹50.38 Cr (from article) direct GST demand",
       "source_type": "from_article",
       "confidence": "high",
-      "rationale": "Explicitly stated in A2Z Taxcorp LLP article and GST order."
+      "rationale": "Explicitly stated in GST authority order and referenced in article."
     },
     {
-      "figure": "₹34.7 Cr (from article) contingent exposure",
+      "figure": "₹34.72 Cr (from article) contingent risk",
       "source_type": "engine_estimate",
-      "beta_range": "0.15-0.40",
+      "beta_range": "0.225",
       "lag": "1–4 quarters",
       "functional_form": "step",
       "confidence": "medium",
-      "rationale": "Derived from P2::CL→RG cascade using computed financial cascade parameters."
+      "rationale": "Derived from P2::CL→RG cascade for event_heavy_penalty, using computed financial cascade."
+    },
+    {
+      "figure": "₹85.1 Cr (engine estimate) canonical event exposure",
+      "source_type": "engine_estimate",
+      "beta_range": "0.47",
+      "lag": "0–4 quarters",
+      "functional_form": "step",
+      "confidence": "medium",
+      "rationale": "Sum of direct and contingent exposures, aligned to canonical event exposure as per phase-14 anti-drift constraint."
     }
   ],
   "double_materiality": {
-    "financial_impact": "The ₹85.1 Cr (engine estimate) exposure (from article + engine estimate) creates immediate P&L pressure, elevates compliance costs, and may increase cost of capital via governance risk premium and investor scrutiny.",
-    "impact_on_world": "ICICI Bank's governance and tax compliance practices directly affect SDG 16.5 (substantially reduce corruption and bribery), influencing trust in financial institutions and regulatory effectiveness."
+    "financial_impact": "The ₹85.1 Cr GST exposure (engine estimate) creates a direct P&L hit, increases compliance costs, and may elevate ICICI Bank's cost of capital by signaling governance and regulatory risk, with a margin impact of 10.0 bps.",
+    "impact_on_world": "ICICI Bank's compliance and tax governance practices affect public trust and fiscal resource mobilization, supporting SDG 16.6 (develop effective, accountable and transparent institutions) by influencing sectoral standards for responsible banking."
   },
   "tcfd_scenarios": {
-    "1_5c": "In a 1.5C pathway, regulatory scrutiny on compliance and tax transparency intensifies, increasing legal costs and requiring robust governance disclosures; portfolio repositioning may amplify compliance risk exposure.",
-    "2c": "Under 2C, gradual regulatory tightening sustains moderate compliance risk, with steady increases in legal provisioning and governance reporting requirements, but less acute than 1.5C.",
-    "4c": "In a 4C world, weak regulatory enforcement reduces immediate compliance cost escalation, but systemic governance failures and litigation risks rise, amplifying long-term reputational and financial exposure."
+    "1_5c": "Under a 1.5C pathway, regulatory scrutiny on compliance and tax transparency intensifies, amplifying reputational and financial risks from unresolved GST exposures; mandatory climate and tax disclosures increase compliance costs.",
+    "2c": "In a 2C scenario, gradual regulatory tightening sustains moderate compliance risk, with incremental provisioning for legal exposures and steady pressure on governance standards, but less acute than in 1.5C.",
+    "4c": "In a 4C world, weak regulatory enforcement reduces immediate compliance costs, but systemic governance lapses and fiscal instability increase long-term risk of abrupt, punitive interventions and sector-wide trust erosion."
   },
   "sdg_targets": [
     {
-      "code": "16.5",
-      "title": "Substantially reduce corruption and bribery in all their forms",
+      "code": "16.6",
+      "title": "Develop effective, accountable and transparent institutions",
       "applicability": "direct",
-      "rationale": "The GST demand and governance scrutiny directly relate to anti-corruption and transparent tax practices in the banking sector."
+      "rationale": "GST compliance and tax governance directly affect institutional transparency and accountability in the financial sector."
     }
   ],
   "audit_trail": [
     {
       "claim": "total exposure ₹85.1 Cr (engine estimate)",
-      "derivation": "Direct GST demand ₹50.38 Cr (from article) plus contingent exposure ₹34.7 Cr (engine estimate) via P2::CL→RG cascade (β=0.15–0.40, lag=1–4q) from computed financial cascade.",
+      "derivation": "Direct GST demand ₹50.38 Cr (from article) plus contingent risk ₹34.72 Cr (engine estimate) via P2::CL→RG cascade for event_heavy_penalty.",
       "sources": [
         "article: A2Z Taxcorp LLP GST demand coverage",
         "ontology: P2::CL→RG",
-        "computed_financial_cascade: event_heavy_penalty"
+        "computed_cascade: event_heavy_penalty"
       ]
     }
   ],
   "framework_citations": [
     {
       "code": "BRSR:P6:Q14",
-      "rationale": "Large Cap banks must disclose supply-chain and tax compliance audit outcomes, per SEBI BRSR requirements.",
+      "rationale": "Banks must disclose material legal and regulatory actions, including tax and compliance penalties, under BRSR Principle 6, Question 14.",
       "region": "India",
       "deadline": "2026-05-30"
     }
@@ -69,33 +78,33 @@
     "verifier: added 4 source tags on ₹ figures"
   ],
   "full_insight": {
-    "headline": "ICICI Bank faces ₹50.38 Cr (from article) GST demand, risking moderate P&L impact and governance scrutiny",
-    "impact_score": 7.5,
-    "core_mechanism": "A direct GST demand of ₹50.38 Cr (from article) has been issued to ICICI Bank, triggering a compliance/legal risk event. This creates an immediate P&L liability and signals potential governance weaknesses, which can cascade into regulatory scrutiny and investor sentiment shifts.",
-    "profitability_connection": "The ₹50.38 Cr demand (from article) directly reduces net profit and may trigger further contingent liabilities, with a computed total exposure of ₹85.1 Cr (engine estimate). This translates to a 2.8 bps margin impact for ICICI Bank, with possible negative effects on valuation if the issue escalates or recurs.",
-    "translation": "ICICI Bank has received a tax demand of ₹50.38 Cr (from article) from GST authorities, which it plans to contest. While the amount is not large relative to the bank's size, it signals regulatory scrutiny and could lead to further financial and reputational impacts if not resolved quickly.",
+    "headline": "ICICI Bank faces ₹85.1 Cr (engine estimate) GST exposure after ₹50.38 Cr demand, risking margin and regulatory scrutiny",
+    "impact_score": 8.0,
+    "core_mechanism": "A GST authority issued a ₹50.38 Cr (from article) demand to ICICI Bank, which the bank is contesting. This creates a direct P&L hit and triggers contingent liabilities, with potential for regulatory escalation and precedent risk. The event signals possible governance and compliance gaps, impacting ESG ratings and investor sentiment.",
+    "profitability_connection": "The direct GST demand and associated contingent liabilities total ₹85.1 Cr (engine estimate), causing a 2.8 bps margin compression on ICICI Bank's annual revenue. This could lead to earnings revision, analyst downgrades, and increased cost of capital if not resolved swiftly.",
+    "translation": "ICICI Bank has received a tax demand of ₹50.38 Cr (from article) from GST authorities, which it plans to challenge. This exposes the bank to a total risk of ₹85.1 Cr, including possible future penalties and regulatory actions. Investors and regulators may react negatively, potentially affecting the bank's profits and share price.",
     "impact_analysis": {
-      "esg_positioning": "A governance event of this nature highlights a gap in tax transparency (GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.), ESRS G1), potentially lowering ESG scores and increasing peer pressure as competitors like YES Bank and IDFC First Bank have not reported similar recent events.",
-      "capital_allocation": "The penalty may widen ICICI Bank's bond spreads and trigger FII outflows if ESG funds or passive indices rebalance due to a governance downgrade; cost of capital could rise by 1-2 bps (engine estimate) if the event is seen as recurring.",
-      "valuation_cashflow": "P/E compression of 0.05x is possible if the penalty is not reversed, with direct revenue at risk of ₹6.3 Cr (engine estimate) and margin erosion of 2.8 bps.",
-      "compliance_regulatory": "Triggers GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.) (Tax), ESRS G1 (Business Conduct); non-compliance could escalate to SEBI/RBI show-cause notices or further penalties if systemic issues are found.",
-      "supply_chain_transmission": "No supply chain transmission; the event is confined to ICICI Bank's direct operations and does not affect upstream or downstream partners.",
-      "people_demand": "Investor and analyst sentiment may weaken, risking passive fund exclusion and negative community perception, but no direct impact on workforce or consumer demand is expected."
+      "esg_positioning": "The event exposes a governance gap in tax transparency, risking a downgrade in ESG ratings and peer pressure from more compliant banks like YES Bank and IDFC First Bank.",
+      "capital_allocation": "Potential for higher cost of capital and bond spread widening as FII/DII sentiment shifts due to regulatory risk; ₹85.1 Cr exposure (engine estimate) may trigger fund outflows.",
+      "valuation_cashflow": "P/E compression of 0.1x likely due to direct P&L impact and risk of recurring penalties; margin erosion of 2.8 bps; revenue at risk: ₹6.3 Cr (engine estimate) if precedent is established.",
+      "compliance_regulatory": "Triggers GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.) (Tax) and ESRS G1 (Business Conduct); regulatory deadline for response is typically 30–90 days; risk of additional penalties or audits if unresolved.",
+      "supply_chain_transmission": "No supply chain transmission, as the event is confined to direct regulatory and financial impact on ICICI Bank.",
+      "people_demand": "Potential negative impact on investor and analyst confidence; possible board scrutiny and increased engagement from institutional holders."
     },
     "financial_timeline": {
       "immediate": {
-        "headline": "₹50.38 Cr GST demand hits P&L (engine estimate)",
-        "profitability_pathway": "GST demand → direct legal liability → immediate P&L reduction of ₹50.38 Cr (engine estimate)",
+        "headline": "₹50.38 Cr direct GST demand (engine estimate) with total exposure up to ₹85.1 Cr (engine estimate)",
+        "profitability_pathway": "GST demand → contingent liability recognition → direct P&L hit of ₹50.38 Cr (engine estimate) plus ₹34.72 Cr contingent risk (engine estimate)",
         "margin_pressure": "2.8 bps",
-        "revenue_at_risk": "₹6.3 Cr indirect revenue at risk (engine estimate)"
+        "revenue_at_risk": "₹6.3 Cr (engine estimate) if precedent is established"
       },
       "structural": {
-        "valuation_rerating": "P/E compression of 0.05x if penalty persists due to governance risk (engine estimate)",
-        "competitive_position": "Slight loss vs YES Bank and IDFC First Bank, which have not reported similar tax penalties recently"
+        "valuation_rerating": "P/E compression of 0.1x due to governance and compliance risk",
+        "competitive_position": "Potential loss versus YES Bank and IDFC First Bank if they avoid similar penalties and maintain higher ESG ratings"
       },
       "long_term": {
-        "secular_trajectory": "If such governance events recur, ICICI Bank could face higher regulatory scrutiny and sustained ESG rating pressure, impacting capital access and investor trust over 3-5 years.",
-        "green_revenue_opportunity": "None; this event does not create a green revenue opportunity as it is governance/tax-related."
+        "secular_trajectory": "If unresolved or repeated, could lead to systemic governance discount and recurring regulatory scrutiny over 3–5 years",
+        "green_revenue_opportunity": "None; event is governance/tax related, not linked to green revenue streams"
       }
     },
     "esg_relevance_score": {
@@ -104,47 +113,49 @@
         "rationale": "No environmental dimension; event is purely governance/tax related."
       },
       "social": {
-        "score": 2,
-        "rationale": "Minor indirect social impact via investor and community trust, but no direct workforce or consumer effect."
+        "score": 1,
+        "rationale": "Minimal social impact; indirect effect via stakeholder trust and board engagement."
       },
       "governance": {
-        "score": 8,
-        "rationale": "Significant governance signal due to tax transparency and compliance challenge (GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.), ESRS G1)."
+        "score": 9,
+        "rationale": "Direct governance and tax transparency issue; triggers GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.) and ESRS G1; high regulatory and board scrutiny."
       },
       "financial_materiality": {
-        "score": 6,
-        "rationale": "₹50.38 Cr direct hit (engine estimate) + ₹34.7 Cr contingent risk (engine estimate) is material but not critical for a large cap bank."
+        "score": 8,
+        "rationale": "₹85.1 Cr total exposure (engine estimate) is material for a large cap bank, with direct P&L and margin impact."
       },
       "regulatory_exposure": {
-        "score": 7,
-        "rationale": "Event triggers direct regulatory scrutiny and could escalate if not resolved; aligns with SEBI/RBI penalty precedents."
+        "score": 8,
+        "rationale": "High risk of regulatory escalation, audit, and precedent for further penalties."
       },
       "stakeholder_impact": {
-        "score": 6,
-        "rationale": "Moderate concern for investors and analysts due to potential for FII outflow and index exclusion if governance issues persist."
+        "score": 7,
+        "rationale": "Investor and analyst sentiment at risk; possible index exclusion and increased board oversight."
       }
     },
-    "net_impact_summary": "The ₹50.38 Cr GST demand (engine estimate) creates a direct P&L liability and signals a governance gap under GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.) and ESRS G1. While the immediate margin impact is limited (2.8 bps), the event raises the risk of further regulatory scrutiny and potential FII outflows if not managed proactively. Competitors have not reported similar penalties, putting ICICI Bank at a slight disadvantage in ESG positioning. Total exposure, including contingent effects, is estimated at ₹85.1 Cr (engine estimate).",
+    "net_impact_summary": "ICICI Bank's receipt of a ₹50.38 Cr GST demand (engine estimate) exposes it to a total risk of ₹85.1 Cr (engine estimate), including contingent liabilities and potential regulatory escalation. This event triggers GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.) and ESRS G1, signaling a governance gap that could lead to ESG rating downgrades and FII/DII outflows. The 2.8 bps margin compression is moderate but material at scale, with precedent risk if similar issues recur. Peer banks with stronger compliance may gain a competitive edge.",
     "decision_summary": {
-      "materiality": "HIGH",
-      "action": "MONITOR",
-      "verdict": "Monitor legal proceedings and investor sentiment; escalate only if penalty is upheld or further demands arise.",
-      "financial_exposure": "₹50.38 Cr direct GST demand (engine estimate) + ₹34.7 Cr contingent exposure (engine estimate)",
-      "key_risk": "₹50.38 Cr GST contingent liability (engine estimate) plus precedent risk of regulatory escalation (engine estimate)",
-      "top_opportunity": "Demonstrate proactive tax transparency and governance remediation to restore ESG ratings and investor confidence",
-      "timeline": "within 8 weeks"
+      "materiality": "CRITICAL",
+      "action": "ACT",
+      "verdict": "Immediate board-level action required to challenge the GST demand, strengthen tax compliance, and mitigate ₹85.1 Cr (engine estimate) exposure.",
+      "financial_exposure": "₹50.38 Cr direct GST demand (engine estimate) + ₹34.72 Cr contingent risk (engine estimate) (of ₹85.1 Cr canonical event exposure)",
+      "key_risk": "₹50.38 Cr GST contingent liability (engine estimate) plus ₹34.72 Cr precedent risk (engine estimate) if regulatory action escalates (of ₹85.1 Cr canonical event exposure)",
+      "top_opportunity": "Demonstrate governance improvement and close GRI:207 (rationale: Triggered by GST demand notices, transfer-pricing disputes, tax-disclosure gaps, or related-party transaction investigation. Complements ESRS G1.)/ESRS G1 gaps to restore investor confidence and avoid future penalties (potential cost avoidance of ₹85.1 Cr (engine estimate))",
+      "timeline": "within 4 weeks"
     },
     "causal_chain": {
-      "event": "ICICI Bank receives a ₹50.38 Cr (from article) GST demand from tax authorities.",
-      "mechanism": "The demand creates a direct legal liability, impacting P&L and triggering governance scrutiny, which may lead to further regulatory action or investor outflows.",
-      "company_impact": "Immediate reduction in net profit by ₹50.38 Cr (engine estimate), with potential for additional contingent liabilities and negative investor sentiment.",
+      "event": "GST authority issues ₹50.38 Cr (from article) demand to ICICI Bank",
+      "mechanism": "Direct P&L impact from demand; triggers contingent liability recognition and regulatory scrutiny; potential for precedent risk if not resolved",
+      "company_impact": "Immediate margin compression, possible earnings revision, and risk of further penalties or investor outflows",
       "transmission_type": "direct"
     },
     "warnings": [
-      "verifier: reused-number audit: downgraded 7 duplicated '(from article)' claim(s) — same value paired with distinct contexts",
-      "verifier: added 4 source tags on ₹ figures",
+      "verifier: reused-number audit: downgraded 4 duplicated '(from article)' claim(s) — same value paired with distinct contexts",
+      "verifier: added 7 source tags on ₹ figures",
       "verifier: injected 4 framework rationales",
-      "verifier: cross-section consistency: 3 drift warning(s)"
-    ]
+      "verifier: drift auto-fix: normalised 2 field(s) to canonical ₹85.1 Cr",
+      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+    ],
+    "event_polarity": "negative"
   }
 }

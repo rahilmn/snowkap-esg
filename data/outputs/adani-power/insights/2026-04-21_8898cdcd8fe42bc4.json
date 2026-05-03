@@ -1,0 +1,425 @@
+{
+  "article": {
+    "id": "8898cdcd8fe42bc4",
+    "title": "Adani Power Forms Nuclear Energy Unit Rawatbhata-Raj Atomic Energy Limited - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNbEREYkNoSGJUdW1YeWNQWEp2aldxampPelNnMEM3U09iTFo3bFEwQlN3UXFMcXR4QndPV3pVMU9YNmhrZ0Q1cDc2c1MwVFVvUUZXZlJ1WVJwYXRNbGd5S0ZEZ3NQU203LXFRc2tkTnJkNmh4M29YZVBxNTAwNXZZNk04SWtEU2l5dV9ITFk5M0tvMW9jRnphSGdFMU1IU0RzR1hLZGxIQ3dsd3p2X0ptM3pMaC1tdE81RXhIQkV1ZENRZw?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-04-21T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "8898cdcd8fe42bc4",
+    "title": "Adani Power Forms Nuclear Energy Unit Rawatbhata-Raj Atomic Energy Limited - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNbEREYkNoSGJUdW1YeWNQWEp2aldxampPelNnMEM3U09iTFo3bFEwQlN3UXFMcXR4QndPV3pVMU9YNmhrZ0Q1cDc2c1MwVFVvUUZXZlJ1WVJwYXRNbGd5S0ZEZ3NQU203LXFRc2tkTnJkNmh4M29YZVBxNTAwNXZZNk04SWtEU2l5dV9ITFk5M0tvMW9jRnphSGdFMU1IU0RzR1hLZGxIQ3dsd3p2X0ptM3pMaC1tdE81RXhIQkV1ZENRZw?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-04-21T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 6.963,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.7,
+      "tone": [
+        "neutral",
+        "analytical",
+        "optimistic"
+      ],
+      "narrative_core_claim": "Adani Power has formed a nuclear energy unit named Rawatbhata-Raj Atomic Energy Limited.",
+      "narrative_implied_causation": "Adani Power's formation of a nuclear energy unit aims to expand its energy portfolio into nuclear power.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist expanding operations; the energy sector and consumers are affected stakeholders.",
+      "entities": [
+        "Adani Power",
+        "Rawatbhata-Raj Atomic Energy Limited"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "Rawatbhata-Raj Atomic Energy Limited": "company"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "nuclear energy",
+        "energy transition",
+        "clean energy"
+      ],
+      "content_type": "operational",
+      "urgency": "low",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "fossil_fuel_dependency",
+        "energy_intensity"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.95,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Power/Energy",
+          "Adani Power"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Power/Energy → impacts Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.062,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "Adani Power Forms Nuclear Energy Unit Rawatbhata-Raj Atomic Energy Limited scanx.trade",
+    "image_url": ""
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:53:22.342451+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

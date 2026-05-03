@@ -1,0 +1,341 @@
+{
+  "article": {
+    "id": "8463357bd78aa4ba",
+    "title": "Hindustan Unilever Limited Submits SEBI Compliance Certificate for Q4FY26 - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQMmRKOE1UU0MzWi1sRHlNQjVFR0h4VjEwdjR2V3VKTEtPZDFvT2VhQ3JNN0pvX1V3NTBHRG9udnVzaUgxQ0FOWXZVSXhRdldMczRnT3UtUVVKdllXcU5BYXFmeUt6Y0IyV08wQzA2azVNbHdOQkFYYmEyOVZ2Y1ZWblJsMEk2SjNZeWJjeFZRLXoyaWhaQzVJZHdiYVJrQnlla1hjaGJPNFFsWUt5Vm90SFVBU2Y0V3VZNFBIb1BCS2YtT2ptamlYWndB?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-04-10T07:00:00+00:00",
+    "company_slug": "hindustan-unilever-limited"
+  },
+  "pipeline": {
+    "article_id": "8463357bd78aa4ba",
+    "title": "Hindustan Unilever Limited Submits SEBI Compliance Certificate for Q4FY26 - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMiygFBVV95cUxQMmRKOE1UU0MzWi1sRHlNQjVFR0h4VjEwdjR2V3VKTEtPZDFvT2VhQ3JNN0pvX1V3NTBHRG9udnVzaUgxQ0FOWXZVSXhRdldMczRnT3UtUVVKdllXcU5BYXFmeUt6Y0IyV08wQzA2azVNbHdOQkFYYmEyOVZ2Y1ZWblJsMEk2SjNZeWJjeFZRLXoyaWhaQzVJZHdiYVJrQnlla1hjaGJPNFFsWUt5Vm90SFVBU2Y0V3VZNFBIb1BCS2YtT2ptamlYWndB?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-04-10T07:00:00+00:00",
+    "company_slug": "hindustan-unilever-limited",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 4.851,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.9,
+      "tone": [
+        "neutral",
+        "analytical"
+      ],
+      "narrative_core_claim": "Hindustan Unilever Limited has submitted its SEBI compliance certificate for Q4FY26.",
+      "narrative_implied_causation": "Submission of the SEBI compliance certificate ensures regulatory adherence for the quarter.",
+      "narrative_stakeholder_framing": "Hindustan Unilever Limited is the protagonist complying with SEBI regulations; regulators are the affected stakeholders.",
+      "entities": [
+        "Hindustan Unilever Limited",
+        "SEBI",
+        "Q4FY26"
+      ],
+      "entity_types": {
+        "Hindustan Unilever Limited": "company",
+        "SEBI": "regulator",
+        "Q4FY26": "time period"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [
+        "SEBI"
+      ],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "regulatory compliance",
+        "corporate governance"
+      ],
+      "content_type": "regulatory",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_esg_rating_change",
+      "label": "ESG Rating Change",
+      "score_floor": 5,
+      "score_ceiling": 7,
+      "financial_transmission": "passive fund rebalancing → ~5% share price impact",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 0,
+      "compliance_risk": 2,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.5,
+      "adjusted_total": 3.4,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:207"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 4,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 4,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.08,
+      "ontology_queries": 6
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [],
+    "article_content": "Hindustan Unilever Limited Submits SEBI Compliance Certificate for Q4FY26 scanx.trade"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-02T18:34:03.965725+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

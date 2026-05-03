@@ -5,7 +5,8 @@
     "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNTld2ZGlXZmZBMkFSczhqYjdYeWN1aUpZLTJ2elVVa0JnUUpkVmpwTHN0T1JhMFRaN21zTHhLQTRzM2F5My1UUmc5cG91SXpqY3p3QzVUUkJ4b1hEMTBlUUJ6UTZHTjM0NVc5bmpBazY2Zmx1dVRZb282Q294bTM1ZkZEeVFsMjY5T0lvanhpWV9FTDlhSldvV214ZGhxczBqcW92bkdpenp1WHVkdk51Q1BuLVZnMXg1UW5YbXhHSFJJU1E?oc=5",
     "source": "AD HOC NEWS",
     "published_at": "2026-03-06T08:00:00+00:00",
-    "company_slug": "basf-se"
+    "company_slug": "basf-se",
+    "image_url": ""
   },
   "pipeline": {
     "article_id": "fe0eddf22992a104",
@@ -18,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 29,
-    "elapsed_seconds": 8.275,
+    "elapsed_seconds": 4.295,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -37,8 +38,8 @@
         "neutral",
         "analytical"
       ],
-      "narrative_core_claim": "BASF SE's stock is analyzed focusing on energy, China, and dividends in the DACH region.",
-      "narrative_implied_causation": "Energy market conditions and China operations influence BASF's dividend outlook in the DACH region.",
+      "narrative_core_claim": "BASF SE's stock is being analyzed focusing on energy, China, and dividend aspects in the DACH region.",
+      "narrative_implied_causation": "The company's performance in energy and China markets influences dividend considerations in the DACH region.",
       "narrative_stakeholder_framing": "BASF SE is the protagonist; investors and regional markets in DACH are affected.",
       "entities": [
         "BASF SE",
@@ -48,7 +49,7 @@
       ],
       "entity_types": {
         "BASF SE": "company",
-        "DE000BASF111": "financial instrument",
+        "DE000BASF111": "stock ticker",
         "China": "location",
         "DACH": "region"
       },
@@ -76,11 +77,10 @@
       "primary_sub_metrics": [
         "renewable_energy_use",
         "energy_intensity",
-        "fossil_fuel_dependency",
-        "power_purchase_agreements"
+        "fossil_fuel_dependency"
       ],
       "secondary_themes": [],
-      "confidence": 0.7,
+      "confidence": 0.6,
       "method": "llm"
     },
     "event": {
@@ -96,15 +96,15 @@
       "financial_amount_cr": null
     },
     "relevance": {
-      "total": 4,
+      "total": 3,
       "tier": "SECONDARY",
-      "esg_correlation": 2,
+      "esg_correlation": 1,
       "financial_impact": 2,
       "compliance_risk": 0,
       "supply_chain_impact": 0,
       "people_impact": 0,
-      "materiality_weight": 0.5,
-      "adjusted_total": 3.4,
+      "materiality_weight": 0.85,
+      "adjusted_total": 3.0,
       "rejection_reason": "",
       "ontology_queries": 1
     },
@@ -344,13 +344,14 @@
       "Affordable and Clean Energy",
       "Climate Action"
     ],
-    "article_content": "BASF SE Aktie (DE000BASF111) im Fokus: Energie, China und Dividende im DACH-Check AD HOC NEWS"
+    "article_content": "BASF SE Aktie (DE000BASF111) im Fokus: Energie, China und Dividende im DACH-Check AD HOC NEWS",
+    "image_url": ""
   },
   "insight": null,
   "recommendations": null,
   "perspectives": {},
   "meta": {
-    "written_at": "2026-05-02T17:38:13.574584+00:00",
+    "written_at": "2026-05-03T19:58:01.079784+00:00",
     "schema_version": "2.0-primitives-l2"
   }
 }

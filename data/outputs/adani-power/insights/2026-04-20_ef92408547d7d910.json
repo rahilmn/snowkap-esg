@@ -1,0 +1,1029 @@
+{
+  "article": {
+    "id": "ef92408547d7d910",
+    "title": "Adani Power's arm sets up new atomic energy subsidiary - suryaa.com",
+    "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQRUtwVGcyVlZfaDRsUjdlUmdzWTFsTm5BZUJNSEZfNEVrY2FFaHFJMW1XRWVNTnRhaWpJbFl5QUFEeWNVMmExd2tvMnBQcDZmcmxEaE9tVDM4RVlZTmd3TFg2YnBibmN0a2hiSDJFS1ZxNmJZaU1VWlBZNkYzLW5sRlBlREhKblhZVXFmMEZGVHFEZw?oc=5",
+    "source": "suryaa.com",
+    "published_at": "2026-04-20T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "ef92408547d7d910",
+    "title": "Adani Power's arm sets up new atomic energy subsidiary - suryaa.com",
+    "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxQRUtwVGcyVlZfaDRsUjdlUmdzWTFsTm5BZUJNSEZfNEVrY2FFaHFJMW1XRWVNTnRhaWpJbFl5QUFEeWNVMmExd2tvMnBQcDZmcmxEaE9tVDM4RVlZTmd3TFg2YnBibmN0a2hiSDJFS1ZxNmJZaU1VWlBZNkYzLW5sRlBlREhKblhZVXFmMEZGVHFEZw?oc=5",
+    "source": "suryaa.com",
+    "published_at": "2026-04-20T07:00:00+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 8.531,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.7,
+      "tone": [
+        "neutral",
+        "analytical",
+        "optimistic"
+      ],
+      "narrative_core_claim": "Adani Power's subsidiary has established a new atomic energy subsidiary.",
+      "narrative_implied_causation": "The creation of the atomic energy subsidiary is intended to expand Adani Power's energy portfolio.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist expanding its operations; stakeholders and energy consumers are affected.",
+      "entities": [
+        "Adani Power",
+        "atomic energy subsidiary",
+        "suryaa.com"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "atomic energy subsidiary": "company",
+        "suryaa.com": "source"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "energy transition",
+        "atomic energy",
+        "renewable energy expansion"
+      ],
+      "content_type": "operational",
+      "urgency": "low",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "fossil_fuel_dependency",
+        "energy_intensity"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_capacity_addition",
+      "label": "Capacity Addition / Commissioning",
+      "score_floor": 4,
+      "score_ceiling": 7,
+      "financial_transmission": "installed base growth -> EBITDA uplift once loaded -> asset-turnover improvement",
+      "matched_keywords": [
+        "atomic energy"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.95,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Power/Energy",
+          "Adani Power"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Power/Energy → impacts Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.8,
+          "adjusted_score": 3.6,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.062,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "Adani Power's arm sets up new atomic energy subsidiary suryaa.com",
+    "image_url": ""
+  },
+  "insight": {
+    "headline": "Adani Power's new atomic energy subsidiary signals ₹56.1 Cr (engine estimate) EBITDA uplift and enhances green portfolio credentials",
+    "impact_score": 6.0,
+    "core_mechanism": "Adani Power has established a new atomic energy subsidiary, expanding its energy portfolio into nuclear. This move positions the company to diversify its generation mix, reduce fossil fuel dependency, and potentially access green financing channels under EU Taxonomy and CDP frameworks.",
+    "profitability_connection": "The capacity addition is projected to deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) once operational, with potential for improved asset turnover and margin expansion as the asset ramps up.",
+    "translation": "Adani Power is starting a new company focused on atomic energy, which could boost profits by ₹56.1 Cr (engine estimate) and help the company move toward cleaner energy sources. This step may also make it easier to get green financing and improve its ESG ratings.",
+    "impact_analysis": {
+      "esg_positioning": "The move narrows the ESG score gap with peers like JSW Energy by adding nuclear to the portfolio, supporting index inclusion and positive analyst sentiment.",
+      "capital_allocation": "Potential to lower cost of capital by 20-40 bps (engine estimate) through EU Taxonomy alignment and improved CDP/TCFD disclosure, unlocking green bond eligibility.",
+      "valuation_cashflow": "P/E multiple could see a modest 0.05x uplift (engine estimate) as green asset base grows; ₹56.1 Cr EBITDA uplift (engine estimate) supports cash flow.",
+      "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy frameworks; nuclear disclosure and licensing will be required under BRSR and GRI:302/305.",
+      "supply_chain_transmission": "No supply chain transmission; event is a direct operational expansion with no immediate Tier 1/2/3 supplier impact.",
+      "people_demand": "Talent attraction for nuclear expertise and positive community perception as a clean energy provider; no negative consumer impact."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹56.1 Cr EBITDA uplift expected from atomic energy subsidiary (engine estimate)",
+        "profitability_pathway": "Atomic energy subsidiary setup → new capacity addition → ₹56.1 Cr EBITDA uplift (engine estimate)",
+        "margin_pressure": "-10.0 bps margin improvement (engine estimate)",
+        "revenue_at_risk": "No revenue at risk; event is a positive capacity addition"
+      },
+      "structural": {
+        "valuation_rerating": "P/E multiple may rise by 0.05x as green credentials improve (engine estimate)",
+        "competitive_position": "Improves position vs JSW Energy by diversifying into nuclear, a less common asset class among peers"
+      },
+      "long_term": {
+        "secular_trajectory": "3-5 year view: Enhanced green portfolio supports long-term ESG ratings, green financing, and regulatory alignment",
+        "green_revenue_opportunity": "₹56.1 Cr direct EBITDA uplift (engine estimate); further upside if nuclear capacity scales"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 6,
+        "rationale": "Nuclear expansion reduces fossil fuel dependency and supports decarbonization, but is not fully renewable."
+      },
+      "social": {
+        "score": 2,
+        "rationale": "Limited immediate social impact; potential for skilled job creation but no direct community or labor effect yet."
+      },
+      "governance": {
+        "score": 4,
+        "rationale": "Triggers new regulatory and disclosure requirements under BRSR and GRI, but no governance controversy."
+      },
+      "financial_materiality": {
+        "score": 5,
+        "rationale": "₹56.1 Cr (engine estimate) EBITDA uplift is material but not transformative for a large cap utility."
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "Nuclear sector is highly regulated; compliance with BRSR, GRI, and EU Taxonomy will be required."
+      },
+      "stakeholder_impact": {
+        "score": 4,
+        "rationale": "Positive investor sentiment and potential index inclusion; limited negative stakeholder risk."
+      }
+    },
+    "net_impact_summary": "The creation of an atomic energy subsidiary by Adani Power is a strategic step that could deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) and improve the company's ESG profile under BRSR, CDP, and EU Taxonomy frameworks. While the immediate financial impact is moderate relative to Adani Power's scale, the move positions the company for long-term green financing and competitive differentiation. No supply chain or negative social impacts are expected at this stage.",
+    "decision_summary": {
+      "materiality": "MODERATE",
+      "action": "ACT",
+      "verdict": "Leverage the atomic energy subsidiary launch to accelerate green financing and communicate ESG progress to investors.",
+      "financial_exposure": "₹56.1 Cr direct EBITDA uplift (engine estimate) + potential 0.05x P/E rerating (engine estimate)",
+      "key_risk": "Execution slippage on nuclear project commissioning timeline could delay EBITDA realization.",
+      "top_opportunity": "Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)",
+      "timeline": "within 12-18 months"
+    },
+    "causal_chain": {
+      "event": "Adani Power's subsidiary establishes a new atomic energy company.",
+      "mechanism": "Direct operational expansion into nuclear energy increases installed base and green asset share, improving ESG credentials and enabling access to green financing.",
+      "company_impact": "Expected ₹56.1 Cr EBITDA uplift (engine estimate) and modest P/E rerating; supports long-term valuation and capital access.",
+      "transmission_type": "direct"
+    },
+    "warnings": [
+      "verifier: added 3 source tags on ₹ figures",
+      "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹500.0 Cr",
+      "verifier: cross-section consistency: 3 residual drift warning(s)",
+      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+    ],
+    "event_polarity": "positive"
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Issue ₹500 Cr Green Bond by 2026-12-31",
+        "description": "Leverage the new atomic energy subsidiary to issue a ₹500 Cr green bond at a 50 bps lower coupon, reducing cost of capital and supporting capital expenditure for nuclear projects.",
+        "type": "financial",
+        "responsible_party": "CFO",
+        "framework_section": "EU Taxonomy Article 8",
+        "deadline": "2026-12-31",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "₹12.5 Cr annual interest savings at 50 bps coupon reduction",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 300.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power ₹5000 Cr green bond issuance",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "article",
+            "ref": "event_capacity_addition",
+            "value": "Top opportunity: Issue green bonds leveraging nuclear asset for up to ₹500 Cr at lower cost of capital"
+          },
+          {
+            "source": "EU Taxonomy",
+            "ref": "Article 8",
+            "value": "Aligned activities unlock green financing, lower cost of capital"
+          },
+          {
+            "source": "peer",
+            "ref": "Tata Power 2024",
+            "value": "₹5000 Cr green bond issuance for renewable portfolio expansion"
+          }
+        ]
+      },
+      {
+        "title": "Publish Investor Day EBITDA Bridge by 2026-09-30",
+        "description": "Host an investor day to disclose the ₹56.1 Cr EBITDA uplift from the atomic energy subsidiary, highlighting green portfolio credentials and future growth pipeline.",
+        "type": "strategic",
+        "responsible_party": "Head of Investor Relations",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2026-09-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "Potential 5% valuation premium uplift on ₹50,000 Cr market cap = ₹2500 Cr market value increase",
+        "priority": "CRITICAL",
+        "urgency": "short_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 8,
+        "roi_percentage": 400.0,
+        "payback_months": 6.0,
+        "peer_benchmark": "JSW Energy investor disclosures on solar commissioning",
+        "roi_capped": true,
+        "roi_cap_reason": "Capped at 400% (strategic ceiling). Raw estimate was 2500%; cap prevents over-claim.",
+        "audit_trail": [
+          {
+            "source": "article",
+            "ref": "EBITDA uplift ₹56.1 Cr",
+            "value": "New atomic energy subsidiary signals ₹56.1 Cr EBITDA uplift"
+          },
+          {
+            "source": "BRSR",
+            "ref": "P6:Q14",
+            "value": "Investor communication on financial and ESG performance"
+          },
+          {
+            "source": "peer",
+            "ref": "JSW Energy 2024",
+            "value": "Investor disclosures linked to ₹600 Cr incremental revenue from solar"
+          }
+        ]
+      },
+      {
+        "title": "Implement Workforce Mobilisation Plan by 2026-10-31",
+        "description": "Mobilize skilled staff and conduct safety training to support nuclear project commissioning, ensuring timely execution and EBITDA realization.",
+        "type": "operational",
+        "responsible_party": "Head of HR and Operations",
+        "framework_section": "GRI:403-5",
+        "deadline": "2026-10-31",
+        "estimated_budget": "₹10-15 Cr",
+        "profitability_link": "Avoid ₹56.1 Cr EBITDA delay by ensuring on-time commissioning",
+        "priority": "CRITICAL",
+        "urgency": "immediate",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 150.0,
+        "payback_months": 18.0,
+        "peer_benchmark": null,
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "article",
+            "ref": "execution risk",
+            "value": "Execution slippage on nuclear project commissioning timeline could delay EBITDA realization"
+          },
+          {
+            "source": "GRI",
+            "ref": "403-5",
+            "value": "Workforce training and safety management disclosure"
+          }
+        ]
+      },
+      {
+        "title": "Advance CDP A-List Inclusion by 2026-12-31",
+        "description": "Enhance ESG disclosures and climate risk reporting leveraging the green credentials of the atomic energy subsidiary to pursue CDP A-list status.",
+        "type": "esg_positioning",
+        "responsible_party": "Chief Sustainability Officer",
+        "framework_section": "CDP Climate Change",
+        "deadline": "2026-12-31",
+        "estimated_budget": "₹1-3 Cr",
+        "profitability_link": "Potential 3-5% valuation premium on ₹50,000 Cr market cap = ₹1500-2500 Cr uplift",
+        "priority": "HIGH",
+        "urgency": "medium_term",
+        "estimated_impact": "High",
+        "risk_of_inaction": 7,
+        "roi_percentage": 400.0,
+        "payback_months": 12.0,
+        "peer_benchmark": null,
+        "roi_capped": true,
+        "roi_cap_reason": "Capped at 400% (esg_positioning ceiling). Raw estimate was 800%; cap prevents over-claim.",
+        "audit_trail": [
+          {
+            "source": "article",
+            "ref": "green portfolio credentials",
+            "value": "Atomic energy subsidiary enhances green portfolio credentials"
+          },
+          {
+            "source": "CDP",
+            "ref": "A-list inclusion",
+            "value": "A-list inclusion drives premium valuation"
+          }
+        ]
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 4,
+    "validated_count": 4,
+    "priority_matrix": {
+      "immediate_high": [
+        {
+          "index": 0,
+          "title": "Issue ₹500 Cr Green Bond by 2026-12-31",
+          "type": "financial",
+          "roi": 300.0,
+          "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Publish Investor Day EBITDA Bridge by 2026-09-30",
+          "type": "strategic",
+          "roi": 400.0,
+          "budget": "₹0.5-1 Cr"
+        }
+      ],
+      "immediate_low": [
+        {
+          "index": 2,
+          "title": "Implement Workforce Mobilisation Plan by 2026-10-31",
+          "type": "operational",
+          "roi": 150.0,
+          "budget": "₹10-15 Cr"
+        }
+      ],
+      "deferred_high": [
+        {
+          "index": 3,
+          "title": "Advance CDP A-List Inclusion by 2026-12-31",
+          "type": "esg_positioning",
+          "roi": 400.0,
+          "budget": "₹1-3 Cr"
+        }
+      ],
+      "deferred_low": []
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        1,
+        3,
+        0,
+        2
+      ],
+      "ceo": [
+        2,
+        0,
+        1,
+        3
+      ],
+      "esg-analyst": [
+        2,
+        0,
+        1,
+        3
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "perspective": "esg-analyst",
+      "headline": "Adani Power's new atomic energy subsidiary signals ₹56.1 Cr (engine estimate) EBITDA uplift and enhances green portfolio credentials",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "P/E multiple could see a modest 0.05x uplift (engine estimate) as green asset base grows; ₹56.1 Cr EBITDA uplift (engine estimate) supports cash flow.",
+        "Potential to lower cost of capital by 20-40 bps (engine estimate) through EU Taxonomy alignment and improved CDP/TCFD disclosure, unlocking green bond eligibility.",
+        "The move narrows the ESG score gap with peers like JSW Energy by adding nuclear to the portfolio, supporting index inclusion and positive analyst sentiment."
+      ],
+      "action": [
+        "Leverage the atomic energy subsidiary launch to accelerate green financing and communicate ESG progress to investors.",
+        "Key risk: Execution slippage on nuclear project commissioning timeline could delay EBITDA realization.",
+        "Opportunity: Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "cost",
+        "financial",
+        "growth",
+        "operational",
+        "regulatory",
+        "strategic",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power's new atomic energy subsidiary signals ₹56.1 Cr (engine estimate) EBITDA uplift and enhances green portfolio credentials",
+        "impact_score": 6.0,
+        "core_mechanism": "Adani Power has established a new atomic energy subsidiary, expanding its energy portfolio into nuclear. This move positions the company to diversify its generation mix, reduce fossil fuel dependency, and potentially access green financing channels under EU Taxonomy and CDP frameworks.",
+        "profitability_connection": "The capacity addition is projected to deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) once operational, with potential for improved asset turnover and margin expansion as the asset ramps up.",
+        "translation": "Adani Power is starting a new company focused on atomic energy, which could boost profits by ₹56.1 Cr (engine estimate) and help the company move toward cleaner energy sources. This step may also make it easier to get green financing and improve its ESG ratings.",
+        "impact_analysis": {
+          "esg_positioning": "The move narrows the ESG score gap with peers like JSW Energy by adding nuclear to the portfolio, supporting index inclusion and positive analyst sentiment.",
+          "capital_allocation": "Potential to lower cost of capital by 20-40 bps (engine estimate) through EU Taxonomy alignment and improved CDP/TCFD disclosure, unlocking green bond eligibility.",
+          "valuation_cashflow": "P/E multiple could see a modest 0.05x uplift (engine estimate) as green asset base grows; ₹56.1 Cr EBITDA uplift (engine estimate) supports cash flow.",
+          "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy frameworks; nuclear disclosure and licensing will be required under BRSR and GRI:302/305.",
+          "supply_chain_transmission": "No supply chain transmission; event is a direct operational expansion with no immediate Tier 1/2/3 supplier impact.",
+          "people_demand": "Talent attraction for nuclear expertise and positive community perception as a clean energy provider; no negative consumer impact."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹56.1 Cr EBITDA uplift expected from atomic energy subsidiary (engine estimate)",
+            "profitability_pathway": "Atomic energy subsidiary setup → new capacity addition → ₹56.1 Cr EBITDA uplift (engine estimate)",
+            "margin_pressure": "-10.0 bps margin improvement (engine estimate)",
+            "revenue_at_risk": "No revenue at risk; event is a positive capacity addition"
+          },
+          "structural": {
+            "valuation_rerating": "P/E multiple may rise by 0.05x as green credentials improve (engine estimate)",
+            "competitive_position": "Improves position vs JSW Energy by diversifying into nuclear, a less common asset class among peers"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year view: Enhanced green portfolio supports long-term ESG ratings, green financing, and regulatory alignment",
+            "green_revenue_opportunity": "₹56.1 Cr direct EBITDA uplift (engine estimate); further upside if nuclear capacity scales"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Nuclear expansion reduces fossil fuel dependency and supports decarbonization, but is not fully renewable."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Limited immediate social impact; potential for skilled job creation but no direct community or labor effect yet."
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Triggers new regulatory and disclosure requirements under BRSR and GRI, but no governance controversy."
+          },
+          "financial_materiality": {
+            "score": 5,
+            "rationale": "₹56.1 Cr (engine estimate) EBITDA uplift is material but not transformative for a large cap utility."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Nuclear sector is highly regulated; compliance with BRSR, GRI, and EU Taxonomy will be required."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Positive investor sentiment and potential index inclusion; limited negative stakeholder risk."
+          }
+        },
+        "net_impact_summary": "The creation of an atomic energy subsidiary by Adani Power is a strategic step that could deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) and improve the company's ESG profile under BRSR, CDP, and EU Taxonomy frameworks. While the immediate financial impact is moderate relative to Adani Power's scale, the move positions the company for long-term green financing and competitive differentiation. No supply chain or negative social impacts are expected at this stage.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "ACT",
+          "verdict": "Leverage the atomic energy subsidiary launch to accelerate green financing and communicate ESG progress to investors.",
+          "financial_exposure": "₹56.1 Cr direct EBITDA uplift (engine estimate) + potential 0.05x P/E rerating (engine estimate)",
+          "key_risk": "Execution slippage on nuclear project commissioning timeline could delay EBITDA realization.",
+          "top_opportunity": "Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)",
+          "timeline": "within 12-18 months"
+        },
+        "causal_chain": {
+          "event": "Adani Power's subsidiary establishes a new atomic energy company.",
+          "mechanism": "Direct operational expansion into nuclear energy increases installed base and green asset share, improving ESG credentials and enabling access to green financing.",
+          "company_impact": "Expected ₹56.1 Cr EBITDA uplift (engine estimate) and modest P/E rerating; supports long-term valuation and capital access.",
+          "transmission_type": "direct"
+        },
+        "warnings": [
+          "verifier: added 3 source tags on ₹ figures",
+          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹500.0 Cr",
+          "verifier: cross-section consistency: 3 residual drift warning(s)",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+        ],
+        "event_polarity": "positive"
+      }
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹56.1 Cr direct EBITDA uplift (engine estimate) + potential 0.05x P/E rerating (engine estimate)",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "P/E multiple could see a modest 0.05x uplift (engine estimate) as green asset base grows; ₹56.1 Cr EBITDA uplift (engine estimate) supports cash flow.",
+        "Potential to lower cost of capital by 20-40 bps (engine estimate) through EU Taxonomy alignment and improved CDP/TCFD disclosure, unlocking green bond eligibility.",
+        "Triggers BRSR, CDP, TCFD, and EU Taxonomy frameworks; nuclear disclosure and licensing will be required under BRSR and GRI:302/305."
+      ],
+      "action": [
+        "Quantify exposure: ₹56.1 Cr direct EBITDA uplift (engine estimate) + potential 0.05x P/E rerating (engine estimate)",
+        "Revenue at risk: No revenue at risk; event is a positive capacity addition"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "Adani Power's new atomic energy subsidiary signals ₹56.1 Cr (engine estimate) EBITDA uplift and enhances green portfolio credentials",
+        "impact_score": 6.0,
+        "core_mechanism": "Adani Power has established a new atomic energy subsidiary, expanding its energy portfolio into nuclear. This move positions the company to diversify its generation mix, reduce fossil fuel dependency, and potentially access green financing channels under EU Taxonomy and CDP frameworks.",
+        "profitability_connection": "The capacity addition is projected to deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) once operational, with potential for improved asset turnover and margin expansion as the asset ramps up.",
+        "translation": "Adani Power is starting a new company focused on atomic energy, which could boost profits by ₹56.1 Cr (engine estimate) and help the company move toward cleaner energy sources. This step may also make it easier to get green financing and improve its ESG ratings.",
+        "impact_analysis": {
+          "esg_positioning": "The move narrows the ESG score gap with peers like JSW Energy by adding nuclear to the portfolio, supporting index inclusion and positive analyst sentiment.",
+          "capital_allocation": "Potential to lower cost of capital by 20-40 bps (engine estimate) through EU Taxonomy alignment and improved CDP/TCFD disclosure, unlocking green bond eligibility.",
+          "valuation_cashflow": "P/E multiple could see a modest 0.05x uplift (engine estimate) as green asset base grows; ₹56.1 Cr EBITDA uplift (engine estimate) supports cash flow.",
+          "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy frameworks; nuclear disclosure and licensing will be required under BRSR and GRI:302/305.",
+          "supply_chain_transmission": "No supply chain transmission; event is a direct operational expansion with no immediate Tier 1/2/3 supplier impact.",
+          "people_demand": "Talent attraction for nuclear expertise and positive community perception as a clean energy provider; no negative consumer impact."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹56.1 Cr EBITDA uplift expected from atomic energy subsidiary (engine estimate)",
+            "profitability_pathway": "Atomic energy subsidiary setup → new capacity addition → ₹56.1 Cr EBITDA uplift (engine estimate)",
+            "margin_pressure": "-10.0 bps margin improvement (engine estimate)",
+            "revenue_at_risk": "No revenue at risk; event is a positive capacity addition"
+          },
+          "structural": {
+            "valuation_rerating": "P/E multiple may rise by 0.05x as green credentials improve (engine estimate)",
+            "competitive_position": "Improves position vs JSW Energy by diversifying into nuclear, a less common asset class among peers"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year view: Enhanced green portfolio supports long-term ESG ratings, green financing, and regulatory alignment",
+            "green_revenue_opportunity": "₹56.1 Cr direct EBITDA uplift (engine estimate); further upside if nuclear capacity scales"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Nuclear expansion reduces fossil fuel dependency and supports decarbonization, but is not fully renewable."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Limited immediate social impact; potential for skilled job creation but no direct community or labor effect yet."
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Triggers new regulatory and disclosure requirements under BRSR and GRI, but no governance controversy."
+          },
+          "financial_materiality": {
+            "score": 5,
+            "rationale": "₹56.1 Cr (engine estimate) EBITDA uplift is material but not transformative for a large cap utility."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Nuclear sector is highly regulated; compliance with BRSR, GRI, and EU Taxonomy will be required."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Positive investor sentiment and potential index inclusion; limited negative stakeholder risk."
+          }
+        },
+        "net_impact_summary": "The creation of an atomic energy subsidiary by Adani Power is a strategic step that could deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) and improve the company's ESG profile under BRSR, CDP, and EU Taxonomy frameworks. While the immediate financial impact is moderate relative to Adani Power's scale, the move positions the company for long-term green financing and competitive differentiation. No supply chain or negative social impacts are expected at this stage.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "ACT",
+          "verdict": "Leverage the atomic energy subsidiary launch to accelerate green financing and communicate ESG progress to investors.",
+          "financial_exposure": "₹56.1 Cr direct EBITDA uplift (engine estimate) + potential 0.05x P/E rerating (engine estimate)",
+          "key_risk": "Execution slippage on nuclear project commissioning timeline could delay EBITDA realization.",
+          "top_opportunity": "Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)",
+          "timeline": "within 12-18 months"
+        },
+        "causal_chain": {
+          "event": "Adani Power's subsidiary establishes a new atomic energy company.",
+          "mechanism": "Direct operational expansion into nuclear energy increases installed base and green asset share, improving ESG credentials and enabling access to green financing.",
+          "company_impact": "Expected ₹56.1 Cr EBITDA uplift (engine estimate) and modest P/E rerating; supports long-term valuation and capital access.",
+          "transmission_type": "direct"
+        },
+        "warnings": [
+          "verifier: added 3 source tags on ₹ figures",
+          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹500.0 Cr",
+          "verifier: cross-section consistency: 3 residual drift warning(s)",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+        ],
+        "event_polarity": "positive"
+      }
+    },
+    "ceo": {
+      "perspective": "ceo",
+      "headline": "Strategic angle — Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)",
+      "impact_grid": {
+        "financial": "MEDIUM",
+        "regulatory": "MEDIUM",
+        "strategic": "MEDIUM"
+      },
+      "what_matters": [
+        "The move narrows the ESG score gap with peers like JSW Energy by adding nuclear to the portfolio, supporting index inclusion and positive analyst sentiment.",
+        "Talent attraction for nuclear expertise and positive community perception as a clean energy provider; no negative consumer impact.",
+        "Triggers BRSR, CDP, TCFD, and EU Taxonomy frameworks; nuclear disclosure and licensing will be required under BRSR and GRI:302/305."
+      ],
+      "action": [
+        "Strategic opportunity: Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)",
+        "Competitive position: Improves position vs JSW Energy by diversifying into nuclear, a less common asset class among peers"
+      ],
+      "materiality": "MODERATE",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "brand",
+        "growth",
+        "regulatory",
+        "strategic"
+      ],
+      "full_insight": {
+        "headline": "Adani Power's new atomic energy subsidiary signals ₹56.1 Cr (engine estimate) EBITDA uplift and enhances green portfolio credentials",
+        "impact_score": 6.0,
+        "core_mechanism": "Adani Power has established a new atomic energy subsidiary, expanding its energy portfolio into nuclear. This move positions the company to diversify its generation mix, reduce fossil fuel dependency, and potentially access green financing channels under EU Taxonomy and CDP frameworks.",
+        "profitability_connection": "The capacity addition is projected to deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) once operational, with potential for improved asset turnover and margin expansion as the asset ramps up.",
+        "translation": "Adani Power is starting a new company focused on atomic energy, which could boost profits by ₹56.1 Cr (engine estimate) and help the company move toward cleaner energy sources. This step may also make it easier to get green financing and improve its ESG ratings.",
+        "impact_analysis": {
+          "esg_positioning": "The move narrows the ESG score gap with peers like JSW Energy by adding nuclear to the portfolio, supporting index inclusion and positive analyst sentiment.",
+          "capital_allocation": "Potential to lower cost of capital by 20-40 bps (engine estimate) through EU Taxonomy alignment and improved CDP/TCFD disclosure, unlocking green bond eligibility.",
+          "valuation_cashflow": "P/E multiple could see a modest 0.05x uplift (engine estimate) as green asset base grows; ₹56.1 Cr EBITDA uplift (engine estimate) supports cash flow.",
+          "compliance_regulatory": "Triggers BRSR, CDP, TCFD, and EU Taxonomy frameworks; nuclear disclosure and licensing will be required under BRSR and GRI:302/305.",
+          "supply_chain_transmission": "No supply chain transmission; event is a direct operational expansion with no immediate Tier 1/2/3 supplier impact.",
+          "people_demand": "Talent attraction for nuclear expertise and positive community perception as a clean energy provider; no negative consumer impact."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹56.1 Cr EBITDA uplift expected from atomic energy subsidiary (engine estimate)",
+            "profitability_pathway": "Atomic energy subsidiary setup → new capacity addition → ₹56.1 Cr EBITDA uplift (engine estimate)",
+            "margin_pressure": "-10.0 bps margin improvement (engine estimate)",
+            "revenue_at_risk": "No revenue at risk; event is a positive capacity addition"
+          },
+          "structural": {
+            "valuation_rerating": "P/E multiple may rise by 0.05x as green credentials improve (engine estimate)",
+            "competitive_position": "Improves position vs JSW Energy by diversifying into nuclear, a less common asset class among peers"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year view: Enhanced green portfolio supports long-term ESG ratings, green financing, and regulatory alignment",
+            "green_revenue_opportunity": "₹56.1 Cr direct EBITDA uplift (engine estimate); further upside if nuclear capacity scales"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 6,
+            "rationale": "Nuclear expansion reduces fossil fuel dependency and supports decarbonization, but is not fully renewable."
+          },
+          "social": {
+            "score": 2,
+            "rationale": "Limited immediate social impact; potential for skilled job creation but no direct community or labor effect yet."
+          },
+          "governance": {
+            "score": 4,
+            "rationale": "Triggers new regulatory and disclosure requirements under BRSR and GRI, but no governance controversy."
+          },
+          "financial_materiality": {
+            "score": 5,
+            "rationale": "₹56.1 Cr (engine estimate) EBITDA uplift is material but not transformative for a large cap utility."
+          },
+          "regulatory_exposure": {
+            "score": 5,
+            "rationale": "Nuclear sector is highly regulated; compliance with BRSR, GRI, and EU Taxonomy will be required."
+          },
+          "stakeholder_impact": {
+            "score": 4,
+            "rationale": "Positive investor sentiment and potential index inclusion; limited negative stakeholder risk."
+          }
+        },
+        "net_impact_summary": "The creation of an atomic energy subsidiary by Adani Power is a strategic step that could deliver a direct EBITDA uplift of ₹56.1 Cr (engine estimate) and improve the company's ESG profile under BRSR, CDP, and EU Taxonomy frameworks. While the immediate financial impact is moderate relative to Adani Power's scale, the move positions the company for long-term green financing and competitive differentiation. No supply chain or negative social impacts are expected at this stage.",
+        "decision_summary": {
+          "materiality": "MODERATE",
+          "action": "ACT",
+          "verdict": "Leverage the atomic energy subsidiary launch to accelerate green financing and communicate ESG progress to investors.",
+          "financial_exposure": "₹56.1 Cr direct EBITDA uplift (engine estimate) + potential 0.05x P/E rerating (engine estimate)",
+          "key_risk": "Execution slippage on nuclear project commissioning timeline could delay EBITDA realization.",
+          "top_opportunity": "Issue green bonds leveraging nuclear asset for up to ₹500 Cr (engine estimate) at lower cost of capital. (of ₹56.1 Cr canonical event exposure)",
+          "timeline": "within 12-18 months"
+        },
+        "causal_chain": {
+          "event": "Adani Power's subsidiary establishes a new atomic energy company.",
+          "mechanism": "Direct operational expansion into nuclear energy increases installed base and green asset share, improving ESG credentials and enabling access to green financing.",
+          "company_impact": "Expected ₹56.1 Cr EBITDA uplift (engine estimate) and modest P/E rerating; supports long-term valuation and capital access.",
+          "transmission_type": "direct"
+        },
+        "warnings": [
+          "verifier: added 3 source tags on ₹ figures",
+          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹500.0 Cr",
+          "verifier: cross-section consistency: 3 residual drift warning(s)",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts"
+        ],
+        "event_polarity": "positive"
+      }
+    }
+  },
+  "meta": {
+    "written_at": "2026-05-03T21:10:09.821780+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

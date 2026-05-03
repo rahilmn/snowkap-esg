@@ -1,0 +1,608 @@
+{
+  "article": {
+    "id": "1fc4ca404db95c12",
+    "title": "Waaree Energies looks to incur capex of Rs 30,000 crore in two years",
+    "url": "https://www.financialexpress.com/business/news/waaree-energies-looks-to-incur-capex-of-rs-30000-crore-in-two-years/4223832/",
+    "source": "The Financial Express",
+    "published_at": "2026-05-01T00:25:32+00:00",
+    "company_slug": "waaree-energies",
+    "image_url": "https://images.financialexpressdigital.com/2026/05/Waaree-Energies.jpg"
+  },
+  "pipeline": {
+    "article_id": "1fc4ca404db95c12",
+    "title": "Waaree Energies looks to incur capex of Rs 30,000 crore in two years",
+    "url": "https://www.financialexpress.com/business/news/waaree-energies-looks-to-incur-capex-of-rs-30000-crore-in-two-years/4223832/",
+    "source": "The Financial Express",
+    "published_at": "2026-05-01T00:25:32+00:00",
+    "company_slug": "waaree-energies",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 42,
+    "elapsed_seconds": 9.642,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.9,
+      "tone": [
+        "analytical",
+        "optimistic",
+        "neutral"
+      ],
+      "narrative_core_claim": "Waaree Energies plans to invest Rs 30,000 crore in capex over two years to expand manufacturing and energy storage capacities.",
+      "narrative_implied_causation": "The large capex investment aims to enhance backward integration and expand product segments, driving future revenue and EBITDA growth.",
+      "narrative_stakeholder_framing": "Waaree Energies is the protagonist investing in growth; customers and investors are affected by expanded capacity and improved solutions.",
+      "entities": [
+        "Waaree Energies",
+        "Abhishek Pareek",
+        "Associated Power Structures",
+        "Rs 30,000 crore",
+        "Rs 4000 crore",
+        "Rs 11000 crore",
+        "Rs 10000 crore",
+        "Rs 3900 crore",
+        "Rs 3000 crore",
+        "Rs 1200 crore"
+      ],
+      "entity_types": {
+        "Waaree Energies": "company",
+        "Abhishek Pareek": "person",
+        "Associated Power Structures": "company",
+        "Rs 30,000 crore": "financial_amount",
+        "Rs 4000 crore": "financial_amount",
+        "Rs 11000 crore": "financial_amount",
+        "Rs 10000 crore": "financial_amount",
+        "Rs 3900 crore": "financial_amount",
+        "Rs 3000 crore": "financial_amount",
+        "Rs 1200 crore": "financial_amount"
+      },
+      "financial_signal": {
+        "amount": 30000,
+        "unit": "crore",
+        "context": "planned capital expenditure over two years"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "solar energy",
+        "battery energy storage",
+        "manufacturing capacity",
+        "power infrastructure",
+        "transmission and distribution"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Climate Adaptation",
+          "pillar": "E",
+          "sub_metrics": [
+            "adaptation_investment",
+            "transition_risk"
+          ]
+        },
+        {
+          "theme": "Risk Management",
+          "pillar": "G",
+          "sub_metrics": [
+            "business_continuity",
+            "erm_maturity"
+          ]
+        }
+      ],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
+      "matched_keywords": [
+        "earnings",
+        "FY26",
+        "profit",
+        "EBITDA",
+        "net profit"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 30000.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Waaree Energies"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Renewable Energy",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Renewable Energy → impacts Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "TCFD",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Adaptation",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Adaptation",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.3,
+          "adjusted_score": 7.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 0.8,
+          "adjusted_score": 3.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.2,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.3,
+          "adjusted_score": 7.8,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.2,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.124,
+      "ontology_queries": 12
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "Solar products maker Waaree Energies is looking to incur a capital expenditure of Rs 30,000 crore in the next two years . The company will incur the capex in backward integration into cell , ingot and wafer manufacturing, battery energy storage systems , solar glass and other segments, said Abhishek Pareek, chief financial officer (CFO), in a post earnings interaction with FE. Waaree deployed nearly Rs 4000 crore in FY26 across various segments, he said.. Of the total target of Rs 30, 000 crore , Rs 11000 crore will go into 10 GW cell and 10 GW of ingot and wafer manufacturing, Rs 10000 will go into battery systems , first phase of it will go live this year and second phase will go next year, Pareek said. The company has 26 GW of module capacity and 5.4 GW of cell capacity. The company in the last quarter announced it will incur a capex of around 3,900 crore for solar glass and it committed around 3000 crore capital to its power infrastructure arm, wherein they are creating large pool of connectivity, land, T&D for our customers who seek for end-to-end solution, he said. Remaining amount will go towards adjacencies like transformers, electrolyser manufacturing, he said The company also acquired a controlling stake in Associated Power Structures, a transmission and distribution,(T&D,) company for Rs 1200 crore, he said. Waaree has guided for an operating EBITDA of Rs 7000crore -Rs 7700 crore in FY27 as against Rs 5908 of Operating EBITDA it posted in FY, 26, he said. On the fall in spot power prices due to limited storage and grid flexibility, Pareek said they are seeing storage as a big business opportunity and their acquisition of the T& D company will help their customers. Waaree on Wednesday posted a growth of 71% growth in net profit at Rs 1061 crore in Q4Fy26 as against Rs 619 crore in Q4FY25. However it missed Analyst estimates, who expected a profit of Rs 1144 crore. Its revenues went up 112% at Rs 8480 crore in Q4FY26 as against Rs 4004 crore in Q4FY25. The company's stock lost 10.65% on Thursday and ended at Rs 3129 apiece on NSE.",
+    "image_url": "https://images.financialexpressdigital.com/2026/05/Waaree-Energies.jpg"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:51:14.387184+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

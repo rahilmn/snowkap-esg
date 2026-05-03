@@ -1,0 +1,726 @@
+{
+  "article": {
+    "id": "c4fa79918bd1d876",
+    "title": "Celebrating the champions of sustainability at Times Ecopreneur Awards: How JSW Energy is making a quiet impact",
+    "url": "https://timesofindia.indiatimes.com/life-style/people/celebrating-the-champions-of-sustainability-at-times-ecopreneur-awards-how-jsw-energy-is-making-a-quiet-impact/articleshow/130374620.cms",
+    "source": "The Times of India",
+    "published_at": "2026-04-20T03:10:33+00:00",
+    "company_slug": "jsw-energy",
+    "image_url": "https://static.toiimg.com/thumb/msid-130374914,width-1280,height-720,imgsize-50012,resizemode-6,overlay-toi_sw,pt-32,y_pad-600/photo.jpg"
+  },
+  "pipeline": {
+    "article_id": "c4fa79918bd1d876",
+    "title": "Celebrating the champions of sustainability at Times Ecopreneur Awards: How JSW Energy is making a quiet impact",
+    "url": "https://timesofindia.indiatimes.com/life-style/people/celebrating-the-champions-of-sustainability-at-times-ecopreneur-awards-how-jsw-energy-is-making-a-quiet-impact/articleshow/130374620.cms",
+    "source": "The Times of India",
+    "published_at": "2026-04-20T03:10:33+00:00",
+    "company_slug": "jsw-energy",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 53,
+    "elapsed_seconds": 9.035,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.9,
+      "tone": [
+        "optimistic",
+        "promotional",
+        "analytical"
+      ],
+      "narrative_core_claim": "JSW Energy is making a significant impact on sustainability by expanding renewable capacity and aiming for carbon neutrality by 2050.",
+      "narrative_implied_causation": "JSW Energy's investment in renewables and clean technologies leads to a greener future and supports India's low-carbon transition.",
+      "narrative_stakeholder_framing": "JSW Energy is the protagonist driving sustainable energy progress, while society and the environment are positively affected.",
+      "entities": [
+        "JSW Energy",
+        "Amit Dayal",
+        "The Times of India",
+        "India",
+        "New Delhi",
+        "Ecopreneur Awards"
+      ],
+      "entity_types": {
+        "JSW Energy": "company",
+        "Amit Dayal": "person",
+        "The Times of India": "organization",
+        "India": "location",
+        "New Delhi": "location",
+        "Ecopreneur Awards": "event"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "renewable energy",
+        "carbon neutrality",
+        "clean energy transition",
+        "green hydrogen",
+        "energy storage",
+        "decarbonisation"
+      ],
+      "content_type": "narrative",
+      "urgency": "medium",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "fossil_fuel_dependency",
+        "energy_intensity",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Climate Change",
+          "pillar": "E",
+          "sub_metrics": [
+            "ghg_reduction_targets",
+            "scope_1_direct",
+            "scope_2_indirect"
+          ]
+        },
+        {
+          "theme": "Climate Adaptation",
+          "pillar": "E",
+          "sub_metrics": [
+            "transition_risk",
+            "adaptation_investment"
+          ]
+        },
+        {
+          "theme": "Community Impact",
+          "pillar": "S",
+          "sub_metrics": [
+            "social_license",
+            "local_employment",
+            "csr_spend"
+          ]
+        }
+      ],
+      "confidence": 0.95,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_transition_announcement",
+      "label": "Transition Strategy / Net Zero Announcement",
+      "score_floor": 4,
+      "score_ceiling": 7,
+      "financial_transmission": "credibility signal -> capital allocation shift -> green premium / discount",
+      "matched_keywords": [
+        "renewable energy",
+        "green hydrogen",
+        "clean energy",
+        "energy transition"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.95,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "JSW Energy"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "JSW Energy"
+      },
+      {
+        "nodes": [
+          "JSW Energy HQ",
+          "JSW Energy"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "JSW Energy HQ -> JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Power/Energy",
+          "JSW Energy"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Power/Energy → impacts JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for JSW Energy"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change",
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Climate Change",
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.45,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Climate Adaptation",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Media",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment shifts",
+            "journalist inquiries",
+            "activist group interest"
+          ],
+          "lag_indicators": [
+            "negative coverage",
+            "brand value decline",
+            "customer boycotts"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Physical Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.202,
+      "ontology_queries": 18
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "With a rapidly degrading environment, it is important that a collective effort is made now so that the future does not become irreversible in its damage. Climate change, biodiversity loss, and rising pollution levels are no longer distant concerns -- they are immediate challenges affecting livelihoods, health, and economies across the globe. If left unaddressed, these issues could lead to severe consequences such as extreme weather events, water scarcity, food insecurity, and declining quality of life.Everyone needs to do their part for a collective effort. Governments need to make strong environmental policies and enforce rules that protect the environment. Businesses need to use cleaner technologies, cut down on emissions, and put long-term ecological balance ahead of short-term profits. Individuals also play a big role by making smart choices, like cutting down on waste, saving energy, and supporting eco-friendly products and practices. The Times of India Ecopreneur Award honours people and organisations that are driving sustainable innovation in India. These awards recognize eco-conscious entrepreneurs who are creating scalable solutions in renewable energy, waste management, and climate action. At a time when India is rapidly expanding its clean energy capacity, such platforms play a crucial role in encouraging responsible business practices and highlighting leaders who are shaping a greener future.As the second season of the awards has been announced, we take a look at past winners and their achievements, which are silently making an impact on sustainability. JSW Energy was recognised at the 2025 Ecopreneur Awards for its notable contribution toward a greener future. Under the leadership of Amit Dayal, Head of Sustainability and Safety, JSW Energy is redefining how India powers progress, with a strong focus on sustainability, safety, and innovation. It's energy done responsibly for a cleaner tomorrow.JSW Energy has emerged as a significant contributor to India's sustainability journey. The company is steadily increasing its renewable energy portfolio, with renewables contributing a growing share of its installed capacity in recent years. Its total installed capacity has crossed 13 GW, with a strong mix of solar, wind, and hydro power. JSW Energy is also targeting 30 GW of capacity by 2030, with nearly 70% expected to come from renewable sources, reflecting its long-term commitment to decarbonisation.Beyond power generation, the company is investing in advanced solutions such as green hydrogen production and energy storage systems, including battery and pumped hydro storage, to support a stable clean energy transition. Additionally, JSW Energy has set an ambitious goal of achieving carbon neutrality by 2050, aligning with global climate targets.Recognitions like the Ecopreneur Awards are essential because they create visibility for such efforts and inspire more companies to adopt sustainable practices. They foster innovation, encourage accountability, and accelerate India's transition toward a low-carbon economy. The Ecopreneur Awards 2026 will be held on July 17 in New Delhi. To nominate yourself or your organisation CLICK HERE",
+    "image_url": "https://static.toiimg.com/thumb/msid-130374914,width-1280,height-720,imgsize-50012,resizemode-6,overlay-toi_sw,pt-32,y_pad-600/photo.jpg"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:55:07.010611+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

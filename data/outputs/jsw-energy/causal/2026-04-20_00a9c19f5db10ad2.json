@@ -1,0 +1,72 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "JSW Energy"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "JSW Energy"
+    },
+    {
+      "nodes": [
+        "JSW Energy HQ",
+        "JSW Energy"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "JSW Energy HQ -> JSW Energy"
+    },
+    {
+      "nodes": [
+        "Climate Adaptation",
+        "TCFD",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Adaptation triggers TCFD disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Climate Adaptation",
+        "ESRS",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Adaptation triggers ESRS disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Climate Adaptation",
+        "ISSB / IFRS S1 S2",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Climate Adaptation triggers ISSB / IFRS S1 S2 disclosure obligation for JSW Energy"
+    }
+  ]
+}

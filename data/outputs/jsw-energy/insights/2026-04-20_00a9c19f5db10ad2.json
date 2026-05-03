@@ -1,0 +1,691 @@
+{
+  "article": {
+    "id": "00a9c19f5db10ad2",
+    "title": "From Disclosure To Delivery - BW Businessworld",
+    "url": "https://www.businessworld.in/article/from-disclosure-to-delivery-602852",
+    "source": "BW Businessworld",
+    "published_at": "2026-04-20T07:20:16+00:00",
+    "company_slug": "jsw-energy",
+    "image_url": "https://static.businessworld.in/Doubling-energy-Efficiency-e1709546488383_20260117133009_ogImage_29.webp"
+  },
+  "pipeline": {
+    "article_id": "00a9c19f5db10ad2",
+    "title": "From Disclosure To Delivery - BW Businessworld",
+    "url": "https://www.businessworld.in/article/from-disclosure-to-delivery-602852",
+    "source": "BW Businessworld",
+    "published_at": "2026-04-20T07:20:16+00:00",
+    "company_slug": "jsw-energy",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 49,
+    "elapsed_seconds": 8.97,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.9,
+      "tone": [
+        "analytical",
+        "optimistic",
+        "neutral"
+      ],
+      "narrative_core_claim": "JSW Energy is advancing sustainability by institutionalizing decarbonisation, water stewardship, and supply chain accountability through operational execution.",
+      "narrative_implied_causation": "Increased climate, water, and supply chain risks have driven JSW to embed sustainability in operations, leading to measurable transition outcomes.",
+      "narrative_stakeholder_framing": "JSW Energy is the protagonist driving sustainability; stakeholders affected include suppliers, employees, and communities in water-stressed basins.",
+      "entities": [
+        "JSW Energy",
+        "Project Seed"
+      ],
+      "entity_types": {
+        "JSW Energy": "company",
+        "Project Seed": "initiative"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "decarbonisation",
+        "water stewardship",
+        "supply chain ESG",
+        "climate transition risk",
+        "organisational change management",
+        "renewable integration",
+        "carbon accounting",
+        "transition finance"
+      ],
+      "content_type": "narrative",
+      "urgency": "medium",
+      "time_horizon": "months",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Climate Adaptation",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "transition_risk",
+        "adaptation_investment",
+        "physical_risk_exposure"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Water",
+          "pillar": "E",
+          "sub_metrics": [
+            "water_stress_regions",
+            "water_recycling_rate",
+            "water_withdrawal"
+          ]
+        },
+        {
+          "theme": "Supply Chain Labor",
+          "pillar": "S",
+          "sub_metrics": [
+            "supplier_audits",
+            "living_wage_compliance"
+          ]
+        },
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
+        }
+      ],
+      "confidence": 0.95,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_transition_announcement",
+      "label": "Transition Strategy / Net Zero Announcement",
+      "score_floor": 4,
+      "score_ceiling": 7,
+      "financial_transmission": "credibility signal -> capital allocation shift -> green premium / discount",
+      "matched_keywords": [
+        "climate transition"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 5,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 0,
+      "compliance_risk": 0,
+      "supply_chain_impact": 2,
+      "people_impact": 1,
+      "materiality_weight": 0.9,
+      "adjusted_total": 5.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "JSW Energy"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "JSW Energy"
+      },
+      {
+        "nodes": [
+          "JSW Energy HQ",
+          "JSW Energy"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "JSW Energy HQ -> JSW Energy"
+      },
+      {
+        "nodes": [
+          "Climate Adaptation",
+          "TCFD",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Climate Adaptation triggers TCFD disclosure obligation for JSW Energy"
+      },
+      {
+        "nodes": [
+          "Climate Adaptation",
+          "ESRS",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Climate Adaptation triggers ESRS disclosure obligation for JSW Energy"
+      },
+      {
+        "nodes": [
+          "Climate Adaptation",
+          "ISSB / IFRS S1 S2",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Climate Adaptation triggers ISSB / IFRS S1 S2 disclosure obligation for JSW Energy"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Water",
+          "Supply Chain Labor",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.7300000000000002,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Climate Adaptation",
+          "Water",
+          "Supply Chain Labor",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E1"
+        ]
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Climate Adaptation",
+          "Water"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:E1",
+          "ESRS:E1",
+          "TCFD:Gov",
+          "TCFD:Governance",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Adaptation"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Governance",
+          "TCFD:Metrics"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Water",
+          "Supply Chain Labor",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TNFD",
+        "framework_label": "TNFD",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Emerging standard — nature-related risks affect insurance, financing",
+        "triggered_by_themes": [
+          "Water"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SASB",
+        "framework_label": "SASB",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Used by investors for peer benchmarking",
+        "triggered_by_themes": [
+          "Supply Chain Labor"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Env"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Physical Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Supply Chain Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "supplier financial health",
+            "concentration ratios"
+          ],
+          "lag_indicators": [
+            "supplier failures",
+            "delivery delays",
+            "cost overruns"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Physical Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "monsoon forecast",
+            "reservoir levels",
+            "temperature anomalies"
+          ],
+          "lag_indicators": [
+            "production downtime",
+            "insurance claims",
+            "damage assessments"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Supply Chain Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "commodity price trends",
+            "supplier financial health",
+            "concentration ratios"
+          ],
+          "lag_indicators": [
+            "supplier failures",
+            "delivery delays",
+            "cost overruns"
+          ]
+        }
+      ],
+      "aggregate_score": 0.223,
+      "ontology_queries": 20
+    },
+    "stakeholders": [
+      "Community"
+    ],
+    "sdgs": [],
+    "article_content": "JSW Energy moves beyond reporting, scaling decarbonisation, water stewardship and supply chain accountability through operational systems and execution Sustainability leadership in India is entering a more demanding phase. The focus has shifted from intent and disclosure to execution, credibility and scale. For large industrial groups like JSW, the challenge is not defining ambition, but institutionalising sustainability across operations, value chains and decision-making systems. Our recent double materiality assessment reaffirmed three sustainability risks -- climate transition risk, water stress, and supply-chain ESG exposure. These risks were assessed through both impact and financial materiality lenses, aligned with global frameworks and embedded within enterprise risk management. The implications have been operational, not rhetorical. Climate transition risk has accelerated the move toward shop-level decarbonisation plans, linking emission-intensity targets to process efficiency, renewable integration and technology pilots rather than top-down commitments alone. Water stress, especially in high-risk basins, has shifted focus toward water-positive strategies, higher reuse, and basin-level engagement rather than unit-level optimisation. Supply-chain ESG exposure has elevated supplier sustainability from a reputational concern to a business continuity and compliance issue, shaping procurement, contracting and vendor engagement priorities. Short-term vs Long-term One of the least discussed challenges in sustainability execution is managing the tension between quarterly performance expectations and long-term transition goals. Capital-intensive decarbonisation initiatives often involve upfront costs, uncertain learning curves and delayed payback. This tension is addressed through disciplined capital allocation, phased implementation, and embedding sustainability targets into internal review mechanisms rather than positioning them as discretionary initiatives. Over time, clearer regulatory signals, internal carbon pricing logic and operational efficiencies are helping narrow the perceived gap between near-term performance and long-term value creation. Execution Challenge Perhaps the most underestimated challenge in delivering measurable transition outcomes is organisational change management. While technology pathways for decarbonisation are increasingly visible, aligning people, incentives, and operating rhythms with sustainability objectives requires sustained effort. At JSW, this insight shaped the design of Project Seed, which focuses on embedding sustainability ownership at the shop-floor level, translating climate and resource targets into plant-specific action plans, and integrating sustainability metrics into daily decisions. The focus is now on scaling execution. Priority areas include advanced decarbonisation technologies, renewable and storage integration, digital ESG platforms, and deeper supply-chain traceability. Equally important is internal capability building, developing expertise in carbon accounting, lifecycle assessment, sustainability data assurance and transition finance. Sustainability today is no longer a parallel agenda but a test of organisational maturity. The real shift underway is from disclosure to delivery, from pilots to systems, and from intent to measurable outcomes.",
+    "image_url": "https://static.businessworld.in/Doubling-energy-Efficiency-e1709546488383_20260117133009_ogImage_29.webp"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:54:23.620108+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

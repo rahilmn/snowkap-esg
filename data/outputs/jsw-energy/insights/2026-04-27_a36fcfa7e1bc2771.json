@@ -1,0 +1,440 @@
+{
+  "article": {
+    "id": "a36fcfa7e1bc2771",
+    "title": "Tata Power vs Torrent Power vs JSW Energy: Power Stocks on Fire! Who's Winning the Heatwave Rally?",
+    "url": "https://www.goodreturns.in/news/tata-power-vs-torrent-power-vs-jsw-energy-power-stocks-surge-amid-scorching-heat-which-stock-to-w-1504811.html?27042026191040",
+    "source": "Goodreturns",
+    "published_at": "2026-04-27T14:35:06+00:00",
+    "company_slug": "jsw-energy",
+    "image_url": "https://images.goodreturns.in/img/2026/04/powerstocksrally12-1777297125.jpg"
+  },
+  "pipeline": {
+    "article_id": "a36fcfa7e1bc2771",
+    "title": "Tata Power vs Torrent Power vs JSW Energy: Power Stocks on Fire! Who's Winning the Heatwave Rally?",
+    "url": "https://www.goodreturns.in/news/tata-power-vs-torrent-power-vs-jsw-energy-power-stocks-surge-amid-scorching-heat-which-stock-to-w-1504811.html?27042026191040",
+    "source": "Goodreturns",
+    "published_at": "2026-04-27T14:35:06+00:00",
+    "company_slug": "jsw-energy",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 6.716,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.85,
+      "tone": [
+        "analytical",
+        "optimistic",
+        "neutral"
+      ],
+      "narrative_core_claim": "Power stocks Tata Power, Torrent Power, and JSW Energy rallied sharply due to increased electricity demand from a severe heatwave in India.",
+      "narrative_implied_causation": "The severe heatwave caused a surge in electricity demand, which boosted power stock prices significantly.",
+      "narrative_stakeholder_framing": "Power companies are the protagonists benefiting from increased demand, while Indian consumers face higher power consumption needs due to the heatwave.",
+      "entities": [
+        "Tata Power",
+        "Torrent Power",
+        "JSW Energy",
+        "India",
+        "Central Electricity Authority",
+        "BSE",
+        "Goodreturns",
+        "Greynium Information Technologies Private Limited"
+      ],
+      "entity_types": {
+        "Tata Power": "company",
+        "Torrent Power": "company",
+        "JSW Energy": "company",
+        "India": "location",
+        "Central Electricity Authority": "regulator",
+        "BSE": "financial exchange",
+        "Goodreturns": "media",
+        "Greynium Information Technologies Private Limited": "company"
+      },
+      "financial_signal": {
+        "amount": 144876.7,
+        "unit": "crore",
+        "context": "Tata Power market capitalization on April 27"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "E",
+      "esg_topics": [
+        "energy demand",
+        "climate impact",
+        "power consumption"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": [
+        "heatwave"
+      ]
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 144876.7
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.95,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "JSW Energy"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "JSW Energy"
+      },
+      {
+        "nodes": [
+          "JSW Energy HQ",
+          "JSW Energy"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "JSW Energy HQ -> JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Power/Energy",
+          "JSW Energy"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Power/Energy → impacts JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for JSW Energy"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "JSW Energy"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for JSW Energy"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.105,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "Tata Power vs Torrent Power vs JSW Energy: Power stocks like Tata Power, Torrent Power and JSW Energy saw a sharp rally in Monday's trading session as the severe heatwave across India boosted India's power consumption over the past one week. India's electricity demand is expected to surpass the previous year's demand in April and reach to th 263 GW, as per Central Electricity Authority. Tata Power share price ended 4.31% higher at Rs 453.4 per share on BSE with a market capitalisation of Rs 1,44,876.7 crore on Monday, April 27. Torrent Power share price ended 4.14% higher at Rs 1769.4 per share, and JSW Energy share price ended 5.25% higher at Rs 573 per share. Tata Power vs Torrent Power vs JSW Energy: RoE, MCap, P/E Comparison All the power stock rallied during Monday's trading session. Tata Power stock's MCap stood at Rs 1,44,876.70 crore on BSE on Monday. Its Return on Equity (ROE) stood at 7.07%. Likewise its P/E stood at 27.58 (standalone). Torrent Power share price rallied nearly 4.31% on April 27. Its market capitalisation stood at Rs 89,175.81 crore, and its RoE stood at 24.30%. Its PE stood at 27.58%. JSW Energy share price's market capitalisation stood at Rs 1,00,815.86 crore. Its RoE stood at 4.13%, and its PE remained at 114.28 on Monday. Tata Power vs Torrent Power vs JSW Energy: Share Price Trend Tata Power share price has delivered close to 30.27% in three months and has surged 18.75% since the beginning of the year (YTD). Torrent Power's share price value has surged 33% YTD and has jumped 34% in one month. JSW Energy share price value has increased 30.56% in three months and has surged around 14% since the beginning of the year 2026. Disclaimer: The views and recommendations expressed are solely those of the individual analysts or entities and do not reflect the views of Goodreturns.in or Greynium Information Technologies Private Limited (together referred as \"we\"). We do not guarantee, endorse or take responsibility for the accuracy, completeness or reliability of any content, nor do we provide any investment advice or solicit the purchase or sale of securities. All information is provided for informational and educational purposes only and should be independently verified from licensed financial advisors before making any investment decisions.",
+    "image_url": "https://images.goodreturns.in/img/2026/04/powerstocksrally12-1777297125.jpg"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:55:18.952092+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

@@ -1,0 +1,634 @@
+{
+  "article": {
+    "id": "83c045ff9b59fb9e",
+    "title": "IDFC First Bank’s Rs 590-crore fraud: Why it highlights governance lapses - The Indian Express",
+    "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOaWJqRElWUmdxOEJybWxEdEVLMFVwaHpUVUVuMzdEX3ZGcWltQnYta2VGVERweDZKLU81XzZvSFQ5WVVjeHo0cEdJWEI1MHpuc3ZxR1JnbDVFMHJybVZlZm55aVM4VHU5OGdPNk5ic2RKRVc4ekl3RGJKU1VENnhZa2Z5ZHVYLWZFaUZLQnU2cFRQeDBpUkdKRDk0U1BFSzQxcnpDNEVn0gGsAUFVX3lxTFBNblhZQ0dqclp3cUFWY294b0Y4ZHBTTFZJRGpWbGRtUHZBbDhKN2JndEVsQzdoX09PZV9ubWtjTTN5aG1fNzYwYzJzb3RkVHVMdnNOWnhlSUplUDZjMUZLalR0QkRwZmpZSm9Ob0VIUF9ERmozWVhkSkRYc0dSWlV1QUM1SmZmemRKTGpBRXJkdEFnOVJpb1UySmNYejhWUGdMWV9YU3lPYTMtT1U?oc=5",
+    "source": "The Indian Express",
+    "published_at": "2026-02-25T08:00:00+00:00",
+    "company_slug": "idfc-first-bank",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "83c045ff9b59fb9e",
+    "title": "IDFC First Bank’s Rs 590-crore fraud: Why it highlights governance lapses - The Indian Express",
+    "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxOaWJqRElWUmdxOEJybWxEdEVLMFVwaHpUVUVuMzdEX3ZGcWltQnYta2VGVERweDZKLU81XzZvSFQ5WVVjeHo0cEdJWEI1MHpuc3ZxR1JnbDVFMHJybVZlZm55aVM4VHU5OGdPNk5ic2RKRVc4ekl3RGJKU1VENnhZa2Z5ZHVYLWZFaUZLQnU2cFRQeDBpUkdKRDk0U1BFSzQxcnpDNEVn0gGsAUFVX3lxTFBNblhZQ0dqclp3cUFWY294b0Y4ZHBTTFZJRGpWbGRtUHZBbDhKN2JndEVsQzdoX09PZV9ubWtjTTN5aG1fNzYwYzJzb3RkVHVMdnNOWnhlSUplUDZjMUZLalR0QkRwZmpZSm9Ob0VIUF9ERmozWVhkSkRYc0dSWlV1QUM1SmZmemRKTGpBRXJkdEFnOVJpb1UySmNYejhWUGdMWV9YU3lPYTMtT1U?oc=5",
+    "source": "The Indian Express",
+    "published_at": "2026-02-25T08:00:00+00:00",
+    "company_slug": "idfc-first-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 46,
+    "elapsed_seconds": 8.575,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.85,
+      "tone": [
+        "cautionary",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "IDFC First Bank experienced a Rs 590-crore fraud highlighting governance lapses.",
+      "narrative_implied_causation": "Governance lapses at IDFC First Bank caused a Rs 590-crore fraud to occur.",
+      "narrative_stakeholder_framing": "IDFC First Bank is the protagonist facing fraud, affecting its stakeholders and customers.",
+      "entities": [
+        "IDFC First Bank",
+        "Rs 590-crore",
+        "The Indian Express"
+      ],
+      "entity_types": {
+        "IDFC First Bank": "company",
+        "Rs 590-crore": "financial_amount",
+        "The Indian Express": "media"
+      },
+      "financial_signal": {
+        "amount": 590,
+        "unit": "crore",
+        "context": "fraud amount at IDFC First Bank"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "governance",
+        "fraud risk",
+        "financial controls"
+      ],
+      "content_type": "reputational",
+      "urgency": "high",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Ethics & Compliance",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "anti_corruption",
+        "whistleblower_protection",
+        "code_of_conduct"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Risk Management",
+          "pillar": "G",
+          "sub_metrics": [
+            "business_continuity",
+            "erm_maturity",
+            "risk_committees"
+          ]
+        },
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
+        }
+      ],
+      "confidence": 0.9,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_criminal_indictment",
+      "label": "Criminal Indictment",
+      "score_floor": 8,
+      "score_ceiling": 10,
+      "financial_transmission": "brand destruction → share price → cost of capital spike",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 5,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 1,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 5.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "IDFC First Bank"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "IDFC First Bank Chennai",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "IDFC First Bank Chennai -> IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "IDFC First Bank HQ",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "IDFC First Bank HQ -> IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "Financials/Banking",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Ethics & Compliance is material for Financials/Banking → impacts IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "BRSR",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Ethics & Compliance triggers BRSR disclosure obligation for IDFC First Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:G1"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.43000000000000005,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.5,
+          "adjusted_score": 30.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.6,
+          "adjusted_score": 24.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.4,
+          "adjusted_score": 21.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.4,
+          "adjusted_score": 21.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.0,
+          "adjusted_score": 20.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.5,
+          "adjusted_score": 30.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.6,
+          "adjusted_score": 24.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.4,
+          "adjusted_score": 21.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.4,
+          "adjusted_score": 21.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 4,
+          "exposure": 5,
+          "raw_score": 20,
+          "industry_weight": 1.0,
+          "adjusted_score": 20.0,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "aggregate_score": 0.584,
+      "ontology_queries": 14
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [
+      "Peace, Justice and Strong Institutions"
+    ],
+    "article_content": "IDFC First Bank’s Rs 590-crore fraud: Why it highlights governance lapses The Indian Express",
+    "image_url": ""
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T19:47:57.655999+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "article": {
+    "id": "fe0eddf22992a104",
+    "title": "BASF SE Aktie (DE000BASF111) im Fokus: Energie, China und Dividende im DACH-Check - AD HOC NEWS",
+    "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNTld2ZGlXZmZBMkFSczhqYjdYeWN1aUpZLTJ2elVVa0JnUUpkVmpwTHN0T1JhMFRaN21zTHhLQTRzM2F5My1UUmc5cG91SXpqY3p3QzVUUkJ4b1hEMTBlUUJ6UTZHTjM0NVc5bmpBazY2Zmx1dVRZb282Q294bTM1ZkZEeVFsMjY5T0lvanhpWV9FTDlhSldvV214ZGhxczBqcW92bkdpenp1WHVkdk51Q1BuLVZnMXg1UW5YbXhHSFJJU1E?oc=5",
+    "source": "AD HOC NEWS",
+    "published_at": "2026-03-06T08:00:00+00:00",
+    "company_slug": "basf-se"
+  },
+  "pipeline": {
+    "article_id": "fe0eddf22992a104",
+    "title": "BASF SE Aktie (DE000BASF111) im Fokus: Energie, China und Dividende im DACH-Check - AD HOC NEWS",
+    "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxNTld2ZGlXZmZBMkFSczhqYjdYeWN1aUpZLTJ2elVVa0JnUUpkVmpwTHN0T1JhMFRaN21zTHhLQTRzM2F5My1UUmc5cG91SXpqY3p3QzVUUkJ4b1hEMTBlUUJ6UTZHTjM0NVc5bmpBazY2Zmx1dVRZb282Q294bTM1ZkZEeVFsMjY5T0lvanhpWV9FTDlhSldvV214ZGhxczBqcW92bkdpenp1WHVkdk51Q1BuLVZnMXg1UW5YbXhHSFJJU1E?oc=5",
+    "source": "AD HOC NEWS",
+    "published_at": "2026-03-06T08:00:00+00:00",
+    "company_slug": "basf-se",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 29,
+    "elapsed_seconds": 8.275,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.8,
+      "tone": [
+        "neutral",
+        "analytical"
+      ],
+      "narrative_core_claim": "BASF SE's stock is analyzed focusing on energy, China, and dividends in the DACH region.",
+      "narrative_implied_causation": "Energy market conditions and China operations influence BASF's dividend outlook in the DACH region.",
+      "narrative_stakeholder_framing": "BASF SE is the protagonist; investors and regional markets in DACH are affected.",
+      "entities": [
+        "BASF SE",
+        "DE000BASF111",
+        "China",
+        "DACH"
+      ],
+      "entity_types": {
+        "BASF SE": "company",
+        "DE000BASF111": "financial instrument",
+        "China": "location",
+        "DACH": "region"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "energy",
+        "regional market",
+        "dividend"
+      ],
+      "content_type": "financial",
+      "urgency": "low",
+      "time_horizon": "weeks",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.7,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_routine_capex",
+      "label": "Routine Capex",
+      "score_floor": 1,
+      "score_ceiling": 5,
+      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.5,
+      "adjusted_total": 3.4,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [],
+    "frameworks": [
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [
+          "EU Taxonomy Alignment Reporting 2026"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.0,
+          "adjusted_score": 3.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.0,
+          "adjusted_score": 3.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.0,
+          "adjusted_score": 3.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.0,
+          "adjusted_score": 3.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        }
+      ],
+      "aggregate_score": 0.072,
+      "ontology_queries": 8
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "BASF SE Aktie (DE000BASF111) im Fokus: Energie, China und Dividende im DACH-Check AD HOC NEWS"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-02T17:38:13.574584+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "esg_risks": [
+    {
+      "category": "Market & Uncertainty",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.2,
+      "adjusted_score": 19.2,
+      "level": "HIGH",
+      "lead_indicators": [
+        "VIX",
+        "FX volatility",
+        "geopolitical tensions"
+      ],
+      "lag_indicators": [
+        "valuation compression",
+        "capital flight",
+        "downgrades"
+      ]
+    },
+    {
+      "category": "Regulatory Risk",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.3,
+      "adjusted_score": 11.7,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
+    {
+      "category": "Supply Chain Risk",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.5,
+      "adjusted_score": 24.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "commodity price trends",
+        "supplier financial health",
+        "concentration ratios"
+      ],
+      "lag_indicators": [
+        "supplier failures",
+        "delivery delays",
+        "cost overruns"
+      ]
+    },
+    {
+      "category": "Transition Risk",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 0.8,
+      "adjusted_score": 7.2,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "tech adoption curves",
+        "policy roadmaps",
+        "customer preference shifts"
+      ],
+      "lag_indicators": [
+        "stranded assets",
+        "demand destruction",
+        "market share loss"
+      ]
+    }
+  ],
+  "temples_risks": [
+    {
+      "category": "Economic",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.0,
+      "adjusted_score": 16.0,
+      "level": "HIGH",
+      "lead_indicators": [
+        "commodity price trends",
+        "FX volatility",
+        "customer order pipeline"
+      ],
+      "lag_indicators": [
+        "revenue decline",
+        "margin erosion",
+        "write-downs"
+      ]
+    },
+    {
+      "category": "Political",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.0,
+      "adjusted_score": 16.0,
+      "level": "HIGH",
+      "lead_indicators": [
+        "election cycles",
+        "policy white papers",
+        "diplomatic tensions"
+      ],
+      "lag_indicators": [
+        "policy changes",
+        "license restrictions",
+        "trade barriers"
+      ]
+    },
+    {
+      "category": "Technological",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.2,
+      "adjusted_score": 10.8,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "penetration testing results",
+        "vulnerability disclosures",
+        "tech debt"
+      ],
+      "lag_indicators": [
+        "data breaches",
+        "system outages",
+        "customer data loss"
+      ]
+    }
+  ],
+  "top_risks": [
+    {
+      "category": "Supply Chain Risk",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.5,
+      "adjusted_score": 24.0,
+      "level": "CRITICAL",
+      "lead_indicators": [
+        "commodity price trends",
+        "supplier financial health",
+        "concentration ratios"
+      ],
+      "lag_indicators": [
+        "supplier failures",
+        "delivery delays",
+        "cost overruns"
+      ]
+    },
+    {
+      "category": "Market & Uncertainty",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.2,
+      "adjusted_score": 19.2,
+      "level": "HIGH",
+      "lead_indicators": [
+        "VIX",
+        "FX volatility",
+        "geopolitical tensions"
+      ],
+      "lag_indicators": [
+        "valuation compression",
+        "capital flight",
+        "downgrades"
+      ]
+    },
+    {
+      "category": "Economic",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.0,
+      "adjusted_score": 16.0,
+      "level": "HIGH",
+      "lead_indicators": [
+        "commodity price trends",
+        "FX volatility",
+        "customer order pipeline"
+      ],
+      "lag_indicators": [
+        "revenue decline",
+        "margin erosion",
+        "write-downs"
+      ]
+    },
+    {
+      "category": "Political",
+      "probability": 4,
+      "exposure": 4,
+      "raw_score": 16,
+      "industry_weight": 1.0,
+      "adjusted_score": 16.0,
+      "level": "HIGH",
+      "lead_indicators": [
+        "election cycles",
+        "policy white papers",
+        "diplomatic tensions"
+      ],
+      "lag_indicators": [
+        "policy changes",
+        "license restrictions",
+        "trade barriers"
+      ]
+    },
+    {
+      "category": "Regulatory Risk",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.3,
+      "adjusted_score": 11.7,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    }
+  ],
+  "aggregate_score": 0.42,
+  "ontology_queries": 14
+}

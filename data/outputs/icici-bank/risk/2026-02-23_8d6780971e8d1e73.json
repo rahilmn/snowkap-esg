@@ -60,25 +60,6 @@
   ],
   "temples_risks": [
     {
-      "category": "Economic",
-      "probability": 3,
-      "exposure": 3,
-      "raw_score": 9,
-      "industry_weight": 1.0,
-      "adjusted_score": 9.0,
-      "level": "MODERATE",
-      "lead_indicators": [
-        "commodity price trends",
-        "FX volatility",
-        "customer order pipeline"
-      ],
-      "lag_indicators": [
-        "revenue decline",
-        "margin erosion",
-        "write-downs"
-      ]
-    },
-    {
       "category": "Legal",
       "probability": 4,
       "exposure": 3,
@@ -176,25 +157,6 @@
       ]
     },
     {
-      "category": "Economic",
-      "probability": 3,
-      "exposure": 3,
-      "raw_score": 9,
-      "industry_weight": 1.0,
-      "adjusted_score": 9.0,
-      "level": "MODERATE",
-      "lead_indicators": [
-        "commodity price trends",
-        "FX volatility",
-        "customer order pipeline"
-      ],
-      "lag_indicators": [
-        "revenue decline",
-        "margin erosion",
-        "write-downs"
-      ]
-    },
-    {
       "category": "Reputational Risk",
       "probability": 3,
       "exposure": 2,
@@ -212,8 +174,27 @@
         "customer churn",
         "boycotts"
       ]
+    },
+    {
+      "category": "Media",
+      "probability": 3,
+      "exposure": 2,
+      "raw_score": 6,
+      "industry_weight": 1.0,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "social media sentiment shifts",
+        "journalist inquiries",
+        "activist group interest"
+      ],
+      "lag_indicators": [
+        "negative coverage",
+        "brand value decline",
+        "customer boycotts"
+      ]
     }
   ],
-  "aggregate_score": 0.316,
-  "ontology_queries": 12
+  "aggregate_score": 0.28,
+  "ontology_queries": 10
 }
