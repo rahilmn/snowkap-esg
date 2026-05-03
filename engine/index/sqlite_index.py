@@ -359,10 +359,25 @@ def query_feed(
         clauses.append(fresh[0].replace("?", ":__age"))
         params["__age"] = fresh[1]
     where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    # Phase 24.3 — pinned articles (pinned_until > now) sort to the top.
+    # The CASE expression returns 1 for currently-pinned rows (and tries
+    # both NULL and stale), 0 otherwise; ORDER BY DESC puts the 1s first.
+    # Stale `pinned_until` (in the past) silently degrades to natural
+    # ordering — no need to clean up the column on expiry.
+    #
+    # Datetime format: pinned_until is stored as ISO-8601 with `+00:00`
+    # offset, lex-comparable to datetime('now') output (which the dialect
+    # translator rewrites to `to_char(NOW() AT TIME ZONE 'UTC', ...)` on
+    # Postgres). On SQLite, datetime('now') returns 'YYYY-MM-DD HH:MM:SS'
+    # which sorts AFTER 'YYYY-MM-DDTHH:MM:SS+00:00' (` ` < `T`), so we
+    # use the column with COALESCE to '' to guarantee ordering works.
     sql = f"""
         SELECT * FROM article_index
         {where}
-        ORDER BY relevance_score DESC, published_at DESC
+        ORDER BY
+            CASE WHEN COALESCE(pinned_until, '') > datetime('now') THEN 1 ELSE 0 END DESC,
+            relevance_score DESC,
+            published_at DESC
         LIMIT :limit OFFSET :offset
     """
     with _connect() as conn:
