@@ -86,6 +86,12 @@ class PipelineResult:
     # cover ~95% of corpus.
     article_content: str = ""
 
+    # Hero image URL (newsletter hero + UI cards). Sourced from the
+    # ingested article metadata (NewsAPI.ai `image`, NewsAPI.org
+    # `urlToImage`, or Google News `media:content/thumbnail`). Empty
+    # string when the source feed didn't expose one.
+    image_url: str = ""
+
     def to_dict(self) -> dict[str, Any]:
         def _safe(obj: Any) -> Any:
             if obj is None:
@@ -132,6 +138,7 @@ class PipelineResult:
             # serializes/deserializes PipelineResult before insight generation
             # still has the grounding signal for source-tag verification.
             "article_content": self.article_content,
+            "image_url": self.image_url,
         }
 
 
@@ -264,6 +271,11 @@ def process_article(
     title = article.get("title", "")
     content = article.get("content") or article.get("summary") or ""
     source = article.get("source", "")
+    image_url = (
+        article.get("image_url")
+        or (article.get("metadata") or {}).get("image_url")
+        or ""
+    )
 
     # Stage 1: NLP extraction
     stages.append("nlp_extraction")
@@ -293,6 +305,7 @@ def process_article(
             ontology_query_count=ontology_queries,
             elapsed_seconds=round(time.perf_counter() - started, 3),
             article_content=(content or "")[:6000],
+            image_url=image_url,
         )
         logger.info(
             "pipeline: %s REJECTED (cross_entity for %s)",
@@ -329,6 +342,7 @@ def process_article(
         tier=relevance.tier,
         stages_executed=stages,
         article_content=(content or "")[:6000],
+        image_url=image_url,
     )
 
     # Gate: reject early

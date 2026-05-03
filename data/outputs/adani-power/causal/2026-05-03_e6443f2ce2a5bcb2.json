@@ -1,0 +1,70 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Adani Power"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "Adani Power"
+    },
+    {
+      "nodes": [
+        "Adani Power HQ",
+        "Adani Power"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "Adani Power HQ -> Adani Power"
+    },
+    {
+      "nodes": [
+        "Waaree Energies",
+        "Adani Power"
+      ],
+      "edges": [
+        "industrySpillover"
+      ],
+      "hops": 1,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.7,
+      "explanation": "Waaree Energies -> Adani Power"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "BRSR",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "GRI",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for Adani Power"
+    }
+  ]
+}

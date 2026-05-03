@@ -196,6 +196,54 @@ def _reshape_perspective(
 
 
 
+_SLUG_RE = __import__("re").compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
+_ARTICLE_ID_RE = __import__("re").compile(r"^[a-f0-9]{8,32}$")
+
+
+def _resolve_image_url_from_input(art: dict[str, Any], row: dict[str, Any]) -> str:
+    """Fall back to the ingested-input JSON for image_url.
+
+    Older insight payloads (written before the Phase 23B image_url
+    plumbing) don't carry the hero image URL inside their `article`
+    block. The IngestedArticle JSON under `data/inputs/news/<slug>/`
+    *does* carry it (NewsAPI.ai `image`, NewsAPI.org `urlToImage`,
+    Google News `media:content`). This resolver gives every old
+    article a hero image without re-running the full pipeline.
+
+    Hardened against path traversal: both `slug` and `article_id` are
+    validated against strict regexes before any filesystem access, and
+    the resolved file is required to live under `data/inputs/news/`.
+
+    Returns "" if anything fails — callers must already tolerate a
+    missing image.
+    """
+    article_id = (art.get("id") or row.get("id") or "").strip().lower()
+    slug = (art.get("company_slug") or row.get("company_slug") or "").strip().lower()
+    if not article_id or not slug:
+        return ""
+    if not _SLUG_RE.match(slug) or not _ARTICLE_ID_RE.match(article_id):
+        return ""
+    base = get_data_path("inputs", "news").resolve()
+    folder = (base / slug).resolve()
+    try:
+        folder.relative_to(base)  # reject any path that escapes the base
+    except ValueError:
+        return ""
+    if not folder.exists():
+        return ""
+    try:
+        matches = list(folder.glob(f"*_{article_id}.json"))
+    except OSError:
+        return ""
+    if not matches:
+        return ""
+    try:
+        data = json.loads(matches[0].read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    return (data.get("metadata") or {}).get("image_url") or ""
+
+
 def _load_payload(json_path: str | None) -> dict[str, Any] | None:
     if not json_path:
         return None
@@ -504,7 +552,7 @@ def build_legacy_article(row: dict[str, Any], payload: dict[str, Any] | None) ->
         "summary": (insight.get("headline") or insight.get("translation") or "")[:500],
         "source": row.get("source") or art.get("source"),
         "url": row.get("url") or art.get("url"),
-        "image_url": art.get("image_url"),
+        "image_url": art.get("image_url") or _resolve_image_url_from_input(art, row),
         "published_at": row.get("published_at") or art.get("published_at"),
         "esg_pillar": row.get("esg_pillar"),
         "sentiment": nlp.get("sentiment_label") or ("negative" if (nlp.get("sentiment", 0) or 0) < 0 else "positive" if (nlp.get("sentiment", 0) or 0) > 0 else "neutral"),

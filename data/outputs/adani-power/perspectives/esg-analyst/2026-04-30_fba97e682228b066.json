@@ -1,0 +1,167 @@
+{
+  "headline": "Adani Power's Q4 net profit surged 52% YoY to ₹4,017 Cr (from article), driving ₹5,941.7 Cr total investor exposure (engine estimate).",
+  "generated_by": "esg_analyst_generator_v1",
+  "kpi_table": [
+    {
+      "kpi_name": "Scope 1 Emissions",
+      "company_value": "80 Mt CO2e",
+      "unit": "Mt CO2e",
+      "peer_quartile": "P75 (above peer median 60 Mt)",
+      "peer_examples": "NTPC 250, Tata Power 20",
+      "data_source": "CDP 2024 + BRSR FY24",
+      "significance": "This KPI is material because Scope 1 emissions represent the direct climate impact of Adani Power's coal-heavy generation portfolio, driving regulatory, reputational, and transition risk."
+    }
+  ],
+  "confidence_bounds": [
+    {
+      "figure": "₹4,017 Cr (engine estimate) direct Q4 profit",
+      "source_type": "from_article",
+      "confidence": "high",
+      "rationale": "Explicitly stated in company quarterly results and cited in article."
+    },
+    {
+      "figure": "₹5,941.7 Cr (engine estimate) total exposure",
+      "source_type": "engine_estimate",
+      "beta_range": "0.070 (composite)",
+      "lag": "1–4 quarters",
+      "functional_form": "linear",
+      "confidence": "medium",
+      "rationale": "Primitive cascade event_quarterly_results → RV (revenue/demand) with margin impact and sector calibration as per computed financial cascade."
+    }
+  ],
+  "double_materiality": {
+    "financial_impact": "The ₹5,941.7 Cr total exposure (engine estimate) reflects both direct profit and broader investor sentiment, with potential P/E compression of 0.05–0.1x (~₹400–800 Cr market cap impact, engine estimate) if ESG disclosure gaps persist, affecting WACC and cost of capital.",
+    "impact_on_world": "Adani Power's high Scope 1 emissions (80 Mt CO2e) materially contribute to India's GHG footprint, directly impacting SDG 7.2 (renewable energy share) and 7.3 (energy efficiency), with sector decarbonization lagging global targets."
+  },
+  "tcfd_scenarios": {
+    "1_5c": "In a 1.5°C pathway, accelerated coal phase-out and high carbon pricing would compress Adani Power's margins by up to 30%, risk asset writedowns, and raise WACC by 100–200 bps, challenging long-term profitability.",
+    "2c": "Under a 2°C scenario, gradual coal phase-out and moderate carbon pricing would still pressure margins (100–200 bps compression), with asset book value haircuts and rising cost of capital for coal-heavy generators.",
+    "4c": "In a 4°C world, near-term margins remain high, but insurance costs and climate litigation risk rise sharply, with frequent operational disruptions from heatwaves and water scarcity, and FII/ESG fund outflows increasing WACC by 150 bps."
+  },
+  "sdg_targets": [
+    {
+      "code": "7.2",
+      "title": "Substantially increase renewable energy share",
+      "applicability": "direct",
+      "rationale": "Adani Power's coal-dominated portfolio directly limits renewable energy share, making progress on SDG 7.2 contingent on RE investments and coal phase-out."
+    },
+    {
+      "code": "7.3",
+      "title": "Double the rate of improvement in energy efficiency",
+      "applicability": "direct",
+      "rationale": "Operational efficiency and emissions intensity improvements are directly relevant to SDG 7.3, given the company's scale and sector footprint."
+    }
+  ],
+  "audit_trail": [
+    {
+      "claim": "₹5,941.7 Cr (engine estimate) total exposure",
+      "derivation": "Primitive cascade event_quarterly_results → RV (revenue/demand) with sector margin impact (β=0.070, lag=1–4q), as per computed financial cascade.",
+      "sources": [
+        "ontology: P2::RV→WF",
+        "article: company Q4 results",
+        "computed_financial_cascade"
+      ]
+    },
+    {
+      "claim": "Scope 1 emissions 80 Mt CO2e",
+      "derivation": "Peer-calibrated from CDP 2024, BRSR FY24, and industry benchmarks; aligns with Adani Power's reported energy mix and operational scale.",
+      "sources": [
+        "CDP 2024",
+        "BRSR FY24",
+        "KPI CONTEXT"
+      ]
+    }
+  ],
+  "framework_citations": [
+    {
+      "code": "BRSR:P6:Q14",
+      "rationale": "Supply-chain and operational GHG disclosure is mandatory for Large Cap Indian companies under BRSR, directly affecting Adani Power's reporting obligations.",
+      "region": "India",
+      "deadline": "2026-05-30"
+    }
+  ],
+  "warnings": [
+    "verifier: added 3 source tags on ₹ figures"
+  ],
+  "full_insight": {
+    "headline": "Adani Power Q4 net profit surges 52% YoY to ₹4,017 Cr (from article), driving ₹5,941.7 Cr total exposure for investors",
+    "impact_score": 6,
+    "core_mechanism": "Adani Power's strong Q4 results, with a 52% YoY net profit increase, signal robust operational performance amid sector volatility. This direct operational outperformance transmits to investor sentiment, earnings revisions, and potential valuation re-rating, especially as energy sector ESG themes remain material for power generators.",
+    "profitability_connection": "The ₹5,941.7 Cr total exposure (engine estimate) reflects both direct profit uplift and anticipated downstream effects on earnings and valuation. Sustained financial outperformance can compress cost of capital and support premium P/E multiples, but ESG disclosure gaps could moderate these benefits.",
+    "translation": "Adani Power reported a sharp rise in quarterly profit, which is likely to boost investor confidence and could lift the company's share price. However, the impact on long-term valuation will depend on how well the company manages ESG disclosures and aligns with regulatory frameworks.",
+    "impact_analysis": {
+      "esg_positioning": "ESG score gap remains due to moderate disclosure; peer pressure from JSW Energy and index providers could intensify if ESG reporting lags.",
+      "capital_allocation": "Improved results may lower cost of capital by 20-40bps (engine estimate), but incomplete BRSR/TCFD/CDP disclosures could limit FII inflows.",
+      "valuation_cashflow": "Potential for P/E compression of 0.05-0.1x if ESG gaps persist, despite strong earnings; margin uplift of 989.3 bps (engine estimate) supports valuation.",
+      "compliance_regulatory": "BRSR (SEBI), TCFD, CDP, GRI, EU Taxonomy, ESRS triggered; incomplete compliance may attract SEBI scrutiny and restrict trading or index inclusion.",
+      "supply_chain_transmission": "No supply chain transmission; event is direct operational performance, not supply chain or procurement related.",
+      "people_demand": "Investor sentiment is primary; no direct impact on talent or consumer demand, but improved results may enhance employer brand."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹5,941.7 Cr total exposure from Q4 results (engine estimate)",
+        "profitability_pathway": "Q4 profit surge → earnings revision → investor inflow → ₹5,941.7 Cr exposure (engine estimate)",
+        "margin_pressure": "1058.5 bps (computed_override)",
+        "revenue_at_risk": "₹388.7 Cr potential downstream impact (engine estimate)"
+      },
+      "structural": {
+        "valuation_rerating": "P/E stable to +0.05x; strong earnings offset by moderate ESG disclosure gaps",
+        "competitive_position": "Adani Power outperforms JSW Energy on Q4 profit growth, but ESG lag could erode relative advantage if not addressed"
+      },
+      "long_term": {
+        "secular_trajectory": "Sustained profit growth supports long-term capital access, but ESG compliance will be critical for premium valuation over 3-5 years",
+        "green_revenue_opportunity": "₹0 Cr (engine estimate); this event is financial, not green revenue linked"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 6,
+        "rationale": "Energy sector event with moderate environmental materiality; no direct emissions or renewable transition signal in this result"
+      },
+      "social": {
+        "score": 2,
+        "rationale": "No direct workforce, community, or consumer impact; event is financial performance"
+      },
+      "governance": {
+        "score": 6,
+        "rationale": "Governance relevance via BRSR/TCFD/CDP disclosure requirements and SEBI oversight"
+      },
+      "financial_materiality": {
+        "score": 8,
+        "rationale": "₹5,941.7 Cr (engine estimate) total exposure is highly material for P&L and investor flows"
+      },
+      "regulatory_exposure": {
+        "score": 5,
+        "rationale": "Moderate risk from incomplete ESG disclosures; BRSR/SEBI compliance required"
+      },
+      "stakeholder_impact": {
+        "score": 6,
+        "rationale": "Primary impact on investors via earnings, valuation, and index inclusion; limited direct effect on other stakeholders"
+      }
+    },
+    "net_impact_summary": "Adani Power's Q4 net profit surge of 52% YoY, translating to a ₹5,941.7 Cr total exposure (engine estimate), is a significant financial event for investors and the company's valuation. While the operational outperformance supports margin expansion (989.3 bps) and may attract capital, the absence of enhanced ESG disclosures (BRSR, TCFD, CDP) could limit the full benefit. Regulatory frameworks require prompt compliance to avoid SEBI scrutiny and ensure continued index inclusion. The event is structurally significant for P&L but only moderately material for ESG positioning.",
+    "decision_summary": {
+      "materiality": "HIGH",
+      "action": "ACT",
+      "verdict": "Leverage strong Q4 results to accelerate ESG disclosure upgrades and engage with institutional investors.",
+      "financial_exposure": "₹5,941.7 Cr total exposure (engine estimate), of which ₹4,017 Cr is direct Q4 profit (from article)",
+      "key_risk": "Potential P/E compression of 0.05-0.1x (~₹400 (engine estimate)-800 Cr market cap impact, engine estimate) if ESG disclosure gaps persist (of ₹5941.7 Cr canonical event exposure)",
+      "top_opportunity": "Enhance BRSR/TCFD/CDP disclosures to unlock up to 20-40bps cost of capital reduction (~₹120 (engine estimate)-240 Cr annual savings, engine estimate) (of ₹5941.7 Cr canonical event exposure)",
+      "timeline": "within 8 weeks"
+    },
+    "causal_chain": {
+      "event": "Adani Power reports 52% YoY net profit growth in Q4",
+      "mechanism": "Strong financial performance triggers earnings upgrades, investor inflows, and potential for valuation uplift; incomplete ESG disclosures may moderate these gains via index and FII constraints",
+      "company_impact": "Boosts P&L and margin by 989.3 bps, but risks partial P/E compression and missed capital inflow if ESG gaps remain",
+      "transmission_type": "direct"
+    },
+    "warnings": [
+      "verifier: margin math at financial_timeline.immediate: cited 989.3 bps, computed 1058.5 bps (dev 6.5%)",
+      "verifier: added 5 source tags on ₹ figures",
+      "verifier: drift auto-fix: normalised 2 field(s) to canonical ₹5941.7 Cr",
+      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+      "verifier: margin math auto-corrected (original 989.3 bps, computed 1058.5 bps)"
+    ],
+    "event_polarity": "neutral"
+  }
+}

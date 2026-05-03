@@ -354,3 +354,43 @@ Redis needed.
   `_background_onboard` regardless of which process runs it.
 - Restart the worker independently of the API when needed
   (`Onboarding Worker` workflow).
+
+## Phase 23B — Hero image plumbing + Adani live demo
+
+The article cards, newsletter hero, and analyst views all wanted a
+hero image, but the source image URL was being silently dropped at
+two layers of the stack:
+
+1. **Ingestion** — `fetch_newsapi` (NewsAPI.org) ignored
+   `urlToImage`; `fetch_google_news` ignored `media:content` /
+   `media:thumbnail`. Only `fetch_newsapi_ai` already captured one.
+2. **Pipeline** — `PipelineResult` had no `image_url` field, so
+   even when ingestion captured the URL it never reached
+   `engine/output/writer.py` or `formatter.py`'s `article` block.
+
+Fix:
+- `PipelineResult.image_url` is now a first-class field, populated
+  in `process_article()` from `article.image_url` or
+  `article.metadata.image_url`. Round-tripped through `to_dict()`
+  and re-applied in `engine/analysis/on_demand._reconstruct_pipeline_result`
+  so on-demand re-renders also keep the hero image.
+- `engine/output/writer.py` + `engine/output/formatter.py`'s `article`
+  blocks now emit `image_url`.
+- `engine/ingestion/news_fetcher.py` writes `metadata.image_url` for
+  every source (NewsAPI.org `urlToImage`, Google News `media:content`
+  / `media:thumbnail` / inline `<img>`).
+- `api/routes/legacy_adapter._resolve_image_url_from_input` is a
+  defensive fallback that reads the persisted IngestedArticle JSON
+  to backfill the hero image for older insight payloads. Hardened
+  with strict slug + article-id regexes and a `relative_to(base)`
+  path-traversal check.
+
+`scripts/seed_adani_article.py` is a new utility that hits NewsAPI.ai
+for Adani Power, ranks candidates (rewarding focused
+single-company headlines, ESG/transition keywords, and presence of a
+hero image; penalising multi-stock roundups), then runs the seeded
+article through the full pipeline. The current pinned demo article
+("Stocks in news … Adani Power Q4") lands on HOME tier with a 6/10
+impact score, four recommendations, and fully populated ESG-Analyst /
+CEO / CFO perspectives — and a real Economic Times hero image that
+flows all the way through to the UI cards.

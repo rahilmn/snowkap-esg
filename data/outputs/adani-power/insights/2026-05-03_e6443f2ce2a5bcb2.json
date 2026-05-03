@@ -1,0 +1,656 @@
+{
+  "article": {
+    "id": "e6443f2ce2a5bcb2",
+    "title": "Trendspotting: Which Companies Have Been The Most Searched This Q4 Earnings Season?",
+    "url": "https://www.ndtvprofit.com/trending/trendspotting-which-companies-have-been-the-most-searched-this-q4-earnings-season-11439580",
+    "source": "NDTV Profit",
+    "published_at": "2026-05-03T04:53:48+00:00",
+    "company_slug": "adani-power",
+    "image_url": "https://c.ndtvimg.com/2026-05/bcts49s_earnings_625x300_02_May_26.jpg?im=FitAndFill,algorithm=dnn,width=1200,height=738"
+  },
+  "pipeline": {
+    "article_id": "e6443f2ce2a5bcb2",
+    "title": "Trendspotting: Which Companies Have Been The Most Searched This Q4 Earnings Season?",
+    "url": "https://www.ndtvprofit.com/trending/trendspotting-which-companies-have-been-the-most-searched-this-q4-earnings-season-11439580",
+    "source": "NDTV Profit",
+    "published_at": "2026-05-03T04:53:48+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 47,
+    "elapsed_seconds": 38.994,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.85,
+      "tone": [
+        "analytical",
+        "neutral",
+        "optimistic"
+      ],
+      "narrative_core_claim": "Several companies have seen significant spikes in search interest during the Q4 earnings season, reflecting strong investor curiosity.",
+      "narrative_implied_causation": "Strong or improving financial results caused increased public and investor search interest in these companies.",
+      "narrative_stakeholder_framing": "Companies reporting earnings are protagonists, investors and the public are the affected audience showing increased interest.",
+      "entities": [
+        "Adani Power",
+        "Motilal Oswal Financial Services",
+        "Waaree Energies",
+        "Eternal",
+        "Zomato",
+        "Blinkit",
+        "Bajaj Finance",
+        "NSE",
+        "Rs 4,271 crore",
+        "Rs 174 crore"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "Motilal Oswal Financial Services": "company",
+        "Waaree Energies": "company",
+        "Eternal": "company",
+        "Zomato": "company",
+        "Blinkit": "company",
+        "Bajaj Finance": "company",
+        "NSE": "regulator/market",
+        "Rs 4,271 crore": "financial amount",
+        "Rs 174 crore": "financial amount"
+      },
+      "financial_signal": {
+        "amount": 4271,
+        "unit": "crore",
+        "context": "Adani Power's consolidated net profit for Q4 FY 2025-26"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "financial performance",
+        "investor interest",
+        "earnings",
+        "dividends"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness",
+        "audit_quality"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Board & Leadership",
+          "pillar": "G",
+          "sub_metrics": [
+            "board_diversity",
+            "succession_planning"
+          ]
+        },
+        {
+          "theme": "Human Capital",
+          "pillar": "S",
+          "sub_metrics": [
+            "talent_retention",
+            "fair_wages"
+          ]
+        },
+        {
+          "theme": "Community Impact",
+          "pillar": "S",
+          "sub_metrics": [
+            "local_employment",
+            "social_license"
+          ]
+        }
+      ],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
+      "matched_keywords": [
+        "earnings",
+        "Q4",
+        "profit",
+        "PAT",
+        "net profit"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 221.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.8,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Waaree Energies",
+          "Adani Power"
+        ],
+        "edges": [
+          "industrySpillover"
+        ],
+        "hops": 1,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.7,
+        "explanation": "Waaree Energies -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Board & Leadership",
+          "Human Capital",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.8300000000000002,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Board & Leadership",
+          "Human Capital",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:207"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.7300000000000002,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Board & Leadership",
+          "Human Capital",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.6700000000000002,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Board & Leadership",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Community Impact"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure",
+          "Board & Leadership"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Board & Leadership"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Board & Leadership"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SASB",
+        "framework_label": "SASB",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Used by investors for peer benchmarking",
+        "triggered_by_themes": [
+          "Human Capital"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Human Capital Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "employee engagement surveys",
+            "turnover trends",
+            "union activity"
+          ],
+          "lag_indicators": [
+            "mass attrition",
+            "strikes",
+            "talent gaps"
+          ]
+        },
+        {
+          "category": "Manpower Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "labor market indicators",
+            "demographic shifts",
+            "skill gap analyses"
+          ],
+          "lag_indicators": [
+            "absenteeism",
+            "productivity drops",
+            "recruitment failures"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        },
+        {
+          "category": "Media",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment shifts",
+            "journalist inquiries",
+            "activist group interest"
+          ],
+          "lag_indicators": [
+            "negative coverage",
+            "brand value decline",
+            "customer boycotts"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Human Capital Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "employee engagement surveys",
+            "turnover trends",
+            "union activity"
+          ],
+          "lag_indicators": [
+            "mass attrition",
+            "strikes",
+            "talent gaps"
+          ]
+        }
+      ],
+      "aggregate_score": 0.191,
+      "ontology_queries": 18
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [],
+    "article_content": "Adani Power search interest jumped over 850% with a 64% increase in net profit As the Q4 earnings season moves forward, investor interest and public curiosity are clearly reflected in online search trends across India. From queries about results announcements to spikes in specific company searches, the latest data highlights which firms are capturing the most attention. While generic searches like \"Q4 results\" and \"Q4 results 2026\" remain consistently popular, the real momentum is being driven by companies reporting strong or closely watched earnings. Notably, certain companies have experienced a large jump in search interest. These trends provide a useful indication of where attention is focused during this critical financial reporting period. Take a look at the companies that have been the most searched this Q4 earnings season. Motilal Oswal Leads Search Surge A sharp spike of nearly 1,500% in queries has put Motilal Oswal Financial Services among the most searched companies this Q4 earnings season. Motilal Oswal Financial Services (MOFSL) reported a wider consolidated net loss of Rs 221 crore in the March-ended quarter, compared to a loss of Rs 65 crore in the same period last year. Meanwhile, its revenue from operations recorded a strong 125% growth. ALSO READ: Received Emergency Notification Alerts On Phone? Here's Why You Shouldn't Worry Waaree Energies Sees Massive Spike Waaree Energies has emerged as one of the most searched companies this season, with queries related to its Q4 results witnessing a sharp growth of up to 750%, indicating strong investor curiosity. As per an exchange filing released on Wednesday, Waaree Energies Ltd. reported a sharp 71% rise in its net profit for the fourth quarter of FY 2025-26. The company also announced a final dividend of Rs 2 per equity share. Adani Power Gains Significant Attention Adani Power has seen a sharp rise of over 850% in Q4-related queries, placing it among the most discussed companies this earnings season. Adani Power reported a 64% increase in its net profit after tax (PAT) for the March quarter, even as its overall revenue saw a slight decline. According to an NSE filing, the company's consolidated net profit rose to Rs 4,271 crore in the fourth quarter, up from Rs 2,599 crore in the same period last year. However, revenue from its core operations remained largely unchanged, slipping marginally by 0.10%. Eternal Also Sees Sharp Rise in Interest Searches for Q4 results of Eternal have surged significantly, recording a rise of around 750%. The parent company of Zomato and Blinkit on Tuesday reported a sharp 346.15% increase in consolidated net profit, which rose to Rs 174 crore in the March quarter. In comparison, the company had posted a net profit of Rs 39 crore during the same period last year. Bajaj Finance Draws Strong Attention Bajaj Finance has been actively trending this week, with search interest crossing 10,000+ and rising by around 50% in just a day. The spike reflects growing attention around the company's Q4 performance, with queries like \"Bajaj Finance results today\" jumping by nearly 950% and \"Bajaj Finance Q4 results\" surging by over 550%. Apart from earnings, users are also searching for share prices, loan details, and customer care information. ALSO READ: May 2026 Calendar: Labour Day, Mother's Day, Buddha Purnima And More, Full List Of National And International Days, Events Essential Business Intelligence, Continuous LIVE TV, Sharp Market Insights, Practical Personal Finance Advice and Latest Stories -- On NDTV Profit.",
+    "image_url": "https://c.ndtvimg.com/2026-05/bcts49s_earnings_625x300_02_May_26.jpg?im=FitAndFill,algorithm=dnn,width=1200,height=738"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T05:44:15.333179+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}

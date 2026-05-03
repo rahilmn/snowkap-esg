@@ -570,4 +570,10 @@ def _reconstruct_pipeline_result(pipeline_data: dict[str, Any]) -> Any:
         ontology_query_count=pipeline_data.get("ontology_query_count", 0),
         elapsed_seconds=0,
         stages_executed=pipeline_data.get("stages_executed", []),
+        # Phase 23B — round-trip the raw article body and hero image so
+        # rehydrated PipelineResults match the original. Otherwise the
+        # output verifier loses its grounding text and the UI / newsletter
+        # loses the hero image on any on-demand re-render.
+        article_content=pipeline_data.get("article_content", ""),
+        image_url=pipeline_data.get("image_url", ""),
     )

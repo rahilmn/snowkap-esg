@@ -194,6 +194,22 @@ def fetch_google_news(
                 source = entry.source.get("title", "")
             except AttributeError:
                 source = str(entry.source)
+        # Best-effort hero image from RSS extensions. Many feeds expose
+        # one of `media_content`, `media_thumbnail`, or an inline
+        # `<img>` tag inside the summary.
+        image_url = ""
+        media_content = entry.get("media_content") or []
+        if isinstance(media_content, list) and media_content:
+            image_url = (media_content[0] or {}).get("url", "")
+        if not image_url:
+            media_thumb = entry.get("media_thumbnail") or []
+            if isinstance(media_thumb, list) and media_thumb:
+                image_url = (media_thumb[0] or {}).get("url", "")
+        if not image_url and "<img" in (entry.get("summary") or ""):
+            import re as _re
+            m = _re.search(r'<img[^>]+src="([^"]+)"', entry.get("summary") or "")
+            if m:
+                image_url = m.group(1)
         articles.append(
             {
                 "title": title,
@@ -202,6 +218,10 @@ def fetch_google_news(
                 "source": source or "Google News",
                 "url": url,
                 "published_at": _parse_published(entry.get("published")),
+                "metadata": {
+                    "source_type": "google_news",
+                    "image_url": image_url,
+                },
             }
         )
     return articles
@@ -248,6 +268,13 @@ def fetch_newsapi(query: str, max_results: int = 20) -> list[dict]:
                 "source": (item.get("source") or {}).get("name") or "NewsAPI",
                 "url": url,
                 "published_at": _parse_published(item.get("publishedAt")),
+                # Hero image — NewsAPI.org returns the OG/twitter image as
+                # `urlToImage`. Surfaced via metadata so the UI cards and
+                # newsletter hero get a real photo instead of a placeholder.
+                "metadata": {
+                    "source_type": "newsapi",
+                    "image_url": item.get("urlToImage") or "",
+                },
             }
         )
     return articles

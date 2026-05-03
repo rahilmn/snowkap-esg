@@ -93,6 +93,7 @@ def write_insight(
             "source": result.source,
             "published_at": result.published_at,
             "company_slug": result.company_slug,
+            "image_url": result.image_url,
         },
         "pipeline": result.to_dict(),
         "insight": insight.to_dict() if insight else None,

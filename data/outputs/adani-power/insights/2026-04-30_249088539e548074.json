@@ -1,0 +1,670 @@
+{
+  "article": {
+    "id": "249088539e548074",
+    "title": "Adani Power Share Price Today Under Pressure Despite 51% Jump in Q4 Profit, What Should Investors Do?",
+    "url": "https://www.goodreturns.in/news/adani-power-share-price-today-under-pressure-despite-51-jump-in-q4-profit-what-should-investors-do-1505487.html?30042026142008",
+    "source": "Goodreturns",
+    "published_at": "2026-04-30T08:58:45+00:00",
+    "company_slug": "adani-power",
+    "image_url": "https://images.goodreturns.in/img/2026/04/adanipower12-1777536255.jpg"
+  },
+  "pipeline": {
+    "article_id": "249088539e548074",
+    "title": "Adani Power Share Price Today Under Pressure Despite 51% Jump in Q4 Profit, What Should Investors Do?",
+    "url": "https://www.goodreturns.in/news/adani-power-share-price-today-under-pressure-despite-51-jump-in-q4-profit-what-should-investors-do-1505487.html?30042026142008",
+    "source": "Goodreturns",
+    "published_at": "2026-04-30T08:58:45+00:00",
+    "company_slug": "adani-power",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 48,
+    "elapsed_seconds": 19.431,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite"
+    ],
+    "nlp": {
+      "sentiment": 1,
+      "sentiment_confidence": 0.85,
+      "tone": [
+        "analytical",
+        "neutral",
+        "cautionary"
+      ],
+      "narrative_core_claim": "Adani Power reported a 54% increase in Q4FY26 net profit driven by fuel cost efficiency and operational availability.",
+      "narrative_implied_causation": "Fuel cost efficiency and robust operational availability led to higher revenue, EBITDA, and profit growth despite softer merchant realizations.",
+      "narrative_stakeholder_framing": "Adani Power is the protagonist delivering strong financial results; investors are the affected stakeholders advised to consider cautious entry.",
+      "entities": [
+        "Adani Power",
+        "BSE",
+        "Abhinav Tiwari",
+        "Bonanza",
+        "Kunal Kamble",
+        "Goodreturns.in",
+        "Greynium Information Technologies Private Limited"
+      ],
+      "entity_types": {
+        "Adani Power": "company",
+        "BSE": "stock exchange",
+        "Abhinav Tiwari": "person",
+        "Bonanza": "company",
+        "Kunal Kamble": "person",
+        "Goodreturns.in": "media",
+        "Greynium Information Technologies Private Limited": "company"
+      },
+      "financial_signal": {
+        "amount": 4017.8,
+        "unit": "crore",
+        "context": "Adani Power net consolidated profit in Q4FY26"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "operational efficiency",
+        "financial performance",
+        "capacity expansion"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Energy",
+      "primary_pillar": "E",
+      "primary_sub_metrics": [
+        "renewable_energy_use",
+        "energy_intensity",
+        "fossil_fuel_dependency",
+        "power_purchase_agreements"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
+        },
+        {
+          "theme": "Risk Management",
+          "pillar": "G",
+          "sub_metrics": [
+            "business_continuity",
+            "erm_maturity"
+          ]
+        }
+      ],
+      "confidence": 0.85,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
+      "matched_keywords": [
+        "Q4",
+        "FY25",
+        "FY26",
+        "profit",
+        "EBITDA",
+        "PAT",
+        "margin"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 420502.77
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.95,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Adani Power"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "Adani Power"
+      },
+      {
+        "nodes": [
+          "Adani Power HQ",
+          "Adani Power"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "Adani Power HQ -> Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "Power/Energy",
+          "Adani Power"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Energy is material for Power/Energy → impacts Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "BRSR",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+      },
+      {
+        "nodes": [
+          "Energy",
+          "GRI",
+          "Adani Power"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Energy",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Energy",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:302"
+        ]
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Energy",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CDP",
+        "framework_label": "CDP",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EU_TAXONOMY",
+        "framework_label": "EU Taxonomy",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Aligned activities unlock green financing, lower cost of capital",
+        "triggered_by_themes": [
+          "Energy"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.2,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Environmental",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "weather pattern shifts",
+            "water table data",
+            "air quality index"
+          ],
+          "lag_indicators": [
+            "insurance claims",
+            "production downtime",
+            "remediation costs"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.0,
+          "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.5,
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "tech adoption curves",
+            "policy roadmaps",
+            "customer preference shifts"
+          ],
+          "lag_indicators": [
+            "stranded assets",
+            "demand destruction",
+            "market share loss"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 3,
+          "exposure": 2,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.3,
+          "adjusted_score": 5.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.2,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "aggregate_score": 0.161,
+      "ontology_queries": 14
+    },
+    "stakeholders": [
+      "Investors"
+    ],
+    "sdgs": [
+      "Affordable and Clean Energy",
+      "Climate Action"
+    ],
+    "article_content": "Adani Power Share Price Today: Shares of Adani Power erased early gains made during Thursday's and started trading lower a day after the company announced fourth quarter result for financial year 2025-26. Adani Power share price was trading 0.48% lower at Rs 218.05 per share on BSE with a market capitalisation of Rs 4,20,502.77 crore at 1:20 pm on Thursday, April 30. The stock had touched an intraday high of Rs 223.50 per share and an intraday low of Rs 214.20 per share on Thursday. Adani Power Q4 Result Recap Adani Power''s net consolidated profit (attributable to owners of the company) stood at Rs 4017.8 crore in Q4FY26, 54% higher than Rs 2,636.97 crore reported in the year-ago period. Adani Power's net consolidated revenue from operations stood at Rs 14,223.09 crore. The company's operating revenue increased by 2.93% at Rs 14,559.97 crore against Rs 14,145.31 crore in Q4FY25, due to high plant uptime. Adani Power's continuing operating revenues stood at Rs 53,781.45 crore in FY26, against Rs 54,502.81 crore in FY25. Adani Power's continuing EBITDA performance stood at Rs 5,572.64 crore in Q4FY26 against Rs 5,097.62 crore reported in the previous quarters. Strong EBITDA growth was led by PPA tariff contribution and greater operating efficiency. Adani Power Share Price In Red: What Should Investors Do Now? Adani Power delivered a robust Q4FY26 result driven by fuel cost efficiency and robust operational availability. \"Adani Power delivered a strong quarter, with revenue, EBITDA, and PAT all growing YoY. Operational availability remained robust, and dispatch volumes improved. Fuel cost efficiency supported margin resilience despite softer merchant realizations. New PPA additions strengthened capacity tie-ups. Capacity expansion projects are progressing on track, reinforcing the long-term growth visibility,\" explained Abhinav Tiwari, Research Analyst at Bonanza. Adani Power Share Price Outlook \"Immediate support is placed around ₹200-205, while resistance is seen near ₹225-230. As long as the stock holds above ₹200, the broader bullish structure remains intact and upside towards ₹240-250 is possible. However, fresh entries should ideally be considered on dips rather than chasing at current elevated levels,\" explained Kunal Kamble, Sr. Technical Research Analyst at Bonanza. Disclaimer: The views and recommendations expressed are solely those of the individual analysts or entities and do not reflect the views of Goodreturns.in or Greynium Information Technologies Private Limited (together referred as \"we\"). We do not guarantee, endorse or take responsibility for the accuracy, completeness or reliability of any content, nor do we provide any investment advice or solicit the purchase or sale of securities. All information is provided for informational and educational purposes only and should be independently verified from licensed financial advisors before making any investment decisions.",
+    "image_url": "https://images.goodreturns.in/img/2026/04/adanipower12-1777536255.jpg"
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "meta": {
+    "written_at": "2026-05-03T05:50:10.145872+00:00",
+    "schema_version": "2.0-primitives-l2"
+  }
+}
