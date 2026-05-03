@@ -26,11 +26,16 @@ redis==5.2.1
 celery[redis]==5.4.0
 
 # --- AI / LLM ---
-anthropic==0.42.0
+# Phase 24.7 — pinned langchain stack removed. Per CLAUDE.md "OpenAI only.
+# No Anthropic, no other LLM providers." Zero imports of `langchain*` or
+# `anthropic` exist anywhere in engine/, api/, scripts/. The pinned
+# `langchain-anthropic==0.3.4` was causing pip's resolver to thrash for
+# 5+ minutes on Replit's Reserved VM build (visible in the publish-step
+# log: "pip is looking at multiple versions of langchain-anthropic to
+# determine which version is compatible with other requirements"). Strip
+# them — saves ~80 MB of wheels and ~3 min of build time per deploy.
 openai==1.58.1
-langgraph==0.2.60
-langchain-core==0.3.28
-langchain-anthropic==0.3.4
+python-dotenv==1.0.1
 
 # --- Knowledge Graph (rdflib in-process, replaces Apache Jena Fuseki) ---
 rdflib==7.1.1
