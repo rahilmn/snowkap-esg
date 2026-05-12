@@ -235,7 +235,12 @@ def test_news_feed_without_company_id_rejects_regular_user():
         headers={"Authorization": f"Bearer {_client_token()}"},
     )
     assert r.status_code == 403, r.text
-    assert "super_admin" in r.json()["detail"].lower()
+    # Phase 24.1 — error message reframed from generic "super_admin" to
+    # explicit "Snowkap sales admin" since cross-tenant /api/news/feed
+    # is now strictly a sales-account feature. Either wording proves the
+    # gate is the right one.
+    detail = r.json()["detail"].lower()
+    assert "super_admin" in detail or "sales admin" in detail or "cross-tenant" in detail, detail
 
 
 def test_news_stats_without_company_id_rejects_regular_user():

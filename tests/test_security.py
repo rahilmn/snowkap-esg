@@ -181,12 +181,16 @@ class TestRBAC:
 # --- Designation Mapping Tests ---
 
 class TestDesignationMapping:
+    # Module 6 update: DESIGNATION_ROLE_MAP now returns role_curation.py
+    # profile-key strings ("ceo", "cfo", "cso", ...) for executive +
+    # sustainability designations, while keeping the Role enum for
+    # ANALYST. The test expectations follow the live mapping.
     @pytest.mark.parametrize("designation,expected", [
-        ("CEO", Role.EXECUTIVE),
-        ("ceo", Role.EXECUTIVE),
-        ("CFO", Role.EXECUTIVE),
-        ("Head of Sustainability", Role.SUSTAINABILITY_MANAGER),
-        ("sustainability manager", Role.SUSTAINABILITY_MANAGER),
+        ("CEO", "ceo"),
+        ("ceo", "ceo"),
+        ("CFO", "cfo"),
+        ("Head of Sustainability", "cso"),
+        ("sustainability manager", "cso"),
         ("ESG Analyst", Role.ANALYST),
         ("Analyst", Role.ANALYST),
         ("Consultant", Role.ANALYST),
@@ -199,7 +203,7 @@ class TestDesignationMapping:
         assert map_designation_to_role("Random Title") == Role.MEMBER
 
     def test_whitespace_handling(self):
-        assert map_designation_to_role("  CEO  ") == Role.EXECUTIVE
+        assert map_designation_to_role("  CEO  ") == "ceo"
 
 
 # --- Stage 8.3: Additional Security Tests ---

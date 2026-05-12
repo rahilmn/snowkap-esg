@@ -118,7 +118,19 @@ CREATE TABLE IF NOT EXISTS article_index (
     recommendations_count INTEGER DEFAULT 0,
     json_path             TEXT NOT NULL,
     written_at            TEXT,
-    ontology_queries      INTEGER DEFAULT 0
+    ontology_queries      INTEGER DEFAULT 0,
+    -- Phase 24 W3: CFO-credibility preflight result. 'PASS' | 'FAIL' | NULL.
+    -- NULL = preflight not run (pre-W3 articles, REJECTED articles, or
+    -- pipeline path that didn't generate an insight). The CFO perspective
+    -- surface filters to PASS only; ESG Analyst surface shows all.
+    cfo_preflight_status  TEXT,
+    -- Phase 1.5: Criticality score (0.0-1.0) computed by the Phase 1
+    -- scorer at end of process_article (baseline, cascade=0) and re-stamped
+    -- by insight_generator with the cascade-aware full score. The home page
+    -- (criticality_score >= 0.65) and feed (>= 0.40) filter on this; the
+    -- email composer 422s articles below 0.65. NULL = scorer not run yet.
+    criticality_score     REAL,
+    criticality_band      TEXT     -- CRITICAL | HIGH | MEDIUM | LOW | NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_company_tier
@@ -197,6 +209,44 @@ def ensure_schema() -> None:
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
 
+    # Phase 24 W3 + Phase 1.6: in-place migrations for existing databases.
+    # Both SQLite and Postgres lack a portable `ADD COLUMN IF NOT EXISTS`
+    # in older releases, so we probe + ignore the "column already exists"
+    # error per backend. EACH ALTER runs in its OWN transaction because
+    # Postgres aborts the surrounding transaction on the first failure
+    # (InFailedSqlTransaction) and refuses every subsequent statement.
+    for column_def in (
+        "ALTER TABLE article_index ADD COLUMN cfo_preflight_status TEXT",
+        "ALTER TABLE article_index ADD COLUMN criticality_score REAL",
+        "ALTER TABLE article_index ADD COLUMN criticality_band TEXT",
+        # Phase 24.3 — `pinned_until` allows an admin/sales operator to
+        # promote an article to the top of the feed for a demo window.
+        # The accompanying migration file 002_pinned_until.sql uses the
+        # Postgres-only `ADD COLUMN IF NOT EXISTS` syntax, which SQLite
+        # doesn't support — so SQLite deployments rely on this in-place
+        # ALTER (wrapped in the duplicate-column ignore below) instead.
+        "ALTER TABLE article_index ADD COLUMN pinned_until TEXT",
+    ):
+        try:
+            with _connect() as conn:
+                conn.execute(column_def)
+        except Exception as exc:  # noqa: BLE001
+            msg = str(exc).lower()
+            if "duplicate column" in msg or "already exists" in msg:
+                continue
+            raise
+
+    # Index for the home page query — ORDER BY criticality_score DESC
+    # filtered by floor. Own transaction; failures are non-essential.
+    try:
+        with _connect() as conn:
+            conn.execute(
+                "CREATE INDEX IF NOT EXISTS idx_company_criticality "
+                "ON article_index(company_slug, criticality_score DESC)"
+            )
+    except Exception:  # noqa: BLE001 — index is non-essential
+        pass
+
 
 def purge_rejected_articles(older_than_days: int = 90) -> int:
     """Phase 11D: trim REJECTED articles older than N days. Keep HOME +
@@ -253,6 +303,31 @@ def _extract_fields(insight_payload: dict[str, Any]) -> dict[str, Any]:
     if recs and not recs.get("do_nothing"):
         recs_count = len(recs.get("recommendations") or [])
 
+    # Phase 24 W3: derive cfo_preflight_status from the Stage-10 insight's
+    # embedded cfo_preflight report. NULL = preflight wasn't run (back-compat
+    # with pre-W3 articles + REJECTED articles); 'PASS' / 'FAIL' otherwise.
+    cfo_preflight = (insight.get("cfo_preflight") or {}) if insight else {}
+    if not cfo_preflight:
+        preflight_status: str | None = None
+    else:
+        preflight_status = "PASS" if cfo_preflight.get("passed") else "FAIL"
+
+    # Phase 1.5/1.6 — extract criticality. Prefer the cascade-aware insight
+    # value (set in insight_generator) over the pipeline baseline (cascade=0)
+    # because the insight one carries financial_magnitude. Fall back to the
+    # pipeline value when the insight didn't run (SECONDARY-tier articles).
+    crit_block = (insight.get("criticality") or {}) if insight else {}
+    if not crit_block:
+        crit_block = pipeline.get("criticality") or {}
+    crit_score: float | None = None
+    crit_band: str | None = None
+    if crit_block:
+        try:
+            crit_score = float(crit_block.get("score") or 0.0)
+        except (TypeError, ValueError):
+            crit_score = None
+        crit_band = crit_block.get("band")
+
     return {
         "id": article.get("id", ""),
         "company_slug": article.get("company_slug", ""),
@@ -273,6 +348,9 @@ def _extract_fields(insight_payload: dict[str, Any]) -> dict[str, Any]:
         "recommendations_count": recs_count,
         "written_at": meta.get("written_at", ""),
         "ontology_queries": int(pipeline.get("ontology_query_count") or 0),
+        "cfo_preflight_status": preflight_status,
+        "criticality_score": crit_score,
+        "criticality_band": crit_band,
     }
 
 
@@ -296,13 +374,15 @@ def upsert_article(insight_payload: dict[str, Any], json_path: Path | str) -> No
                 tier, materiality, action, relevance_score, impact_score,
                 esg_pillar, primary_theme, content_type, framework_count,
                 do_nothing, recommendations_count, json_path, written_at,
-                ontology_queries
+                ontology_queries, cfo_preflight_status,
+                criticality_score, criticality_band
             ) VALUES (
                 :id, :company_slug, :title, :source, :url, :published_at,
                 :tier, :materiality, :action, :relevance_score, :impact_score,
                 :esg_pillar, :primary_theme, :content_type, :framework_count,
                 :do_nothing, :recommendations_count, :json_path, :written_at,
-                :ontology_queries
+                :ontology_queries, :cfo_preflight_status,
+                :criticality_score, :criticality_band
             )
             ON CONFLICT(id) DO UPDATE SET
                 title = excluded.title,
@@ -321,7 +401,16 @@ def upsert_article(insight_payload: dict[str, Any], json_path: Path | str) -> No
                 recommendations_count = excluded.recommendations_count,
                 json_path = excluded.json_path,
                 written_at = excluded.written_at,
-                ontology_queries = excluded.ontology_queries
+                ontology_queries = excluded.ontology_queries,
+                -- Phase 24 W3: COALESCE preserves an existing PASS / FAIL
+                -- when re-indexing a row whose JSON doesn't carry a fresh
+                -- preflight (e.g. legacy ingest path or partial rewrite).
+                cfo_preflight_status = COALESCE(excluded.cfo_preflight_status, article_index.cfo_preflight_status),
+                -- Phase 1.6: same COALESCE pattern for criticality so a
+                -- partial re-index doesn't blank out a previously-computed
+                -- score.
+                criticality_score = COALESCE(excluded.criticality_score, article_index.criticality_score),
+                criticality_band = COALESCE(excluded.criticality_band, article_index.criticality_band)
             """,
             fields,
         )
@@ -338,12 +427,19 @@ def query_feed(
     limit: int = 20,
     offset: int = 0,
     max_age_days: int | None = None,
+    min_criticality: float | None = None,
 ) -> list[dict[str, Any]]:
     """Return the feed ordered by relevance DESC, published_at DESC.
 
     Articles older than ``max_age_days`` (default ``FEED_MAX_AGE_DAYS``,
     20 days) are hidden so the prospect only sees recent signals. Pass
     ``max_age_days=0`` to disable the filter for an admin/debug view.
+
+    Phase 1.6 — `min_criticality` is the per-route floor:
+      * Home page passes `min_criticality=0.65` (the CRITICAL/HIGH band)
+      * Feed passes `min_criticality=0.40` (everything above MEDIUM-low)
+      * `None` (default) keeps the full list — back-compat for callers
+        that haven't migrated yet.
     """
     ensure_schema()
     clauses: list[str] = []
@@ -354,6 +450,16 @@ def query_feed(
     if tier:
         clauses.append("tier = :tier")
         params["tier"] = tier
+    if min_criticality is not None:
+        # Phase 1.6 — only apply the floor to articles that have a score.
+        # Articles with NULL criticality_score (pre-Phase-1 backfill, or
+        # SECONDARY-tier baselines that never re-scored) are kept so the
+        # feed isn't empty during the rollout. Once backfill_criticality.py
+        # has run, every row carries a score and the floor bites.
+        clauses.append(
+            "(criticality_score IS NULL OR criticality_score >= :min_crit)"
+        )
+        params["min_crit"] = float(min_criticality)
     fresh = _freshness_clause(max_age_days)
     if fresh:
         clauses.append(fresh[0].replace("?", ":__age"))
@@ -371,11 +477,30 @@ def query_feed(
     # Postgres). On SQLite, datetime('now') returns 'YYYY-MM-DD HH:MM:SS'
     # which sorts AFTER 'YYYY-MM-DDTHH:MM:SS+00:00' (` ` < `T`), so we
     # use the column with COALESCE to '' to guarantee ordering works.
+    # Phase 25 W10 — materiality-first sort. Per the user's #9 ask
+    # ("what matters most appears first"), CRITICAL articles must
+    # surface above HIGH regardless of date. SQLite has no ENUM type,
+    # so we map materiality strings to a numeric rank inline:
+    #   CRITICAL = 4, HIGH = 3, MODERATE = 2, LOW = 1, NULL/REJECTED = 0
+    # Tiebreakers preserved from pre-W10 ordering: relevance_score DESC,
+    # published_at DESC. Pinned articles still float to the absolute top.
     sql = f"""
         SELECT * FROM article_index
         {where}
         ORDER BY
             CASE WHEN COALESCE(pinned_until, '') > datetime('now') THEN 1 ELSE 0 END DESC,
+            -- Phase 1.6 — criticality_score is the new primary rank.
+            -- Articles with NULL score sort to the end via COALESCE(-1, ...).
+            COALESCE(criticality_score, -1) DESC,
+            -- Materiality CASE retained as a tiebreaker for the rollout
+            -- window where many articles still have NULL criticality.
+            CASE UPPER(COALESCE(materiality, ''))
+                WHEN 'CRITICAL' THEN 4
+                WHEN 'HIGH' THEN 3
+                WHEN 'MODERATE' THEN 2
+                WHEN 'LOW' THEN 1
+                ELSE 0
+            END DESC,
             relevance_score DESC,
             published_at DESC
         LIMIT :limit OFFSET :offset
@@ -497,6 +622,44 @@ def distinct_companies() -> list[str]:
         return [r[0] for r in conn.execute("SELECT DISTINCT company_slug FROM article_index").fetchall()]
 
 
+def tenant_stats_bulk() -> dict[str, dict[str, Any]]:
+    """W1 fix — return {slug: {count, latest_at}} for every company in ONE query.
+
+    Pre-fix the admin.tenants endpoint called `count()` + `query_feed(limit=1)`
+    per slug = N+1 round-trips. With 27 tenants on Supabase pgbouncer (~300ms
+    each) that exceeded the 15s API timeout and the CompanySwitcher dropdown
+    rendered "Couldn't load tenants". This collapses both lookups into a
+    single GROUP BY scan over `article_index`.
+
+    Returns an empty dict on backend error so the caller can degrade to
+    zero-counts rather than 500ing the whole endpoint.
+    """
+    ensure_schema()
+    out: dict[str, dict[str, Any]] = {}
+    try:
+        with _connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT company_slug,
+                       COUNT(*) AS n,
+                       MAX(COALESCE(published_at, written_at)) AS latest_at
+                FROM article_index
+                WHERE company_slug IS NOT NULL
+                GROUP BY company_slug
+                """
+            ).fetchall()
+            for r in rows:
+                slug = r["company_slug"] if hasattr(r, "__getitem__") else r[0]
+                if not slug:
+                    continue
+                n = r["n"] if hasattr(r, "__getitem__") else r[1]
+                latest = r["latest_at"] if hasattr(r, "__getitem__") else r[2]
+                out[str(slug)] = {"count": int(n or 0), "latest_at": latest}
+    except Exception as exc:  # noqa: BLE001 — caller degrades gracefully
+        logger.warning("tenant_stats_bulk failed: %s", exc)
+    return out
+
+
 def count_high_impact(company_slug: str | None = None, max_age_days: int | None = None) -> int:
     """Count articles with materiality CRITICAL/HIGH or relevance_score >= 5.
 
@@ -572,3 +735,36 @@ def stats() -> dict[str, Any]:
             ).fetchall()
         }
         return {"total": total, "by_tier": by_tier, "by_company": by_company}
+
+
+def count_by_criticality_band() -> dict[str, int]:
+    """Phase 1 / monitoring — count of indexed articles per criticality band.
+
+    Returns {'CRITICAL': N, 'HIGH': N, 'MEDIUM': N, 'LOW': N, 'UNSCORED': N}.
+    UNSCORED captures pre-Phase-1.7-backfill rows with NULL band, so the ops
+    dashboard can spot rollout regressions (a healthy production has
+    UNSCORED → 0 within a week of Phase 1 deploy).
+    """
+    ensure_schema()
+    out: dict[str, int] = {
+        "CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0, "UNSCORED": 0,
+    }
+    try:
+        with _connect() as conn:
+            cur = conn.execute(
+                "SELECT criticality_band, COUNT(*) FROM article_index "
+                "GROUP BY criticality_band"
+            )
+            for row in cur.fetchall():
+                band = row[0]
+                cnt = int(row[1])
+                if not band:
+                    out["UNSCORED"] += cnt
+                elif band in out:
+                    out[band] = cnt
+                else:
+                    # Unknown band literal — bucket as UNSCORED rather than drop
+                    out["UNSCORED"] += cnt
+    except Exception:  # noqa: BLE001 — never break /metrics on aggregation failure
+        pass
+    return out

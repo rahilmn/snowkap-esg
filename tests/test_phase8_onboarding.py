@@ -110,7 +110,12 @@ def test_onboard_writes_company_entry():
             "country": "India",
             "website": "https://www.tatapower.com/",
         }
+        # Phase 22.3 cap-tier re-classification reads `market_cap_cr` from
+        # the financial fetch result. A bare MagicMock would auto-return
+        # a child MagicMock there, which the `> 0` comparison can't order.
+        # Set it to a concrete INR-Cr figure so the fetch happy-path runs.
         fake_financial = MagicMock()
+        fake_financial.market_cap_cr = 100_000  # 1 lakh crore
         fake_financial.to_calibration_dict = lambda base: {
             **base,
             "revenue_cr": 50000,
@@ -132,7 +137,11 @@ def test_onboard_writes_company_entry():
 
         assert result is not None
         assert result.added_to_config is True
-        assert result.slug == "tata-power"
+        # Phase 16+ slugifies from the canonical `longName` returned by
+        # yfinance, NOT from the raw user input. The fake_info supplies
+        # longName "Tata Power Co Ltd", so the canonical slug is
+        # "tata-power-co-ltd". This matches real-world resolver output.
+        assert result.slug == "tata-power-co-ltd"
         assert result.ticker == "TATAPOWER.NS"
         assert result.industry == "Power/Energy"
         assert result.market_cap == "Large Cap"
@@ -142,7 +151,7 @@ def test_onboard_writes_company_entry():
         data = json.loads(companies_json.read_text(encoding="utf-8"))
         assert len(data["companies"]) == 1
         entry = data["companies"][0]
-        assert entry["slug"] == "tata-power"
+        assert entry["slug"] == "tata-power-co-ltd"
         assert entry["industry"] == "Power/Energy"
         assert entry["yfinance_ticker"] == "TATAPOWER.NS"
         assert entry["eodhd_ticker"] == "TATAPOWER.NSE"  # auto-mapped
@@ -152,7 +161,13 @@ def test_onboard_writes_company_entry():
 
 
 def test_onboard_existing_no_force_returns_existing():
-    """If company exists and force=False, don't overwrite."""
+    """If company exists and force=False, don't overwrite.
+
+    Phase 16+ flow resolves the yfinance ticker FIRST and only then checks
+    if the slug already exists, because slug is derived from the canonical
+    `longName` returned by yfinance (not from the raw user input). The
+    test patches the resolver so we don't hit the live yfinance API.
+    """
     with tempfile.TemporaryDirectory() as tmp:
         config_dir = Path(tmp) / "config"
         config_dir.mkdir()
@@ -168,8 +183,16 @@ def test_onboard_existing_no_force_returns_existing():
             json.dumps({"companies": [existing_entry]}), encoding="utf-8",
         )
 
+        fake_info = {"longName": "Existing Co", "industry": "Utilities - Regulated Electric",
+                     "sector": "Utilities", "marketCap": 1_000_000_000_000,
+                     "city": "Mumbai", "country": "India", "website": "existing-co.com"}
+
         with patch("engine.ingestion.company_onboarder.CONFIG_DIR", config_dir):
-            result = onboard_company("existing co", force=False)
+            with patch(
+                "engine.ingestion.company_onboarder._resolve_yfinance_ticker",
+                return_value=("EXISTING.NS", fake_info),
+            ):
+                result = onboard_company("existing co", force=False)
         assert result is not None
         assert result.already_existed is True
         assert result.added_to_config is False
@@ -187,6 +210,7 @@ def test_onboard_dry_run_does_not_write():
                      "marketCap": 10_000_000_000_000, "totalRevenue": 1_000_000_000,
                      "city": "Mumbai", "country": "India", "website": "testco.com"}
         fake_fin = MagicMock()
+        fake_fin.market_cap_cr = 100_000  # Phase 22.3 cap-tier re-classify reads this
         fake_fin.to_calibration_dict = lambda base: {**base, "revenue_cr": 5000, "_source": "yfinance"}
 
         with patch("engine.ingestion.company_onboarder.CONFIG_DIR", config_dir):

@@ -210,11 +210,15 @@ def test_login_token_usable_on_admin_tenants_endpoint():
             },
         )
         token = login.json()["token"]
+        from api.routes import admin as _admin_route
+        _admin_route._reset_tenant_cache()
         r = client.get("/api/admin/tenants", headers={"Authorization": f"Bearer {token}"})
     assert r.status_code == 200, r.text
     body = r.json()
-    assert isinstance(body, list)
-    assert len(body) >= 1
+    # W1 — response is now {companies, meta:{warnings}}
+    assert isinstance(body, dict)
+    assert "companies" in body
+    assert len(body["companies"]) >= 1
 
 
 # ---------------------------------------------------------------------------
@@ -224,14 +228,21 @@ def test_login_token_usable_on_admin_tenants_endpoint():
 
 def test_require_auth_rejects_garbage_bearer_in_strict_mode():
     """Phase 11A: require_auth now verifies Bearer JWTs, not just 'non-empty'.
-    In strict mode (REQUIRE_SIGNED_JWT=1), garbage tokens → 401."""
+    In strict mode (REQUIRE_SIGNED_JWT=1), garbage tokens → 401.
+
+    Note: `/api/companies/` (with trailing slash) is the back-compat
+    legacy_adapter route which is intentionally NOT auth-gated (so the
+    public landing page + machine-to-machine API-key flows keep working).
+    The strict-auth-gated route is `/api/companies` (no slash) via the
+    new companies.router whose router-level dependency is `require_auth`.
+    """
     client = TestClient(app)
     env = {
         "JWT_SECRET": "test-secret-xxxxxxxxxxxxxxxxxxxxxx",
         "REQUIRE_SIGNED_JWT": "1",
     }
     with patch.dict("os.environ", env, clear=False):
-        r = client.get("/api/companies/", headers={"Authorization": "Bearer garbage-not-a-jwt"})
+        r = client.get("/api/companies", headers={"Authorization": "Bearer garbage-not-a-jwt"})
     assert r.status_code == 401
 
 

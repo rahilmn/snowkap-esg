@@ -41,21 +41,31 @@ def _isolated_queue_db(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     The Onboarding Worker workflow runs against the production
     ``data/snowkap.db`` file. If these tests wrote to that DB, the
     worker would race-claim our test rows and the FIFO / state-machine
-    assertions below would flap. Redirecting ``onboard_queue.DB_PATH``
-    to a tmp file gives us deterministic isolation while still
-    exercising real SQLite + ``BEGIN IMMEDIATE`` semantics.
+    assertions below would flap. Redirecting the engine's DATA_DIR to
+    ``tmp_path`` (consumed by ``engine.db.connect`` via
+    ``engine.config.get_data_path``) gives us deterministic isolation
+    while still exercising real SQLite + ``BEGIN IMMEDIATE`` semantics.
 
-    The schema-ready memo on ``onboard_queue`` is also reset so the
-    new DB gets its tables created on first use.
+    Phase 24 refactor — ``onboard_queue`` no longer reads its own
+    ``DB_PATH`` constant for the connection; it delegates to
+    ``engine.db.connect()`` which picks up ``DATA_DIR``. The fixture
+    therefore patches ``engine.config.DATA_DIR`` (and the local
+    DB_PATH import for back-compat with non-connection codepaths) and
+    resets the schema-ready memo so the fresh DB gets its tables on
+    first use.
     """
-    db = tmp_path / "test_onboard_queue.db"
-    # `onboard_queue` uses two module-local imports of DB_PATH and
-    # _ensure_wal_mode from engine.index.sqlite_index — patch both so
-    # neither path leaks back to the real DB.
-    monkeypatch.setattr(onboard_queue, "DB_PATH", db)
+    import engine.config as engine_config
+    import engine.models.onboarding_status as onboarding_status_mod
+
+    monkeypatch.setattr(engine_config, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(onboard_queue, "DB_PATH", tmp_path / "snowkap.db")
     monkeypatch.setattr(onboard_queue, "_ensure_wal_mode", lambda: None)
     monkeypatch.setattr(onboard_queue, "_SCHEMA_READY", False)
-    yield db
+    # The admin/onboard endpoint also writes to onboarding_status, which
+    # has its own per-module schema-ready memo. Reset it too so the
+    # fresh tmp DB gets the table created on first use.
+    monkeypatch.setattr(onboarding_status_mod, "_SCHEMA_READY", False)
+    yield tmp_path / "snowkap.db"
 
 
 def _wipe_queue() -> None:

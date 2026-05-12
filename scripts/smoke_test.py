@@ -209,10 +209,26 @@ def t07_active_signals() -> None:
     import api.main as m
     reload(m)
     from fastapi.testclient import TestClient
+    from api.auth_context import mint_bearer
     os.environ.setdefault("SNOWKAP_API_KEY", "smoke-test-key")
+    # Phase 22.1 — /api/news/stats is tenant-scoped. The endpoint requires
+    # either a super-admin token OR a regular-user token bound to a
+    # company_id. The smoke test mimics a normal user by minting a
+    # company-scoped bearer for adani-power and passing it explicitly.
+    token = mint_bearer({
+        "sub": "smoke@adani-power.test",
+        "permissions": ["read", "view_news"],
+        "company_id": "adani-power",
+    })
     with TestClient(m.app) as client:
-        r = client.get("/api/news/stats", headers={"X-API-Key": os.environ["SNOWKAP_API_KEY"]})
-        assert r.status_code == 200
+        r = client.get(
+            "/api/news/stats?company_id=adani-power",
+            headers={
+                "X-API-Key": os.environ["SNOWKAP_API_KEY"],
+                "Authorization": f"Bearer {token}",
+            },
+        )
+        assert r.status_code == 200, f"stats returned {r.status_code}: {r.text[:200]}"
         body = r.json()
         assert "active_signals_count" in body, f"Missing active_signals_count: {body}"
         assert isinstance(body["active_signals_count"], int)

@@ -8,6 +8,18 @@ import os
 
 os.environ.setdefault("ENVIRONMENT", "test")
 
+# Phase 24 — `engine.config` loads `.env` at import time, which on dev
+# machines configured for Supabase Postgres sets
+# ``SNOWKAP_DB_BACKEND=postgres``. Tests that seed via raw
+# ``sqlite3.connect(DB_PATH)`` and read back via ``engine.db.connect()``
+# would then see two completely different databases (the file at
+# ``data/snowkap.db`` vs Supabase). Force the backend to SQLite for
+# every test session so the seed/read paths reconcile. Setting the env
+# var BEFORE the .env file gets loaded means ``load_dotenv`` (whose
+# default is non-override) leaves our value alone. Individual tests
+# that explicitly want to exercise the postgres adapter can override.
+os.environ["SNOWKAP_DB_BACKEND"] = "sqlite"
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -66,6 +78,22 @@ def auth_headers(
         domain=domain,
     )
     return {"Authorization": f"Bearer {token}"}
+
+
+# Phase 22.3 — `/api/auth/login` uses an in-process sliding-window
+# rate limiter (5/min, 20/hour per email). Across a 1,400+ test sweep
+# the same test email (e.g. ``test@example.com`` or one of the seeded
+# admin/sales addresses) hits the quota and subsequent tests get 429s
+# unrelated to what they're actually testing. Reset the bucket before
+# every test so each test starts from a clean slate.
+@pytest.fixture(autouse=True)
+def _reset_login_rate_limiter():
+    try:
+        from api.rate_limit import LOGIN_LIMITER
+        LOGIN_LIMITER.reset()
+    except Exception:
+        pass  # Module unavailable in some legacy-only test runs
+    yield
 
 
 # Pre-built token fixtures for common roles

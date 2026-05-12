@@ -372,12 +372,24 @@ def test_active_signals_count_uses_home_tier_high_impact_query() -> None:
 
 def test_news_stats_endpoint_emits_active_signals_count() -> None:
     """B8: GET /api/news/stats returns active_signals_count + back-compat
-    predictions_count (= same value)."""
-    from api.main import app
+    predictions_count (= same value).
 
+    Phase 22.1 hardening — `/api/news/stats` is tenant-scoped. The endpoint
+    requires a JWT bearer with a `company_id` claim (or super-admin). We
+    mint a company-scoped bearer for adani-power and pass it explicitly.
+    """
+    from api.main import app
+    from api.auth_context import mint_bearer
+
+    token = mint_bearer({
+        "sub": "test@adani-power.test",
+        "permissions": ["read", "view_news"],
+        "company_id": "adani-power",
+    })
+    headers = {**_api_headers(), "Authorization": f"Bearer {token}"}
     with TestClient(app) as client:
-        r = client.get("/api/news/stats", headers=_api_headers())
-    assert r.status_code == 200
+        r = client.get("/api/news/stats?company_id=adani-power", headers=headers)
+    assert r.status_code == 200, f"stats returned {r.status_code}: {r.text[:200]}"
     body = r.json()
     assert "active_signals_count" in body
     assert "predictions_count" in body

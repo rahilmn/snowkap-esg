@@ -53,7 +53,10 @@ class TestCausalPath:
             hops=3,
         )
         explanation = generate_explanation(path)
-        assert explanation == "LPG prices → cooking fuel → truck drivers → fleet welfare costs"
+        # generate_explanation joins with ASCII " -> " (encoding-safe for
+        # Windows terminals + email/log pipelines). The Unicode arrow lives
+        # only in formatted explanation strings produced by the new engine.
+        assert explanation == "LPG prices -> cooking fuel -> truck drivers -> fleet welfare costs"
 
     def test_empty_path_explanation(self):
         path = CausalPath(nodes=[])

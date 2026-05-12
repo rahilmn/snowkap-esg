@@ -63,7 +63,12 @@ class TestAgentRoster:
     }
 
     def test_all_nine_agents_present(self):
-        assert set(AGENT_ROSTER.keys()) == self.EXPECTED_AGENTS
+        # The roster has grown beyond the original 9 since this test
+        # was written. The invariant we still care about is that all
+        # 9 canonical agents are STILL present — additions are fine.
+        assert self.EXPECTED_AGENTS.issubset(set(AGENT_ROSTER.keys())), (
+            f"Missing canonical agents: {self.EXPECTED_AGENTS - set(AGENT_ROSTER.keys())}"
+        )
 
     def test_each_agent_has_required_fields(self):
         for agent_id, config in AGENT_ROSTER.items():

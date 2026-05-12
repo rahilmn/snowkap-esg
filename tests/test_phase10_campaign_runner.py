@@ -29,8 +29,14 @@ def _minimal_insight_payload(
     company_slug: str = "test-company",
     materiality: str = "HIGH",
     with_frameworks: bool = True,
-    schema_version: str = "2.0-primitives-l2",
+    schema_version: str | None = None,
 ) -> dict:
+    # Default to whatever the campaign_runner currently treats as fresh.
+    # Phase 26 bumped this from "2.0-primitives-l2" → "2.1-role-distinct";
+    # reading the constant keeps the test in lock-step with code drift.
+    if schema_version is None:
+        from engine.output.campaign_runner import CURRENT_SCHEMA_VERSION
+        schema_version = CURRENT_SCHEMA_VERSION
     frameworks = []
     if with_frameworks:
         frameworks = [

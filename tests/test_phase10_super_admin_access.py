@@ -43,7 +43,15 @@ def _mint(claims: dict) -> str:
 
 
 def _admin_token() -> str:
-    return _mint({"sub": "sales@snowkap.com", "permissions": list(SUPER_ADMIN_PERMISSIONS)})
+    # Phase 24.1 — `/api/companies/` (legacy adapter) returns the full list
+    # only for the Snowkap SALES admin, whose default email is
+    # sales@snowkap.co.in (overridable via SNOWKAP_SALES_ADMIN_EMAIL).
+    # The other Snowkap super-admins (sales@snowkap.com is NOT on the
+    # sales-admin allowlist) see only their bound tenant — i.e. an empty
+    # list when no company_id is present in the token. Use the canonical
+    # sales-admin email so the cross-tenant access tests exercise the
+    # actual sales-admin code path.
+    return _mint({"sub": "sales@snowkap.co.in", "permissions": list(SUPER_ADMIN_PERMISSIONS)})
 
 
 def _client_token() -> str:
@@ -107,9 +115,15 @@ def test_super_admin_can_fetch_feed_for_every_tenant_in_switcher():
         )
         assert login.status_code == 200
 
+    # W1 fix — endpoint now returns {companies, meta:{warnings}} so the bulk
+    # GROUP BY can degrade gracefully without blanking the dropdown.
+    from api.routes import admin as _admin_route
+    _admin_route._reset_tenant_cache()
     r = client.get("/api/admin/tenants", headers={"Authorization": _admin_token()})
     assert r.status_code == 200
-    tenants = r.json()
+    body = r.json()
+    tenants = body.get("companies") if isinstance(body, dict) else body
+    assert isinstance(tenants, list)
     assert len(tenants) >= 8  # 7 targets + at least 1 onboarded
 
     for t in tenants:
