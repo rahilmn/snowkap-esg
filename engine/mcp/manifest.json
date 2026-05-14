@@ -1,0 +1,31 @@
+{
+  "schema_version": "v1",
+  "mcp_server_name": "snowkap-esg",
+  "mcp_server_version": "1.0.0",
+  "phase": "Phase C Wave 1",
+  "description": "MCP server exposing Power of Now intelligence as MCP tools (wiki search, advisor queue, autoresearcher, beliefs, articles, memory). Each tool carries Toulmin + L2 4-tag metadata.",
+  "transport": ["stdio", "sse"],
+  "supported_clients": ["claude-code", "cursor", "internal-chat-agent"],
+  "differentiator_amplifications": [
+    "toulmin_metadata",
+    "phase_k_4_tag_schema",
+    "audit_trigger_gate",
+    "verbatim_sign_off_on_destructive_actions"
+  ],
+  "exposed_tools": [
+    {"name": "wiki-search", "description": "BM25 search across system/tenant/user wiki tiers"},
+    {"name": "wiki-related", "description": "Backlinks for a wiki page"},
+    {"name": "wiki-page", "description": "Read raw markdown of a wiki page"},
+    {"name": "intelligence-competitors", "description": "Competitor labels + shared ESG risks for a tenant"},
+    {"name": "intelligence-forecast", "description": "Sentiment trajectory forecast for a tenant"},
+    {"name": "advisor-queue", "description": "Pending advisor events (read-only)"},
+    {"name": "advisor-resolve", "description": "Approve or reject an advisor event"},
+    {"name": "autoresearcher-experiments", "description": "Read autoresearcher experiment ledger"},
+    {"name": "autoresearcher-leaderboard", "description": "Top-N kept experiments by metric delta"},
+    {"name": "agent-beliefs-get", "description": "Read CompanyAgent beliefs for a tenant"},
+    {"name": "agent-state-get", "description": "Read CompanyAgent 5-state machine value"},
+    {"name": "article-list", "description": "List recent HOME/HIGH articles for a tenant"},
+    {"name": "memory-recall", "description": "Retrieve top-N relevant memories for the user"},
+    {"name": "memory-list", "description": "Browse stored memories"}
+  ]
+}
