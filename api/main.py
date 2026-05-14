@@ -35,7 +35,7 @@ if str(_ROOT) not in sys.path:
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import admin, admin_email, admin_onboard, admin_reanalyze, campaigns, companies, ingest, insights, legacy_adapter, share
+from api.routes import admin, admin_email, admin_onboard, admin_reanalyze, batch_onboard, campaigns, companies, discovery, ingest, insights, legacy_adapter, profile, session, share
 from engine.config import load_settings  # noqa: F401  (eager-loads .env)
 from engine.index.sqlite_index import ensure_schema
 
@@ -226,6 +226,16 @@ def _startup() -> None:
     # OpenAI dollars on every uvicorn --reload).
     _start_inprocess_scheduler()
 
+    # Phase 25 — auto-bootstrap detector. Runs INDEPENDENTLY of the
+    # in-process scheduler (a dev who turns SNOWKAP_INPROCESS_SCHEDULER=0
+    # might still want auto-onboarding to fire, and vice-versa). The
+    # detector itself is opt-in via SNOWKAP_PHASE25_AUTO_BOOTSTRAP=1
+    # and idempotent — silent no-op once tenants exist.
+    try:
+        _maybe_run_auto_bootstrap()
+    except Exception as exc:  # noqa: BLE001 — auto-bootstrap is additive
+        logger.warning("phase 25 auto-bootstrap failed (non-fatal): %s", exc)
+
 
 def _start_inprocess_scheduler() -> None:
     """Boot the BackgroundScheduler if SNOWKAP_INPROCESS_SCHEDULER is on.
@@ -280,6 +290,39 @@ def _start_inprocess_scheduler() -> None:
                 id="discovery_promote",
                 replace_existing=True,
             )
+
+        # Phase 25 W7 + W10 — overnight customer batch + morning digest
+        # cron triggers, mirrored from the standalone scheduler so the
+        # in-process Replit deploy gets the same nightly cycle.
+        try:
+            from apscheduler.triggers.cron import CronTrigger
+            from engine.scheduler import (
+                run_overnight_batch_job,
+                run_morning_digest_job,
+            )
+            overnight_hour = int(os.environ.get("SNOWKAP_OVERNIGHT_BATCH_UTC_HOUR", "1"))
+            scheduler.add_job(
+                run_overnight_batch_job,
+                trigger=CronTrigger(hour=overnight_hour, minute=0),
+                id="phase25_overnight_batch",
+                replace_existing=True,
+            )
+            digest_hour = int(os.environ.get("SNOWKAP_MORNING_DIGEST_UTC_HOUR", "2"))
+            digest_minute = int(os.environ.get("SNOWKAP_MORNING_DIGEST_UTC_MINUTE", "20"))
+            scheduler.add_job(
+                run_morning_digest_job,
+                trigger=CronTrigger(hour=digest_hour, minute=digest_minute),
+                id="phase25_morning_digest",
+                replace_existing=True,
+            )
+            logger.info(
+                "phase 25 cron jobs wired: overnight_batch @ %02d:00 UTC, "
+                "morning_digest @ %02d:%02d UTC",
+                overnight_hour, digest_hour, digest_minute,
+            )
+        except Exception as exc:  # noqa: BLE001 — Phase 25 cron is additive
+            logger.warning("phase 25 cron wiring failed (non-fatal): %s", exc)
+
         scheduler.start()
         # Stash on app.state so we can shut it down cleanly + introspect via /metrics
         app.state.scheduler = scheduler
@@ -288,9 +331,90 @@ def _start_inprocess_scheduler() -> None:
             ingest_min,
             promote_min,
         )
+        # NOTE: phase 25 auto-bootstrap fires from _startup() directly,
+        # NOT from here — see the call after _start_inprocess_scheduler()
+        # in _startup. Decoupled so a dev with the scheduler off can
+        # still opt into auto-onboarding (and vice-versa).
     except Exception as exc:  # noqa: BLE001
         # Scheduler must NEVER block API startup. Log and continue.
         logger.exception("in-process scheduler failed to start: %s", exc)
+
+
+def _maybe_run_auto_bootstrap() -> None:
+    """Phase 25 auto-bootstrap detector.
+
+    Triggers ``scripts/phase25_bootstrap.py`` in a background thread iff
+    ALL of these hold:
+
+      1. ``SNOWKAP_PHASE25_AUTO_BOOTSTRAP`` is set to ``1``/``true``/
+         ``yes`` (default OFF — explicit opt-in to avoid surprise).
+      2. A HubSpot CSV exists at ``$SNOWKAP_BOOTSTRAP_CSV`` (or, if
+         unset, ``../hubspot-crm-exports-all-deals-2026-05-01.csv``).
+      3. No Phase 25 tenants exist yet — i.e.
+         ``data/ontology/tenants/`` only contains ``_global``. Once any
+         customer tenant is onboarded the auto-bootstrap stays silent
+         on subsequent boots so the API doesn't redundantly ingest on
+         every restart.
+
+    The actual bootstrap runs in a daemon thread so the API request
+    handler is never blocked. Output goes to the standard logger.
+    """
+    flag = (os.environ.get("SNOWKAP_PHASE25_AUTO_BOOTSTRAP") or "").strip().lower()
+    if flag not in {"1", "true", "yes", "on"}:
+        logger.debug("phase 25 auto-bootstrap not enabled "
+                     "(set SNOWKAP_PHASE25_AUTO_BOOTSTRAP=1 to opt in)")
+        return
+
+    # Locate the CSV — env var first, then the repo-root default
+    csv_env = (os.environ.get("SNOWKAP_BOOTSTRAP_CSV") or "").strip()
+    if csv_env:
+        csv_path = Path(csv_env)
+    else:
+        # ../hubspot-crm-exports-all-deals-2026-05-01.csv relative to repo root
+        repo_root = Path(__file__).resolve().parent.parent
+        csv_path = repo_root.parent / "hubspot-crm-exports-all-deals-2026-05-01.csv"
+    if not csv_path.exists():
+        logger.info(
+            "phase 25 auto-bootstrap: CSV not found at %s — skipping "
+            "(set SNOWKAP_BOOTSTRAP_CSV to override)", csv_path,
+        )
+        return
+
+    # Idempotency check — skip if any customer tenant already exists
+    try:
+        from engine.ontology.tenant_resolver import (
+            DEFAULT_TENANT, list_tenants,
+        )
+        existing = [t for t in list_tenants() if t != DEFAULT_TENANT]
+        # Also exclude the original 7 target companies (they don't have
+        # tenant dirs but they're in companies.json)
+        if existing:
+            logger.info(
+                "phase 25 auto-bootstrap: %d tenant(s) already onboarded — skipping",
+                len(existing),
+            )
+            return
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("phase 25 auto-bootstrap idempotency check failed: %s", exc)
+        return
+
+    # Fire bootstrap in a background daemon thread
+    import threading
+    def _bg() -> None:
+        try:
+            from scripts.phase25_bootstrap import main as bootstrap_main
+            logger.info("phase 25 auto-bootstrap: starting (csv=%s)", csv_path)
+            rc = bootstrap_main([
+                "--csv", str(csv_path),
+                "--commit",
+                "--log-level", "INFO",
+            ])
+            logger.info("phase 25 auto-bootstrap: completed exit_code=%d", rc)
+        except Exception as exc:  # noqa: BLE001
+            logger.exception("phase 25 auto-bootstrap thread crashed: %s", exc)
+    t = threading.Thread(target=_bg, daemon=True, name="phase25-bootstrap")
+    t.start()
+    logger.info("phase 25 auto-bootstrap: dispatched to background thread")
 
 
 @app.on_event("shutdown")
@@ -306,13 +430,30 @@ def _shutdown() -> None:
         logger.warning("scheduler shutdown raised: %s", exc)
 
 
-# Phase 11D: request-timing middleware + request_id contextvar binding
+# Phase 11D + Phase 24 W5: request-timing middleware + request_id contextvar
+# binding + per-request active tenant binding.
 @app.middleware("http")
 async def _request_context_middleware(request: Request, call_next):
     request_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:16]
+    # Phase 24 W5 — bind the active tenant from the X-Tenant-Id header for
+    # the duration of this request. Defaults to ``_global``. Every engine
+    # SPARQL call inside the request handler will then route to the
+    # correct tenant graph without any signature plumbing.
+    from engine.ontology.tenant_resolver import (
+        DEFAULT_TENANT,
+        _ACTIVE_TENANT,
+    )
+    tenant_id = (request.headers.get("X-Tenant-Id") or DEFAULT_TENANT).strip()
+    if not tenant_id:
+        tenant_id = DEFAULT_TENANT
+    tenant_token = _ACTIVE_TENANT.set(tenant_id)
     try:
         import structlog
-        structlog.contextvars.bind_contextvars(request_id=request_id, path=request.url.path)
+        structlog.contextvars.bind_contextvars(
+            request_id=request_id,
+            path=request.url.path,
+            tenant_id=tenant_id,
+        )
     except ImportError:
         pass
     start = time.perf_counter()
@@ -322,9 +463,15 @@ async def _request_context_middleware(request: Request, call_next):
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.exception("request failed after %.0fms path=%s", elapsed_ms, request.url.path)
         raise
+    finally:
+        # Always reset the tenant ContextVar — leaking across requests
+        # would silently route a /icici-bank request to /acme_capital's
+        # graph if the next worker reuses the asyncio task.
+        _ACTIVE_TENANT.reset(tenant_token)
     elapsed_ms = (time.perf_counter() - start) * 1000
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Response-Time-Ms"] = f"{elapsed_ms:.0f}"
+    response.headers["X-Tenant-Id"] = tenant_id
     if elapsed_ms > 500:
         logger.warning("slow request path=%s status=%d elapsed_ms=%.0f",
                        request.url.path, response.status_code, elapsed_ms)
@@ -373,6 +520,44 @@ def metrics() -> Response:
 
     by_tier = idx_stats.get("by_tier") or {}
 
+    # Phase 1 — criticality band distribution. Catches rollout regressions
+    # (healthy prod: UNSCORED → 0 a week after Phase 1.7 backfill ran).
+    try:
+        by_band = sqlite_index.count_by_criticality_band()
+    except Exception:
+        by_band = {}
+
+    # Phase 4 — outbound touch + CTA cadence health
+    try:
+        from engine.models.outbound_touches import (
+            first_touch_ratio as _ft_ratio,
+            total_count as _touch_total,
+        )
+        touches_total = _touch_total()
+        cta_ratio = _ft_ratio()
+    except Exception:
+        touches_total = 0
+        cta_ratio = {"first_touch": 0, "subsequent_touch": 0}
+
+    # Phase 6 — persona adoption
+    try:
+        from engine.persona.persona_store import (
+            count_by_role as _persona_by_role,
+            total_count as _persona_total,
+        )
+        personas_total = _persona_total()
+        personas_by_role = _persona_by_role()
+    except Exception:
+        personas_total = 0
+        personas_by_role = {}
+
+    # Phase 5 — NewsAPI.ai router budget remaining (in-process state)
+    try:
+        from engine.ingestion.news_router import get_router as _get_router
+        budget = _get_router().budget.to_dict()
+    except Exception:
+        budget = {"remaining": 0, "burst_remaining": 0, "spent_this_month": 0}
+
     lines = [
         "# HELP snowkap_articles_total Total analysed articles in the index by tier",
         "# TYPE snowkap_articles_total gauge",
@@ -381,10 +566,44 @@ def metrics() -> Response:
         f'snowkap_articles_total{{tier="REJECTED"}} {by_tier.get("REJECTED", 0)}',
         f'snowkap_articles_total{{tier="ALL"}} {idx_stats.get("total", 0)}',
         "",
+        "# HELP snowkap_articles_by_criticality_band Article count per criticality band (Phase 1)",
+        "# TYPE snowkap_articles_by_criticality_band gauge",
+        f'snowkap_articles_by_criticality_band{{band="CRITICAL"}} {by_band.get("CRITICAL", 0)}',
+        f'snowkap_articles_by_criticality_band{{band="HIGH"}} {by_band.get("HIGH", 0)}',
+        f'snowkap_articles_by_criticality_band{{band="MEDIUM"}} {by_band.get("MEDIUM", 0)}',
+        f'snowkap_articles_by_criticality_band{{band="LOW"}} {by_band.get("LOW", 0)}',
+        f'snowkap_articles_by_criticality_band{{band="UNSCORED"}} {by_band.get("UNSCORED", 0)}',
+        "",
         "# HELP snowkap_campaigns Drip campaigns by status",
         "# TYPE snowkap_campaigns gauge",
         f'snowkap_campaigns{{status="active"}} {active_campaigns}',
         f'snowkap_campaigns{{status="paused"}} {paused_campaigns}',
+        "",
+        "# HELP snowkap_outbound_touches_total Total outbound share emails sent across all (recipient, company) pairs",
+        "# TYPE snowkap_outbound_touches_total gauge",
+        f"snowkap_outbound_touches_total {touches_total}",
+        "",
+        "# HELP snowkap_cta_cadence Pair count by touch bucket (first-touch vs subsequent)",
+        "# TYPE snowkap_cta_cadence gauge",
+        f'snowkap_cta_cadence{{bucket="first_touch"}} {cta_ratio.get("first_touch", 0)}',
+        f'snowkap_cta_cadence{{bucket="subsequent_touch"}} {cta_ratio.get("subsequent_touch", 0)}',
+        "",
+        "# HELP snowkap_personas_total Personas onboarded (Phase 6 MCQ adoption)",
+        "# TYPE snowkap_personas_total gauge",
+        f"snowkap_personas_total {personas_total}",
+        "",
+        "# HELP snowkap_personas_by_role Persona count by role bucket",
+        "# TYPE snowkap_personas_by_role gauge",
+        f'snowkap_personas_by_role{{role="cfo"}} {personas_by_role.get("cfo", 0)}',
+        f'snowkap_personas_by_role{{role="ceo"}} {personas_by_role.get("ceo", 0)}',
+        f'snowkap_personas_by_role{{role="analyst"}} {personas_by_role.get("analyst", 0)}',
+        f'snowkap_personas_by_role{{role="other"}} {personas_by_role.get("other", 0)}',
+        "",
+        "# HELP snowkap_newsapi_budget Tier-1 (NewsAPI.ai) token budget state (Phase 5)",
+        "# TYPE snowkap_newsapi_budget gauge",
+        f'snowkap_newsapi_budget{{pool="remaining"}} {int(budget.get("remaining", 0))}',
+        f'snowkap_newsapi_budget{{pool="burst_remaining"}} {int(budget.get("burst_remaining", 0))}',
+        f'snowkap_newsapi_budget{{pool="spent_this_month"}} {int(budget.get("spent_this_month", 0))}',
         "",
         "# HELP snowkap_openai_cost_usd_24h Estimated OpenAI spend (USD) in the last 24h",
         "# TYPE snowkap_openai_cost_usd_24h gauge",
@@ -406,9 +625,48 @@ app.include_router(ingest.router)
 app.include_router(share.router)
 app.include_router(admin.router)  # Phase 10: /api/admin/tenants (super_admin only)
 app.include_router(admin_onboard.router)  # Phase 11B: /api/admin/onboard (manage_drip_campaigns only)
+app.include_router(batch_onboard.router)  # Phase 25 W6: /api/admin/onboard/batch (manage_drip_campaigns only)
 app.include_router(admin_email.router)  # Phase 13 B7: /api/admin/email-config-status
 app.include_router(admin_reanalyze.router)  # Phase 18: /api/admin/companies/{slug}/reanalyze
+app.include_router(discovery.router)  # Phase 24 (W2): /api/admin/discovery/* (manage_drip_campaigns only)
+app.include_router(session.router)  # Phase 24 (W4): /api/session/* (analyst session state)
+app.include_router(profile.router)  # W2: /api/me/onboard (self-service onboarding for any signed-in user)
 app.include_router(campaigns.router)  # Phase 10: /api/campaigns/* (manage_drip_campaigns only)
+
+# Power of Now adoption — Phase C: 9 net-new routers wiring the Phase B
+# subsystems (advisor, autoresearcher, beliefs, chat, conversations,
+# intelligence, mcp_admin, memory, wiki). Imports kept late to keep the
+# rest of the file unchanged.
+
+# Base Version Adoption L7 — typed beliefs surface
+from api.routes import beliefs as _beliefs  # noqa: E402
+app.include_router(_beliefs.router)  # GET /api/companies/{slug}/beliefs[/{name}]
+
+# Base Version Adoption L6 — advisor queue surface
+from api.routes import advisor as _advisor  # noqa: E402
+app.include_router(_advisor.router)  # GET /api/advisor/queue, POST /api/advisor/resolve
+
+# Wiki search + page surface (B7)
+from api.routes import wiki as _wiki  # noqa: E402
+app.include_router(_wiki.router)  # GET /api/wiki/{search,related,page}
+
+# Intelligence aggregate endpoint (cross-subsystem)
+from api.routes import intelligence as _intelligence  # noqa: E402
+app.include_router(_intelligence.router)  # GET /api/intelligence/{slug}/{competitors,forecast}
+
+# Autoresearcher experiments + leaderboard + run dispatch (B6)
+from api.routes import autoresearcher as _autoresearcher  # noqa: E402
+app.include_router(_autoresearcher.router)  # GET experiments/leaderboard, POST run
+
+# Phase C chat + memory + MCP admin (B2, B3, B8)
+from api.routes import chat as _chat  # noqa: E402
+from api.routes import conversations as _conversations  # noqa: E402
+from api.routes import memory as _memory  # noqa: E402
+from api.routes import mcp_admin as _mcp_admin  # noqa: E402
+app.include_router(_chat.router)  # POST /api/chat (SSE)
+app.include_router(_conversations.router)  # GET/POST/PATCH/DELETE /api/conversations/*
+app.include_router(_memory.router)  # GET/POST/DELETE /api/memory/*
+app.include_router(_mcp_admin.router)  # GET /api/mcp/{manifest,tools,resources}, POST /api/mcp/invoke
 
 # Legacy adapter LAST — exposes /api/auth, /api/news, /api/agent, etc.
 app.include_router(legacy_adapter.router)
