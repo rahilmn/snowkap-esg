@@ -18,7 +18,12 @@ os.environ.setdefault("ENVIRONMENT", "test")
 # var BEFORE the .env file gets loaded means ``load_dotenv`` (whose
 # default is non-override) leaves our value alone. Individual tests
 # that explicitly want to exercise the postgres adapter can override.
-os.environ["SNOWKAP_DB_BACKEND"] = "sqlite"
+# Escape hatch — when SNOWKAP_TEST_ALLOW_POSTGRES=1, honour whatever
+# SNOWKAP_DB_BACKEND the env has set (typically `postgres` against a
+# staging Supabase). Used once per Supabase-cutover validation pass;
+# the default behaviour (force sqlite) is restored for normal runs.
+if os.environ.get("SNOWKAP_TEST_ALLOW_POSTGRES") != "1":
+    os.environ["SNOWKAP_DB_BACKEND"] = "sqlite"
 
 import pytest
 from httpx import ASGITransport, AsyncClient

@@ -118,6 +118,30 @@ def _check_production_env() -> None:
     if jwt_secret and len(jwt_secret) < 32:
         missing.append("  - JWT_SECRET is set but shorter than 32 chars (weak HS256)")
 
+    # Phase post-PoN — Supabase Postgres backend guard. If the deploy declares
+    # SNOWKAP_DB_BACKEND=postgres, SUPABASE_DATABASE_URL must be a real URL
+    # (not empty, not a placeholder). Catches the common deploy-time mistake
+    # of setting the backend without setting the URL.
+    db_backend = (os.environ.get("SNOWKAP_DB_BACKEND") or "").strip().lower()
+    if db_backend == "postgres":
+        sup_url = os.environ.get("SUPABASE_DATABASE_URL", "")
+        if not sup_url.strip() or _looks_like_placeholder(sup_url):
+            missing.append(
+                "  - SUPABASE_DATABASE_URL  (required when SNOWKAP_DB_BACKEND=postgres)"
+            )
+        elif not sup_url.startswith("postgresql://"):
+            missing.append(
+                "  - SUPABASE_DATABASE_URL must start with 'postgresql://' "
+                f"(got: {sup_url[:30]}...)"
+            )
+        # Pool-timeout sanity. Default Supabase pgbouncer is 60s which kills
+        # long ingests; we recommend 300000 (5 min). Warn but don't fail.
+        timeout = os.environ.get("SNOWKAP_PG_STATEMENT_TIMEOUT_MS", "")
+        if timeout and not timeout.isdigit():
+            missing.append(
+                f"  - SNOWKAP_PG_STATEMENT_TIMEOUT_MS must be an integer (got: {timeout!r})"
+            )
+
     if missing:
         msg = (
             "SNOWKAP_ENV=production but required secrets are missing or "
