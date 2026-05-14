@@ -1080,6 +1080,24 @@ After the full Phase A–F + Supabase cutover, every box below should be ticked:
 
 ---
 
+## Execution outcome (2026-05-14)
+
+Reconciliation absorbed cleanly: 15 commits on `feat/power-of-now-reconciliation`, fast-forward merged into `master`, pushed to `origin/master`. Final state: **1,853 passing / 19 skipped / 0 failed** (full pytest), smoke 10/10, fuzz 9/10. Plus 1 WIP-snapshot commit (217 files of pre-existing engineering changes carried forward from prior sessions).
+
+**Deferred indefinitely — 6 LLM call-site migrations** (originally Phase B1):
+
+A second-pass attempt to migrate these 6 files (after the WIP was committed) introduced 4 test regressions in `test_phase4_generators.py`. The PoN versions of these files have behaviour refinements (granular confidence bounds, decimal formatting, fewer redundant warnings) that don't pass the existing test mocks. Reverted to pre-migration state. The 7 files migrated in commit `c10d514` (extractor, theme_tagger, painpoint_discoverer, painpoint_embeddings, personal_stakes_generator, risk_assessor, llm_upgrade) had no such issue — they were clean swaps.
+
+The 6 files staying on direct OpenAI:
+- `engine/analysis/ceo_narrative_generator.py`
+- `engine/analysis/esg_analyst_generator.py`
+- `engine/analysis/insight_generator.py`
+- `engine/analysis/on_demand.py`
+- `engine/analysis/recommendation_engine.py`
+- `engine/output/subject_line.py`
+
+To migrate these properly: either (a) update `test_phase4_generators.py` mocks to match PoN's new behaviour, or (b) accept the behaviour differences case-by-case. Estimated effort: ~3 hours of analysis + 1 commit. Non-blocking — these files continue to work via direct OpenAI calls; `OPENROUTER_API_KEY` simply doesn't reach them.
+
 ## Open questions / known gaps in this audit
 
 1. **Power of Now's `engine/analysis/*` migration to `engine.llm`** — verified at the release-notes level (17 of 18 call sites migrated) but NOT spot-checked file-by-file. Phase B1 needs a diff pass to capture each migrated call site.
