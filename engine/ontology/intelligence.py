@@ -1944,3 +1944,246 @@ def query_precedents_for_event(
             break
 
     return results
+
+
+# ---------------------------------------------------------------------------
+# Phase 24 — Toulmin warrants
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class NormativePrinciple:
+    """A reusable warrant statement cited in the Toulmin `warrant` field
+    of a published insight. Returned by
+    :func:`query_normative_principles_for_event`."""
+    principle_id: str  # e.g. "NP-REG-001"
+    statement: str
+    domain: str  # regulatory | financial | reputational | operational | strategic | esg-materiality
+    source: str
+    polarity: str  # positive | negative | both
+    event_types: list[str]
+
+
+def query_normative_principles_for_event(
+    event_type: str | None,
+    polarity: str = "both",
+    limit: int = 5,
+    graph: OntologyGraph | None = None,
+) -> list[NormativePrinciple]:
+    """Return up to `limit` NormativePrinciples relevant for a given event
+    type and polarity.
+
+    Selection rules (in priority order):
+      1. Principles whose `appliesToEvent` matches `event_type` AND whose
+         `appliesToPolarity` is ``both`` or matches `polarity`.
+      2. Principles with no `appliesToEvent` (i.e. cross-cutting materiality
+         principles) whose polarity matches.
+      3. Stable sort by `principleId` for deterministic output.
+
+    The principle's `statement` is what the insight generator inserts into
+    the Toulmin `warrant` field; the `source` is what it cites for
+    auditability.
+    """
+    g = _graph(graph)
+
+    sparql = """
+    SELECT ?p ?pid ?stmt ?domain ?src ?polarity ?evt
+    WHERE {
+        ?p a snowkap:NormativePrinciple ;
+           snowkap:principleId ?pid ;
+           snowkap:principleStatement ?stmt ;
+           snowkap:principleDomain ?domain .
+        OPTIONAL { ?p snowkap:principleSource ?src }
+        OPTIONAL { ?p snowkap:appliesToPolarity ?polarity }
+        OPTIONAL { ?p snowkap:appliesToEvent ?evt }
+    }
+    """
+
+    rows = g.select_rows(sparql)
+
+    # Group by principle URI — a principle can have multiple appliesToEvent rows
+    by_uri: dict[str, dict] = {}
+    for row in rows:
+        uri = row.get("p", "")
+        if not uri:
+            continue
+        if uri not in by_uri:
+            by_uri[uri] = {
+                "principle_id": row.get("pid", ""),
+                "statement": row.get("stmt", ""),
+                "domain": row.get("domain", ""),
+                "source": row.get("src", ""),
+                "polarities": set(),
+                "event_types": set(),
+            }
+        if row.get("polarity"):
+            by_uri[uri]["polarities"].add(row["polarity"])
+        if row.get("evt"):
+            by_uri[uri]["event_types"].add(row["evt"])
+
+    matched: list[tuple[int, NormativePrinciple]] = []
+    for uri, data in by_uri.items():
+        polarities: set[str] = data["polarities"]
+        event_types: set[str] = data["event_types"]
+        # Default polarity is "both" if not specified
+        eligible_polarity = (
+            "both" in polarities
+            or polarity in polarities
+            or not polarities
+        )
+        if not eligible_polarity:
+            continue
+        # Priority 1: exact event match. Priority 2: cross-cutting (no events).
+        if event_type and event_type in event_types:
+            priority = 1
+        elif not event_types:
+            priority = 2
+        else:
+            continue
+        np = NormativePrinciple(
+            principle_id=data["principle_id"],
+            statement=data["statement"],
+            domain=data["domain"],
+            source=data["source"],
+            polarity=", ".join(sorted(polarities)) if polarities else "both",
+            event_types=sorted(event_types),
+        )
+        matched.append((priority, np))
+
+    matched.sort(key=lambda t: (t[0], t[1].principle_id))
+    return [np for _, np in matched[:limit]]
+
+
+# ---------------------------------------------------------------------------
+# Autoresearcher Phase B — quantitative-mapping queries
+# ---------------------------------------------------------------------------
+#
+# These four queries read ordinal→numeric mappings from
+# `data/ontology/quantitative_mappings.ttl`. Each returns the float
+# value for a given ordinal label (e.g. "low", "moderate", "high"),
+# or the fallback default when the mapping isn't loaded.
+#
+# Callers (criticality_scorer + ceo_narrative_generator + headline-rule
+# iteration) read via these queries so the autoresearcher's
+# OrdinalMappingKnob can tune the values without touching engine code.
+
+
+_DEFAULT_CONFIDENCE_MAPPING: dict[str, float] = {
+    "low": 0.30, "moderate": 0.60, "high": 0.85,
+}
+_DEFAULT_SEVERITY_MAPPING: dict[str, float] = {
+    "low": 0.25, "moderate": 0.50, "high": 0.75, "critical": 1.00,
+}
+_DEFAULT_STANCE_MAPPING: dict[str, float] = {
+    "negative": -1.0, "neutral": 0.0, "positive": 1.0,
+}
+_DEFAULT_HEADLINE_PRIORITY_MAPPING: dict[int, float] = {
+    1: 1.00, 2: 0.70, 3: 0.40, 4: 0.25, 5: 0.15,
+}
+
+
+def _load_mapping_category(
+    category: str, graph: OntologyGraph | None = None,
+) -> dict[str, float]:
+    """Read all `snowkap:numericMapping` triples in one category from the TTL.
+
+    Returns `{label_suffix: float}` (e.g. `{"low": 0.3, ...}`). On any
+    error (graph unavailable, malformed value) returns an empty dict;
+    callers fall back to their hardcoded defaults.
+    """
+    try:
+        g = _graph(graph)
+    except Exception:
+        return {}
+    sparql = """
+    SELECT ?subj ?val WHERE {
+        ?subj snowkap:mappingCategory ?cat .
+        ?subj snowkap:numericMapping ?val .
+    }
+    """
+    try:
+        rows = g.select_rows(
+            sparql, init_bindings={"cat": Literal(category)},
+        )
+    except Exception:
+        return {}
+    out: dict[str, float] = {}
+    for row in rows:
+        subj_uri = str(row.get("subj") or "")
+        # Tail after `:` or `/` is the label suffix (e.g. "low", "moderate")
+        suffix = subj_uri.rsplit("/", 1)[-1].rsplit("#", 1)[-1]
+        # And strip the category prefix to get the bare value name
+        # e.g. "confidence_low" → "low"
+        for prefix in (f"{category.replace('_band', '')}_",
+                       f"{category.replace('_band', '')}_band_",
+                       f"{category}_"):
+            if suffix.startswith(prefix):
+                suffix = suffix[len(prefix):]
+                break
+        try:
+            out[suffix] = float(row["val"])
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def query_band_mapping(
+    band: str, graph: OntologyGraph | None = None,
+) -> float:
+    """Numeric weight for a confidence band ('low'|'moderate'|'high')."""
+    mappings = _load_mapping_category("confidence_band", graph)
+    key = band.lower().strip()
+    if key in mappings:
+        return mappings[key]
+    return _DEFAULT_CONFIDENCE_MAPPING.get(key, 0.5)
+
+
+def query_severity_mapping(
+    severity: str, graph: OntologyGraph | None = None,
+) -> float:
+    """Numeric weight for a severity band ('low'|'moderate'|'high'|'critical')."""
+    mappings = _load_mapping_category("severity_band", graph)
+    key = severity.lower().strip()
+    if key in mappings:
+        return mappings[key]
+    return _DEFAULT_SEVERITY_MAPPING.get(key, 0.5)
+
+
+def query_stance_magnitude(
+    stance: str, graph: OntologyGraph | None = None,
+) -> float:
+    """Numeric magnitude for a stakeholder stance ('negative'|'neutral'|'positive')."""
+    mappings = _load_mapping_category("stakeholder_stance", graph)
+    key = stance.lower().strip()
+    if key in mappings:
+        return mappings[key]
+    return _DEFAULT_STANCE_MAPPING.get(key, 0.0)
+
+
+def query_priority_weight(
+    priority: int, graph: OntologyGraph | None = None,
+) -> float:
+    """Numeric weight for a headline priority rank (1=highest)."""
+    mappings = _load_mapping_category("headline_priority", graph)
+    # TTL stores keys as strings ("1", "2", ...); fall through to defaults
+    key = str(int(priority))
+    if key in mappings:
+        return mappings[key]
+    return _DEFAULT_HEADLINE_PRIORITY_MAPPING.get(int(priority), 0.1)
+
+
+def query_quantitative_mappings_all(
+    graph: OntologyGraph | None = None,
+) -> dict[str, dict[str, float]]:
+    """Snapshot all 4 mapping categories. Used by the autoresearcher
+    introspector to discover OrdinalMappingKnob instances.
+
+    Returns `{category: {label: value}}`. Empty inner dicts indicate
+    the TTL isn't loaded; the engine will use its hardcoded defaults.
+    """
+    return {
+        "confidence_band": _load_mapping_category("confidence_band", graph),
+        "severity_band": _load_mapping_category("severity_band", graph),
+        "stakeholder_stance": _load_mapping_category("stakeholder_stance", graph),
+        "headline_priority": _load_mapping_category("headline_priority", graph),
+    }
