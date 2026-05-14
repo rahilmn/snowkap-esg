@@ -1,0 +1,34 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# Phase 24 (W5) — Layer 3 extension for the implicit ``_global`` tenant.
+#
+# This file is the per-tenant override surface. The ``_global`` tenant
+# inherits all Layer 1 triples from data/ontology/{schema, knowledge_*,
+# primitives_*, ...}.ttl WITHOUT any overrides, so this file stays empty
+# and the pre-W5 behaviour is preserved bit-for-bit.
+#
+# When you onboard an external tenant (consulting firm, asset manager,
+# in-house product), copy this file shape to
+# data/ontology/tenants/<tenant_id>/extension.ttl and add tenant-specific
+# triples — typically:
+#
+#   * MaterialityWeight overrides (a UK asset manager weights climate
+#     risk differently than an Indian renewable consultancy)
+#   * RegionalFrameworkBoost overrides (which frameworks the tenant
+#     primarily reports against)
+#   * MandatoryRule additions (tenant-specific compliance posture)
+#   * HeadlineRule overrides (CFO word cap differs per tenant)
+#   * StakeholderPosition additions (regulators / NGOs the tenant tracks)
+#
+# A future migration will EXTRACT the tenant-customisable triples that
+# currently live in Layer 1 (knowledge_expansion.ttl) into per-tenant
+# extension.ttl files. That work is deferred until the first external
+# tenant lands and validates the resolver pattern in production. Today,
+# this file is intentionally empty — the resolver loads it but it
+# contributes zero triples.
+# =============================================================================
+
+# (intentionally empty)

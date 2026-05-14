@@ -43,6 +43,12 @@ class CrispOutput:
     do_nothing: bool
     active_impact_dimensions: list[str]  # ontology-derived
     full_insight: dict[str, Any] | None = None
+    # W4a — role-specific "why is this news critical for me" paragraph,
+    # composed deterministically from existing insight fields. Populated
+    # for CFO ('why_critical_for_cfo' shape) when this CrispOutput is the
+    # CFO lens. The CEO + Analyst lenses populate the equivalent field on
+    # their dedicated dataclasses.
+    why_critical: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -299,6 +305,17 @@ def transform_for_perspective(
     # decision_summary, financial_timeline, etc. without an extra round trip.
     full = insight.to_dict()
 
+    # W4a — synthesise the role-specific "why is this critical for me?"
+    # paragraph deterministically from existing insight fields. Zero LLM
+    # cost, full audit trail.
+    why_critical = ""
+    try:
+        from engine.analysis.why_critical import build_why_critical
+        company_name = getattr(getattr(result, "company", None), "name", None)
+        why_critical = build_why_critical(insight, perspective, company_name=company_name)
+    except Exception as exc:  # noqa: BLE001 — additive
+        logger.debug("perspective_engine: why_critical build failed (%s) — skipping", exc)
+
     return CrispOutput(
         perspective=perspective,
         headline=headline,
@@ -309,4 +326,5 @@ def transform_for_perspective(
         do_nothing=do_nothing,
         active_impact_dimensions=active_dims_list,
         full_insight=full,
+        why_critical=why_critical,
     )

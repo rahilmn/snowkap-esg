@@ -115,13 +115,20 @@ def test_admin_tenants_requires_super_admin():
 
 def test_admin_tenants_super_admin_lists_all():
     client = TestClient(app)
+    # W1 — reset cache so this test sees fresh data, not what a sibling test cached
+    from api.routes import admin as _admin_route
+    _admin_route._reset_tenant_cache()
     admin_token = _mint({"sub": "sales@snowkap.com", "permissions": SUPER_ADMIN_PERMISSIONS})
     r = client.get("/api/admin/tenants", headers={"Authorization": admin_token})
     assert r.status_code == 200
     body = r.json()
-    assert isinstance(body, list)
-    assert len(body) >= 1  # at least one company from config/companies.json
-    entry = body[0]
+    # W1 — response is now {companies, meta:{warnings}}; back-compat tolerated
+    assert isinstance(body, dict), f"expected dict, got {type(body).__name__}"
+    assert "companies" in body and "meta" in body
+    tenants = body["companies"]
+    assert isinstance(tenants, list)
+    assert len(tenants) >= 1  # at least one company from config/companies.json
+    entry = tenants[0]
     # Switcher needs these fields
     for key in ("id", "slug", "name", "industry", "article_count"):
         assert key in entry, f"missing {key} in {entry}"
@@ -255,10 +262,13 @@ def test_new_company_login_auto_registers_and_appears_in_switcher():
     assert "super_admin" not in login.json()["permissions"]
 
     # Step 2: sales@snowkap.com fetches the switcher list
+    from api.routes import admin as _admin_route
+    _admin_route._reset_tenant_cache()
     admin_token = _mint({"sub": "sales@snowkap.com", "permissions": SUPER_ADMIN_PERMISSIONS})
     r = client.get("/api/admin/tenants", headers={"Authorization": admin_token})
     assert r.status_code == 200
-    entries = r.json()
+    body = r.json()
+    entries = body["companies"] if isinstance(body, dict) else body  # W1 shape
 
     # The new company must be in the list
     names = [e.get("name", "").lower() for e in entries]
@@ -276,10 +286,13 @@ def test_new_company_login_auto_registers_and_appears_in_switcher():
 
 def test_switcher_includes_all_seven_target_companies():
     client = TestClient(app)
+    from api.routes import admin as _admin_route
+    _admin_route._reset_tenant_cache()
     admin_token = _mint({"sub": "sales@snowkap.com", "permissions": SUPER_ADMIN_PERMISSIONS})
     r = client.get("/api/admin/tenants", headers={"Authorization": admin_token})
     assert r.status_code == 200
-    entries = r.json()
+    body = r.json()
+    entries = body["companies"] if isinstance(body, dict) else body  # W1 shape
 
     target_slugs = {e["slug"] for e in entries if e.get("source") == "target"}
     # All 7 target companies must appear
@@ -326,7 +339,11 @@ def test_snowkap_internal_login_does_not_pollute_registry():
             },
         )
 
+    from api.routes import admin as _admin_route
+    _admin_route._reset_tenant_cache()
     admin_token = _mint({"sub": "sales@snowkap.com", "permissions": SUPER_ADMIN_PERMISSIONS})
     r = client.get("/api/admin/tenants", headers={"Authorization": admin_token})
-    slugs = [e["slug"] for e in r.json()]
+    body = r.json()
+    entries = body["companies"] if isinstance(body, dict) else body  # W1 shape
+    slugs = [e["slug"] for e in entries]
     assert "snowkap" not in slugs, f"Snowkap polluted the tenant registry: {slugs}"

@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  lloyds-banking-group-plc
+# Company:      Lloyds Banking Group plc
+# Industry:     Financials/Banking
+# Region:       UK
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:54:00+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_lloyds_banking_group_plc_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Lloyds Banking Group has significant lending exposure to UK real estate and SME sectors, both of which face transition and physical risks from UK climate policy and decarbonization targets." .
+
+snowkap:tenant_lloyds_banking_group_plc_painpoint_1_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Lloyds is a major mortgage lender and has committed to net zero financed emissions by 2050, requiring robust Scope 3 financed emissions tracking and disclosure under UK SDR and TCFD frameworks." .
+
+snowkap:tenant_lloyds_banking_group_plc_painpoint_2_customer_data a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_customer_data ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As one of the UK's largest retail banks, Lloyds manages vast volumes of sensitive customer data, making it a high-profile target for cyber threats and subject to strict UK GDPR and FCA requirements." .
+
+snowkap:tenant_lloyds_banking_group_plc_painpoint_3_cyber_risk a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_cyber_risk ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Lloyds' digital banking platforms and recent sector-wide cyber incidents highlight the need for advanced cyber risk controls and resilience, as scrutinized by UK regulators." .
+
+snowkap:tenant_lloyds_banking_group_plc_painpoint_4_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Lloyds' scale and branch network reductions have drawn scrutiny regarding access to banking for vulnerable and rural UK populations, a key FCA and public concern." .
+
+snowkap:tenant_lloyds_banking_group_plc_painpoint_5_board_diversity a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_board_diversity ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Lloyds has made public commitments to gender and ethnic diversity at board and senior management levels, in line with UK Corporate Governance Code and FCA expectations." .
+
+snowkap:tenant_lloyds_banking_group_plc_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "lloyds-banking-group-plc" ;
+    snowkap:forCompany "Lloyds Banking Group plc" ;
+    snowkap:tenantIndustry "Financials/Banking" ;
+    snowkap:tenantRegion "UK" ;
+    dc:source "lloydsbankinggroup.com" ;
+    dc:created "2026-05-08T10:54:00+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "FCA SDR" , "TCFD" , "UK Corporate Governance Code"
+    ;
+    snowkap:stakeholderConcern "Climate transition risk in lending portfolio" , "Financed emissions transparency" , "Customer data security" , "Digital banking resilience" , "Financial inclusion for vulnerable groups" , "Board and executive diversity"
+    ;
+    snowkap:headlinePainpoint "Lloyds Banking Group financed emissions disclosure" , "Lloyds Bank climate risk mortgage exposure" , "Lloyds customer data breach risk" , "Lloyds digital banking cyber resilience" , "Lloyds branch closures financial inclusion"
+    .
+

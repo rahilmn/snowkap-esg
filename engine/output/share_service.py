@@ -157,13 +157,22 @@ def share_article_by_email(
     sender_note: str | None = None,
     read_more_base: str | None = None,
     cta_url: str = DEFAULT_CTA_URL,
-    cta_label: str = DEFAULT_CTA_LABEL,
+    cta_label: str | None = None,
     dry_run: bool = False,
+    role: str | None = None,
 ) -> ShareResult:
     """Render + send (or preview) a single-article share email.
 
     `dry_run=True` → returns the rendered HTML without sending (use for UI
     preview before the recipient confirms).
+
+    Phase 4 §6.6 — when ``cta_label`` is left as None (the default), the
+    CTA copy is chosen based on the recipient's prior touch history
+    with this company:
+      - first-touch  → "Read full analysis →"  (educational)
+      - second-touch → "Book a 20-min walkthrough →"  (qualified)
+    Pass an explicit string to override (campaign templates with custom
+    copy continue to work).
     """
     if not is_valid_email(recipient_email):
         return ShareResult(
@@ -172,6 +181,14 @@ def share_article_by_email(
             company_slug=company_slug, company_name="",
             error="invalid recipient email",
         )
+
+    # Phase 4 §6.6 — touch-count-driven CTA cadence
+    if cta_label is None:
+        try:
+            from engine.models.outbound_touches import cta_label_for
+            cta_label = cta_label_for(recipient_email, company_slug)
+        except Exception:  # noqa: BLE001 — fall back to legacy default
+            cta_label = DEFAULT_CTA_LABEL
 
     # Resolve outputs root
     if outputs_root is None:
@@ -217,6 +234,7 @@ def share_article_by_email(
             recipient_name=recipient_name,
             cta_url=cta_url,
             cta_label=cta_label,
+            role=role,
         )
     else:
         # Fallback to the legacy newsletter layout if the insight JSON is
@@ -268,6 +286,7 @@ def preview_share_html(
     outputs_root: Path | None = None,
     sender_note: str | None = None,
     read_more_base: str | None = None,
+    role: str | None = None,
 ) -> tuple[str, ShareResult]:
     """Render without sending — returns (html, stub ShareResult).
 
@@ -281,6 +300,7 @@ def preview_share_html(
         sender_note=sender_note,
         read_more_base=read_more_base,
         dry_run=True,
+        role=role,
     )
     # For preview-with-HTML, we regenerate the HTML string in-process.
     # (share_article_by_email returns the SendResult but discards the HTML —
@@ -304,6 +324,7 @@ def preview_share_html(
             company_name=result.company_name,
             industry=_company_industry(company_slug),
             recipient_name=recipient_name,
+            role=role,
         )
         return html, result
 

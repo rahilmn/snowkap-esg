@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  puma-se
+# Company:      PUMA SE
+# Industry:     Footwear & Accessories
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:53:12+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_puma_se_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Footwear & Accessories" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "PUMA SE operates a global supply chain with significant manufacturing in Asia, exposing it to high Scope 3 emissions from outsourced production and logistics, as reported in its annual sustainability disclosures." .
+
+snowkap:tenant_puma_se_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Footwear & Accessories" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "PUMA SE sources textiles and leather from regions with water stress, and its sustainability reports highlight water consumption and wastewater management as key operational challenges." .
+
+snowkap:tenant_puma_se_painpoint_2_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Footwear & Accessories" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "PUMA SE's supplier audits and public disclosures indicate ongoing risks related to labor conditions and wage compliance in manufacturing countries such as Bangladesh, Vietnam, and China." .
+
+snowkap:tenant_puma_se_painpoint_3_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Footwear & Accessories" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "PUMA SE's published supplier lists and engagement with the Fair Labor Association show exposure to forced labor and child labor risks in lower-tier suppliers, a material concern for global apparel brands." .
+
+snowkap:tenant_puma_se_painpoint_4_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Footwear & Accessories" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "PUMA SE's product turnover and global distribution contribute to post-consumer waste, with the company reporting on take-back and recycling initiatives in its sustainability updates." .
+
+snowkap:tenant_puma_se_painpoint_5_biodiversity a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_biodiversity ;
+    snowkap:weightForIndustry "Footwear & Accessories" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "PUMA SE sources raw materials like leather and cotton, which are linked to land use change and biodiversity loss, as acknowledged in its responsible sourcing commitments." .
+
+snowkap:tenant_puma_se_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "puma-se" ;
+    snowkap:forCompany "PUMA SE" ;
+    snowkap:tenantIndustry "Footwear & Accessories" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "puma.com" ;
+    dc:created "2026-05-08T10:53:12+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "CSRD/ESRS" , "GRI Standards"
+    ;
+    snowkap:stakeholderConcern "Human rights in supply chain" , "Climate impact of manufacturing" , "Water stewardship in production regions" , "Product end-of-life and circularity"
+    ;
+    snowkap:headlinePainpoint "PUMA SE Scope 3 emissions supply chain" , "PUMA SE labor rights Bangladesh Vietnam" , "PUMA SE water use textile factories" , "PUMA SE product waste recycling" , "PUMA SE leather sourcing biodiversity"
+    .
+

@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  reliance-industries-limited
+# Company:      Reliance Industries Limited
+# Industry:     Oil & Gas
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:54:31+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_reliance_industries_limited_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Reliance Industries operates one of the world's largest refining complexes at Jamnagar, resulting in significant Scope 1 and 2 carbon emissions, as reported in their annual sustainability disclosures." .
+
+snowkap:tenant_reliance_industries_limited_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company's petrochemical and refining operations are water-intensive and located in regions of India with high water stress, as detailed in their BRSR and CDP Water Security responses." .
+
+snowkap:tenant_reliance_industries_limited_painpoint_2_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Reliance's refining and petrochemical activities are subject to Indian CPCB air quality regulations due to significant SOx, NOx, and particulate emissions, as disclosed in their environmental performance data." .
+
+snowkap:tenant_reliance_industries_limited_painpoint_3_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Reliance has publicly committed to net-zero by 2035, but faces material transition risks due to its large fossil fuel asset base and evolving Indian and global climate policy frameworks." .
+
+snowkap:tenant_reliance_industries_limited_painpoint_4_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company generates significant hazardous waste streams from refining and petrochemical operations, as reported in its annual BRSR and sustainability reports." .
+
+snowkap:tenant_reliance_industries_limited_painpoint_5_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Reliance employs a large direct and contract workforce at complex industrial sites, with safety performance and labor practices regularly disclosed in their sustainability reporting." .
+
+snowkap:tenant_reliance_industries_limited_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Oil & Gas" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As one of India's largest conglomerates, Reliance is subject to heightened scrutiny on business ethics and anti-corruption, with periodic disclosures on compliance and ethics training." .
+
+snowkap:tenant_reliance_industries_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "reliance-industries-limited" ;
+    snowkap:forCompany "Reliance Industries Limited" ;
+    snowkap:tenantIndustry "Oil & Gas" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "reliance.com" ;
+    dc:created "2026-05-08T10:54:31+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "CDP"
+    ;
+    snowkap:stakeholderConcern "Transition risk from fossil fuels to renewables" , "Water scarcity and community impact near operational sites" , "Air quality and public health in refinery regions" , "Workforce safety and contractor management" , "Corporate governance and transparency"
+    ;
+    snowkap:headlinePainpoint "Reliance Industries Jamnagar refinery emissions" , "Reliance water stress BRSR disclosure" , "Reliance air pollution CPCB compliance" , "Reliance net zero transition risk" , "Reliance contractor safety incidents"
+    .
+

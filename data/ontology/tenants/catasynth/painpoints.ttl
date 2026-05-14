@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  catasynth
+# Company:      Catasynth Speciality Chemicals
+# Industry:     Chemicals
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:55:58+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_catasynth_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Catasynth Speciality Chemicals operates in India’s chemicals sector, which is subject to increasing scrutiny under BRSR and national climate commitments, with process and energy emissions being a key focus." .
+
+snowkap:tenant_catasynth_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Speciality chemical manufacturing in India typically involves significant water use and effluent discharge, and BRSR disclosures require detailed reporting on water consumption and treatment." .
+
+snowkap:tenant_catasynth_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company’s sector is regulated under India’s Hazardous and Other Wastes Rules, with peer disclosures showing waste management as a top compliance and reputational risk." .
+
+snowkap:tenant_catasynth_painpoint_3_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Speciality chemicals are subject to stringent Indian and international product safety regulations, with BRSR requiring disclosure of product stewardship and recall incidents." .
+
+snowkap:tenant_catasynth_painpoint_4_employee_health a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_employee_health ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Chemical manufacturing in India faces heightened scrutiny on worker safety due to past industry incidents and BRSR-mandated reporting on workplace injuries and safety practices." .
+
+snowkap:tenant_catasynth_painpoint_5_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Indian chemical companies are exposed to business ethics and anti-corruption risks, with BRSR requiring disclosures on anti-bribery and code of conduct enforcement." .
+
+snowkap:tenant_catasynth_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "catasynth" ;
+    snowkap:forCompany "Catasynth Speciality Chemicals" ;
+    snowkap:tenantIndustry "Chemicals" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "catasynth.com" ;
+    dc:created "2026-05-08T10:55:58+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI Standards" , "SASB Chemicals"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance on emissions and effluents" , "Worker health and safety in chemical operations" , "Safe disposal and management of hazardous waste" , "Product safety and downstream liability"
+    ;
+    snowkap:headlinePainpoint "Catasynth Speciality Chemicals BRSR water risk" , "Catasynth hazardous waste compliance India" , "Catasynth product safety recall" , "Catasynth employee safety incident" , "Catasynth carbon emissions disclosure"
+    .
+

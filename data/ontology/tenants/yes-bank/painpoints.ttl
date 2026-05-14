@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  yes-bank
+# Company:      YES Bank
+# Industry:     Financials/Banking
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:51:18+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_yes_bank_painpoint_0_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "YES Bank has faced regulatory scrutiny and enforcement actions in India related to governance lapses and past financial irregularities, as documented in RBI and SEBI filings." .
+
+snowkap:tenant_yes_bank_painpoint_1_governance a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_governance ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.90 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The bank underwent a high-profile restructuring and board overhaul following RBI intervention in 2020, highlighting ongoing governance challenges unique among Indian peers." .
+
+snowkap:tenant_yes_bank_painpoint_2_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.80 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "YES Bank has been subject to investigations and enforcement actions for alleged money laundering and related-party lending, as reported in Indian regulatory disclosures." .
+
+snowkap:tenant_yes_bank_painpoint_3_cyber_risk a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_cyber_risk ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a major digital banking provider in India, YES Bank is exposed to heightened cyber risk, with RBI-mandated disclosures on IT and operational resilience." .
+
+snowkap:tenant_yes_bank_painpoint_4_customer_data a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_customer_data ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "YES Bank's extensive digital footprint and retail banking operations create significant exposure to data privacy and protection risks, as reflected in annual reports and regulatory expectations." .
+
+snowkap:tenant_yes_bank_painpoint_5_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "YES Bank is a signatory to climate finance initiatives and faces growing expectations to align lending portfolios with climate resilience, as noted in its sustainability disclosures." .
+
+snowkap:tenant_yes_bank_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "yes-bank" ;
+    snowkap:forCompany "YES Bank" ;
+    snowkap:tenantIndustry "Financials/Banking" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "yesbank.in" ;
+    dc:created "2026-05-08T10:51:18+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB"
+    ;
+    snowkap:stakeholderConcern "regulatory trust and compliance" , "board and management accountability" , "digital security and data privacy" , "responsible lending and climate risk"
+    ;
+    snowkap:headlinePainpoint "YES Bank governance overhaul RBI" , "YES Bank money laundering investigation" , "YES Bank cyber risk digital banking" , "YES Bank customer data privacy" , "YES Bank climate finance disclosure"
+    .
+

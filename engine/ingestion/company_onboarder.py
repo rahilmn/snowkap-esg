@@ -365,22 +365,29 @@ def _build_queries(
     company_name: str,
     industry: str,
     region: str = "INDIA",
+    painpoint_headlines: list[str] | None = None,
 ) -> list[str]:
     """Compose news-search queries for a company.
 
     Pulls the universal terms (climate, labour, biodiversity, …) and layers
     the region-specific regulator + framework flavour on top. Keeps an
     Indian default for back-compat with the original 7 target companies.
+
+    W3 — `painpoint_headlines` is an optional list of LLM-discovered
+    company-specific search phrases (e.g. "Tata Steel CBAM exposure").
+    These are appended verbatim so the news fetcher hits highly-relevant
+    coverage that the generic industry+region terms miss.
     """
     universal = [q.format(company=company_name) for q in _UNIVERSAL_QUERIES]
     regional_template = _REGIONAL_QUERIES.get(region, _REGIONAL_QUERIES["GLOBAL"])
     regional = [q.format(company=company_name) for q in regional_template]
     suffixes = _INDUSTRY_SUFFIXES.get(industry, _INDUSTRY_SUFFIXES["Other"])
     industry_specific = [f"{company_name} {s}" for s in suffixes]
+    painpoint_queries = list(painpoint_headlines or [])[:5]  # cap at 5
     # Dedupe while preserving order
     seen = set()
     out = []
-    for q in universal + regional + industry_specific:
+    for q in universal + regional + industry_specific + painpoint_queries:
         if q in seen:
             continue
         seen.add(q)
@@ -685,6 +692,25 @@ def onboard_company(
     path = CONFIG_DIR / "companies.json"
     existing = json.loads(path.read_text(encoding="utf-8"))
 
+    # W5 slug-stability fix — if a company entry already exists with the same
+    # DOMAIN, reuse its slug instead of letting yfinance's longName drift
+    # produce a new slug like `adani-power-limited` for what is operationally
+    # `adani-power`. Pre-fix, every regen via the worker queue created a
+    # duplicate tenant and broke the article_index → JSON-on-disk linkage.
+    incoming_domain = (domain or "").strip().lower().lstrip("www.")
+    if incoming_domain:
+        domain_match = next(
+            (c for c in existing["companies"]
+             if (c.get("domain") or "").strip().lower().lstrip("www.") == incoming_domain),
+            None,
+        )
+        if domain_match and domain_match.get("slug") and domain_match["slug"] != slug:
+            logger.info(
+                "onboard_company: domain %s already maps to slug %r — reusing instead of new slug %r",
+                incoming_domain, domain_match["slug"], slug,
+            )
+            slug = domain_match["slug"]
+
     found_existing = next((c for c in existing["companies"] if c["slug"] == slug), None)
     if found_existing and not force:
         logger.info("company %s already exists — set force=True to overwrite", slug)
@@ -777,7 +803,66 @@ def onboard_company(
 
     # 5. News queries — region-aware so a US company gets SEC + EPA
     # flavour instead of SEBI / BRSR.
-    queries = _build_queries(resolved_name, industry, region=region)
+    # W3 — also add LLM-discovered company-specific painpoint queries
+    # if a fresh painpoints.ttl exists for this tenant. We run discovery
+    # FIRST (before the queries list is composed) so the W3 headlines
+    # land in the same atomic write.
+    painpoint_headlines: list[str] = []
+    try:
+        from engine.ingestion.painpoint_discoverer import discover_painpoints
+        from engine.ingestion.painpoint_writer import (
+            needs_refresh as _painpoints_need_refresh,
+            write_painpoints_ttl,
+        )
+        from engine.ontology.tenant_resolver import ensure_tenant_dir
+
+        if force or _painpoints_need_refresh(slug):
+            ensure_tenant_dir(slug)
+            logger.info("onboard_company: running W3 painpoint discovery for %s", slug)
+            _w3_report = discover_painpoints(
+                domain=domain or "",
+                company_name=resolved_name,
+                industry=industry,
+                sasb_category=sasb_category,
+                region=region,
+            )
+            write_painpoints_ttl(
+                tenant_id=slug,
+                report=_w3_report,
+                domain=domain or "",
+                company_name=resolved_name,
+                industry=industry,
+                region=region,
+            )
+            painpoint_headlines = list(_w3_report.headline_painpoints)
+        else:
+            # Painpoints exist + are fresh — pull headlines from disk so the
+            # query list still includes them on re-runs without spending LLM.
+            from engine.ingestion.painpoint_writer import tenant_painpoints_path
+            try:
+                ttl_text = tenant_painpoints_path(slug).read_text(encoding="utf-8")
+                # Cheap text scrape for snowkap:headlinePainpoint "..." entries
+                import re as _re
+                painpoint_headlines = _re.findall(r'snowkap:headlinePainpoint\s+([^.]+)', ttl_text)
+                # Each match is a chain: "X" , "Y" , "Z"  → split + strip quotes
+                if painpoint_headlines:
+                    flat: list[str] = []
+                    for chain in painpoint_headlines:
+                        for raw in chain.split(","):
+                            cleaned = raw.strip().strip('"').strip()
+                            if cleaned:
+                                flat.append(cleaned)
+                    painpoint_headlines = flat[:5]
+            except Exception:  # noqa: BLE001
+                painpoint_headlines = []
+    except Exception as exc:  # noqa: BLE001 — painpoints are additive
+        logger.warning("onboard_company: W3 painpoint step failed for %s: %s", slug, exc)
+        painpoint_headlines = []
+
+    queries = _build_queries(
+        resolved_name, industry, region=region,
+        painpoint_headlines=painpoint_headlines,
+    )
 
     # 7. Build company entry. ``listing_exchange`` is now derived from the
     # actual ticker suffix instead of an India-only NSE/BSE binary.
@@ -835,6 +920,39 @@ def onboard_company(
     tmp_path.replace(path)
     logger.info("onboarded %s (%s) — %d queries, industry=%s, cap=%s",
                 resolved_name, ticker, len(queries), industry, cap_tier)
+
+    # 9. W3 — seed Layer 3 ontology overlays for this tenant. Two files:
+    #   - extension.ttl  : industry-default MaterialityWeight overrides
+    #                       (12 industries supported; deterministic, no LLM)
+    #   - painpoints.ttl : LLM-discovered company-specific painpoints
+    #                       (~$0.05 per onboard; idempotent for 90 days)
+    #
+    # Both are non-fatal — if either fails the onboard still succeeds; the
+    # tenant just falls back to the global Layer 1 materiality table.
+    try:
+        from engine.ingestion.industry_materiality_defaults import build_extension_ttl
+        from engine.ontology.tenant_resolver import (
+            ensure_tenant_dir,
+            tenant_extension_path,
+        )
+
+        ensure_tenant_dir(slug)
+        ext_path = tenant_extension_path(slug)
+        if force or not ext_path.exists():
+            ttl_content = build_extension_ttl(tenant_slug=slug, industry=industry)
+            ext_path.write_text(ttl_content, encoding="utf-8")
+            logger.info("onboard_company: wrote tenant extension.ttl for %s", slug)
+    except Exception as exc:  # noqa: BLE001 — extension is additive
+        logger.warning("onboard_company: extension.ttl seed failed for %s: %s", slug, exc)
+
+    # 10. W3 — bust the per-tenant ontology cache so the next get_graph()
+    # call picks up the painpoints.ttl + extension.ttl we just wrote in
+    # steps 5 and 9 above. Best-effort.
+    try:
+        from engine.ontology.graph import reset_graph
+        reset_graph(tenant_id=slug)
+    except Exception:  # noqa: BLE001
+        pass
 
     # Clear load_companies lru_cache so the new entry is visible immediately
     try:

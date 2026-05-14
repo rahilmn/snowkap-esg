@@ -55,7 +55,10 @@ from engine.output.share_service import ShareResult, share_article_by_email
 
 logger = logging.getLogger(__name__)
 
-CURRENT_SCHEMA_VERSION = "2.0-primitives-l2"
+# W5 — bumped to match the rest of the W4 stack so the campaign runner's
+# freshness pre-check picks up Phase-17c-era stored payloads as stale and
+# triggers enrich_on_demand() before sending the brief out.
+CURRENT_SCHEMA_VERSION = "2.1-role-distinct"
 
 
 # ---------------------------------------------------------------------------

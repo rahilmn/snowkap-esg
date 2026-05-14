@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  tata-power-co-ltd
+# Company:      Tata Power Co Ltd
+# Industry:     Power/Energy
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-11T11:58:16+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_tata_power_co_ltd_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Tata Power maintains a significant coal-based generation portfolio, as disclosed in its annual and sustainability reports, resulting in high direct (Scope 1) and value chain (Scope 3) carbon emissions." .
+
+snowkap:tenant_tata_power_co_ltd_painpoint_1_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.90 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company faces material transition risk due to its legacy coal-fired assets, which are increasingly exposed to Indian and global decarbonization policies and investor pressure for renewables." .
+
+snowkap:tenant_tata_power_co_ltd_painpoint_2_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Tata Power operates thermal plants in several Indian states with high water stress, as reported in its CDP Water disclosures and BRSR filings." .
+
+snowkap:tenant_tata_power_co_ltd_painpoint_3_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Thermal generation units contribute to local air quality issues, with regulatory scrutiny from India's CPCB and state pollution boards, as referenced in environmental compliance reports." .
+
+snowkap:tenant_tata_power_co_ltd_painpoint_4_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.75 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "While Tata Power is expanding renewables, its current renewable share lags some Indian peers, as shown in its segmental revenue and capacity mix disclosures." .
+
+snowkap:tenant_tata_power_co_ltd_painpoint_5_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Large-scale power projects have led to community engagement and land acquisition challenges, as documented in project-specific public hearings and CSR reports." .
+
+snowkap:tenant_tata_power_co_ltd_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in multiple Indian states exposes Tata Power to heightened anti-corruption and business ethics risks, as reflected in its BRSR disclosures and sector-wide compliance requirements." .
+
+snowkap:tenant_tata_power_co_ltd_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "tata-power-co-ltd" ;
+    snowkap:forCompany "Tata Power Co Ltd" ;
+    snowkap:tenantIndustry "Power/Energy" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "CDP"
+    ;
+    snowkap:stakeholderConcern "Decarbonization of coal-heavy portfolio" , "Water use in water-stressed regions" , "Air quality impacts near thermal plants" , "Pace of renewable energy expansion" , "Community relations and land acquisition"
+    ;
+    snowkap:headlinePainpoint "Tata Power coal emissions India" , "Tata Power water stress thermal plants" , "Tata Power air pollution compliance" , "Tata Power renewable transition lag" , "Tata Power community land acquisition"
+    .
+

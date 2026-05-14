@@ -39,6 +39,15 @@ interface SendResult {
 
 type Step = "idle" | "form" | "preview" | "sending" | "success" | "error";
 
+// Phase 4 §6.4 — sales-tool role toggle. Default CFO per the plan.
+type ShareRole = "cfo" | "ceo" | "analyst";
+
+const ROLE_OPTIONS: { value: ShareRole; label: string }[] = [
+  { value: "cfo", label: "CFO" },
+  { value: "ceo", label: "CEO" },
+  { value: "analyst", label: "ESG Analyst" },
+];
+
 export function ShareArticleButton({
   articleId,
   className,
@@ -55,6 +64,8 @@ export function ShareArticleButton({
   const [previewSubject, setPreviewSubject] = useState("");
   const [previewName, setPreviewName] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<SendResult | null>(null);
+  // Phase 4 §6.4 — sales-tool role toggle. CFO = default per the plan.
+  const [role, setRole] = useState<ShareRole>("cfo");
 
   const reset = () => {
     setStep("form");
@@ -84,6 +95,7 @@ export function ShareArticleButton({
         recipient_email: email,
         sender_note: senderNote || undefined,
         read_more_base: readMoreBase,
+        role,
       });
       setPreviewSubject(res.subject);
       setPreviewName(res.recipient_name);
@@ -107,6 +119,7 @@ export function ShareArticleButton({
         recipient_email: email,
         sender_note: senderNote || undefined,
         read_more_base: readMoreBase,
+        role,
       });
       setLastResult(res as SendResult);
       if (res.status === "sent" || res.status === "preview") {
@@ -145,6 +158,42 @@ export function ShareArticleButton({
 
           {step === "form" && (
             <div className="mt-5 space-y-4">
+              {/* Phase 4 §6.4 — sales-tool role toggle. Sets the lens
+                  the email body emphasises. Default CFO. */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
+                  Send as
+                </label>
+                <div
+                  role="radiogroup"
+                  aria-label="Email role lens"
+                  className="inline-flex rounded-md border border-gray-200 bg-white p-0.5"
+                >
+                  {ROLE_OPTIONS.map((opt) => {
+                    const isOn = role === opt.value;
+                    return (
+                      <button
+                        type="button"
+                        key={opt.value}
+                        role="radio"
+                        aria-checked={isOn}
+                        onClick={() => setRole(opt.value)}
+                        className={
+                          "px-3 py-1.5 text-xs font-semibold rounded-sm transition-colors " +
+                          (isOn
+                            ? "bg-orange-500 text-white"
+                            : "text-gray-700 hover:bg-gray-100")
+                        }
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-1 text-[11px] text-gray-500">
+                  Picks which lens the recipient sees first.
+                </p>
+              </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                   Recipient email
@@ -199,6 +248,10 @@ export function ShareArticleButton({
                 <div>
                   <span className="font-semibold text-gray-700">Greeting:</span>{" "}
                   {previewName ? `"Dear ${previewName},"` : "(no name extracted — neutral greeting)"}
+                </div>
+                <div>
+                  <span className="font-semibold text-gray-700">Lens:</span>{" "}
+                  {ROLE_OPTIONS.find((o) => o.value === role)?.label || role}
                 </div>
                 <div><span className="font-semibold text-gray-700">Subject:</span> {previewSubject}</div>
               </div>

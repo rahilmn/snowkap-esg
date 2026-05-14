@@ -12,6 +12,7 @@ bearer-token decode path in api/auth_context.py. Regular client tokens
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends
@@ -26,11 +27,37 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 
+# W1 — 30s in-memory TTL cache for the tenant list. Pre-fix every header
+# render hit Supabase 27× to compute per-tenant counts; even after the bulk
+# query that's still one round-trip per page load. The cache makes typical
+# navigation cost zero round-trips.
+_TENANT_CACHE_TTL_S = 30.0
+_tenant_cache: dict[str, Any] = {"expires_at": 0.0, "payload": None}
+
+
+def _reset_tenant_cache() -> None:
+    """Test hook — drop the in-memory cache so a fresh call hits Supabase."""
+    _tenant_cache["expires_at"] = 0.0
+    _tenant_cache["payload"] = None
+
+
+def _tenant_stats(slug: str) -> tuple[int, str | None]:
+    """Back-compat shim — original per-slug helper.
+
+    The hot path now uses `sqlite_index.tenant_stats_bulk()` (single GROUP BY).
+    This function is kept only for the older test fixtures that import it
+    directly. Returns (0, None) on backend error so callers stay resilient.
+    """
+    stats = sqlite_index.tenant_stats_bulk()
+    s = stats.get(slug, {})
+    return int(s.get("count", 0)), s.get("latest_at")
+
+
 @router.get("/tenants")
 def list_tenants(
     _: None = Depends(require_auth),
     __: dict[str, Any] = Depends(require_bearer_permission("super_admin")),
-) -> list[dict[str, Any]]:
+) -> dict[str, Any]:
     """Return every tenant the super-admin can switch into.
 
     Merges two sources:
@@ -44,15 +71,43 @@ def list_tenants(
     slug, so the curated name/industry survives). Target companies come
     first, then onboarded sorted by most recent login.
 
-    Used by the CompanySwitcher dropdown in the header.
+    Response shape (W1):
+      {
+        "companies": [...AdminTenant],
+        "meta": {"warnings": [...str]}
+      }
+
+    `meta.warnings` carries any non-fatal degradations (Supabase down, etc.)
+    so the CompanySwitcher can render a "(degraded)" badge instead of
+    blanking the dropdown.
     """
+    now = time.time()
+    if _tenant_cache["payload"] and _tenant_cache["expires_at"] > now:
+        return _tenant_cache["payload"]
+
+    warnings: list[str] = []
+
     # Ensure target companies are seeded into the registry (idempotent).
     try:
         companies = load_companies()
         tenant_registry.seed_target_companies(companies)
     except Exception as exc:
-        logger.warning("admin.tenants seed_target_companies failed: %s", exc)
+        msg = f"seed_target_companies: {type(exc).__name__}: {exc}"
+        logger.warning("admin.tenants %s", msg)
+        warnings.append(msg)
         companies = []
+
+    # W1 — bulk per-slug stats in ONE Postgres query. Pre-fix this was
+    # an N+1 (count + query_feed per slug × 27 tenants) which exceeded the
+    # 15s pgbouncer pooler ceiling and made the dropdown render
+    # "Couldn't load tenants".
+    try:
+        stats = sqlite_index.tenant_stats_bulk()
+    except Exception as exc:
+        msg = f"tenant_stats_bulk: {type(exc).__name__}: {exc}"
+        logger.warning("admin.tenants %s", msg)
+        warnings.append(msg)
+        stats = {}
 
     out: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -61,7 +116,7 @@ def list_tenants(
     for c in companies:
         if c.slug in seen:
             continue
-        count, last_at = _tenant_stats(c.slug)
+        s = stats.get(c.slug, {})
         out.append(
             {
                 "id": c.slug,
@@ -70,8 +125,8 @@ def list_tenants(
                 "domain": c.domain,
                 "industry": c.industry,
                 "source": "target",
-                "article_count": count,
-                "last_analysis_at": last_at,
+                "article_count": int(s.get("count", 0)),
+                "last_analysis_at": s.get("latest_at"),
             }
         )
         seen.add(c.slug)
@@ -80,14 +135,16 @@ def list_tenants(
     try:
         onboarded = tenant_registry.list_tenants()
     except Exception as exc:
-        logger.warning("admin.tenants list_tenants failed: %s", exc)
+        msg = f"list_tenants: {type(exc).__name__}: {exc}"
+        logger.warning("admin.tenants %s", msg)
+        warnings.append(msg)
         onboarded = []
 
     for row in onboarded:
         slug = row.get("slug")
         if not slug or slug in seen:
             continue
-        count, last_at = _tenant_stats(slug)
+        s = stats.get(slug, {})
         out.append(
             {
                 "id": slug,
@@ -96,29 +153,13 @@ def list_tenants(
                 "domain": row.get("domain"),
                 "industry": row.get("industry"),
                 "source": row.get("source") or "onboarded",
-                "article_count": count,
-                "last_analysis_at": last_at or row.get("last_seen_at"),
+                "article_count": int(s.get("count", 0)),
+                "last_analysis_at": s.get("latest_at") or row.get("last_seen_at"),
             }
         )
         seen.add(slug)
 
-    return out
-
-
-def _tenant_stats(slug: str) -> tuple[int, str | None]:
-    """Return (article_count, most_recent_published_at_iso) for a company slug."""
-    try:
-        count = sqlite_index.count(company_slug=slug)
-    except Exception as exc:
-        logger.debug("admin.tenants count(%s) failed: %s", slug, exc)
-        count = 0
-
-    last_at: str | None = None
-    try:
-        rows = sqlite_index.query_feed(company_slug=slug, limit=1, offset=0)
-        if rows:
-            last_at = rows[0].get("published_at") or rows[0].get("created_at")
-    except Exception as exc:
-        logger.debug("admin.tenants query_feed(%s) failed: %s", slug, exc)
-
-    return count, last_at
+    payload: dict[str, Any] = {"companies": out, "meta": {"warnings": warnings}}
+    _tenant_cache["payload"] = payload
+    _tenant_cache["expires_at"] = now + _TENANT_CACHE_TTL_S
+    return payload

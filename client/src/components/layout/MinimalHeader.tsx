@@ -134,6 +134,15 @@ export function MinimalHeader() {
                   className="absolute right-0 top-10 z-50 bg-white rounded-lg border shadow-lg py-1"
                   style={{ minWidth: "180px", boxShadow: "0px 4px 12px rgba(0,0,0,0.12)" }}
                 >
+                  {/* W2: Profile is visible to ALL signed-in users — they can
+                      onboard their own company there without admin involvement. */}
+                  <button
+                    onClick={() => { setMenuOpen(false); navigate("/profile"); }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-50"
+                    style={{ fontSize: "13px", color: COLORS.textPrimary }}
+                  >
+                    Profile
+                  </button>
                   <button
                     onClick={() => { setMenuOpen(false); navigate("/preferences"); }}
                     className="w-full text-left px-4 py-2 hover:bg-gray-50"
@@ -155,7 +164,7 @@ export function MinimalHeader() {
                         className="w-full text-left px-4 py-2 hover:bg-gray-50"
                         style={{ fontSize: "13px", color: COLORS.textPrimary }}
                       >
-                        Onboard company
+                        Onboard company (admin)
                       </button>
                     </>
                   )}

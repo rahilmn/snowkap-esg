@@ -4,6 +4,9 @@
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 @prefix snowkap: <http://snowkap.com/ontology/esg#> .
 
+# >>> LAYER 1 — READ-ONLY ESG CORE (Phase 24 W5) <<<
+# Edits affect EVERY tenant. Tenant overrides → tenants/<id>/extension.ttl.
+
 # =============================================================================
 # SNOWKAP ESG Intelligence Engine — Knowledge Base
 #

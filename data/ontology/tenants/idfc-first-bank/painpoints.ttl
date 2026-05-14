@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  idfc-first-bank
+# Company:      IDFC First Bank
+# Industry:     Financials/Banking
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:51:29+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_idfc_first_bank_painpoint_0_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a relatively new entrant in India's banking sector, IDFC First Bank faces heightened scrutiny on ethical conduct and transparency, especially given the sector's recent history of governance lapses." .
+
+snowkap:tenant_idfc_first_bank_painpoint_1_governance a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_governance ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "IDFC First Bank's transition from an infrastructure finance company to a universal bank has required significant changes in governance structures, which are closely monitored by Indian regulators." .
+
+snowkap:tenant_idfc_first_bank_painpoint_2_cyber_risk a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_cyber_risk ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The bank's digital-first strategy and rapid expansion in retail banking increase its exposure to cyber threats, as evidenced by its focus on digital channels and mobile banking." .
+
+snowkap:tenant_idfc_first_bank_painpoint_3_customer_data a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_customer_data ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "With a growing digital customer base and increasing use of fintech partnerships, IDFC First Bank faces material risks around data privacy and compliance with India's evolving data protection regulations." .
+
+snowkap:tenant_idfc_first_bank_painpoint_4_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a lender with exposure to sectors vulnerable to climate risks in India, the bank must assess and adapt to physical and transition risks in its loan portfolio, in line with RBI guidance." .
+
+snowkap:tenant_idfc_first_bank_painpoint_5_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in a sector with elevated regulatory oversight in India, IDFC First Bank is subject to strict anti-corruption compliance and must demonstrate robust internal controls." .
+
+snowkap:tenant_idfc_first_bank_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "idfc-first-bank" ;
+    snowkap:forCompany "IDFC First Bank" ;
+    snowkap:tenantIndustry "Financials/Banking" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "idfcfirstbank.com" ;
+    dc:created "2026-05-08T10:51:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "RBI Guidelines" , "SASB Commercial Banks"
+    ;
+    snowkap:stakeholderConcern "digital security and privacy" , "ethical lending and governance" , "regulatory compliance" , "climate risk in loan book"
+    ;
+    snowkap:headlinePainpoint "IDFC First Bank cyber risk digital banking" , "IDFC First Bank governance transformation" , "IDFC First Bank customer data privacy India" , "IDFC First Bank climate risk loan portfolio" , "IDFC First Bank business ethics compliance"
+    .
+

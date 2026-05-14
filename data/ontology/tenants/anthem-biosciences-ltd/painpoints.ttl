@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  anthem-biosciences-ltd
+# Company:      ANTHEM BIOSCIENCES LTD
+# Industry:     Biotechnology
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:55:09+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_anthem_biosciences_ltd_painpoint_0_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Biotechnology" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Anthem Biosciences operates in the biotechnology sector in India, where water-intensive processes and effluent management are critical due to both operational needs and strict local water discharge regulations." .
+
+snowkap:tenant_anthem_biosciences_ltd_painpoint_1_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Biotechnology" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a biotech company, Anthem Biosciences generates hazardous and biomedical waste streams that are subject to India's Bio-Medical Waste Management Rules, increasing compliance and reputational risk." .
+
+snowkap:tenant_anthem_biosciences_ltd_painpoint_2_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Biotechnology" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.75 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Biotechnology manufacturing in India typically relies on energy-intensive processes, and with growing scrutiny under BRSR, energy sourcing and efficiency are material concerns." .
+
+snowkap:tenant_anthem_biosciences_ltd_painpoint_3_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Biotechnology" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India, Anthem Biosciences is subject to heightened stakeholder and regulatory expectations for worker safety, fair wages, and compliance with labor laws, especially in laboratory and production environments." .
+
+snowkap:tenant_anthem_biosciences_ltd_painpoint_4_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Biotechnology" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a contract research and manufacturing organization, Anthem Biosciences faces material exposure to product safety and quality risks, with direct implications for client trust and regulatory compliance." .
+
+snowkap:tenant_anthem_biosciences_ltd_painpoint_5_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Biotechnology" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in the Indian biotech sector, Anthem Biosciences must navigate complex regulatory environments and maintain robust anti-corruption controls to meet BRSR and global client expectations." .
+
+snowkap:tenant_anthem_biosciences_ltd_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "anthem-biosciences-ltd" ;
+    snowkap:forCompany "ANTHEM BIOSCIENCES LTD" ;
+    snowkap:tenantIndustry "Biotechnology" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "anthembio.com" ;
+    dc:created "2026-05-08T10:55:09+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI Standards"
+    ;
+    snowkap:stakeholderConcern "Local community water use and effluent impacts" , "Safe disposal of hazardous and biomedical waste" , "Worker safety and fair labor practices" , "Product quality and regulatory compliance" , "Ethical business conduct"
+    ;
+    snowkap:headlinePainpoint "Anthem Biosciences water discharge compliance" , "Anthem Biosciences hazardous waste management" , "Anthem Biosciences worker safety India" , "Anthem Biosciences product quality recall" , "Anthem Biosciences business ethics investigation"
+    .
+

@@ -7,6 +7,7 @@ import { COLORS } from "../../lib/designTokens";
 import { PriorityBadge } from "../ui/PriorityBadge";
 import { formatDate } from "../../lib/utils";
 import type { Article } from "../../types";
+import { OutsideFocusBadge } from "../persona/OutsideFocusBadge";
 
 interface MiniArticleCardProps {
   article: Article;
@@ -82,6 +83,12 @@ export function MiniArticleCard({ article, onClick }: MiniArticleCardProps) {
         {/* Meta row: priority + sentiment + content type + source */}
         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "4px", flexWrap: "wrap" }}>
           <PriorityBadge level={article.priority_level} />
+          {/* Phase 6 — only renders when API returned outside_focus=true,
+              i.e. user has personalisation on AND the article doesn't
+              match their esg_focus. Surfaces the "we're showing this
+              because it's CRITICAL even though it's outside your area"
+              signal so the feed feels intentional, not random. */}
+          <OutsideFocusBadge outsideFocus={article.outside_focus} />
           {sentArrow && (
             <span style={{ color: sentColor, fontSize: "10px", fontWeight: 700 }}>
               {sentArrow}{sent != null ? ` ${sent > 0 ? "+" : ""}${sent.toFixed(1)}` : ""}

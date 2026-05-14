@@ -364,3 +364,185 @@ def _persist_discovered() -> None:
         logger.info("Persisted %d discovered triples to %s", len(disc_graph), DISCOVERED_TTL_PATH)
     except Exception as exc:
         logger.error("_persist_discovered failed: %s", exc)
+
+
+# ---------------------------------------------------------------------------
+# Phase 24 (W2) — manual decide helper
+# ---------------------------------------------------------------------------
+
+
+# Status emitted when the analyst defers a candidate (re-review next cycle).
+STATUS_DEFERRED = "deferred"
+
+
+class DecideResult:
+    """Lightweight result wrapper for ``manual_decide`` returns.
+
+    Keeping this as a class (not a dataclass) avoids dataclass overhead in
+    the API path and matches the existing dict-returning convention used
+    by the legacy approve/reject endpoints.
+    """
+
+    def __init__(
+        self,
+        ok: bool,
+        message: str,
+        category: str | None = None,
+        slug: str | None = None,
+        decision: str | None = None,
+        triples_added: int = 0,
+        new_status: str | None = None,
+    ) -> None:
+        self.ok = ok
+        self.message = message
+        self.category = category
+        self.slug = slug
+        self.decision = decision
+        self.triples_added = triples_added
+        self.new_status = new_status
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "ok": self.ok,
+            "message": self.message,
+            "category": self.category,
+            "slug": self.slug,
+            "decision": self.decision,
+            "triples_added": self.triples_added,
+            "new_status": self.new_status,
+        }
+
+
+def manual_decide(
+    candidate_id: str,
+    decision: str,
+    *,
+    toulmin: dict[str, Any] | None = None,
+    user_id: str | None = None,
+) -> DecideResult:
+    """Apply a manual decision to a discovery candidate.
+
+    ``decision`` ∈ {``promote``, ``reject``, ``defer``}.
+
+    ``promote`` → builds triples (if the category supports it), inserts
+    into the live graph, persists discovered.ttl, marks STATUS_PROMOTED.
+
+    ``reject`` → marks STATUS_REJECTED. Triple count unchanged.
+
+    ``defer`` → marks STATUS_DEFERRED. Buffer keeps the candidate visible
+    so the next admin review session can revisit it. Defer is NOT pending —
+    pending = "engine hasn't decided yet"; defer = "human looked, decided
+    not to decide right now".
+
+    Every decision writes BOTH:
+      1. The legacy ``data/ontology/discovery_audit.jsonl`` (back-compat
+         with Phase 19 + downstream tooling that reads it)
+      2. The new Phase 24 ``data/audit/promotion_log.jsonl`` via
+         ``engine.audit.append_promotion`` — this carries the required
+         Toulmin block and is the audit surface the admin UI reads from.
+
+    The Toulmin block is required for ``reject`` and ``defer`` (those
+    decisions need a stated reason). It is optional for ``promote``
+    (the candidate's existing confidence + article count is the warrant).
+    """
+    if decision not in {"promote", "reject", "defer"}:
+        return DecideResult(
+            ok=False, message=f"unknown decision '{decision}' "
+            "(expected promote | reject | defer)",
+        )
+
+    parts = candidate_id.split(":", 1)
+    if len(parts) != 2:
+        return DecideResult(
+            ok=False, message="invalid candidate_id (expected 'category:slug')",
+        )
+    category, slug = parts
+
+    from engine.ontology.discovery.candidates import (
+        STATUS_PENDING,
+        STATUS_REJECTED,
+        get_buffer,
+    )
+    buf = get_buffer()
+    candidate = buf.get(category, slug)
+    if candidate is None:
+        return DecideResult(
+            ok=False, message=f"candidate not found: {candidate_id}",
+            category=category, slug=slug,
+        )
+
+    # Reject + defer require Toulmin justification (W2 discipline)
+    if decision in {"reject", "defer"} and not toulmin:
+        return DecideResult(
+            ok=False,
+            message=f"{decision} requires a toulmin justification "
+            "({claim, grounds[], warrant, ...})",
+            category=category, slug=slug,
+        )
+
+    triples_count = 0
+    new_status: str
+
+    if decision == "promote":
+        # Build + insert triples
+        triples = _build_triples(candidate)
+        if triples:
+            try:
+                from engine.ontology.graph import get_graph
+                g = get_graph()
+                g.insert_triples(triples)
+                _persist_discovered()
+                triples_count = len(triples)
+            except Exception as exc:
+                logger.error("manual_decide promote insert failed for %s: %s",
+                             candidate_id, exc)
+                return DecideResult(
+                    ok=False, message=f"triple insert failed: {exc}",
+                    category=category, slug=slug, decision=decision,
+                )
+        new_status = STATUS_PROMOTED
+    elif decision == "reject":
+        new_status = STATUS_REJECTED
+    else:  # defer
+        new_status = STATUS_DEFERRED
+
+    # Update buffer status
+    buf.update_status(category, slug, new_status)
+
+    # Legacy audit log (Phase 19 back-compat)
+    _log_audit(f"manual_{decision}", candidate, triples_count)
+
+    # Phase 24 promotion log — carries Toulmin + user_id for audit
+    try:
+        from engine import audit as _audit
+        _audit.append_promotion(
+            decision,  # type: ignore[arg-type]
+            candidate_id=candidate_id,
+            category=category,
+            candidate_payload={
+                "label": candidate.label,
+                "slug": candidate.slug,
+                "article_count": candidate.article_count,
+                "source_count": candidate.source_count,
+                "data": candidate.data,
+            },
+            confidence=candidate.confidence,
+            toulmin=toulmin,  # type: ignore[arg-type]
+            user_id=user_id,
+            automated=False,
+            extra={"triples_added": triples_count},
+        )
+    except Exception as exc:  # noqa: BLE001 — never block on audit failure
+        logger.warning("manual_decide audit append failed (non-fatal): %s", exc)
+
+    logger.info(
+        "manual_decide: %s '%s' (%s) → %s, %d triples, user=%s",
+        decision, candidate.label, candidate_id, new_status,
+        triples_count, user_id or "unknown",
+    )
+    return DecideResult(
+        ok=True,
+        message=f"{decision} applied to {candidate.label}",
+        category=category, slug=slug, decision=decision,
+        triples_added=triples_count, new_status=new_status,
+    )

@@ -296,6 +296,20 @@ def _llm_subject(
 # ---------------------------------------------------------------------------
 
 
+def _scrub_subject_provenance(s: str) -> str:
+    """Phase 4 §6.2 — never let '(engine estimate)' / '(from article)'
+    leak into a subject line. The LLM occasionally emits the tag despite
+    the prompt; templates never do; this is a final safety net."""
+    if not s:
+        return s
+    return re.sub(
+        r"\s*\((?:engine\s+estimate|from\s+article)\)",
+        "",
+        s,
+        flags=re.IGNORECASE,
+    ).strip()
+
+
 def build_subject(
     company: str,
     insight: dict[str, Any],
@@ -305,8 +319,12 @@ def build_subject(
 
     Selection logic:
       1. For HIGH / CRITICAL materiality → try LLM path (cached per article).
+         Result is verified via insight_verifier.verify_subject; failure
+         falls through to the template cascade (so we never ship a >90 char
+         or provenance-tagged subject even when the LLM disobeys).
       2. Fall back through templates in order: compliance → disclosure →
-         opportunity → generic.
+         opportunity → generic. Each candidate is scrubbed of provenance
+         tags as a final safety net.
       3. Always cap at 90 chars.
     """
     article = article or {}
@@ -317,11 +335,28 @@ def build_subject(
     # before falling into the defensive compliance/disclosure cascade.
     is_positive = _is_positive_event(insight)
 
+    # Phase 4 §6.2 — verifier import is lazy so subject_line stays
+    # importable in test contexts that don't load the verifier module.
+    try:
+        from engine.output.insight_verifier import verify_subject
+    except Exception:  # pragma: no cover — defensive
+        verify_subject = None  # type: ignore[assignment]
+
     # 1. LLM path for high-stakes articles (where open-rate matters most)
     if materiality in {"HIGH", "CRITICAL"}:
         llm = _llm_subject(company, insight, article, is_positive=is_positive)
         if llm:
-            return _truncate(llm)
+            llm_clean = _truncate(_scrub_subject_provenance(llm))
+            # Verifier gate — if the LLM emitted a non-conforming subject
+            # (no ₹, no competitive verb, or other issue), fall through
+            # to the deterministic templates rather than ship the bad one.
+            if verify_subject is None or verify_subject(llm_clean).passed:
+                return llm_clean
+            logger.info(
+                "subject_line: LLM subject rejected by verifier, using template fallback "
+                "(reasons: %s)",
+                "; ".join(verify_subject(llm_clean).reasons),
+            )
 
     # 2. Template cascade — polarity-aware
     if is_positive:
@@ -336,7 +371,7 @@ def build_subject(
     for tmpl in cascade:
         s = tmpl(company, insight)
         if s:
-            return _truncate(s)
+            return _truncate(_scrub_subject_provenance(s))
 
     # 3. Generic catch-all
-    return _truncate(_template_generic(company, insight))
+    return _truncate(_scrub_subject_provenance(_template_generic(company, insight)))

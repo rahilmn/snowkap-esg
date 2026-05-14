@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  siemens-aktiengesellschaft
+# Company:      Siemens Aktiengesellschaft
+# Industry:     Specialty Industrial Machinery
+# Region:       EU
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:53:24+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Siemens operates a global manufacturing and supply chain footprint, and as an EU-headquartered company, faces stringent decarbonization requirements under CSRD and the EU Green Deal." .
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_1_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Siemens sources components globally, including from regions with elevated labor rights risks, and is subject to the German Supply Chain Due Diligence Act (LkSG)." .
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_2_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Siemens has a history of high-profile corruption cases and operates in jurisdictions with varying anti-corruption enforcement, making ongoing compliance a material concern." .
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_3_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Siemens delivers critical infrastructure and industrial automation solutions, where product failures can have significant safety and reputational impacts." .
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_4_cyber_risk a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_cyber_risk ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Siemens' digitalization strategy and provision of industrial IoT solutions expose it to heightened cyber risk, as noted in its annual risk disclosures." .
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_5_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Siemens' manufacturing and R&D operations are energy-intensive, and the company is subject to EU energy efficiency directives." .
+
+snowkap:tenant_siemens_aktiengesellschaft_painpoint_6_board_diversity a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_board_diversity ;
+    snowkap:weightForIndustry "Specialty Industrial Machinery" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a DAX-listed company, Siemens is required to meet EU and German board diversity targets, and its governance practices are closely scrutinized by investors." .
+
+snowkap:tenant_siemens_aktiengesellschaft_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "siemens-aktiengesellschaft" ;
+    snowkap:forCompany "Siemens Aktiengesellschaft" ;
+    snowkap:tenantIndustry "Specialty Industrial Machinery" ;
+    snowkap:tenantRegion "EU" ;
+    dc:source "siemens.com" ;
+    dc:created "2026-05-08T10:53:24+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "CSRD/ESRS" , "SASB" , "GRI"
+    ;
+    snowkap:stakeholderConcern "EU regulatory compliance" , "Global supply chain transparency" , "Digitalization and cyber risk" , "Anti-corruption and ethical conduct" , "Decarbonization and climate targets"
+    ;
+    snowkap:headlinePainpoint "Siemens CSRD climate disclosure" , "Siemens supply chain due diligence LkSG" , "Siemens industrial cyber risk" , "Siemens anti-corruption compliance" , "Siemens product safety recall"
+    .
+

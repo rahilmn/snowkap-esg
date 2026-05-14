@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  jsw-energy
+# Company:      JSW Energy
+# Industry:     Power/Energy
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:52:29+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_jsw_energy_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Energy operates a mixed portfolio of thermal and renewable assets, with a significant portion of capacity still coal-based as per recent annual reports." .
+
+snowkap:tenant_jsw_energy_painpoint_1_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company is actively expanding renewables but remains exposed to transition risks due to legacy coal operations and India's decarbonization targets." .
+
+snowkap:tenant_jsw_energy_painpoint_2_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Thermal power plants in India are major water users; JSW Energy’s plants are located in regions with periodic water stress, as disclosed in their sustainability reporting." .
+
+snowkap:tenant_jsw_energy_painpoint_3_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Coal-based generation results in SOx, NOx, and particulate emissions; JSW Energy’s disclosures note ongoing compliance with Indian emission norms but highlight operational challenges." .
+
+snowkap:tenant_jsw_energy_painpoint_4_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Energy’s assets are geographically dispersed in India, exposing them to climate-related physical risks such as droughts and extreme weather, as referenced in their risk management filings." .
+
+snowkap:tenant_jsw_energy_painpoint_5_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company’s expansion into renewables and legacy thermal projects involves land acquisition and community engagement, as noted in their BRSR and sustainability reports." .
+
+snowkap:tenant_jsw_energy_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Energy is part of a large conglomerate and subject to heightened scrutiny on governance and ethical conduct, as reflected in their detailed BRSR disclosures." .
+
+snowkap:tenant_jsw_energy_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "jsw-energy" ;
+    snowkap:forCompany "JSW Energy" ;
+    snowkap:tenantIndustry "Power/Energy" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "jswenergy.com" ;
+    dc:created "2026-05-08T10:52:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB"
+    ;
+    snowkap:stakeholderConcern "Decarbonization strategy and coal phase-out" , "Water availability and local resource conflicts" , "Air quality compliance and public health" , "Community relations during project development" , "Corporate governance and ethical conduct"
+    ;
+    snowkap:headlinePainpoint "JSW Energy coal transition risk" , "JSW Energy water stress power plants" , "JSW Energy air pollution compliance" , "JSW Energy community land acquisition" , "JSW Energy business ethics governance"
+    .
+

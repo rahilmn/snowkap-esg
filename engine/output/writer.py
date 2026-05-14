@@ -54,6 +54,34 @@ class WrittenFiles:
         }
 
 
+def _parse_budget_cr(budget: Any) -> float | None:
+    """Phase 3 §5.2 — extract a numeric ₹ Cr from Recommendation.estimated_budget
+    so RoleDistinctPayload's RecommendationStub can carry a typed value.
+
+    Tolerates the legacy free-form string format: '₹500 Cr', 'Rs. 1,200 Cr',
+    '₹0.5-1 Cr' (takes the upper bound), '500'. Returns None when no
+    numeric budget can be parsed (rec stays in the role payload, just
+    without a budget figure).
+    """
+    if budget is None:
+        return None
+    if isinstance(budget, (int, float)):
+        return float(budget)
+    s = str(budget)
+    if not s:
+        return None
+    import re
+    # Match all numbers (handles ranges by taking the largest)
+    matches = re.findall(r"[\d,]+(?:\.\d+)?", s)
+    if not matches:
+        return None
+    try:
+        nums = [float(m.replace(",", "")) for m in matches]
+        return max(nums) if nums else None
+    except ValueError:
+        return None
+
+
 def _date_prefix(published_at: str | None) -> str:
     if not published_at:
         return datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -84,6 +112,57 @@ def write_insight(
     name = _filename(result)
     written = WrittenFiles(perspectives={})
 
+    # Phase 3 §5.1 — assemble the deterministic EvidencePack from existing
+    # pipeline + insight outputs and stamp it onto the payload. Today this
+    # is consumer-only (the role generators in the deferred Stage 11 split
+    # will read it). Building it here means downstream code never has to
+    # reconstruct it from raw pipeline state.
+    evidence_pack_dict: dict[str, Any] | None = None
+    role_payloads_dict: dict[str, dict[str, Any]] = {}
+    try:
+        from engine.analysis.evidence_pack import build_evidence_pack
+        insight_dict_for_pack = insight.to_dict() if insight else {}
+        # Splice in the perspective views so the pack builder can read
+        # `insight.perspectives.ceo.stakeholder_map`
+        if perspectives:
+            insight_dict_for_pack = dict(insight_dict_for_pack)
+            insight_dict_for_pack["perspectives"] = {
+                k: v.to_dict() for k, v in perspectives.items()
+            }
+        pack = build_evidence_pack(result, insight_dict_for_pack)
+        evidence_pack_dict = pack.to_dict()
+
+        # Phase 3 §5.2 — Stage 11 dispatcher. Build all 3 role payloads
+        # from the same EvidencePack and stamp them onto the persisted
+        # insight. Future LLM-prompt versions of the generators replace
+        # the body without changing this call site. Any single-role
+        # failure surfaces as a placeholder payload — never raises.
+        try:
+            from engine.analysis.role_generators import (
+                RecommendationStub,
+                dispatch_role_payloads_as_dict,
+            )
+            # Convert recommendation_engine.Recommendation → RecommendationStub
+            # so the role generators can apply per-role whitelists. Empty
+            # list when recs are absent or do_nothing-only.
+            rec_stubs: list[RecommendationStub] = []
+            if recommendations and getattr(recommendations, "recommendations", None):
+                for r in recommendations.recommendations:
+                    rec_stubs.append(RecommendationStub(
+                        title=getattr(r, "title", "") or "",
+                        type=getattr(r, "type", "") or "",
+                        budget_cr=_parse_budget_cr(getattr(r, "estimated_budget", None)),
+                        payback_months=getattr(r, "payback_months", None),
+                        framework_section=getattr(r, "framework_section", "") or "",
+                    ))
+            role_payloads_dict = dispatch_role_payloads_as_dict(
+                pack, recommendations=rec_stubs,
+            )
+        except Exception as exc:  # noqa: BLE001 — dispatcher must never block writes
+            logger.debug("role-payload dispatch failed (non-fatal): %s", exc)
+    except Exception as exc:  # noqa: BLE001 — never block writes on the scaffold
+        logger.debug("evidence_pack build failed (non-fatal): %s", exc)
+
     # Combined insight payload
     insight_payload: dict[str, Any] = {
         "article": {
@@ -99,9 +178,22 @@ def write_insight(
         "insight": insight.to_dict() if insight else None,
         "recommendations": recommendations.to_dict() if recommendations else None,
         "perspectives": {k: v.to_dict() for k, v in perspectives.items()},
+        # Phase 3 §5.1 — structured EvidencePack stamped at write time so
+        # consumers (future role generators, debugging tools) read it
+        # directly without rebuilding from pipeline + insight.
+        "evidence_pack": evidence_pack_dict,
+        # Phase 3 §5.2 — per-role RoleDistinctPayload (CFO / CEO /
+        # esg-analyst). The frontend can read role_payloads[role] to
+        # render the role-distinct headline + hero metric + takeaways
+        # without re-deriving them from pipeline state. Empty {} when
+        # the dispatcher couldn't build any role (e.g. REJECTED article).
+        "role_payloads": role_payloads_dict,
         "meta": {
             "written_at": datetime.now(timezone.utc).isoformat(),
-            "schema_version": "2.0-primitives-l2",
+            # W5 — schema bump signals the per-role rebuild (W4a: why_critical_for_role,
+            # W4b: role-aware personal_stakes, W4d: role_panel_order). Old "2.0-primitives-l2"
+            # files are still readable but trigger on-demand re-enrichment on next click.
+            "schema_version": "2.1-role-distinct",
         },
     }
     written.insight = _write(base / "insights" / name, insight_payload)

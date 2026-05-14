@@ -60,7 +60,11 @@ def enrich_on_demand(
     existing_insight = payload.get("insight") or {}
 
     # 3. Check if already enriched with CURRENT engine version
-    CURRENT_SCHEMA_VERSION = "2.0-primitives-l2"
+    # W5 — bumped 2.0-primitives-l2 -> 2.1-role-distinct so every existing
+    # article (Phase 17c-era) is treated as stale and re-runs Stages 10-12
+    # with the new W4 generators on next user click. Zero data loss; LLM
+    # spend only on articles users actually open.
+    CURRENT_SCHEMA_VERSION = "2.1-role-distinct"
     stored_version = (payload.get("meta") or {}).get("schema_version", "")
     is_current = stored_version == CURRENT_SCHEMA_VERSION
 
@@ -143,6 +147,43 @@ def enrich_on_demand(
 
     # 7. Stage 12: Recommendations
     recs = generate_recommendations(insight, result, company)
+
+    # 7.5 Phase 24 W3 — CFO-credibility preflight gating.
+    # Six independent gates run on the parsed insight + perspectives.
+    # If ANY gate fails, the article is hidden from the CFO surface
+    # (still visible on ESG Analyst surface). Each gate is logged to
+    # data/audit/preflight_log.jsonl.
+    preflight_status = "PASS"
+    try:
+        from engine.analysis.cfo_preflight import run_preflight
+        framework_codes = []
+        try:
+            framework_codes = [
+                getattr(fm, "framework_id", "") or getattr(fm, "id", "")
+                for fm in (result.frameworks or [])[:5]
+            ]
+            framework_codes = [c for c in framework_codes if c]
+        except Exception:
+            framework_codes = []
+        report = run_preflight(
+            insight.to_dict() if insight else None,
+            perspectives={k: v.to_dict() for k, v in perspectives.items()},
+            framework_codes=framework_codes,
+            published_at=getattr(result, "published_at", None),
+            event_id=getattr(result.event, "event_id", "") or "" if result.event else None,
+            event_polarity=getattr(insight, "event_polarity", "neutral") if insight else "neutral",
+            verifier_warnings=getattr(insight, "warnings", None) if insight else None,
+            article_id=str(article_id),
+            company_slug=company_slug,
+        )
+        preflight_status = "PASS" if report.passed else "FAIL"
+        # Stamp the report onto the insight via the dataclass field added
+        # in W3 — flows through DeepInsight.to_dict() → write_insight() →
+        # JSON. The SQLite extractor reads it back via _extract_fields().
+        if insight is not None:
+            insight.cfo_preflight = report.to_dict()
+    except Exception as exc:  # noqa: BLE001 — preflight is additive
+        logger.warning("cfo_preflight failed (non-fatal): %s", exc)
 
     # 8. Phase I: LLM intelligence layers
     intelligence = _run_intelligence_layers(result, insight, company)

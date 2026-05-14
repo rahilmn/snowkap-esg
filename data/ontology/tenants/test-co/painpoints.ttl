@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  test-co
+# Company:      Test Co
+# Industry:     Steel
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-11T11:58:23+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_test_co_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Test Co operates in the Indian steel sector, which is among the country's largest industrial sources of CO2 emissions and is subject to increasing regulatory and investor scrutiny under BRSR." .
+
+snowkap:tenant_test_co_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Steel production in India is highly water-intensive, and many steel plants face operational risks due to water scarcity in key industrial regions." .
+
+snowkap:tenant_test_co_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Indian steel producers generate significant solid waste (slag, dust, sludge) and are increasingly required to disclose and manage hazardous byproducts under BRSR." .
+
+snowkap:tenant_test_co_painpoint_3_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Steel plants in India are major sources of particulate and gaseous emissions, with regulatory enforcement tightening under the National Clean Air Programme." .
+
+snowkap:tenant_test_co_painpoint_4_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The Indian steel sector is heavily reliant on coal-based processes, making energy efficiency and transition to cleaner fuels a material concern for Test Co." .
+
+snowkap:tenant_test_co_painpoint_5_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Steel manufacturing in India is labor-intensive and has a track record of occupational health and safety incidents, with BRSR requiring detailed workforce disclosures." .
+
+snowkap:tenant_test_co_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "test-co" ;
+    snowkap:forCompany "Test Co" ;
+    snowkap:tenantIndustry "Steel" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "" ;
+    dc:created "2026-05-11T11:58:23+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB Iron & Steel Producers"
+    ;
+    snowkap:stakeholderConcern "Regulators focused on industrial emissions and water use" , "Investors tracking decarbonization and BRSR compliance" , "Local communities affected by air and water pollution" , "Labor unions and workforce safety advocates"
+    ;
+    snowkap:headlinePainpoint "Test Co BRSR carbon disclosure" , "Test Co water stress steel plants" , "Test Co air pollution compliance India" , "Test Co slag waste management" , "Test Co worker safety incidents"
+    .
+

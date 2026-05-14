@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  tata-chemicals-limited
+# Company:      Tata Chemicals Limited
+# Industry:     Chemicals
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:52:40+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_tata_chemicals_limited_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Tata Chemicals operates large-scale soda ash and fertilizer plants, which are energy-intensive and generate significant direct CO2 emissions, as disclosed in their annual sustainability reports." .
+
+snowkap:tenant_tata_chemicals_limited_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company has major manufacturing sites in water-stressed regions of India and Africa, making water sourcing and efficiency a recurring focus in their BRSR and GRI disclosures." .
+
+snowkap:tenant_tata_chemicals_limited_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Tata Chemicals reports substantial hazardous and non-hazardous waste generation from soda ash and fertilizer production, with ongoing efforts to improve waste utilization and reduce landfill disposal." .
+
+snowkap:tenant_tata_chemicals_limited_painpoint_3_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company's operations are highly energy-intensive, with a significant portion of energy sourced from fossil fuels, as detailed in their sustainability and integrated reports." .
+
+snowkap:tenant_tata_chemicals_limited_painpoint_4_employee_health a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_employee_health ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Tata Chemicals' disclosures highlight ongoing safety incidents and the inherent risks of chemical manufacturing, with a focus on improving safety culture and reducing lost-time injuries." .
+
+snowkap:tenant_tata_chemicals_limited_painpoint_5_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a producer of chemicals for food, pharma, and agriculture, Tata Chemicals faces regulatory scrutiny and customer expectations on product purity and safety, as reflected in their product stewardship programs." .
+
+snowkap:tenant_tata_chemicals_limited_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.75 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in multiple jurisdictions with varying regulatory standards, Tata Chemicals emphasizes compliance and ethics in its governance disclosures, though no major controversies are noted." .
+
+snowkap:tenant_tata_chemicals_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "tata-chemicals-limited" ;
+    snowkap:forCompany "Tata Chemicals Limited" ;
+    snowkap:tenantIndustry "Chemicals" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "tatachemicals.com" ;
+    dc:created "2026-05-08T10:52:40+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "CSRD/ESRS"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance for emissions and effluents" , "Water scarcity and community impact" , "Workforce health and safety" , "Product safety for end-users" , "Energy transition and decarbonization"
+    ;
+    snowkap:headlinePainpoint "Tata Chemicals soda ash CO2 emissions" , "Tata Chemicals water stress India" , "Tata Chemicals hazardous waste management" , "Tata Chemicals plant safety incidents" , "Tata Chemicals product safety recall"
+    .
+

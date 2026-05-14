@@ -47,6 +47,10 @@ class CEONarrativePerspective:
     three_year_trajectory: dict[str, str] = field(default_factory=dict)
     qna_drafts: dict[str, str] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    # W4a — deterministic role-specific "why is this critical for the CEO"
+    # paragraph composed from existing insight fields. ~70-90 words anchored
+    # on competitive position + 3-year horizon + board narrative.
+    why_critical_for_ceo: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -324,6 +328,15 @@ def generate_ceo_narrative_perspective(
     except Exception as exc:  # noqa: BLE001
         logger.warning("source tag enforcement failed (non-fatal): %s", exc)
 
+    # W4a — deterministic role-specific "why critical for the CEO" paragraph
+    why_critical_for_ceo = ""
+    try:
+        from engine.analysis.why_critical import build_why_critical
+        company_name = getattr(company, "name", None)
+        why_critical_for_ceo = build_why_critical(insight, "ceo", company_name=company_name)
+    except Exception as exc:  # noqa: BLE001 — additive
+        logger.debug("ceo_narrative_generator: why_critical build failed (%s)", exc)
+
     return CEONarrativePerspective(
         headline=cleaned_headline[:300],
         board_paragraph=str(parsed.get("board_paragraph", ""))[:1500],
@@ -332,4 +345,5 @@ def generate_ceo_narrative_perspective(
         three_year_trajectory=dict(parsed.get("three_year_trajectory", {}) or {}),
         qna_drafts=dict(parsed.get("qna_drafts", {}) or {}),
         warnings=warnings,
+        why_critical_for_ceo=why_critical_for_ceo,
     )

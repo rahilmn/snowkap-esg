@@ -8,6 +8,7 @@ import type { Article } from "@/types";
 import { esgPillarBg, formatDate } from "@/lib/utils";
 import { computeFomoTag } from "@/lib/fomo";
 import { PriorityBadge } from "@/components/ui/PriorityBadge";
+import { OutsideFocusBadge } from "@/components/persona/OutsideFocusBadge";
 
 interface NewsCardProps {
   article: Article;
@@ -41,8 +42,25 @@ export function NewsCard({ article }: NewsCardProps) {
   const pillar = article.esg_pillar?.toLowerCase() || "";
   const gradient = PILLAR_GRADIENTS[pillar] || "from-gray-500 to-gray-600";
 
+  // Phase 25 W10 — CRITICAL/HIGH visual hierarchy. Per the user's
+  // feedback ("what matters most appears first"), articles flagged
+  // CRITICAL get a red 4px left border + larger headline so they
+  // visually pop relative to MEDIUM/LOW cards in the same feed.
+  // MEDIUM/LOW keep the original card style — purely additive.
+  const priorityUpper = (article.priority_level || "").toUpperCase();
+  const isCritical = priorityUpper === "CRITICAL";
+  const isHigh = priorityUpper === "HIGH";
+  const cardClasses = isCritical
+    ? "rounded-xl shadow-lg bg-white overflow-hidden select-none aspect-[375/425] border-l-4 border-l-red-600 border-y border-r border-y-gray-100 border-r-gray-100"
+    : isHigh
+    ? "rounded-xl shadow-lg bg-white overflow-hidden select-none aspect-[375/425] border-l-4 border-l-orange-500 border-y border-r border-y-gray-100 border-r-gray-100"
+    : "rounded-xl shadow-lg bg-white border border-gray-100 overflow-hidden select-none aspect-[375/425]";
+  const headlineClasses = isCritical
+    ? "px-4 pt-1 text-lg font-bold leading-tight line-clamp-2 text-gray-900"
+    : "px-4 pt-1 text-base font-semibold leading-tight line-clamp-2 text-gray-900";
+
   return (
-    <div className="rounded-xl shadow-lg bg-white border border-gray-100 overflow-hidden select-none aspect-[375/425]">
+    <div className={cardClasses}>
       {/* Top row: pillar + priority + sentiment + FOMO */}
       <div className="flex items-center justify-between px-4 pt-3 pb-1">
         <div className="flex items-center gap-1.5">
@@ -53,6 +71,17 @@ export function NewsCard({ article }: NewsCardProps) {
           )}
           <PriorityBadge level={article.priority_level} />
           <SentimentDot score={article.sentiment_score} />
+          {/* W10 — CRITICAL ribbon, only on CRITICAL cards */}
+          {isCritical && (
+            <span className="ml-1 rounded bg-red-600 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+              CRITICAL
+            </span>
+          )}
+          {/* Phase 6 §8.3 — surfaces only when API returned outside_focus.
+              Discoverability invariant in action: a CRITICAL article that
+              isn't on the user's persona-saved esg_focus surfaces anyway,
+              with a chip explaining why the feed picked it. */}
+          <OutsideFocusBadge outsideFocus={article.outside_focus} />
         </div>
         {fomo.tag && (
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${fomo.bgColor} ${fomo.color}`}>
@@ -62,7 +91,7 @@ export function NewsCard({ article }: NewsCardProps) {
       </div>
 
       {/* Title */}
-      <h3 className="px-4 pt-1 text-base font-semibold leading-tight line-clamp-2 text-gray-900">
+      <h3 className={headlineClasses}>
         {article.title}
       </h3>
 

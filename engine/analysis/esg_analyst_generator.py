@@ -57,6 +57,10 @@ class ESGAnalystPerspective:
     warnings: list[str] = field(default_factory=list)
     # For UI compatibility with legacy CFO/CEO panels
     full_insight: dict[str, Any] | None = None
+    # W4a — deterministic role-specific "why critical for the analyst"
+    # paragraph anchored on framework gaps + disclosure deadlines + audit
+    # trail strength. ~70-100 words, NO ₹ figures (those belong to CFO).
+    why_critical_for_analyst: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -332,6 +336,15 @@ def generate_esg_analyst_perspective(
         logger.warning("source tag enforcement failed (non-fatal): %s", exc)
         warnings = []
 
+    # W4a — deterministic role-specific "why critical for the analyst"
+    why_critical_for_analyst = ""
+    try:
+        from engine.analysis.why_critical import build_why_critical
+        company_name = getattr(company, "name", None)
+        why_critical_for_analyst = build_why_critical(insight, "esg-analyst", company_name=company_name)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("esg_analyst_generator: why_critical build failed (%s)", exc)
+
     # Hydrate into the dataclass (defensive defaults)
     return ESGAnalystPerspective(
         headline=str(parsed.get("headline", insight.headline))[:300],
@@ -344,4 +357,5 @@ def generate_esg_analyst_perspective(
         framework_citations=list(parsed.get("framework_citations", []) or []),
         warnings=warnings,
         full_insight=insight.to_dict() if hasattr(insight, "to_dict") else None,
+        why_critical_for_analyst=why_critical_for_analyst,
     )

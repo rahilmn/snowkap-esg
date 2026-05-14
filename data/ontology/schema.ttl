@@ -4,6 +4,11 @@
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 @prefix snowkap: <http://snowkap.com/ontology/esg#> .
 
+# >>> LAYER 1 — READ-ONLY ESG CORE (Phase 24 W5) <<<
+# Edits to this file affect EVERY tenant on the instance. Tenant-specific
+# overrides belong in data/ontology/tenants/<tenant_id>/extension.ttl.
+# Before editing, see docs/ontology-code-map.md for the propagation plan.
+
 # =============================================================================
 # SNOWKAP ESG Intelligence Engine — Schema (5-Layer Ontology)
 #
@@ -512,3 +517,76 @@ snowkap:sortPriority a owl:DatatypeProperty ; rdfs:range xsd:integer ;
 snowkap:showsRecType a owl:DatatypeProperty ; rdfs:domain snowkap:PerspectiveLens ;
     rdfs:range xsd:string ;
     rdfs:comment "Recommendation types visible for this perspective lens" .
+
+# =============================================================================
+# LAYER 8: TOULMIN REASONING (Phase 24)
+#
+# Every CRITICAL/HIGH-materiality insight published to a perspective lens
+# carries a Toulmin block (claim/grounds/warrant/qualifier/rebuttal). The
+# `warrant` field cites a NormativePrinciple from the ontology. The
+# `rebuttal` field articulates the conditions under which the verdict
+# would flip — required for "do nothing" verdicts so the CFO knows what
+# to monitor.
+# =============================================================================
+
+snowkap:NormativePrinciple a owl:Class ;
+    rdfs:label "Normative Principle" ;
+    rdfs:comment "A reusable warrant statement linking event/topic context to a defensible verdict. Cited in the Toulmin `warrant` field of insight outputs." .
+
+snowkap:principleId a owl:DatatypeProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range xsd:string ;
+    rdfs:comment "Stable identifier (e.g. NP-REG-001)." .
+
+snowkap:principleStatement a owl:DatatypeProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range xsd:string ;
+    rdfs:comment "Human-readable rule the warrant cites (e.g. 'Regulatory penalties >0.5% of revenue trigger investor reaction.')." .
+
+snowkap:principleDomain a owl:DatatypeProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range xsd:string ;
+    rdfs:comment "regulatory | financial | reputational | operational | strategic | esg-materiality" .
+
+snowkap:appliesToTopic a owl:ObjectProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range snowkap:ESGTopic ;
+    rdfs:comment "ESG topic this principle is relevant to. Multiple allowed." .
+
+snowkap:appliesToEvent a owl:DatatypeProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range xsd:string ;
+    rdfs:comment "Event type ID this principle is relevant to (e.g. event_regulatory_penalty). Multiple allowed." .
+
+snowkap:appliesToPolarity a owl:DatatypeProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range xsd:string ;
+    rdfs:comment "positive | negative | both — controls when the warrant is selected." .
+
+snowkap:principleSource a owl:DatatypeProperty ;
+    rdfs:domain snowkap:NormativePrinciple ; rdfs:range xsd:string ;
+    rdfs:comment "Where the principle originates (regulator citation, framework section, internal policy)." .
+
+# =============================================================================
+# LAYER 9: CFO-CREDIBILITY PREFLIGHT (Phase 24 W3)
+#
+# `:FreshnessWindow` instances declare the maximum age (in days) of an
+# article's `published_at` for the CFO perspective surface to consider it
+# actionable. The W3 preflight 'no_stale_data' gate reads these via SPARQL.
+#
+# Different event types have different decay rates. A regulatory penalty
+# remains material for ~30 days (the disclosure obligation outlives the
+# headline news cycle). A market-moving event decays in ~7 days. A contract
+# announcement remains material for ~60 days (the order book impact persists
+# through the reporting cycle).
+# =============================================================================
+
+snowkap:FreshnessWindow a owl:Class ;
+    rdfs:label "Freshness Window" ;
+    rdfs:comment "Maximum age in days for CFO-perspective publishability. Per event type." .
+
+snowkap:freshnessForEvent a owl:DatatypeProperty ;
+    rdfs:domain snowkap:FreshnessWindow ; rdfs:range xsd:string ;
+    rdfs:comment "Event type ID this window applies to (e.g. event_regulatory_penalty)." .
+
+snowkap:freshnessDays a owl:DatatypeProperty ;
+    rdfs:domain snowkap:FreshnessWindow ; rdfs:range xsd:integer ;
+    rdfs:comment "Maximum age in days. Articles older than this fail the no_stale_data preflight gate." .
+
+snowkap:freshnessRationale a owl:DatatypeProperty ;
+    rdfs:domain snowkap:FreshnessWindow ; rdfs:range xsd:string ;
+    rdfs:comment "One-line explanation of why this window applies." .

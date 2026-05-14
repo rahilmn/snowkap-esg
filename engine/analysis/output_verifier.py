@@ -48,6 +48,14 @@ _RUPEE_FIGURE_RE = re.compile(
     re.IGNORECASE,
 )
 _SOURCE_TAG_RE = re.compile(r"\((?:from\s+article|engine\s+estimate)\)", re.IGNORECASE)
+# Phase 2.3 — range syntax produced by strip_narrative_provenance, e.g.
+# "₹160–200 Cr" or "₹1,700–2,100 Cr". When a string already contains a range
+# the provenance has been moved to the __provenance sidecar — re-tagging it
+# here would split the range across the inserted tag and break idempotency.
+_RUPEE_RANGE_RE = re.compile(
+    r"(?:₹|Rs\.?|INR)\s?[\d,]+(?:\.\d+)?\s?[–—-]\s?[\d,]+(?:\.\d+)?\s?Cr",
+    re.IGNORECASE,
+)
 # Phase 24.6 — units that signal context-only references (market cap,
 # total addressable market, GDP) where source-tagging is meaningless.
 _BIG_UNIT_RE = re.compile(r"^(?:trillion|billion|million|tn|bn|mn)\b", re.IGNORECASE)
@@ -978,6 +986,12 @@ def enforce_source_tags(
         if isinstance(node, str):
             if not _RUPEE_FIGURE_RE.search(node) or _has_source_tag(node):
                 return node
+            # Phase 2.3 — if the string already carries a render-protocol
+            # range like "₹160–200 Cr", the provenance is in the
+            # __provenance sidecar. Re-tagging would inject "(engine
+            # estimate)" between the lo and hi figures and break idempotency.
+            if _RUPEE_RANGE_RE.search(node):
+                return node
             tag = _infer_source_tag(node, article_excerpts)
             # Phase 24.6 — skip tag injection when the figure is followed by
             # trillion / billion / million (e.g. "₹4.27 trillion market cap").
@@ -1128,6 +1142,237 @@ def flag_roi_caps_bulk(recommendations: list[dict]) -> tuple[list[dict], int]:
             count += 1
         out.append(new_rec)
     return out, count
+
+
+# ---------------------------------------------------------------------------
+# Phase 2.3 — Strip provenance tags from rendered narrative + sidecar
+# ---------------------------------------------------------------------------
+#
+# The LLM emits "(engine estimate)" / "(from article)" tags so the verifier
+# (audit_source_tags, drift checks) can reason about which figures came from
+# the article vs the cascade engine. By the time we ship to the frontend,
+# those tags read as machinery — false-precision figures like
+# "₹1,857.6 Cr (engine estimate)" make the output look fabricated.
+#
+# This pass runs LAST in verify_and_correct. It:
+#   1. Scans narrative fields for `₹X Cr (engine estimate|from article)`
+#   2. Renders the figure per the protocol (sig2 for headline, range for body)
+#   3. Strips the parenthesised tag from the prose
+#   4. Stashes the original {field, original_cr, source} into a sidecar
+#      `__provenance` list for the frontend NumberWithProvenance component
+#
+# Idempotent — once stripped the regex won't re-match.
+# Excluded paths (table contexts that keep full precision):
+#   - causal_chain (cascade table, Analyst-only)
+#   - any field whose name ends in "_table" or "_cascade"
+
+_PROVENANCE_NUM_RE = re.compile(
+    r"((?:₹|Rs\.?|INR)\s?[\d,]+(?:\.\d+)?\s?(?:Cr|crore))"
+    r"\s?\((engine\s+estimate|from\s+article)\)",
+    re.IGNORECASE,
+)
+_NUMERIC_VALUE_RE = re.compile(r"[\d,]+(?:\.\d+)?")
+
+# Narrative field paths to scrub. Each path is a dotted string; missing keys
+# are skipped silently. Lists of strings are walked element-by-element.
+_NARRATIVE_PATHS_HEADLINE: tuple[str, ...] = (
+    "headline",
+    "perspectives.cfo.headline",
+    "perspectives.ceo.headline",
+    "perspectives.esg_analyst.headline",
+)
+_NARRATIVE_PATHS_BODY: tuple[str, ...] = (
+    "core_mechanism",
+    "profitability_connection",
+    "translation",
+    "net_impact_summary",
+    "decision_summary.financial_exposure",
+    "decision_summary.key_risk",
+    "decision_summary.top_opportunity",
+    "decision_summary.action",
+    "perspectives.cfo.paragraph",
+    "perspectives.ceo.paragraph",
+    "perspectives.esg_analyst.paragraph",
+    "stakes_for_company.personal_stakes_paragraph",
+    "stakes_for_company.do_nothing_risk_paragraph",
+    "stakes_for_company.peer_action_summary",
+)
+# Dict-of-strings narrative containers — every value is scrubbed body-style.
+_NARRATIVE_DICT_PATHS: tuple[str, ...] = (
+    "impact_analysis",
+)
+# List-of-strings narrative containers — every entry is scrubbed body-style.
+_NARRATIVE_LIST_PATHS: tuple[str, ...] = (
+    "key_takeaways",
+    "warnings",
+)
+
+
+def _round_sig2(value: float) -> float:
+    """Round to 2 significant figures (matches the frontend renderer)."""
+    if value == 0 or not _math_finite(value):
+        return 0.0
+    import math
+    sign = -1 if value < 0 else 1
+    abs_v = abs(value)
+    magnitude = math.floor(math.log10(abs_v))
+    factor = 10 ** (1 - magnitude)
+    return sign * round(abs_v * factor) / factor
+
+
+def _math_finite(value: float) -> bool:
+    return value == value and value not in (float("inf"), float("-inf"))
+
+
+def _format_indian(value: float) -> str:
+    """Format with Indian thousands separators. Strips trailing .0."""
+    if value == int(value):
+        return f"{int(value):,}"
+    return f"{value:,.1f}"
+
+
+def _render_for_strip(value_cr: float, context: str) -> str:
+    """Mirror the frontend renderRupee for narrative use.
+
+    Body context uses ±10% range; headline uses '~₹X Cr'.
+    """
+    rounded = _round_sig2(value_cr)
+    if context == "body":
+        delta = rounded * 0.10
+        lo = _round_sig2(rounded - delta)
+        hi = _round_sig2(rounded + delta)
+        if lo == hi:
+            return f"~₹{_format_indian(rounded)} Cr"
+        return f"₹{_format_indian(lo)}–{_format_indian(hi)} Cr"
+    # headline / fallback
+    return f"~₹{_format_indian(rounded)} Cr"
+
+
+def _walk_get(obj: Any, path: str) -> Any:
+    cur: Any = obj
+    for key in path.split("."):
+        if not isinstance(cur, dict):
+            return None
+        cur = cur.get(key)
+        if cur is None:
+            return None
+    return cur
+
+
+def _walk_set(obj: Any, path: str, value: Any) -> None:
+    parts = path.split(".")
+    cur = obj
+    for key in parts[:-1]:
+        if not isinstance(cur, dict) or key not in cur:
+            return
+        cur = cur[key]
+    if isinstance(cur, dict):
+        cur[parts[-1]] = value
+
+
+def _scrub_string(
+    text: str,
+    field_path: str,
+    context: str,
+    sidecar: list[dict[str, Any]],
+) -> str:
+    """Strip provenance tags inline; append entries to sidecar."""
+
+    def repl(m: re.Match[str]) -> str:
+        rupee_chunk = m.group(1)
+        source_raw = m.group(2).lower().replace(" ", "_")
+        # Pull the numeric value out of the rupee chunk
+        num_match = _NUMERIC_VALUE_RE.search(rupee_chunk)
+        if not num_match:
+            return rupee_chunk  # safety: leave value, drop tag
+        try:
+            value_cr = float(num_match.group(0).replace(",", ""))
+        except ValueError:
+            return rupee_chunk
+        rendered = _render_for_strip(value_cr, context)
+        sidecar.append(
+            {
+                "field": field_path,
+                "original_cr": value_cr,
+                "source": source_raw,  # "engine_estimate" | "from_article"
+                "rendered": rendered,
+                "context": context,
+            },
+        )
+        return rendered
+
+    return _PROVENANCE_NUM_RE.sub(repl, text)
+
+
+def strip_narrative_provenance(deep_insight: dict) -> tuple[dict, list[dict]]:
+    """Phase 2.3 — strip "(engine estimate)" / "(from article)" tags from
+    user-visible narrative fields and stash provenance into a sidecar.
+
+    Returns (mutated_insight, sidecar_entries). The mutation is in-place;
+    the return is for caller convenience.
+
+    Idempotent: re-runs are no-ops because the regex requires the parens.
+
+    The cascade view (causal_chain dict) is intentionally NOT scrubbed —
+    that's the analyst's audit table where full precision is the point.
+    """
+    if not isinstance(deep_insight, dict):
+        return deep_insight, []
+
+    sidecar: list[dict[str, Any]] = []
+
+    for path in _NARRATIVE_PATHS_HEADLINE:
+        val = _walk_get(deep_insight, path)
+        if isinstance(val, str) and val:
+            new_val = _scrub_string(val, path, "headline", sidecar)
+            if new_val != val:
+                _walk_set(deep_insight, path, new_val)
+
+    for path in _NARRATIVE_PATHS_BODY:
+        val = _walk_get(deep_insight, path)
+        if isinstance(val, str) and val:
+            new_val = _scrub_string(val, path, "body", sidecar)
+            if new_val != val:
+                _walk_set(deep_insight, path, new_val)
+
+    for dict_path in _NARRATIVE_DICT_PATHS:
+        container = _walk_get(deep_insight, dict_path)
+        if isinstance(container, dict):
+            for sub_key, sub_val in list(container.items()):
+                if isinstance(sub_val, str) and sub_val:
+                    new_val = _scrub_string(
+                        sub_val,
+                        f"{dict_path}.{sub_key}",
+                        "body",
+                        sidecar,
+                    )
+                    if new_val != sub_val:
+                        container[sub_key] = new_val
+
+    for list_path in _NARRATIVE_LIST_PATHS:
+        container = _walk_get(deep_insight, list_path)
+        if isinstance(container, list):
+            for i, item in enumerate(container):
+                if isinstance(item, str) and item:
+                    new_val = _scrub_string(
+                        item,
+                        f"{list_path}[{i}]",
+                        "body",
+                        sidecar,
+                    )
+                    if new_val != item:
+                        container[i] = new_val
+
+    if sidecar:
+        # Merge with any existing __provenance from a prior run rather than
+        # clobbering — defensive against double-call scenarios.
+        existing = deep_insight.get("__provenance")
+        if isinstance(existing, list):
+            deep_insight["__provenance"] = existing + sidecar
+        else:
+            deep_insight["__provenance"] = sidecar
+
+    return deep_insight, sidecar
 
 
 # ---------------------------------------------------------------------------
@@ -1345,6 +1590,8 @@ def verify_and_correct(
     nlp_sentiment: int | None = None,
     event_matched_keywords: list[str] | None = None,
     has_financial_quantum: bool = True,
+    article_id: str | None = None,
+    company_slug: str | None = None,
 ) -> tuple[dict, VerifierReport]:
     """Run all verifier checks in order. Returns (corrected_insight, report).
 
@@ -1355,7 +1602,26 @@ def verify_and_correct(
     fallback OR weak signal + neutral sentiment + no ₹ in article).
     Callers that don't have these signals can omit them; the checks
     skip cleanly in that case (back-compat with Phase 3 signature).
+
+    Phase 24 adds optional ``article_id`` / ``company_slug`` kwargs.
+    When both are provided, fire-events from the verifier are mirrored
+    to ``data/audit/decision_log.jsonl`` so a CFO / regulator can later
+    enumerate every materiality downgrade, hallucination audit fire,
+    coherence warning, and low-confidence classification per article.
+    Omit the kwargs to keep audit logging silent (back-compat for legacy
+    callers + tests that don't have an article context).
     """
+    # Phase 24 — audit logging is opt-in via article_id + company_slug.
+    # Lazy import so the verifier remains import-safe in legacy contexts.
+    _audit_enabled = bool(article_id and company_slug)
+    if _audit_enabled:
+        try:
+            from engine import audit as _audit
+        except Exception:  # noqa: BLE001 — never block verify on import failure
+            _audit = None
+            _audit_enabled = False
+    else:
+        _audit = None
     # 1. Margin math
     out, report = verify_margin_math(deep_insight, revenue_cr)
 
@@ -1368,6 +1634,16 @@ def verify_and_correct(
             f"hallucination audit: downgraded {tags_downgraded} unsupported "
             f"'(from article)' claim(s) to '(engine estimate)'"
         )
+        if _audit_enabled and _audit is not None:
+            try:
+                _audit.append_decision(
+                    "hallucination_audit_fired",
+                    article_id=article_id,
+                    company_slug=company_slug,
+                    extra={"unsupported_claims_downgraded": tags_downgraded},
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("audit append (hallucination) failed: %s", exc)
 
     # 1.6. Phase 18 — reused-number hallucination audit. Catches the
     # complementary failure mode where the same article-figure value (within
@@ -1408,11 +1684,40 @@ def verify_and_correct(
     # final materiality after other corrections. Only emits a warning when
     # event_id is known (old callers without the kwarg are skipped).
     if event_id:
+        materiality_before = (out.get("decision_summary") or {}).get("materiality")
         out, coherence = verify_narrative_coherence(out, event_id, nlp_sentiment)
         # Merge coherence corrections into the main report
         report.corrections.extend(coherence.corrections)
         if not coherence.math_ok:
             report.math_ok = False  # preserve the "hallucination detected" signal
+        # Phase 24 — emit decision log entries for materiality downgrades
+        materiality_after = (out.get("decision_summary") or {}).get("materiality")
+        if (
+            _audit_enabled and _audit is not None
+            and materiality_before
+            and materiality_before != materiality_after
+        ):
+            try:
+                _audit.append_decision(
+                    "materiality_downgrade",
+                    article_id=article_id,
+                    company_slug=company_slug,
+                    before={"materiality": materiality_before},
+                    after={"materiality": materiality_after},
+                    extra={"trigger": "narrative_coherence_verifier", "event_id": event_id},
+                )
+                _audit.append_decision(
+                    "coherence_warning_applied",
+                    article_id=article_id,
+                    company_slug=company_slug,
+                    extra={
+                        "event_id": event_id,
+                        "sentiment": nlp_sentiment,
+                        "corrections": coherence.corrections,
+                    },
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("audit append (coherence) failed: %s", exc)
 
     # 6. Phase 12.5 + 22.4: cross-section canonical-exposure drift check
     # with auto-normalisation. Original behaviour was warn-only ("don't
@@ -1486,8 +1791,77 @@ def verify_and_correct(
     )
     if lc_warnings:
         report.corrections.extend(lc_warnings)
+        if (
+            _audit_enabled and _audit is not None
+            and out.get("low_confidence_classification")
+        ):
+            try:
+                _audit.append_decision(
+                    "low_confidence_classification",
+                    article_id=article_id,
+                    company_slug=company_slug,
+                    extra={
+                        "warnings": lc_warnings,
+                        "matched_keywords": event_matched_keywords or [],
+                        "sentiment": nlp_sentiment,
+                        "has_financial_quantum": has_financial_quantum,
+                    },
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("audit append (low-confidence) failed: %s", exc)
 
     # 7. ROI caps (per-recommendation, handled by caller — expose helper)
     # We operate on deep_insight; recommendation_engine has its own wrapping
+
+    # 7.5 Phase 3 §5.5 — cross-role ₹ drift detector. Pulls per-perspective
+    # payloads (cfo / ceo / esg_analyst) out of `out["perspectives"]` and
+    # checks pairwise drift on the largest ₹ figure each role mentions.
+    # Drift > 5% emits a non-fatal warning + stamps a serialised report
+    # onto `out["__cross_role_drift"]` so the UI / drip composer can
+    # avoid sending an article whose three role views disagree on the
+    # headline number. Pure detector; no mutation.
+    try:
+        perspectives = out.get("perspectives") or {}
+        if isinstance(perspectives, dict) and perspectives:
+            from engine.analysis.cross_role_drift import (
+                compute_drift,
+                serialise_report as _serialise_drift,
+            )
+            drift = compute_drift(
+                {
+                    role: payload
+                    for role, payload in perspectives.items()
+                    if isinstance(payload, dict)
+                },
+            )
+            if drift.has_violations:
+                report.warnings.append(
+                    f"cross-role ₹ drift: {len(drift.violations)} role-pair(s) "
+                    f"differ > 5% on canonical figure ({drift.canonical_cr:.1f} Cr)"
+                )
+                report.corrections.append(
+                    f"cross-role drift detected: {len(drift.violations)} pair(s)"
+                )
+            # Always stamp the report (even on clean) so a downstream audit
+            # tool can confirm the check ran.
+            out["__cross_role_drift"] = _serialise_drift(drift)
+    except Exception as exc:  # noqa: BLE001 — never break verify on drift check
+        logger.debug("cross_role_drift check failed (non-fatal): %s", exc)
+
+    # 8. Phase 2.3 — strip provenance tags from rendered narrative.
+    # Runs LAST so every prior pass has already inspected the tags. The
+    # __provenance sidecar lets the frontend NumberWithProvenance component
+    # restore source attribution as a hover/tooltip without showing
+    # "(engine estimate)" inline. Cascade tables (Analyst audit view) are
+    # unaffected — they read causal_chain directly, which this pass skips.
+    try:
+        out, scrubbed = strip_narrative_provenance(out)
+        if scrubbed:
+            report.corrections.append(
+                f"render-protocol: stripped {len(scrubbed)} provenance tag(s) "
+                f"from narrative; sidecar staged for frontend tooltip"
+            )
+    except Exception as exc:  # noqa: BLE001 — never break verify on render-pass
+        logger.debug("strip_narrative_provenance failed: %s", exc)
 
     return out, report

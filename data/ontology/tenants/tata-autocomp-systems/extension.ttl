@@ -1,0 +1,27 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT EXTENSION (Phase 25 W6 industry-default seeding) <<<
+# Tenant slug:  tata-autocomp-systems
+# Industry:     Auto Parts
+# Source:       Auto-generated from engine.ingestion.industry_materiality_defaults
+# Override:     Run /discover-tenant-config to replace these with analyst-curated values.
+
+# Supply Chain Labour materiality override
+snowkap:tenant_tata-autocomp-systems_supply_chain_labor_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.92 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Tier-1 suppliers face increasing OEM ESG audit pressure; CSRD cascades upstream from EU OEMs." .
+
+# Resource Efficiency / Circularity materiality override
+snowkap:tenant_tata-autocomp-systems_resource_efficiency_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_resource_efficiency ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.88 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Material recovery rates + closed-loop steel/aluminium are emerging buyer requirements." .

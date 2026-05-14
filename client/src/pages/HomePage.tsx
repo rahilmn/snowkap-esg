@@ -15,6 +15,7 @@ import { ArticleDetailSheet } from "../components/panels/ArticleDetailSheet";
 import { OnboardingProgressModal } from "../components/panels/OnboardingProgressModal";
 import { formatCurrency } from "../lib/utils";
 import type { Article } from "../types";
+import { usePersonalisationOptIn } from "../hooks/usePersonalisationOptIn";
 
 function humanizeSlug(slug: string | null): string {
   if (!slug) return "your company";
@@ -58,14 +59,20 @@ export default function HomePage() {
     }
   }, [searchParams, companyId, setCompanyId, setSearchParams]);
 
+  // Phase 6 — when the user has saved their persona MCQ, opt into the
+  // persona-modulated feed. Falls back to un-personalised when they
+  // haven't filled it out yet (mcq_completed=false).
+  const personalise = usePersonalisationOptIn();
+
   const { data: feedData, isLoading } = useQuery({
-    queryKey: ["home-articles", companyId],
+    queryKey: ["home-articles", companyId, personalise],
     queryFn: () =>
       news.list({
         limit: 5,
         offset: 0,
         sort_by: "priority",
         company_id: companyId || undefined,
+        personalise,
       }),
   });
 

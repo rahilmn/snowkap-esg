@@ -194,12 +194,16 @@ def test_login_from_known_target_domain_still_appears():
     target-config + registry."""
     client = TestClient(app)
 
+    from api.routes import admin as _admin_route
+    _admin_route._reset_tenant_cache()
     r = client.get(
         "/api/admin/tenants",
         headers={"Authorization": f"Bearer {_admin_token()}"},
     )
     assert r.status_code == 200
-    names = [e["slug"] for e in r.json()]
+    body = r.json()
+    entries = body["companies"] if isinstance(body, dict) else body  # W1 shape
+    names = [e["slug"] for e in entries]
     # The 7 target companies come from config/companies.json
     for expected in ("icici-bank", "adani-power", "jsw-energy"):
         assert expected in names, f"target {expected!r} missing from switcher"

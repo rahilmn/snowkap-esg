@@ -4,6 +4,13 @@
 @prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
 @prefix snowkap: <http://snowkap.com/ontology/esg#> .
 
+# >>> LAYER 1 — READ-ONLY ESG CORE (Phase 24 W5) <<<
+# Edits affect EVERY tenant. Tenant overrides → tenants/<id>/extension.ttl.
+# Note: this file currently holds tenant-customisable triples
+# (RegionalFrameworkBoost, MandatoryRule, HeadlineRule, RankingSortKey,
+# FreshnessWindow). Future migration will extract those into per-tenant
+# extensions; until then they apply globally.
+
 # =============================================================================
 # SNOWKAP ESG — Phase 7 Knowledge Expansion
 #
@@ -1234,3 +1241,137 @@ snowkap:rank_analyst_2 a snowkap:PerspectiveLens ;
 snowkap:lens_cfo snowkap:showsRecType "financial", "compliance", "operational" .
 snowkap:lens_ceo snowkap:showsRecType "strategic", "esg_positioning", "operational" .
 snowkap:lens_esg_analyst snowkap:showsRecType "compliance", "esg_positioning", "strategic", "operational", "financial" .
+
+# =============================================================================
+# W4d — ROLE PANEL PRIORITY (which sections render first per perspective)
+#
+# Each RolePanelPriority instance carries:
+#   - forPerspective    snowkap:lens_cfo | snowkap:lens_ceo | snowkap:lens_esg_analyst
+#   - panelOrder        comma-separated panel-id list, in render order
+#   - hiddenPanels      comma-separated panel-id list, suppressed for this role
+#
+# Panel IDs (canonical names — keep in sync with the React panel components
+# in client/src/components/panels/):
+#   personal_stakes, why_critical, crisp_insight, impact_metrics,
+#   recommendations, framework_alignment, key_insights, narrative_intelligence,
+#   causal_chain, risk_assessment, stakeholder_map, three_year_trajectory,
+#   board_paragraph, kpi_table, audit_trail, sdg_map, precedent
+# =============================================================================
+
+snowkap:role_panel_cfo a snowkap:RolePanelPriority ;
+    snowkap:forPerspective snowkap:lens_cfo ;
+    snowkap:panelOrder "personal_stakes,why_critical,crisp_insight,impact_metrics,recommendations,audit_trail" ;
+    snowkap:hiddenPanels "narrative_intelligence,sdg_map,causal_chain,three_year_trajectory,board_paragraph,kpi_table,stakeholder_map,framework_alignment" ;
+    rdfs:comment "CFO sees the financial decision stack first: personal stakes (ours), why critical, crisp verdict, impact metrics, recs (sorted by ROI), audit trail. Strategic narrative + framework deep-dives are hidden — those belong to CEO + Analyst." .
+
+snowkap:role_panel_ceo a snowkap:RolePanelPriority ;
+    snowkap:forPerspective snowkap:lens_ceo ;
+    snowkap:panelOrder "personal_stakes,why_critical,crisp_insight,three_year_trajectory,stakeholder_map,board_paragraph,recommendations" ;
+    snowkap:hiddenPanels "kpi_table,framework_alignment,audit_trail,causal_chain,impact_metrics" ;
+    rdfs:comment "CEO sees the strategic narrative first: personal stakes (ours), why critical, crisp verdict, 3-year trajectory, stakeholder map, board paragraph, recs (sorted by impact). Compliance + KPI tables hidden — those belong to Analyst." .
+
+snowkap:role_panel_analyst a snowkap:RolePanelPriority ;
+    snowkap:forPerspective snowkap:lens_esg_analyst ;
+    snowkap:panelOrder "personal_stakes,why_critical,crisp_insight,kpi_table,framework_alignment,causal_chain,audit_trail,recommendations,sdg_map" ;
+    snowkap:hiddenPanels "board_paragraph,three_year_trajectory" ;
+    rdfs:comment "ESG Analyst sees the methodology stack first: personal stakes (ours), why critical, KPI table, framework alignment, causal chain, audit trail, recs (sorted by compliance type). Board narrative + 3-year trajectory hidden — those belong to CEO." .
+
+# =============================================================================
+# Phase 24 W3 — CFO-credibility freshness windows (per event type)
+#
+# Read by `engine.analysis.cfo_preflight.no_stale_data_gate`. Articles
+# older than the event-type's freshness window fail the gate and are
+# hidden from the CFO surface (still visible on ESG Analyst surface for
+# follow-up review). When an event has no FreshnessWindow declared, the
+# default is 14 days (set in cfo_preflight.DEFAULT_FRESHNESS_DAYS).
+# =============================================================================
+
+# Regulatory — disclosure obligation outlives news cycle
+snowkap:fw_regulatory_penalty a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_regulatory_penalty" ;
+    snowkap:freshnessDays 30 ;
+    snowkap:freshnessRationale "Disclosure obligation persists ~30 days; CFO action window matches" .
+
+snowkap:fw_show_cause_notice a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_show_cause_notice" ;
+    snowkap:freshnessDays 30 ;
+    snowkap:freshnessRationale "SCN response timeline typically 21-30 days" .
+
+snowkap:fw_regulatory_consultation a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_regulatory_consultation" ;
+    snowkap:freshnessDays 60 ;
+    snowkap:freshnessRationale "Consultation windows are usually 30-90 days; ride the cycle" .
+
+snowkap:fw_disclosure_announcement a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_disclosure_announcement" ;
+    snowkap:freshnessDays 21 ;
+    snowkap:freshnessRationale "Disclosures decay quickly once the news is in the market" .
+
+snowkap:fw_framework_update a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_framework_update" ;
+    snowkap:freshnessDays 60 ;
+    snowkap:freshnessRationale "Framework updates have multi-month implementation runway" .
+
+# Financial / market events — short window
+snowkap:fw_quarterly_results a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_quarterly_results" ;
+    snowkap:freshnessDays 14 ;
+    snowkap:freshnessRationale "Earnings news decays within 2 weeks; fresh-cycle by definition" .
+
+snowkap:fw_dividend_policy a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_dividend_policy" ;
+    snowkap:freshnessDays 14 ;
+    snowkap:freshnessRationale "Distribution decisions move on the next board cycle" .
+
+snowkap:fw_esg_rating_change a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_esg_rating_change" ;
+    snowkap:freshnessDays 21 ;
+    snowkap:freshnessRationale "Rating updates affect investor positioning for a few weeks" .
+
+# Operational + supply chain — medium window
+snowkap:fw_extreme_weather a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_extreme_weather" ;
+    snowkap:freshnessDays 21 ;
+    snowkap:freshnessRationale "Weather damage assessment + insurance + ops recovery typically 2-3 weeks" .
+
+snowkap:fw_facility_disruption a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_facility_disruption" ;
+    snowkap:freshnessDays 14 ;
+    snowkap:freshnessRationale "Production outage impact peaks then decays within 2 weeks" .
+
+snowkap:fw_supply_chain_disruption a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_supply_chain_disruption" ;
+    snowkap:freshnessDays 21 ;
+    snowkap:freshnessRationale "Tier-1 ripples take ~3 weeks to fully express in earnings" .
+
+# Positive events — long window (announcements have multi-quarter tail)
+snowkap:fw_contract_win a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_contract_win" ;
+    snowkap:freshnessDays 60 ;
+    snowkap:freshnessRationale "Order book impact persists through the next reporting cycle" .
+
+snowkap:fw_capacity_addition a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_capacity_addition" ;
+    snowkap:freshnessDays 90 ;
+    snowkap:freshnessRationale "Capacity ramp-up takes 1-2 quarters; relevant the whole time" .
+
+snowkap:fw_esg_certification a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_esg_certification" ;
+    snowkap:freshnessDays 60 ;
+    snowkap:freshnessRationale "Certification valid for the rating cycle; maintain announcement velocity" .
+
+snowkap:fw_green_finance_milestone a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_green_finance_milestone" ;
+    snowkap:freshnessDays 60 ;
+    snowkap:freshnessRationale "Green-bond / SLL announcements anchor positioning for ~2 months" .
+
+snowkap:fw_transition_announcement a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_transition_announcement" ;
+    snowkap:freshnessDays 90 ;
+    snowkap:freshnessRationale "Transition strategy is multi-quarter narrative" .
+
+# Social — medium window
+snowkap:fw_social_violation a snowkap:FreshnessWindow ;
+    snowkap:freshnessForEvent "event_social_violation" ;
+    snowkap:freshnessDays 30 ;
+    snowkap:freshnessRationale "Investigation + remediation + reputation recovery span ~30 days" .

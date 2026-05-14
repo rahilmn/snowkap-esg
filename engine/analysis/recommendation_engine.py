@@ -900,6 +900,32 @@ def generate_recommendations(
     # Phase 14: Perspective-specific recommendation rankings
     rankings = _build_perspective_rankings(validated)
 
+    # Phase 3 §5.4 — apply the role type whitelist to the per-perspective
+    # rankings. Today every role's ranking includes every recommendation
+    # (just sorted differently). The whitelist filter drops forbidden
+    # types entirely so:
+    #   - CFOs never see "esg_positioning" / "strategic" / "brand" recs
+    #   - CEOs never see "compliance" / "kpi_tracking" / "audit" recs
+    #   - Analysts never see "capital_allocation" / "financial" / "brand" recs
+    # The recommendations themselves stay in `validated` (so a power-user
+    # / audit view can still see the full set) — only the per-role index
+    # lists shrink.
+    try:
+        from engine.analysis.recommendation_type_whitelist import is_rejected
+        filtered_rankings: dict[str, list[int]] = {}
+        for role_key, idx_list in rankings.items():
+            # Map UI role keys ("esg-analyst") to whitelist keys
+            kept: list[int] = []
+            for idx in idx_list:
+                if 0 <= idx < len(validated):
+                    rec_type = validated[idx].type
+                    if not is_rejected(rec_type, role_key):
+                        kept.append(idx)
+            filtered_rankings[role_key] = kept
+        rankings = filtered_rankings
+    except Exception as exc:  # noqa: BLE001 — never break rec generation on filter
+        logger.debug("role whitelist filter failed (non-fatal): %s", exc)
+
     return RecommendationResult(
         recommendations=validated,
         do_nothing=False,

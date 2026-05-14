@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  alembic-pharmaceuticals-limited
+# Company:      Alembic Pharmaceuticals Limited
+# Industry:     Pharmaceuticals
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:54:43+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_alembic_pharmaceuticals_limited_painpoint_0_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Alembic Pharmaceuticals operates manufacturing facilities in India, a region with high water stress and regulatory scrutiny on pharmaceutical effluent discharge." .
+
+snowkap:tenant_alembic_pharmaceuticals_limited_painpoint_1_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company produces active pharmaceutical ingredients (APIs) and formulations, generating hazardous and pharmaceutical waste subject to strict Indian environmental regulations." .
+
+snowkap:tenant_alembic_pharmaceuticals_limited_painpoint_2_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "API and formulation manufacturing processes at Alembic's Indian plants involve solvents and volatile organic compounds, which are regulated for air quality compliance." .
+
+snowkap:tenant_alembic_pharmaceuticals_limited_painpoint_3_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Alembic exports to regulated markets (e.g., US, EU), requiring compliance with stringent product safety, pharmacovigilance, and recall standards." .
+
+snowkap:tenant_alembic_pharmaceuticals_limited_painpoint_4_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Alembic sources raw materials and intermediates from Indian and international suppliers, exposing it to risks of labor rights violations in the supply chain." .
+
+snowkap:tenant_alembic_pharmaceuticals_limited_painpoint_5_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India, Alembic is exposed to sector-wide risks of regulatory scrutiny and anti-corruption compliance, especially in government procurement and sales practices." .
+
+snowkap:tenant_alembic_pharmaceuticals_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "alembic-pharmaceuticals-limited" ;
+    snowkap:forCompany "Alembic Pharmaceuticals Limited" ;
+    snowkap:tenantIndustry "Pharmaceuticals" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "alembicpharmaceuticals.com" ;
+    dc:created "2026-05-08T10:54:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB"
+    ;
+    snowkap:stakeholderConcern "Effluent and hazardous waste management" , "Product safety and regulatory compliance" , "Water use in manufacturing" , "Labor practices in supply chain" , "Business ethics and anti-corruption"
+    ;
+    snowkap:headlinePainpoint "Alembic Pharmaceuticals effluent discharge compliance" , "Alembic Pharmaceuticals hazardous waste management" , "Alembic Pharmaceuticals product recall risk" , "Alembic Pharmaceuticals supply chain labor audit" , "Alembic Pharmaceuticals anti-corruption investigation"
+    .
+

@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  jsw-steel-limited
+# Company:      JSW Steel Limited
+# Industry:     Steel
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:55:21+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_jsw_steel_limited_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.95 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel is among India's largest steel producers, operating multiple blast furnace-based plants with high direct CO2 emissions, as reported in its annual and sustainability disclosures." .
+
+snowkap:tenant_jsw_steel_limited_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel operates major facilities in water-stressed regions of India (e.g., Karnataka), and its BRSR filings highlight water sourcing and recycling as a key operational risk." .
+
+snowkap:tenant_jsw_steel_limited_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel's integrated operations generate significant slag and hazardous waste volumes, with public disclosures noting ongoing efforts and challenges in waste utilization and disposal." .
+
+snowkap:tenant_jsw_steel_limited_painpoint_3_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel's environmental reports and regulatory filings cite air emissions (SOx, NOx, particulate matter) as a compliance and community concern, especially at Vijayanagar and Dolvi plants." .
+
+snowkap:tenant_jsw_steel_limited_painpoint_4_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel's energy mix remains heavily coal-dependent, with BRSR and CDP disclosures referencing both energy efficiency initiatives and the challenge of decarbonizing primary steelmaking." .
+
+snowkap:tenant_jsw_steel_limited_painpoint_5_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.75 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel's BRSR and sustainability reports highlight workforce safety incidents and the complexity of managing large numbers of contract workers across multiple sites." .
+
+snowkap:tenant_jsw_steel_limited_painpoint_6_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Steel" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "JSW Steel's expansion and land acquisition activities have led to documented community engagement and resettlement challenges, as referenced in public filings and local media." .
+
+snowkap:tenant_jsw_steel_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "jsw-steel-limited" ;
+    snowkap:forCompany "JSW Steel Limited" ;
+    snowkap:tenantIndustry "Steel" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "www.jswsteel.in" ;
+    dc:created "2026-05-08T10:55:21+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB Iron & Steel Producers"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance with Indian emissions and water standards" , "Decarbonization and climate transition risk" , "Worker health and safety, especially for contractors" , "Community relations and land acquisition impacts"
+    ;
+    snowkap:headlinePainpoint "JSW Steel blast furnace CO2 emissions" , "JSW Steel water stress Karnataka" , "JSW Steel slag waste utilization" , "JSW Steel air pollution compliance" , "JSW Steel contractor safety incidents"
+    .
+

@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  adani-power
+# Company:      Adani Power
+# Industry:     Power/Energy
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:52:14+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_adani_power_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Adani Power operates one of India's largest fleets of coal-fired power plants, resulting in high Scope 1 GHG emissions compared to peers with more diversified or renewable portfolios." .
+
+snowkap:tenant_adani_power_painpoint_1_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.90 ;
+    snowkap:confidence 0.85 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company's reliance on coal-fired generation in India exposes it to significant SOx, NOx, and particulate emissions, with regulatory scrutiny under India's tightening air quality norms." .
+
+snowkap:tenant_adani_power_painpoint_2_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Adani Power's thermal plants are major water consumers, often located in water-stressed regions, increasing operational and reputational risk." .
+
+snowkap:tenant_adani_power_painpoint_3_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.75 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Large-scale thermal assets in India face physical climate risks such as heatwaves and water scarcity, which can disrupt operations and grid reliability." .
+
+snowkap:tenant_adani_power_painpoint_4_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Adani Group entities, including Adani Power, have faced persistent scrutiny over related-party transactions and transparency in financial disclosures." .
+
+snowkap:tenant_adani_power_painpoint_5_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Adani Power's plant expansions and land acquisition have prompted community protests and legal challenges, especially in rural and coastal areas." .
+
+snowkap:tenant_adani_power_painpoint_6_governance a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_governance ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Concerns over board independence and concentrated ownership have been raised in public filings and governance assessments of Adani Group companies." .
+
+snowkap:tenant_adani_power_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "adani-power" ;
+    snowkap:forCompany "Adani Power" ;
+    snowkap:tenantIndustry "Power/Energy" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "adanipower.com" ;
+    dc:created "2026-05-08T10:52:14+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "SASB" , "GRI"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance on emissions and water use" , "Transparency in financial and ESG disclosures" , "Community relations and land acquisition practices" , "Climate transition and physical risk management"
+    ;
+    snowkap:headlinePainpoint "Adani Power coal emissions India" , "Adani Power air pollution regulatory action" , "Adani Power water stress plant operations" , "Adani Power business ethics scrutiny" , "Adani Power community protest land acquisition"
+    .
+

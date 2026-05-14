@@ -14,6 +14,7 @@ import hashlib
 import html
 import json
 import logging
+import os
 import re
 import sys
 from dataclasses import asdict, dataclass, field
@@ -380,6 +381,20 @@ def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
     logger.info("NewsAPI.ai: %d articles for '%s' (avg %d chars)",
                 len(articles), query,
                 sum(len(a["content"]) for a in articles) // max(len(articles), 1))
+
+    # Phase 5 wiring — record the spend in the central NewsRouter budget so
+    # the /metrics endpoint's snowkap_newsapi_budget series shows real
+    # numbers and an operator can see Tier 1 consumption in real time.
+    # ASSUMPTION (per news_router.py): 1 token = 1 article in response.
+    # If the verified rule turns out to be different, swap the budget's
+    # token_cost_fn — this site does NOT need to change.
+    try:
+        from engine.ingestion.news_router import get_router
+        router = get_router()
+        router.budget.spend(router.token_cost_fn(articles))
+    except Exception:  # noqa: BLE001 — budget tracking must never break ingest
+        pass
+
     return articles
 
 
@@ -572,29 +587,31 @@ def fetch_for_company(
     raw_articles: list[dict] = []
     seen_urls: set[str] = set()
     hq_country = getattr(company, "headquarter_country", None)
+    # Default source = Google News RSS (always-on, no quota). NewsAPI.ai is
+    # opt-in via SNOWKAP_USE_NEWSAPI_AI=1 — when enabled it tries NewsAPI.ai
+    # first and falls through to Google News RSS on empty/error. Default-off
+    # because the eventregistry monthly-token cap silently 403s mid-run and
+    # masks coverage gaps; Google News RSS gives consistent locale-aware
+    # results via Phase 23A.
+    use_newsapi_ai = os.environ.get("SNOWKAP_USE_NEWSAPI_AI", "0") == "1"
     for query in company.news_queries:
-        # Phase 24 — NewsAPI.ai is the primary source (full article body,
-        # 2,000-5,000+ chars). Google News RSS is only used as a fallback
-        # when NewsAPI.ai returns zero results for this query (key
-        # missing, rate-limited, or genuinely no matches). NewsAPI.org
-        # was removed: it added a third API call per query for marginal
-        # extra coverage and frequent paywall-snippet noise.
-        primary = fetch_newsapi_ai(query, max_results=limit)
-        if primary:
-            for art in primary:
-                if art["url"] in seen_urls:
-                    continue
-                seen_urls.add(art["url"])
-                art.setdefault("source_type", "newsapi_ai")
-                art["query"] = query
-                raw_articles.append(art)
-            continue
+        primary: list[dict] = []
+        if use_newsapi_ai:
+            primary = fetch_newsapi_ai(query, max_results=limit)
+            if primary:
+                for art in primary:
+                    if art["url"] in seen_urls:
+                        continue
+                    seen_urls.add(art["url"])
+                    art.setdefault("source_type", "newsapi_ai")
+                    art["query"] = query
+                    raw_articles.append(art)
+                continue
+            logger.info(
+                "news_fetcher: NewsAPI.ai returned 0 for %r — falling back to Google News RSS",
+                query,
+            )
 
-        # Fallback path: Google News RSS with HQ-country locale (Phase 23A).
-        logger.info(
-            "news_fetcher: NewsAPI.ai returned 0 for %r — falling back to Google News RSS",
-            query,
-        )
         for art in fetch_google_news(query, max_results=limit, country=hq_country):
             if art["url"] in seen_urls:
                 continue

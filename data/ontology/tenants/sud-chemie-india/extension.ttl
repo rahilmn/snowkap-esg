@@ -1,0 +1,43 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT EXTENSION (Phase 25 W6 industry-default seeding) <<<
+# Tenant slug:  sud-chemie-india
+# Industry:     Chemicals
+# Source:       Auto-generated from engine.ingestion.industry_materiality_defaults
+# Override:     Run /discover-tenant-config to replace these with analyst-curated values.
+
+# Pollution / Effluent materiality override
+snowkap:tenant_sud-chemie-india_pollution_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_pollution ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.95 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Chemicals industry has the highest pollution-incident frequency per revenue; CPCB / EPA enforcement is active." .
+
+# Water materiality override
+snowkap:tenant_sud-chemie-india_water_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.92 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Wastewater treatment is the primary capex line; CSRD ESRS:E3 mandatory disclosure." .
+
+# Carbon / GHG Emissions materiality override
+snowkap:tenant_sud-chemie-india_carbon_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.88 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Process emissions (HFCs, N2O) carry 100-1000x CO2 equivalence; regulatory exposure escalating." .
+
+# Chemical Safety materiality override
+snowkap:tenant_sud-chemie-india_chemical_safety_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_chemical_safety ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.95 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "REACH (EU), Toxic Substances Control Act (US), CICR (India) — every product has a disclosure obligation." .

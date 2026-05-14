@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  drt-anthea
+# Company:      DRT-Anthea Aromatics
+# Industry:     Chemicals
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:56:43+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_drt_anthea_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "DRT-Anthea Aromatics operates in the specialty chemicals sector in India, where chemical synthesis processes are typically energy-intensive and contribute to significant Scope 1 and 2 emissions, as reflected in peer disclosures under BRSR." .
+
+snowkap:tenant_drt_anthea_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Specialty chemical manufacturing in India often requires substantial water input and generates complex effluents; BRSR-mandated disclosures and regional scrutiny highlight water use and discharge as a key risk for chemical producers." .
+
+snowkap:tenant_drt_anthea_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Indian specialty chemical companies like DRT-Anthea Aromatics are subject to strict hazardous waste regulations, with peer companies reporting waste generation and disposal as a top compliance and reputational issue." .
+
+snowkap:tenant_drt_anthea_painpoint_3_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Aromatic chemical synthesis can emit volatile organic compounds (VOCs) and other pollutants; Indian regulators and BRSR require disclosure and control of such emissions, with enforcement actions documented in the sector." .
+
+snowkap:tenant_drt_anthea_painpoint_4_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The chemical sector in India faces heightened scrutiny on occupational health and safety, with BRSR disclosures and peer incidents highlighting the importance of robust labor practices and accident prevention." .
+
+snowkap:tenant_drt_anthea_painpoint_5_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.60 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Sourcing of raw materials for specialty chemicals in India exposes companies to supply chain labor risks, as reflected in BRSR and peer disclosures on supplier audits and compliance." .
+
+snowkap:tenant_drt_anthea_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.60 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The Indian chemicals sector is subject to regulatory scrutiny on business ethics and anti-corruption, with BRSR requiring explicit disclosures and peer companies reporting ongoing compliance efforts." .
+
+snowkap:tenant_drt_anthea_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "drt-anthea" ;
+    snowkap:forCompany "DRT-Anthea Aromatics" ;
+    snowkap:tenantIndustry "Chemicals" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "antheaaromatics.com" ;
+    dc:created "2026-05-08T10:56:43+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI Standards" , "SASB Chemicals Standard"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance on emissions and effluents" , "Worker health and safety in chemical operations" , "Water use and wastewater management" , "Hazardous waste disposal" , "Supply chain labor practices"
+    ;
+    snowkap:headlinePainpoint "DRT-Anthea Aromatics BRSR water risk" , "DRT-Anthea Aromatics hazardous waste compliance" , "DRT-Anthea Aromatics VOC air emissions" , "DRT-Anthea Aromatics worker safety incidents" , "DRT-Anthea Aromatics supply chain labor audit"
+    .
+

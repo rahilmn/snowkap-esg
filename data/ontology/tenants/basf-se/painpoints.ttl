@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  basf-se
+# Company:      BASF SE
+# Industry:     Chemicals
+# Region:       EU
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:53:46+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_basf_se_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "BASF SE is one of the world's largest chemical producers, with significant Scope 1 and 2 emissions from energy-intensive operations and a public commitment to net-zero targets under EU CSRD scrutiny." .
+
+snowkap:tenant_basf_se_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "BASF operates major production sites along the Rhine and other European rivers, making water withdrawal, discharge, and quality management a top concern under EU and local regulations." .
+
+snowkap:tenant_basf_se_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "BASF's complex product portfolio and large-scale chemical synthesis generate substantial hazardous waste streams, subject to strict EU waste directives and public scrutiny." .
+
+snowkap:tenant_basf_se_painpoint_3_biodiversity a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_biodiversity ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "BASF's operations include large industrial sites and supply chains with potential impacts on local ecosystems, especially near protected areas in Europe." .
+
+snowkap:tenant_basf_se_painpoint_4_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.80 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "BASF manufactures a wide range of chemicals, including hazardous substances, requiring compliance with REACH and other EU product safety regulations." .
+
+snowkap:tenant_basf_se_painpoint_5_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "BASF sources raw materials globally, exposing the company to labor rights risks in upstream supply chains, as highlighted in its own sustainability reporting." .
+
+snowkap:tenant_basf_se_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in multiple jurisdictions, BASF faces ongoing compliance risks related to anti-corruption and business ethics, as noted in its annual risk disclosures." .
+
+snowkap:tenant_basf_se_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "basf-se" ;
+    snowkap:forCompany "BASF SE" ;
+    snowkap:tenantIndustry "Chemicals" ;
+    snowkap:tenantRegion "EU" ;
+    dc:source "basf.com" ;
+    dc:created "2026-05-08T10:53:46+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "CSRD/ESRS" , "GRI Standards" , "SASB Chemicals"
+    ;
+    snowkap:stakeholderConcern "EU regulatory compliance (CSRD, REACH, EU ETS)" , "Climate transition risk and decarbonization pathway" , "Water use and discharge in sensitive regions" , "Product safety and hazardous substance management" , "Global supply chain labor standards"
+    ;
+    snowkap:headlinePainpoint "BASF SE EU ETS carbon risk" , "BASF Rhine water withdrawal" , "BASF hazardous waste management" , "BASF REACH product safety compliance" , "BASF supply chain labor audit"
+    .
+

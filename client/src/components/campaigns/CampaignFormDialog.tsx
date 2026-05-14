@@ -86,12 +86,14 @@ export function CampaignFormDialog({ open, onOpenChange, initial, onSaved }: Cam
   const [previewLoading, setPreviewLoading] = useState(false);
 
   // Load tenant list for the company dropdown (admin-only endpoint, fine here)
-  const { data: tenants } = useQuery({
+  const { data: tenantsResponse } = useQuery({
     queryKey: ["admin", "tenants"],
     queryFn: () => admin.tenants(),
     enabled: open,
     staleTime: 60_000,
   });
+  // W1 — endpoint now returns {companies, meta:{warnings}}
+  const tenants = tenantsResponse?.companies ?? [];
 
   // Rehydrate form when opening (for edit mode) or reset (create mode)
   useEffect(() => {
@@ -121,7 +123,7 @@ export function CampaignFormDialog({ open, onOpenChange, initial, onSaved }: Cam
   // Auto-pick the first tenant as the default company if none chosen yet
   useEffect(() => {
     if (!open || form.target_company) return;
-    const first = tenants?.[0];
+    const first = tenants[0];
     if (first) {
       setForm((f) => ({ ...f, target_company: first.slug }));
     }
@@ -248,7 +250,7 @@ export function CampaignFormDialog({ open, onOpenChange, initial, onSaved }: Cam
                 onChange={(e) => setForm({ ...form, target_company: e.target.value })}
               >
                 <option value="">— Select —</option>
-                {tenants?.map((t) => (
+                {tenants.map((t) => (
                   <option key={t.slug} value={t.slug}>
                     {t.name}
                     {t.source === "onboarded" ? " · prospect" : ""}

@@ -26,15 +26,22 @@ export function CompanySwitcher() {
   const companyId = useAuthStore((s) => s.companyId);
   const setCompanyId = useAuthStore((s) => s.setCompanyId);
 
-  const { data: tenants, isLoading, isError } = useQuery({
+  const { data: response, isLoading, isError } = useQuery({
     queryKey: ["admin", "tenants"],
     queryFn: () => admin.tenants(),
     staleTime: 60_000,
   });
 
-  const current = tenants?.find((t) => t.slug === companyId);
-  const targetTenants = tenants?.filter((t) => t.source === "target") ?? [];
-  const onboardedTenants = tenants?.filter((t) => t.source === "onboarded") ?? [];
+  // W1 — server now returns {companies, meta:{warnings}} instead of a bare
+  // list. Treat the list as authoritative even if meta carries non-fatal
+  // warnings (Supabase blip → still show the 7 hardcoded targets).
+  const tenants = response?.companies ?? [];
+  const warnings = response?.meta?.warnings ?? [];
+  const current = tenants.find((t) => t.slug === companyId);
+  const targetTenants = tenants.filter((t) => t.source === "target");
+  const onboardedTenants = tenants.filter((t) => t.source === "onboarded");
+  const showHardError = isError && tenants.length === 0;
+  const showDegradedBadge = warnings.length > 0 && tenants.length > 0;
 
   const handleSelect = (slug: string | null) => {
     setCompanyId(slug);
@@ -113,12 +120,26 @@ export function CompanySwitcher() {
               </div>
             )}
 
-            {isError && (
+            {showHardError && (
               <div
                 className="px-4 py-2"
                 style={{ fontSize: "12px", color: COLORS.riskHigh }}
               >
                 Couldn't load tenants
+              </div>
+            )}
+
+            {showDegradedBadge && (
+              <div
+                className="px-4 py-1"
+                style={{
+                  fontSize: "10px",
+                  color: COLORS.textMuted,
+                  fontStyle: "italic",
+                }}
+                title={warnings.join(" · ")}
+              >
+                (degraded — some tenants may be missing)
               </div>
             )}
 

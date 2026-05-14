@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  nrb-bearings-limited
+# Company:      NRB Bearings Limited
+# Industry:     Auto Parts
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:54:56+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_nrb_bearings_limited_painpoint_0_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "NRB Bearings operates multiple manufacturing plants in India, where energy-intensive processes such as forging and machining are core to bearing production; energy sourcing and efficiency are highlighted in their BRSR disclosures." .
+
+snowkap:tenant_nrb_bearings_limited_painpoint_1_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a supplier to global automotive OEMs, NRB Bearings faces increasing pressure to disclose and reduce Scope 1 and 2 emissions, with OEM customers requiring emissions data for their own supply chain reporting." .
+
+snowkap:tenant_nrb_bearings_limited_painpoint_2_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "NRB Bearings' manufacturing facilities are located in regions of India where water stress is a concern, and water usage and discharge are tracked in their BRSR reporting." .
+
+snowkap:tenant_nrb_bearings_limited_painpoint_3_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company generates hazardous and non-hazardous waste streams (e.g., metal scrap, lubricants) typical of precision engineering, with waste handling and disposal practices disclosed in their annual sustainability reports." .
+
+snowkap:tenant_nrb_bearings_limited_painpoint_4_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "NRB Bearings employs a large workforce in India, with BRSR-mandated disclosures on employee safety, training, and retention; labor relations and workplace safety are material due to the scale and nature of operations." .
+
+snowkap:tenant_nrb_bearings_limited_painpoint_5_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a tier-1 supplier to global OEMs, NRB Bearings is expected to monitor and report on labor practices within its supply chain, as reflected in customer audits and BRSR requirements." .
+
+snowkap:tenant_nrb_bearings_limited_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India’s manufacturing sector, NRB Bearings is subject to anti-corruption and business ethics scrutiny, with policies and training programs disclosed in their BRSR filings." .
+
+snowkap:tenant_nrb_bearings_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "nrb-bearings-limited" ;
+    snowkap:forCompany "NRB Bearings Limited" ;
+    snowkap:tenantIndustry "Auto Parts" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "www.nrbbearings.com" ;
+    dc:created "2026-05-08T10:54:56+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB Auto Parts"
+    ;
+    snowkap:stakeholderConcern "OEM customer sustainability requirements" , "Workforce health and safety" , "Regulatory compliance (BRSR, hazardous waste)" , "Energy and emissions reduction targets"
+    ;
+    snowkap:headlinePainpoint "NRB Bearings BRSR energy intensity" , "NRB Bearings Scope 1 and 2 emissions disclosure" , "NRB Bearings labor safety incidents" , "NRB Bearings hazardous waste management" , "NRB Bearings OEM supply chain ESG audits"
+    .
+

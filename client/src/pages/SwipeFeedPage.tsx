@@ -4,6 +4,7 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { news } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
+import { usePersonalisationOptIn } from "@/hooks/usePersonalisationOptIn";
 import { useNewsStore } from "@/stores/newsStore";
 import { useSavedStore } from "@/stores/savedStore";
 import { useFeedStore } from "@/stores/feedStore";
@@ -61,14 +62,18 @@ export function SwipeFeedPage() {
     }
   }, [onboardingState, companyId, queryClient]);
 
+  // Phase 6 — opt into persona modulation when MCQ saved
+  const personalise = usePersonalisationOptIn();
+
   const { isLoading, refetch } = useQuery({
-    queryKey: ["news-feed", companyId, offset],
+    queryKey: ["news-feed", companyId, offset, personalise],
     queryFn: async () => {
       const result = await news.list({
         limit: PAGE_SIZE,
         offset,
         sort_by: "priority",
         company_id: companyId || undefined,
+        personalise,
       });
       if (offset === 0) {
         setArticles(result);

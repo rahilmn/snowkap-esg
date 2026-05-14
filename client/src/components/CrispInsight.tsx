@@ -139,6 +139,13 @@ export function CrispInsight({ view }: { view: CrispView }) {
           Render whatever's present without crashing on missing fields. */}
       <RichPerspectiveExtras view={view} />
 
+      {/* Phase 24 — Toulmin "Why this verdict" pulldown.
+          Closed by default to preserve the 10-second verdict discipline.
+          Reads from the deep insight's toulmin block (built deterministically
+          by engine/analysis/toulmin_builder.py). Empty / missing block
+          renders nothing so legacy articles still work. */}
+      <ToulminWhyVerdict view={view} />
+
       {/* Materiality footer */}
       <div className="mt-3 flex items-center justify-between text-xs text-slate-400">
         <span>
@@ -146,6 +153,94 @@ export function CrispInsight({ view }: { view: CrispView }) {
         </span>
       </div>
     </div>
+  );
+}
+
+
+/**
+ * Phase 24 — collapsed "Why this verdict" pulldown with the Toulmin block.
+ *
+ * Surfaces claim/grounds/warrant/qualifier/rebuttal in a `<details>` element
+ * so it's invisible on first render (preserves CFO 10-second verdict) but
+ * one click reveals the full audit-ready justification. The rebuttal field
+ * is what makes "do nothing" verdicts defensible — it tells the reader
+ * what to monitor that would flip the verdict.
+ */
+function ToulminWhyVerdict({ view }: { view: CrispView }) {
+  const fullInsight = view.full_insight as Record<string, unknown> | null;
+  const toulmin = (fullInsight?.toulmin as Record<string, unknown> | undefined) ?? null;
+  if (!toulmin || typeof toulmin !== "object" || !toulmin.claim) {
+    return null;
+  }
+  const claim = String(toulmin.claim ?? "");
+  const grounds = Array.isArray(toulmin.grounds) ? (toulmin.grounds as unknown[]) : [];
+  const warrant = String(toulmin.warrant ?? "");
+  const warrantCite = String(toulmin.warrant_cite ?? "");
+  const qualifier = String(toulmin.qualifier ?? "");
+  const rebuttal = String(toulmin.rebuttal ?? "");
+
+  return (
+    <details className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+      <summary className="cursor-pointer select-none font-semibold uppercase tracking-wide text-slate-500 outline-none">
+        Why this verdict
+      </summary>
+      <div className="mt-3 space-y-3 text-slate-700">
+        <div>
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+            Claim
+          </div>
+          <div className="mt-0.5 text-sm leading-snug text-slate-900">{claim}</div>
+        </div>
+
+        {grounds.length > 0 && (
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Grounds · {grounds.length}
+            </div>
+            <ul className="mt-0.5 space-y-0.5 leading-snug">
+              {grounds.map((g, i) => (
+                <li key={i} className="flex gap-1.5">
+                  <span className="text-slate-400">·</span>
+                  <span>{String(g)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {warrant && (
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Warrant
+            </div>
+            <div className="mt-0.5 leading-snug">{warrant}</div>
+            {warrantCite && (
+              <div className="mt-0.5 text-[10px] italic text-slate-400">
+                Cited: {warrantCite}
+              </div>
+            )}
+          </div>
+        )}
+
+        {qualifier && (
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Qualifier
+            </div>
+            <div className="mt-0.5 leading-snug">{qualifier}</div>
+          </div>
+        )}
+
+        {rebuttal && (
+          <div>
+            <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+              Rebuttal · this verdict flips if
+            </div>
+            <div className="mt-0.5 leading-snug text-amber-800">{rebuttal}</div>
+          </div>
+        )}
+      </div>
+    </details>
   );
 }
 

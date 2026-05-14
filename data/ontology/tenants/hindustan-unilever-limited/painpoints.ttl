@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  hindustan-unilever-limited
+# Company:      Hindustan Unilever Limited
+# Industry:     Household & Personal Products
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:54:17+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Hindustan Unilever Limited (HUL) has a large manufacturing and distribution footprint across India, making Scope 1, 2, and especially Scope 3 emissions from logistics and supply chain a significant concern relative to peers." .
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 1.00 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "HUL operates in multiple water-stressed regions of India and has public commitments to water stewardship, making water sourcing and use a critical operational risk." .
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "HUL is a leading FMCG company in India with high volumes of single-use plastic packaging, facing regulatory and consumer pressure on plastic waste management and EPR compliance." .
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_3_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "HUL sources raw materials such as palm oil and tea from regions with known labor rights risks, and is subject to scrutiny on supply chain labor standards." .
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_4_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a major producer of food, personal care, and household products, HUL faces ongoing regulatory and reputational exposure to product safety and quality incidents." .
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_5_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India’s complex regulatory environment, HUL is exposed to heightened scrutiny on business ethics and anti-corruption practices, especially in procurement and distribution." .
+
+snowkap:tenant_hindustan_unilever_limited_painpoint_6_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Household & Personal Products" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "HUL’s extensive rural and urban presence, including direct-to-consumer and rural outreach programs, creates ongoing community impact and social license to operate risks." .
+
+snowkap:tenant_hindustan_unilever_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "hindustan-unilever-limited" ;
+    snowkap:forCompany "Hindustan Unilever Limited" ;
+    snowkap:tenantIndustry "Household & Personal Products" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "hindustanunilever.com" ;
+    dc:created "2026-05-08T10:54:17+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI Standards"
+    ;
+    snowkap:stakeholderConcern "Plastic packaging and EPR compliance" , "Water use in drought-prone regions" , "Supply chain labor rights (palm oil, tea)" , "Carbon footprint of logistics and manufacturing" , "Product safety and consumer trust"
+    ;
+    snowkap:headlinePainpoint "Hindustan Unilever plastic waste EPR India" , "Hindustan Unilever water stewardship drought" , "Hindustan Unilever palm oil supply chain labor" , "Hindustan Unilever Scope 3 emissions India" , "Hindustan Unilever product safety recall"
+    .
+

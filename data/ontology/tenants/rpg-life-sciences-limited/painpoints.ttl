@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  rpg-life-sciences-limited
+# Company:      RPG Life Sciences Limited
+# Industry:     Pharmaceuticals
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:55:34+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_rpg_life_sciences_limited_painpoint_0_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "RPG Life Sciences operates manufacturing facilities in India, a region with significant water stress and regulatory scrutiny on pharmaceutical effluent discharge." .
+
+snowkap:tenant_rpg_life_sciences_limited_painpoint_1_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company produces APIs and formulations, generating hazardous pharmaceutical waste subject to India's strict biomedical and hazardous waste rules." .
+
+snowkap:tenant_rpg_life_sciences_limited_painpoint_2_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "RPG Life Sciences exports to regulated markets and is subject to frequent inspections by authorities like US FDA and Indian CDSCO, raising the stakes for product recalls or compliance lapses." .
+
+snowkap:tenant_rpg_life_sciences_limited_painpoint_3_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company sources raw materials and APIs from both domestic and international suppliers, exposing it to labor practice risks in the broader pharmaceutical supply chain." .
+
+snowkap:tenant_rpg_life_sciences_limited_painpoint_4_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Pharmaceutical manufacturing is energy intensive; RPG Life Sciences' Indian operations are exposed to grid emissions and energy efficiency requirements under BRSR." .
+
+snowkap:tenant_rpg_life_sciences_limited_painpoint_5_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Pharmaceuticals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India and exporting to multiple jurisdictions, RPG Life Sciences faces ongoing scrutiny regarding marketing practices and compliance with anti-bribery laws." .
+
+snowkap:tenant_rpg_life_sciences_limited_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "rpg-life-sciences-limited" ;
+    snowkap:forCompany "RPG Life Sciences Limited" ;
+    snowkap:tenantIndustry "Pharmaceuticals" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "www.rpglifesciences.com" ;
+    dc:created "2026-05-08T10:55:34+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI Standards"
+    ;
+    snowkap:stakeholderConcern "Effluent and waste management compliance" , "Product recalls and regulatory inspections" , "Labor standards in supply chain" , "Energy efficiency and emissions reporting" , "Ethical marketing and anti-corruption"
+    ;
+    snowkap:headlinePainpoint "RPG Life Sciences water effluent compliance" , "RPG Life Sciences hazardous waste management" , "RPG Life Sciences product recall risk" , "RPG Life Sciences supply chain labor practices" , "RPG Life Sciences anti-corruption compliance"
+    .
+

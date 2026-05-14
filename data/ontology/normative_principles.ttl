@@ -1,0 +1,166 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# Normative Principles — Layer 8 (Phase 24)
+#
+# Reusable warrant statements that the engine cites in the Toulmin
+# `warrant` field of every CRITICAL/HIGH-materiality insight. Each
+# principle scopes to one or more event types, ESG topics, or polarities
+# so `query_normative_principles_for_event()` can return the relevant
+# warrant set deterministically.
+#
+# Naming: NP-{DOMAIN}-{NNN}
+#   REG = regulatory       FIN = financial         REP = reputational
+#   OPS = operational      STR = strategic         MAT = esg-materiality
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Regulatory domain (NP-REG-*)
+# -----------------------------------------------------------------------------
+
+snowkap:NP_REG_001 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-REG-001" ;
+    snowkap:principleStatement "Regulatory penalty disclosed by a recognised regulator (SEBI, RBI, SEC, CSRD authority) sets a credible enforcement floor for the named violation across the named jurisdiction." ;
+    snowkap:principleDomain "regulatory" ;
+    snowkap:appliesToEvent "event_regulatory_penalty" ;
+    snowkap:appliesToEvent "event_show_cause_notice" ;
+    snowkap:appliesToPolarity "negative" ;
+    snowkap:principleSource "SEBI Regulations + RBI Master Directions + CSRD Article 19a" .
+
+snowkap:NP_REG_002 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-REG-002" ;
+    snowkap:principleStatement "An open regulatory consultation does not yet bind action but the consultation timeline anchors the planning window." ;
+    snowkap:principleDomain "regulatory" ;
+    snowkap:appliesToEvent "event_regulatory_consultation" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "RBI Climate Stress Test consultation 2026 + SEBI BRSR review schedule" .
+
+snowkap:NP_REG_003 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-REG-003" ;
+    snowkap:principleStatement "Disclosure-only regulatory news (no penalty, no consultation, no enforcement) does not require near-term action; monitor at next quarterly review." ;
+    snowkap:principleDomain "regulatory" ;
+    snowkap:appliesToEvent "event_disclosure_announcement" ;
+    snowkap:appliesToEvent "event_framework_update" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "Snowkap materiality policy — macro signals do not force compliance action" .
+
+# -----------------------------------------------------------------------------
+# Financial domain (NP-FIN-*)
+# -----------------------------------------------------------------------------
+
+snowkap:NP_FIN_001 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-FIN-001" ;
+    snowkap:principleStatement "Direct revenue or contract figures cited in the article are recognised as known exposure; speculative downstream cascades are recognised separately as engine estimates." ;
+    snowkap:principleDomain "financial" ;
+    snowkap:appliesToEvent "event_contract_win" ;
+    snowkap:appliesToEvent "event_capacity_addition" ;
+    snowkap:appliesToEvent "event_quarterly_results" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "Snowkap source-tagging discipline (CLAUDE.md rule 7)" .
+
+snowkap:NP_FIN_002 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-FIN-002" ;
+    snowkap:principleStatement "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation." ;
+    snowkap:principleDomain "financial" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "Snowkap CFO-credibility threshold (Phase 11 audit)" .
+
+snowkap:NP_FIN_003 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-FIN-003" ;
+    snowkap:principleStatement "Margin pressure in basis points is a deterministic ratio (event ₹ ÷ revenue ÷ 0.0001); LLM-cited bps figures that diverge from the computed value by >5% are corrected by the verifier." ;
+    snowkap:principleDomain "financial" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "engine.analysis.output_verifier.verify_margin_math" .
+
+# -----------------------------------------------------------------------------
+# Reputational domain (NP-REP-*)
+# -----------------------------------------------------------------------------
+
+snowkap:NP_REP_001 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-REP-001" ;
+    snowkap:principleStatement "Confirmed labour-rights or human-rights violations in the upstream supply chain create reputational exposure proportional to media reach × stakeholder concentration." ;
+    snowkap:principleDomain "reputational" ;
+    snowkap:appliesToEvent "event_social_violation" ;
+    snowkap:appliesToPolarity "negative" ;
+    snowkap:principleSource "GRI:408 + GRI:409 + UN Guiding Principles on Business and Human Rights" .
+
+snowkap:NP_REP_002 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-REP-002" ;
+    snowkap:principleStatement "ESG rating upgrades from major agencies (MSCI, Sustainalytics, ISS) reset peer-comparison anchors and create premium-pricing optionality." ;
+    snowkap:principleDomain "reputational" ;
+    snowkap:appliesToEvent "event_esg_rating_change" ;
+    snowkap:appliesToEvent "event_esg_certification" ;
+    snowkap:appliesToPolarity "positive" ;
+    snowkap:principleSource "MSCI ESG Research methodology + Sustainalytics Risk Rating framework" .
+
+# -----------------------------------------------------------------------------
+# Operational domain (NP-OPS-*)
+# -----------------------------------------------------------------------------
+
+snowkap:NP_OPS_001 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-OPS-001" ;
+    snowkap:principleStatement "Extreme weather affecting >10% of operational capacity for >7 days creates downtime exposure that compounds through the supply chain." ;
+    snowkap:principleDomain "operational" ;
+    snowkap:appliesToEvent "event_extreme_weather" ;
+    snowkap:appliesToEvent "event_facility_disruption" ;
+    snowkap:appliesToPolarity "negative" ;
+    snowkap:principleSource "TCFD physical risk taxonomy + IPCC AR6 attribution science" .
+
+snowkap:NP_OPS_002 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-OPS-002" ;
+    snowkap:principleStatement "Contract wins and capacity additions create execution risk proportional to the order ramp rate; slow ramps leave revenue on the table." ;
+    snowkap:principleDomain "operational" ;
+    snowkap:appliesToEvent "event_contract_win" ;
+    snowkap:appliesToEvent "event_capacity_addition" ;
+    snowkap:appliesToPolarity "positive" ;
+    snowkap:principleSource "Snowkap positive-event archetype library (Phase 14.3)" .
+
+# -----------------------------------------------------------------------------
+# Strategic domain (NP-STR-*)
+# -----------------------------------------------------------------------------
+
+snowkap:NP_STR_001 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-STR-001" ;
+    snowkap:principleStatement "Energy transition announcements re-anchor competitive positioning relative to peer cap-tier; absence of similar announcement creates relative disadvantage." ;
+    snowkap:principleDomain "strategic" ;
+    snowkap:appliesToEvent "event_transition_announcement" ;
+    snowkap:appliesToEvent "event_green_finance_milestone" ;
+    snowkap:appliesToPolarity "positive" ;
+    snowkap:principleSource "SBTi Net-Zero Standard + IEA Net Zero Roadmap" .
+
+snowkap:NP_STR_002 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-STR-002" ;
+    snowkap:principleStatement "M&A activity in adjacent ESG-sensitive verticals shifts the integration-risk profile and the regulatory exposure surface of the acquirer." ;
+    snowkap:principleDomain "strategic" ;
+    snowkap:appliesToEvent "event_merger_acquisition" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "Porter Five Forces + ESRS S2 (workers in the value chain)" .
+
+# -----------------------------------------------------------------------------
+# Materiality domain (NP-MAT-*)
+# -----------------------------------------------------------------------------
+
+snowkap:NP_MAT_001 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-MAT-001" ;
+    snowkap:principleStatement "An article scoring below the relevance threshold (5D < 4) is rejected from the perspective lens because it carries no defensible decision implication." ;
+    snowkap:principleDomain "esg-materiality" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "Snowkap materiality gate (CLAUDE.md rule 6)" .
+
+snowkap:NP_MAT_002 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-MAT-002" ;
+    snowkap:principleStatement "When event polarity, sentiment, and decision summary disagree on direction, the materiality is downgraded by one tier and a coherence warning is recorded; the rebuttal must articulate the specific evidence that would resolve the disagreement." ;
+    snowkap:principleDomain "esg-materiality" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "engine.analysis.output_verifier.verify_narrative_coherence (Phase 12.4)" .
+
+snowkap:NP_MAT_003 a snowkap:NormativePrinciple ;
+    snowkap:principleId "NP-MAT-003" ;
+    snowkap:principleStatement "A do-nothing verdict requires a rebuttal naming the specific external trigger that would change the verdict; absent such a trigger the verdict cannot be defended at audit." ;
+    snowkap:principleDomain "esg-materiality" ;
+    snowkap:appliesToPolarity "both" ;
+    snowkap:principleSource "Snowkap CFO-defensibility policy (Phase 24 design)" .

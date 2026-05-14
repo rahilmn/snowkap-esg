@@ -47,6 +47,10 @@ import { UnlockFullAnalysis } from "./UnlockFullAnalysis";
 import { CrispInsight } from "@/components/CrispInsight";
 import { PerspectiveSwitcher } from "@/components/PerspectiveSwitcher";
 import { usePerspective } from "@/stores/perspectiveStore";
+import { useRolePanels } from "@/hooks/useRolePanels";
+// Phase 25 W10 — "Why this matters to YOU" personal stakes card. Renders
+// nothing when stakes_for_company is empty so this is purely additive.
+import { PersonalStakesCard } from "./PersonalStakesCard";
 import { formatCurrency } from "../../lib/utils";
 import type { Article } from "../../types";
 import type { CrispView as NewCrispView } from "@/lib/snowkap-api";
@@ -532,6 +536,16 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const navigate = useNavigate();
   const activePerspective = usePerspective((s) => s.active);
 
+  // W4e — role-aware panel visibility. Reads insight.role_panel_order
+  // (stamped by backend W4d) and returns isHidden(panelId) so we can
+  // hide irrelevant panels per role without rewriting the JSX tree.
+  // Falls open (no hides) when the insight predates W4d.
+  // We use article?.deep_insight?.role_panel_order, falling back to {}.
+  const rolePanels = useRolePanels(
+    activePerspective,
+    (article?.deep_insight as { role_panel_order?: never } | undefined)?.role_panel_order,
+  );
+
   // ── On-demand analysis state (hooks must be before early return) ──
   // Only skip trigger if deep_insight has actual content (headline exists).
   // Empty {} from cleared/stale articles must still trigger fresh analysis.
@@ -546,8 +560,10 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
 
   // Phase 13 S5 — faux-progress for the on-demand analysis spinner. The
   // pipeline runs in 20-60s; static "loading…" copy makes the wait feel
-  // longer. We advance through 5 named stages every ~6s so the user sees
+  // longer. We advance through named stages every ~6s so the user sees
   // motion. Stage index is reset whenever a new analysis starts.
+  // Phase 24 W3 — added the "CFO credibility check" stage as the final
+  // checkpoint (mirrors backend cfo_preflight gating).
   const [analysisStage, setAnalysisStage] = useState(0);
   useEffect(() => {
     if (analysisStatus !== "pending") {
@@ -557,8 +573,8 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
     }
     setAnalysisStage(0);
     const tick = setInterval(() => {
-      // Cap at last stage (max index 4) — never claim "done" before backend confirms.
-      setAnalysisStage((prev) => Math.min(prev + 1, 4));
+      // Cap at last stage (max index 5) — never claim "done" before backend confirms.
+      setAnalysisStage((prev) => Math.min(prev + 1, 5));
     }, 6000);
     return () => clearInterval(tick);
     // analysisStage intentionally absent from deps — we manage it inside.
@@ -677,6 +693,12 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         priority_score: article.priority_score ?? (liveAnalysis.priority_score as number | null),
         priority_level: article.priority_level ?? (liveAnalysis.priority_level as string | null),
         perspectives: (_has(article.perspectives) ? article.perspectives : liveAnalysis.perspectives) as Article["perspectives"],
+        // Phase 3 §5.2 — pull role_payloads from the live analysis when
+        // the cached article doesn't have them yet (pre-Phase-3 articles
+        // get the field on first re-enrichment).
+        role_payloads: ((article as Article).role_payloads
+          ?? (liveAnalysis as { role_payloads?: Article["role_payloads"] }).role_payloads
+        ) as Article["role_payloads"],
       }
     : article;
 
@@ -857,6 +879,19 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
           </div>
         </div>
 
+        {/* ═══ ZONE A2: "WHY THIS MATTERS TO YOU" PERSONAL STAKES CARD ═══
+            Phase 25 W10 — surfaces the W9 stakes_for_company block
+            ABOVE the perspective switcher so a CFO opening a CRITICAL
+            article gets the company-specific verdict in the first
+            screen-full. Returns null when stakes_for_company is empty
+            (LLM failed, REJECTED, or pre-W9 article), so legacy
+            articles keep their existing layout untouched. */}
+        {effectiveArticle.deep_insight && (
+          <div style={{ padding: "12px 24px 0" }}>
+            <PersonalStakesCard insight={effectiveArticle.deep_insight as never} />
+          </div>
+        )}
+
         {/* ═══ ZONE B: ESG THEME BAR ═══ */}
         {themes && (
           <div style={{ padding: "12px 24px 0" }}>
@@ -888,6 +923,17 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             exists but the requested perspective is not yet generated (e.g.
             on-demand pipeline only emitted CFO so far, user toggles to CEO),
             show an explicit fallback rather than silent blank space. */}
+        {/* Phase 3 §5.2 — Stage 11 v2 RoleDistinctPayload preview.
+            Renders ABOVE the legacy CrispInsight when `role_payloads`
+            is present on the article. Surfaces the role-distinct
+            headline + hero metric + role takeaways + role paragraph
+            from the shared EvidencePack. Skips silently when absent
+            (pre-Phase-3 articles). */}
+        {effectiveArticle.role_payloads?.[activePerspective] && (
+          <div style={{ padding: "12px 24px 0" }}>
+            <RoleDistinctView payload={effectiveArticle.role_payloads[activePerspective]} />
+          </div>
+        )}
         {effectiveArticle.perspectives?.[activePerspective] ? (
           <div style={{ padding: "12px 24px 0" }}>
             <CrispInsight
@@ -951,11 +997,12 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
                 </p>
                 <p style={{ fontSize: "11px", color: "#888", margin: "2px 0 0" }}>
                   {[
-                    "Stage 1 of 5 · Extracting article themes & sentiment",
-                    "Stage 2 of 5 · Matching ESG frameworks (BRSR, GRI, TCFD)",
-                    "Stage 3 of 5 · Computing financial cascade & ₹ exposure",
-                    "Stage 4 of 5 · Generating CFO / CEO / Analyst perspectives",
-                    "Stage 5 of 5 · Drafting actionable recommendations",
+                    "Stage 1 of 6 · Extracting article themes & sentiment",
+                    "Stage 2 of 6 · Matching ESG frameworks (BRSR, GRI, TCFD)",
+                    "Stage 3 of 6 · Computing financial cascade & ₹ exposure",
+                    "Stage 4 of 6 · Generating CFO / CEO / Analyst perspectives",
+                    "Stage 5 of 6 · Drafting actionable recommendations",
+                    "Stage 6 of 6 · CFO credibility check (6-gate preflight)",
                   ][analysisStage]}
                 </p>
               </div>
@@ -1218,15 +1265,18 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         )}
 
         {/* ═══ 6. FRAMEWORK ALIGNMENT ═══ */}
-        {article.framework_matches && article.framework_matches.length > 0 ? (
-          <Section title="Framework Alignment">
-            <FrameworkAlignmentV2 frameworkMatches={article.framework_matches} />
-          </Section>
-        ) : hasDeep && di?.compliance_regulatory_impact ? (
-          <Section title="Compliance & Regulatory Impact">
-            {renderDeepDict(di.compliance_regulatory_impact)}
-          </Section>
-        ) : null}
+        {/* W4e — hidden for CFO + CEO per RolePanelPriority ontology rules */}
+        {!rolePanels.isHidden("framework_alignment") && (
+          article.framework_matches && article.framework_matches.length > 0 ? (
+            <Section title="Framework Alignment">
+              <FrameworkAlignmentV2 frameworkMatches={article.framework_matches} />
+            </Section>
+          ) : hasDeep && di?.compliance_regulatory_impact ? (
+            <Section title="Compliance & Regulatory Impact">
+              {renderDeepDict(di.compliance_regulatory_impact)}
+            </Section>
+          ) : null
+        )}
 
         {/* ═══ TIER 3 — ACTION & INTELLIGENCE ═══ */}
 
@@ -1289,6 +1339,8 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         </div>
 
         {/* ═══ TIER 4 — SUPPORTING EVIDENCE (grouped collapsible) ═══ */}
+        {/* W4e — entire supporting-evidence section hidden for CFO per ontology */}
+        {!rolePanels.isHidden("narrative_intelligence") && (
         <Section title={`Supporting Evidence (${supportingEvidenceCount})`} defaultOpen={false}><>
           {/* Narrative Intelligence */}
           <div style={{ marginBottom: "14px" }}>
@@ -1344,6 +1396,7 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             </div>
           ) : null}
         </></Section>
+        )}
 
         {/* ═══ ACTION BUTTONS ═══ */}
         <div className="flex gap-3" style={{ padding: "24px 24px 32px" }}>
@@ -1364,5 +1417,130 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         </div>
       </div>
     </div>
+  );
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   Phase 3 §5.2 — RoleDistinctView
+   Renders the structured RoleDistinctPayload (headline + hero metric
+   + role takeaways + role paragraph) above the legacy CrispInsight.
+   Skipped silently when role_payloads is absent (pre-Phase-3 articles).
+   ─────────────────────────────────────────────────────────────────── */
+import type { RoleDistinctPayload } from "@/types";
+
+function RoleDistinctView({ payload }: { payload: RoleDistinctPayload }) {
+  const { role, headline, hero_metric, role_takeaways, role_paragraph } = payload;
+  const roleLabel = role === "cfo" ? "CFO" : role === "ceo" ? "CEO" : "ESG Analyst";
+
+  // Hero metric label colour-codes per role: orange for CFO (₹-led),
+  // emerald for CEO (strategy-led), blue for Analyst (framework-led)
+  const heroAccent =
+    role === "cfo" ? COLORS.brand
+    : role === "ceo" ? COLORS.opportunity
+    : COLORS.framework;
+  const heroBg =
+    role === "cfo" ? COLORS.brandLight
+    : role === "ceo" ? COLORS.opportunityBg
+    : COLORS.frameworkBg;
+
+  // Decision window / horizon / deadline — show whichever the role uses
+  const heroAffix =
+    hero_metric.decision_window
+      ? `Decide by ${hero_metric.decision_window}`
+      : hero_metric.horizon
+      ? `Horizon ${hero_metric.horizon}`
+      : hero_metric.deadline
+      ? `Due ${hero_metric.deadline}`
+      : "";
+
+  return (
+    <section
+      style={{
+        background: "#fff",
+        border: `1px solid ${COLORS.cardBorder}`,
+        borderRadius: 10,
+        padding: "16px 18px",
+        boxShadow: SHADOWS.card,
+      }}
+    >
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "baseline",
+        marginBottom: 10,
+      }}>
+        <div style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: "0.12em",
+          color: heroAccent, textTransform: "uppercase",
+        }}>
+          {roleLabel} brief
+        </div>
+        <div style={{ fontSize: 9, color: COLORS.textMuted, letterSpacing: "0.04em" }}>
+          Stage 11 v2
+        </div>
+      </div>
+
+      <h3 style={{
+        fontSize: 16, fontWeight: 700, lineHeight: 1.35,
+        color: COLORS.textPrimary, margin: "0 0 12px",
+      }}>
+        {headline}
+      </h3>
+
+      {/* Hero metric pill */}
+      <div style={{
+        display: "inline-flex", alignItems: "center", gap: 8,
+        padding: "8px 14px", borderRadius: 8,
+        background: heroBg,
+        border: `1px solid ${heroAccent}`,
+        marginBottom: 12,
+      }}>
+        <div>
+          <div style={{
+            fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
+            color: heroAccent, textTransform: "uppercase",
+          }}>
+            {hero_metric.label}
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.textPrimary }}>
+            {hero_metric.value}
+          </div>
+          {heroAffix && (
+            <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 2 }}>
+              {heroAffix}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Role takeaways — bulleted list */}
+      {role_takeaways && role_takeaways.length > 0 && (
+        <ul style={{
+          listStyle: "none", padding: 0, margin: "0 0 10px",
+          display: "flex", flexDirection: "column", gap: 6,
+        }}>
+          {role_takeaways.map((bullet, i) => (
+            <li key={i} style={{
+              display: "flex", alignItems: "flex-start", gap: 8,
+              fontSize: 13, color: COLORS.textPrimary, lineHeight: 1.5,
+            }}>
+              <span style={{
+                flexShrink: 0, marginTop: 6,
+                width: 5, height: 5, borderRadius: "50%",
+                background: heroAccent,
+              }} />
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {role_paragraph && (
+        <p style={{
+          fontSize: 12, color: COLORS.textSecondary, lineHeight: 1.55,
+          margin: "8px 0 0", fontStyle: "italic",
+        }}>
+          {role_paragraph}
+        </p>
+      )}
+    </section>
   );
 }

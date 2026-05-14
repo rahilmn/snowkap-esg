@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  singularity-amc
+# Company:      Singularity AMC
+# Industry:     Asset Management
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:50:27+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_singularity_amc_painpoint_0_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Asset Management" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a global asset manager, Singularity AMC is subject to complex cross-jurisdictional regulations and must maintain robust compliance frameworks to prevent conflicts of interest and ensure ethical conduct." .
+
+snowkap:tenant_singularity_amc_painpoint_1_governance a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_governance ;
+    snowkap:weightForIndustry "Asset Management" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating globally, Singularity AMC faces heightened scrutiny on governance practices, including board independence and oversight, due to expectations from institutional investors and regulatory bodies." .
+
+snowkap:tenant_singularity_amc_painpoint_2_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Asset Management" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Global asset managers are exposed to anti-bribery and corruption risks, particularly when operating across multiple regulatory regimes with varying enforcement standards." .
+
+snowkap:tenant_singularity_amc_painpoint_3_cyber_risk a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_cyber_risk ;
+    snowkap:weightForIndustry "Asset Management" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Asset managers like Singularity AMC handle sensitive client and financial data, making them prime targets for cyberattacks and requiring advanced cybersecurity measures." .
+
+snowkap:tenant_singularity_amc_painpoint_4_customer_data a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_customer_data ;
+    snowkap:weightForIndustry "Asset Management" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Managing client portfolios globally, Singularity AMC must comply with data privacy laws such as GDPR and ensure robust data protection for investor information." .
+
+snowkap:tenant_singularity_amc_painpoint_5_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Asset Management" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As an asset manager, Singularity AMC is expected to integrate climate risk into investment decisions and disclose portfolio exposure to climate-related risks under frameworks like TCFD." .
+
+snowkap:tenant_singularity_amc_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "singularity-amc" ;
+    snowkap:forCompany "Singularity AMC" ;
+    snowkap:tenantIndustry "Asset Management" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "singularityamc.com" ;
+    dc:created "2026-05-08T10:50:27+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "CSRD/ESRS" , "TCFD" , "SASB" , "SDR"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance across multiple jurisdictions" , "Data privacy and cybersecurity for client assets" , "Transparency in ESG integration and stewardship" , "Board oversight and ethical conduct"
+    ;
+    snowkap:headlinePainpoint "Singularity AMC cross-border compliance risks" , "Singularity AMC cyberattack exposure" , "Singularity AMC ESG stewardship transparency" , "Singularity AMC board governance scrutiny" , "Singularity AMC GDPR data privacy compliance"
+    .
+

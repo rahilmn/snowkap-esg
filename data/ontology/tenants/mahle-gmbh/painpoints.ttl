@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  mahle-gmbh
+# Company:      MAHLE India
+# Industry:     Auto Parts
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:56:29+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_mahle_gmbh_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "MAHLE India operates in a sector with high Scope 1 and 2 emissions due to energy-intensive manufacturing and is subject to increasing decarbonization expectations under India's BRSR framework." .
+
+snowkap:tenant_mahle_gmbh_painpoint_1_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Auto parts manufacturing in India relies heavily on grid electricity and captive power, exposing MAHLE India to energy transition risks and cost volatility." .
+
+snowkap:tenant_mahle_gmbh_painpoint_2_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "MAHLE India's manufacturing footprint in water-stressed regions of India increases exposure to operational disruptions and regulatory scrutiny on water consumption." .
+
+snowkap:tenant_mahle_gmbh_painpoint_3_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company operates multiple plants in India, where labor relations, worker safety, and compliance with evolving labor codes are under heightened scrutiny." .
+
+snowkap:tenant_mahle_gmbh_painpoint_4_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "MAHLE India's reliance on a complex, multi-tiered supply chain in India raises risks of non-compliance with BRSR-mandated supply chain due diligence." .
+
+snowkap:tenant_mahle_gmbh_painpoint_5_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Auto parts manufacturing generates significant hazardous and non-hazardous waste streams, with increasing regulatory and customer expectations for circularity." .
+
+snowkap:tenant_mahle_gmbh_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India, MAHLE faces sector-wide scrutiny on anti-corruption and business ethics, especially in procurement and government interactions." .
+
+snowkap:tenant_mahle_gmbh_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "mahle-gmbh" ;
+    snowkap:forCompany "MAHLE India" ;
+    snowkap:tenantIndustry "Auto Parts" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "mahle.com" ;
+    dc:created "2026-05-08T10:56:29+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI"
+    ;
+    snowkap:stakeholderConcern "Decarbonization and energy transition" , "Labor relations and worker safety" , "Water use in stressed regions" , "Supply chain labor compliance" , "Waste and circularity"
+    ;
+    snowkap:headlinePainpoint "MAHLE India BRSR carbon disclosure" , "MAHLE India labor practices compliance" , "MAHLE India water risk manufacturing" , "MAHLE India supply chain labor standards" , "MAHLE India hazardous waste management"
+    .
+

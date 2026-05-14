@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  tata-autocomp-systems
+# Company:      Tata AutoComp Systems
+# Industry:     Auto Parts
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:56:55+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_tata_autocomp_systems_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Tata AutoComp Systems supplies components to major OEMs, making Scope 3 emissions from upstream materials and downstream use-phase a significant concern, especially as Indian and global automakers face stricter decarbonization targets." .
+
+snowkap:tenant_tata_autocomp_systems_painpoint_1_supply_chain_labor a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_supply_chain_labor ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company operates in India with a complex, multi-tiered supply chain, where labor standards and contractor oversight are under increasing scrutiny from both BRSR and global OEM customers." .
+
+snowkap:tenant_tata_autocomp_systems_painpoint_2_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Auto parts manufacturing in India is energy-intensive and often reliant on grid electricity with a high coal mix, impacting both costs and emissions reporting under BRSR." .
+
+snowkap:tenant_tata_autocomp_systems_painpoint_3_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Component manufacturing generates hazardous and non-hazardous waste streams; Indian regulations and OEM expectations require robust tracking and minimization, as reflected in Tata AutoComp’s sustainability disclosures." .
+
+snowkap:tenant_tata_autocomp_systems_painpoint_4_product_safety a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_product_safety ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a supplier to global automotive brands, Tata AutoComp faces heightened scrutiny on product safety and recall risks, with compliance to both Indian and international standards." .
+
+snowkap:tenant_tata_autocomp_systems_painpoint_5_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Auto Parts" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India’s auto sector, the company is exposed to regulatory and procurement-related corruption risks, with BRSR and Tata Group’s own governance standards driving disclosure and mitigation." .
+
+snowkap:tenant_tata_autocomp_systems_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "tata-autocomp-systems" ;
+    snowkap:forCompany "Tata AutoComp Systems" ;
+    snowkap:tenantIndustry "Auto Parts" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "tataautocomp.com" ;
+    dc:created "2026-05-08T10:56:55+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB Auto Parts"
+    ;
+    snowkap:stakeholderConcern "OEM customer decarbonization requirements" , "Labor rights in Indian manufacturing supply chains" , "Energy cost and reliability" , "Product safety and recall liability" , "Ethical business conduct and anti-corruption"
+    ;
+    snowkap:headlinePainpoint "Tata AutoComp Scope 3 emissions auto supply chain" , "Tata AutoComp labor practices India suppliers" , "Tata AutoComp hazardous waste management" , "Tata AutoComp product recall risk" , "Tata AutoComp anti-corruption compliance"
+    .
+

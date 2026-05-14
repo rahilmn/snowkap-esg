@@ -288,6 +288,17 @@ def connect(*, sqlite_path: Path | str | None = None) -> Iterator[Connection]:
         import psycopg2  # type: ignore[import-not-found]
 
         raw = psycopg2.connect(url, connect_timeout=15)
+        # Supabase pgbouncer pooler defaults to a 60s `statement_timeout`
+        # which kills long-running on-demand enrichments mid-upsert. Bump
+        # to 5 minutes so a 132s pipeline + write can complete cleanly.
+        # Override via SNOWKAP_PG_STATEMENT_TIMEOUT_MS (0 = unlimited).
+        try:
+            stmt_timeout_ms = int(os.environ.get("SNOWKAP_PG_STATEMENT_TIMEOUT_MS", "300000"))
+            with raw.cursor() as _c:
+                _c.execute(f"SET statement_timeout = {stmt_timeout_ms}")
+            raw.commit()
+        except Exception:
+            pass
     conn = Connection(raw, backend)
     try:
         yield conn

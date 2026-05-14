@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  minto-apt-real-estate-invt-tr
+# Company:      MINTO APT REAL ESTATE INVT TR
+# Industry:     REIT - Residential
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:53:02+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_0_energy a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_energy ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a residential REIT with a global footprint, Minto Apartment REIT faces above-average exposure to energy efficiency requirements and retrofitting obligations across multiple jurisdictions, as evidenced by their portfolio disclosures and public sustainability reports." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_1_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Minto Apartment REIT's public filings highlight Scope 1 and 2 emissions from building operations, which are subject to increasing regulatory scrutiny in key markets such as Canada and the EU." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_2_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Portfolio disclosures indicate that water use intensity is a tracked KPI, reflecting regulatory and tenant expectations for water conservation in multi-unit residential buildings." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_3_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Minto Apartment REIT reports on waste diversion rates and recycling initiatives in its sustainability reporting, indicating ongoing operational exposure to municipal waste regulations." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_4_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The REIT's assets are geographically diversified, exposing them to region-specific climate risks (e.g., flooding, heatwaves), as referenced in their risk management disclosures." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_5_employee_health a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_employee_health ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Minto Apartment REIT's public ESG disclosures reference building health and safety protocols, including indoor air quality and COVID-19 response, reflecting ongoing stakeholder scrutiny." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_painpoint_6_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "REIT - Residential" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a publicly listed REIT, Minto is subject to enhanced disclosure and anti-corruption requirements in multiple jurisdictions, as evidenced by their governance and ethics policies." .
+
+snowkap:tenant_minto_apt_real_estate_invt_tr_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "minto-apt-real-estate-invt-tr" ;
+    snowkap:forCompany "MINTO APT REAL ESTATE INVT TR" ;
+    snowkap:tenantIndustry "REIT - Residential" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "mintedit.com" ;
+    dc:created "2026-05-08T10:53:02+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "CSRD/ESRS" , "SASB" , "GRI"
+    ;
+    snowkap:stakeholderConcern "Energy efficiency and retrofitting costs" , "GHG emissions and regulatory compliance" , "Climate risk resilience of residential assets" , "Tenant health and safety standards"
+    ;
+    snowkap:headlinePainpoint "Minto Apartment REIT energy retrofitting obligations" , "Minto Apartment REIT Scope 1 and 2 emissions" , "Minto Apartment REIT climate resilience risk" , "Minto Apartment REIT tenant health and safety" , "Minto Apartment REIT waste diversion performance"
+    .
+

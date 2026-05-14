@@ -105,6 +105,150 @@ export interface Article {
 
   // Phase 12: Ontology-driven perspective views (CFO / CEO / ESG Analyst)
   perspectives?: Record<"cfo" | "ceo" | "esg-analyst", CrispView> | null;
+
+  // Phase 1 — base criticality (objective article importance, 0..1)
+  criticality_score?: number | null;
+  criticality_band?: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | null;
+
+  // Phase 6 — persona modulation (only present when ?personalise=true was sent)
+  personalised_score?: number | null;
+  /** True iff the article's topics have zero overlap with the caller's
+   * persona.esg_focus. Renders an "Outside your focus" badge so the CXO
+   * sees why a CRITICAL article they don't normally care about surfaced. */
+  outside_focus?: boolean;
+  persona_boost?: number;
+
+  // Phase 3 §5.1 — structured Evidence Pack stamped at insight write time.
+  // Read directly without rebuilding from raw pipeline state. Empty when
+  // the writer couldn't assemble it (e.g. REJECTED article, builder failure).
+  evidence_pack?: EvidencePack | null;
+
+  // Phase 3 §5.2 — per-role RoleDistinctPayload for the 3 canonical roles.
+  // Surfaces the role-distinct headline + hero metric + takeaways +
+  // role-typed recommendations the Stage 11 dispatcher built from the
+  // shared EvidencePack. Empty {} when the dispatcher couldn't build any
+  // role (write-time failure or pre-Phase-3 article). The frontend SHOULD
+  // prefer this over the legacy `perspectives` field once the LLM-prompt
+  // swap lands and content quality justifies the visual surface change.
+  role_payloads?: Record<RoleKey, RoleDistinctPayload>;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 §5.1/§5.2 — EvidencePack + RoleDistinctPayload (shared canonical
+// block + per-role payload). Mirrors the Python dataclasses in
+// `engine/analysis/evidence_pack.py` and `engine/analysis/role_generators/`.
+// ---------------------------------------------------------------------------
+
+export type RoleKey = "cfo" | "ceo" | "esg-analyst";
+export type Polarity = "positive" | "negative" | "mixed" | "neutral";
+
+export interface CascadeHop {
+  source: string;
+  target: string;
+  beta?: number | null;
+  lag_months?: number | null;
+  delta_cr?: number | null;
+  confidence?: string | null;
+}
+
+export interface CascadeBlock {
+  total_cr: number;
+  margin_bps?: number | null;
+  dominant_lag_months?: number | null;
+  hops: CascadeHop[];
+  source_flag: string;
+}
+
+// NOTE: distinct from the pre-existing `FrameworkHit` (line 162) which has
+// a different shape used by FrameworkComplianceMap. Prefix with `Evidence`
+// to avoid the name collision.
+export interface EvidenceFrameworkHit {
+  code: string;
+  name: string;
+  rationale: string;
+  region: string;
+  is_mandatory: boolean;
+}
+
+export interface EvidenceStakeholder {
+  name: string;
+  stance: string;
+  precedent: string;
+}
+
+export interface PainpointMatch {
+  topic: string;
+  similarity: number;
+  severity: number;
+  evidence: string;
+}
+
+export interface EvidenceCausalChain {
+  hops: number;
+  relationship_type: string;
+  explanation: string;
+  impact_score: number;
+}
+
+export interface PeerEvent {
+  company: string;
+  event_type: string;
+  year?: number | null;
+  polarity: Polarity;
+  summary: string;
+  citation: string;
+}
+
+export interface ConfidenceBoundsBlock {
+  figure_lo_cr?: number | null;
+  figure_hi_cr?: number | null;
+  method: string;
+  notes: string;
+}
+
+export interface DecisionWindow {
+  label: string;
+  deadline: string;
+  severity: string;
+}
+
+export interface EvidencePack {
+  cascade: CascadeBlock;
+  frameworks: EvidenceFrameworkHit[];
+  stakeholders: EvidenceStakeholder[];
+  painpoint_matches: PainpointMatch[];
+  causal_chain: EvidenceCausalChain;
+  comparables: PeerEvent[];
+  polarity: Polarity;
+  confidence_bounds: ConfidenceBoundsBlock;
+  decision_windows: DecisionWindow[];
+}
+
+export interface HeroMetric {
+  value: string;
+  label: string;
+  decision_window: string;
+  horizon: string;
+  deadline: string;
+}
+
+export interface RecommendationStub {
+  title: string;
+  type: string;
+  budget_cr?: number | null;
+  payback_months?: number | null;
+  framework_section: string;
+}
+
+export interface RoleDistinctPayload {
+  role: RoleKey;
+  headline: string;
+  hero_metric: HeroMetric;
+  role_takeaways: string[];
+  role_paragraph: string;
+  recommendations: RecommendationStub[];
+  visible_panels: string[];
+  hidden_panels: string[];
 }
 
 /** Bloomberg-style perspective view produced by the ontology-driven pipeline. */

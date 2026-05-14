@@ -592,6 +592,10 @@ def build_legacy_article(row: dict[str, Any], payload: dict[str, Any] | None) ->
         "reversibility": nlp.get("reversibility"),
         "priority_score": row.get("relevance_score"),
         "priority_level": priority_level,
+        # Phase 1.6 — surface criticality so the frontend can render the
+        # band badge ("CRITICAL"/"HIGH"/"MEDIUM"/"LOW") + numeric score.
+        "criticality_score": row.get("criticality_score"),
+        "criticality_band": row.get("criticality_band"),
         "financial_signal": {
             "type": "capex",
             "amount": nlp.get("financial_amount_cr") or 0,
@@ -1308,15 +1312,85 @@ def news_feed(
     sort_by: str = "priority",
     pillar: str | None = None,
     content_type: str | None = None,
+    perspective: str | None = None,
+    surface: str = Query("feed", regex="^(home|feed|all)$"),
+    personalise: bool = Query(
+        False,
+        description=(
+            "Phase 6 §8.3 — when true, apply persona re-ranking on top of "
+            "criticality. Reads the caller's persona via `sub` claim. Falls "
+            "back to role-default persona if no persona is stored. "
+            "Discoverability invariant: no row dropped; CRITICAL floored at "
+            "0.65; rows tagged with `outside_focus` for the UI badge."
+        ),
+    ),
     _: None = Depends(require_auth),
     _claims: dict[str, Any] = Depends(tenant_scoped()),
 ) -> dict[str, Any]:
+    # Phase 24 W3 — when ?perspective=cfo, hide articles that explicitly
+    # FAILed the CFO-credibility preflight. NULL (preflight not yet run)
+    # and PASS both pass through; only FAIL is suppressed. Other
+    # perspectives (esg-analyst / ceo) see everything as before.
+    cfo_filter_active = (perspective or "").lower() == "cfo"
+    overfetch = pillar or content_type or cfo_filter_active
+
+    # Phase 1.6 — per-surface criticality floor.
+    # `surface=home` → 0.65 (CRITICAL+ only) / `surface=feed` → 0.40
+    # / `surface=all` → no floor (admin/debug). Articles with NULL
+    # criticality_score (pre-Phase-1 backfill window) are kept regardless
+    # so the rollout doesn't blank the feed.
+    min_crit = None
+    if surface == "home":
+        min_crit = 0.65
+    elif surface == "feed":
+        min_crit = 0.40
+
     rows = sqlite_index.query_feed(
         company_slug=company_id,
         tier=None,
-        limit=limit * 2 if pillar or content_type else limit,  # overfetch for filter
+        limit=limit * 2 if overfetch else limit,  # overfetch for filter
         offset=offset,
+        min_criticality=min_crit,
     )
+
+    # Phase 6 §8.3 — opt-in persona re-rank. Cache payload loads in this
+    # request so the re-ranker and the per-row build loop don't double-read
+    # the JSON files. The fallback path (no persona, no role hint) is a
+    # neutral persona which yields boost=1.0 on every row → behaviour
+    # identical to the un-personalised path.
+    payload_cache: dict[str, Any] = {}
+
+    def _cached_load_payload(path: str | None) -> dict[str, Any] | None:
+        if not path:
+            return None
+        if path not in payload_cache:
+            payload_cache[path] = _load_payload(path)
+        return payload_cache[path]
+
+    if personalise:
+        try:
+            from engine.persona import (
+                apply_persona_to_feed,
+                default_persona_for_role,
+                get_persona,
+            )
+            sub = (_claims or {}).get("sub") if isinstance(_claims, dict) else None
+            user_id = str(sub or "").strip().lower()
+            persona = get_persona(user_id) if user_id else None
+            if persona is None:
+                # No MCQ completed yet — use role-default. We can't know the
+                # role from the JWT today (no role claim), so default to "other"
+                # which yields a neutral persona (no esg_focus → no boost).
+                persona = default_persona_for_role(user_id or "anon", "other")
+            row_dicts = [dict(r) for r in rows]
+            rows = apply_persona_to_feed(
+                row_dicts, persona, _cached_load_payload,
+            )
+        except Exception as exc:  # noqa: BLE001 — never break feed on persona path
+            logger.warning(
+                "persona re-rank skipped (non-fatal): %s", exc,
+            )
+
     articles: list[dict[str, Any]] = []
     for r in rows:
         row = dict(r)
@@ -1324,8 +1398,20 @@ def news_feed(
             continue
         if content_type and row.get("content_type") != content_type:
             continue
-        payload = _load_payload(row.get("json_path"))
-        articles.append(build_legacy_article(row, payload))
+        if cfo_filter_active and row.get("cfo_preflight_status") == "FAIL":
+            continue
+        payload = _cached_load_payload(row.get("json_path"))
+        article = build_legacy_article(row, payload)
+        # Phase 6 — surface persona signals on the legacy shape so the
+        # frontend can render the "Outside your focus" badge + secondary
+        # sort by personalised_score.
+        if "personalised_score" in row:
+            article["personalised_score"] = row.get("personalised_score")
+        if "outside_focus" in row:
+            article["outside_focus"] = bool(row.get("outside_focus"))
+        if "persona_boost" in row:
+            article["persona_boost"] = row.get("persona_boost")
+        articles.append(article)
         if len(articles) >= limit:
             break
     # Phase 22.3 — count must honour the same pillar/content_type filters
@@ -1556,7 +1642,10 @@ def news_trigger_analysis(
     # for) an OpenAI enrichment job against another tenant's article.
     row = _require_article_in_scope(article_id, claims)
 
-    CURRENT_SCHEMA = "2.0-primitives-l2"
+    # W5 — schema bump invalidates every Phase-17c-era cached enrichment.
+    # First click on any "stale" article re-runs Stages 10-12 with the W4
+    # role-distinct generators and writes the new fields back to disk.
+    CURRENT_SCHEMA = "2.1-role-distinct"
     if not force:
         payload = _load_payload(row.get("json_path"))
         stored_version = ((payload or {}).get("meta") or {}).get("schema_version", "")

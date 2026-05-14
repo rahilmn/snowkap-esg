@@ -1032,6 +1032,24 @@ def _render_metrics_list(metrics: list[str]) -> str:
     return f'<table role="presentation" width="100%" align="left" cellpadding="0" cellspacing="0" border="0" style="text-align:left;">{"".join(rows)}</table>'
 
 
+def _normalise_role_key(role: str | None) -> str | None:
+    """Phase 4 §6.4 — accept the four spellings the API surface uses
+    ('cfo' / 'ceo' / 'analyst' / 'esg-analyst') and return the canonical
+    perspective dict key ('cfo' / 'ceo' / 'esg-analyst'). Returns None
+    when role is unset / unrecognised so callers fall through to the
+    generic insight-driven body."""
+    if not role:
+        return None
+    r = role.strip().lower()
+    if r == "cfo":
+        return "cfo"
+    if r == "ceo":
+        return "ceo"
+    if r in ("analyst", "esg-analyst", "esg_analyst"):
+        return "esg-analyst"
+    return None
+
+
 def render_article_brief_dark(
     *,
     payload: dict,
@@ -1041,11 +1059,19 @@ def render_article_brief_dark(
     cta_url: str = DEFAULT_CTA_URL,
     cta_label: str = DEFAULT_CTA_LABEL,
     article_url_override: str | None = None,
+    role: str | None = None,
 ) -> str:
     """Render a single-article brief as an ET-Sustainability-style dark card email.
 
     Expects the full pipeline payload (article + pipeline + insight + perspectives).
     Falls back gracefully when any field is missing.
+
+    Phase 4 §6.4 — when ``role`` is provided AND the insight has a matching
+    ``perspectives[role]`` block (CFO / CEO / ESG Analyst), the email body
+    surfaces THAT perspective's headline + what_matters + action instead
+    of the generic insight-level fields. This is what powers the sales-
+    tool's "Send as CFO|CEO|Analyst" lens toggle. Unknown / missing
+    role → byte-identical to the legacy generic render.
     """
     article = payload.get("article") or {}
     pipeline = payload.get("pipeline") or {}
@@ -1054,7 +1080,25 @@ def render_article_brief_dark(
     nlp = pipeline.get("nlp") or {}
     themes = pipeline.get("themes") or {}
 
-    title = insight.get("headline") or article.get("title") or "ESG Intelligence Brief"
+    # Phase 4 §6.4 — pick the role-specific perspective if available
+    role_key = _normalise_role_key(role)
+    perspectives = insight.get("perspectives") or {}
+    role_view = (
+        perspectives.get(role_key)
+        if role_key and isinstance(perspectives, dict)
+        else None
+    )
+    if not isinstance(role_view, dict):
+        role_view = None
+
+    # Title prefers the role-specific headline (e.g. CFO's ₹-led
+    # "Margin compresses ₹X Cr" vs CEO's "Strategic positioning")
+    title = (
+        (role_view or {}).get("headline")
+        or insight.get("headline")
+        or article.get("title")
+        or "ESG Intelligence Brief"
+    )
     source = article.get("source") or ""
     published = article.get("published_at") or ""
     article_url = article_url_override or article.get("url") or ""
@@ -1064,19 +1108,55 @@ def render_article_brief_dark(
     sentiment_label, sentiment_colour = _sentiment_display(nlp.get("sentiment"))
     mat_label, mat_score, mat_colour = _materiality_display(decision.get("materiality") or "")
 
+    # Executive summary prefers the role's "why_critical" paragraph
+    # (deterministic, role-tuned) over the generic net_impact_summary.
     executive_summary = (
-        insight.get("net_impact_summary")
+        (role_view or {}).get("why_critical")
+        or insight.get("net_impact_summary")
         or decision.get("key_risk")
         or "Analysis pending — no executive summary available."
     )
 
+    # Key insights: when a role view exists, use its `what_matters`
+    # bullets directly. They've already been generated through that
+    # role's prompt and skip the generic core_mechanism/key_risk
+    # bag-of-everything assembly.
     key_insights: list[str] = []
-    if insight.get("core_mechanism"):
-        key_insights.append(str(insight["core_mechanism"]))
-    if decision.get("key_risk"):
-        key_insights.append(f"Key risk: {decision['key_risk']}")
-    if decision.get("top_opportunity"):
-        key_insights.append(f"Opportunity: {decision['top_opportunity']}")
+    if role_view and isinstance(role_view.get("what_matters"), list):
+        key_insights = [str(b) for b in role_view["what_matters"] if b]
+        # Append the role's recommended action as the last bullet so
+        # the reader sees a "do this" closer right inside the card.
+        action_bullets = role_view.get("action") or []
+        if isinstance(action_bullets, list) and action_bullets:
+            first_action = str(action_bullets[0]).strip()
+            if first_action and first_action.lower() != "no action required":
+                key_insights.append(f"Action: {first_action}")
+    else:
+        if insight.get("core_mechanism"):
+            key_insights.append(str(insight["core_mechanism"]))
+        if decision.get("key_risk"):
+            key_insights.append(f"Key risk: {decision['key_risk']}")
+        if decision.get("top_opportunity"):
+            key_insights.append(f"Opportunity: {decision['top_opportunity']}")
+
+    # Phase 4 §6.3 — bullet-quality gate. Drop bullets that:
+    #   - have no concrete signal (no number, date, peer, action verb)
+    #   - exceed 35 words
+    #   - stack 3+ hedge tokens
+    #   - are tautologies ("risk that [event] does not recur")
+    # If filtering would empty the section entirely, fall back to the
+    # original list — better to ship a weak bullet than an empty card.
+    try:
+        from engine.output.insight_verifier import verify_bullets
+        verdicts = verify_bullets(key_insights)
+        kept: list[str] = [
+            b for b, v in zip(key_insights, verdicts) if v.passed
+        ]
+        if kept:
+            key_insights = kept
+        # else: keep the original list rather than silence the section
+    except Exception:  # noqa: BLE001 — never break renderer on verifier
+        pass
 
     frameworks = _extract_framework_summary(pipeline)
     metrics = list(themes.get("primary_sub_metrics") or [])

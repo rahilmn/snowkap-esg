@@ -87,6 +87,14 @@ class ArticleResult:
     failures: list[str] = field(default_factory=list)
     # Cost / metrics (if available)
     ontology_queries: int = 0
+    # Phase 26 SLO signals (per-article, aggregated by FuzzSummary)
+    criticality_score: float | None = None
+    criticality_band: str | None = None
+    cross_role_drift_violations: int = 0
+    bullet_verifier_pass_count: int = 0  # bullets that pass §6.3
+    bullet_verifier_total: int = 0       # total bullets evaluated
+    subject_verifier_passed: bool | None = None  # None when subject not built
+    provenance_leaked_in_narrative: bool = False  # True if (engine estimate) survived
 
 
 @dataclass
@@ -107,8 +115,14 @@ class FuzzSummary:
     hallucination_audit_count: int
     cross_section_drift_count: int
     coherence_mismatch_count: int
-    # Per-article details
-    results: list[ArticleResult]
+    # Phase 26 SLO signals (aggregated)
+    criticality_coverage_pct: float = 0.0  # % of non-rejected articles with a band
+    cross_role_drift_articles: int = 0     # articles with at least 1 violation
+    bullet_pass_rate: float = 1.0          # bullets passing §6.3 / total bullets
+    subject_pass_rate: float = 1.0         # subjects passing §6.2 / subjects built
+    provenance_leak_articles: int = 0      # articles where (engine estimate) survived
+    # Per-article details — must keep default to come after defaulted fields
+    results: list[ArticleResult] = field(default_factory=list)
 
     @property
     def pass_rate(self) -> float:
@@ -315,6 +329,72 @@ def _run_article(entry: dict) -> ArticleResult:
         full_payload["decision_summary"] = insight.decision_summary
         full_payload["warnings"] = result.warnings
 
+        # Phase 26 — capture criticality stamped by Stage 9.5 / insight time
+        crit = getattr(insight, "criticality", None) or {}
+        if isinstance(crit, dict):
+            score = crit.get("score")
+            try:
+                result.criticality_score = float(score) if score is not None else None
+            except (TypeError, ValueError):
+                result.criticality_score = None
+            band = crit.get("band")
+            result.criticality_band = str(band) if band else None
+
+        # Phase 2.3 — provenance leak check on narrative fields
+        try:
+            import re as _re
+            _leak_re = _re.compile(
+                r"\((?:engine\s+estimate|from\s+article)\)", _re.IGNORECASE,
+            )
+            narrative_blob = " ".join(
+                str(v) for v in [
+                    insight.headline,
+                    insight.net_impact_summary,
+                    (insight.decision_summary or {}).get("financial_exposure", ""),
+                    (insight.decision_summary or {}).get("key_risk", ""),
+                    (insight.decision_summary or {}).get("top_opportunity", ""),
+                ] if v
+            )
+            result.provenance_leaked_in_narrative = bool(_leak_re.search(narrative_blob))
+        except Exception:  # noqa: BLE001 — never break harness on side check
+            pass
+
+        # Phase 4 §6.3 — bullet verifier pass rate on key_takeaways
+        try:
+            from engine.output.insight_verifier import verify_bullets
+            takeaways: list[str] = []
+            if insight.net_impact_summary:
+                takeaways.append(str(insight.net_impact_summary))
+            ds = insight.decision_summary or {}
+            for key in ("key_risk", "top_opportunity"):
+                if ds.get(key):
+                    takeaways.append(str(ds[key]))
+            if takeaways:
+                verdicts = verify_bullets(takeaways)
+                result.bullet_verifier_total = len(verdicts)
+                result.bullet_verifier_pass_count = sum(1 for v in verdicts if v.passed)
+        except Exception:
+            pass
+
+        # Phase 4 §6.2 — subject verifier on the editorial subject line
+        try:
+            from engine.output.subject_line import build_subject
+            from engine.output.insight_verifier import verify_subject
+            subj = build_subject(
+                company.name if company else "",
+                {
+                    "headline": insight.headline,
+                    "decision_summary": insight.decision_summary or {},
+                    "net_impact_summary": insight.net_impact_summary,
+                    "event_polarity": getattr(insight, "event_polarity", "neutral"),
+                },
+                article,
+            )
+            if subj:
+                result.subject_verifier_passed = verify_subject(subj).passed
+        except Exception:
+            pass
+
         # Stage 11/12 — only need CFO + recs for the harness
         cfo = transform_for_perspective(insight, pipe, "cfo")
         recs = generate_recommendations(insight, pipe, company)
@@ -324,6 +404,27 @@ def _run_article(entry: dict) -> ArticleResult:
             for r in (recs.recommendations or [])
         ]
         result.rec_count = len(recs.recommendations or [])
+
+        # Phase 3 §5.5 — cross-role drift count (set on insight by verify_and_correct)
+        try:
+            ceo = transform_for_perspective(insight, pipe, "ceo")
+            analyst = transform_for_perspective(insight, pipe, "esg-analyst")
+            from engine.analysis.cross_role_drift import compute_drift
+            payloads: dict[str, Any] = {}
+            for label, p in (("cfo", cfo), ("ceo", ceo), ("esg_analyst", analyst)):
+                if isinstance(p, dict):
+                    payloads[label] = p
+                elif p is not None and hasattr(p, "to_dict"):
+                    payloads[label] = p.to_dict()
+                elif p is not None:
+                    payloads[label] = {
+                        "headline": getattr(p, "headline", ""),
+                        "paragraph": getattr(p, "paragraph", ""),
+                    }
+            drift = compute_drift(payloads)
+            result.cross_role_drift_violations = len(drift.violations)
+        except Exception:
+            pass
 
     except Exception as exc:  # noqa: BLE001 — harness must keep going
         result.failures.append(f"pipeline crash: {type(exc).__name__}: {str(exc)[:200]}")
@@ -351,6 +452,27 @@ def _percentile(values: list[float], pct: float) -> float:
 
 def _summarise(results: list[ArticleResult]) -> FuzzSummary:
     elapsed = [r.elapsed_seconds for r in results]
+
+    # Phase 26 SLO aggregations — only count non-rejected articles for
+    # criticality coverage (rejected articles never get scored)
+    non_rejected = [r for r in results if r.materiality != "REJECTED"]
+    if non_rejected:
+        scored = sum(1 for r in non_rejected if r.criticality_band)
+        coverage_pct = scored / len(non_rejected)
+    else:
+        coverage_pct = 1.0  # vacuous pass on empty corpus
+
+    bullet_total = sum(r.bullet_verifier_total for r in results)
+    bullet_pass = sum(r.bullet_verifier_pass_count for r in results)
+    bullet_rate = bullet_pass / bullet_total if bullet_total else 1.0
+
+    subjects_evaluated = [r for r in results if r.subject_verifier_passed is not None]
+    if subjects_evaluated:
+        subject_pass = sum(1 for r in subjects_evaluated if r.subject_verifier_passed)
+        subject_rate = subject_pass / len(subjects_evaluated)
+    else:
+        subject_rate = 1.0
+
     return FuzzSummary(
         started_at="",  # set by caller
         finished_at="",  # set by caller
@@ -372,6 +494,15 @@ def _summarise(results: list[ArticleResult]) -> FuzzSummary:
         coherence_mismatch_count=sum(
             1 for r in results if any("coherence mismatch" in w.lower() for w in r.warnings)
         ),
+        criticality_coverage_pct=round(coverage_pct, 4),
+        cross_role_drift_articles=sum(
+            1 for r in results if r.cross_role_drift_violations > 0
+        ),
+        bullet_pass_rate=round(bullet_rate, 4),
+        subject_pass_rate=round(subject_rate, 4),
+        provenance_leak_articles=sum(
+            1 for r in results if r.provenance_leaked_in_narrative
+        ),
         results=results,
     )
 
@@ -392,6 +523,14 @@ def _print_markdown_report(summary: FuzzSummary) -> str:
     lines.append(f"- Hallucination-audit fired:  {summary.hallucination_audit_count}/{n}  ({summary.hallucination_audit_count/n:.1%})")
     lines.append(f"- Cross-section ₹ drift:      {summary.cross_section_drift_count}/{n}  ({summary.cross_section_drift_count/n:.1%})")
     lines.append(f"- Coherence-mismatch:         {summary.coherence_mismatch_count}/{n}  ({summary.coherence_mismatch_count/n:.1%})")
+    lines.append("")
+    lines.append("## Phase 26 SLOs")
+    lines.append("")
+    lines.append(f"- Criticality coverage:       {summary.criticality_coverage_pct:.1%}  (target: 100% on non-rejected)")
+    lines.append(f"- Cross-role ₹ drift fires:   {summary.cross_role_drift_articles}/{n}  ({summary.cross_role_drift_articles/n:.1%}; target: 0)")
+    lines.append(f"- Bullet-verifier pass rate:  {summary.bullet_pass_rate:.1%}  (§6.3; target: ≥80%)")
+    lines.append(f"- Subject-verifier pass rate: {summary.subject_pass_rate:.1%}  (§6.2; target: ≥90%)")
+    lines.append(f"- Provenance leaks:           {summary.provenance_leak_articles}/{n}  (target: 0 — strip pass)")
     lines.append("")
 
     failed = [r for r in summary.results if not r.passed]
@@ -446,6 +585,37 @@ def main(argv: list[str] | None = None) -> int:
         type=float,
         default=10.0,
         help="Exit non-zero if fail rate exceeds this percentage. Default 10.",
+    )
+    # Phase 26 SLOs — independent of the per-article pass/fail rate
+    parser.add_argument(
+        "--slo-bullet-pass-min",
+        type=float,
+        default=0.0,
+        help="Min bullet-verifier pass rate (0..1). 0 disables. Recommend 0.80.",
+    )
+    parser.add_argument(
+        "--slo-subject-pass-min",
+        type=float,
+        default=0.0,
+        help="Min subject-verifier pass rate (0..1). 0 disables. Recommend 0.90.",
+    )
+    parser.add_argument(
+        "--slo-criticality-coverage-min",
+        type=float,
+        default=0.0,
+        help="Min criticality-band coverage on non-rejected articles (0..1). 0 disables.",
+    )
+    parser.add_argument(
+        "--slo-cross-role-drift-max",
+        type=int,
+        default=-1,
+        help="Max # articles allowed to fire cross-role ₹ drift. -1 disables.",
+    )
+    parser.add_argument(
+        "--slo-provenance-leaks-max",
+        type=int,
+        default=-1,
+        help="Max # articles allowed to leak '(engine estimate)' / '(from article)'. -1 disables.",
     )
     parser.add_argument(
         "--limit",
@@ -521,12 +691,60 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Report: {md_path}")
     print("=" * 70)
 
+    # Existing SLO — per-article fail rate
     fail_pct = summary.fail_rate * 100
+    slo_violations: list[str] = []
     if fail_pct > args.slo_fail_pct:
-        print(
-            f"❌ FAIL: fail rate {fail_pct:.1f}% exceeds SLO {args.slo_fail_pct:.0f}%",
-            file=sys.stderr,
+        slo_violations.append(
+            f"fail rate {fail_pct:.1f}% exceeds SLO {args.slo_fail_pct:.0f}%"
         )
+
+    # Phase 26 SLOs — only fire when the operator opted in (>0 / != -1)
+    if (
+        args.slo_bullet_pass_min > 0
+        and summary.bullet_pass_rate < args.slo_bullet_pass_min
+    ):
+        slo_violations.append(
+            f"bullet-verifier pass rate {summary.bullet_pass_rate:.1%} "
+            f"< SLO {args.slo_bullet_pass_min:.0%}"
+        )
+    if (
+        args.slo_subject_pass_min > 0
+        and summary.subject_pass_rate < args.slo_subject_pass_min
+    ):
+        slo_violations.append(
+            f"subject-verifier pass rate {summary.subject_pass_rate:.1%} "
+            f"< SLO {args.slo_subject_pass_min:.0%}"
+        )
+    if (
+        args.slo_criticality_coverage_min > 0
+        and summary.criticality_coverage_pct < args.slo_criticality_coverage_min
+    ):
+        slo_violations.append(
+            f"criticality coverage {summary.criticality_coverage_pct:.1%} "
+            f"< SLO {args.slo_criticality_coverage_min:.0%}"
+        )
+    if (
+        args.slo_cross_role_drift_max >= 0
+        and summary.cross_role_drift_articles > args.slo_cross_role_drift_max
+    ):
+        slo_violations.append(
+            f"cross-role drift fired on {summary.cross_role_drift_articles} articles "
+            f"(SLO max {args.slo_cross_role_drift_max})"
+        )
+    if (
+        args.slo_provenance_leaks_max >= 0
+        and summary.provenance_leak_articles > args.slo_provenance_leaks_max
+    ):
+        slo_violations.append(
+            f"provenance leaked in {summary.provenance_leak_articles} articles "
+            f"(SLO max {args.slo_provenance_leaks_max})"
+        )
+
+    if slo_violations:
+        print()
+        for v in slo_violations:
+            print(f"❌ SLO BREACH: {v}", file=sys.stderr)
         return 1
     return 0
 

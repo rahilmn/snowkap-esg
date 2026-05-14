@@ -1,0 +1,35 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT EXTENSION (Phase 25 W6 industry-default seeding) <<<
+# Tenant slug:  tata-power-co-ltd
+# Industry:     Power/Energy
+# Source:       Auto-generated from engine.ingestion.industry_materiality_defaults
+# Override:     Run /discover-tenant-config to replace these with analyst-curated values.
+
+# Carbon / GHG Emissions materiality override
+snowkap:tenant_tata-power-co-ltd_carbon_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.95 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Coal IPPs face stranded-asset risk; SBTi + RBI Climate Stress Test set the pathway." .
+
+# Water materiality override
+snowkap:tenant_tata-power-co-ltd_water_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.90 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "Cooling water for thermal plants conflicts with agriculture / municipal use during droughts." .
+
+# Air Pollution materiality override
+snowkap:tenant_tata-power-co-ltd_air_pollution_weight a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Power/Energy" ;
+    snowkap:weightValue 0.92 ;
+    snowkap:weightSource "Phase 25 W6 industry-default seeding" ;
+    rdfs:comment "PM2.5 + Hg + SO2 from coal generation; CPCB Phase II compliance ongoing." .

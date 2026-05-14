@@ -134,6 +134,28 @@ def _run_article(article: dict[str, Any], company: Company) -> ArticleRunSummary
                 # CFO stays on legacy path (simpler, verified by Phase 3 hardening)
                 perspectives["cfo"] = transform_for_perspective(insight, result, "cfo")
                 recs = generate_recommendations(insight, result, company)
+                # Phase 24 W3 — CFO-credibility preflight (mirrors on_demand path)
+                try:
+                    from engine.analysis.cfo_preflight import run_preflight
+                    framework_codes = [
+                        getattr(fm, "framework_id", "") or getattr(fm, "id", "")
+                        for fm in (result.frameworks or [])[:5]
+                    ]
+                    framework_codes = [c for c in framework_codes if c]
+                    report = run_preflight(
+                        insight.to_dict(),
+                        perspectives={k: v.to_dict() for k, v in perspectives.items()},
+                        framework_codes=framework_codes,
+                        published_at=getattr(result, "published_at", None),
+                        event_id=getattr(result.event, "event_id", "") or "" if result.event else None,
+                        event_polarity=getattr(insight, "event_polarity", "neutral"),
+                        verifier_warnings=getattr(insight, "warnings", None),
+                        article_id=str(result.article_id) if result.article_id else None,
+                        company_slug=company.slug,
+                    )
+                    insight.cfo_preflight = report.to_dict()
+                except Exception as exc:  # noqa: BLE001 — preflight is additive
+                    logger.warning("cfo_preflight failed (non-fatal): %s", exc)
         # Write to disk (HOME: full insight; SECONDARY: pipeline-only, insight=None)
         written = write_insight(result, insight, perspectives, recs)
         # Count non-None files

@@ -92,6 +92,13 @@ class PipelineResult:
     # string when the source feed didn't expose one.
     image_url: str = ""
 
+    # Phase 1.5 — Criticality block (Stage 9.5). Stamped at the end of
+    # process_article with cascade_total=0 (baseline), then overwritten
+    # by insight_generator with the cascade-aware full score. Empty dict
+    # on REJECTED articles or when scoring fails. Shape mirrors
+    # criticality_scorer.CriticalityResult.as_dict().
+    criticality: dict[str, Any] = field(default_factory=dict)
+
     def to_dict(self) -> dict[str, Any]:
         def _safe(obj: Any) -> Any:
             if obj is None:
@@ -139,6 +146,7 @@ class PipelineResult:
             # still has the grounding signal for source-tag verification.
             "article_content": self.article_content,
             "image_url": self.image_url,
+            "criticality": self.criticality,
         }
 
 
@@ -448,15 +456,31 @@ def process_article(
         ontology_queries += risk.ontology_queries
         result.risk = risk
 
+    # Stage 9.5 — Criticality scoring (Phase 1.5).
+    # Additive on top of the relevance gate. Cascade hasn't run yet
+    # (it's part of Stage 10 in our pipeline), so financial_magnitude=0
+    # in this baseline pass. Insight generator overwrites with the
+    # cascade-aware full score later. Failures are non-fatal — an empty
+    # criticality block falls through to "all-LOW" defaults downstream.
+    stages.append("criticality_scoring")
+    try:
+        from engine.analysis.criticality_integration import score_at_pipeline_end
+        crit = score_at_pipeline_end(result, company, embed_article=False)
+        if crit is not None:
+            result.criticality = crit.as_dict()
+    except Exception as exc:  # noqa: BLE001 — additive
+        logger.debug("criticality scoring failed (non-fatal): %s", exc)
+
     result.ontology_query_count = ontology_queries
     result.elapsed_seconds = round(time.perf_counter() - started, 3)
     logger.info(
-        "pipeline: %s tier=%s score=%.1f stages=%s queries=%s elapsed=%.2fs",
+        "pipeline: %s tier=%s score=%.1f stages=%s queries=%s elapsed=%.2fs crit=%s",
         article.get("id", "")[:8],
         result.tier,
         relevance.adjusted_total,
         len(stages),
         ontology_queries,
         result.elapsed_seconds,
+        result.criticality.get("band", "?") if result.criticality else "?",
     )
     return result

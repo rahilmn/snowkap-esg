@@ -1,0 +1,111 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  icici-bank
+# Company:      ICICI Bank
+# Industry:     Financials/Banking
+# Region:       GLOBAL
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:51:07+00:00
+# Painpoints:   7
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_icici_bank_painpoint_0_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "ICICI Bank has faced regulatory scrutiny and high-profile governance controversies in recent years, increasing its exposure to business ethics risks relative to Indian banking peers." .
+
+snowkap:tenant_icici_bank_painpoint_1_governance a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_governance ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.90 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Recent board-level investigations and leadership transitions have placed ICICI Bank's governance practices under heightened stakeholder and regulatory attention." .
+
+snowkap:tenant_icici_bank_painpoint_2_cyber_risk a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_cyber_risk ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As one of India's largest digital banking providers, ICICI Bank faces elevated cyber risk exposure due to its extensive online and mobile banking platforms." .
+
+snowkap:tenant_icici_bank_painpoint_3_customer_data a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_customer_data ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "ICICI Bank's large retail and digital customer base increases the materiality of customer data privacy and protection, especially under evolving Indian data protection regulations." .
+
+snowkap:tenant_icici_bank_painpoint_4_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The bank has been subject to regulatory investigations related to lending practices, making anti-corruption controls a material concern for stakeholders." .
+
+snowkap:tenant_icici_bank_painpoint_5_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "ICICI Bank's significant lending exposure to sectors vulnerable to climate risks (e.g., agriculture, infrastructure) increases the relevance of climate adaptation in its portfolio risk management." .
+
+snowkap:tenant_icici_bank_painpoint_6_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Financials/Banking" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "With a large workforce and a history of rapid expansion, labor practices—including employee well-being and fair treatment—remain a material issue for ICICI Bank." .
+
+snowkap:tenant_icici_bank_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "icici-bank" ;
+    snowkap:forCompany "ICICI Bank" ;
+    snowkap:tenantIndustry "Financials/Banking" ;
+    snowkap:tenantRegion "GLOBAL" ;
+    dc:source "icicibank.com" ;
+    dc:created "2026-05-08T10:51:07+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI" , "SASB"
+    ;
+    snowkap:stakeholderConcern "Board and executive accountability" , "Data privacy and cyber security" , "Responsible lending and anti-corruption" , "Employee welfare and workplace practices"
+    ;
+    snowkap:headlinePainpoint "ICICI Bank governance investigation" , "ICICI Bank cyber security breach" , "ICICI Bank data privacy compliance" , "ICICI Bank anti-corruption probe" , "ICICI Bank climate risk lending"
+    .
+

@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  sud-chemie-india
+# Company:      Sud-Chemie India
+# Industry:     Chemicals
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:56:16+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_sud_chemie_india_painpoint_0_carbon a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_carbon ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Sud-Chemie India, as a specialty chemicals manufacturer, operates energy-intensive processes that are significant sources of direct and indirect (Scope 1 and 2) carbon emissions, as reflected in peer disclosures and BRSR filings." .
+
+snowkap:tenant_sud_chemie_india_painpoint_1_water a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_water ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in India, Sud-Chemie India faces heightened scrutiny over industrial water use and effluent discharge due to regional water stress and regulatory enforcement under BRSR and local pollution control boards." .
+
+snowkap:tenant_sud_chemie_india_painpoint_2_waste a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_waste ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "The company's product portfolio (catalysts, adsorbents) and manufacturing processes generate hazardous waste streams, which are subject to strict Indian environmental regulations and public reporting requirements." .
+
+snowkap:tenant_sud_chemie_india_painpoint_3_employee_health a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_employee_health ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Chemical manufacturing in India is associated with elevated risks of workplace exposure to hazardous substances, as evidenced by sectoral BRSR disclosures and regulatory focus on industrial safety." .
+
+snowkap:tenant_sud_chemie_india_painpoint_4_air_pollution a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_air_pollution ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Sud-Chemie India's operations likely involve emissions of volatile organic compounds and particulates, which are regulated by Indian authorities and are a common peer concern in the sector." .
+
+snowkap:tenant_sud_chemie_india_painpoint_5_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Chemicals" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating in a sector with historical exposure to compliance and anti-corruption risks in India, Sud-Chemie India is subject to BRSR-mandated disclosures on ethics and governance practices." .
+
+snowkap:tenant_sud_chemie_india_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "sud-chemie-india" ;
+    snowkap:forCompany "Sud-Chemie India" ;
+    snowkap:tenantIndustry "Chemicals" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "clariant.com" ;
+    dc:created "2026-05-08T10:56:16+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR" , "GRI Standards" , "SASB Chemicals"
+    ;
+    snowkap:stakeholderConcern "Regulatory compliance with Indian environmental norms" , "Community impacts from emissions and effluent" , "Worker safety and health" , "Transparency in waste and water management"
+    ;
+    snowkap:headlinePainpoint "Sud-Chemie India hazardous waste BRSR disclosure" , "Sud-Chemie India water use and effluent management" , "Sud-Chemie India industrial safety incidents" , "Sud-Chemie India air pollution compliance"
+    .
+

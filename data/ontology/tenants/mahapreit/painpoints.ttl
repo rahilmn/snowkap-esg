@@ -1,0 +1,100 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:      <http://purl.org/dc/terms/> .
+@prefix prov:    <http://www.w3.org/ns/prov#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# >>> LAYER 3 — TENANT PAINPOINTS (W3 LLM-discovered) <<<
+# Tenant slug:  mahapreit
+# Company:      MAHAPREIT (Maharashtra Cooperative)
+# Industry:     Other
+# Region:       INDIA
+# Source:       gpt-4.1
+# Generated at: 2026-05-08T10:57:06+00:00
+# Painpoints:   6
+# Override:     Loaded AFTER extension.ttl; entries with snowkap:confidence >= 0.7 override industry-default MaterialityWeights
+
+snowkap:tenant_mahapreit_painpoint_0_governance a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_governance ;
+    snowkap:weightForIndustry "Other" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a Maharashtra government-backed cooperative, MAHAPREIT is subject to heightened scrutiny regarding transparency, public sector governance, and potential political influence in decision-making." .
+
+snowkap:tenant_mahapreit_painpoint_1_anti_corruption a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_anti_corruption ;
+    snowkap:weightForIndustry "Other" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Operating as a public sector entity in India, MAHAPREIT faces elevated anti-corruption compliance expectations under state and national frameworks, with public sector cooperatives historically exposed to procurement and contracting risks." .
+
+snowkap:tenant_mahapreit_painpoint_2_business_ethics a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_business_ethics ;
+    snowkap:weightForIndustry "Other" ;
+    snowkap:weightValue 0.60 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Cooperative structures in India are under increasing regulatory and stakeholder pressure to demonstrate ethical conduct, especially in financial management and project execution." .
+
+snowkap:tenant_mahapreit_painpoint_3_community_impact a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_community_impact ;
+    snowkap:weightForIndustry "Other" ;
+    snowkap:weightValue 0.70 ;
+    snowkap:confidence 0.80 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "MAHAPREIT's mandate includes large-scale public-benefit and infrastructure projects in Maharashtra, making community engagement and local impact a core material issue." .
+
+snowkap:tenant_mahapreit_painpoint_4_labor_practices a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_labor_practices ;
+    snowkap:weightForIndustry "Other" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "As a cooperative with a public sector workforce, MAHAPREIT is expected to comply with Indian labor laws and uphold fair employment practices, with unionization and workforce diversity as ongoing concerns." .
+
+snowkap:tenant_mahapreit_painpoint_5_climate_adaptation a snowkap:MaterialityWeight ;
+    snowkap:weightForTopic snowkap:topic_climate_adaptation ;
+    snowkap:weightForIndustry "Other" ;
+    snowkap:weightValue 0.50 ;
+    snowkap:confidence 0.70 ;
+    snowkap:weightSource "W3 LLM painpoint discovery" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1" ;
+    rdfs:comment "Given Maharashtra's climate vulnerability and MAHAPREIT's involvement in infrastructure and energy projects, climate resilience and adaptation are increasingly scrutinized in public sector project planning." .
+
+snowkap:tenant_mahapreit_profile a snowkap:TenantPainpointProfile ;
+    snowkap:forTenant "mahapreit" ;
+    snowkap:forCompany "MAHAPREIT (Maharashtra Cooperative)" ;
+    snowkap:tenantIndustry "Other" ;
+    snowkap:tenantRegion "INDIA" ;
+    dc:source "mahapreit.in" ;
+    dc:created "2026-05-08T10:57:06+00:00"^^xsd:dateTime ;
+    prov:wasGeneratedBy "gpt-4.1"
+    ;
+    snowkap:primaryFramework "BRSR"
+    ;
+    snowkap:stakeholderConcern "Public sector transparency" , "Corruption prevention" , "Community engagement" , "Ethical project delivery" , "Labor rights compliance"
+    ;
+    snowkap:headlinePainpoint "MAHAPREIT cooperative governance risks" , "MAHAPREIT anti-corruption compliance Maharashtra" , "MAHAPREIT community impact infrastructure projects" , "MAHAPREIT public sector ethics scrutiny"
+    .
+
