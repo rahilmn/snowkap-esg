@@ -1,0 +1,22 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+
+# === CQ: perspective_lenses_present ===
+# 3 lenses per CLAUDE.md (CFO, CEO, ESG Analyst). Pass = ≥1 row.
+SELECT DISTINCT ?lens WHERE {
+    ?lens a snowkap:PerspectiveLens .
+} LIMIT 10
+
+# === CQ: impact_dimensions_routed_to_perspectives ===
+# Each perspective lens has at least one impact dimension routed to it
+# via snowkap:relevantTo. Pass = ≥1 row.
+SELECT DISTINCT ?lens ?impact WHERE {
+    ?impact snowkap:relevantTo ?lens .
+    ?lens a snowkap:PerspectiveLens .
+} LIMIT 30
+
+# === CQ: headline_rules_present_per_perspective ===
+# Phase 15 added HeadlineRule individuals per perspective. Pass = ≥1 row.
+SELECT DISTINCT ?rule ?lens WHERE {
+    ?rule a snowkap:HeadlineRule ;
+          snowkap:forPerspective ?lens .
+} LIMIT 20

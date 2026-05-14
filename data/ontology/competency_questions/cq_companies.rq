@@ -1,0 +1,23 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+
+# === CQ: companies_have_slug ===
+# Every Company instance must have a snowkap:slug. Pass = ≥1 row.
+SELECT DISTINCT ?company ?slug WHERE {
+    ?company a snowkap:Company ;
+             snowkap:slug ?slug .
+    FILTER(STR(?slug) != "")
+} LIMIT 50
+
+# === CQ: companies_have_industry ===
+# Each company is linked to its industry via snowkap:belongsToIndustry
+# (or any of the historical aliases the seeder used). Pass = ≥1 row.
+SELECT DISTINCT ?company ?industry WHERE {
+    ?company a snowkap:Company ;
+             snowkap:belongsToIndustry ?industry .
+} LIMIT 50
+
+# === CQ: capitalisation_tier_present ===
+# Phase 17c added Capitalization Tier classification. Pass = ≥1 row.
+SELECT DISTINCT ?tier WHERE {
+    ?tier a snowkap:CapitalizationTier .
+} LIMIT 10

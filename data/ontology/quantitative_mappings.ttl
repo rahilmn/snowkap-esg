@@ -1,0 +1,75 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# Quantitative mappings — autoresearcher Phase B
+#
+# Lifts the implicit numeric mappings for qualitative/ordinal ontology
+# predicates out of hardcoded engine constants into first-class
+# tunable triples. Each mapping has:
+#   - a stable id (e.g. snowkap:band_low)
+#   - a numericMapping float (the value the engine consumes)
+#
+# Default values here EXACTLY match the previously-hardcoded constants
+# so the refactor is behaviourally a no-op. The autoresearcher
+# `OrdinalMappingKnob` tunes these values within bounded perturbation.
+#
+# Engine code reads via `engine.ontology.intelligence.query_band_mapping`
+# (and siblings); when the TTL is missing OR a value can't be parsed,
+# the engine falls back to the hardcoded default.
+# =============================================================================
+
+# --- Confidence bands (criticality_scorer._confidence_penalty + similar) ----
+snowkap:confidence_low       snowkap:numericMapping 0.30 ;
+                             snowkap:mappingCategory "confidence_band" ;
+                             rdfs:label "low confidence numeric weight" .
+snowkap:confidence_moderate  snowkap:numericMapping 0.60 ;
+                             snowkap:mappingCategory "confidence_band" ;
+                             rdfs:label "moderate confidence numeric weight" .
+snowkap:confidence_high      snowkap:numericMapping 0.85 ;
+                             snowkap:mappingCategory "confidence_band" ;
+                             rdfs:label "high confidence numeric weight" .
+
+# --- Severity bands (primitive thresholds + risk levels) -------------------
+snowkap:severity_low         snowkap:numericMapping 0.25 ;
+                             snowkap:mappingCategory "severity_band" ;
+                             rdfs:label "low severity numeric weight" .
+snowkap:severity_moderate    snowkap:numericMapping 0.50 ;
+                             snowkap:mappingCategory "severity_band" ;
+                             rdfs:label "moderate severity numeric weight" .
+snowkap:severity_high        snowkap:numericMapping 0.75 ;
+                             snowkap:mappingCategory "severity_band" ;
+                             rdfs:label "high severity numeric weight" .
+snowkap:severity_critical    snowkap:numericMapping 1.00 ;
+                             snowkap:mappingCategory "severity_band" ;
+                             rdfs:label "critical severity numeric weight" .
+
+# --- Headline priority weight (per-rank decay) -----------------------------
+snowkap:headline_priority_1  snowkap:numericMapping 1.00 ;
+                             snowkap:mappingCategory "headline_priority" ;
+                             rdfs:label "headline priority 1 weight" .
+snowkap:headline_priority_2  snowkap:numericMapping 0.70 ;
+                             snowkap:mappingCategory "headline_priority" ;
+                             rdfs:label "headline priority 2 weight" .
+snowkap:headline_priority_3  snowkap:numericMapping 0.40 ;
+                             snowkap:mappingCategory "headline_priority" ;
+                             rdfs:label "headline priority 3 weight" .
+snowkap:headline_priority_4  snowkap:numericMapping 0.25 ;
+                             snowkap:mappingCategory "headline_priority" ;
+                             rdfs:label "headline priority 4 weight" .
+snowkap:headline_priority_5  snowkap:numericMapping 0.15 ;
+                             snowkap:mappingCategory "headline_priority" ;
+                             rdfs:label "headline priority 5 weight" .
+
+# --- Stakeholder stance magnitudes -----------------------------------------
+snowkap:stance_negative      snowkap:numericMapping -1.00 ;
+                             snowkap:mappingCategory "stakeholder_stance" ;
+                             rdfs:label "negative stance magnitude" .
+snowkap:stance_neutral       snowkap:numericMapping 0.00 ;
+                             snowkap:mappingCategory "stakeholder_stance" ;
+                             rdfs:label "neutral stance magnitude" .
+snowkap:stance_positive      snowkap:numericMapping 1.00 ;
+                             snowkap:mappingCategory "stakeholder_stance" ;
+                             rdfs:label "positive stance magnitude" .

@@ -1,0 +1,19 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+
+# === CQ: frameworks_present ===
+# At least one ESGFramework instance — pass = ≥1 row.
+SELECT DISTINCT ?fw ?label WHERE {
+    ?fw a snowkap:ESGFramework ;
+        rdfs:label ?label .
+} LIMIT 30
+
+# === CQ: water_topic_triggers_at_least_one_framework ===
+# Per CLAUDE.md Validation Gate 1: query_frameworks_for_topic('Water')
+# must return ≥1 framework.
+SELECT DISTINCT ?fw_label WHERE {
+    ?topic snowkap:triggersFramework ?fw .
+    ?topic rdfs:label ?topic_label .
+    ?fw rdfs:label ?fw_label .
+    FILTER(LCASE(STR(?topic_label)) = "water")
+}

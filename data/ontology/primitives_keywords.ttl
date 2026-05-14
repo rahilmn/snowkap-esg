@@ -1,0 +1,135 @@
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# SNOWKAP ESG — Causal Primitives Keyword Triggers (Layer 7 supplement)
+#
+# Surface-form keyword → primitive mapping consumed by
+#   engine/ontology/discovery/modules/edge_discoverer.py
+# via parameterised SPARQL.
+#
+# Migrated from a hardcoded Python `KEYWORD_TO_PRIMITIVE` dict per L1/#9
+# of the Base Version → Snowkap adoption build sequence
+# (~/.claude/plans/2026-05-13-base-version-adoption-build-sequence.md)
+# enforcing the project's "no hardcoded domain knowledge" rule:
+#   "If it's a weight, threshold, mapping, or rule — it goes in .ttl."
+#
+# 24 keyword→primitive triples covering 22 primitives (5 in EP, 4 in FR,
+# 3 in LT, IR, FX, XW, CM, LC, OX, RV, CX, GE, DT, HS, others 2 in WF, EU,
+# SC, CY, single in CL, RG, WA, WS).
+#
+# Adding a new keyword: append `snw:keywordTrigger "your-keyword"` to the
+# relevant snw:prim_<SLUG> below — no Python change required. The
+# discoverer picks it up at the next module load.
+# =============================================================================
+
+# --- Energy Price (EP) ---
+snw:prim_EP snw:keywordTrigger "energy price",
+                                 "electricity price",
+                                 "fuel cost",
+                                 "power price" .
+
+# --- Freight (FR) ---
+snw:prim_FR snw:keywordTrigger "freight",
+                                 "logistics",
+                                 "shipping",
+                                 "transport cost" .
+
+# --- Lead Time (LT) ---
+snw:prim_LT snw:keywordTrigger "lead time",
+                                 "delivery time",
+                                 "supply delay" .
+
+# --- Interest Rates (IR) ---
+snw:prim_IR snw:keywordTrigger "interest rate",
+                                 "credit",
+                                 "borrowing cost",
+                                 "cost of capital" .
+
+# --- Currency / FX (FX) ---
+snw:prim_FX snw:keywordTrigger "currency",
+                                 "exchange rate",
+                                 "rupee",
+                                 "dollar" .
+
+# --- Regulatory (RG) ---
+snw:prim_RG snw:keywordTrigger "regulation",
+                                 "regulatory" .
+
+# --- Compliance (CL) ---
+snw:prim_CL snw:keywordTrigger "compliance",
+                                 "penalty",
+                                 "fine" .
+
+# --- Extreme Weather (XW) ---
+snw:prim_XW snw:keywordTrigger "weather",
+                                 "drought",
+                                 "flood",
+                                 "cyclone",
+                                 "heat" .
+
+# --- Commodity Price (CM) ---
+snw:prim_CM snw:keywordTrigger "commodity",
+                                 "coal",
+                                 "oil",
+                                 "raw material" .
+
+# --- Labor Cost (LC) ---
+snw:prim_LC snw:keywordTrigger "labor",
+                                 "wage",
+                                 "salary" .
+
+# --- Workforce (WF) ---
+snw:prim_WF snw:keywordTrigger "workforce",
+                                 "worker" .
+
+# --- Operating Cost / Opex (OX) ---
+snw:prim_OX snw:keywordTrigger "operating cost",
+                                 "opex",
+                                 "cost increase" .
+
+# --- Revenue (RV) ---
+snw:prim_RV snw:keywordTrigger "revenue",
+                                 "demand",
+                                 "sales" .
+
+# --- Capex (CX) ---
+snw:prim_CX snw:keywordTrigger "capex",
+                                 "investment",
+                                 "expansion" .
+
+# --- GHG Emissions (GE) ---
+snw:prim_GE snw:keywordTrigger "emission",
+                                 "ghg",
+                                 "carbon" .
+
+# --- Energy Use (EU) ---
+snw:prim_EU snw:keywordTrigger "energy use",
+                                 "electricity consumption" .
+
+# --- Water (WA) ---
+snw:prim_WA snw:keywordTrigger "water" .
+
+# --- Waste (WS) ---
+snw:prim_WS snw:keywordTrigger "waste" .
+
+# --- Downtime (DT) ---
+snw:prim_DT snw:keywordTrigger "downtime",
+                                 "outage",
+                                 "shutdown" .
+
+# --- Supply Chain (SC) ---
+snw:prim_SC snw:keywordTrigger "supply chain",
+                                 "supplier" .
+
+# --- Cyber (CY) ---
+snw:prim_CY snw:keywordTrigger "cyber",
+                                 "data breach" .
+
+# --- Health & Safety (HS) ---
+snw:prim_HS snw:keywordTrigger "safety",
+                                 "injury",
+                                 "accident" .

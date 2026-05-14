@@ -40,6 +40,13 @@ python-dotenv==1.0.1
 # --- Knowledge Graph (rdflib in-process, replaces Apache Jena Fuseki) ---
 rdflib==7.1.1
 
+# --- Ontology validation (Phase A drop-in from Power of Now adoption) ---
+# owlrl: OWL-RL deductive closure for engine/ontology/reasoner.py.
+# pyshacl: SHACL shape validator for engine/ontology/shacl_validator.py.
+# Both consumed by the L1 advisory CI gates.
+owlrl>=7.1
+pyshacl>=0.27
+
 # --- Agent Memory ---
 zep-cloud==2.8.0
 

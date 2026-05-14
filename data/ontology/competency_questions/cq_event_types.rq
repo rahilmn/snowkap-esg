@@ -1,0 +1,8 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+
+# === CQ: event_types_present ===
+# Asserts the ontology has at least one EventType. The L1 verification
+# gate additionally counts and asserts ≥22 in test code.
+SELECT DISTINCT ?evt WHERE {
+    ?evt a snowkap:EventType .
+} LIMIT 30

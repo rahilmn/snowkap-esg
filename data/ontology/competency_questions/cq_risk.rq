@@ -1,0 +1,19 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+
+# === CQ: esg_risk_categories_present ===
+# Snowkap declares 10 ESG risk categories per CLAUDE.md. Pass = ≥1 row.
+SELECT DISTINCT ?cat WHERE {
+    ?cat a snowkap:RiskCategory .
+} LIMIT 20
+
+# === CQ: temples_categories_present ===
+# Snowkap declares 7 TEMPLES categories per CLAUDE.md. Pass = ≥1 row.
+SELECT DISTINCT ?cat WHERE {
+    ?cat a snowkap:TEMPLESCategory .
+} LIMIT 15
+
+# === CQ: theme_to_risk_mapping_present ===
+# Topic → ESG risk mappings (21 mappings per CLAUDE.md Phase 15).
+SELECT DISTINCT ?topic ?cat WHERE {
+    ?topic snowkap:triggersRiskCategory ?cat .
+} LIMIT 30

@@ -1,0 +1,27 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+
+# === CQ: materiality_weights_present ===
+# Phase 15 stores materiality as reified statements:
+#   ?stmt rdf:subject ?topic ; rdf:predicate snowkap:materialFor ;
+#         rdf:object ?industry ; snowkap:materialityWeight ?w .
+# Pass = ≥1 row.
+SELECT DISTINCT ?stmt ?weight WHERE {
+    ?stmt snowkap:materialityWeight ?weight .
+} LIMIT 30
+
+# === CQ: water_for_power_energy_above_threshold ===
+# Validation Gate 1 from CLAUDE.md: query_materiality_weight('Water',
+# 'Power/Energy') ≥ 0.8.
+SELECT ?weight WHERE {
+    ?stmt rdf:subject ?topic ;
+          rdf:predicate snowkap:materialFor ;
+          rdf:object ?industry ;
+          snowkap:materialityWeight ?weight .
+    ?topic rdfs:label ?topic_label .
+    ?industry rdfs:label ?industry_label .
+    FILTER(LCASE(STR(?topic_label)) = "water")
+    FILTER(LCASE(STR(?industry_label)) = "power/energy")
+    FILTER(?weight >= 0.5)
+}

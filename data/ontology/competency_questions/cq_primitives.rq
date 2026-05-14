@@ -1,0 +1,21 @@
+PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+PREFIX snw:     <http://snowkap.com/ontology/esg#>
+
+# === CQ: primitives_present ===
+# All 22 canonical primitives (EP, FR, LT, IR, FX, RG, CL, XW, CM, LC,
+# WF, OX, RV, CX, GE, EU, WA, WS, DT, SC, CY, HS) — pass = ≥1 row.
+SELECT DISTINCT ?p WHERE {
+    ?p a snw:Primitive .
+} LIMIT 30
+
+# === CQ: causal_edges_present ===
+# Pass = ≥1 row. Test code additionally asserts count ≥ 100.
+SELECT DISTINCT ?edge WHERE {
+    ?edge a snw:CausalEdge .
+} LIMIT 200
+
+# === CQ: keyword_triggers_present ===
+# Proves L1 #9 + L1 #1 integrate cleanly. Pass = ≥1 row.
+SELECT ?prim ?kw WHERE {
+    ?prim snw:keywordTrigger ?kw .
+} LIMIT 30

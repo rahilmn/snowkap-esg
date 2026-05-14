@@ -1,0 +1,86 @@
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix snw:     <http://snowkap.com/ontology/esg#> .
+
+# =============================================================================
+# Snowkap Core SHACL Shapes (L1 #1 — initial 5)
+#
+# Per v2 plan: first-pass shapes MUST allow all current data to validate
+# (no over-constraint). Add shapes incrementally as we discover invariants
+# the ontology should enforce.
+# =============================================================================
+
+# --- Shape 1 -----------------------------------------------------------------
+# materialityWeight literal must be in [0.0, 1.0]
+snowkap:MaterialityWeightShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf snowkap:materialityWeight ;
+    sh:property [
+        sh:path snowkap:materialityWeight ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "snowkap:materialityWeight must be in [0.0, 1.0]" ;
+    ] .
+
+# --- Shape 2 -----------------------------------------------------------------
+# For any EventType: scoreFloor ≤ scoreCeiling. Cross-property comparison
+# requires sh:sparql (not expressible via core property shapes).
+snowkap:EventTypeBoundsShape
+    a sh:NodeShape ;
+    sh:targetClass snowkap:EventType ;
+    sh:sparql [
+        sh:prefixes [
+            sh:declare [
+                sh:prefix "snowkap" ;
+                sh:namespace "http://snowkap.com/ontology/esg#"^^xsd:anyURI ;
+            ] ;
+        ] ;
+        sh:select """
+            SELECT $this ?floor ?ceiling WHERE {
+                $this snowkap:scoreFloor   ?floor .
+                $this snowkap:scoreCeiling ?ceiling .
+                FILTER(?floor > ?ceiling)
+            }
+        """ ;
+        sh:message "snowkap:scoreFloor must be ≤ snowkap:scoreCeiling" ;
+    ] .
+
+# --- Shape 3 -----------------------------------------------------------------
+# discoveryStatus value must be from the canonical enum.
+snowkap:DiscoveryStatusEnumShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf snowkap:discoveryStatus ;
+    sh:property [
+        sh:path snowkap:discoveryStatus ;
+        sh:in ( "pending" "promoted" "rejected" "archived" ) ;
+        sh:message "discoveryStatus must be one of pending|promoted|rejected|archived" ;
+    ] .
+
+# --- Shape 4 -----------------------------------------------------------------
+# snw:keywordTrigger literal must be a non-empty string (L1 #9 invariant).
+snowkap:KeywordTriggerNonEmptyShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf snw:keywordTrigger ;
+    sh:property [
+        sh:path snw:keywordTrigger ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "snw:keywordTrigger literal must be non-empty" ;
+    ] .
+
+# --- Shape 5 -----------------------------------------------------------------
+# criticalityScore literal must be in [0.0, 1.0]. Forward-looking — no
+# current data uses this predicate as a triple, so the shape is vacuously
+# satisfied today; the adversarial test injects a synthetic violation.
+snowkap:CriticalityScoreBoundsShape
+    a sh:NodeShape ;
+    sh:targetSubjectsOf snowkap:criticalityScore ;
+    sh:property [
+        sh:path snowkap:criticalityScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "snowkap:criticalityScore must be in [0.0, 1.0]" ;
+    ] .
