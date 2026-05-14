@@ -6,6 +6,13 @@ triples at runtime, and persisting back to the `.ttl` files.
 
 The graph is the intelligence brain — all domain knowledge queries go
 through this layer. No more hardcoded Python dicts for domain logic.
+
+Phase 24 (W5) — multi-tenant aware. ``get_graph()`` returns the active
+tenant's graph (a per-tenant cache layered on top of Layer 1). Default
+tenant is ``_global`` (matches pre-W5 behaviour exactly). Tenant
+selection is via ``engine.ontology.tenant_resolver.active_tenant`` —
+the API tenant-id middleware sets it per-request from ``X-Tenant-Id``;
+tests set it explicitly via the context manager.
 """
 
 from __future__ import annotations
@@ -19,6 +26,11 @@ from rdflib.namespace import OWL, RDF, RDFS, XSD
 from rdflib.query import Result
 
 from engine.config import get_data_path
+from engine.ontology.tenant_resolver import (
+    DEFAULT_TENANT,
+    get_active_tenant,
+    tenant_extension_path,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +55,7 @@ class OntologyGraph:
         companies_path: Path | None = None,
         expansion_path: Path | None = None,
         depth_path: Path | None = None,
+        tenant_id: str | None = None,
     ) -> None:
         self.schema_path = schema_path or get_data_path("ontology", "schema.ttl")
         self.knowledge_path = knowledge_path or get_data_path(
@@ -57,6 +70,11 @@ class OntologyGraph:
         self.companies_path = companies_path or get_data_path(
             "ontology", "companies.ttl"
         )
+        # Phase 24 W5 — every OntologyGraph is bound to a tenant. Default
+        # is the implicit ``_global`` tenant (matches pre-W5 behaviour).
+        # The tenant's Layer 3 extension.ttl (if present) is loaded on top
+        # of the shared Layer 1 files, so identical-URI overrides win.
+        self.tenant_id = tenant_id or DEFAULT_TENANT
         self.graph = Graph()
         self.graph.bind("snowkap", SNOWKAP)
         self.graph.bind("owl", OWL)
@@ -78,6 +96,9 @@ class OntologyGraph:
         for opt in (
             "primitives_indicators.ttl",
             "primitives_order3.ttl",
+            # L1/#9: snw:keywordTrigger triples (was hardcoded
+            # KEYWORD_TO_PRIMITIVE in edge_discoverer.py).
+            "primitives_keywords.ttl",
             "precedents.ttl",
             # Phase 4: perspective-generation ontology
             "kpis.ttl",
@@ -86,10 +107,36 @@ class OntologyGraph:
             "sdg_targets.ttl",
             # Phase 3 follow-up: framework section rationales
             "framework_rationales.ttl",
+            # Phase 24: Toulmin warrants for insight `warrant` field
+            "normative_principles.ttl",
+            # Autoresearcher Phase B: qualitative→quantitative mappings
+            # (confidence/severity/stance/priority numeric values lifted
+            # out of hardcoded engine constants into tunable ontology triples)
+            "quantitative_mappings.ttl",
         ):
             p = ontology_dir / opt
             if p.exists():
                 primitives_files.append(p)
+
+        # Phase 24 W5 — tenant Layer 3 extension loaded LAST so it overrides
+        # Layer 1 for identical URIs (rdflib union semantics; conflicting
+        # rdfs:label / weight assertions for the same subject coexist as
+        # multiple values, which the SPARQL query layer can disambiguate).
+        # ``_global`` tenant typically has no extension.ttl on disk (all
+        # tenant-customisable triples still live in Layer 1 today —
+        # extraction is a deferred follow-up); per-tenant overrides land
+        # here once the first external tenant lands.
+        layer3_extension = tenant_extension_path(self.tenant_id)
+
+        # W3 — LLM-discovered painpoints loaded AFTER extension.ttl so they
+        # override industry-default MaterialityWeight values when present.
+        # Lazy import keeps tenant_resolver from depending on the writer
+        # module (which itself imports from tenant_resolver).
+        try:
+            from engine.ingestion.painpoint_writer import tenant_painpoints_path
+            layer3_painpoints = tenant_painpoints_path(self.tenant_id)
+        except Exception:  # noqa: BLE001 — painpoints are additive, never break the load
+            layer3_painpoints = None
 
         for path in (
             self.schema_path,
@@ -98,14 +145,21 @@ class OntologyGraph:
             self.depth_path,
             self.companies_path,
             *primitives_files,
+            layer3_extension,
+            layer3_painpoints,
         ):
+            if path is None:
+                continue
             if path.exists():
                 self.graph.parse(path, format="turtle")
                 logger.debug("Loaded ontology file: %s", path)
             else:
                 logger.debug("Ontology file missing (ok if first run): %s", path)
         self._loaded = True
-        logger.info("Ontology graph loaded — %s triples", len(self.graph))
+        logger.info(
+            "Ontology graph loaded for tenant=%s — %s triples",
+            self.tenant_id, len(self.graph),
+        )
         return self
 
     def ensure_loaded(self) -> None:
@@ -236,18 +290,44 @@ class OntologyGraph:
         return counts
 
 
-# Module-level singleton — cheaper than re-parsing on every query.
-_graph_singleton: OntologyGraph | None = None
+# Phase 24 W5 — per-tenant graph cache. Each tenant_id gets its own
+# parsed graph; ``_global`` is the implicit default. This replaces the
+# pre-W5 single-instance singleton; back-compat is preserved because
+# ``get_graph()`` with no args resolves to the active tenant
+# (``_global`` by default, set per-request by API middleware).
+_graph_cache: dict[str, OntologyGraph] = {}
 
 
-def get_graph() -> OntologyGraph:
-    global _graph_singleton
-    if _graph_singleton is None:
-        _graph_singleton = OntologyGraph().load()
-    return _graph_singleton
+def get_graph(tenant_id: str | None = None) -> OntologyGraph:
+    """Return the parsed ontology graph for a tenant.
+
+    When ``tenant_id`` is None (the typical case for engine code),
+    resolves to the active tenant from
+    ``engine.ontology.tenant_resolver.get_active_tenant()`` —
+    ``_global`` by default.
+
+    Per-tenant graphs are cached for the process lifetime; first-time
+    access for a new tenant reads Layer 1 + that tenant's
+    ``extension.ttl`` from disk.
+    """
+    tid = tenant_id or get_active_tenant()
+    cached = _graph_cache.get(tid)
+    if cached is not None:
+        return cached
+    graph = OntologyGraph(tenant_id=tid).load()
+    _graph_cache[tid] = graph
+    return graph
 
 
-def reset_graph() -> None:
-    """Force re-load on next call to :func:`get_graph`."""
-    global _graph_singleton
-    _graph_singleton = None
+def reset_graph(tenant_id: str | None = None) -> None:
+    """Force re-load on next call to :func:`get_graph`.
+
+    With no argument, clears every tenant's cached graph. Pass
+    ``tenant_id`` to invalidate only that tenant's cache (useful after
+    editing the tenant's ``extension.ttl`` without restarting the
+    process).
+    """
+    if tenant_id is None:
+        _graph_cache.clear()
+    else:
+        _graph_cache.pop(tenant_id, None)
