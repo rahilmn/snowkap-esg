@@ -124,7 +124,8 @@ def _llm_score(
     settings = load_settings()
     llm_cfg = settings.get("llm", {})
     model = llm_cfg.get("model_light", "gpt-4.1-mini")
-    client = OpenAI(api_key=get_openai_api_key())
+    from engine.llm import get_llm_client
+    client = get_llm_client(task_class="classification").sync
     try:
         resp = client.chat.completions.create(
             model=model,

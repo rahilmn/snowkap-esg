@@ -190,7 +190,9 @@ def run_nlp_pipeline(
     max_tokens = llm_cfg.get("max_tokens_extraction", 800)
     temperature = llm_cfg.get("temperature", 0.2)
 
-    client = client or OpenAI(api_key=get_openai_api_key())
+    if client is None:
+        from engine.llm import get_llm_client
+        client = get_llm_client(task_class="extraction").sync
 
     user_prompt = (
         f"TITLE: {title}\n\n"

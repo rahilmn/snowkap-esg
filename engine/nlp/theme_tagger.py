@@ -170,7 +170,9 @@ def tag_esg_themes(
     model = llm_cfg.get("model_light", "gpt-4.1-mini")
     temperature = llm_cfg.get("temperature", 0.2)
 
-    client = client or OpenAI(api_key=get_openai_api_key())
+    if client is None:
+        from engine.llm import get_llm_client
+        client = get_llm_client(task_class="classification").sync
     try:
         resp = client.chat.completions.create(
             model=model,
