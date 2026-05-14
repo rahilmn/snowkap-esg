@@ -13,6 +13,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { SwipeFeedPage } from "@/pages/SwipeFeedPage";
 import { SavedNewsPage } from "@/pages/SavedNewsPage";
 import { AgentChatPage } from "@/pages/AgentChatPage";
+import { PersistentChatPage } from "@/pages/PersistentChatPage";  // Phase C
 import SplashPage from "@/pages/SplashPage";
 import IntroPage from "@/pages/IntroPage";
 import OnboardingPage from "@/pages/OnboardingPage";
@@ -20,6 +21,12 @@ import HomePage from "@/pages/HomePage";
 import PreferencesPage from "@/pages/PreferencesPage";
 import SettingsCampaignsPage from "@/pages/SettingsCampaignsPage";
 import SettingsOnboardPage from "@/pages/SettingsOnboardPage";
+import AdminDiscoveryPage from "@/pages/AdminDiscoveryPage";
+import AdvisorPage from "@/pages/AdvisorPage";
+import AdminAutoresearcherPage from "@/pages/AdminAutoresearcherPage";
+import SettingsBatchOnboardPage from "@/pages/SettingsBatchOnboardPage";
+import ProfilePage from "@/pages/ProfilePage";  // W2: self-service profile
+import OnboardingProgressPage from "@/pages/OnboardingProgressPage";  // W2: onboarding poll page
 
 /** Entry point — decides where to send the user */
 function EntryRedirect() {
@@ -123,11 +130,23 @@ export function App() {
                 <Route path="/feed" element={<SwipeFeedPage />} />
                 <Route path="/saved" element={<SavedNewsPage />} />
                 <Route path="/agent" element={<AgentChatPage />} />
+                <Route path="/chat" element={<PersistentChatPage />} />
                 <Route path="/preferences" element={<PreferencesPage />} />
+                {/* W2: self-service profile + onboarding for any signed-in user */}
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/onboarding/:slug" element={<OnboardingProgressPage />} />
                 {/* Phase 10: drip campaigns (gated inside the page by manage_drip_campaigns) */}
                 <Route path="/settings/campaigns" element={<SettingsCampaignsPage />} />
                 {/* Phase 16.1: admin onboarding for new prospect companies */}
                 <Route path="/settings/onboard" element={<SettingsOnboardPage />} />
+                {/* Phase 25 W6: batch onboarding from HubSpot CSV */}
+                <Route path="/settings/onboard/batch" element={<SettingsBatchOnboardPage />} />
+                {/* Phase 24 W2: self-evolving ontology review queue */}
+                <Route path="/settings/discovery" element={<AdminDiscoveryPage />} />
+                {/* Base Version Adoption L6: advisor review queue */}
+                <Route path="/settings/advisor" element={<AdvisorPage />} />
+                {/* Autoresearcher Phase B: calibration loop dashboard */}
+                <Route path="/settings/autoresearcher" element={<AdminAutoresearcherPage />} />
                 {/* Catch any unknown route → home */}
                 <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>

@@ -28,8 +28,12 @@ async function request<T>(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(fetchOptions.headers as Record<string, string> ?? {}),
   };
-  // Only set Content-Type when there's a body (not for GET requests)
-  if (fetchOptions.body) {
+  // Only set Content-Type when there's a body (not for GET requests).
+  // Phase 25 W6 — FormData uploads (multipart) MUST NOT set Content-Type
+  // explicitly; the browser computes the boundary parameter and includes
+  // it in its own Content-Type header. Setting it manually clobbers the
+  // boundary and the server gets a 400.
+  if (fetchOptions.body && !(fetchOptions.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 
@@ -42,7 +46,17 @@ async function request<T>(
     timeoutMs,
   );
   try {
-    const res = await fetch(`${BASE}${path}`, { ...fetchOptions, headers, signal: controller.signal });
+    // `cache: 'no-store'` — API responses are always dynamic (auth, tenant
+    // scope, freshness). Without this, the browser disk cache can serve a
+    // stale response after a deploy that changed an endpoint's behaviour
+    // (e.g. a new route that previously returned the SPA fallback HTML).
+    // Caller can override via fetchOptions.cache when needed.
+    const res = await fetch(`${BASE}${path}`, {
+      cache: "no-store",
+      ...fetchOptions,
+      headers,
+      signal: controller.signal,
+    });
 
     if (res.status === 401) {
       const { logout } = (await import("@/stores/authStore")).useAuthStore.getState();
@@ -157,6 +171,19 @@ export const news = {
     sort_by?: string;
     pillar?: string;
     content_type?: string;
+    /** Phase 1.6 — surface gates the criticality floor:
+     *  'home' (default 0.65) shows only CRITICAL/HIGH band
+     *  'feed' (0.40) shows everything above MEDIUM-low
+     *  'all'  (no floor) is the admin/debug full list
+     */
+    surface?: "home" | "feed" | "all";
+    /** Phase 6 §8.3 — when true, the API re-ranks rows per the caller's
+     *  stored persona and tags `outside_focus` for the UI badge. Default
+     *  false so existing callers stay byte-identical to legacy behaviour.
+     *  Discoverability invariant: never drops rows; CRITICAL articles
+     *  remain visible regardless of persona match.
+     */
+    personalise?: boolean;
   }) => {
     const q = new URLSearchParams();
     if (params?.limit) q.set("limit", String(params.limit));
@@ -165,6 +192,8 @@ export const news = {
     if (params?.sort_by) q.set("sort_by", params.sort_by);
     if (params?.pillar) q.set("pillar", params.pillar);
     if (params?.content_type) q.set("content_type", params.content_type);
+    if (params?.surface) q.set("surface", params.surface);
+    if (params?.personalise) q.set("personalise", "true");
     const res = await request<{ articles: Article[]; total: number }>(`/news/feed?${q}`);
     return res.articles;
   },
@@ -251,7 +280,15 @@ export const news = {
 
   // Phase 9: one-click share an analyzed article to a recipient's email.
   // Name is auto-extracted for greeting ("ambalika.m@x.com" → "Ambalika").
-  share: (articleId: string, payload: { recipient_email: string; sender_note?: string; read_more_base?: string }) =>
+  // Phase 4 §6.4 — `role` is the sales-tool role toggle. Sent for audit
+  // even when the backend's email body is currently role-agnostic so
+  // the upgrade to per-role rendering is a backend-only change.
+  share: (articleId: string, payload: {
+    recipient_email: string;
+    sender_note?: string;
+    read_more_base?: string;
+    role?: "cfo" | "ceo" | "analyst" | "esg-analyst";
+  }) =>
     request<{
       status: "sent" | "preview" | "failed";
       recipient: string;
@@ -269,7 +306,12 @@ export const news = {
       headers: { "Content-Type": "application/json" },
     }),
 
-  sharePreview: (articleId: string, payload: { recipient_email: string; sender_note?: string; read_more_base?: string }) =>
+  sharePreview: (articleId: string, payload: {
+    recipient_email: string;
+    sender_note?: string;
+    read_more_base?: string;
+    role?: "cfo" | "ceo" | "analyst" | "esg-analyst";
+  }) =>
     request<{
       status: "sent" | "preview" | "failed";
       recipient: string;
@@ -563,6 +605,196 @@ export const agent = {
     request<{ status: string }>("/agent/history", { method: "DELETE" }),
 };
 
+// ---------------------------------------------------------------------------
+// Phase C — Stateful chat (persistent conversations + memory + MCP admin)
+// ---------------------------------------------------------------------------
+
+export interface ConversationSummary {
+  conversation_id: string;
+  tenant_id: string;
+  user_id: string;
+  title: string | null;
+  created_at: string;
+  last_message_at: string;
+  message_count: number;
+  archived_at: string | null;
+}
+
+export interface PersistentChatMessage {
+  message_id: string;
+  conversation_id: string;
+  tenant_id: string;
+  user_id: string | null;
+  role: "user" | "assistant" | "tool" | "system";
+  content: string | null;
+  toulmin: Record<string, unknown> | null;
+  phase_k_tags: Record<string, unknown> | null;
+  skill_invocations: unknown[];
+  model_used: string | null;
+  usage: Record<string, unknown> | null;
+  finish_reason: string | null;
+  created_at: string;
+}
+
+export interface MemoryRecord {
+  memory_id: string;
+  tenant_id: string;
+  user_id: string | null;
+  scope: "personal" | "shared";
+  fact_kind: "fact" | "preference" | "decision" | "open_thread";
+  content: string;
+  confidence: number;
+  created_at: string;
+  last_accessed: string | null;
+  access_count: number;
+}
+
+export const conversations = {
+  list: (params: { include_archived?: boolean; limit?: number } = {}) => {
+    const query = new URLSearchParams();
+    if (params.include_archived) query.set("include_archived", "true");
+    if (params.limit) query.set("limit", String(params.limit));
+    const qs = query.toString();
+    return request<{ conversations: ConversationSummary[]; count: number }>(
+      `/conversations${qs ? `?${qs}` : ""}`,
+    );
+  },
+  get: (cid: string) =>
+    request<{ summary: ConversationSummary; messages: PersistentChatMessage[] }>(
+      `/conversations/${cid}`,
+    ),
+  rename: (cid: string, title: string) =>
+    request<{ ok: boolean }>(`/conversations/${cid}/rename`, {
+      method: "PATCH", body: JSON.stringify({ title }),
+    }),
+  archive: (cid: string) =>
+    request<{ ok: boolean }>(`/conversations/${cid}/archive`, { method: "POST" }),
+  delete: (cid: string) =>
+    request<{ ok: boolean }>(`/conversations/${cid}`, { method: "DELETE" }),
+  fork: (cid: string, upToMessageId?: string) =>
+    request<{ conversation_id: string }>(`/conversations/${cid}/fork`, {
+      method: "POST",
+      body: JSON.stringify({ up_to_message_id: upToMessageId ?? null }),
+    }),
+  search: (q: string) =>
+    request<{ hits: Record<string, unknown>[]; q: string; count: number }>(
+      `/conversations/search?q=${encodeURIComponent(q)}`,
+    ),
+};
+
+export const memory = {
+  list: (limit = 50) =>
+    request<{ memories: MemoryRecord[]; count: number }>(
+      `/memory?limit=${limit}`,
+    ),
+  insert: (req: {
+    content: string;
+    scope?: "personal" | "shared";
+    fact_kind?: "fact" | "preference" | "decision" | "open_thread";
+    confidence?: number;
+    source_conversation_id: string;
+  }) =>
+    request<{ memory: MemoryRecord }>("/memory", {
+      method: "POST",
+      body: JSON.stringify({
+        scope: req.scope ?? "personal",
+        fact_kind: req.fact_kind ?? "fact",
+        confidence: req.confidence ?? 0.7,
+        ...req,
+      }),
+    }),
+  delete: (mid: string) =>
+    request<void>(`/memory/${mid}`, { method: "DELETE" }),
+  extract: (conversation_id: string) =>
+    request<{
+      conversation_id: string;
+      extracted_count: number;
+      memories: MemoryRecord[];
+    }>(`/memory/extract/${conversation_id}`, { method: "POST" }),
+};
+
+export const mcp = {
+  manifest: () => request<Record<string, unknown>>("/mcp/manifest"),
+  tools: () => request<{ tools: Record<string, unknown>[]; smoke: Record<string, unknown> }>(
+    "/mcp/tools",
+  ),
+  resources: () => request<{ resources: Record<string, unknown>[] }>("/mcp/resources"),
+  invoke: (body: { tool: string; payload: Record<string, unknown>; signoff?: string }) =>
+    request<{
+      tool: string;
+      state: "ok" | "signoff_required" | "error";
+      result?: Record<string, unknown> | null;
+      error?: Record<string, unknown> | null;
+      signoff_phrase?: string | null;
+      annotations?: Record<string, unknown> | null;
+    }>("/mcp/invoke", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+};
+
+/** Phase C — SSE chat. Opens an EventSource-like fetch stream and dispatches
+ * each event line to the supplied callback. Returns an abort function. */
+export function streamChat(
+  req: { conversation_id: string | null; message: string; signoff?: string },
+  onEvent: (event: string, data: Record<string, unknown>) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  const controller = new AbortController();
+  const token = getToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Accept: "text/event-stream",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+  void (async () => {
+    try {
+      const res = await fetch(`${BASE}/chat`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(req),
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        onError?.(new Error(`chat stream failed: HTTP ${res.status}`));
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        // SSE frames are separated by a blank line
+        let split = buffer.indexOf("\n\n");
+        while (split >= 0) {
+          const frame = buffer.slice(0, split);
+          buffer = buffer.slice(split + 2);
+          const lines = frame.split("\n");
+          let eventName = "message";
+          let dataStr = "";
+          for (const line of lines) {
+            if (line.startsWith("event:")) eventName = line.slice(6).trim();
+            if (line.startsWith("data:")) dataStr += line.slice(5).trim();
+          }
+          if (dataStr) {
+            try {
+              onEvent(eventName, JSON.parse(dataStr));
+            } catch {
+              onEvent(eventName, { raw: dataStr });
+            }
+          }
+          split = buffer.indexOf("\n\n");
+        }
+      }
+    } catch (exc) {
+      onError?.(exc);
+    }
+  })();
+  return () => controller.abort();
+}
+
 // ---- Admin ----
 
 /** Phase 10: enriched tenant shape returned by /api/admin/tenants.
@@ -579,10 +811,18 @@ export interface AdminTenant {
   last_analysis_at?: string | null;
 }
 
+/** W1 — response shape for /api/admin/tenants. `meta.warnings` carries
+ * non-fatal degradations (Supabase blip, etc.) so the dropdown can render
+ * a small "(degraded)" badge instead of going blank. */
+export interface AdminTenantsResponse {
+  companies: AdminTenant[];
+  meta: { warnings: string[] };
+}
+
 export const admin = {
   /** Super-admin-only. Non-admin tokens get 403. Includes target companies
    * AND every onboarded domain that has logged in. */
-  tenants: () => request<AdminTenant[]>("/admin/tenants"),
+  tenants: () => request<AdminTenantsResponse>("/admin/tenants"),
 
   users: () =>
     request<UserSummary[]>("/admin/users"),
@@ -614,16 +854,7 @@ export const admin = {
   /** Phase 16.1 — Poll target after admin.onboard(). Returns the live row
    * from the onboarding_status SQLite table. */
   onboardStatus: (slug: string) =>
-    request<{
-      slug: string;
-      state: "pending" | "fetching" | "analysing" | "ready" | "failed";
-      fetched: number;
-      analysed: number;
-      home_count: number;
-      started_at: string;
-      finished_at: string | null;
-      error: string | null;
-    }>(`/admin/onboard/${slug}/status`),
+    request<OnboardStatus>(`/admin/onboard/${slug}/status`),
 
   /**
    * Phase 13 B7 — Server-confirmed email backend liveness. Polled on
@@ -659,4 +890,470 @@ export const admin = {
       article_id: string;
       invalidated: number;
     }>(`/admin/articles/${articleId}/reanalyze`, { method: "POST" }),
+
+  // -------------------------------------------------------------------------
+  // Phase 24 (W2) — self-evolving ontology review surface
+  // -------------------------------------------------------------------------
+
+  /** List staged (pending) discovery candidates. Optional category filter:
+   * entity | theme | event | edge | weight | stakeholder | framework. */
+  discoveryStaged: (category?: string, limit = 100) =>
+    request<{
+      count: number;
+      by_category: Record<string, number>;
+      candidates: Array<{
+        candidate_id: string;
+        category: string;
+        label: string;
+        slug: string;
+        confidence: number;
+        article_ids: string[];
+        sources: string[];
+        companies: string[];
+        first_seen: string;
+        last_seen: string;
+        data: Record<string, unknown>;
+        status: string;
+      }>;
+    }>(
+      `/admin/discovery/staged?limit=${limit}${
+        category ? `&category=${encodeURIComponent(category)}` : ""
+      }`
+    ),
+
+  /** Apply a promote / reject / defer decision. Reject + defer require a
+   * Toulmin block (claim + grounds[] + warrant minimum). */
+  discoveryDecide: (req: {
+    candidate_id: string;
+    decision: "promote" | "reject" | "defer";
+    toulmin?: {
+      claim: string;
+      grounds: string[];
+      warrant: string;
+      qualifier?: string;
+      rebuttal?: string;
+    };
+  }) =>
+    request<{
+      ok: boolean;
+      message: string;
+      category: string | null;
+      slug: string | null;
+      decision: string | null;
+      triples_added: number;
+      new_status: string | null;
+    }>("/admin/discovery/decide", {
+      method: "POST",
+      body: JSON.stringify(req),
+    }),
+
+  /** Recent decisions from data/audit/promotion_log.jsonl (newest first). */
+  discoveryHistory: (limit = 50, decision?: "promote" | "reject" | "defer") =>
+    request<{
+      count: number;
+      entries: Array<{
+        ts: string;
+        decision: "promote" | "reject" | "defer";
+        candidate_id: string;
+        category: string;
+        confidence?: number;
+        candidate_payload: Record<string, unknown>;
+        toulmin?: {
+          claim: string;
+          grounds: string[];
+          warrant: string;
+          qualifier?: string;
+          rebuttal?: string;
+        };
+        user_id?: string;
+        extra?: Record<string, unknown>;
+      }>;
+    }>(
+      `/admin/discovery/history?limit=${limit}${
+        decision ? `&decision=${decision}` : ""
+      }`
+    ),
+
+  // -------------------------------------------------------------------------
+  // Phase 25 W6 — batch onboarding from HubSpot CSV
+  // -------------------------------------------------------------------------
+
+  /** Dry-run: parse uploaded CSV + return roster + disambiguation flags WITHOUT enqueueing.
+   * Phase 25 W6 — passes FormData; request() detects FormData and skips
+   * the application/json Content-Type so the browser sets multipart with
+   * the right boundary. */
+  batchOnboardPreview: (csvFile: File) => {
+    const fd = new FormData();
+    fd.append("csv_file", csvFile);
+    return request<BatchOnboardPreviewResponse>(
+      "/admin/onboard/batch/preview",
+      { method: "POST", body: fd },
+    );
+  },
+
+  /** Commit: parse uploaded CSV AND enqueue every eligible row. */
+  batchOnboardCommit: (csvFile: File, skipExisting = true) => {
+    const fd = new FormData();
+    fd.append("csv_file", csvFile);
+    return request<BatchOnboardCommitResponse>(
+      `/admin/onboard/batch?skip_existing=${skipExisting}`,
+      { method: "POST", body: fd },
+    );
+  },
 };
+
+// ---------------------------------------------------------------------------
+// Base Version Adoption L6 — advisor queue review surface
+// ---------------------------------------------------------------------------
+
+/** Shape of a single open advisor event surfaced to the analyst UI. */
+export interface AdvisorEvent {
+  event_id: string;
+  event_type: "high_uncertainty_decision" | "unverified_candidate" | string;
+  ts: string;
+  article_id?: string | null;
+  company_slug?: string | null;
+  candidate_id?: string;
+  category?: string;
+  source_decision_type?: string;
+  tags?: {
+    scope?: string;
+    signal_type?: string;
+    attribution?: string;
+    uncertainty?: string;
+  };
+  toulmin?: {
+    claim?: string;
+    grounds?: string[];
+    warrant?: string;
+    qualifier?: string;
+    rebuttal?: string;
+  };
+  rationale?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Repos Integration W1 — 3-tier wiki surface
+// ---------------------------------------------------------------------------
+
+export interface WikiSearchHit {
+  path: string;
+  score: number;
+  tier: "system" | "tenant" | "user" | "unknown";
+}
+
+// ---------------------------------------------------------------------------
+// Repos Integration W2+W3 — Intelligence enrichments
+// ---------------------------------------------------------------------------
+
+export interface CompetitorEntry {
+  slug: string;
+  name: string;
+  shared_risks: string[];
+}
+
+export interface ForecasterHorizonShape {
+  direction: "improving" | "stable" | "declining";
+  confidence: "low" | "moderate" | "high";
+  rationale: string;
+}
+
+export interface ForecasterTrajectoryPoint {
+  month: string;
+  central: number;
+  lo: number;
+  hi: number;
+}
+
+export interface ForecasterResult {
+  company_slug: string;
+  polarity_series: Array<{ month: string; polarity_mean: number; count: number }>;
+  horizons: {
+    "3m"?: ForecasterHorizonShape;
+    "6m"?: ForecasterHorizonShape;
+    "12m"?: ForecasterHorizonShape;
+  };
+  trajectory: ForecasterTrajectoryPoint[];
+  llm_used?: boolean;
+}
+
+export const intelligence = {
+  competitors: (slug: string) =>
+    request<{ tenant_slug: string; competitors: CompetitorEntry[]; error?: string }>(
+      `/intelligence/${encodeURIComponent(slug)}/competitors`,
+    ),
+
+  forecast: (slug: string) =>
+    request<ForecasterResult>(
+      `/intelligence/${encodeURIComponent(slug)}/forecast`,
+    ),
+};
+
+export const wiki = {
+  search: (params: {
+    q: string;
+    tier?: "system" | "tenant" | "user";
+    tenant?: string;
+    user?: string;
+    top_k?: number;
+  }) => {
+    const qs = new URLSearchParams({ q: params.q });
+    if (params.tier) qs.set("tier", params.tier);
+    if (params.tenant) qs.set("tenant", params.tenant);
+    if (params.user) qs.set("user", params.user);
+    if (params.top_k) qs.set("top_k", String(params.top_k));
+    return request<{ count: number; hits: WikiSearchHit[]; wiki_root_missing?: boolean }>(
+      `/wiki/search?${qs.toString()}`,
+    );
+  },
+
+  related: (path: string) =>
+    request<{ path: string; backlinks: string[]; wiki_root_missing?: boolean }>(
+      `/wiki/related?path=${encodeURIComponent(path)}`,
+    ),
+
+  page: (path: string) =>
+    request<{ path: string; content: string }>(
+      `/wiki/page?path=${encodeURIComponent(path)}`,
+    ),
+};
+
+// ---------------------------------------------------------------------------
+// Autoresearcher Phase B — calibration ledger + leaderboard + run
+// ---------------------------------------------------------------------------
+
+export interface AutoresearcherExperiment {
+  experiment_id: string;
+  ts: string;
+  tier: "system" | "tenant" | "user";
+  seed: number;
+  knob_kind: string;
+  knob_id: string;
+  metric_delta: number;
+  decision: "keep" | "discard";
+  rationale: string;
+  n_articles: number;
+}
+
+export const autoresearcher = {
+  experiments: (params: { tier?: string; limit?: number } = {}) => {
+    const qs = new URLSearchParams();
+    qs.set("tier", params.tier ?? "system");
+    if (params.limit) qs.set("limit", String(params.limit));
+    return request<{
+      tier: string;
+      count: number;
+      experiments: AutoresearcherExperiment[];
+    }>(`/autoresearcher/experiments?${qs.toString()}`);
+  },
+
+  leaderboard: (params: { tier?: string; top_n?: number } = {}) => {
+    const qs = new URLSearchParams();
+    qs.set("tier", params.tier ?? "system");
+    if (params.top_n) qs.set("top_n", String(params.top_n));
+    return request<{
+      tier: string;
+      count: number;
+      entries: AutoresearcherExperiment[];
+    }>(`/autoresearcher/leaderboard?${qs.toString()}`);
+  },
+
+  run: (req: {
+    tier: "system" | "tenant" | "user";
+    tenant_slug?: string;
+    user_id?: string;
+    budget?: number;
+    seed?: number;
+    keep_threshold?: number;
+    min_age_days?: number;
+  }) =>
+    request<{
+      tier: string;
+      budget: number;
+      seed: number;
+      n_keeps: number;
+      n_discards: number;
+      n_errors: number;
+      top_delta: number;
+      top_knob_id: string | null;
+    }>("/autoresearcher/run", {
+      method: "POST",
+      body: JSON.stringify(req),
+    }),
+};
+
+export const advisor = {
+  /** List the currently-open advisor queue. Optional tenant filter. */
+  queue: (tenant?: string) =>
+    request<{ count: number; events: AdvisorEvent[] }>(
+      `/advisor/queue${tenant ? `?tenant=${encodeURIComponent(tenant)}` : ""}`,
+    ),
+
+  /** Approve or reject one event. Bearer-token actor is captured server-side. */
+  resolve: (req: {
+    event_id: string;
+    resolution: "approve" | "reject";
+    rationale?: string;
+  }) =>
+    request<{
+      resolved: {
+        ts: string;
+        event_id: string;
+        resolution: string;
+        actor: string;
+        rationale: string;
+      };
+      promoter_action?: {
+        ok: boolean;
+        message: string;
+        category?: string | null;
+        slug?: string | null;
+      };
+    }>("/advisor/resolve", {
+      method: "POST",
+      body: JSON.stringify(req),
+    }),
+};
+
+// ---------------------------------------------------------------------------
+// W2 — Self-service profile onboarding
+// ---------------------------------------------------------------------------
+
+/** W2 — onboarding status row, shared between admin + self-service flows. */
+export interface OnboardStatus {
+  slug: string;
+  state: "pending" | "fetching" | "analysing" | "ready" | "failed";
+  fetched: number;
+  analysed: number;
+  home_count: number;
+  started_at: string;
+  finished_at: string | null;
+  error: string | null;
+}
+
+/** W2 — self-service profile onboarding. Any signed-in user can call this
+ * for their own email-domain. Snowkap super-admins can call it for any
+ * domain. Reuses /api/admin/onboard/{slug}/status for polling so we don't
+ * need a duplicate poll endpoint. */
+
+// ---------------------------------------------------------------------------
+// Phase 6 — persona MCQ schema (lives in api.ts so types stay co-located
+// with the request signatures the wizard consumes).
+// ---------------------------------------------------------------------------
+
+export type PersonaRole = "cfo" | "ceo" | "analyst" | "other";
+export type PersonaHorizon = "quarterly" | "annual" | "3yr" | "5yr_plus";
+export type PersonaDecisionStyle =
+  | "data_first"
+  | "narrative_first"
+  | "regulatory_first"
+  | "competitive_first";
+export type PersonaRiskAppetite = "defensive" | "balanced" | "opportunistic";
+
+export interface Persona {
+  user_id: string;
+  role: PersonaRole;
+  esg_focus: string[];
+  frameworks: string[];
+  geographies: string[];
+  horizon: PersonaHorizon;
+  decision_style: PersonaDecisionStyle;
+  risk_appetite: PersonaRiskAppetite;
+  click_affinity: Record<string, number>;
+  skip_affinity: Record<string, number>;
+  last_active: string | null;
+  onboarded_at: string;
+  last_edited_at: string | null;
+  last_drift_update_at: string | null;
+  version: number;
+}
+
+export interface PersonaQuestionOption {
+  value: string;
+  label: string;
+}
+
+export interface PersonaQuestion {
+  id: string;
+  question: string;
+  type: "multi_select" | "single_select";
+  max_selections?: number;
+  options: PersonaQuestionOption[];
+}
+
+export interface PersonaUpsertBody {
+  role?: PersonaRole;
+  esg_focus?: string[];
+  frameworks?: string[];
+  geographies?: string[];
+  horizon?: PersonaHorizon;
+  decision_style?: PersonaDecisionStyle;
+  risk_appetite?: PersonaRiskAppetite;
+}
+
+export const me = {
+  onboard: (domain: string, limit: number = 10) =>
+    request<{ status: string; slug: string; domain: string; poll_url: string }>(
+      "/me/onboard",
+      {
+        method: "POST",
+        body: JSON.stringify({ domain, limit }),
+      }
+    ),
+
+  onboardStatus: (slug: string) =>
+    request<OnboardStatus>(`/admin/onboard/${slug}/status`),
+
+  // Phase 6 — persona MCQ
+  personaQuestions: () =>
+    request<{ questions: PersonaQuestion[] }>("/me/persona/questions"),
+
+  getPersona: () =>
+    request<{ persona: Persona; mcq_completed: boolean }>("/me/persona"),
+
+  upsertPersona: (body: PersonaUpsertBody) =>
+    request<{ persona: Persona; mcq_completed: boolean }>("/me/persona", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+};
+
+
+// ---------------------------------------------------------------------------
+// Phase 25 W6 schema types
+// ---------------------------------------------------------------------------
+
+export interface BatchOnboardRosterEntry {
+  record_id: string;
+  deal_name: string;
+  company_name: string;
+  slug: string;
+  deal_stage: "Won" | "Negotiation";
+  region: string;
+  headquarter_country: string;
+  amount_inr: number | null;
+  deal_owner: string;
+  needs_disambiguation: boolean;
+  disambiguation_candidates: Array<{
+    ticker: string;
+    display_name: string;
+    industry_hint: string;
+    confidence: number;
+    is_private: boolean;
+  }>;
+}
+
+export interface BatchOnboardPreviewResponse {
+  total_eligible: number;
+  won_count: number;
+  negotiation_count: number;
+  countries: string[];
+  auto_resolvable: number;
+  needs_review: number;
+  roster: BatchOnboardRosterEntry[];
+}
+
+export interface BatchOnboardCommitResponse extends BatchOnboardPreviewResponse {
+  enqueued_job_ids: number[];
+  skipped_already_existing: string[];
+}
