@@ -13,6 +13,12 @@
       "runtimeArgs": ["run", "dev", "--", "--port", "5500"],
       "port": 5500,
       "cwd": "client"
+    },
+    {
+      "name": "snowkap-onboard-worker",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/onboarding_worker.py"],
+      "port": 0
     }
   ]
 }

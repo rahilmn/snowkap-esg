@@ -234,7 +234,7 @@ export default function OnboardingProgressPage() {
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 24px 64px" }}>
       <header style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: COLORS.textPrimary }}>
-          Personalising Snowkap
+          Personalising Power of Now
         </h1>
         <p style={{ fontSize: 13, color: COLORS.textMuted, margin: "8px 0 0", lineHeight: 1.55 }}>
           Setting up <strong>{profile?.name || slug}</strong>
