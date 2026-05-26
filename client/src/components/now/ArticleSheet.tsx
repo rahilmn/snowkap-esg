@@ -87,8 +87,17 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
     enabled: open,
     staleTime: 60_000 * 5,
     retry: false,
-    // Poll while the analysis is being prepared server-side.
-    refetchInterval: (q) => (q.state.data?.status === "pending" ? 4000 : false),
+    // Poll while the article sheet is open AND we don't yet have a
+    // populated analysis. Stops polling automatically once the deep
+    // insight headline lands, or when the user closes the sheet.
+    refetchInterval: (q) => {
+      const data = q.state.data as { status?: string; analysis?: { deep_insight?: { analysis?: { what_changed?: { headline?: string } } } } } | undefined;
+      const hasContent = !!data?.analysis?.deep_insight?.analysis?.what_changed?.headline;
+      if (hasContent) return false;
+      // No content yet → keep polling. 6s cadence balances responsiveness
+      // (median enrichment ~45s) against API load.
+      return 6000;
+    },
   });
 
   // When the article hasn't been indexed yet OR the API returned an idle
@@ -98,27 +107,22 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   // not in `article_index` yet) — `request<T>` throws the API's `detail`
   // string, so we detect "not in index" / "no analysis" / "not found"
   // / 404-status-code generically.
-  const queryError = analysisQuery.error as Error | undefined;
-  const errMsg = (queryError?.message || "").toLowerCase();
-  const isNotIndexed = !!queryError && (
-    errMsg.includes("not in index")
-    || errMsg.includes("no analysis")
-    || errMsg.includes("not found")
-    || errMsg.includes("404")
-  );
-  const isIdle = analysisQuery.data?.status === "idle";
-  // Phase 36 fix — also auto-trigger when status="pending" (the server
-  // has a stub but no headline yet, e.g. when the pipeline rejected an
-  // earlier run as below-relevance, or when Stage 10 hasn't fired yet
-  // for a SECONDARY-tier article). Without this, the user stares at a
-  // "Our analysis isn't ready" message forever because the auto-trigger
-  // only fired on 404 / idle.
-  const isPending = analysisQuery.data?.status === "pending";
+  // Auto-trigger condition — the key heuristic is "do we have a real
+  // analysis headline to render?". If not, fire on-demand enrichment
+  // regardless of what status flag the server claimed. Pre-fix the
+  // code only fired on 404 / "idle" / "pending"; for stub articles
+  // surfaced by the strict-10 deck the server returns 200 with empty
+  // analysis, so none of those flags tripped and the trigger silently
+  // skipped — leaving the user stuck on the empty-state message.
+  const fetchedAnalysis = (analysisQuery.data?.analysis?.deep_insight as { analysis?: UnifiedAnalysis } | undefined)?.analysis;
+  const passedAnalysis = (article.deep_insight as { analysis?: UnifiedAnalysis } | undefined)?.analysis;
+  const effectiveAnalysis = fetchedAnalysis || passedAnalysis;
+  const hasRealAnalysis = !!(effectiveAnalysis?.what_changed?.headline);
   useEffect(() => {
     if (!open) return;
     if (analysisQuery.isLoading) return;
     if (triggeredRef.current.has(article.id)) return;
-    if (!isNotIndexed && !isIdle && !isPending) return;
+    if (hasRealAnalysis) return;  // already have a populated analysis block
     triggeredRef.current.add(article.id);
     news.triggerAnalysis(article.id).then(() => {
       // Allow the server ~30s to enrich before polling. The Phase 33
@@ -128,7 +132,7 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
         qc.invalidateQueries({ queryKey: ["now-article-analysis", article.id] });
       }, 30_000);
     }).catch(() => { /* surfacing handled by the empty-state copy below */ });
-  }, [open, article.id, isNotIndexed, isIdle, isPending, analysisQuery.isLoading, qc]);
+  }, [open, article.id, hasRealAnalysis, analysisQuery.isLoading, qc]);
 
   if (!open) return null;
 
