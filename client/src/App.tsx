@@ -10,14 +10,14 @@ import { useAuthStore } from "@/stores/authStore";
 import { admin as adminApi } from "@/lib/api";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { LoginPage } from "@/pages/LoginPage";
-import { SwipeFeedPage } from "@/pages/SwipeFeedPage";
-import { SavedNewsPage } from "@/pages/SavedNewsPage";
-import { AgentChatPage } from "@/pages/AgentChatPage";
-import { PersistentChatPage } from "@/pages/PersistentChatPage";  // Phase C
+import { NowPage } from "@/pages/NowPage";
+import { WikiPage } from "@/pages/WikiPage";
+import { ForumPage } from "@/pages/ForumPage";
+import { AskPage } from "@/pages/AskPage";
+import { PersistentChatPage } from "@/pages/PersistentChatPage";  // Phase C — power-user surface (kept reachable, not in nav)
 import SplashPage from "@/pages/SplashPage";
 import IntroPage from "@/pages/IntroPage";
 import OnboardingPage from "@/pages/OnboardingPage";
-import HomePage from "@/pages/HomePage";
 import PreferencesPage from "@/pages/PreferencesPage";
 import SettingsCampaignsPage from "@/pages/SettingsCampaignsPage";
 import SettingsOnboardPage from "@/pages/SettingsOnboardPage";
@@ -27,8 +27,13 @@ import AdminAutoresearcherPage from "@/pages/AdminAutoresearcherPage";
 import SettingsBatchOnboardPage from "@/pages/SettingsBatchOnboardPage";
 import ProfilePage from "@/pages/ProfilePage";  // W2: self-service profile
 import OnboardingProgressPage from "@/pages/OnboardingProgressPage";  // W2: onboarding poll page
+import ProfileSetupCompletePage from "@/pages/ProfileSetupCompletePage";  // Phase 34.2: FTUX confirmation step
 
-/** Entry point — decides where to send the user */
+/** Entry point — decides where to send the user.
+ *  Phase 34 — Power-of-Now is the canonical mobile-first surface; the
+ *  legacy `/home` dashboard remains reachable directly for desktop
+ *  power-users but is no longer the default landing.
+ */
 function EntryRedirect() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   if (!isAuthenticated) {
@@ -38,7 +43,7 @@ function EntryRedirect() {
   if (!localStorage.getItem("onboarding_complete")) {
     localStorage.setItem("onboarding_complete", "true");
   }
-  return <Navigate to="/home" replace />;
+  return <Navigate to="/now" replace />;
 }
 
 /** Protects app routes — redirects to splash if not logged in */
@@ -71,7 +76,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (isAuthenticated) {
     const onboardingComplete = localStorage.getItem("onboarding_complete");
     if (!onboardingComplete) return <Navigate to="/welcome" replace />;
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/now" replace />;
   }
   return <>{children}</>;
 }
@@ -126,15 +131,28 @@ export function App() {
           <ProtectedRoute>
             <AppLayout>
               <Routes>
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/feed" element={<SwipeFeedPage />} />
-                <Route path="/saved" element={<SavedNewsPage />} />
-                <Route path="/agent" element={<AgentChatPage />} />
+                {/* Power of Now surfaces (canonical post-POW-6) */}
+                <Route path="/now" element={<NowPage />} />
+                <Route path="/wiki" element={<WikiPage />} />
+                <Route path="/forum" element={<ForumPage />} />
+                <Route path="/ask" element={<AskPage />} />
+                {/* POW-6 — legacy `/home`, `/feed`, `/saved`, `/agent`
+                    retired. Any stray link/bookmark falls through to
+                    the `path="*"` catch-all at the bottom of this
+                    Routes block and lands on /now. */}
+                <Route path="/home" element={<Navigate to="/now" replace />} />
+                <Route path="/feed" element={<Navigate to="/now" replace />} />
+                <Route path="/saved" element={<Navigate to="/wiki" replace />} />
+                <Route path="/agent" element={<Navigate to="/ask" replace />} />
+                {/* PersistentChatPage stays reachable for power-users only
+                    (not exposed in the bottom nav). New chat surface is /ask. */}
                 <Route path="/chat" element={<PersistentChatPage />} />
                 <Route path="/preferences" element={<PreferencesPage />} />
                 {/* W2: self-service profile + onboarding for any signed-in user */}
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/onboarding/:slug" element={<OnboardingProgressPage />} />
+                {/* Phase 34.2 — Power-of-Now FTUX celebratory confirmation between profile + loading */}
+                <Route path="/welcome/profile-setup-complete" element={<ProfileSetupCompletePage />} />
                 {/* Phase 10: drip campaigns (gated inside the page by manage_drip_campaigns) */}
                 <Route path="/settings/campaigns" element={<SettingsCampaignsPage />} />
                 {/* Phase 16.1: admin onboarding for new prospect companies */}
@@ -147,8 +165,8 @@ export function App() {
                 <Route path="/settings/advisor" element={<AdvisorPage />} />
                 {/* Autoresearcher Phase B: calibration loop dashboard */}
                 <Route path="/settings/autoresearcher" element={<AdminAutoresearcherPage />} />
-                {/* Catch any unknown route → home */}
-                <Route path="*" element={<Navigate to="/home" replace />} />
+                {/* Catch any unknown route → /now (Power of Now is canonical) */}
+                <Route path="*" element={<Navigate to="/now" replace />} />
               </Routes>
             </AppLayout>
           </ProtectedRoute>

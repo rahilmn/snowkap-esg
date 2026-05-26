@@ -33,7 +33,14 @@ TIER_SECONDARY = "SECONDARY"
 TIER_REJECTED = "REJECTED"
 
 HOME_THRESHOLD = 6
-SECONDARY_THRESHOLD = 3
+# Phase 36 — lowered from 4 → 2 so new-tenant decks aren't decimated.
+# Partnership announcements, product launches, and routine ESG
+# disclosures consistently score 2.5-4 on the 10-point rubric and the
+# old gate was rejecting all of them, leaving fresh signups with 1-2
+# articles in the deck. Genuine off-topic Google News hits still score
+# 0-1 (relevance scorer + esg_correlation gate together filter them).
+# HOME stays at 6 so the criticality bar for the hero strip is unchanged.
+SECONDARY_THRESHOLD = 2
 
 
 @dataclass
@@ -63,12 +70,17 @@ class RelevanceScore:
 
 
 def _score_esg_correlation(extraction: NLPExtraction, tags: ESGThemeTags) -> int:
-    """0-2 based on how strongly the article maps to an ESG topic."""
+    """0-2 based on how strongly the article maps to an ESG topic.
+
+    Tightened so weakly-tagged articles (theme detected but confidence
+    < 0.4) no longer earn a free relevance point. Anything Snowkap shows
+    on the home page must be either an LLM-confident ESG match (score 2)
+    or at least a moderately-confident theme tag (score 1). A bare
+    `primary_theme` with no confidence signal is treated as noise.
+    """
     if tags.method == "llm" and tags.confidence >= 0.7:
         return 2
     if tags.primary_theme and tags.confidence >= 0.4:
-        return 1
-    if tags.primary_theme:
         return 1
     return 0
 

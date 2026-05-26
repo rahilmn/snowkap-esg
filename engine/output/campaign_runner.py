@@ -58,7 +58,9 @@ logger = logging.getLogger(__name__)
 # W5 — bumped to match the rest of the W4 stack so the campaign runner's
 # freshness pre-check picks up Phase-17c-era stored payloads as stale and
 # triggers enrich_on_demand() before sending the brief out.
-CURRENT_SCHEMA_VERSION = "2.1-role-distinct"
+# Phase 33 — bumped to 3.1-intelligence-hardened so drips sent post-cutover
+# always include the hardened intelligence + clean narrative.
+CURRENT_SCHEMA_VERSION = "3.1-intelligence-hardened"
 
 
 # ---------------------------------------------------------------------------

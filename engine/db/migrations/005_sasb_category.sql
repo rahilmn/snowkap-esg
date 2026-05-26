@@ -1,0 +1,24 @@
+-- Phase 32 — SASB sector classification per company.
+--
+-- Adds `sasb_category` so the materiality engine can pick a SASB-flavoured
+-- weight (e.g. banks see `topic_scope_3_financed` at 0.92; an electric
+-- utility sees `topic_scope_1_emissions` at 0.95). Without this column,
+-- the materiality query falls back to the industry-uniform weights from
+-- the pre-SASB ontology.
+--
+--   sasb_category — free-form SASB sector label (e.g. "Commercial Banks",
+--                   "Electric Utilities & Power Generators"). NULL is
+--                   allowed and triggers the DECISION 3.2 fallback
+--                   (neutral 0.5 + warning="sasb_unmapped").
+--
+-- Idempotent — uses `ADD COLUMN IF NOT EXISTS`. The migrate runner
+-- (engine/db/migrate.py::_apply_migration_resilient) rewrites this to
+-- plain `ADD COLUMN` + duplicate-column skip on SQLite.
+--
+-- Back-fill: run `python scripts/backfill_sasb_category.py` once after
+-- the migration applies. It walks every row in `companies`, reads
+-- `industry`, looks up `_INDUSTRY_TO_SASB` in
+-- engine/ingestion/company_onboarder.py:38-61, and writes the resolved
+-- sector. Idempotent on the row level.
+
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS sasb_category TEXT;

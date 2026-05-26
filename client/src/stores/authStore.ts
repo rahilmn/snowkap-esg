@@ -101,12 +101,9 @@ export const useAuthStore = create<AuthState>()(
       setCompanyId: (id) => set({ companyId: id }),
 
       setViewAsRole: (role) => {
+        // POW-6 — perspectiveStore retired. viewAsRole is now a no-op
+        // stub kept on the type so legacy import sites don't crash.
         set({ viewAsRole: role });
-        // Reset the perspective override so the role-driven default kicks in
-        // the next time useSyncPerspectiveWithRole runs.
-        import("@/stores/perspectiveStore").then(({ usePerspective }) => {
-          usePerspective.getState().resetOverride();
-        });
       },
 
       logout: () => {
@@ -114,10 +111,6 @@ export const useAuthStore = create<AuthState>()(
         // Clear saved articles on logout to prevent cross-tenant leakage
         import("@/stores/savedStore").then(({ useSavedStore }) => {
           useSavedStore.getState().clearAll();
-        });
-        // Reset perspective override so next session honours the new role.
-        import("@/stores/perspectiveStore").then(({ usePerspective }) => {
-          usePerspective.getState().resetOverride();
         });
         set({
           userId: null,

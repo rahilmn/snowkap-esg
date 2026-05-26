@@ -168,11 +168,42 @@ def fetch_google_news(
 ) -> list[dict]:
     """Fetch Google News RSS for a search query.
 
-    ``country`` is the company's ``headquarter_country``; it controls the
-    ``hl`` / ``gl`` / ``ceid`` locale params so a German company gets
-    German-language results instead of India-filtered ones (Phase 23A).
+    Phase 36 fix — Snowkap is an India-based product serving Indian ESG
+    analysts who read English. The Phase 23A approach of tying locale to
+    the COMPANY's HQ country (German company → German-language news) was
+    wrong: a Mumbai analyst tracking Siemens wants English coverage of
+    Siemens, not Süddeutsche Zeitung's German front page. With the
+    German locale, the English-tuned ESG classifier + off-topic guard
+    dropped almost every article as unparseable → 2-article decks
+    instead of the designed 10.
+
+    The fix: force ``en-IN`` (English language, India edition) for every
+    fetch by default. The ``country`` arg is preserved for future
+    multi-region deployments but ignored under the default
+    ``SNOWKAP_NEWS_LOCALE=en-IN`` env var. Operators in other regions
+    can override the env var to e.g. ``en-US`` or ``en-GB``.
     """
-    hl, gl, ceid = _locale_for_country(country)
+    import os
+    _locale_override = os.environ.get("SNOWKAP_NEWS_LOCALE", "en-IN")
+    if _locale_override == "en-IN":
+        hl, gl, ceid = ("en-IN", "IN", "IN:en")
+    elif _locale_override == "en-US":
+        hl, gl, ceid = ("en-US", "US", "US:en")
+    elif _locale_override == "en-GB":
+        hl, gl, ceid = ("en-GB", "GB", "GB:en")
+    elif _locale_override == "auto":
+        # Back-compat: legacy Phase 23A behaviour — locale follows the
+        # company's HQ country. Off by default; opt-in for operators
+        # serving a single-country tenant where vernacular coverage is
+        # preferred.
+        hl, gl, ceid = _locale_for_country(country)
+    else:
+        # Custom override — assume "<lang>-<country>" format
+        try:
+            lang, cc = _locale_override.split("-", 1)
+            hl, gl, ceid = (_locale_override, cc, f"{cc}:{lang}")
+        except ValueError:
+            hl, gl, ceid = ("en-IN", "IN", "IN:en")
     feed_url = GOOGLE_NEWS_URL.format(query=quote(query), hl=hl, gl=gl, ceid=ceid)
     logger.debug("Fetching Google News RSS: %s", feed_url)
     try:
@@ -403,7 +434,10 @@ def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
-_RELEVANCE_HEAD_CHARS = 800  # window to scan at start of article body
+_RELEVANCE_HEAD_CHARS = 2000  # window to scan at start of article body. Bumped 800→2000
+# because sector / market-roundup pieces frequently mention the company in the
+# first 2-3 paragraphs but past the 800-char mark, and rejecting those rows
+# was leaving fresh onboards with 0 articles on the home page.
 
 
 # Phase 12.2 — wrap-up / daily-digest detection.
@@ -530,33 +564,62 @@ def _is_calendar_preview(title: str, body: str) -> bool:
     return any(phrase in body_low for phrase in _CALENDAR_BODY_PHRASES)
 
 
+_CORP_SUFFIX_RE = re.compile(
+    r"\s+(limited|ltd|plc|inc|corp|corporation|company|co|llc|"
+    r"ag|se|gmbh|nv|s\.?a\.?|s\.?p\.?a\.?|kg|kgaa|pvt|"
+    r"holdings|group|industries|enterprises|international|"
+    r"aktiengesellschaft|société\s+anonyme|sa)\.?\s*$",
+    re.IGNORECASE,
+)
+
+
+def _company_name_variants(name: str) -> list[str]:
+    """Return the canonical name + a short-form with corporate suffix stripped.
+
+    Most news headlines say "Infosys" not "Infosys Limited", "Tata Motors" not
+    "Tata Motors Limited", "Siemens" not "Siemens Aktiengesellschaft". The
+    suffix-stripped variant is what 90% of articles actually use.
+
+    Deduped, lowercase, whitespace-normalised. Empty inputs produce [].
+    """
+    import re as _re
+
+    canonical = _re.sub(r"\s+", " ", (name or "").strip().lower())
+    if not canonical:
+        return []
+    variants: list[str] = [canonical]
+    short = _CORP_SUFFIX_RE.sub("", canonical).strip()
+    if short and short != canonical and len(short) >= 3:
+        variants.append(short)
+    return variants
+
+
 def _is_article_about_company(title: str, body: str, company: Company) -> bool:
     """Relevance guard: does this article actually mention the target company?
 
-    NewsAPI.ai keyword search returns articles that contain the query phrase
-    *anywhere* in 2-5 KB of body text — fine for coverage, awful for precision.
-    A "JSW Energy" query will happily return an article about JSW Steel that
-    happens to use the word "energy" in a sibling sentence.
+    NewsAPI.ai + Google News keyword search returns articles that contain the
+    query phrase *anywhere* in 2-5 KB of body text — fine for coverage, awful
+    for precision. A "JSW Energy" query will happily return an article about
+    JSW Steel that happens to use the word "energy" in a sibling sentence.
 
-    The fix is a phrase-level check: the company's full name (case-insensitive,
-    whitespace-normalised) must appear either in the title or in the first
-    ~800 chars of the body. That's restrictive enough to drop sibling-company
-    false positives but loose enough to keep articles that mention the company
-    up-front and then pivot to a broader sector theme.
+    The fix is a phrase-level check against EITHER the canonical name or the
+    suffix-stripped short form ("Infosys" matches even when the official name
+    is "Infosys Limited"). One of those variants must appear in the title or
+    the first ~800 chars of the body. Restrictive enough to drop sibling-
+    company false positives, loose enough to keep typical headline wording.
 
     Returns True if the article is meaningfully about the company.
     """
     import re
 
-    needle = re.sub(r"\s+", " ", (company.name or "").strip().lower())
-    if not needle:
+    variants = _company_name_variants(company.name or "")
+    if not variants:
         return True  # no guard possible, let it through
 
-    # Normalise whitespace in haystack too — handles "JSW\nEnergy" line-wrap
     title_norm = re.sub(r"\s+", " ", (title or "").lower())
     head_norm = re.sub(r"\s+", " ", (body or "")[:_RELEVANCE_HEAD_CHARS].lower())
 
-    return needle in title_norm or needle in head_norm
+    return any(v in title_norm or v in head_norm for v in variants)
 
 
 def fetch_for_company(
@@ -577,7 +640,7 @@ def fetch_for_company(
     limit = max_per_query or ingestion_cfg.get(
         "max_articles_per_company_per_run", 20
     )
-    freshness_days = ingestion_cfg.get("freshness_max_age_days", 90)
+    freshness_days = ingestion_cfg.get("freshness_max_age_days", 14)
     sem_enabled = ingestion_cfg.get("semantic_dedup_enabled", True)
     sem_threshold = ingestion_cfg.get("semantic_dedup_threshold", 0.75)
     sem_window = ingestion_cfg.get("semantic_dedup_window_hours", 48)
@@ -587,38 +650,95 @@ def fetch_for_company(
     raw_articles: list[dict] = []
     seen_urls: set[str] = set()
     hq_country = getattr(company, "headquarter_country", None)
-    # Default source = Google News RSS (always-on, no quota). NewsAPI.ai is
-    # opt-in via SNOWKAP_USE_NEWSAPI_AI=1 — when enabled it tries NewsAPI.ai
-    # first and falls through to Google News RSS on empty/error. Default-off
-    # because the eventregistry monthly-token cap silently 403s mid-run and
-    # masks coverage gaps; Google News RSS gives consistent locale-aware
-    # results via Phase 23A.
-    use_newsapi_ai = os.environ.get("SNOWKAP_USE_NEWSAPI_AI", "0") == "1"
-    for query in company.news_queries:
-        primary: list[dict] = []
-        if use_newsapi_ai:
-            primary = fetch_newsapi_ai(query, max_results=limit)
-            if primary:
-                for art in primary:
-                    if art["url"] in seen_urls:
-                        continue
-                    seen_urls.add(art["url"])
-                    art.setdefault("source_type", "newsapi_ai")
-                    art["query"] = query
-                    raw_articles.append(art)
-                continue
-            logger.info(
-                "news_fetcher: NewsAPI.ai returned 0 for %r — falling back to Google News RSS",
-                query,
-            )
+    # 2026-05-26 — NewsAPI.ai removed from the live path. Quota exhaustion
+    # (every call returned 403) wasted ~5-6s per query × 30 queries =
+    # ~3 min per onboard while waiting for the 403 timeout before
+    # falling back to Google News. Onboarding now runs entirely on
+    # Google News RSS + the Phase-35.5 publisher-scrape body backfill,
+    # which is what actually produces real article body anyway. The
+    # legacy `fetch_newsapi_ai()` helper stays in this module as a
+    # one-off utility if quota ever comes back, but is no longer wired
+    # into the onboarding fetch path.
+    #
+    # Parallel fetch (added 2026-05-26) — Google News RSS queries are
+    # ~1-2s each. Running 30 of them sequentially is 30-60s wasted.
+    # ThreadPoolExecutor with 6 workers drops total fetch to
+    # ceil(N/6) × 1-2s = 5-10s.
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-        for art in fetch_google_news(query, max_results=limit, country=hq_country):
-            if art["url"] in seen_urls:
+    def _fetch_one(query: str) -> tuple[str, list[dict]]:
+        try:
+            results = fetch_google_news(query, max_results=limit, country=hq_country)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("google_news fetch crashed for %r: %s", query, exc)
+            return query, []
+        return query, list(results)
+
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        future_to_query = {ex.submit(_fetch_one, q): q for q in company.news_queries}
+        for future in as_completed(future_to_query):
+            query, arts = future.result()
+            for art in arts:
+                if art["url"] in seen_urls:
+                    continue
+                seen_urls.add(art["url"])
+                art.setdefault("source_type", "google_news")
+                art["query"] = query
+                raw_articles.append(art)
+
+    # Phase 35.5 — Backfill article bodies via googlenewsdecoder + trafilatura
+    # for any Google News article whose `content` is title-only.
+    #
+    # Google News RSS returns ~140-char duplicate-headline "content" — the
+    # Stage 10 LLM was previously extrapolating ₹ exposure + frameworks +
+    # recs from this. Now: resolve the Google News blob to the real
+    # publisher URL via googlenewsdecoder, scrape via trafilatura, and
+    # replace `content` with the actual article body (typically 2,000-
+    # 5,000+ chars).
+    #
+    # Per-query hard time-limit (45s) so a slow publisher can't blow the
+    # ingest cycle budget. Successful extracts are cached for 7 days in
+    # `data/snowkap.db::article_full_text` so subsequent runs skip the
+    # network call. Failures are also cached — keeps us from re-hitting
+    # known-bad URLs every cycle.
+    try:
+        from engine.ingestion.full_text_extractor import extract_full_text
+        import time as _time
+        budget_deadline = _time.monotonic() + 45.0  # seconds
+        for art in raw_articles:
+            if _time.monotonic() > budget_deadline:
+                logger.info(
+                    "full_text backfill: 45s per-company budget hit, "
+                    "skipping remaining articles for %s",
+                    company.slug,
+                )
+                break
+            existing = (art.get("content") or "").strip()
+            title = (art.get("title") or "").strip()
+            # Skip if body is already substantive (NewsAPI.ai path, etc.)
+            if len(existing) >= 300 and existing != title:
                 continue
-            seen_urls.add(art["url"])
-            art.setdefault("source_type", "google_news")
-            art["query"] = query
-            raw_articles.append(art)
+            url = art.get("url") or ""
+            if not url:
+                continue
+            try:
+                result = extract_full_text(url, timeout=10.0)
+            except Exception as exc:  # noqa: BLE001 — never block ingest
+                logger.debug("full_text extract failed for %s: %s", url[:80], exc)
+                result = None
+            if result is None or not result.body:
+                continue
+            art["content"] = result.body
+            art["summary"] = result.body[:500]
+            meta = art.get("metadata") or {}
+            meta["full_text_source"] = "publisher_scrape"
+            meta["full_text_char_count"] = result.char_count
+            meta["publisher_url"] = result.publisher_url
+            art["metadata"] = meta
+    except Exception as exc:  # noqa: BLE001 — full-text is additive, never block
+        logger.warning(
+            "full_text backfill loop failed (non-fatal): %s", exc,
+        )
 
     # Phase 1: semantic dedup across all sources/queries for this company
     dedup = SemanticDedup(threshold=sem_threshold, window_hours=sem_window) if sem_enabled else None

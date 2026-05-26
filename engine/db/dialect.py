@@ -64,6 +64,19 @@ _INSERT_OR_REPLACE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 
+# `INSERT OR IGNORE INTO <table> (cols) VALUES (...)` — Postgres needs
+# ON CONFLICT DO NOTHING. Used by the auth-time auto-onboard kickoff
+# (engine/models/onboarding_status.py::try_create_pending) plus the
+# retry-claim helper. Pre-fix on 2026-05-24, signing up a new domain
+# (e.g. `nike.com`) on Postgres triggered "syntax error at or near OR"
+# because this translation was missing — onboarding silently failed,
+# user landed on `/now` with no feed, saw "Couldn't load the feed".
+_INSERT_OR_IGNORE = re.compile(
+    r"\bINSERT\s+OR\s+IGNORE\s+INTO\s+(?P<table>[a-zA-Z_][a-zA-Z0-9_]*)\s*"
+    r"\((?P<cols>[^)]+)\)\s*VALUES\s*\((?P<vals>[^)]+)\)",
+    re.IGNORECASE | re.DOTALL,
+)
+
 # `PRAGMA journal_mode=WAL;` — no-op for Postgres
 _PRAGMA_WAL = re.compile(
     r"PRAGMA\s+journal_mode\s*=\s*WAL\s*;?", re.IGNORECASE
@@ -192,6 +205,24 @@ def translate_to_postgres(sql: str) -> str:
         )
 
     sql = _INSERT_OR_REPLACE.sub(_replace_insert_or_replace, sql)
+
+    # 4. INSERT OR IGNORE → INSERT … ON CONFLICT (pk) DO NOTHING.
+    # Same PK-detection heuristic as the OR REPLACE case (`id` first,
+    # else the first listed column). The auth-time auto-onboard kickoff
+    # in engine/models/onboarding_status.py relies on the rowcount=1
+    # signal from this insert to decide whether to spawn the background
+    # task; ON CONFLICT DO NOTHING preserves that semantic on Postgres.
+    def _replace_insert_or_ignore(m: re.Match[str]) -> str:
+        table = m.group("table")
+        cols = [c.strip() for c in m.group("cols").split(",")]
+        vals = m.group("vals")
+        pk = "id" if "id" in cols else cols[0]
+        return (
+            f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({vals}) "
+            f"ON CONFLICT ({pk}) DO NOTHING"
+        )
+
+    sql = _INSERT_OR_IGNORE.sub(_replace_insert_or_ignore, sql)
 
     return sql
 

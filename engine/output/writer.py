@@ -163,6 +163,46 @@ def write_insight(
     except Exception as exc:  # noqa: BLE001 — never block writes on the scaffold
         logger.debug("evidence_pack build failed (non-fatal): %s", exc)
 
+    # Phase 32 — compose the unified 4-bullet analysis block from the same
+    # pipeline + insight + perspectives + recommendations. Stamped at write
+    # time so the frontend reads it directly with no extra API hop.
+    # Empty dict on builder failure — never blocks the write.
+    unified_analysis_dict: dict[str, Any] = {}
+    try:
+        from engine.analysis.unified_analysis import build_unified_analysis
+        # Phase 32 — surface SASB warning + external benchmarks on the
+        # unified analysis block. Both are best-effort: empty/None falls
+        # through to the neutral path in the composer.
+        sasb_warning = None
+        benchmarks: list[dict[str, Any]] = []
+        try:
+            from engine.config import get_company
+            from engine.ontology.sasb_loader import is_sector_mapped
+            from engine.analysis.benchmarks import get_benchmarks_for_company
+            company = get_company(result.company_slug)
+            sasb_cat = getattr(company, "sasb_category", None) if company else None
+            if sasb_cat is None or not is_sector_mapped(sasb_cat):
+                sasb_warning = "sasb_unmapped"
+            benchmarks = get_benchmarks_for_company(result.company_slug, max_n=4)
+        except Exception as exc:  # noqa: BLE001 — best-effort enrichment
+            logger.debug("sasb/benchmarks enrich failed (non-fatal): %s", exc)
+        unified_analysis_dict = build_unified_analysis(
+            result, insight,
+            recommendations=recommendations,
+            sasb_warning=sasb_warning,
+            benchmarks=benchmarks,
+        )
+    except Exception as exc:  # noqa: BLE001 — additive, never block writes
+        logger.warning("unified_analysis build failed (non-fatal): %s", exc)
+
+    # Stamp the unified analysis on the insight dict so frontend reads
+    # `insight.analysis` directly (single source of truth per Phase 32).
+    insight_dict_with_analysis: dict[str, Any] | None = None
+    if insight is not None:
+        insight_dict_with_analysis = insight.to_dict()
+        if unified_analysis_dict:
+            insight_dict_with_analysis["analysis"] = unified_analysis_dict
+
     # Combined insight payload
     insight_payload: dict[str, Any] = {
         "article": {
@@ -175,25 +215,38 @@ def write_insight(
             "image_url": result.image_url,
         },
         "pipeline": result.to_dict(),
-        "insight": insight.to_dict() if insight else None,
+        "insight": insight_dict_with_analysis,
         "recommendations": recommendations.to_dict() if recommendations else None,
+        # Phase 32 — legacy `perspectives` + `role_payloads` blocks stay on
+        # disk for 1 release (DECISION 5.2) so existing frontends + tests
+        # don't break. Drop in Phase 30. Frontend reads `insight.analysis`
+        # first; falls back to these only when `analysis` is absent.
         "perspectives": {k: v.to_dict() for k, v in perspectives.items()},
         # Phase 3 §5.1 — structured EvidencePack stamped at write time so
         # consumers (future role generators, debugging tools) read it
         # directly without rebuilding from pipeline + insight.
         "evidence_pack": evidence_pack_dict,
         # Phase 3 §5.2 — per-role RoleDistinctPayload (CFO / CEO /
-        # esg-analyst). The frontend can read role_payloads[role] to
-        # render the role-distinct headline + hero metric + takeaways
-        # without re-deriving them from pipeline state. Empty {} when
-        # the dispatcher couldn't build any role (e.g. REJECTED article).
+        # esg-analyst). 1-release shim per DECISION 5.2; frontend prefers
+        # insight.analysis. Empty {} when the dispatcher couldn't build any
+        # role (e.g. REJECTED article).
         "role_payloads": role_payloads_dict,
         "meta": {
             "written_at": datetime.now(timezone.utc).isoformat(),
-            # W5 — schema bump signals the per-role rebuild (W4a: why_critical_for_role,
-            # W4b: role-aware personal_stakes, W4d: role_panel_order). Old "2.0-primitives-l2"
-            # files are still readable but trigger on-demand re-enrichment on next click.
-            "schema_version": "2.1-role-distinct",
+            # Phase 34 polish — bumped 3.1-intelligence-hardened -> 3.2-template-hardened.
+            # Existing on-disk files (all 7 baseline companies + every
+            # session-onboarded tenant) trigger on-demand re-enrichment
+            # on next view via engine/analysis/on_demand.py's schema gate,
+            # picking up the unified-analysis template fixes:
+            #   - criticality_summary cleaned (no broken sentences / unbalanced parens)
+            #   - stakes_for_company always populated (deterministic fallback)
+            #   - materiality_weight read from the right source (clamped [0,1])
+            #   - top_risk_categories dropped on positive events (no Legal/Political/Social noise)
+            #   - next_decision_window holds a real label + by_date, not the exposure headline
+            #   - recommendation titles deduplicated of trailing "by <deadline>"
+            # Old "3.x" and "2.x" files remain readable; the gate just
+            # triggers a fresh pipeline run.
+            "schema_version": "3.2-template-hardened",
         },
     }
     written.insight = _write(base / "insights" / name, insight_payload)
@@ -203,6 +256,15 @@ def write_insight(
         upsert_article(insight_payload, written.insight)
     except Exception as exc:  # noqa: BLE001 — index failure must not break writes
         logger.warning("sqlite index upsert failed: %s", exc)
+
+    # POW-2 — dual-write to the new industry-shared article_pool and
+    # per-company company_article_view tables. Failure is non-fatal
+    # during the migration window so the legacy article_index still
+    # serves reads. See: docs/POWER_OF_NOW_ARCHITECTURE.md §4.1.
+    try:
+        _upsert_pool_and_view(result, insight_payload, unified_analysis_dict)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("article_pool / company_article_view upsert failed (non-fatal): %s", exc)
 
     # Split-out files for direct consumption by the UI API later
     if result.risk:
@@ -240,3 +302,102 @@ def write_insight(
         written.perspectives[lens] = _write(path, crisp.to_dict())
 
     return written
+
+
+# ---------------------------------------------------------------------------
+# POW-2 — Dual-write to article_pool + company_article_view.
+# ---------------------------------------------------------------------------
+
+
+def _upsert_pool_and_view(
+    result: Any,
+    insight_payload: dict[str, Any],
+    unified_analysis_dict: dict[str, Any],
+) -> None:
+    """Write the new industry-shared + per-company tables.
+
+    Called from `write_insight()` after the legacy `article_index`
+    upsert. Failure is logged but never raised — during the POW
+    migration window the legacy index still serves reads.
+
+    See: docs/POWER_OF_NOW_ARCHITECTURE.md §4.1 — "Where each piece lands".
+    """
+    from engine.analysis.unified_analysis import split_analysis
+    from engine.models import article_pool, company_article_view
+    from engine.config import get_company, load_companies
+
+    article = insight_payload.get("article") or {}
+    article_id = article.get("id") or result.article_id
+    url = article.get("url") or result.url
+    title = article.get("title") or result.title or ""
+    source = article.get("source") or result.source
+    published_at = article.get("published_at") or result.published_at
+    company_slug = result.company_slug
+
+    if not article_id or not url or not company_slug:
+        logger.warning(
+            "_upsert_pool_and_view: missing id/url/slug (id=%r url=%r slug=%r)",
+            article_id, url, company_slug,
+        )
+        return
+
+    # 1. Industry-shared fields → article_pool
+    company = get_company(company_slug)
+    primary_industry = (getattr(company, "industry", None) or "").strip() or "Unknown"
+    pipeline = insight_payload.get("pipeline") or {}
+    themes = pipeline.get("themes") or {}
+    primary_theme = themes.get("primary_theme") or None
+    primary_pillar = themes.get("primary_pillar") or None
+    event = pipeline.get("event") or {}
+    event_id = event.get("event_id") or None
+    nlp = pipeline.get("nlp") or {}
+    # Stage 12 stamps event_polarity onto the deep insight; fall back to
+    # NLP sentiment direction when the insight is absent.
+    event_polarity = (insight_payload.get("insight") or {}).get("event_polarity")
+    if not event_polarity:
+        s = nlp.get("sentiment")
+        if isinstance(s, (int, float)):
+            event_polarity = "positive" if s > 0 else "negative" if s < 0 else "neutral"
+
+    # `material_industries` — ontology-driven list of industries where
+    # this theme passes the materiality floor. Always includes the
+    # company's primary_industry so the article shows on at least one
+    # deck.
+    all_industries = sorted({c.industry for c in load_companies() if c.industry})
+    material_industries = article_pool.compute_material_industries(
+        primary_theme, all_industries,
+    )
+    if primary_industry not in material_industries:
+        material_industries.insert(0, primary_industry)
+
+    # Industry-shared analysis = what_changed + its methodology block.
+    shared, personalised = split_analysis(unified_analysis_dict or {})
+
+    article_pool.upsert(
+        article_id=article_id,
+        url=url,
+        title=title,
+        source=source,
+        published_at=published_at,
+        primary_industry=primary_industry,
+        material_industries=material_industries,
+        primary_pillar=primary_pillar,
+        primary_theme=primary_theme,
+        event_id=event_id,
+        event_polarity=event_polarity,
+        shared_analysis=shared,
+    )
+
+    # 2. Per-company fields → company_article_view
+    insight = insight_payload.get("insight") or {}
+    criticality = insight.get("criticality") or {}
+    crit_score = float(criticality.get("score") or 0.0)
+    crit_band = (criticality.get("band") or "MEDIUM").upper()
+
+    company_article_view.upsert(
+        article_id=article_id,
+        company_slug=company_slug,
+        personalised_analysis=personalised,
+        criticality_score=crit_score,
+        criticality_band=crit_band,
+    )

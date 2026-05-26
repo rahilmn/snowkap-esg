@@ -35,7 +35,7 @@ if str(_ROOT) not in sys.path:
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import admin, admin_email, admin_onboard, admin_reanalyze, batch_onboard, campaigns, companies, discovery, ingest, insights, legacy_adapter, profile, session, share
+from api.routes import admin, admin_body_coverage, admin_email, admin_onboard, admin_reanalyze, batch_onboard, campaigns, companies, discovery, ingest, insights, legacy_adapter, profile, session, share
 from engine.config import load_settings  # noqa: F401  (eager-loads .env)
 from engine.index.sqlite_index import ensure_schema
 
@@ -295,13 +295,20 @@ def _start_inprocess_scheduler() -> None:
         max_per_query = int(os.environ.get("SNOWKAP_MAX_PER_QUERY", "10"))
         per_run_limit = int(os.environ.get("SNOWKAP_PER_RUN_LIMIT", "5"))
 
+        # Fire ingest 30s after boot so the 7 baseline companies have fresh
+        # news as soon as the API is up — without it a freshly-wiped or
+        # restarted instance sits with an empty article_index for a full
+        # 60-min cycle, producing the "No ESG-relevant news" empty state
+        # the user reported on 2026-05-19.
+        from datetime import datetime, timedelta, timezone
+        boot_offset = datetime.now(timezone.utc) + timedelta(seconds=30)
         scheduler = BackgroundScheduler(daemon=True)
         scheduler.add_job(
             run_ingest_job,
             trigger="interval",
             minutes=ingest_min,
             args=[max_per_query, per_run_limit],
-            next_run_time=None,  # wait for first interval — don't ingest at boot
+            next_run_time=boot_offset,
             id="ingest_all_companies",
             replace_existing=True,
         )
@@ -310,7 +317,7 @@ def _start_inprocess_scheduler() -> None:
                 run_promote_job,
                 trigger="interval",
                 minutes=promote_min,
-                next_run_time=None,
+                next_run_time=boot_offset + timedelta(seconds=15),
                 id="discovery_promote",
                 replace_existing=True,
             )
@@ -346,6 +353,35 @@ def _start_inprocess_scheduler() -> None:
             )
         except Exception as exc:  # noqa: BLE001 — Phase 25 cron is additive
             logger.warning("phase 25 cron wiring failed (non-fatal): %s", exc)
+
+        # Phase 36 — periodic full-text retry. Walks every raw-input file
+        # under data/inputs/news/*/*.json, retries headline-only articles
+        # whose cached extraction is older than 6h (the failure-TTL set in
+        # full_text_extractor._cache_get). On successful body backfill,
+        # mutates the input file in place + marks the corresponding insight
+        # as `body_grounded_pending=True` so the next on-demand view
+        # re-enriches against the new body. Default cadence: every 6 hours.
+        # Override with SNOWKAP_FULL_TEXT_RETRY_HOURS. Set to 0 to disable.
+        try:
+            from engine.scheduler import run_full_text_retry_job
+            retry_hours = int(os.environ.get("SNOWKAP_FULL_TEXT_RETRY_HOURS", "6"))
+            if retry_hours > 0:
+                scheduler.add_job(
+                    run_full_text_retry_job,
+                    trigger="interval",
+                    hours=retry_hours,
+                    # Fire first run 5 minutes after boot so it doesn't
+                    # collide with the boot-time ingest job above (which
+                    # is itself doing inline body backfill).
+                    next_run_time=boot_offset + timedelta(minutes=5),
+                    id="full_text_retry",
+                    replace_existing=True,
+                )
+                logger.info(
+                    "phase 36 cron wired: full_text_retry every %dh", retry_hours,
+                )
+        except Exception as exc:  # noqa: BLE001 — Phase 36 cron is additive
+            logger.warning("phase 36 retry cron wiring failed (non-fatal): %s", exc)
 
         scheduler.start()
         # Stash on app.state so we can shut it down cleanly + introspect via /metrics
@@ -638,6 +674,72 @@ def metrics() -> Response:
         f"snowkap_openai_calls_24h {llm_count}",
         "",
     ]
+
+    # Phase 36 — body-capture coverage metrics. Pulls the cached coverage
+    # snapshot the /api/admin/body-coverage endpoint also reads (60s
+    # in-memory TTL so the FS walk doesn't run per scrape).
+    try:
+        from api.routes.admin_body_coverage import get_body_coverage
+        coverage = get_body_coverage()
+        lines.append("# HELP snowkap_articles_with_body_total Articles with full body content (>=300 chars) per tenant (Phase 36)")
+        lines.append("# TYPE snowkap_articles_with_body_total gauge")
+        for s in coverage["slugs"]:
+            lines.append(
+                f'snowkap_articles_with_body_total{{slug="{s["slug"]}"}} {s["with_body"]}'
+            )
+        lines.append("")
+        lines.append("# HELP snowkap_articles_headline_only_total Articles stuck at headline-only per tenant (Phase 36)")
+        lines.append("# TYPE snowkap_articles_headline_only_total gauge")
+        for s in coverage["slugs"]:
+            lines.append(
+                f'snowkap_articles_headline_only_total{{slug="{s["slug"]}"}} {s["headline_only"]}'
+            )
+        lines.append("")
+        lines.append("# HELP snowkap_articles_body_coverage_pct Body coverage % per tenant (Phase 36)")
+        lines.append("# TYPE snowkap_articles_body_coverage_pct gauge")
+        for s in coverage["slugs"]:
+            lines.append(
+                f'snowkap_articles_body_coverage_pct{{slug="{s["slug"]}"}} {s["body_coverage_pct"]}'
+            )
+        lines.append("")
+        # Last-retry-cron timestamp + result (gauge — unix epoch seconds)
+        last_ret = coverage.get("last_retry_at") or 0
+        last_res = coverage.get("last_retry_result") or {}
+        lines.append("# HELP snowkap_full_text_retry_last_run_seconds UNIX timestamp of last successful retry-cron fire (Phase 36)")
+        lines.append("# TYPE snowkap_full_text_retry_last_run_seconds gauge")
+        lines.append(f"snowkap_full_text_retry_last_run_seconds {last_ret}")
+        lines.append("")
+        lines.append("# HELP snowkap_full_text_retry_last_bodies_added Bodies captured on the last retry-cron fire (Phase 36)")
+        lines.append("# TYPE snowkap_full_text_retry_last_bodies_added gauge")
+        lines.append(f"snowkap_full_text_retry_last_bodies_added {int(last_res.get('bodies_added', 0) or 0)}")
+        lines.append("")
+        lines.append("# HELP snowkap_full_text_retry_last_paywalled Paywalled-skipped count on the last retry-cron fire (Phase 36)")
+        lines.append("# TYPE snowkap_full_text_retry_last_paywalled gauge")
+        lines.append(f"snowkap_full_text_retry_last_paywalled {int(last_res.get('paywalled', 0) or 0)}")
+        lines.append("")
+        # Cache-status counters (from article_full_text aggregate).
+        # Uses engine.db.connect dispatcher so it reads from Supabase
+        # Postgres in production (SNOWKAP_DB_BACKEND=postgres), SQLite
+        # in dev. Same backend the cache writes to via _cache_put().
+        try:
+            from engine.db import connect as _db_connect
+            with _db_connect() as _conn:
+                _rows = _conn.execute(
+                    "SELECT status, COUNT(*) FROM article_full_text GROUP BY status"
+                ).fetchall()
+            by_status = {r[0]: r[1] for r in _rows}
+            lines.append("# HELP snowkap_full_text_extraction_attempts_total Cached extraction outcomes (Phase 36)")
+            lines.append("# TYPE snowkap_full_text_extraction_attempts_total gauge")
+            for status in ("ok", "failed", "paywall", "too_short"):
+                lines.append(
+                    f'snowkap_full_text_extraction_attempts_total{{status="{status}"}} {by_status.get(status, 0)}'
+                )
+            lines.append("")
+        except Exception as exc:  # noqa: BLE001 — cache stats are additive
+            logger.debug("metrics: article_full_text aggregate failed: %s", exc)
+    except Exception as exc:  # noqa: BLE001 — body-coverage metrics are additive
+        logger.debug("metrics: body-coverage block failed: %s", exc)
+
     return Response(content="\n".join(lines), media_type="text/plain; version=0.0.4")
 
 
@@ -647,15 +749,68 @@ app.include_router(companies.router)
 app.include_router(insights.router)
 app.include_router(ingest.router)
 app.include_router(share.router)
+# Phase 31 — live-fetch hybrid news endpoint
+from api.routes import live_news as _live_news  # noqa: E402
+app.include_router(_live_news.router)
 app.include_router(admin.router)  # Phase 10: /api/admin/tenants (super_admin only)
 app.include_router(admin_onboard.router)  # Phase 11B: /api/admin/onboard (manage_drip_campaigns only)
 app.include_router(batch_onboard.router)  # Phase 25 W6: /api/admin/onboard/batch (manage_drip_campaigns only)
 app.include_router(admin_email.router)  # Phase 13 B7: /api/admin/email-config-status
+app.include_router(admin_body_coverage.router)  # Phase 36: /api/admin/body-coverage
 app.include_router(admin_reanalyze.router)  # Phase 18: /api/admin/companies/{slug}/reanalyze
 app.include_router(discovery.router)  # Phase 24 (W2): /api/admin/discovery/* (manage_drip_campaigns only)
 app.include_router(session.router)  # Phase 24 (W4): /api/session/* (analyst session state)
 app.include_router(profile.router)  # W2: /api/me/onboard (self-service onboarding for any signed-in user)
 app.include_router(campaigns.router)  # Phase 10: /api/campaigns/* (manage_drip_campaigns only)
+
+# Phase 28 — SSE onboarding progress stream (companion to profile.me_onboard).
+# GET /api/me/onboard/{slug}/stream
+from api.routes import onboard_stream as _onboard_stream  # noqa: E402
+app.include_router(_onboard_stream.router)
+
+# Phase 28 / Feature 2 — Methodology + role-explainer endpoint for the
+# info-icon drawer. GET /api/insights/{article_id}/methodology
+from api.routes import methodology as _methodology  # noqa: E402
+app.include_router(_methodology.router)
+
+# Phase 34.4 — Email-myself the technical report endpoint.
+# POST /api/articles/{id}/email-self  (any authenticated user; recipient = JWT sub)
+from api.routes import article_email_self as _article_email_self  # noqa: E402
+app.include_router(_article_email_self.router)
+
+# Phase 34.5 — Article comments (Reddit-style, non-anonymous, 1-level reply depth).
+# GET    /api/articles/{id}/comments    (list)
+# POST   /api/articles/{id}/comments    (create)
+# DELETE /api/comments/{id}             (author-only soft-delete)
+# POST   /api/comments/{id}/vote        (cast/change/retract vote)
+from api.routes import article_comments as _article_comments  # noqa: E402
+app.include_router(_article_comments.router)
+
+# Phase 34.7 — Personal Wiki (server-side bookmarks + notes).
+# GET    /api/me/bookmarks                  (list, optional ?section filter)
+# POST   /api/me/bookmarks                  (add/update)
+# DELETE /api/me/bookmarks/{article_id}     (remove)
+# PATCH  /api/me/bookmarks/{article_id}     (update note or section)
+# POST   /api/me/bookmarks/bulk             (idempotent bulk migration)
+from api.routes import user_bookmarks as _user_bookmarks  # noqa: E402
+app.include_router(_user_bookmarks.router)
+
+# Phase 34.6 — Forum (user-generated threads + replies, tag-filtered).
+# GET    /api/forum/threads                         (list, optional ?tag filter)
+# POST   /api/forum/threads                         (create)
+# GET    /api/forum/threads/{thread_id}             (read with replies)
+# DELETE /api/forum/threads/{thread_id}             (author-only soft-delete)
+# POST   /api/forum/threads/{thread_id}/replies     (reply)
+# DELETE /api/forum/replies/{reply_id}              (author-only soft-delete)
+from api.routes import forum as _forum  # noqa: E402
+app.include_router(_forum.router)
+
+# POW-4 — Power of Now deck + article endpoints.
+# GET /api/now/feed?company={slug}&limit={n}     (industry-shared deck, top-3 CRITICAL)
+# GET /api/now/article/{id}                       (shared + personalised analysis)
+# See: docs/POWER_OF_NOW_ARCHITECTURE.md §5.1, §4.4.
+from api.routes import now as _now  # noqa: E402
+app.include_router(_now.router)
 
 # Power of Now adoption — Phase C: 9 net-new routers wiring the Phase B
 # subsystems (advisor, autoresearcher, beliefs, chat, conversations,
@@ -719,6 +874,20 @@ if _dist_path.exists() and (_dist_path / "index.html").exists():
 
     # SPA fallback — any non-API path serves index.html so React Router
     # can handle client-side routes like /home, /settings/onboard, etc.
+    # `index.html` MUST be served with no-cache headers because it
+    # references content-hashed JS/CSS bundles whose names change on
+    # every build. Without no-cache, browsers cling to an old
+    # index.html (which references a stale bundle) for the lifetime of
+    # their cache TTL — that's how a user can keep seeing pre-fix
+    # behaviour days after the fix has shipped. The hashed assets under
+    # /assets/* are immutable and safe to cache forever (Vite emits a
+    # new filename on every change).
+    _NO_CACHE_HTML = {
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Pragma": "no-cache",
+        "Expires": "0",
+    }
+
     @app.get("/{path:path}", include_in_schema=False)
     async def _spa_fallback(path: str):
         # /api/... routes are claimed by routers above; this handler only
@@ -726,8 +895,15 @@ if _dist_path.exists() and (_dist_path / "index.html").exists():
         # otherwise hand back index.html (SPA pattern).
         candidate = _dist_path / path
         if candidate.is_file():
+            # Hashed bundle filenames (e.g. assets/index-Dv1n-e65.js) are
+            # immutable; leave their Cache-Control alone. Everything else
+            # served from dist (favicon, manifest, root index.html on a
+            # direct hit) gets the no-cache headers.
+            if "/" not in path and path.endswith((".html", ".json", ".webmanifest")):
+                return FileResponse(str(candidate), headers=_NO_CACHE_HTML)
             return FileResponse(str(candidate))
-        return FileResponse(str(_dist_path / "index.html"))
+        # SPA route — always no-cache.
+        return FileResponse(str(_dist_path / "index.html"), headers=_NO_CACHE_HTML)
 
     logger.info("static frontend mounted from %s", _dist_path)
 else:

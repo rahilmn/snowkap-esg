@@ -38,6 +38,33 @@ class ArticleListInput(BaseModel):
     limit: int = Field(default=20, ge=1, le=100)
 
 
+class ArticleCommentsInput(BaseModel):
+    """POW-5b — Fetch the threaded discussion on an article."""
+    article_id: str = Field(min_length=1, max_length=128)
+    viewer_email: str | None = None
+    limit: int = Field(default=20, ge=1, le=100)
+
+
+class ForumThreadInput(BaseModel):
+    """Forum v1.1 — Fetch one forum thread + its replies with author-company
+    attribution. Mirrors ArticleCommentsInput so the LLM gateway can
+    route them through the same dispatch path.
+    """
+    thread_id: str = Field(min_length=1, max_length=128)
+    viewer_email: str | None = None
+
+
+class BookmarksRecallInput(BaseModel):
+    """Wiki v1.1 — Fetch the caller's personal bookmark library, enriched
+    with each article's title + criticality_band. The dispatch layer
+    enforces that `viewer_email` matches the JWT sub claim so this tool
+    can never leak across users.
+    """
+    viewer_email: str = Field(min_length=3, max_length=256)
+    section: str | None = None
+    limit: int = Field(default=50, ge=1, le=200)
+
+
 class AdvisorQueueInput(BaseModel):
     tenant: str | None = None
 
@@ -86,6 +113,9 @@ TOOL_METADATA: dict[str, dict[str, Any]] = {
     "agent-beliefs-get":         {"input_model": AgentTenantInput,   "annotations": {"readOnlyHint": True}},
     "agent-state-get":           {"input_model": AgentTenantInput,   "annotations": {"readOnlyHint": True}},
     "article-list":              {"input_model": ArticleListInput,   "annotations": {"readOnlyHint": True}},
+    "article-comments":          {"input_model": ArticleCommentsInput, "annotations": {"readOnlyHint": True}},
+    "forum-thread":              {"input_model": ForumThreadInput,   "annotations": {"readOnlyHint": True}},
+    "bookmarks-recall":          {"input_model": BookmarksRecallInput, "annotations": {"readOnlyHint": True}},
     "memory-recall":             {"input_model": MemoryRecallInput,  "annotations": {"readOnlyHint": True}},
     "memory-list":               {"input_model": MemoryListInput,    "annotations": {"readOnlyHint": True}},
 }

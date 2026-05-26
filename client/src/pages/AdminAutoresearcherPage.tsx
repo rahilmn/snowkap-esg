@@ -30,7 +30,7 @@ type Tier = "system" | "tenant" | "user";
 export default function AdminAutoresearcherPage() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
   if (!hasPermission("manage_drip_campaigns")) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/now" replace />;
   }
   return <AdminAutoresearcherInner />;
 }

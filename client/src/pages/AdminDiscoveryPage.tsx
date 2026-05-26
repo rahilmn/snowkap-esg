@@ -48,7 +48,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function AdminDiscoveryPage() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
   if (!hasPermission("manage_drip_campaigns")) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/now" replace />;
   }
   return <AdminDiscoveryInner />;
 }

@@ -71,3 +71,16 @@ setup_db.py
 
 # Local SQLite DB (transient runtime state — keeps re-conflicting on every rebase)
 data/snowkap.db
+
+# Phase 28 cleanup — build artifacts that should never have been
+# tracked but slipped through pre-Phase-28.
+client/tsconfig.tsbuildinfo
+client/.tsbuildinfo
+*.tsbuildinfo
+~$*.docx
+*.paint
+stuck.paint
+
+# Phase 28 — Office lockfiles + Replit attachments
+attached_assets/
+.replit.cache/

@@ -26,6 +26,9 @@
     {"name": "agent-state-get", "description": "Read CompanyAgent 5-state machine value"},
     {"name": "article-list", "description": "List recent HOME/HIGH articles for a tenant"},
     {"name": "memory-recall", "description": "Retrieve top-N relevant memories for the user"},
-    {"name": "memory-list", "description": "Browse stored memories"}
+    {"name": "memory-list", "description": "Browse stored memories"},
+    {"name": "article-comments", "description": "POW-5 — Fetch the threaded discussion on an article. Returns top-level comments sorted by vote_score DESC, with replies inline + author/company attribution."},
+    {"name": "forum-thread", "description": "Forum v1.1 — Fetch one forum thread (BRSR/Climate/CBAM/Governance/Audit) + its 1-level-deep replies with author + company attribution. Used by /ask when the user taps 'Discuss this thread with AI'."},
+    {"name": "bookmarks-recall", "description": "Wiki v1.1 — Fetch the caller's personal bookmark library, grouped by section (pinned/climate/capital/social/custom). Each row carries the underlying article title + source + criticality_band so the LLM can answer 'what did I save this week?' without needing a second fetch. Per-user — never leaks across tenants."}
   ]
 }

@@ -309,6 +309,152 @@ def run_promote_job() -> None:
         logger.exception("scheduler: discovery promoter failed: %s", exc)
 
 
+def run_full_text_retry_job(
+    *, max_files: int | None = None, per_call_timeout: float = 12.0,
+) -> dict[str, int]:
+    """Phase 36 — Periodic retry of headline-only article body extraction.
+
+    Walks every raw-input file under ``data/inputs/news/*/*.json``,
+    identifies headline-only articles (``len(content) < 300``), and
+    re-runs ``extract_full_text`` for any whose last cached attempt is
+    older than the failure-TTL (6h per `_CACHE_FAILURE_TTL_SECONDS`).
+
+    On successful body backfill:
+      1. Mutates the raw input file in place (writes `content`, `summary`,
+         `metadata.publisher_url`, `metadata.full_text_source`).
+      2. Stamps `meta.body_grounded_pending: True` on the corresponding
+         insight at `data/outputs/{slug}/insights/{id}.json` so the next
+         on-demand view force-re-enriches against the new body.
+
+    Returns a summary dict so the metrics endpoint + scheduler_state
+    table can record what happened. Returned dict shape:
+        {
+            slugs_scanned: int,
+            files_checked: int,
+            bodies_added: int,
+            paywalled: int,
+            network_failed: int,
+            insights_marked_pending: int,
+            elapsed_seconds: float,
+        }
+
+    Per-cron-run hard budget: 5 minutes wall-clock. After that the job
+    exits early so a slow publisher can't hang the scheduler thread.
+    Subsequent fires pick up where this one left off (oldest-failure-first
+    ordering).
+    """
+    import json as _json
+    import time as _time
+    from collections import Counter
+    from pathlib import Path as _Path
+    from engine.config import get_data_path
+    from engine.ingestion.full_text_extractor import extract_full_text
+    from engine.models.scheduler_state import record_run
+
+    started = _time.perf_counter()
+    cron_deadline = started + 300.0  # 5 min hard cap
+    stats: Counter = Counter()
+
+    inputs_root = _Path(get_data_path("inputs", "news"))
+    if not inputs_root.exists():
+        logger.warning("run_full_text_retry_job: no inputs root at %s", inputs_root)
+        result = {**stats, "elapsed_seconds": 0.0, "skipped_no_inputs_dir": True}
+        record_run("full_text_retry", result=result, status="ok")
+        return dict(result)
+
+    outputs_root = _Path(get_data_path("outputs"))
+    slug_dirs = sorted(p for p in inputs_root.iterdir() if p.is_dir())
+    stats["slugs_scanned"] = len(slug_dirs)
+
+    insights_to_mark_pending: list[_Path] = []
+
+    for slug_dir in slug_dirs:
+        if _time.perf_counter() > cron_deadline:
+            logger.info(
+                "run_full_text_retry_job: 5min budget hit at %s — "
+                "deferring remaining slugs", slug_dir.name,
+            )
+            break
+        slug = slug_dir.name
+        for f in sorted(slug_dir.glob("*.json")):
+            if _time.perf_counter() > cron_deadline:
+                break
+            stats["files_checked"] += 1
+            try:
+                raw = _json.loads(f.read_text(encoding="utf-8"))
+            except Exception:  # noqa: BLE001
+                continue
+            content = (raw.get("content") or "").strip()
+            title = (raw.get("title") or "").strip()
+            url = raw.get("url") or ""
+            # Skip articles that are already body-grounded
+            if len(content) >= 300 and content != title and len(content) > len(title) + 50:
+                continue
+            if not url:
+                continue
+            # Honor the cache TTL — failed entries < 6h old are skipped.
+            # use_cache=True consults the cache + auto-skips fresh failures.
+            try:
+                result_ft = extract_full_text(url, timeout=per_call_timeout)
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("retry extract failed for %s: %s", f.name, exc)
+                stats["network_failed"] += 1
+                continue
+            if result_ft is None or not result_ft.body:
+                stats["paywalled"] += 1
+                continue
+
+            # Body captured — mutate input file
+            raw["content"] = result_ft.body
+            raw["summary"] = result_ft.body[:500]
+            meta = raw.get("metadata") or {}
+            meta["full_text_source"] = "publisher_scrape_retry_cron"
+            meta["full_text_char_count"] = result_ft.char_count
+            meta["publisher_url"] = result_ft.publisher_url
+            raw["metadata"] = meta
+            try:
+                f.write_text(_json.dumps(raw, indent=2), encoding="utf-8")
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("retry cron write failed for %s: %s", f.name, exc)
+                continue
+            stats["bodies_added"] += 1
+
+            # Find + mark the matching insight as needing re-enrichment.
+            # Insight files follow the pattern data/outputs/{slug}/insights/*{id}*.json
+            article_id = raw.get("id") or f.stem.split("_", 1)[-1]
+            insights_dir = outputs_root / slug / "insights"
+            if insights_dir.exists():
+                for ins_path in insights_dir.glob(f"*{article_id}*.json"):
+                    insights_to_mark_pending.append(ins_path)
+
+    # Mark insights pending — separate pass to keep file I/O isolated
+    for ins_path in insights_to_mark_pending:
+        try:
+            d = _json.loads(ins_path.read_text(encoding="utf-8"))
+            d.setdefault("meta", {})["body_grounded_pending"] = True
+            ins_path.write_text(_json.dumps(d, indent=2), encoding="utf-8")
+            stats["insights_marked_pending"] += 1
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("retry cron pending-flag failed for %s: %s", ins_path.name, exc)
+
+    elapsed = _time.perf_counter() - started
+    result = {
+        "slugs_scanned": stats["slugs_scanned"],
+        "files_checked": stats["files_checked"],
+        "bodies_added": stats["bodies_added"],
+        "paywalled": stats["paywalled"],
+        "network_failed": stats["network_failed"],
+        "insights_marked_pending": stats["insights_marked_pending"],
+        "elapsed_seconds": round(elapsed, 1),
+    }
+    logger.info("run_full_text_retry_job: %s", result)
+    try:
+        record_run("full_text_retry", result=result, status="ok")
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("retry cron: scheduler_state.record_run failed: %s", exc)
+    return result
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Scheduled ingestion for the Snowkap ESG engine"

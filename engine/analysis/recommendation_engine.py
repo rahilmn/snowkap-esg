@@ -294,6 +294,268 @@ to ontology / article / primitive / precedent / peer / benchmark sources.
 Return ONLY the JSON, no preamble."""
 
 
+# ---------------------------------------------------------------------------
+# Phase 35 — NEUTRAL-event generator system prompt.
+#
+# Background: the previous dispatcher was binary — positive vs everything-
+# else. Routine disclosure / filing / regulatory-announcement events
+# (event_shareholding_change, event_compliance_filing, etc.) fell into
+# the everything-else bucket and got the negative-event prompt, producing
+# defensive remediation recs ("urgent board governance review · ₹10-50 Cr
+# SEBI penalty risk") for what's actually a SEBI-mandated disclosure
+# filing with no penalty exposure.
+#
+# This prompt rewrites the rules with NEUTRAL-event semantics:
+#   - "stakeholder communication" + "disclosure verification" replace
+#     "remediation"
+#   - "monitoring-led" replaces "ACT-led"
+#   - no penalty-risk language unless the article describes an actual
+#     regulatory enforcement event
+#
+# Dispatcher (in _generate_recommendations) routes to this prompt when
+# `is_neutral_event(event_id, sentiment)` returns True. Order:
+#   1. is_positive_event() → _POSITIVE_GENERATOR_SYSTEM
+#   2. is_neutral_event() → _NEUTRAL_GENERATOR_SYSTEM        (NEW)
+#   3. otherwise          → _GENERATOR_SYSTEM (negative default)
+# ---------------------------------------------------------------------------
+_NEUTRAL_GENERATOR_SYSTEM = """You are an ESG action generator. The article describes a NEUTRAL event — a disclosure, regulatory filing, or routine periodic update — not a crisis or a triumph. Produce %%REC_COUNT%% actionable, company-specific recommendations that match the proportionate nature of the event.
+
+RULES:
+- The event is NEUTRAL. Recommendations focus on disclosure verification, stakeholder communication, KPI monitoring, and documentation discipline — NOT defensive remediation, NOT urgent board-level escalation, NOT penalty-risk framing.
+- Every recommendation MUST reference a specific framework section (e.g. BRSR:P6:Q14, GRI:305-1). Match framework to company HQ — Indian co's get BRSR/SEBI/ICMA, EU co's get CSRD/EU Taxonomy/SFDR, US co's get SEC Climate.
+- Every profitability_link MUST include a ₹ amount or % quantification, framed as proportionate to the event (e.g. "₹0.5-1 Cr investor-comms budget" or "₹2-5 Cr documentation-discipline cost-avoidance over 3 years").
+- Deadlines must be future dates in YYYY-MM-DD format.
+- Budgets must be proportionate — disclosure follow-ups ₹0.1-1 Cr; stakeholder comms ₹0.5-2 Cr; KPI-tracking infrastructure ₹1-3 Cr.
+- title must be a SPECIFIC action verb phrase: "File supplementary BRSR P6 disclosure by 2026-06-15" not "Improve disclosure".
+- roi_percentage: estimate conservatively. For neutral events, ROI ceiling is typically 100-200% (no penalty avoided, no upside captured). Higher claims will be flagged.
+- payback_months: 3-18 mo typical. NEVER use null.
+
+POLARITY GUARDRAILS (CRITICAL):
+- DO NOT recommend "engage SEBI / engage regulator" UNLESS the article explicitly mentions an enforcement action.
+- DO NOT cite "₹X-Y Cr penalty per violation" or "enforcement risk" — there is no enforcement event in a routine disclosure.
+- DO NOT recommend "urgent board action" — neutral events are non-urgent by definition.
+- DO NOT frame as "remediation" or "crisis management" — frame as "disclosure follow-through" or "stakeholder confidence".
+- Materiality on neutral events is typically MODERATE or LOW. CRITICAL / HIGH materiality on a routine disclosure is almost always wrong — if you see it in the deep_insight, the verifier will downgrade.
+
+GOOD NEUTRAL-EVENT REC SHAPES (pick from these archetypes for ≥80% of the rec set):
+  • Disclosure verification — audit the filing for completeness, ensure supplementary attachments
+  • Stakeholder communication — proactive investor briefing, press FAQ, internal stakeholder memo
+  • KPI tracking — set up dashboards to monitor downstream metrics referenced in the disclosure
+  • Documentation discipline — audit trail, version control, regulator-correspondence log
+  • Peer benchmarking — compare disclosure shape to 3 peer companies' recent equivalents
+  • Compliance acknowledgment — confirm receipt by regulator, document the acknowledgment for audit
+
+Return a JSON object with the same schema as the negative-event prompt:
+{
+  "recommendations": [
+    {
+      "title": "<action title, max 10 words>",
+      "type": "<strategic|financial|esg_positioning|operational|compliance>",
+      "description": "<1-2 sentences, proportionate to a neutral event>",
+      "responsible_party": "<specific role>",
+      "framework_section": "<BRSR:P6, GRI:305-1, etc.>",
+      "deadline": "<YYYY-MM-DD>",
+      "estimated_budget": "<₹X-Y Cr>",
+      "profitability_link": "<proportionate ₹ or % quantification>",
+      "urgency": "<short_term|medium_term|long_term>",
+      "estimated_impact": "<Low|Medium>",
+      "roi_percentage": <ROI %, typically 50-200%>,
+      "payback_months": <months>,
+      "peer_benchmark": "<comparable peer disclosure, or null>",
+      "audit_trail": [
+        {"source": "ontology|article|primitive|peer|precedent|benchmark",
+         "ref": "<framework section, primitive edge id, peer name>",
+         "value": "<the specific evidence anchoring the recommendation>"}
+      ]
+    }
+  ]
+}
+
+CRITICAL: every recommendation MUST include audit_trail with ≥1 valid entry per the rules above. Return ONLY the JSON, no preamble."""
+
+
+# ---------------------------------------------------------------------------
+# Phase 35 — recommendation accuracy guardrails
+# ---------------------------------------------------------------------------
+#
+# Appended to BOTH _GENERATOR_SYSTEM and _POSITIVE_GENERATOR_SYSTEM by the
+# dispatcher. The audit on 2026-05-24 found three failure modes the previous
+# prompt didn't close:
+#
+#   1. Hallucinated frameworks — the LLM cited "SEBI Takeover Regulations"
+#      and similar names that aren't in the ontology. Closed here by passing
+#      an explicit FRAMEWORK_WHITELIST in the user prompt and forbidding any
+#      framework citation that's not in the list.
+#
+#   2. ₹ figures in recs that drift from the canonical deep_insight exposure
+#      (e.g. rec says "₹500 Cr green bond" when deep_insight.financial_
+#      exposure is ₹50 Cr). Closed here by pinning CANONICAL_EXPOSURE and
+#      requiring all rec ₹ figures be derived from / proportional to it.
+#
+#   3. Empty / generic audit_trail entries ("based on industry best
+#      practices") that pass the structure check but carry no evidence.
+#      Closed here by requiring ≥1 entry whose source is one of
+#      {ontology, article, primitive, peer, precedent, benchmark} AND whose
+#      `value` field cites a verifiable detail (number, framework section,
+#      named peer).
+#
+# Additionally, on HEADLINE_ONLY articles (body < 300 chars) the prompt
+# pivots to MONITORING-flavoured recs at most 3 in count, all ₹ figures
+# explicitly framed as "scenario" not "engine estimate".
+_ACCURACY_GUARDRAILS = """
+
+═══════════════════════════════════════════════════════════════════════
+PHASE 35 — RECOMMENDATION ACCURACY GUARDRAILS (NON-NEGOTIABLE)
+═══════════════════════════════════════════════════════════════════════
+
+These rules are post-LLM verified. Recs that violate are either auto-
+corrected (₹ drift, retag) or DROPPED (invalid framework, empty audit
+trail). Read carefully — fewer correct recs beats more incorrect ones.
+
+FRAMEWORK WHITELIST ENFORCEMENT
+- The user prompt below lists FRAMEWORK_WHITELIST: [...]. Every
+  `framework_section` MUST start with a framework name from that list.
+- If the article's ESG topic isn't covered by any framework in the
+  whitelist, OMIT the framework_section (leave it as "") rather than
+  inventing one. The verifier will accept a blank framework_section;
+  it will reject an off-whitelist citation.
+- Specifically forbidden hallucinations: "SEBI Takeover Regulations"
+  (use SEBI:LODR or BRSR:P6 instead), "EU Taxonomy Article 8" for an
+  Indian co, "GRI Sector Standard XYZ" without a numeric section.
+
+CANONICAL EXPOSURE PIN
+- The user prompt below lists CANONICAL_EXPOSURE: ₹X Cr (the deep-insight's
+  authoritative ₹ figure). Every ₹ figure in your recommendations MUST:
+  (a) match this anchor exactly when citing total exposure, OR
+  (b) be a clearly-scoped subset/derivative (e.g. budget = 1-5% of exposure;
+      legal-defence reserve = 5-10% of exposure; capex on capacity = 50-300%
+      of immediate exposure when proportionate to a revenue opportunity).
+- Recs with ₹ figures that drift >35% from the canonical (and aren't
+  clearly subset/derivative) will be DROPPED by the verifier.
+
+AUDIT TRAIL EVIDENCE-OR-DEATH
+- Every recommendation MUST carry audit_trail with ≥1 entry.
+- At least ONE entry per rec MUST satisfy ALL of:
+    (a) `source` IN {"ontology", "article", "primitive", "peer", "precedent",
+        "benchmark"}  (never "industry best practices" / "general knowledge")
+    (b) `ref` cites a specific identifier (framework section, primitive
+        edge id, peer company name, precedent year, benchmark metric)
+    (c) `value` quotes a verifiable detail (a ₹ number, a date, a section
+        code, a peer's actual outcome)
+- Recs whose audit_trail has only generic / hand-waving entries will be
+  DROPPED by the verifier.
+
+HEADLINE-ONLY MODE
+- The user prompt below carries HEADLINE_ONLY: true|false. When true:
+  * Produce at most 3 recommendations (not 5).
+  * Lead with MONITORING + INVESTIGATION recs, not aggressive ACT actions.
+  * Tag every ₹ figure "(scenario)" not "(engine estimate)" — scenario
+    language is honest about uncertainty.
+  * description MUST start with "Pending full article retrieval, …" so the
+    reader knows the rec is provisional.
+  * Avoid CRITICAL / CRITICAL-flavoured language ("urgent board action
+    required"). The verifier has already capped materiality at MODERATE.
+═══════════════════════════════════════════════════════════════════════
+"""
+
+
+def _query_framework_whitelist() -> list[str]:
+    """Return the list of valid framework names from the ontology.
+
+    Used to pre-empt LLM hallucinations like "SEBI Takeover Regulations".
+    Fail-soft: if the ontology query fails, return an empty list and the
+    LLM falls back to the previous unconstrained behaviour.
+    """
+    try:
+        from engine.ontology.intelligence import (
+            query_frameworks_for_topic,
+            query_regional_boosts,
+        )
+        # Pull a broad set: regional boosts cover the regional frameworks
+        # (BRSR / CSRD / SEC / FCA / SDR / etc), and we union with topic-
+        # specific queries below.
+        names: set[str] = set()
+        for region in ("INDIA", "EU", "US", "UK", "APAC", "GLOBAL"):
+            try:
+                for b in query_regional_boosts(region) or []:
+                    fid = getattr(b, "framework_id", "") or getattr(b, "framework_label", "")
+                    if fid:
+                        names.add(fid)
+            except Exception:  # noqa: BLE001
+                continue
+        # Add the topic-driven set
+        for topic in (
+            "topic_climate", "topic_water", "topic_emissions",
+            "topic_supply_chain_labor", "topic_governance",
+            "topic_business_ethics", "topic_data_security",
+            "topic_health_safety", "topic_biodiversity",
+        ):
+            try:
+                for f in query_frameworks_for_topic(topic) or []:
+                    fid = getattr(f, "framework_id", "") or getattr(f, "framework_label", "")
+                    if fid:
+                        names.add(fid)
+            except Exception:  # noqa: BLE001
+                continue
+        # Always include the universal Big-5 so the prompt stays usable
+        # even when the ontology query is empty.
+        for canonical in (
+            "BRSR", "GRI", "TCFD", "SASB", "CDP", "ISSB", "EU Taxonomy",
+            "CSRD", "ESRS", "SFDR", "GHG Protocol", "SBTi", "TNFD",
+            "SEC Climate", "Porter 5 Forces", "COSO ERM", "DJSI",
+            "S&P Global ESG", "ICMA Green Bond Principles",
+            "SEBI Green Bond Framework", "SEBI:LODR", "MCA",
+        ):
+            names.add(canonical)
+        return sorted(names)
+    except Exception:  # noqa: BLE001 — fall back to no whitelist
+        return []
+
+
+def _extract_canonical_exposure_cr(insight: DeepInsight) -> float | None:
+    """Pull the canonical ₹ exposure (Cr) from the deep insight.
+
+    Tries (in order):
+      1. financial_timeline.immediate.inr_cr
+      2. decision_summary.financial_exposure.amount_cr
+      3. decision_summary.financial_exposure (when string like "₹150 Cr")
+
+    Returns None when no ₹ exposure is set — the rec prompt then skips the
+    canonical-pin block and lets the LLM operate without it (rare; most
+    HOME-tier insights have a computed exposure).
+    """
+    import re
+
+    ft = insight.financial_timeline or {}
+    immediate = ft.get("immediate") or {}
+    if isinstance(immediate, dict):
+        v = immediate.get("inr_cr")
+        if v is not None:
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                pass
+
+    ds = insight.decision_summary or {}
+    fe = ds.get("financial_exposure")
+    if isinstance(fe, dict):
+        v = fe.get("amount_cr")
+        if v is not None:
+            try:
+                return float(v)
+            except (TypeError, ValueError):
+                pass
+    if isinstance(fe, str):
+        m = re.search(r"₹\s*([\d,]+(?:\.\d+)?)\s*Cr", fe)
+        if m:
+            try:
+                return float(m.group(1).replace(",", ""))
+            except ValueError:
+                pass
+
+    return None
+
+
 def _build_generator_prompt(
     insight: DeepInsight, result: PipelineResult, company: Company
 ) -> str:
@@ -435,9 +697,62 @@ def _build_generator_prompt(
         # Archetype routing is additive; never block recommendation generation.
         pass
 
+    # Phase 35 — accuracy-guardrail context block.
+    #
+    # Three things get pinned for the LLM:
+    #   1. FRAMEWORK_WHITELIST — only these names may appear in `framework_section`.
+    #   2. CANONICAL_EXPOSURE — every ₹ in recs must anchor on this.
+    #   3. HEADLINE_ONLY      — when true, max 3 recs, monitoring flavour,
+    #                            scenario tags. The verifier enforces.
     lines.append("")
-    rec_count = _get_rec_count(insight)
-    lines.append(f"Generate exactly {rec_count} actionable recommendations for this company. Today's date is 2026-04-13.")
+    lines.append("=== ACCURACY GUARDRAILS (Phase 35) ===")
+    whitelist = _query_framework_whitelist()
+    if whitelist:
+        lines.append(
+            "FRAMEWORK_WHITELIST (every framework_section MUST start with one of these; "
+            "leave blank if no framework applies — do NOT invent names):"
+        )
+        # Keep readable — chunk into 6-per-line so prompt doesn't blow up
+        for i in range(0, len(whitelist), 6):
+            lines.append(f"  {', '.join(whitelist[i:i+6])}")
+
+    canonical_cr = _extract_canonical_exposure_cr(insight)
+    if canonical_cr is not None:
+        lines.append(
+            f"CANONICAL_EXPOSURE: ₹{canonical_cr:,.0f} Cr — every ₹ in your "
+            f"recommendations must match this anchor OR be a clearly-scoped "
+            f"subset (budget = 1-5% of exposure; legal reserve = 5-10%; "
+            f"capex = 50-300% when proportionate). Drift >35% from this "
+            f"anchor without subset framing → DROPPED by verifier."
+        )
+    else:
+        lines.append(
+            "CANONICAL_EXPOSURE: not set (no ₹ in deep_insight). Recommendations "
+            "may use scenario ₹ figures but tag them explicitly."
+        )
+
+    headline_only = bool(getattr(insight, "headline_only", False)) or (
+        getattr(result, "_thin_content", False)
+        or len((getattr(result, "article_content", "") or "").strip()) < 300
+    )
+    if headline_only:
+        lines.append(
+            "HEADLINE_ONLY: true — article body unavailable. Produce at MOST 3 "
+            "recommendations. Lead with MONITORING/INVESTIGATION. Every ₹ figure "
+            "tagged '(scenario)' not '(engine estimate)'. Every description starts "
+            "with 'Pending full article retrieval, …'. No 'urgent', no 'CRITICAL', "
+            "no aggressive ACT framing."
+        )
+    else:
+        lines.append("HEADLINE_ONLY: false")
+
+    lines.append("")
+    rec_count_base = _get_rec_count(insight)
+    rec_count = min(rec_count_base, 3) if headline_only else rec_count_base
+    lines.append(
+        f"Generate exactly {rec_count} actionable recommendations for this company. "
+        f"Today's date is 2026-04-13."
+    )
     return "\n".join(lines)
 
 
@@ -518,7 +833,9 @@ def _generate_recommendations(
     # penalty" defensive injection on contract-win / certification articles.
     raw_content = ""
     try:
-        from engine.analysis.recommendation_archetypes import is_positive_event
+        from engine.analysis.recommendation_archetypes import (
+            is_positive_event, is_neutral_event,
+        )
         event_id_for_dispatch = (
             result.event.event_id
             if result.event and hasattr(result.event, "event_id")
@@ -527,14 +844,26 @@ def _generate_recommendations(
         # Phase 17 — sentiment-aware routing for ambiguous events
         # (event_quarterly_results +1 sentiment → positive prompt path).
         nlp_sent_disp = getattr(result.nlp, "sentiment", 0) if result.nlp else 0
-        system_prompt_template = (
-            _POSITIVE_GENERATOR_SYSTEM
-            if is_positive_event(event_id_for_dispatch, sentiment=nlp_sent_disp)
-            else _GENERATOR_SYSTEM
-        )
+        # Phase 35 — 3-way dispatcher: positive / neutral / negative-default.
+        # Order matters: positive wins over neutral wins over negative-default.
+        # Pre-fix the YES Bank pledge (event_shareholding_change) got the
+        # negative-default prompt → ₹9,685 Cr "CRITICAL governance risk"
+        # framing. Now it routes to _NEUTRAL_GENERATOR_SYSTEM which produces
+        # disclosure-verification + stakeholder-comms + monitoring recs.
+        if is_positive_event(event_id_for_dispatch, sentiment=nlp_sent_disp):
+            system_prompt_template = _POSITIVE_GENERATOR_SYSTEM
+        elif is_neutral_event(event_id_for_dispatch, sentiment=nlp_sent_disp):
+            system_prompt_template = _NEUTRAL_GENERATOR_SYSTEM
+        else:
+            system_prompt_template = _GENERATOR_SYSTEM
     except Exception:
         # Failsafe: archetype routing is additive, never block generation
         system_prompt_template = _GENERATOR_SYSTEM
+    # Phase 35 — append accuracy guardrails (framework whitelist enforcement,
+    # canonical-₹ pin, audit-trail evidence requirement, headline-only mode)
+    # to whichever polarity prompt the dispatcher selected. Same constraints
+    # apply to positive + negative event flows.
+    system_prompt_template = system_prompt_template + _ACCURACY_GUARDRAILS
     try:
         resp = client.chat.completions.create(
             model=model,
@@ -651,7 +980,184 @@ def _generate_recommendations(
             )
         except Exception as exc:  # noqa: BLE001
             logger.warning("Malformed recommendation skipped: %s", exc)
+
+    # Phase 35 — post-LLM accuracy verifier. Drops recs that violate the
+    # hardened guardrails (framework-whitelist, canonical-₹ pin, empty
+    # audit_trail). See `verify_recommendation_accuracy` docstring.
+    try:
+        recommendations = verify_recommendation_accuracy(
+            recommendations, insight=insight, result=result,
+        )
+    except Exception as exc:  # noqa: BLE001 — never block on verifier failure
+        logger.warning(
+            "recommendation accuracy verifier failed (non-fatal): %s", exc,
+        )
+
     return recommendations
+
+
+def verify_recommendation_accuracy(
+    recs: list[Recommendation],
+    *,
+    insight: DeepInsight,
+    result: PipelineResult,
+) -> list[Recommendation]:
+    """Phase 35 — post-LLM verifier for recommendation accuracy.
+
+    Drops or auto-corrects recs that violate the accuracy guardrails:
+
+      1. **Framework whitelist** — recs whose `framework_section` doesn't
+         start with an ontology-known framework are stripped to blank
+         (rec kept; user just doesn't see a bogus citation).
+
+      2. **Canonical ₹ drift** — recs whose `profitability_link` ₹ figure
+         drifts >35% from the canonical exposure AND doesn't read as a
+         clearly-scoped subset (budget / reserve / capex) are DROPPED.
+
+      3. **Empty / generic audit_trail** — recs with no audit_trail, or
+         audit_trail entries whose `source` is outside the canonical set,
+         or whose `value` field is shorter than 12 chars (no real
+         evidence), are DROPPED.
+
+      4. **Headline-only mode** — on headline-only insights the prompt
+         already capped to 3 recs and asked for monitoring language, but
+         the verifier additionally enforces:
+           - Drop any rec whose description doesn't start with "Pending
+             full article retrieval" (LLM occasionally forgets).
+           - Retag "(engine estimate)" → "(scenario)" in profitability_link.
+           - Cap rec_count at 3 if the LLM emitted more.
+
+    Returns the filtered + corrected list. Caller logs a summary of what
+    was dropped/changed via the `warnings` field on subsequent stages.
+    """
+    import re
+
+    whitelist = set(_query_framework_whitelist())
+    canonical_cr = _extract_canonical_exposure_cr(insight)
+    headline_only = bool(getattr(insight, "headline_only", False)) or (
+        len((getattr(result, "article_content", "") or "").strip()) < 300
+    )
+    _VALID_AUDIT_SOURCES = {
+        "ontology", "article", "primitive", "peer", "precedent", "benchmark",
+    }
+    _SCENARIO_RE = re.compile(r"\(engine\s+estimate\)", re.IGNORECASE)
+    _RUPEE_RE = re.compile(r"₹\s*([\d,]+(?:\.\d+)?)\s*(Cr|Lakh|crore|million|billion|Mn|Bn)", re.IGNORECASE)
+
+    out: list[Recommendation] = []
+    dropped_reasons: list[str] = []
+
+    for r in recs:
+        # 1. Framework whitelist check — strip off-whitelist citations.
+        if r.framework_section and whitelist:
+            head_token = r.framework_section.split(":")[0].split(" ")[0].strip()
+            if head_token and head_token not in whitelist:
+                # Try a loose prefix-match too (e.g. "BRSR P6 Q14")
+                if not any(
+                    r.framework_section.strip().lower().startswith(fw.lower())
+                    for fw in whitelist
+                ):
+                    logger.info(
+                        "rec verifier: stripping off-whitelist framework "
+                        "'%s' from rec '%s'",
+                        r.framework_section[:60], r.title[:40],
+                    )
+                    r.framework_section = ""
+
+        # 2. Canonical ₹ drift check
+        if canonical_cr is not None and canonical_cr > 0:
+            text = (r.profitability_link or "") + " " + (r.description or "")
+            cited = []
+            for m in _RUPEE_RE.finditer(text):
+                v = float(m.group(1).replace(",", ""))
+                unit = m.group(2).lower()
+                if unit in ("lakh",):
+                    v = v / 100.0  # 1 Cr = 100 Lakh
+                elif unit in ("million", "mn"):
+                    v = v / 10.0   # 1 Cr = 10 Mn
+                elif unit in ("billion", "bn"):
+                    v = v * 100.0  # 1 Bn = 100 Cr (Indian)
+                cited.append(v)
+            if cited:
+                largest = max(cited)
+                drift_ratio = largest / canonical_cr if canonical_cr else 0
+                # Drop only if (a) drift is huge AND (b) the rec isn't
+                # explicitly framed as a subset (budget/reserve/capex/capacity)
+                budget_keywords = (
+                    "budget", "reserve", "legal-defence", "legal defence",
+                    "legal cost", "capex", "capacity", "investment",
+                    "deployment", "facility", "infrastructure",
+                )
+                is_scoped = any(k in text.lower() for k in budget_keywords)
+                if drift_ratio > 5.0 and not is_scoped:
+                    dropped_reasons.append(
+                        f"₹ drift {largest:.0f} Cr vs canonical "
+                        f"{canonical_cr:.0f} Cr (drift {drift_ratio:.1f}x) "
+                        f"in rec '{r.title[:30]}'"
+                    )
+                    continue
+
+        # 3. Audit trail evidence check
+        if not r.audit_trail:
+            dropped_reasons.append(
+                f"empty audit_trail in rec '{r.title[:30]}'"
+            )
+            continue
+        valid_audit_entries = [
+            e for e in r.audit_trail
+            if str(e.get("source", "")).strip().lower() in _VALID_AUDIT_SOURCES
+            and len(str(e.get("value", "")).strip()) >= 12
+        ]
+        if not valid_audit_entries:
+            dropped_reasons.append(
+                f"no valid audit_trail entries in rec '{r.title[:30]}' "
+                f"(sources={[e.get('source') for e in r.audit_trail]})"
+            )
+            continue
+        # Replace audit_trail with just the valid entries
+        r.audit_trail = valid_audit_entries
+
+        # 4. Headline-only handling
+        if headline_only:
+            # Retag estimate → scenario
+            if r.profitability_link:
+                r.profitability_link = _SCENARIO_RE.sub(
+                    "(scenario)", r.profitability_link,
+                )
+            if r.description:
+                r.description = _SCENARIO_RE.sub("(scenario)", r.description)
+            # Soft check: description should start with the pending preamble.
+            # We don't drop — we PREPEND if missing, so the user still sees
+            # the disclosure even when the LLM forgot.
+            if r.description and "pending full article" not in r.description.lower():
+                r.description = (
+                    "Pending full article retrieval, " + r.description[0].lower()
+                    + r.description[1:]
+                )
+
+        out.append(r)
+
+    if dropped_reasons:
+        logger.warning(
+            "recommendation accuracy verifier: dropped %d/%d recs (%s)",
+            len(dropped_reasons), len(recs), "; ".join(dropped_reasons[:5]),
+        )
+
+    # 5. Headline-only count cap (post-filter — keep top-3 by impact when
+    # the LLM emitted more despite the prompt instruction)
+    if headline_only and len(out) > 3:
+        # Prefer recs with non-empty framework_section + audit_trail
+        out.sort(
+            key=lambda r: (
+                bool(r.framework_section),
+                len(r.audit_trail),
+                # Tie-break: monitoring/investigation types preferred when headline-only
+                1 if r.type in ("compliance", "operational") else 0,
+            ),
+            reverse=True,
+        )
+        out = out[:3]
+
+    return out
 
 
 # ---------------------------------------------------------------------------

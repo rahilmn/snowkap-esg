@@ -160,6 +160,7 @@ def share_article_by_email(
     cta_label: str | None = None,
     dry_run: bool = False,
     role: str | None = None,
+    layout: str | None = None,
 ) -> ShareResult:
     """Render + send (or preview) a single-article share email.
 
@@ -225,17 +226,51 @@ def share_article_by_email(
 
     # Phase 11C: editorial subject line when we have the payload.
     subject = _build_subject_for_payload(company_name, full_payload or {}, target_article.title)
+    # Phase 33 §6 — layout selector. Explicit `layout` kwarg wins; otherwise
+    # read the SNOWKAP_EMAIL_LAYOUT env var; default to "dark_card" so
+    # production drip remains unchanged until editorial approves the
+    # Morning Brew style on a sample-send batch.
+    import os as _os
+    effective_layout = (layout or _os.environ.get("SNOWKAP_EMAIL_LAYOUT") or "dark_card").lower()
     if full_payload:
         industry = _company_industry(company_slug) or target_article.industry or ""
-        html = render_article_brief_dark(
-            payload=full_payload,
-            company_name=company_name,
-            industry=industry,
-            recipient_name=recipient_name,
-            cta_url=cta_url,
-            cta_label=cta_label,
-            role=role,
-        )
+        if effective_layout == "morning_brew":
+            from engine.output.newsletter_morning_brew import render_article_morning_brew
+            # Phase 33 fix — fall back to the canonical Snowkap public URL
+            # so the email CTAs work even when the caller didn't supply
+            # `read_more_base` (the React Share dialog defaults to None).
+            # Override via SNOWKAP_PUBLIC_URL env when running on a
+            # non-default deployment.
+            snowkap_base = (
+                read_more_base
+                or _os.environ.get("SNOWKAP_PUBLIC_URL")
+                or "https://powerofnow.snowkap.co.in"
+            )
+            chat_url = (
+                f"{snowkap_base.rstrip('/')}/chat"
+                f"?company={company_slug}&article={article_id}"
+            )
+            html = render_article_morning_brew(
+                payload=full_payload,
+                company_name=company_name,
+                industry=industry,
+                recipient_name=recipient_name,
+                cta_url=cta_url,
+                chat_url=chat_url,
+                snowkap_base=snowkap_base,
+                company_slug=company_slug,
+                article_id=article_id,
+            )
+        else:
+            html = render_article_brief_dark(
+                payload=full_payload,
+                company_name=company_name,
+                industry=industry,
+                recipient_name=recipient_name,
+                cta_url=cta_url,
+                cta_label=cta_label,
+                role=role,
+            )
     else:
         # Fallback to the legacy newsletter layout if the insight JSON is
         # missing — shouldn't happen in production since the runner's accuracy

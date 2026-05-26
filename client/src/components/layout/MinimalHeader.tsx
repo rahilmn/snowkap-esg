@@ -24,8 +24,6 @@ import { useAuthStore, useIsSalesAdmin, useIsSuperAdmin } from "@/stores/authSto
 import { companies as companiesApi } from "@/lib/api";
 import { COLORS } from "@/lib/designTokens";
 import { CompanySwitcher } from "@/components/admin/CompanySwitcher";
-import { PerspectiveSwitcher } from "@/components/PerspectiveSwitcher";
-import { RoleViewSwitcher } from "@/components/admin/RoleViewSwitcher";
 
 export function MinimalHeader() {
   const navigate = useNavigate();
@@ -183,13 +181,10 @@ export function MinimalHeader() {
         </div>
       </header>
 
-      {/* Row 2: Perspective switcher — globally accessible cognitive lens.
-          Super-admins also see a "View as role" dropdown next to it which
-          drives the default perspective panel on article detail (Phase D). */}
-      <div className="flex items-center justify-center gap-3 py-1.5 border-t border-gray-50">
-        <PerspectiveSwitcher />
-        {isSuperAdmin && <RoleViewSwitcher />}
-      </div>
+      {/* Phase 32 / Phase 34 — perspective toggle removed entirely.
+          Snowkap now ships a single unified analysis; the legacy
+          PerspectiveSwitcher + super-admin RoleViewSwitcher have been
+          retired from the chrome. */}
     </div>
   );
 }

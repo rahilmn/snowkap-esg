@@ -19,19 +19,30 @@
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Language | Python 3.12+ | Engine + API |
-| LLM | OpenAI (gpt-4.1, gpt-4.1-mini) | Single provider only |
+| LLM | OpenAI (gpt-4.1, gpt-4.1-mini) by default | OpenRouter gateway (anthropic/claude-opus-4.7, perplexity/sonar-pro, openai/gpt-4o-mini) lights up when `OPENROUTER_API_KEY` is set — Phase C |
+| LLM gateway | `engine/llm/` (OpenRouter passthrough) | Task-class routing; cost from `usage.cost` (authoritative when OpenRouter active) |
 | Ontology | rdflib (in-process, persists to `.ttl`) | The intelligence brain |
+| Ontology validation | owlrl + pyshacl | OWL-RL deductive closure + SHACL shape validation (Phase C drop-ins) |
 | JSON storage | Filesystem (`data/outputs/`) | Source of truth |
 | Index | **SQLite** (`data/snowkap.db`) | Fast feed queries, built into Python |
-| API | **FastAPI** (thin, read-only) | ~5 endpoints, no DB server |
+| Tenant memory | `engine/memory/` — SQLite `tenant_memory` + BM25 | Phase C: facts / preferences / decisions / open_threads, per-(tenant, user) |
+| Chat persistence | `engine/chat/` — `chat_conversations` + `chat_messages` + FTS5 virtual table | Phase C: SSE stream, FTS5 search with LIKE fallback |
+| MCP server | `engine/mcp/` — manifest-driven catalog | Phase C: 14 tools, verbatim sign-off on destructive tools |
+| Advisor coaches | `engine/advisor/` — push-style hints | Phase C: 5 coaches (data, risk, forecast, belief, autoresearcher), 5-layer suppression |
+| Autoresearcher | `engine/autoresearcher/` — Karpathy calibration loop | Phase C: 555 atomic knobs across Tier 0 (system) / 1 (tenant) / 2 (user) |
+| Wiki | `engine/wiki/` — 3-tier markdown | Phase C: System / Tenant / User institutional memory |
+| Governance | `engine/governance/` — L0–L7 audit discipline | Phase C: probe, belief_revision, phase_gate, 5-state CompanyAgent |
+| API | **FastAPI** | ~30 endpoints (was ~5 pre-Phase-C; SSE chat + conversations + memory + mcp_admin + advisor + autoresearcher + beliefs + wiki added) |
 | Auth | **Simple API key** in header | `X-API-Key` check, swap to JWT later |
-| Frontend | **React 19 + Vite + Radix UI + Tailwind + Zustand** | Reuse legacy `client/`, strip unused pages |
+| Frontend | **React 19 + Vite + Radix UI + Tailwind + Zustand** | Reuse legacy `client/`; Phase C adds `PersistentChatPage`, `AdvisorPage`, `AdminAutoresearcherPage` |
 | News APIs | Google News RSS (feedparser) + NewsAPI.org | |
 | File parsing | pdfplumber, openpyxl, Pillow | Multimodal ingestion |
 | Scheduling | APScheduler | Optional periodic ingestion |
 | Logging | structlog | JSON logs |
 
-**Removed from legacy stack:** PostgreSQL, Redis, Celery, MinIO, Docker, Socket.IO, Anthropic SDK, Zep Cloud, Nginx, JWT + magic links, Alembic, SQLAlchemy. ~95% fewer dependencies.
+**Removed from legacy stack:** PostgreSQL, Redis, Celery, MinIO, Docker, Socket.IO, Anthropic SDK (now via OpenRouter), Nginx, JWT + magic links, Alembic, SQLAlchemy. ~95% fewer dependencies.
+
+**Replaced (not removed) post-Phase-C:** Zep Cloud memory → `engine/memory/` SQLite + BM25 retrieval; legacy MiroFish forecaster → `engine/analysis/forecaster.py` (OpenAI-native, avoids AGPL exposure).
 
 ## Target Companies (7 Only)
 
@@ -1279,6 +1290,440 @@ ls data/inputs/news/siemens/ | head   # majority should be non-`.in` sources
 
 **Verdict**: 37/37 new tests green. The 5-minute "any-company onboarding" promise now extends to companies on NSE, BSE, NYSE, NASDAQ, LSE, Xetra, Euronext, HKEX. The original 7 target Indian companies still get the same Indian regulator flavour they always had.
 
+### Phase 26: Enhancement-Plan Execution (2026-05-10)
+
+End-to-end execution of the [snowkap_enhancement_plan.md](snowkap_enhancement_plan.md) 6-phase roadmap. **305+ new tests** across 22 suites green in ~9 seconds. Lifted Phase 1 (criticality scorer) all the way through Phase 6 (persona personalization) plus an EvidencePack + role generator scaffold (deferred Stage 10/11 deep refactor) and an optional LLM polish layer for the role generators.
+
+**Phase 1 — Criticality scorer + hard floors** ([engine/analysis/criticality_scorer.py](engine/analysis/criticality_scorer.py))
+- 6-component score (materiality, financial_magnitude, actionability, painpoint_match, recency, source_authority) + 3 penalties (staleness, confidence, polarity_drift). Per-role weights for CFO / CEO / Analyst.
+- Bands: CRITICAL ≥ 0.75 · HIGH ≥ 0.55 · MEDIUM ≥ 0.35 · LOW < 0.35.
+- Painpoint embeddings cached per tenant in `data/ontology/tenants/{slug}/painpoint_embeddings.json` (27 tenants backfilled at deploy via `scripts/backfill_painpoint_embeddings.py`).
+- Hard floors enforced: `?surface=home` filters to ≥0.65, `?surface=feed` to ≥0.40, share endpoint returns **HTTP 422** with the top-3 alternatives when below 0.65.
+- 38 unit tests + 55 articles backfilled (3 HIGH, 3 MEDIUM, 49 LOW). Live verified: Waaree West Asia 0.73 + ₹30K Cr 0.69 surface first; LOW Waaree share returns 422 with HIGH alternatives offered.
+
+**Phase 2 — Number rendering protocol** ([client/src/lib/number_format.ts](client/src/lib/number_format.ts), [engine/analysis/output_verifier.py](engine/analysis/output_verifier.py))
+- Frontend `renderRupee(amount_cr, options)`: 2-significant-figure rounding, en-IN grouping, ranges in body context (`₹1,700–2,100 Cr`), point estimate in headline (`~₹1,900 Cr`), full precision in `context: "table"`.
+- Backend `strip_narrative_provenance()` runs at the END of `verify_and_correct`: strips `(engine estimate)` / `(from article)` from 14 narrative paths, stamps an `__provenance` sidecar list, idempotent. Cascade tables (`causal_chain`, `confidence_bounds`, `kpi_table`) are EXEMPT — analyst audit view keeps full precision.
+- 19 acceptance tests cover all 6 §4.5 rule cases. Idempotency regression caught + fixed (range syntax now skipped by `enforce_source_tags`).
+
+**Phase 3 partial — Role distinctness scaffold** ([engine/analysis/recommendation_type_whitelist.py](engine/analysis/recommendation_type_whitelist.py), [engine/analysis/cross_role_drift.py](engine/analysis/cross_role_drift.py), [engine/analysis/evidence_pack.py](engine/analysis/evidence_pack.py), [engine/analysis/role_generators/](engine/analysis/role_generators/))
+- **Type whitelist** wired into `recommendation_engine.generate_recommendations()`: per-role index lists drop forbidden types (CFO ✗ esg_positioning/strategic/brand · CEO ✗ compliance/kpi_tracking/audit · Analyst ✗ capital_allocation/financial/brand).
+- **Cross-role drift detector** in `verify_and_correct()` stamps `__cross_role_drift` sidecar on every insight; warning fires when canonical ₹ figures differ > 5% across roles.
+- **EvidencePack** (`engine/analysis/evidence_pack.py`) — 9-field structured canonical block (cascade, frameworks, stakeholders, painpoint_matches, causal_chain, comparables, polarity, confidence_bounds, decision_windows). Built deterministically from PipelineResult + insight dict; stamped at write time on every persisted insight.
+- **3 deterministic role generators** on a locked `RoleDistinctPayload` contract:
+  - **CFO** — ₹-leads headline, hero_metric.label = "P&L exposure", 90-word paragraph cap, %-of-revenue when revenue known, polarity-aware verb ("compresses" / "lifts"), action-with-payback closing bullet.
+  - **CEO** — NEVER ₹-leads, dynamic 3-year horizon (`FY{n+1}-{n+3}`), polarity-coherent peer match, 80-word paragraph cap, do-nothing/act-now trajectory pair.
+  - **Analyst** — framework-led headline, `[unverified]` tag when no β/method, β + lag + method confidence phrase, regulatory checklist (5-cap, mandatory→Disclose / optional→Review), 100-word cap.
+- **Stage 11 dispatcher** ([engine/analysis/role_generators/dispatcher.py](engine/analysis/role_generators/dispatcher.py)) — calls all 3 generators against the same EvidencePack, returns `{cfo, ceo, esg-analyst}` dict, isolates per-role failure with placeholder payload. Wired into `engine/output/writer.py::write_insight()` — every persisted insight gets `evidence_pack` + `role_payloads` stamped.
+- **Optional LLM polish** ([engine/analysis/role_generators/llm_upgrade.py](engine/analysis/role_generators/llm_upgrade.py)) — gated by `SNOWKAP_LLM_ROLE_GENERATORS=1` env flag (default OFF). Replaces only `headline` / `role_takeaways` / `role_paragraph` via `gpt-4.1-mini` (~$0.04/article when enabled). Hero metric, recs, panels stay deterministic. Defensive fallback to deterministic on any failure.
+- **Cross-role distinctness gates (§5.7) all green**: 3 distinct headlines, 3 distinct hero labels, zero forbidden-type rec overlap, 3 distinct panel orderings.
+- **Frontend types plumbed** ([client/src/types/index.ts](client/src/types/index.ts)): 11 new TS interfaces mirroring the Python dataclasses + `Article.evidence_pack` + `Article.role_payloads`.
+- **Visible UI surface** in [ArticleDetailSheet.tsx](client/src/components/panels/ArticleDetailSheet.tsx): `RoleDistinctView` renders ABOVE the legacy CrispInsight when `role_payloads[role]` exists; orange/emerald/blue accent per role; hero metric pill + bulleted takeaways + italic paragraph.
+
+**Phase 4 — Email surgery** ([engine/output/insight_verifier.py](engine/output/insight_verifier.py), [engine/output/subject_line.py](engine/output/subject_line.py), [engine/output/newsletter_renderer.py](engine/output/newsletter_renderer.py), [engine/output/share_service.py](engine/output/share_service.py), [engine/models/outbound_touches.py](engine/models/outbound_touches.py))
+- **Bullet verifier** (§6.3): every bullet must contain a number / date / peer / action verb; reject patterns: tautologies, >35 words, 3+ hedge tokens. Wired into `render_article_brief_dark` — fails-soft when filtering would empty the section.
+- **Subject verifier** (§6.2): ≤90 chars, no `(engine estimate)` noise, must have ₹ figure OR competitive verb. Wired into `subject_line.build_subject` — LLM-emitted subjects that fail fall through to deterministic templates. `_scrub_subject_provenance` strips noise as a final safety net.
+- **Sales-tool role toggle** (§6.4): Share dialog shows CFO/CEO/Analyst segmented control. `news.share/sharePreview` accept `role` payload field; `share.py::ShareRequest.role` threads through. **`render_article_brief_dark`** swaps `headline` / `role_takeaways` / `why_critical` per `insight.perspectives[role]` when the field is provided.
+- **Outbound touch tracker** (§6.6) — new SQLite `outbound_touches` table with `record_touch` + `count_touches` + `cta_label_for`. Share endpoint records on confirmed-sent. CTA flips: first-touch = "Read full analysis →"; subsequent-touch = "Book a 20-min walkthrough →".
+- 17 backend tests + live UI verification.
+
+**Phase 5 partial — NewsAPI.ai router** ([engine/ingestion/news_router.py](engine/ingestion/news_router.py))
+- `NewsRouter` with 3 modes (`weekly_critical` / `hourly_feed` / `burst`). `BudgetState` tracks monthly cap + isolated burst reserve + auto month-rollover.
+- Token cost rule pluggable via `token_cost_fn` — current `_default_token_cost` assumes 1 token = 1 article in response. **ASSUMPTION** — flagged inline + by test; needs manual NewsAPI.ai docs verification (their docs are JS-rendered, deferred to operator).
+- Auto-tracking wired into `fetch_newsapi_ai`: every successful fetch records spend into the central `BudgetState`. `/metrics` `snowkap_newsapi_budget` series shows real numbers.
+- Singleton `get_router()` with env overrides (`SNOWKAP_NEWSAPI_MONTHLY_CAP`, `SNOWKAP_NEWSAPI_BURST_RESERVE`).
+
+**Phase 6 — Persona personalization** ([engine/persona/](engine/persona/), [api/routes/profile.py](api/routes/profile.py), [client/src/components/persona/PersonaMCQ.tsx](client/src/components/persona/PersonaMCQ.tsx))
+- **Persona model** (§8.1): 6-question MCQ schema (esg_focus / frameworks / geographies × multi-select; horizon / decision_style / risk_appetite × single-select). Tolerant deserialiser filters invalid enum values + clamps affinity to [0, 1].
+- **SQLite store**: `upsert_persona`, `get_persona`, `delete_persona`, `record_click_affinity` (auto-clamp on accumulation).
+- **Persona × Criticality scorer** (§8.3): multiplicative boosts (esg_focus +40%, framework +30%, geo +25%), horizon penalties, risk-appetite ±15%, click-affinity +20%. Cap at 1.0; CRITICAL articles floored at 0.65 (discoverability invariant).
+- **Feed re-ranker** (`apply_persona_to_feed`): pure function with caller-owned payload caching. Tags `outside_focus` for the UI badge.
+- **Live API endpoints**: `GET /api/me/persona/questions` (static MCQ), `GET /api/me/persona` (read with `mcq_completed` flag), `PUT /api/me/persona` (multi-select cap-at-3, partial-update support, invalid-enum tolerance).
+- **`?personalise=true` opt-in** on `/api/news/feed` reads the caller's persona via JWT `sub` claim, falls back to role-default for unsaved users.
+- **Frontend wizard**: ProfilePage renders the MCQ as chip rows; `usePersonalisationOptIn` hook auto-flips `personalise` query param when `mcq_completed` is true.
+- **`OutsideFocusBadge`** rendered in MiniArticleCard + NewsCard. Live verified: water+labour persona on Waaree feed → 3 visible badges on real cards, climate articles ranked above governance despite lower base score.
+
+**Cross-cutting monitoring + CI**
+- **`/metrics` extended** with 5 new Prometheus series: `snowkap_articles_by_criticality_band` (5 buckets), `snowkap_outbound_touches_total`, `snowkap_cta_cadence` (first_touch / subsequent_touch), `snowkap_personas_total` + `snowkap_personas_by_role`, `snowkap_newsapi_budget` (remaining / burst_remaining / spent_this_month).
+- **Fuzz harness extended** ([scripts/fuzz_pipeline.py](scripts/fuzz_pipeline.py)) with 5 Phase 26 SLO signals + CLI gates: `--slo-bullet-pass-min`, `--slo-subject-pass-min`, `--slo-criticality-coverage-min`, `--slo-cross-role-drift-max`, `--slo-provenance-leaks-max`. All opt-in (default disabled).
+- Recommended cron: `python scripts/fuzz_pipeline.py --slo-fail-pct 5 --slo-bullet-pass-min 0.80 --slo-subject-pass-min 0.90 --slo-criticality-coverage-min 0.95 --slo-cross-role-drift-max 1 --slo-provenance-leaks-max 0`
+
+**Test count**: 305+ new tests across 22 Phase-26 suites green (plus 12 LLM-upgrade tests). Cumulative: ~317 Phase-26 tests in 9s.
+
+**Phase 26 deferred** (not blockers):
+- LLM-prompt swap default-on (today: env-flag-gated; deterministic baselines ship by default)
+- NewsAPI.ai 1-token-per-article rule manual verification
+- Replacing legacy CrispInsight with the new RoleDistinctView (today: rendered as preview ABOVE CrispInsight; safe to ship together while LLM polish content matures)
+
+---
+
+### Phase 27: Stateful Agent System (Phase C) — 2026-05-13
+
+Phase C ports the stateful chat + agent stack from Base Version (B2B CRM `yoda/mcp` + `AccountAgent` + segmentation advisor) onto Snowkap's existing news / analysis / ontology engine. The shipped result is a **persistent per-(tenant, user) chat surface** with push-style coaching, an MCP tool catalog, a Karpathy-style calibration loop, a 3-tier wiki, and an OpenRouter-aware LLM gateway. Authoritative change logs:
+
+- [docs/release-notes/CHANGES_PHASE_C.md](docs/release-notes/CHANGES_PHASE_C.md) — Phase C ship notes (1731 → 1862 tests, +131 net new)
+- [docs/release-notes/CHANGES_L2_HANDOFF.md](docs/release-notes/CHANGES_L2_HANDOFF.md) — L0–L7 audit-discipline + autoresearcher
+- [docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md](docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md) — full reconciliation roadmap
+
+#### 27.1 Eight new engine subsystems
+
+Read order (low-coupling → high-coupling): **llm → memory → governance → chat → advisor → autoresearcher → mcp → wiki.**
+
+| Subsystem | Path | Purpose | Tests |
+|---|---|---|---|
+| LLM gateway | `engine/llm/` | OpenRouter passthrough (fallback to direct OpenAI when `OPENROUTER_API_KEY` unset). Task-class → model routing. Cost from `usage.cost` when active. 17 of 18 OpenAI sites migrated. | 21 tests |
+| Memory store | `engine/memory/` | Persistent facts / preferences / decisions / open_threads extracted post-conversation by a secondary LLM pass. SQLite `tenant_memory` table, BM25 retrieval at chat-time. | 12 tests |
+| Governance | `engine/governance/` | L0–L7 adoption: `probe` (search 6 sources before mutation), `belief_revision` (R1–R6 rules), `belief_schema`, `llm_belief_refiner`, `phase_gate`, 5-state `CompanyAgent` with `AgentAction` Toulmin chain. | 18 test files |
+| Chat persistence | `engine/chat/` | `chat_conversations` + `chat_messages` + `chat_messages_fts` virtual table + 3 triggers. Per-(tenant, user) isolation by filter (no SQLite RLS). FTS5 with LIKE fallback. | 17 tests |
+| Advisor coaches | `engine/advisor/` | Push-style hints. 5 coaches (Data, Risk, Forecast, Belief, Autoresearcher). 5-layer suppression: dedup → dismissal → per-kind cooldown → session cap → global cap. | 14 tests |
+| Autoresearcher | `engine/autoresearcher/` | Karpathy calibration loop. 555 atomic knobs (ontology weights, scorer components, primitive β, keywords, ordinals) across Tier 0 (system → advisor queue), Tier 1 (tenant → R6 → CompanyAgent), Tier 2 (user → PersonaWeight isolated). | 112 tests |
+| MCP server | `engine/mcp/` | Manifest-driven tool catalog. Phase 1 ships introspection + in-process dispatch only (stdio/SSE SDK transport deferred). 14 tools, verbatim sign-off on destructive. | 33 tests |
+| Wiki | `engine/wiki/` | 3-tier markdown: System (cross-tenant institutional) / Tenant (per-company filtered) / User (per-analyst painpoints). Pure derivation, no new source of truth. | 7 test files |
+
+Plus **`engine/analysis/forecaster.py`** (~400 LoC) — OpenAI-native sentiment-trajectory forecaster. Replaces the AGPL-encumbered MiroFish + Zep Cloud combination. Module-level cache keyed by `(company_slug, content_hash)`. Wired into `criticality_scorer`, `insight_generator`, and `belief_revision` rule R5 (see §27.4).
+
+#### 27.2 LLM gateway routing (`engine/llm/routing.py`)
+
+| task_class | model |
+|---|---|
+| `reasoning_heavy` | `anthropic/claude-opus-4.7` |
+| `reasoning_default` | `openai/gpt-4.1` |
+| `extraction` | `openai/gpt-4.1-mini` |
+| `composition` | `openai/gpt-4.1` |
+| `classification` | `openai/gpt-4o-mini` |
+| `chat` | `openai/gpt-4.1` |
+| `search_aided` | `perplexity/sonar-pro` |
+| `embeddings` | `openai/text-embedding-3-small` |
+
+Activate by setting `OPENROUTER_API_KEY`. When absent, every call falls through to direct OpenAI byte-for-byte (preserves existing tests). The single non-migrated call site is `engine/analysis/batch_processor.py` (3 sites) — the OpenAI Batch API endpoints are not proxied by OpenRouter.
+
+#### 27.3 MCP tool catalog (14 tools)
+
+| Tool | Annotation | Purpose |
+|---|---|---|
+| `wiki-search` | readOnly | BM25 over the 3-tier wiki |
+| `wiki-related` | readOnly | Backlinks for a wiki page |
+| `wiki-page` | readOnly | Raw markdown of a page |
+| `intelligence-competitors` | readOnly | Competitors for a tenant (SPARQL) |
+| `intelligence-forecast` | readOnly | Sentiment trajectory (deterministic + LLM hybrid) |
+| `advisor-queue` | readOnly | Pending advisor events |
+| `advisor-resolve` | **destructive** | Approve / reject an advisor event (verbatim sign-off required) |
+| `autoresearcher-experiments` | readOnly | Experiment ledger (Tier 0 / 1 / 2) |
+| `autoresearcher-leaderboard` | readOnly | Top-N kept experiments |
+| `agent-beliefs-get` | readOnly | CompanyAgent typed beliefs |
+| `agent-state-get` | readOnly | 5-state lifecycle value + recent actions |
+| `article-list` | readOnly | Tenant feed (existing SQLite index) |
+| `memory-recall` | readOnly | Top-N memories for a (tenant, user) |
+| `memory-list` | readOnly | Browse stored memories |
+
+Verbatim sign-off enforcement lives in `engine.mcp.chat_integration.dispatch_tool` — destructive tools refuse to run unless the user's last message contains the verbatim phrase (default `"Confirm and execute"`). The chat-side dispatcher returns `state="signoff_required"`, which the SSE `signoff_request` event carries to the React client.
+
+#### 27.4 Where Phase C plugs into the pipeline
+
+Four explicit integration points stitched on top of the existing 12-stage pipeline:
+
+1. **`forecaster → criticality_scorer`** — new 7th component `sentiment_trajectory` on the `CriticalityComponents` dataclass. Declining + high confidence → 0.9; improving + high → 0.1; neutral → 0.5. Weights rebalanced so each role's weight vector still sums to 1.0.
+2. **`forecaster → insight_generator`** — every insight payload now stamps a `sentiment_trajectory` block (3m / 6m / 12m horizons with confidence bands). Schema bump: `2.2-criticality-scored` → `2.3-trajectory-stamped`. Forecaster's module-level cache prevents redundant LLM calls.
+3. **`forecaster → belief_revision R5`** — `insight_generator` invokes `CompanyAgent.revise_from_article(..., forecaster_output=...)` after stamping the trajectory. Rule R5 fires when 3m AND 6m horizons both project `declining` at confidence ≥ moderate AND no R1 risk_band proposal already exists. Proposals route through the advisor queue (BeliefCoach decides auto-apply vs hint).
+4. **`tenant_memory → persona_scorer`** — new `memory_preference_match` factor in `compute_persona_boost`. Up to +20% boost when article topics overlap with `fact_kind="preference"` memories for this (tenant, user). Preferences influence ranking, never gate-pass; the existing 0.65 home-page floor for CRITICAL articles is preserved. `retrieve_for_injection` extended with an `only_kinds` filter to fetch preferences only.
+
+#### 27.5 API route surface (Phase C additions)
+
+Registered in [api/main.py:686-694](api/main.py:686):
+
+```
+POST   /api/chat                                 SSE chat stream (13 reserved event types)
+GET    /api/conversations                        list
+GET    /api/conversations/{cid}                  rehydrate + messages
+PATCH  /api/conversations/{cid}/rename           title
+POST   /api/conversations/{cid}/archive          soft-archive
+DELETE /api/conversations/{cid}                  cascade delete
+POST   /api/conversations/{cid}/fork             copy up to message_id
+GET    /api/conversations/search?q=...           FTS5 (or LIKE fallback)
+
+GET    /api/memory                               list
+POST   /api/memory                               insert
+DELETE /api/memory/{mid}                         soft-delete
+POST   /api/memory/extract/{cid}                 trigger LLM secondary pass
+
+GET    /api/mcp/manifest                         raw manifest
+GET    /api/mcp/tools                            with input schemas + annotations
+GET    /api/mcp/resources                        resource URI catalog
+POST   /api/mcp/invoke                           validation + dispatch + signoff (manage_drip_campaigns gated)
+
+GET    /api/advisor/queue                        pending hints
+POST   /api/advisor/resolve                      approve/reject (destructive)
+
+GET    /api/autoresearcher/experiments           ledger
+GET    /api/autoresearcher/leaderboard           top-N
+POST   /api/autoresearcher/run                   --tier system|tenant|user
+
+GET    /api/companies/{slug}/beliefs[/{name}]    CompanyAgent typed beliefs
+GET    /api/intelligence/{slug}/{competitors,forecast}  aggregate intelligence
+GET    /api/wiki/{search,related,page}           3-tier wiki access
+```
+
+SSE event types emitted today: `stream_start | token | phase_k_tags | done | error`. Reserved (UI already wired): `slash_command_parsed | tool_invocation | tool_progress | tool_result | toulmin_chain | stage_progress | advisor_hint | signoff_request`.
+
+#### 27.6 Frontend additions
+
+Three new pages mounted in [client/src/App.tsx](client/src/App.tsx):
+
+| Page | Route | Purpose |
+|---|---|---|
+| `PersistentChatPage` | `/chat` | Main user-facing chat surface with `ConversationSidebar`, inline `ToulminBadge`, `ToolInvocationCard`, `AdvisorHintCard` |
+| `AdvisorPage` | `/settings/advisor` | Advisor hint inbox |
+| `AdminAutoresearcherPage` | `/settings/autoresearcher` | Experiments + leaderboard (gated by `manage_drip_campaigns`) |
+
+Three new component folders: `client/src/components/chat/` (`ConversationSidebar`, `ToulminBadge`, `ToolInvocationCard`, `AdvisorHintCard`), `client/src/components/charts/` (`TrajectoryChart`, autoresearcher visualisations), `client/src/components/graphs/` (belief / ontology graph). One new hook: `client/src/hooks/useChatStream.ts` (buffered SSE state machine).
+
+`client/src/lib/api.ts` exports a Phase-C section: `conversations`, `memory`, `mcp` API objects + a `streamChat()` SSE helper using `fetch + body.getReader()` (EventSource is GET-only).
+
+#### 27.7 New tables in `data/snowkap.db`
+
+| Table | Owner | Purpose |
+|---|---|---|
+| `tenant_memory` | `engine/memory/schema.py` | Persistent facts / preferences / decisions / open_threads |
+| `chat_conversations` | `engine/chat/schema.py` | Per-(tenant, user) chat sessions |
+| `chat_messages` | `engine/chat/schema.py` | Message history with `phase_k_tags` JSON column |
+| `chat_messages_fts` | `engine/chat/schema.py` | FTS5 virtual table + insert/delete/update triggers (LIKE fallback if FTS5 absent) |
+
+Tables self-bootstrap on first call via `ensure_schema()` — no startup wiring needed in `api/main.py`. The `_wipe_chat_memory` autouse fixture in `tests/api/conftest.py` clears them between tests.
+
+#### 27.8 What's deferred
+
+- **Real MCP stdio/SSE SDK transport** — introspection + in-process dispatch covers every internal caller; SDK bootstrap only matters when an external MCP client (Claude Code, Cursor) connects.
+- **pgvector / sqlite-vec semantic retrieval** for memory — BM25 covers ~90% of recall quality; semantic similarity needs a native install (env-setup chore).
+- **Supabase cutover** — both versions have byte-identical DB scaffolding; runbook in [docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md Part 4](docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md).
+
+**Env vars added** (see `.env.example`):
+- `OPENROUTER_API_KEY` — required for unified LLM gateway routing; fallback to direct OpenAI when absent
+- `SNOWKAP_AUTORESEARCHER_LLM_PROPOSER` — `0` (default, deterministic random walk) / `1` (LLM-driven proposer)
+
+---
+
+### Phase 28: Fresh-Start Stitching (Features 1–6) — 2026-05-16
+
+Six user-stated features shipped as a focused pass on top of Phase 27. The pipeline already had top-3 critical selection, role-aware panel order, and EvidencePack provenance; Phase 28 makes the surface visible and adds the missing glue.
+
+#### 28.1 Domain-driven onboarding + Supabase persistence (Feature 1)
+
+| Component | Path |
+|---|---|
+| `companies` table migration | [engine/db/migrations/003_companies.sql](engine/db/migrations/003_companies.sql) |
+| Companies store CRUD | [engine/models/companies_store.py](engine/models/companies_store.py) |
+| Onboarding event log | [engine/models/onboarding_events.py](engine/models/onboarding_events.py) |
+| Dual-write on `mark_ready()` | [engine/models/onboarding_status.py](engine/models/onboarding_status.py) |
+| DB-first `load_companies()` | [engine/config.py](engine/config.py) `load_companies()` + `invalidate_companies_cache()` |
+| SSE progress endpoint | `GET /api/me/onboard/{slug}/stream` → [api/routes/onboard_stream.py](api/routes/onboard_stream.py) |
+| Event emissions per stage | [api/routes/admin_onboard.py:_background_onboard](api/routes/admin_onboard.py) |
+| Frontend progress page | [client/src/pages/OnboardingProgressPage.tsx](client/src/pages/OnboardingProgressPage.tsx) |
+| Frontend SSE helper | [client/src/lib/api.ts](client/src/lib/api.ts) `streamOnboarding()` |
+| Clean-slate wipe script | [scripts/wipe_clean_slate.py](scripts/wipe_clean_slate.py) |
+
+**SSE event vocabulary** (kinds emitted in order):
+```
+onboard_started → company_profile_ready → news_fetch_started → news_fetch_done
+→ critical_3_selected → analysis_started/analysis_done (×3) → onboard_complete
+                                                            ↘ onboard_failed (on error)
+```
+
+**Wipe preserves** (intentional): `tenant_memory`, `chat_conversations`, `chat_messages`, `chat_messages_fts`, `auth_otp`, beliefs on disk.
+**Wipe truncates**: `companies`, `article_index`, `slug_aliases`, `tenant_registry`, `onboarding_status`, `onboarding_events`, `onboard_jobs`, `article_analysis_status`, `campaigns`, `campaign_recipients`, `campaign_send_log`, `llm_calls`, `analyst_session_state`, plus `data/inputs/news/*` + `data/outputs/*`.
+
+#### 28.2 Info-icon explainer (Feature 2)
+
+Backend produces two structured blocks per insight; frontend renders them in a side-drawer triggered by the "i" icon on every article.
+
+| Component | Path |
+|---|---|
+| Per-metric provenance | [engine/analysis/methodology_provenance.py](engine/analysis/methodology_provenance.py) |
+| Per-role 3-part explainer | [engine/analysis/role_explainer.py](engine/analysis/role_explainer.py) |
+| API endpoint | `GET /api/insights/{id}/methodology[?role=cfo]` → [api/routes/methodology.py](api/routes/methodology.py) |
+| Frontend drawer | [client/src/components/explainer/MethodologyDrawer.tsx](client/src/components/explainer/MethodologyDrawer.tsx) |
+| "i" icon trigger | top-left of [ArticleDetailSheet.tsx](client/src/components/panels/ArticleDetailSheet.tsx) |
+
+**Per-metric block shape** (drawer "How we calculated" tab):
+- `source` — engine module path (e.g. `engine/analysis/criticality_scorer.py`)
+- `simple_logic` — plain-language sentence
+- `formula_human` — role-weighted formula with the actual coefficients
+- `ontology_anchors` — SPARQL predicates that backed the value
+- `your_inputs` — the per-article component values
+
+**Per-role block shape** (drawer "Why this matters" tab):
+- `why_important_for_me` — 1-sentence framing in the role's language
+- `how_it_impacts_business` — 2-3 sentences on the business mechanism
+- `analysis_result` — 1-sentence recommended action (polarity-aware)
+- `simple_logic` — 1-line "we flagged this because X for your role"
+
+Metrics covered: criticality (7 components, role-weighted), relevance (5D), persona_boost, sentiment_trajectory, framework_match.
+
+#### 28.3 Top-3 critical surface (Feature 3)
+
+The pipeline already analysed only the top 3 via [engine/analysis/article_selector.py:select_top_n_for_pipeline](engine/analysis/article_selector.py) (Phase 25 W7); Phase 28 adds a dedicated read-path endpoint + HomePage hero.
+
+| Component | Path |
+|---|---|
+| Endpoint | `GET /api/insights/critical-three?company={slug}` → [api/routes/insights.py](api/routes/insights.py) |
+| Frontend API client | [client/src/lib/api.ts](client/src/lib/api.ts) `insights.criticalThree()` |
+| HomePage hero strip | [client/src/pages/HomePage.tsx](client/src/pages/HomePage.tsx) — between FOMO stats and feed |
+
+Endpoint enforces a hard cap of 3 + the home-page criticality floor of 0.65. Returns `count`, `items` (≤3), and a human-readable `hint` when fewer than 3 HOME-tier articles exist. The hero strip renders skeleton placeholders for missing slots so the visual layout stays 3 cards always.
+
+Non-critical articles still enrich on demand via [enrich_on_demand()](engine/analysis/on_demand.py:28) — clicking any SECONDARY card triggers Stages 10-12 with schema gate `2.3-trajectory-stamped`.
+
+#### 28.4 Mobile role-aware panel hiding (Feature 5)
+
+| Component | Path |
+|---|---|
+| `useIsMobile` hook | [client/src/hooks/useIsMobile.ts](client/src/hooks/useIsMobile.ts) (`max-width: 640px`) |
+| Mobile-essential panel sets | [client/src/hooks/useRolePanels.ts](client/src/hooks/useRolePanels.ts) `MOBILE_ESSENTIAL_PANELS` |
+| Render gate + "Show all" toggle | [ArticleDetailSheet.tsx](client/src/components/panels/ArticleDetailSheet.tsx) |
+
+Mobile-essential panels per role (TypeScript baseline; future: ontology TTL):
+- **CFO**: headline, key_takeaways, financial_impact, actions, why_critical
+- **CEO**: headline, key_takeaways, competitive_position, actions, why_critical
+- **Analyst**: headline, key_takeaways, framework_alignment, evidence_pack, actions
+
+Desktop (≥641px) sees every panel as before. Power users on mobile can tap **"Show all panels for this article"** to reveal the hidden ones inline.
+
+#### 28.5 Chat ↔ article context plumbing (Feature 6)
+
+| Component | Path |
+|---|---|
+| URL-param-driven seed | [PersistentChatPage.tsx](client/src/pages/PersistentChatPage.tsx) `?company={slug}&article={id}` |
+| "Discuss this article" button | [ArticleDetailSheet.tsx](client/src/components/panels/ArticleDetailSheet.tsx) bottom-of-sheet |
+
+Clicking the button opens `/chat?company=...&article=...`; the chat page auto-primes the input with a contextual prompt that names the MCP tools the LLM should call (`intelligence-forecast`, `intelligence-competitors`, `memory-recall`). One-shot — the seed clears the URL params after first prime so refresh doesn't overwrite user edits. Falls back gracefully when the user opens `/chat` directly (no URL params → no seed, legacy behaviour preserved).
+
+#### 28.6 Cleanup status
+
+Phase 28 also flagged ~15 MB of stale/dead code (entire `backend/` tree no longer mounted in `api/main.py`; orphan top-level scripts; broken tests importing `backend.*`). The deletion plan was scoped in `docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md`; execution is **gated on explicit user approval** per the auto-mode classifier. The `.gitignore` was extended to keep new build artifacts (`*.tsbuildinfo`, `~$*.docx`, `*.paint`, `attached_assets/`) out of future commits.
+
+#### 28.7 Deferred (still in scope for Phase 29+)
+
+- **Feature 4 — ESG-pool ingestion with company lens.** Moderate refactor of `engine/ingestion/news_fetcher.py` to drop company-name keywords + emit one shared `data/inputs/news/esg_pool/`. SPARQL `query_materiality_weight(topic, industry)` already supports the per-company lens at scoring time. Foundation for the pool fetcher module to land; full pipeline migration tracked separately to avoid double-shipping with the Phase 28 surface work.
+
+#### 28.8 Tests
+
+- New: [tests/test_phase28_stitching.py](tests/test_phase28_stitching.py) — **20 tests**, all green via the standalone runner (mirrors Phase 27 pattern).
+- Phase 27 [tests/test_phase27_stitching.py](tests/test_phase27_stitching.py) re-checked: **31/31 still green**.
+- Tests cover: companies upsert + dual-write merge, onboarding event emit/tail/scope, methodology shape per metric, role_explainer 3-part block per role, event vocabulary + role-set pinned for frontend invariants.
+
+#### 28.9 Verification
+
+```powershell
+# Run new + old Phase tests via the bundled runners
+py _phase27_runner.py    # 31/31 expected
+py _phase28_runner.py    # 20/20 expected (regenerated each session)
+
+# Wipe clean + reseed
+py scripts/wipe_clean_slate.py --dry-run   # preview
+py scripts/wipe_clean_slate.py --confirm   # execute
+
+# Apply Phase 28 migration to Supabase
+py -m engine.db.migrate          # idempotent — picks up 003_companies.sql
+
+# Smoke the MCP catalog (Phase C invariant)
+py scripts/run_mcp_server.py --smoke
+
+# Frontend type-check
+cd client; npx tsc -b --noEmit
+```
+
+Live UX: open `/onboarding/{slug}` after a domain submit → SSE skeleton-fills 3 cards as `analysis_done` arrives → redirect to `/home?company={slug}`. Open any article → "i" top-left → drawer shows "Why this matters" (per role) + "How we calculated" (per metric). Bottom of article → "💬 Discuss this article in chat" → chat page primed with company + article context.
+
+---
+
+### Phase 35 / 35.5 — Recommendation accuracy + Full-text capture (2026-05-24)
+
+Pre-Monday hardening pass. Two distinct deliverables shipped in one window.
+
+#### 35 — Recommendation accuracy guardrails
+
+Audit on 2026-05-24 surfaced 3 failure modes in the recommendation engine: hallucinated frameworks (e.g. "SEBI Takeover Regulations" cited but never defined in the ontology), ₹ figures in recs that drift wildly from the canonical deep-insight exposure, and empty / generic audit_trail entries that pass the structural check but carry no evidence. Plus: the polarity dispatcher was binary (positive vs everything-else) → routine disclosure events like `event_shareholding_change` fell into the negative-default bucket and produced defensive remediation recs for what's actually a SEBI-mandated filing.
+
+**Backend changes:**
+
+| File | Change |
+|---|---|
+| [engine/analysis/recommendation_engine.py](engine/analysis/recommendation_engine.py) — `_ACCURACY_GUARDRAILS` system-prompt extension + `_build_generator_prompt` context block | Appends FRAMEWORK_WHITELIST (from `query_regional_boosts` + `query_frameworks_for_topic` + universal Big-5), CANONICAL_EXPOSURE (from `_extract_canonical_exposure_cr(insight)`), HEADLINE_ONLY flag (from `result.article_content` length) into every Stage 12 prompt. Forbids off-whitelist framework names + bracketed placeholder syntax. |
+| [engine/analysis/recommendation_engine.py](engine/analysis/recommendation_engine.py) — `verify_recommendation_accuracy()` | Post-LLM verifier. Drops recs with empty/generic audit_trail (no entry where `source IN {ontology, article, primitive, peer, precedent, benchmark}` + `value` ≥ 12 chars). Strips off-whitelist framework citations to blank. Drops recs with >5× ₹ drift from canonical (unless clearly subset-scoped — budget/reserve/capex). Caps rec count at 3 when `headline_only=true`. Sanity test dropped 3 of 5 bad synthetic recs correctly. |
+| [engine/analysis/recommendation_archetypes.py](engine/analysis/recommendation_archetypes.py) — `_STATIC_NEUTRAL_EVENTS` + `is_neutral_event(event_id, sentiment)` | Adds explicit NEUTRAL event set: `event_shareholding_change`, `event_compliance_filing`, `event_periodic_reporting`, `event_governance_disclosure`, `event_regulatory_announcement`. Ambiguous events with `sentiment == 0` also route neutral. |
+| [engine/analysis/recommendation_engine.py](engine/analysis/recommendation_engine.py) — 3-way dispatcher + `_NEUTRAL_GENERATOR_SYSTEM` prompt | Order: `is_positive_event` → POSITIVE prompt; else `is_neutral_event` → NEUTRAL prompt (disclosure-verification + stakeholder-comms + KPI-tracking archetypes); else NEGATIVE-default. The YES Bank pledge now routes NEUTRAL → 3 disclosure recs (investor briefing, monitoring dashboard, SEBI audit) instead of "engage SEBI / ₹50 Cr penalty risk". |
+| [engine/analysis/output_verifier.py](engine/analysis/output_verifier.py) — `verify_headline_only_cap()` | Headline-only hard guard. When `insight["headline_only"]==True` (set by insight_generator when `article_content < 300 chars`): hard-caps materiality CRITICAL/HIGH → MODERATE, retags every `(engine estimate)` → `(scenario estimate)` across narrative fields, prepends "Headline-only analysis — full article body unavailable." disclosure to net_impact_summary. Idempotent. |
+| [engine/analysis/insight_generator.py](engine/analysis/insight_generator.py) — `headline_only` + `body_char_count` fields on DeepInsight + thin-content prompt directive | Deterministic stamp after the LLM returns: when `raw_body_len < 300`, `parsed["headline_only"] = True`. Passes through DeepInsight + writer + on-disk JSON so frontend can render a yellow badge. LLM system prompt also tightened with explicit headline-only rules. |
+| [engine/output/subject_line.py](engine/output/subject_line.py) — `_template_neutral_disclosure` + neutral-event branch in `build_subject` | Neutral events no longer cascade through `_template_compliance` (which produced "SEBI enforcement action — material ESG risk flagged" subjects on routine disclosures). New template produces "shareholding disclosure — ₹X Cr contingent exposure flagged" / "periodic ESG filing — stakeholder brief" instead. |
+| [engine/output/newsletter_morning_brew.py](engine/output/newsletter_morning_brew.py) — "What that means" section | Surfaces owner + cost-band + payback + ROI inline per recommendation. Pre-fix the email showed only title + deadline; CFO couldn't action. Now: `▸ Title · owner · cost · 6mo payback · ROI 150% · by DATE`. |
+| [engine/analysis/unified_analysis.py](engine/analysis/unified_analysis.py) — `recommended_actions` builder | Passes `owner` (or `responsible_party` fallback), `budget`, `payback_months`, `roi_pct`, `estimated_impact` from Recommendation through to the unified-analysis block. These fields already existed on the rec payload; just weren't being surfaced. |
+
+#### 35.5 — Full-text article capture
+
+The headline-only cap (above) was a safety net for the body-capture gap. The actual fix: pair `googlenewsdecoder` (~2 KB, MIT, ~500★) with `trafilatura` (already installed) to resolve Google News redirect blobs → real publisher URLs → extracted article body.
+
+**Audit on YES Bank pledge URL:**
+- Google News blob `news.google.com/rss/articles/CBMi...` → `gnewsdecoder()` → `https://scanx.trade/stock-market-news/companies/axis-trustee-services-discloses-pledge-of-2-664-580-360-yes-bank-shares-by-verventa-holdings-ltd-under-sebi-takeover-regulations/40280673` (1-2s)
+- GET publisher URL → 489 KB HTML
+- `trafilatura.extract(html, favor_recall=True)` → **5,366 chars of body** with the actual facts (8.49% share capital, Deutsche Bank + Nomura + Citibank as lenders, May 11 2026 effective date, Verventa Midco + DB Trustees HK as ancillaries)
+- Stage 10 LLM now grounds its analysis on real source text instead of extrapolating from 140 chars of title
+
+**Backend changes:**
+
+| File | Change |
+|---|---|
+| `requirements.txt` (line 80) | `googlenewsdecoder==0.1.7` already pinned. |
+| [engine/ingestion/full_text_extractor.py](engine/ingestion/full_text_extractor.py) — `resolve_publisher_url()` | Primary path now `gnewsdecoder(url, interval=1)` for Google News blobs. Legacy HTTP-follow + interstitial-scrape kept as fallback. 7-day SQLite cache (`article_full_text` table) absorbs repeat calls. |
+| [engine/ingestion/news_fetcher.py](engine/ingestion/news_fetcher.py) — `fetch_for_company()` (post-Google-News-loop) | After Google News path returns articles with thin `content` (< 300 chars or = title-duplicate), iterate + call `extract_full_text(art["url"])`. On success, replace `content` with extracted body, `summary` with `body[:500]`, stamp `metadata.full_text_source = "publisher_scrape"`. Per-company 45s budget so a slow publisher can't blow the ingest cycle. |
+| [engine/analysis/on_demand.py](engine/analysis/on_demand.py) — `_rerun_full_pipeline()` | Lazy backfill path. Before running stages 1-9, checks if the stored input file has `content < 300 chars`. If yes, calls `extract_full_text(raw["url"])`, mutates the raw input file in place (writes `content`, `summary`, `metadata.publisher_url` back to disk). Next on-demand view skips the network step entirely thanks to the cache + file-level mutation. |
+| `scripts/backfill_full_text.py` (NEW) | One-shot CLI. Walks `data/inputs/news/{slug}/*.json`, identifies headline-only articles, resolves + extracts + mutates in place. Idempotent. Logs per-publisher success rate so you can see which publishers paywall vs scrape cleanly. Sanity test on 3 YES Bank files: 2 OK (scanx.trade ~5K chars, whalesbook ~2K chars), 1 paywall (msn.com — they aggressively block bot UAs). |
+
+**Fallback chain (per article):**
+1. NewsAPI.ai (default when key + budget) → returns body directly
+2. Google News RSS → `googlenewsdecoder` → publisher URL → `trafilatura` → body
+3. Direct publisher URL → `trafilatura` → body (for non-Google-News URLs)
+4. Failure → article kept with thin content + `headline_only=true` cap fires + safe degraded output
+
+**Coverage caveats:**
+- Publishers that aggressively block bot UAs (MSN, some paywalls): silently fall to step 4
+- JS-rendered SPAs (rare for news): trafilatura returns empty → step 4
+- `googlenewsdecoder` schema changes from Google's side would break step 2 → step 3 / step 4 still work
+- Cache TTL is 7 days for successes, **6 hours for failures** (Phase 36 — lets the retry cron pick off paywalled URLs without waiting a full week)
+
+#### 36 — Body capture as a durable PROCESS
+
+Phase 35.5 shipped the mechanism. Phase 36 makes it a continuous, observable PROCESS that applies to every onboarded company (existing + future) without operator action.
+
+**The four invariants Phase 36 guarantees:**
+
+1. **New onboards land body-grounded.** [api/routes/admin_onboard.py](api/routes/admin_onboard.py) inserts a `full_text_capture_done` SSE stage between `news_fetch_done` and `critical_3_selected`. The top-5 candidate articles (top-3 critical + 2 buffer) get an eager `extract_full_text(use_cache=False)` pass with a 60s hard budget. Bypasses the per-company 45s budget enforced by `fetch_for_company`. Frontend `OnboardingProgressPage` renders the new event as "N/M top articles body-grounded (X paywalled)".
+
+2. **Existing tenants self-heal.** [engine/scheduler.py::run_full_text_retry_job](engine/scheduler.py) — new APScheduler job runs every 6 hours (env: `SNOWKAP_FULL_TEXT_RETRY_HOURS`). Walks every `data/inputs/news/*/*.json`, identifies headline-only articles, retries extraction. Honors the cache's failure-TTL (6h) so cached failures expire fast enough for the next cron to actually retry. 5-minute hard wall-clock cap per cron run. Registered in `api/main.py::_start_inprocess_scheduler` alongside the existing ingest + promote + nightly jobs.
+
+3. **Late body captures propagate to user views.** When the retry cron successfully backfills body for an article, it stamps `meta.body_grounded_pending: True` on the corresponding insight at `data/outputs/{slug}/insights/{id}.json`. [engine/analysis/on_demand.py::enrich_on_demand](engine/analysis/on_demand.py) reads the flag in the cached-return short-circuit — when present, forces re-enrichment against the new body, then clears the flag. Net effect: a user who clicks an article whose body was captured by last night's cron sees body-grounded analysis on first view, no manual cache busting.
+
+4. **Operator observability.** [api/routes/admin_body_coverage.py](api/routes/admin_body_coverage.py) — new `GET /api/admin/body-coverage` returns per-tenant coverage stats + last-retry-cron result. [api/main.py::/metrics](api/main.py) gains 6 new Prometheus series:
+   - `snowkap_articles_with_body_total{slug}` (gauge)
+   - `snowkap_articles_headline_only_total{slug}` (gauge)
+   - `snowkap_articles_body_coverage_pct{slug}` (gauge — 0-100)
+   - `snowkap_full_text_retry_last_run_seconds` (gauge — UNIX epoch of last cron fire)
+   - `snowkap_full_text_retry_last_bodies_added` + `_last_paywalled` (gauges — last cron outcome)
+   - `snowkap_full_text_extraction_attempts_total{status="ok|failed|paywall|too_short"}` (gauge — cache aggregate)
+   
+   In-memory cache TTL is 60s so dashboard polling at 1Hz doesn't beat on the filesystem. Last-retry-cron timestamp persists via [engine/models/scheduler_state.py](engine/models/scheduler_state.py) — a tiny SQLite table any future cron job can also use.
+
+**Steady-state behavior:**
+- Hour 0: onboard `acme.com` → top-3 critical articles guaranteed body-grounded in 60s. User sees body-grounded insights from article #1.
+- Hour 1: existing ingest cron fires for all 8 baselines → new articles get inline body backfill.
+- Hour 6: retry cron fires → walks 130 input files, picks off any newly-un-paywalled articles, marks their insights pending.
+- Hour 6.1: a user opens one of those re-bodied articles → on_demand sees `body_grounded_pending: True`, force re-enriches against the new body, returns body-grounded analysis in ~45s.
+
+**No operator action required.** Body coverage is now a steady-state property of the system, surfacing via the per-tenant Prometheus gauges so degradation alerts can fire automatically.
+
+**Env knobs:**
+- `SNOWKAP_FULL_TEXT_RETRY_HOURS=6` — retry cron cadence (set to `0` to disable)
+- `SNOWKAP_USE_NEWSAPI_AI=1` — already from Phase 35; NewsAPI.ai default fetcher when key present (currently 0/5000 token quota until reset)
+- Existing: `SNOWKAP_INPROCESS_SCHEDULER`, `SNOWKAP_INGEST_INTERVAL_MIN`, `SNOWKAP_PROMOTE_INTERVAL_MIN`
+
 ---
 
 ## CLI Commands
@@ -1368,3 +1813,13 @@ When starting a new work session, read `PRODUCTION_READINESS_PLAN.md` to know wh
 ## Reference: Phase 10 Campaign Scheduler Plan (Active)
 
 **[PHASE_10_CAMPAIGN_SCHEDULER_PLAN.md](PHASE_10_CAMPAIGN_SCHEDULER_PLAN.md)** — drip-marketing scheduler + `sales@snowkap.com` super-admin role layered on top of Phase 9's manual Share. Five phases (A–E) with validation gates after each; includes product-designer email-accuracy audit. Reuses `share_article_by_email()` verbatim so HTML rendering never regresses.
+
+## Reference: Phase C Release Notes (Authoritative Change Logs)
+
+For Phase 27 / Phase C — the stateful agent system, MCP, memory, advisor, autoresearcher, wiki, governance, and LLM gateway:
+
+- **[docs/release-notes/CHANGES_PHASE_C.md](docs/release-notes/CHANGES_PHASE_C.md)** — Phase C ship notes. 8 subsystems, +131 net new tests, full SSE / signoff / FTS5 detail.
+- **[docs/release-notes/CHANGES_L2_HANDOFF.md](docs/release-notes/CHANGES_L2_HANDOFF.md)** — L0–L7 audit-discipline ports + autoresearcher (Tier 0 / 1 / 2, 555 knobs).
+- **[docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md](docs/POWEROFNOW_AUDIT_AND_STITCH_PLAN.md)** — full reconciliation audit + adoption phases A–F + Supabase runbook.
+
+When in doubt about Phase C surface area or what landed when, start with `CHANGES_PHASE_C.md`. The above three docs are the source of truth; the Phase 27 section in this file is the executive summary.

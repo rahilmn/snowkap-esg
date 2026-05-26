@@ -151,12 +151,30 @@ def query_frameworks_detail(
 
 
 def query_materiality_weight(
-    topic: str, industry: str, graph: OntologyGraph | None = None
+    topic: str, industry: str,
+    graph: OntologyGraph | None = None,
+    sasb_sector: str | None = None,
 ) -> float:
     """Return the materiality weight for a (topic, industry) pair (0.0–1.0).
 
+    Phase 32 — when ``sasb_sector`` is provided AND a SASB triple exists
+    for (sector, topic), the SASB weight wins over the industry baseline.
+    This lets banks treat ``topic_scope_3_financed`` at 0.92 while electric
+    utilities treat the same topic at <0.3 (since their portfolio doesn't
+    have material financed emissions).
+
     Returns 0.5 as a neutral default if no explicit weight triple exists.
     """
+    # Phase 32 — SASB overlay first.
+    if sasb_sector:
+        try:
+            from engine.ontology.sasb_loader import query_sasb_materiality
+            sasb_weight, _kind = query_sasb_materiality(sasb_sector, topic)
+            if sasb_weight is not None:
+                return float(sasb_weight)
+        except Exception:  # noqa: BLE001 — never block the legacy path
+            pass
+
     g = _graph(graph)
     topic_n = _lower(topic)
     industry_n = _lower(industry)

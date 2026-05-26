@@ -27,7 +27,9 @@ Bands (per §3.2):
   LOW       <  0.35
 
 Persisted to article JSON as the `criticality` block alongside existing
-fields, schema_version `2.2-criticality-scored`.
+fields. Phase 27 added a 7th component (`sentiment_trajectory`) from the
+forecaster; insight payloads are now stamped at schema_version
+`2.3-trajectory-stamped`.
 """
 
 from __future__ import annotations
@@ -48,13 +50,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CriticalityComponents:
-    """Six positive components in [0, 1] + three subtractive penalties."""
+    """Seven positive components in [0, 1] + three subtractive penalties."""
     materiality: float           # normalized relevance score
     financial_magnitude: float   # log-scaled cascade ₹ vs revenue
     actionability: float         # event_type or LLM-derived decision_window
     painpoint_match: float       # cosine vs cached tenant painpoint embeddings
     recency: float               # exponential decay, 7-day half-life
     source_authority: float      # static lookup
+    sentiment_trajectory: float = 0.5  # Phase C: forecaster 3m/6m direction × confidence
 
     # Penalties (subtractive, [0, 1])
     staleness_penalty: float = 0.0
@@ -97,23 +100,27 @@ WEIGHTS_DEFAULT: dict[str, float] = {
     "financial_magnitude": 0.30,
     "actionability": 0.15,
     "painpoint_match": 0.20,
-    "recency": 0.10,
-    "source_authority": 0.05,
+    "recency": 0.075,
+    "source_authority": 0.025,
+    "sentiment_trajectory": 0.05,
 }
 
 
 WEIGHTS_BY_ROLE: dict[str, dict[str, float]] = {
     "cfo": {
         "financial_magnitude": 0.40, "actionability": 0.20, "materiality": 0.15,
-        "painpoint_match": 0.10, "recency": 0.10, "source_authority": 0.05,
+        "painpoint_match": 0.10, "recency": 0.075, "source_authority": 0.025,
+        "sentiment_trajectory": 0.05,
     },
     "ceo": {
         "materiality": 0.25, "painpoint_match": 0.25, "financial_magnitude": 0.20,
-        "actionability": 0.10, "recency": 0.15, "source_authority": 0.05,
+        "actionability": 0.10, "recency": 0.125, "source_authority": 0.025,
+        "sentiment_trajectory": 0.05,
     },
     "analyst": {
         "materiality": 0.30, "painpoint_match": 0.25, "actionability": 0.15,
-        "financial_magnitude": 0.15, "recency": 0.10, "source_authority": 0.05,
+        "financial_magnitude": 0.15, "recency": 0.075, "source_authority": 0.025,
+        "sentiment_trajectory": 0.05,
     },
 }
 
@@ -363,6 +370,44 @@ def _confidence_penalty(cascade_confidence: str | float | None) -> float:
     return 0.15 if v < 0.5 else 0.0
 
 
+_TRAJECTORY_MAP: dict[tuple[str, str], float] = {
+    ("declining", "high"): 0.9,
+    ("declining", "moderate"): 0.7,
+    ("declining", "low"): 0.55,
+    ("stable", "high"): 0.5,
+    ("stable", "moderate"): 0.5,
+    ("stable", "low"): 0.5,
+    ("improving", "low"): 0.45,
+    ("improving", "moderate"): 0.3,
+    ("improving", "high"): 0.1,
+}
+
+
+def _sentiment_trajectory_component(
+    forecaster_output: dict[str, Any] | None,
+) -> float:
+    """Phase C: collapse forecaster horizons to a [0,1] criticality contribution.
+
+    Reads `horizons["3m"]` and `horizons["6m"]` from the
+    ``forecast_sentiment_trajectory`` output. Returns the *worse* of the two
+    horizon scores so a near-term decline isn't washed out by a distant
+    stabilisation. Missing / malformed input → 0.5 (neutral).
+    """
+    if not forecaster_output or not isinstance(forecaster_output, dict):
+        return 0.5
+    horizons = forecaster_output.get("horizons") or {}
+    scores: list[float] = []
+    for key in ("3m", "6m"):
+        h = horizons.get(key) or {}
+        direction = str(h.get("direction") or "").strip().lower()
+        confidence = str(h.get("confidence") or "moderate").strip().lower()
+        if direction in ("improving", "stable", "declining"):
+            scores.append(_TRAJECTORY_MAP.get((direction, confidence), 0.5))
+    if not scores:
+        return 0.5
+    return max(scores)  # worse horizon dominates
+
+
 def _polarity_drift_penalty(
     event_polarity: str | None, narrative_polarity: str | None,
 ) -> float:
@@ -399,9 +444,10 @@ def score_components(
     cascade_confidence: str | float | None = None,
     event_polarity: str | None = None,
     narrative_polarity: str | None = None,
+    forecaster_output: dict[str, Any] | None = None,
     now: datetime | None = None,
 ) -> CriticalityComponents:
-    """Compute all 6 positive components + 3 penalties for one article.
+    """Compute all 7 positive components + 3 penalties for one article.
 
     Pure function — deterministic given identical inputs (modulo embedding
     floats which are stable per article+model).
@@ -419,6 +465,7 @@ def score_components(
         ),
         recency=_recency_component(published_at, now=now),
         source_authority=_source_authority_component(source, url=url),
+        sentiment_trajectory=_sentiment_trajectory_component(forecaster_output),
         staleness_penalty=_staleness_penalty(published_at, now=now),
         confidence_penalty=_confidence_penalty(cascade_confidence),
         polarity_drift_penalty=_polarity_drift_penalty(
@@ -430,7 +477,7 @@ def score_components(
 def _weighted_score(
     components: CriticalityComponents, weights: dict[str, float],
 ) -> float:
-    """Apply weights to the 6 positive components, then subtract penalties."""
+    """Apply weights to the 7 positive components, then subtract penalties."""
     pos = (
         components.materiality * weights["materiality"]
         + components.financial_magnitude * weights["financial_magnitude"]
@@ -438,6 +485,7 @@ def _weighted_score(
         + components.painpoint_match * weights["painpoint_match"]
         + components.recency * weights["recency"]
         + components.source_authority * weights["source_authority"]
+        + components.sentiment_trajectory * weights.get("sentiment_trajectory", 0.0)
     )
     pen = (
         components.staleness_penalty
@@ -470,6 +518,7 @@ def score(
     cascade_confidence: str | float | None = None,
     event_polarity: str | None = None,
     narrative_polarity: str | None = None,
+    forecaster_output: dict[str, Any] | None = None,
     now: datetime | None = None,
 ) -> CriticalityResult:
     """Score an article for criticality. Returns a `CriticalityResult` with
@@ -493,6 +542,7 @@ def score(
         cascade_confidence=cascade_confidence,
         event_polarity=event_polarity,
         narrative_polarity=narrative_polarity,
+        forecaster_output=forecaster_output,
         now=now,
     )
 

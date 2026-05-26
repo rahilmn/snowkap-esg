@@ -191,12 +191,18 @@ def score_at_insight_time(
     cascade_total_cr: float | None = None,
     cascade_confidence: str | None = None,
     *, embed_article: bool = True,
+    forecaster_output: dict[str, Any] | None = None,
 ) -> CriticalityResult | None:
     """Compute full criticality at insight-generation time with cascade total
     available. Overwrites the baseline computed at pipeline end.
 
     `cascade_total_cr` can be passed explicitly (e.g. from compute_cascade
     output) or will be extracted from the insight's ``decision_summary``.
+
+    `forecaster_output` (Phase C) — if provided, feeds the
+    ``sentiment_trajectory`` component. Caller is expected to pass the
+    output of ``engine.analysis.forecaster.forecast_sentiment_trajectory``.
+    Missing → neutral 0.5 contribution.
     """
     try:
         relevance = getattr(result, "relevance", None)
@@ -238,6 +244,7 @@ def score_at_insight_time(
             cascade_confidence=cascade_confidence,
             event_polarity=event_polarity,
             narrative_polarity=narrative_polarity,
+            forecaster_output=forecaster_output,
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("score_at_insight_time failed (non-fatal): %s", exc)

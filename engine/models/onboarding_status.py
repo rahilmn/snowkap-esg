@@ -196,10 +196,17 @@ def mark_failed(slug: str, error: str) -> None:
 
 
 def mark_ready(slug: str, *, fetched: int | None = None, analysed: int | None = None,
-               home_count: int | None = None) -> None:
+               home_count: int | None = None, created_by_user: str | None = None) -> None:
     """Mark a slug as ready. Phase 21 — accept stats so an alias slug can
     mirror the canonical row's progress when the onboarder adjusts slugs
     (e.g. "tatachemicals" → "tata-chemicals-limited").
+
+    Phase 28 — also dual-write the company row into the ``companies``
+    table from the just-written ``config/companies.json`` entry. This is
+    the source-of-truth move: Supabase becomes authoritative for newly-
+    onboarded tenants while the 7 baseline companies still hydrate from
+    JSON for back-compat. ``created_by_user`` (optional) records the
+    auth-context email that triggered the onboard.
     """
     extras: dict[str, Any] = {}
     if fetched is not None:
@@ -209,6 +216,64 @@ def mark_ready(slug: str, *, fetched: int | None = None, analysed: int | None = 
     if home_count is not None:
         extras["home_count"] = home_count
     upsert(slug, state="ready", finished_at=_now(), **extras)
+
+    # Phase 28 — dual-write to the companies table. Failures here must
+    # NOT mark the onboarding as failed (the worker already finished
+    # the article pipeline); we log and continue.
+    try:
+        _dual_write_company(slug, created_by_user=created_by_user)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "mark_ready: companies-table dual-write failed for slug=%s: %s",
+            slug, exc,
+        )
+
+
+def _dual_write_company(slug: str, *, created_by_user: str | None) -> None:
+    """Phase 28 — persist the just-onboarded Company into the
+    ``companies`` SQLite/Postgres table.
+
+    Reads the freshly-written ``config/companies.json`` entry produced
+    by the onboarder, then upserts into the persistent table. Drops the
+    ``load_companies`` lru_cache so the live process surfaces the new
+    tenant on its next read.
+    """
+    from engine.config import get_company, invalidate_companies_cache
+    from engine.models.companies_store import upsert as company_upsert
+
+    # Refresh cache so we read the line the onboarder just wrote.
+    invalidate_companies_cache()
+    try:
+        company = get_company(slug)
+    except KeyError:
+        logger.warning("mark_ready: no companies.json entry for slug=%s", slug)
+        return
+
+    company_upsert(
+        slug=company.slug,
+        name=company.name,
+        domain=company.domain or None,
+        industry=company.industry,
+        market_cap_tier=company.market_cap,
+        yfinance_ticker=company.yfinance_ticker,
+        eodhd_ticker=company.eodhd_ticker,
+        framework_region=company.framework_region,
+        revenue_cr=(
+            float(company.primitive_calibration.get("revenue_cr"))
+            if company.primitive_calibration and "revenue_cr" in company.primitive_calibration
+            else None
+        ),
+        primitive_calibration=company.primitive_calibration,
+        created_by_user=created_by_user,
+        status="active",
+        # Phase 31 — persist the LLM-crafted live-fetch queries so
+        # /api/news/live can read them without going to companies.json.
+        sustainability_query=getattr(company, "sustainability_query", None),
+        general_query=getattr(company, "general_query", None),
+    )
+    # Invalidate again so subsequent reads see the DB row (not the
+    # JSON-only snapshot we just hydrated from).
+    invalidate_companies_cache()
 
 
 def reset(slug: str) -> None:

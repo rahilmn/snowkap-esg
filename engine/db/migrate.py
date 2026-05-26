@@ -56,10 +56,98 @@ def apply_migrations(dry_run: bool = False) -> int:
     with connect() as conn:
         for name, sql in migrations:
             print(f"Applying {name}...")
-            conn.executescript(sql)
-            print(f"  ✓ {name}")
+            _apply_migration_resilient(conn, name, sql)
+            print(f"  OK {name}")
     print(f"\nApplied {len(migrations)} migration(s).")
     return len(migrations)
+
+
+def _split_statements(sql: str) -> list[str]:
+    """Split a migration SQL body into individual statements.
+
+    Strips line comments (``-- …``) FIRST so a leading comment block
+    above a real statement doesn't cause the whole chunk to be
+    discarded by a naive ``startswith("--")`` filter on the split
+    output. That bug silently dropped the first ALTER in migration
+    004 on Postgres — only the second one applied even though the
+    runner reported "OK".
+
+    Returns a list of non-empty trimmed statements (no trailing ``;``).
+    """
+    import re
+    # 1. Strip line comments line-by-line. Block comments (/* … */) are
+    #    not currently used in our migrations; if they appear in future
+    #    we can extend this.
+    cleaned_lines: list[str] = []
+    for line in sql.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("--"):
+            continue
+        # Also strip any inline `-- …` comment from the tail of the line.
+        # Careful: don't eat `--` inside a string literal — none of our
+        # current migrations use string literals with `--`, but if that
+        # changes this becomes a real parser problem.
+        if "--" in line:
+            line = line.split("--", 1)[0]
+        cleaned_lines.append(line)
+    cleaned = "\n".join(cleaned_lines)
+    # 2. Now split on `;`. Trailing empties + whitespace-only chunks dropped.
+    return [s.strip() for s in cleaned.split(";") if s.strip()]
+
+
+def _apply_migration_resilient(conn, name: str, sql: str) -> None:
+    """Apply a migration SQL script statement-by-statement so a single
+    already-applied statement (e.g. ALTER TABLE ADD COLUMN on SQLite
+    where the column exists) doesn't abort the whole run.
+
+    Errors classified as "harmless re-apply" are logged + skipped:
+      - "duplicate column" (SQLite when ADD COLUMN already done)
+      - "already exists" (some Postgres responses)
+      - SQLite parse errors on Postgres-only constructs like
+        ``ADD COLUMN IF NOT EXISTS`` (rewritten to plain ADD COLUMN
+        retry).
+    Every other error re-raises so real schema bugs stay visible
+    instead of being swallowed and reported as success.
+    """
+    import re
+    stmts = _split_statements(sql)
+    if not stmts:
+        # Empty migration (comments only) — log and move on. Not an
+        # error but worth surfacing because it usually indicates a
+        # mis-written file.
+        print(f"    (no executable statements in {name})")
+        return
+    print(f"    {len(stmts)} statement(s) to apply")
+    for idx, stmt in enumerate(stmts, start=1):
+        try:
+            conn.executescript(stmt + ";")
+        except Exception as exc:  # noqa: BLE001
+            msg = str(exc).lower()
+            # SQLite rejects "ADD COLUMN IF NOT EXISTS" syntax; retry
+            # without the IF NOT EXISTS clause and treat duplicate-column
+            # as already-applied.
+            if "near \"exists\"" in msg or "syntax error" in msg:
+                fallback = re.sub(
+                    r"ADD\s+COLUMN\s+IF\s+NOT\s+EXISTS\s+",
+                    "ADD COLUMN ",
+                    stmt,
+                    flags=re.IGNORECASE,
+                )
+                if fallback != stmt:
+                    try:
+                        conn.executescript(fallback + ";")
+                        continue
+                    except Exception as exc2:  # noqa: BLE001
+                        if "duplicate column" in str(exc2).lower():
+                            print(f"    [{idx}/{len(stmts)}] (already applied: ADD COLUMN — skipped)")
+                            continue
+                        raise
+            if "duplicate column" in msg or "already exists" in msg:
+                print(f"    [{idx}/{len(stmts)}] (already applied — skipped)")
+                continue
+            # Real failure — re-raise so the runner aborts on a true
+            # schema bug instead of silently reporting "OK".
+            raise
 
 
 def main(argv: list[str] | None = None) -> int:

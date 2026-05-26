@@ -89,6 +89,47 @@ class DeepInsight:
     # cascade total extracted from the LLM-emitted decision_summary.
     # Shape: criticality_scorer.CriticalityResult.as_dict().
     criticality: dict[str, Any] = field(default_factory=dict)
+    # Phase 27 (Phase C) — sentiment trajectory forecast for this company.
+    # Output of engine.analysis.forecaster.forecast_sentiment_trajectory(),
+    # stamped after the deep-insight LLM call. Drives the new
+    # `sentiment_trajectory` criticality component AND the BeliefCoach R5
+    # rule (forecast-driven risk-band proposal). Empty dict when the
+    # forecaster failed or no prior history exists. Shape:
+    #   {
+    #     "company_slug": str,
+    #     "polarity_series": [...],
+    #     "horizons": {"3m": {direction, confidence, rationale},
+    #                  "6m": {...}, "12m": {...}},
+    #     "trajectory": [{month, central, lo, hi}, ...],
+    #     "llm_used": bool,
+    #   }
+    sentiment_trajectory: dict[str, Any] = field(default_factory=dict)
+    # Phase 29 — per-role 3-part explainer + global criticality summary.
+    # Stamped at insight-write time so the frontend can render the
+    # 2-liner at the top of the role view without a separate API call.
+    # Shape:
+    #   role_explainer: {"cfo": {why_important_for_me, how_it_impacts_business,
+    #                            analysis_result, simple_logic},
+    #                    "ceo": {...}, "esg-analyst": {...}}
+    #   criticality_summary: "Critical — ₹150 Cr revenue at stake and
+    #                         financial_magnitude is the dominant signal."
+    # Both empty on REJECTED / low-confidence articles — frontend hides
+    # the 2-liner card when criticality_summary is empty.
+    role_explainer: dict[str, dict[str, str]] = field(default_factory=dict)
+    criticality_summary: str = ""
+    # Phase 35 — true when the article body was unavailable (< 300 chars)
+    # at Stage 10. Frontend renders a "Headline-only analysis" yellow
+    # badge near the materiality chip; the verifier hard-caps materiality
+    # at MODERATE + retags exposure language to "(scenario estimate)".
+    headline_only: bool = False
+    body_char_count: int = 0
+    # Phase 32 — unified 4-bullet analysis block. Populated at write time by
+    # engine.output.writer.write_insight via
+    # engine.analysis.unified_analysis.build_unified_analysis(). Empty here
+    # because the composer needs the perspectives + recommendations which
+    # aren't known at insight-generation time. The frontend reads this
+    # block as the single source of truth (Phase 32 §Outcome).
+    analysis: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -302,23 +343,65 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
         if len(article_body) > 5000:
             lines.append("…[truncated]")
         lines.append("<<<ARTICLE_BODY_END>>>")
-    # Detect thin/paywalled content
+    # Phase 35 — Tightened thin/headline-only detection.
+    #
+    # The previous detector relied on `narrative_core_claim` length (which is
+    # itself LLM-extracted from the source text) — so a substantive headline
+    # like "Axis Trustee Discloses 2.66 Bn YES Bank Shares Pledged…" produced
+    # ~150 chars of "narrative" from the title alone and bypassed the guard,
+    # letting the Stage 10 LLM confidently invent ₹9,685 Cr exposure from 140
+    # chars of title-duplicate content. Audit 2026-05-24 showed 0/50 stored
+    # insights had any article body — every "(engine estimate)" tag in the
+    # corpus was generated from headline-only input.
+    #
+    # New detector: check the actual article-content length directly. Below
+    # 300 chars we treat the article as HEADLINE-ONLY regardless of how much
+    # narrative the LLM extracted from the title.
+    raw_body_len = len((getattr(result, "article_content", "") or "").strip())
     content_len = len(nlp.narrative_core_claim or "") + len(nlp.narrative_implied_causation or "")
-    is_thin = getattr(result, "_thin_content", False) or content_len < 100
+    is_thin = (
+        getattr(result, "_thin_content", False)
+        or raw_body_len < 300
+        or content_len < 100
+    )
     if is_thin:
         has_financial_quantum = bool(nlp.financial_signal and nlp.financial_signal.get("amount"))
         lines.append("")
-        lines.append("⚠ WARNING: This article has VERY LIMITED content (likely paywalled or truncated).")
-        lines.append("You are working with HEADLINE ONLY. You MUST:")
-        lines.append("- State clearly that analysis is based on headline only, not full article")
-        lines.append("- Use LOWER confidence for all estimates NOT supported by computed cascade data")
-        lines.append("- Do NOT fabricate detailed sector analysis beyond what the headline states")
+        lines.append("⚠ HEADLINE-ONLY INPUT — STRICT GROUNDING RULES APPLY")
+        lines.append(
+            f"This article has {raw_body_len} chars of body content (threshold: 300). "
+            "You are working WITHOUT the article body. Treat everything below as if "
+            "you can ONLY see the title + the engine-computed cascade context."
+        )
+        lines.append("Mandatory output rules:")
+        lines.append(
+            "- Materiality is CAPPED at MODERATE (the verifier will enforce this — "
+            "do not propose CRITICAL or HIGH on headline-only input)."
+        )
+        lines.append(
+            "- All ₹ figures MUST be tagged '(scenario estimate)' not '(engine estimate)' "
+            "— scenario language is honest about uncertainty; engine-estimate implies "
+            "calibrated computation from a body we don't have."
+        )
+        lines.append(
+            "- Do NOT fabricate sector-specific details, regulatory citations, or "
+            "₹ figures beyond what the headline literally states + the computed cascade."
+        )
+        lines.append(
+            "- Set `headline_only: true` in your output JSON so downstream renderers "
+            "can show an 'Analysis based on headline only' badge."
+        )
         if has_financial_quantum:
-            lines.append("- The headline DOES contain a specific ₹ amount — use the COMPUTED CASCADE figures for materiality")
-            lines.append("- Set materiality based on the COMPUTED impact score and risk levels, NOT automatically LOW")
+            lines.append(
+                "- A ₹ figure IS present in the headline — quote it verbatim and tag "
+                "'(from article)'. Computed cascade figures can be cited as '(scenario)'."
+            )
         else:
-            lines.append("- No ₹ amount detected in headline — set materiality to LOW")
-        lines.append("- Add to net_impact_summary: 'Note: This analysis is based on limited article content (headline only). Full article behind paywall.'")
+            lines.append("- No ₹ figure in the headline — do not invent one.")
+        lines.append(
+            "- net_impact_summary MUST open with: 'Headline-only analysis — full "
+            "article body unavailable. Numbers below are scenario projections.'"
+        )
     lines.append("")
 
     lines.append("=== COMPANY PROFILE ===")
@@ -567,6 +650,16 @@ def generate_deep_insight(
         )
         raw = resp.choices[0].message.content or "{}"
         parsed = json.loads(raw)
+        # Phase 35 — deterministic `headline_only` stamp. The LLM is asked to
+        # set this flag itself when the article body is < 300 chars, but
+        # compliance isn't guaranteed. Stamp it independently from the actual
+        # body length so the verifier + frontend can rely on it. This is the
+        # key signal that the audit on 2026-05-24 surfaced: 0/50 stored
+        # insights had any body, so every one of them should carry this flag.
+        _raw_body_len = len((getattr(result, "article_content", "") or "").strip())
+        if _raw_body_len < 300:
+            parsed["headline_only"] = True
+            parsed["body_char_count"] = _raw_body_len
     except (APIError, APITimeoutError, json.JSONDecodeError, IndexError) as exc:
         logger.warning(
             "insight_generator LLM failed (%s) — returning minimal fallback",
@@ -761,19 +854,115 @@ def generate_deep_insight(
     except Exception as exc:  # noqa: BLE001 — additive
         logger.debug("insight_generator: role_panel_order lookup failed (%s)", exc)
 
+    # Phase 27 (Phase C) — Sentiment-trajectory forecast.
+    # Pulled BEFORE criticality re-score so the trajectory feeds the new
+    # `sentiment_trajectory` component AND can be stamped on the insight.
+    # Cached at the forecaster module level — repeated calls per article
+    # for the same (slug, content_hash) are free.
+    #
+    # Tier gate: only HOME-tier articles get a forecast. SECONDARY-tier
+    # articles are bulk-rendered without the deep-insight LLM costs, and
+    # the trajectory's ~$0.0002/article gpt-4.1-mini call is in the same
+    # spirit — keep cost proportional to surface value.
+    trajectory_block: dict[str, Any] = {}
+    article_tier = getattr(result, "tier", "") or ""
+    if article_tier == "HOME":
+        try:
+            from engine.analysis.forecaster import forecast_sentiment_trajectory
+            recent = _recent_insights_for_forecaster(company.slug)
+            trajectory_block = forecast_sentiment_trajectory(
+                company_slug=company.slug,
+                insights=recent,
+            ) or {}
+            if trajectory_block:
+                parsed["sentiment_trajectory"] = trajectory_block
+        except Exception as exc:  # noqa: BLE001 — additive
+            logger.warning("insight_generator: forecaster failed (%s)", exc)
+            trajectory_block = {}
+    else:
+        logger.debug(
+            "insight_generator: skipping forecaster for tier=%r (HOME-only)",
+            article_tier,
+        )
+
+    # Phase 27 (Phase C) — Belief revision R5 trigger.
+    # Hand the trajectory to the CompanyAgent so the BeliefCoach can
+    # propose a HIGH risk-band when 3m AND 6m horizons both decline at
+    # confidence ≥ moderate. `apply=False` keeps the user in the loop:
+    # BeliefCoach (high confidence) auto-applies, otherwise it queues a
+    # hint. Non-fatal — any failure path is logged and skipped.
+    if trajectory_block:
+        try:
+            from engine.governance.company_agent import CompanyAgent
+            # ESGThemeTags carries `primary_theme: str` (not a themes list)
+            # — see engine/nlp/theme_tagger.py. belief_revision R5 reads
+            # `article["topic"]` and `article["primary_theme"]` to scope
+            # the proposal, so we stamp both with the same canonical label.
+            themes = getattr(result, "themes", None)
+            primary_theme = (
+                getattr(themes, "primary_theme", "") if themes else ""
+            ) or ""
+            agent = CompanyAgent.load_from_disk(company.slug)
+            agent.revise_from_article(
+                article={
+                    "id": getattr(result, "article_id", ""),
+                    "article_id": getattr(result, "article_id", ""),
+                    "topic": primary_theme,
+                    "primary_theme": primary_theme,
+                },
+                forecaster_output=trajectory_block,
+                apply=False,
+                actor="insight_generator",
+            )
+        except Exception as exc:  # noqa: BLE001 — additive
+            logger.warning("insight_generator: belief_revision R5 failed (%s)", exc)
+
     # Phase 1.5 — Cascade-aware criticality re-score (Stage 9.5 second pass).
     # The baseline at end of process_article uses cascade_total=0; here we
     # use the canonical ₹ figure from decision_summary so financial_magnitude
     # finally has signal. Embedding-enabled (article_emb) when the tenant has
     # cached painpoint embeddings — adds ~$0.00002 per HOME-tier article.
+    # Phase 27 — forecaster_output threaded through so the new
+    # sentiment_trajectory component contributes to the final score.
     criticality_block: dict[str, Any] = {}
     try:
         from engine.analysis.criticality_integration import score_at_insight_time
-        crit = score_at_insight_time(result, parsed, company, embed_article=True)
+        crit = score_at_insight_time(
+            result, parsed, company,
+            embed_article=True,
+            forecaster_output=trajectory_block,
+        )
         if crit is not None:
             criticality_block = crit.as_dict()
     except Exception as exc:  # noqa: BLE001 — additive
         logger.warning("insight_generator: criticality re-score failed (%s)", exc)
+
+    # Phase 29 — stamp the 2-liner summary blocks on every insight.
+    # role_explainer = per-role "why it matters to YOU" + "how it impacts
+    # business" + "analysis result" + "simple_logic" (4 fields × 3 roles).
+    # criticality_summary = single role-agnostic sentence anchored on the
+    # dominant component + financial exposure. Both fed by the same
+    # underlying insight dict for consistency.
+    role_explainer_block: dict[str, dict[str, str]] = {}
+    criticality_summary_text: str = ""
+    try:
+        from engine.analysis.role_explainer import (
+            build_criticality_summary,
+            build_role_explainer,
+        )
+        # Merge parsed (LLM payload) + computed blocks so the explainer
+        # sees the same shape the methodology API surface sees.
+        merged_for_explainer = {
+            **parsed,
+            "criticality": criticality_block,
+            "sentiment_trajectory": trajectory_block,
+            "event_polarity": polarity,
+            "stakes_for_company": stakes_for_company,
+        }
+        role_explainer_block = build_role_explainer(merged_for_explainer)
+        criticality_summary_text = build_criticality_summary(merged_for_explainer)
+    except Exception as exc:  # noqa: BLE001 — additive, never break the write
+        logger.warning("insight_generator: role_explainer/criticality_summary failed (%s)", exc)
 
     return DeepInsight(
         headline=str(parsed.get("headline", "") or result.title)[:200],
@@ -793,4 +982,78 @@ def generate_deep_insight(
         stakes_for_company=stakes_for_company,
         role_panel_order=role_panel_order,
         criticality=criticality_block,
+        sentiment_trajectory=trajectory_block,
+        role_explainer=role_explainer_block,
+        criticality_summary=criticality_summary_text,
+        # Phase 35 — pass headline_only + body_char_count through. The
+        # `parsed` dict had these stamped deterministically right after
+        # the LLM call (line 654-656) and they survived the verifier; we
+        # need them on the DeepInsight too so the writer persists them
+        # to disk (otherwise the frontend can't render the yellow badge).
+        headline_only=bool(parsed.get("headline_only", False)),
+        body_char_count=int(parsed.get("body_char_count", 0) or 0),
     )
+
+
+def _recent_insights_for_forecaster(slug: str, limit: int = 24) -> list[dict[str, Any]]:
+    """Phase 27 helper — load the last ``limit`` insight payloads for a
+    company from the SQLite article index, shaped for the forecaster.
+
+    The forecaster's ``rolling_polarity_series`` (in
+    ``engine.analysis.forecaster``) groups insights by month and reads
+    exactly two keys per insight: ``published_at`` (ISO, top-level) and
+    ``event_polarity`` (one of "positive"/"negative"/"neutral"/"mixed",
+    stamped by Phase 22.3 on the nested ``insight`` block).
+
+    Missing fields default to neutral inside the forecaster's
+    ``_polarity_value`` mapper. Returns an empty list when there's no
+    history or the index is unavailable.
+    """
+    try:
+        from engine.db import connect as _db_connect, is_sqlite
+        from engine.config import get_data_path
+        import json as _json
+        from pathlib import Path as _Path
+
+        if is_sqlite():
+            if not get_data_path("snowkap.db").exists():
+                return []
+
+        # Phase 22.2 — resolve aliases (e.g. "puma" → "puma-se") so the
+        # forecaster gets the canonical history even when the session is
+        # bound to an alias.
+        try:
+            from engine.index.sqlite_index import resolve_slug
+            canonical = resolve_slug(slug) or slug
+        except Exception:  # noqa: BLE001
+            canonical = slug
+
+        with _db_connect() as conn:
+            rows = conn.execute(
+                "SELECT json_path, published_at FROM article_index "
+                "WHERE company_slug = ? ORDER BY published_at DESC LIMIT ?",
+                (canonical, limit),
+            ).fetchall()
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("_recent_insights_for_forecaster lookup failed: %s", exc)
+        return []
+
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        try:
+            payload = _json.loads(_Path(row["json_path"]).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        insight = payload.get("insight") or {}
+        # event_polarity is the Phase 22.3 field on DeepInsight; fall
+        # back to NLP sentiment label if absent on older articles.
+        event_polarity = (
+            insight.get("event_polarity")
+            or (payload.get("pipeline", {}).get("nlp", {}) or {}).get("polarity")
+            or ""
+        )
+        out.append({
+            "published_at": payload.get("published_at") or row["published_at"],
+            "event_polarity": event_polarity,
+        })
+    return out

@@ -173,7 +173,13 @@ def _materialize_risks(
         raw_score = prob * exp
         weight = query_risk_weight(industry, category)
         queries += 1
-        adjusted = raw_score * weight
+        # Phase 33 — clamp per-category adjusted score to the natural max
+        # of 25 (prob 5 × exp 5). Industry weight can push the product
+        # above 25, which then breaks the "out of 175" denominator the
+        # frontend shows (7 cats × 25). Clamping here keeps the ratio
+        # ≤ 100% without distorting category ordering (top-K still
+        # respects the higher weight via ties).
+        adjusted = min(25.0, raw_score * weight)
         indicators = query_risk_indicators(category)
         queries += 1
         risks.append(

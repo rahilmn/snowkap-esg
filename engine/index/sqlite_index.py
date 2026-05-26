@@ -60,7 +60,7 @@ DB_PATH = get_data_path("snowkap.db")
 # signals. Tunable via env var without a code change. Set to 0 (or any
 # value <= 0) to disable the filter entirely (legacy behaviour, every
 # row visible).
-def _parse_feed_max_age_days(raw: str | None, default: int = 20) -> int:
+def _parse_feed_max_age_days(raw: str | None, default: int = 14) -> int:
     """Safely parse SNOWKAP_FEED_MAX_AGE_DAYS at import time.
 
     Falls back to ``default`` (and emits a warning) on missing or

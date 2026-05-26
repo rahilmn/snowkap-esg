@@ -32,6 +32,11 @@ export interface Company {
 // ---- News ----
 export interface Article {
   id: string;
+  // Phase 28 — backend's build_legacy_article stamps company_id (the slug) on
+  // every article row so the frontend can route chat / detail / share without
+  // a separate /api/insights/{id}/meta call.
+  company_id?: string | null;
+  company_slug?: string | null;
   title: string;
   summary: string | null;
   source: string | null;
@@ -131,6 +136,116 @@ export interface Article {
   // prefer this over the legacy `perspectives` field once the LLM-prompt
   // swap lands and content quality justifies the visual surface change.
   role_payloads?: Record<RoleKey, RoleDistinctPayload>;
+
+  // Phase 32 — unified 4-bullet analysis block. Single source of truth for
+  // the article-detail UI: replaces role_payloads + perspectives over the
+  // 1-release shim window. Renders via UnifiedAnalysisCard at the top of
+  // ArticleDetailSheet; (i) icon on each bullet opens MethodologyDrawer
+  // scoped to that bullet's methodology entry. Absent on pre-Phase-32
+  // articles — frontend falls back to the legacy role view in that case.
+  analysis?: UnifiedAnalysis | null;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 32 — UnifiedAnalysis: the 4-bullet news-flow brief that collapses
+// the per-role view. Mirrors the Python composer in
+// `engine/analysis/unified_analysis.py`.
+// ---------------------------------------------------------------------------
+
+export interface UnifiedAnalysisWhatChanged {
+  headline: string;
+  event_type: string;
+  polarity: "positive" | "negative" | "neutral" | "";
+  source: string;
+  published_at: string;
+  url: string;
+}
+
+export interface UnifiedFinancialExposure {
+  amount_cr?: number | null;
+  kind?: string;
+  source?: string;
+  label?: string;
+}
+
+export interface UnifiedAnalysisWhyItMatters {
+  materiality_band: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "";
+  materiality_weight: number | null;
+  dominant_signal: string;
+  criticality_summary: string;
+  stakes_for_company: string;
+  financial_exposure: UnifiedFinancialExposure;
+  /** Phase 3 — "sasb_unmapped" when the company's sasb_category isn't in
+   * the materiality TTL. UI degrades to a subdued chip. */
+  warning: string | null;
+}
+
+export interface UnifiedFrameworkObligation {
+  code: string;
+  section: string;
+  is_mandatory: boolean;
+  deadline_days?: number;
+}
+
+export interface UnifiedRecommendedAction {
+  title: string;
+  deadline: string;
+  owner: string;
+  budget?: string | number | null;
+  framework_section: string;
+  type: string;
+}
+
+export interface UnifiedAnalysisWhatItTriggers {
+  frameworks: UnifiedFrameworkObligation[];
+  recommended_actions: UnifiedRecommendedAction[];
+}
+
+export interface UnifiedSentimentTrajectory {
+  horizon_3m: string;
+  horizon_6m: string;
+  horizon_12m: string;
+  confidence: string;
+}
+
+export interface UnifiedBenchmark {
+  source: string;
+  metric: string;
+  value: string | number;
+  as_of: string;
+}
+
+export interface UnifiedAnalysisWhatToWatch {
+  sentiment_trajectory: UnifiedSentimentTrajectory | Record<string, never>;
+  top_risk_categories: string[];
+  lead_indicators: string[];
+  /** Phase 4 — populated from `company_benchmarks` table. Hidden in the
+   * UI when empty (DECISION 4.1). */
+  benchmarks: UnifiedBenchmark[];
+  next_decision_window: { label: string; by_date: string } | Record<string, never>;
+}
+
+export interface UnifiedMethodologyBlock {
+  source: string;
+  simple_logic: string;
+  formula_human: string;
+  ontology_anchors: string[];
+  your_inputs: Record<string, unknown>;
+}
+
+export interface UnifiedAnalysisMethodology {
+  what_changed: UnifiedMethodologyBlock;
+  why_it_matters: UnifiedMethodologyBlock;
+  what_it_triggers: UnifiedMethodologyBlock;
+  what_to_watch: UnifiedMethodologyBlock;
+}
+
+export interface UnifiedAnalysis {
+  what_changed: UnifiedAnalysisWhatChanged;
+  why_it_matters: UnifiedAnalysisWhyItMatters;
+  what_it_triggers: UnifiedAnalysisWhatItTriggers;
+  what_to_watch: UnifiedAnalysisWhatToWatch;
+  methodology: UnifiedAnalysisMethodology;
 }
 
 // ---------------------------------------------------------------------------

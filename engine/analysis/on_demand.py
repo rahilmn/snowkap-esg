@@ -25,6 +25,17 @@ from engine.index.sqlite_index import resolve_slug
 logger = logging.getLogger(__name__)
 
 
+# Phase 34 polish — bumped 3.1-intelligence-hardened -> 3.2-template-hardened
+# so EVERY company's persisted insights (the 7 baselines + every
+# session-onboarded tenant) auto-re-enrich on next view and pick up the
+# unified-analysis template fixes (clean criticality_summary, always-
+# populated stakes_for_company, correctly-sourced materiality_weight,
+# polarity-aware top_risk_categories, dedup'd recommendation titles,
+# correct next_decision_window semantics). Files at 3.0/3.1/2.x remain
+# readable; the schema gate just triggers a fresh pipeline run.
+CURRENT_SCHEMA_VERSION = "3.2-template-hardened"
+
+
 def enrich_on_demand(
     article_id: str, company_slug: str, force: bool = False
 ) -> dict[str, Any] | None:
@@ -46,30 +57,80 @@ def enrich_on_demand(
 
     started = time.perf_counter()
 
-    # 1. Find the article JSON
+    # 1. Find the article JSON. Stub-row fallback: when nothing is on
+    #    disk under outputs/, this is a first-time enrichment driven by
+    #    a swipe-up on a non-critical / rejected article. We still
+    #    proceed by reading the raw input via `_rerun_full_pipeline` in
+    #    step 4 below.
     insights_dir = get_data_path("outputs", company_slug, "insights")
     candidates = list(insights_dir.glob(f"*{article_id}*"))
-    if not candidates:
-        logger.warning("enrich_on_demand: no JSON for %s/%s", company_slug, article_id)
-        return None
-    json_path = candidates[0]
+    json_path = candidates[0] if candidates else None
+    first_time_enrich = json_path is None
 
-    # 2. Load existing payload
-    payload = json.loads(json_path.read_text(encoding="utf-8"))
-    pipeline_data = payload.get("pipeline") or {}
-    existing_insight = payload.get("insight") or {}
+    # 2. Load existing payload (or empty when first-time enrich).
+    if first_time_enrich:
+        logger.info(
+            "enrich_on_demand: first-time enrich for %s/%s (no insight on disk)",
+            company_slug, article_id,
+        )
+        payload = {}
+        pipeline_data = {}
+        existing_insight = {}
+    else:
+        payload = json.loads(json_path.read_text(encoding="utf-8"))
+        pipeline_data = payload.get("pipeline") or {}
+        existing_insight = payload.get("insight") or {}
 
     # 3. Check if already enriched with CURRENT engine version
-    # W5 — bumped 2.0-primitives-l2 -> 2.1-role-distinct so every existing
-    # article (Phase 17c-era) is treated as stale and re-runs Stages 10-12
-    # with the new W4 generators on next user click. Zero data loss; LLM
-    # spend only on articles users actually open.
-    CURRENT_SCHEMA_VERSION = "2.1-role-distinct"
+    # Module-level constant — see top of file. Importable so the legacy_adapter
+    # cached-check stays aligned.
     stored_version = (payload.get("meta") or {}).get("schema_version", "")
     is_current = stored_version == CURRENT_SCHEMA_VERSION
 
-    if not force and is_current and existing_insight.get("headline") and existing_insight.get("core_mechanism"):
+    # Phase 36 — auto-reenrich trigger. When the retry cron successfully
+    # backfills body for an article whose insight was previously generated
+    # with headline_only=True, it stamps `meta.body_grounded_pending: True`
+    # on the insight JSON. Detecting this flag forces a re-enrichment so
+    # the next view picks up the new body-grounded analysis without
+    # waiting for a manual force=True call.
+    body_grounded_pending = bool((payload.get("meta") or {}).get("body_grounded_pending"))
+
+    if (
+        not force
+        and not body_grounded_pending
+        and is_current
+        and existing_insight.get("headline")
+        and existing_insight.get("core_mechanism")
+    ):
         logger.info("enrich_on_demand: %s already enriched (v%s), returning cached", article_id, stored_version)
+        return payload
+
+    if body_grounded_pending:
+        logger.info(
+            "enrich_on_demand: %s flagged body_grounded_pending — "
+            "forcing re-enrich against new body", article_id,
+        )
+
+    # Phase 30 — per-tenant LLM daily cap. We only check BEFORE firing
+    # new Stages 10-12 (cached returns above are free). Fails open on
+    # any tracking error so a DB hiccup doesn't block paying tenants.
+    try:
+        from engine.llm.budget import assert_under_cap, TenantBudgetExceeded
+        assert_under_cap(company_slug)
+    except TenantBudgetExceeded as exc:
+        logger.warning(
+            "enrich_on_demand: daily cap reached for %s — spent $%.2f of $%.2f cap",
+            company_slug, exc.spent, exc.cap,
+        )
+        # Stamp the cap status on the existing payload so the UI can
+        # show a friendly "Daily limit reached, try again tomorrow"
+        # banner instead of an infinite spinner.
+        from datetime import datetime, timezone
+        payload.setdefault("meta", {})["budget_cap_reached"] = {
+            "spent_usd": exc.spent,
+            "cap_usd": exc.cap,
+            "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        }
         return payload
 
     # 4. Get company and build PipelineResult
@@ -200,14 +261,36 @@ def enrich_on_demand(
     except Exception as exc:
         logger.debug("discovery collection skipped: %s", exc)
 
-    # 10. Reload and merge intelligence layers into the payload
-    payload = json.loads(json_path.read_text(encoding="utf-8"))
-    if intelligence:
-        payload["intelligence"] = intelligence
-        json_path.write_text(
-            json.dumps(payload, indent=2, ensure_ascii=False, default=str),
-            encoding="utf-8",
+    # 10. Reload and merge intelligence layers into the payload. For a
+    # first-time enrich (stub article that wasn't on disk before),
+    # `write_insight` upstream just created the file — locate it now.
+    if json_path is None:
+        insights_dir = get_data_path("outputs", company_slug, "insights")
+        candidates = list(insights_dir.glob(f"*{article_id}*"))
+        json_path = candidates[0] if candidates else None
+    if json_path is None:
+        logger.warning(
+            "enrich_on_demand: write_insight produced no file for %s/%s — "
+            "skipping intelligence-layer merge",
+            company_slug, article_id,
         )
+    else:
+        payload = json.loads(json_path.read_text(encoding="utf-8"))
+        # Phase 36 — clear the body_grounded_pending flag now that the
+        # re-enrich has run. The next view will hit the fast cached-return
+        # path instead of re-firing the pipeline.
+        needs_write = False
+        if (payload.get("meta") or {}).get("body_grounded_pending"):
+            payload.setdefault("meta", {})["body_grounded_pending"] = False
+            needs_write = True
+        if intelligence:
+            payload["intelligence"] = intelligence
+            needs_write = True
+        if needs_write:
+            json_path.write_text(
+                json.dumps(payload, indent=2, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
 
     elapsed = round(time.perf_counter() - started, 2)
     logger.info(
@@ -245,7 +328,55 @@ def _rerun_full_pipeline(
         return None
 
     import json as _json
-    raw = _json.loads(candidates[0].read_text(encoding="utf-8"))
+    raw_path = candidates[0]
+    raw = _json.loads(raw_path.read_text(encoding="utf-8"))
+
+    # Phase 35.5 — Backfill body via googlenewsdecoder + trafilatura when
+    # the stored input is headline-only (content < 300 chars or content ==
+    # title-duplicate). This is the lazy-backfill path: first on-demand
+    # view of any stale article promotes it to body-grounded analysis.
+    # Subsequent calls hit the cached body via the 7-day SQLite cache in
+    # full_text_extractor.
+    existing = (raw.get("content") or "").strip()
+    title = (raw.get("title") or "").strip()
+    needs_backfill = (
+        len(existing) < 300
+        or (existing == title)
+        or (len(existing) <= len(title) + 50)
+    )
+    if needs_backfill and raw.get("url"):
+        try:
+            from engine.ingestion.full_text_extractor import extract_full_text
+            result_ft = extract_full_text(raw["url"], timeout=12.0)
+            if result_ft and result_ft.body and len(result_ft.body) >= 300:
+                raw["content"] = result_ft.body
+                raw["summary"] = result_ft.body[:500]
+                meta = raw.get("metadata") or {}
+                meta["full_text_source"] = "publisher_scrape_lazy"
+                meta["full_text_char_count"] = result_ft.char_count
+                meta["publisher_url"] = result_ft.publisher_url
+                raw["metadata"] = meta
+                # Persist back to disk so the next on-demand call skips
+                # the network step entirely (cache still saves us, but
+                # the file-level mutation also surfaces to backfill audits).
+                try:
+                    raw_path.write_text(_json.dumps(raw, indent=2), encoding="utf-8")
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning(
+                        "_rerun_full_pipeline: could not persist backfilled "
+                        "body for %s: %s", article_id, exc,
+                    )
+                logger.info(
+                    "_rerun_full_pipeline: backfilled body for %s "
+                    "(%d → %d chars)",
+                    article_id, len(existing), result_ft.char_count,
+                )
+        except Exception as exc:  # noqa: BLE001 — backfill is additive
+            logger.debug(
+                "_rerun_full_pipeline: body backfill failed for %s (%s)",
+                article_id, type(exc).__name__,
+            )
+
     article = {
         "id": raw.get("id", article_id),
         "title": raw.get("title", ""),
@@ -372,7 +503,22 @@ def _run_intelligence_layers(
     except Exception as exc:
         logger.warning("anticipated_qa failed: %s", exc)
 
-    # I6: Sentiment trajectory
+    # I6: Sentiment trajectory  (FALLBACK PATH — see Phase 28 note below)
+    #
+    # Phase 28 audit note: this inline OpenAI sentiment-trajectory call
+    # looks like a duplicate of engine.analysis.forecaster.forecast_sentiment_trajectory
+    # (the Phase-27 canonical implementation). It is NOT a duplicate —
+    # this block runs as a fallback for legacy articles missing the
+    # Stage-9 cascade context that the modern forecaster needs. Both
+    # implementations are intentional and live in different contexts:
+    #   * forecaster.py — Phase 27 canonical, called by insight_generator
+    #     for HOME-tier articles with a fresh cascade.
+    #   * THIS block    — legacy on-demand fallback, fires when the
+    #     article predates Phase 17c and so has no cascade. Returns a
+    #     simpler {direction, summary, emerging_themes} shape — caller
+    #     handles both shapes via the `intelligence["sentiment_trajectory"]`
+    #     accessor.
+    #
     # Phase 22.2 — route through `resolve_slug` so a session bound to
     # an alias slug ("puma") still pulls the canonical's history
     # ("puma-se"). Pre-fix this raw SQL bypassed the alias rewrite,

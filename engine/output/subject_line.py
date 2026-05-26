@@ -162,6 +162,45 @@ def _template_positive_rating(company: str, insight: dict[str, Any]) -> str | No
     return f"{company}: positive {kind} — investor brief"
 
 
+def _template_neutral_disclosure(company: str, insight: dict[str, Any]) -> str | None:
+    """Phase 35 — neutral-event subject (disclosure, routine filing).
+
+    The previous cascade ran neutral events through ``_template_compliance``
+    first, which produced "SEBI enforcement action — material ESG risk
+    flagged" subjects for what's actually a routine SEBI Takeover Reg
+    disclosure with no enforcement action. This template handles the
+    neutral case with disclosure-flavoured wording.
+    """
+    headline = (insight.get("headline") or "").lower()
+    decision = insight.get("decision_summary") or {}
+    text_blob = " ".join([
+        insight.get("headline") or "",
+        (decision.get("key_risk") or ""),
+        (insight.get("core_mechanism") or ""),
+    ]).lower()
+    # Sniff the kind of neutral event for tighter wording
+    if any(w in text_blob for w in ("pledge", "shareholding", "encumbrance", "controlling stake")):
+        kind = "shareholding disclosure"
+    elif any(w in text_blob for w in ("annual report", "brsr filing", "10-k", "esg report")):
+        kind = "periodic ESG filing"
+    elif any(w in text_blob for w in ("board change", "director appointment", "resignation")):
+        kind = "governance update"
+    elif any(w in text_blob for w in ("framework", "circular", "consultation paper")):
+        kind = "regulatory announcement"
+    else:
+        kind = "ESG disclosure"
+    ex = _extract_exposure_cr(insight)
+    if ex:
+        return f"{company}: {kind} — {ex} contingent exposure flagged"
+    return f"{company}: {kind} — stakeholder brief"
+
+
+def _is_neutral_event(insight: dict[str, Any]) -> bool:
+    """Phase 35 — true when event_polarity is explicitly neutral."""
+    p = (insight.get("event_polarity") or "").lower()
+    return p == "neutral"
+
+
 def _is_positive_event(insight: dict[str, Any]) -> bool:
     """Phase 22.3 — read the polarity flag set by insight_generator.
     Falls back to inspecting decision_summary if the flag is missing
@@ -365,8 +404,15 @@ def build_subject(
         # through to opportunity (also non-defensive). Skip compliance +
         # disclosure entirely — they always frame the ₹ as a risk.
         cascade = (_template_positive_rating, _template_opportunity)
+    elif _is_neutral_event(insight):
+        # Phase 35 — neutral events (shareholding disclosure, periodic
+        # filing, routine governance update) get the disclosure-flavoured
+        # template first. Falls through to opportunity / generic — NEVER
+        # to _template_compliance which always frames the event as
+        # "enforcement action / material risk flagged".
+        cascade = (_template_neutral_disclosure, _template_opportunity)
     else:
-        # Negative / neutral: original cascade.
+        # Negative: original cascade.
         cascade = (_template_compliance, _template_disclosure, _template_opportunity)
     for tmpl in cascade:
         s = tmpl(company, insight)

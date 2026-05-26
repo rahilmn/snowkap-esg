@@ -18,9 +18,13 @@ interface ConversationSidebarProps {
   activeId: string | null;
   onSelect: (cid: string) => void;
   onNew: () => void;
+  // Phase 31 — when the user deletes the currently-active conversation
+  // the parent needs to clear its local view (drop messages + reset
+  // activeId so the page doesn't try to re-fetch a tombstoned id).
+  onDeleted?: (cid: string) => void;
 }
 
-export function ConversationSidebar({ activeId, onSelect, onNew }: ConversationSidebarProps) {
+export function ConversationSidebar({ activeId, onSelect, onNew, onDeleted }: ConversationSidebarProps) {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["conversations"],
@@ -36,8 +40,16 @@ export function ConversationSidebar({ activeId, onSelect, onNew }: ConversationS
       conversations.rename(cid, title),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["conversations"] }),
   });
+  const del = useMutation({
+    mutationFn: (cid: string) => conversations.delete(cid),
+    onSuccess: (_, cid) => {
+      qc.invalidateQueries({ queryKey: ["conversations"] });
+      if (onDeleted) onDeleted(cid);
+    },
+  });
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-gray-200 bg-gray-50 p-3">
@@ -94,10 +106,41 @@ export function ConversationSidebar({ activeId, onSelect, onNew }: ConversationS
                   e.stopPropagation();
                   archive.mutate(c.conversation_id);
                 }}
-                className="hover:text-red-600"
+                className="hover:text-amber-600"
               >
                 archive
               </button>
+              {confirmDeleteId === c.conversation_id ? (
+                <span className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => {
+                      del.mutate(c.conversation_id);
+                      setConfirmDeleteId(null);
+                    }}
+                    className="text-red-600 font-semibold hover:underline"
+                  >
+                    confirm
+                  </button>
+                  <span className="text-gray-300">·</span>
+                  <button
+                    onClick={() => setConfirmDeleteId(null)}
+                    className="hover:text-gray-700"
+                  >
+                    cancel
+                  </button>
+                </span>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmDeleteId(c.conversation_id);
+                  }}
+                  className="hover:text-red-600"
+                  title="Permanently delete this conversation"
+                >
+                  delete
+                </button>
+              )}
             </div>
           </li>
         ))}

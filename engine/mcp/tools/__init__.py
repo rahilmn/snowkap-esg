@@ -21,7 +21,9 @@ from engine.mcp.tools.agent_tools import (
     handle_agent_beliefs_get,
     handle_agent_state_get,
 )
-from engine.mcp.tools.article_tools import handle_article_list
+from engine.mcp.tools.article_tools import handle_article_list, handle_article_comments
+from engine.mcp.tools.forum_tools import handle_forum_thread
+from engine.mcp.tools.wiki_bookmarks_tools import handle_bookmarks_recall
 from engine.mcp.tools.autoresearcher_tools import (
     handle_autoresearcher_experiments,
     handle_autoresearcher_leaderboard,
@@ -62,6 +64,9 @@ def build_default_registry(
         "agent-beliefs-get":         lambda p: handle_agent_beliefs_get(p, base_data),
         "agent-state-get":           lambda p: handle_agent_state_get(p, base_data),
         "article-list":              lambda p: handle_article_list(p, base_data),
+        "article-comments":          lambda p: handle_article_comments(p, base_data),
+        "forum-thread":              lambda p: handle_forum_thread(p, base_data),
+        "bookmarks-recall":          lambda p: handle_bookmarks_recall(p, base_data),
         "memory-recall":             lambda p: handle_memory_recall(p, base_data),
         "memory-list":               lambda p: handle_memory_list(p, base_data),
     }

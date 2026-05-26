@@ -258,13 +258,16 @@ def compute_cascade(
     # 3. Get order-2 edges from primary primitive
     edges = query_p2p_edges(primary.slug)
     if not edges:
-        # No edges — return with direct quantum only
+        # No edges — return with direct quantum only. Same 500-bps
+        # clamp as the main cascade path below; see the comment there.
         result.total_exposure_cr = delta_source_cr
-        result.margin_bps = (
+        raw_bps = (
             delta_source_cr / company.revenue_cr * 10000
             if company.revenue_cr > 0
             else 0.0
         )
+        MAX_MARGIN_BPS = 500.0
+        result.margin_bps = max(-MAX_MARGIN_BPS, min(MAX_MARGIN_BPS, raw_bps))
         result.confidence = "low"
         result.computation_trace = (
             f"Direct: ₹{delta_source_cr:.1f} Cr (no cascade edges for {primary.slug})"
@@ -331,11 +334,25 @@ def compute_cascade(
 
     # 5. Compute totals
     result.total_exposure_cr = delta_source_cr + total_cascade_cr
-    result.margin_bps = (
+    raw_bps = (
         delta_source_cr / company.revenue_cr * 10000
         if company.revenue_cr > 0
         else 0.0
     )
+    # Clamp to a sane operational range. A real single-event margin
+    # impact on a public company virtually never exceeds 500 bps (5%) —
+    # values above that come from cascade-input errors (wrong base unit,
+    # rupee crore vs rupee, exposure-not-margin confusion). Clamping
+    # here means downstream LLM prompts can't propagate absurd figures
+    # like "1.58 BILLION bps" — what surfaces is the bounded estimate
+    # with the engine confidence already reflecting the under-estimation.
+    MAX_MARGIN_BPS = 500.0
+    result.margin_bps = max(-MAX_MARGIN_BPS, min(MAX_MARGIN_BPS, raw_bps))
+    if abs(raw_bps) > MAX_MARGIN_BPS:
+        logger.warning(
+            "primitive_engine: clamped margin_bps from %.1f -> %.1f (event=%s company=%s)",
+            raw_bps, result.margin_bps, event_id, company.slug,
+        )
     result.confidence = min_confidence
 
     # 6. Build human-readable trace

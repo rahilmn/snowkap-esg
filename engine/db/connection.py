@@ -39,16 +39,23 @@ logger = logging.getLogger(__name__)
 def get_backend() -> str:
     """Return ``'sqlite'`` or ``'postgres'`` based on ``SNOWKAP_DB_BACKEND``.
 
-    Default: ``'sqlite'`` (legacy back-compat). Setting the env var to
-    ``'postgres'`` switches every call site that uses ``engine.db.connect()``
-    to use Supabase (URL from ``SUPABASE_DATABASE_URL``).
+    Default: ``'postgres'`` (Supabase). Snowkap is Supabase-resident as of
+    Phase 34 — the local SQLite path remains in the codebase only for
+    test fixtures + the migration utility scripts. Set
+    ``SNOWKAP_DB_BACKEND=sqlite`` explicitly to opt into the legacy path.
+
+    Pre-Phase-34 the default was ``'sqlite'``; that allowed a missing
+    ``.env`` to silently create an empty local DB and serve a phantom
+    empty dashboard. The new default fails fast (in :func:`connect`)
+    when ``SUPABASE_DATABASE_URL`` is unset, which is the desired
+    behaviour — better to crash at boot than to ship an empty dashboard.
     """
-    backend = os.environ.get("SNOWKAP_DB_BACKEND", "sqlite").strip().lower()
+    backend = os.environ.get("SNOWKAP_DB_BACKEND", "postgres").strip().lower()
     if backend not in ("sqlite", "postgres"):
         logger.warning(
-            "Unknown SNOWKAP_DB_BACKEND=%r; falling back to sqlite", backend
+            "Unknown SNOWKAP_DB_BACKEND=%r; falling back to postgres", backend
         )
-        return "sqlite"
+        return "postgres"
     return backend
 
 

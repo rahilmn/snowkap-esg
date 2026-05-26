@@ -163,6 +163,312 @@ export const companies = {
 };
 
 // ---- News ----
+/** Phase 28 / Feature 3 — Today's 3 critical articles for a company.
+ * Returns ≤3 HOME-tier articles ordered by criticality DESC. Drives the
+ * HomePage hero strip. The pipeline already caps the analysis to top-3
+ * via `select_top_n_for_pipeline(n=3)`; this endpoint also enforces the
+ * cap at read time so an older run that produced more HOME articles
+ * still renders a fixed 3-card layout. */
+export interface CriticalThreeResponse {
+  count: number;
+  company_slug: string;
+  items: Array<Record<string, unknown>>;
+  hint: string | null;
+}
+
+export const insights = {
+  criticalThree: (companySlug: string) =>
+    request<CriticalThreeResponse>(
+      `/insights/critical-three?company=${encodeURIComponent(companySlug)}`,
+    ),
+};
+
+/** Phase 28 / Feature 2 — Methodology + role-explainer payload returned
+ * by GET /api/insights/{id}/methodology. Powers the info-icon drawer. */
+export interface MethodologyMetric {
+  metric: string;
+  source: string;
+  simple_logic: string;
+  formula_human: string;
+  ontology_anchors: string[];
+  your_inputs: Record<string, unknown>;
+  band?: string;
+  final_score?: number;
+}
+
+export interface RoleExplainerBlock {
+  why_important_for_me: string;
+  how_it_impacts_business: string;
+  analysis_result: string;
+  simple_logic: string;
+}
+
+export interface MethodologyResponse {
+  article_id: string;
+  company_slug: string | null;
+  role: string | null;
+  /** Phase 29: when set, the response covers only ONE panel. */
+  panel?: string;
+  headline: string;
+  criticality_band: string | null;
+  schema_version: string | null;
+  methodology: Record<string, MethodologyMetric>;
+  role_explainer: Record<string, RoleExplainerBlock>;
+  /** Phase 29: one-line global "why this is critical" summary. */
+  criticality_summary?: string;
+}
+
+export const methodology = {
+  /** Fetch methodology for an article. Phase 29 — pass `panelId` to
+   * narrow the response to one panel (used by per-panel info popover). */
+  fetch: (articleId: string, role?: string, panelId?: string) => {
+    const params = new URLSearchParams();
+    if (role) params.set("role", role);
+    if (panelId) params.set("panel", panelId);
+    const q = params.toString();
+    return request<MethodologyResponse>(
+      `/insights/${encodeURIComponent(articleId)}/methodology${q ? "?" + q : ""}`,
+    );
+  },
+};
+
+// Phase 34.4 — email-myself the technical report.
+// Optional `recipients` adds extra inboxes alongside the JWT-sub user.
+export const articleEmail = {
+  emailSelf: (articleId: string, recipients?: string[]) =>
+    request<{
+      status: string;
+      recipient: string;
+      subject: string;
+      article_id: string;
+      html_length: number;
+      additional?: Array<{ recipient: string; status: "sent" | "failed"; error?: string }>;
+    }>(
+      `/articles/${encodeURIComponent(articleId)}/email-self`,
+      {
+        method: "POST",
+        body: JSON.stringify({ recipients: recipients?.filter(Boolean) ?? [] }),
+        headers: { "Content-Type": "application/json" },
+      },
+    ),
+};
+
+// Phase 34.5 — article comments (Reddit-style, non-anonymous, 1-level reply depth)
+export interface CommentDto {
+  id: string;
+  article_id: string;
+  parent_id: string | null;
+  author_email: string;
+  author_name: string;
+  body: string;
+  created_at: string;
+  deleted_at: string | null;
+  vote_score: number;
+  your_vote: number;            // +1 / -1 / 0
+  replies: CommentDto[];
+}
+
+export const comments = {
+  list: (articleId: string) =>
+    request<{ article_id: string; count: number; threads: CommentDto[] }>(
+      `/articles/${encodeURIComponent(articleId)}/comments`,
+    ),
+  post: (articleId: string, body: string, parentId?: string) =>
+    request<{ comment: CommentDto }>(
+      `/articles/${encodeURIComponent(articleId)}/comments`,
+      {
+        method: "POST",
+        body: JSON.stringify({ body, parent_id: parentId ?? null }),
+      },
+    ),
+  delete: (commentId: string) =>
+    request<{ deleted: boolean; comment_id: string }>(
+      `/comments/${encodeURIComponent(commentId)}`,
+      { method: "DELETE" },
+    ),
+  vote: (commentId: string, direction: -1 | 0 | 1) =>
+    request<{ voted: number; comment_id: string }>(
+      `/comments/${encodeURIComponent(commentId)}/vote`,
+      {
+        method: "POST",
+        body: JSON.stringify({ direction }),
+      },
+    ),
+};
+
+// ─── POW-4 — Power of Now deck + article endpoints ──────────────────────
+
+export interface NowArticleDto {
+  article_id: string;
+  url: string;
+  title: string;
+  source: string | null;
+  published_at: string | null;
+  primary_industry: string;
+  primary_pillar: string | null;
+  primary_theme: string | null;
+  event_id: string | null;
+  event_polarity: string | null;
+  shared_analysis: Record<string, unknown>;
+  personalised_analysis: Record<string, unknown>;
+  criticality_score: number;
+  criticality_band: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+}
+
+export interface NowFeedResponse {
+  company_slug: string;
+  industry: string;
+  count: number;
+  limit: number;
+  max_age_days: number;
+  articles: NowArticleDto[];
+}
+
+export interface NowArticleDetailResponse {
+  status: "ready" | "warming";
+  article_id: string;
+  company_slug: string;
+  industry: string;
+  shared: {
+    id: string;
+    url: string;
+    title: string;
+    source: string | null;
+    published_at: string | null;
+    primary_industry: string;
+    material_industries: string[];
+    primary_pillar: string | null;
+    primary_theme: string | null;
+    event_id: string | null;
+    event_polarity: string | null;
+    shared_analysis: Record<string, unknown>;
+  };
+  personalised: {
+    article_id: string;
+    company_slug: string;
+    personalised_analysis: Record<string, unknown>;
+    criticality_score: number;
+    criticality_band: string;
+    schema_version: string;
+    computed_at: string;
+  } | null;
+}
+
+export const now = {
+  feed: (companySlug: string, limit = 10, maxAgeDays = 30) => {
+    const q = new URLSearchParams({
+      company: companySlug,
+      limit: String(limit),
+      max_age_days: String(maxAgeDays),
+    });
+    return request<NowFeedResponse>(`/now/feed?${q}`);
+  },
+  article: (articleId: string) =>
+    request<NowArticleDetailResponse>(`/now/article/${encodeURIComponent(articleId)}`),
+};
+
+// ─── Phase 34.6 — Forum (user-generated threads + replies) ───────────────
+
+export const FORUM_TAGS = ["BRSR", "Climate", "CBAM", "Governance", "Audit"] as const;
+export type ForumTag = typeof FORUM_TAGS[number];
+
+export interface ForumThreadDto {
+  id: string;
+  title: string;
+  body: string;
+  tag: ForumTag;
+  author_email: string;
+  author_name: string;
+  pinned: boolean;
+  created_at: string;
+  deleted_at: string | null;
+  reply_count: number;
+}
+
+export interface ForumReplyDto {
+  id: string;
+  thread_id: string;
+  author_email: string;
+  author_name: string;
+  body: string;
+  created_at: string;
+  deleted_at: string | null;
+}
+
+export const forum = {
+  listThreads: (tag?: ForumTag, limit = 50) => {
+    const q = new URLSearchParams();
+    if (tag) q.set("tag", tag);
+    q.set("limit", String(limit));
+    return request<{ count: number; tag: string | null; threads: ForumThreadDto[] }>(
+      `/forum/threads?${q}`,
+    );
+  },
+  createThread: (title: string, body: string, tag: ForumTag) =>
+    request<{ thread: ForumThreadDto }>(`/forum/threads`, {
+      method: "POST",
+      body: JSON.stringify({ title, body, tag }),
+    }),
+  getThread: (threadId: string) =>
+    request<{ thread: ForumThreadDto; replies: ForumReplyDto[] }>(
+      `/forum/threads/${encodeURIComponent(threadId)}`,
+    ),
+  deleteThread: (threadId: string) =>
+    request<{ deleted: boolean; thread_id: string }>(
+      `/forum/threads/${encodeURIComponent(threadId)}`,
+      { method: "DELETE" },
+    ),
+  addReply: (threadId: string, body: string) =>
+    request<{ reply: ForumReplyDto }>(
+      `/forum/threads/${encodeURIComponent(threadId)}/replies`,
+      { method: "POST", body: JSON.stringify({ body }) },
+    ),
+  deleteReply: (replyId: string) =>
+    request<{ deleted: boolean; reply_id: string }>(
+      `/forum/replies/${encodeURIComponent(replyId)}`,
+      { method: "DELETE" },
+    ),
+};
+
+// ─── Phase 34.7 — Personal Wiki (server-side bookmarks) ───────────────────
+
+export type WikiSection = "pinned" | "climate" | "capital" | "social" | "custom";
+
+export interface BookmarkDto {
+  user_email: string;
+  article_id: string;
+  note: string | null;
+  section: WikiSection;
+  bookmarked_at: string;
+}
+
+export const bookmarks = {
+  list: (section?: WikiSection) =>
+    request<{ count: number; section: WikiSection | null; bookmarks: BookmarkDto[] }>(
+      `/me/bookmarks${section ? `?section=${section}` : ""}`,
+    ),
+  add: (articleId: string, note?: string, section: WikiSection = "pinned") =>
+    request<{ bookmark: BookmarkDto }>(`/me/bookmarks`, {
+      method: "POST",
+      body: JSON.stringify({ article_id: articleId, note, section }),
+    }),
+  remove: (articleId: string) =>
+    request<{ deleted: boolean; article_id: string }>(
+      `/me/bookmarks/${encodeURIComponent(articleId)}`,
+      { method: "DELETE" },
+    ),
+  patch: (articleId: string, patch: { note?: string; section?: WikiSection }) =>
+    request<{ updated: string[]; article_id: string }>(
+      `/me/bookmarks/${encodeURIComponent(articleId)}`,
+      { method: "PATCH", body: JSON.stringify(patch) },
+    ),
+  bulkAdd: (items: Array<{ article_id: string; note?: string; section?: WikiSection }>) =>
+    request<{ received: number; inserted: number }>(`/me/bookmarks/bulk`, {
+      method: "POST",
+      body: JSON.stringify({ items }),
+    }),
+};
+
 export const news = {
   list: async (params?: {
     limit?: number;
@@ -233,6 +539,76 @@ export const news = {
       new_last_24h: number;
     }>(`/news/stats${q}`);
   },
+
+  /**
+   * Phase 31 — Live + hybrid news for a company. Hits Google News on
+   * the fly using the LLM-crafted `sustainability_query` +
+   * `general_query` stamped at onboard time, and merges in an
+   * `is_analyzed` flag for headlines whose full 12-stage pipeline
+   * output already lives on disk.
+   *
+   * Use this as the PRIMARY home feed source. When `is_analyzed=true`
+   * the article-detail sheet renders the cached deep_insight + per-role
+   * explainer instantly; when `false`, clicking triggers on-demand
+   * enrichment via /api/news/{id}/trigger-analysis (the same path the
+   * legacy feed uses).
+   */
+  live: (companyId: string, limit: number = 10) => {
+    const q = new URLSearchParams({
+      company: companyId,
+      limit: String(limit),
+    });
+    return request<{
+      company_slug: string;
+      count: number;
+      sustainability_count: number;
+      general_count: number;
+      queries_used: { sustainability?: string; general?: string };
+      cached: boolean;
+      items: Array<{
+        id: string;
+        title: string;
+        url: string;
+        source: string;
+        published_at: string | null;
+        summary: string;
+        image_url: string;
+        company_slug: string;
+        kind: "sustainability" | "general";
+        is_analyzed: boolean;
+      }>;
+    }>(`/news/live?${q}`);
+  },
+
+  /**
+   * Phase 31 — bootstrap a live (un-analyzed) article into the
+   * pipeline. ArticleDetailSheet calls this when it opens an article
+   * whose `is_analyzed` was false. The backend runs stages 1-9 +
+   * indexes the article; the existing trigger-analysis + polling
+   * flow then takes over to surface the cached or freshly-enriched
+   * Phase 28/29 view.
+   */
+  liveAnalyze: (body: {
+    url: string;
+    company_slug: string;
+    title: string;
+    summary?: string;
+    source?: string;
+    published_at?: string;
+    image_url?: string;
+  }) =>
+    request<{
+      article_id: string;
+      company_slug: string;
+      tier: string | null;
+      rejected?: boolean;
+      status: "indexed" | "already_indexed" | "daily_cap_reached";
+      spent_usd?: number;
+      cap_usd?: number;
+    }>(`/news/live/analyze`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 
   bookmark: (articleId: string) =>
     request<{ status: string }>(`/news/${articleId}/bookmark`, { method: "POST" }),
@@ -733,10 +1109,112 @@ export const mcp = {
     }),
 };
 
+/** Phase 28 — SSE onboarding progress stream.
+ *
+ * Subscribes to `GET /api/me/onboard/{slug}/stream`. Mirrors the
+ * fetch+getReader pattern used by `streamChat` so bearer tokens work
+ * (browser EventSource cannot send `Authorization` headers).
+ *
+ * The callback fires once per event: `onboard_started`,
+ * `company_profile_ready`, `news_fetch_started`, `news_fetch_done`,
+ * `critical_3_selected`, `analysis_started`, `analysis_done`,
+ * `onboard_complete`, `onboard_failed`.
+ *
+ * Returns an abort function the caller invokes on unmount or
+ * navigation away. The backend closes the stream on terminal events.
+ */
+export function streamOnboarding(
+  slug: string,
+  onEvent: (event: string, data: Record<string, unknown>) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  const controller = new AbortController();
+  const token = getToken();
+  const headers: Record<string, string> = {
+    Accept: "text/event-stream",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+  void (async () => {
+    try {
+      const res = await fetch(`${BASE}/me/onboard/${encodeURIComponent(slug)}/stream`, {
+        method: "GET",
+        headers,
+        signal: controller.signal,
+      });
+      if (!res.ok || !res.body) {
+        onError?.(new Error(`onboard stream failed: HTTP ${res.status}`));
+        return;
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let split = buffer.indexOf("\n\n");
+        while (split >= 0) {
+          const frame = buffer.slice(0, split);
+          buffer = buffer.slice(split + 2);
+          if (frame.startsWith(":")) {
+            split = buffer.indexOf("\n\n");
+            continue; // SSE comment / heartbeat
+          }
+          const lines = frame.split("\n");
+          let eventName = "message";
+          let dataStr = "";
+          for (const line of lines) {
+            if (line.startsWith("event:")) eventName = line.slice(6).trim();
+            if (line.startsWith("data:")) dataStr += line.slice(5).trim();
+          }
+          if (dataStr) {
+            try {
+              onEvent(eventName, JSON.parse(dataStr));
+            } catch {
+              onEvent(eventName, { raw: dataStr });
+            }
+          }
+          split = buffer.indexOf("\n\n");
+        }
+      }
+    } catch (exc) {
+      onError?.(exc);
+    }
+  })();
+  return () => controller.abort();
+}
+
 /** Phase C — SSE chat. Opens an EventSource-like fetch stream and dispatches
  * each event line to the supplied callback. Returns an abort function. */
 export function streamChat(
-  req: { conversation_id: string | null; message: string; signoff?: string },
+  req: {
+    conversation_id: string | null;
+    message: string;
+    signoff?: string;
+    // Phase 31 — article-context plumbing for /chat. When the user
+    // arrived via "Discuss this article", the backend reads these and
+    // pre-loads the article's deep insight into the LLM system prompt.
+    article_id?: string;
+    company_slug?: string;
+    // Forum v1.1 — same pattern for forum threads. When the user
+    // tapped "Discuss this thread with AI" on /forum, the backend
+    // pre-loads the thread title + body + replies (with author +
+    // company attribution) into the LLM system prompt so the
+    // response is grounded in the actual conversation.
+    forum_thread_id?: string;
+    // Wiki v1.1 — when true, backend loads the caller's bookmark
+    // library into the system prompt. Triggered by the
+    // "✨ Ask AI about my Wiki" CTA on /wiki (deep-link
+    // /ask?wiki=true).
+    wiki_context?: boolean;
+    // POW-5c — when true (and `article_id` set), backend loads the
+    // article's comment thread into the system prompt. Triggered by
+    // "💬 Ask about the discussion" or "✨ Help me reply" deep-links.
+    include_comments?: boolean;
+    // POW-5c — when set, the LLM is told to LEAD with a reply targeted
+    // at this comment. The id never reaches the user-facing chat text.
+    focus_comment_id?: string;
+  },
   onEvent: (event: string, data: Record<string, unknown>) => void,
   onError?: (err: unknown) => void,
 ): () => void {

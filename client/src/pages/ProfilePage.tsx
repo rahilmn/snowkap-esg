@@ -41,7 +41,12 @@ export default function ProfilePage() {
     mutationFn: (d: string) => me.onboard(d, 10),
     onSuccess: (data) => {
       setSubmitError(null);
-      navigate(`/onboarding/${data.slug}`);
+      // Phase 34.2 — Power-of-Now FTUX detour through the celebratory
+      // "all set" confirmation; it auto-advances to /onboarding/{slug}
+      // after 1.8s, or instantly on tap.
+      const q = new URLSearchParams({ slug: data.slug });
+      if (data.domain) q.set("company", data.domain);
+      navigate(`/welcome/profile-setup-complete?${q.toString()}`);
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : "Onboarding failed.";

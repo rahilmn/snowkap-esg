@@ -789,15 +789,30 @@ def resolve_domain(body: ResolveDomainIn) -> dict[str, Any]:
     if not domain:
         raise HTTPException(status_code=400, detail="domain required")
 
-    # Match a target company by domain suffix
+    # Match a target company by domain suffix or by stem-equivalence.
+    # The stem check catches the "yesbank.com" / "yesbank.in" / "yesbank.co"
+    # case where the baseline config carries one TLD but the user signs
+    # in with another — without it, the resolver spawned a brand-new
+    # "yesbank" tenant disconnected from the existing yes-bank slug.
+    def _stem(d: str) -> str:
+        d = (d or "").lower().removeprefix("https://").removeprefix("http://").removeprefix("www.").split("/", 1)[0]
+        return d.split(".")[0]  # tatasteel.in → "tatasteel"
+    user_stem = _stem(domain)
     for c in load_companies():
-        if domain == c.domain or domain.endswith(c.domain):
+        baseline_stem = _stem(c.domain or "")
+        if domain == c.domain or domain.endswith(c.domain) or (user_stem and user_stem == baseline_stem):
             return {
                 "domain": domain,
                 "company_name": c.name,
                 "industry": c.industry,
                 "is_existing": True,
                 "tenant_id": "snowkap-dev",
+                # Phase 34 fix — expose the canonical slug so the LoginPage
+                # surfaces it on the confirm step and the JWT mint path
+                # stamps it onto the token. Without this the resolver
+                # returned only the name and the slug got recomputed
+                # from the title-cased name, spawning a stray new tenant.
+                "slug": c.slug,
             }
 
     # Returning prospect — domain was registered on a previous login.
@@ -861,12 +876,22 @@ def _slug_for_company(name: str | None, domain: str | None = None) -> str | None
         for c in companies:
             if needle == c.slug or needle.replace(" ", "-") == c.slug:
                 return c.slug
-    # 4. Domain match
+    # 4. Domain match (exact + suffix + stem-equivalence).
+    # Stem-equivalence ("yesbank.com" → matches "yesbank.in") catches
+    # the common case where a baseline carries one TLD but the user
+    # signs in with another. Without it, every YES Bank prospect on
+    # `.com` got bucketed into a stray "yesbank" tenant disconnected
+    # from the canonical `yes-bank` slug.
     if domain:
         dom = domain.lower().strip()
+        user_stem = dom.removeprefix("https://").removeprefix("http://").removeprefix("www.").split("/", 1)[0].split(".")[0]
         for c in companies:
-            if c.domain and (dom == c.domain or dom.endswith(c.domain)):
-                return c.slug
+            if c.domain:
+                if dom == c.domain or dom.endswith(c.domain):
+                    return c.slug
+                baseline_stem = c.domain.split(".")[0]
+                if user_stem and user_stem == baseline_stem:
+                    return c.slug
     return None
 
 
@@ -1291,17 +1316,48 @@ def _require_article_in_scope(
     context, etc.). Without this gate a regular user could read another
     tenant's analysed insight by guessing or harvesting an article id.
 
+    Stub-row fallback (strict-10 deck): articles seeded into article_pool
+    for deck visibility (rejected by relevance) won't be in article_index.
+    We fall back to article_pool + the caller's JWT tenant so on-demand
+    enrichment runs when the user swipes up on a non-critical card.
+
     Raises 404 if the article id is unknown — same behaviour as the
     existing `_load_row_and_payload` helper, so we don't leak existence
     information to callers who would otherwise hit a different error path.
     Returns the row dict so callers don't have to re-query the index.
     """
     row = sqlite_index.get_by_id(article_id)
-    if not row:
+    if row:
+        slug = (row.get("company_slug") or "").strip() or None
+        _require_tenant_scope(slug, claims)
+        return row
+
+    # Stub-row fallback for the strict-10 deck path.
+    try:
+        from engine.models import article_pool
+        pool_row = article_pool.get(article_id)
+    except Exception:  # noqa: BLE001
+        pool_row = None
+    if pool_row is None:
         raise HTTPException(status_code=404, detail=f"Article {article_id} not found")
-    slug = (row.get("company_slug") or "").strip() or None
-    _require_tenant_scope(slug, claims)
-    return row
+
+    caller_slug = (claims.get("company_id") or "").strip()
+    if not caller_slug:
+        raise HTTPException(status_code=403, detail="No tenant context on token")
+    canonical = sqlite_index.resolve_slug(caller_slug) or caller_slug
+    _require_tenant_scope(canonical, claims)
+
+    return {
+        "id": article_id,
+        "company_slug": canonical,
+        "title": pool_row.title,
+        "url": pool_row.url,
+        "source": pool_row.source,
+        "published_at": pool_row.published_at,
+        "tier": "REJECTED",
+        "json_path": None,
+        "_stub_fallback": True,
+    }
 
 
 @router.get("/news/feed")
@@ -1348,10 +1404,24 @@ def news_feed(
     rows = sqlite_index.query_feed(
         company_slug=company_id,
         tier=None,
-        limit=limit * 2 if overfetch else limit,  # overfetch for filter
+        limit=limit * 2 if overfetch else limit,
         offset=offset,
         min_criticality=min_crit,
     )
+
+    # Cold-start fallback — if the criticality floor filtered everything out
+    # for this tenant, retry without the floor. Newly-onboarded companies
+    # often have only LOW-criticality articles indexed until on-demand
+    # enrichment lifts a few to HIGH/CRITICAL; without this fallback the
+    # home page sits empty forever even though articles exist.
+    if not rows and min_crit is not None and company_id:
+        rows = sqlite_index.query_feed(
+            company_slug=company_id,
+            tier=None,
+            limit=limit * 2 if overfetch else limit,
+            offset=offset,
+            min_criticality=None,
+        )
 
     # Phase 6 §8.3 — opt-in persona re-rank. Cache payload loads in this
     # request so the re-ranker and the per-row build loop don't double-read
@@ -1642,18 +1712,25 @@ def news_trigger_analysis(
     # for) an OpenAI enrichment job against another tenant's article.
     row = _require_article_in_scope(article_id, claims)
 
-    # W5 — schema bump invalidates every Phase-17c-era cached enrichment.
-    # First click on any "stale" article re-runs Stages 10-12 with the W4
-    # role-distinct generators and writes the new fields back to disk.
-    CURRENT_SCHEMA = "2.1-role-distinct"
+    # Cached-check accepts current OR Phase-28+ rich payloads. The "current"
+    # constant must match `engine.analysis.on_demand.CURRENT_SCHEMA_VERSION`
+    # and `engine.output.writer` — keep them aligned. A payload that already
+    # carries role_explainer + criticality_summary (Phase 28) is also treated
+    # as cached even when meta.schema_version is missing on the disk file,
+    # because re-enriching just to re-stamp is pointless.
+    from engine.analysis.on_demand import CURRENT_SCHEMA_VERSION as _CURRENT_SCHEMA
     if not force:
         payload = _load_payload(row.get("json_path"))
-        stored_version = ((payload or {}).get("meta") or {}).get("schema_version", "")
+        meta = (payload or {}).get("meta") or {}
         existing_insight = (payload or {}).get("insight") or {}
-        # Only return cached if schema is current AND insight has real content
-        if (stored_version == CURRENT_SCHEMA
-                and existing_insight.get("headline")
-                and existing_insight.get("core_mechanism")):
+        stored_version = meta.get("schema_version", "")
+        has_phase28_fields = bool(
+            existing_insight.get("role_explainer")
+            or existing_insight.get("criticality_summary")
+        )
+        if existing_insight.get("headline") and existing_insight.get("core_mechanism") and (
+            stored_version == _CURRENT_SCHEMA or has_phase28_fields
+        ):
             return {"status": "cached", "message": "Analysis already computed"}
 
     # Run enrichment in background thread — return immediately so frontend can poll.

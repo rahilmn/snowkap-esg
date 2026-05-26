@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import "./index.css";
+import "./styles/power-of-now.css";
 
 // Force clear all caches on app boot (v2 cache bust).
 // No console.log on success — Phase 13 B5 ESLint rule enforces that.

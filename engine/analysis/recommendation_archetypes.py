@@ -311,6 +311,27 @@ _STATIC_POSITIVE_EVENTS = frozenset({
 })
 
 
+# Phase 35 — explicit NEUTRAL events. These are disclosure / filing /
+# routine-update events that carry no polarity by themselves. The old
+# dispatcher routed them to the negative-event prompt (because they
+# weren't in the positive set), and the LLM then over-framed them as
+# crises — e.g. the YES Bank pledge disclosure (event_shareholding_change)
+# produced "₹9,685 Cr CRITICAL governance risk" + aggressive board-action
+# recs when it's actually a SEBI-required shareholding disclosure with
+# no immediate financial exposure.
+#
+# Routing these to a dedicated NEUTRAL prompt — disclosure-flavoured,
+# stakeholder-communication-first, monitoring-led — keeps the rec set
+# proportionate to what's actually happening.
+_STATIC_NEUTRAL_EVENTS = frozenset({
+    "event_shareholding_change",       # SEBI Takeover Reg pledge / disclosure
+    "event_compliance_filing",         # routine BRSR / 10-K filings
+    "event_periodic_reporting",        # annual reports, ESG bulletins
+    "event_governance_disclosure",     # uncontroversial board updates
+    "event_regulatory_announcement",   # regulator policy announcements
+})
+
+
 def is_positive_event(event_id: str, sentiment: int | float | None = None) -> bool:
     """True for events whose effective polarity is upside / growth.
 
@@ -336,6 +357,35 @@ def is_positive_event(event_id: str, sentiment: int | float | None = None) -> bo
     if event_id in _AMBIGUOUS_EVENTS and sentiment is not None:
         try:
             return float(sentiment) >= 1
+        except (TypeError, ValueError):
+            return False
+    return False
+
+
+def is_neutral_event(event_id: str, sentiment: int | float | None = None) -> bool:
+    """Phase 35 — true for events that are disclosure / routine / filing
+    and should NOT get defensive remediation framing.
+
+    Static neutral events (`_STATIC_NEUTRAL_EVENTS`): always neutral.
+    Ambiguous events with `sentiment == 0` (neither -1 nor +1): treated
+    as neutral. Otherwise False (caller routes to positive/negative).
+
+    Used by:
+      - recommendation_engine.py dispatcher (picks _NEUTRAL_GENERATOR_SYSTEM)
+      - insight_generator.py dispatcher (picks _NEUTRAL_INSIGHT_DIRECTIVE)
+
+    Note: `is_positive_event` still returns False for neutral events, so
+    a 3-way dispatcher (positive / neutral / negative-default) requires
+    checking `is_positive_event` first, then `is_neutral_event`, then
+    falling through to negative as last resort.
+    """
+    if not event_id:
+        return False
+    if event_id in _STATIC_NEUTRAL_EVENTS:
+        return True
+    if event_id in _AMBIGUOUS_EVENTS and sentiment is not None:
+        try:
+            return float(sentiment) == 0
         except (TypeError, ValueError):
             return False
     return False

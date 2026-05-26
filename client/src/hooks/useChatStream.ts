@@ -36,6 +36,22 @@ export function useChatStream(initial: StreamMessage[] = []) {
     conversation_id: string | null;
     message: string;
     signoff?: string;
+    // Phase 31 — article context is forwarded server-side so the LLM
+    // system prompt can pre-load the deep insight for the article the
+    // user is currently discussing.
+    article_id?: string;
+    company_slug?: string;
+    // Forum v1.1 — forum-thread context. Backend loads thread + replies
+    // into the system prompt so the LLM grounds its summary + reply
+    // suggestion in the actual conversation instead of hallucinating.
+    forum_thread_id?: string;
+    // Wiki v1.1 — when true, backend loads the caller's bookmark
+    // library into the system prompt for "Ask AI about my Wiki".
+    wiki_context?: boolean;
+    // POW-5c — article-comments context. Set when the user opened chat
+    // from "💬 Ask about the discussion" or "✨ Help me reply".
+    include_comments?: boolean;
+    focus_comment_id?: string;
   }) => {
     setStatus("streaming");
     setMessages((prev) => [

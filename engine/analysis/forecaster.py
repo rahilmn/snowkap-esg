@@ -3,12 +3,27 @@
 This is the Snowkap-native alternative to embedding MiroFish (avoids
 AGPL exposure, no Zep Cloud reintroduction). Given a company's recent
 insight history, projects 3 / 6 / 12-month sentiment direction with
-confidence bands. Used by:
+confidence bands.
 
-  - criticality_scorer (sentiment_trajectory component)
-  - insight_generator (stamps `sentiment_trajectory` on the insight)
-  - L7 belief_revision rule R5 (forecast-driven risk-band proposal)
-  - frontend TrajectoryChart + StrategicHorizonPanel
+Consumers (all wired as of Phase 27):
+
+  - ``engine.analysis.criticality_scorer`` — output feeds the 7th
+    component ``sentiment_trajectory`` via
+    ``score(..., forecaster_output=...)``.
+  - ``engine.analysis.insight_generator`` — calls this for every
+    HOME-tier article, stamps the result on the insight dict under
+    ``sentiment_trajectory``, and passes it through
+    ``criticality_integration.score_at_insight_time`` so the score
+    incorporates it.
+  - ``engine.governance.belief_revision`` rule R5 — caller passes
+    ``forecaster_output=...`` to ``revise_from_article`` (the
+    ``CompanyAgent`` orchestrator does this from
+    ``insight_generator``) so the BeliefCoach can propose a HIGH
+    risk-band when 3m AND 6m horizons both decline at confidence
+    ≥ moderate.
+  - Frontend ``TrajectoryChart`` + ``StrategicHorizonPanel`` (read
+    ``insight.sentiment_trajectory`` from the JSON payload, written
+    at schema_version ``2.3-trajectory-stamped``).
 
 The function is pure-ish: a module-level cache keyed by
 (company_slug, content-hash) prevents redundant LLM calls. Cache is

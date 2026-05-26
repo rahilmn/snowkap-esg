@@ -116,6 +116,84 @@ def _extract_bps_value(text: str) -> float | None:
     return float(m.group(1)) if m else None
 
 
+_MARGIN_BPS_PATTERN = None
+_MARGIN_BPS_MAX = 500.0
+
+
+def clamp_narrative_margin_bps(deep_insight: dict) -> tuple[dict, int]:
+    """Phase 33 — strip overflow ``X bps`` values from narrative strings.
+
+    The Stage-10 LLM occasionally writes margin numbers into free-form
+    narrative fields (``impact_analysis.valuation_cashflow``,
+    ``role_explainer.*``, ``net_impact_summary``, ``causal_chain.translation``)
+    that bypass the engine's ±500 bps clamp in
+    ``primitive_engine.compute_cascade``. Result: prose like
+    "margin erosion of 1583232537.1 bps" makes it to the page.
+
+    This function walks every string field in the insight and
+    rewrites any ``<num> bps`` token where ``|num| > 500`` to
+    ``±500 bps (clamped from <original> — engine overflow)``. Idempotent:
+    the clamped form contains the word "clamped" which the pattern
+    skips, so a second pass is a no-op.
+
+    Returns ``(updated_insight, count_clamped)``.
+    """
+    import copy
+    import re
+
+    global _MARGIN_BPS_PATTERN
+    if _MARGIN_BPS_PATTERN is None:
+        # Match "<num> bps" where <num> is an optional-sign decimal with
+        # optional commas + optional decimal. Skip any match preceded by
+        # "clamped" (idempotency guard).
+        _MARGIN_BPS_PATTERN = re.compile(
+            r"(?<!clamped from )"
+            r"(-?[\d,]+(?:\.\d+)?)\s*bps",
+            re.IGNORECASE,
+        )
+
+    out = copy.deepcopy(deep_insight)
+    count = 0
+
+    def _clamp_str(text: str) -> str:
+        nonlocal count
+
+        def _repl(m: "re.Match[str]") -> str:
+            nonlocal count
+            raw = m.group(1)
+            try:
+                value = float(raw.replace(",", ""))
+            except ValueError:
+                return m.group(0)
+            if abs(value) <= _MARGIN_BPS_MAX:
+                return m.group(0)
+            sign = "+" if value > 0 else "-"
+            count += 1
+            return (
+                f"{sign}{int(_MARGIN_BPS_MAX)} bps "
+                f"(clamped from {raw} — engine overflow)"
+            )
+
+        return _MARGIN_BPS_PATTERN.sub(_repl, text)
+
+    def _walk(node):
+        if isinstance(node, dict):
+            for k, v in list(node.items()):
+                if isinstance(v, str):
+                    node[k] = _clamp_str(v)
+                else:
+                    _walk(v)
+        elif isinstance(node, list):
+            for i, v in enumerate(node):
+                if isinstance(v, str):
+                    node[i] = _clamp_str(v)
+                else:
+                    _walk(v)
+
+    _walk(out)
+    return out, count
+
+
 def verify_margin_math(
     deep_insight: dict,
     revenue_cr: float,
@@ -1484,6 +1562,189 @@ def verify_low_confidence_classification(
     return out, warnings
 
 
+def verify_headline_only_cap(
+    deep_insight: dict,
+) -> tuple[dict, list[str]]:
+    """Phase 35 — hard-cap materiality + retag exposure language when the
+    article body was unavailable (< 300 chars).
+
+    Audit 2026-05-24: 0 / 50 stored insights across 8 companies had any
+    article body. Every Stage-10 insight was generated from headline-only
+    input (~140 chars of title-duplicate "content" from Google News RSS).
+    The LLM was confidently producing ₹9,685 Cr "exposure" figures + HIGH/
+    CRITICAL materiality + named regulatory frameworks from 140 chars — a
+    decision-grade inspector reading the email alongside the source would
+    immediately ask "where did this number come from?" and the answer is
+    "we extrapolated it from the title". That is not a defensible posture.
+
+    This verifier — which fires when ``deep_insight["headline_only"] is True``
+    (stamped deterministically by insight_generator from the actual body
+    length) — enforces:
+
+      1. Materiality CAPPED at MODERATE (CRITICAL → MODERATE, HIGH → MODERATE;
+         MEDIUM + LOW stay). No CRITICAL/HIGH from headline-only ever.
+      2. ``(engine estimate)`` → ``(scenario estimate)`` rename across every
+         narrative string. Scenario language is honest about uncertainty;
+         engine-estimate implies calibrated computation from a body we
+         don't have.
+      3. ``net_impact_summary`` gets a prepended disclosure sentence the
+         frontend + email can quote verbatim.
+      4. Warnings list gains ``headline_only_capped`` so downstream UIs +
+         the audit log can render a yellow "Analysis based on headline
+         only — full article retrieval pending" badge.
+
+    Returns ``(updated_insight, warnings_added)``.
+
+    Idempotent — re-running on an already-capped insight is a no-op.
+    """
+    if not deep_insight.get("headline_only"):
+        return deep_insight, []
+
+    warnings_added: list[str] = []
+
+    # 1. Materiality cap
+    ds = deep_insight.get("decision_summary") or {}
+    if isinstance(ds, dict):
+        before = (ds.get("materiality") or "").upper()
+        if before in ("CRITICAL", "HIGH"):
+            ds["materiality"] = "MODERATE"
+            warnings_added.append(f"headline_only_materiality_cap:{before}->MODERATE")
+            deep_insight["decision_summary"] = ds
+    # Mirror onto analysis.why_it_matters.materiality_band (unified-analysis schema 3.0)
+    analysis = deep_insight.get("analysis") or {}
+    wim = analysis.get("why_it_matters") or {}
+    if isinstance(wim, dict):
+        band_before = (wim.get("materiality_band") or "").upper()
+        if band_before in ("CRITICAL", "HIGH"):
+            wim["materiality_band"] = "MODERATE"
+            analysis["why_it_matters"] = wim
+            deep_insight["analysis"] = analysis
+
+    # 2. Retag (engine estimate) → (scenario estimate) in every narrative string.
+    # Idempotent: existing "(scenario estimate)" tags pass through unchanged.
+    import re
+    _ESTIMATE_RE = re.compile(r"\(engine\s+estimate\)", re.IGNORECASE)
+
+    def _retag(node):
+        if isinstance(node, dict):
+            for k, v in list(node.items()):
+                node[k] = _retag(v)
+            return node
+        if isinstance(node, list):
+            return [_retag(v) for v in node]
+        if isinstance(node, str):
+            return _ESTIMATE_RE.sub("(scenario estimate)", node)
+        return node
+
+    for key in (
+        "impact_analysis", "decision_summary", "financial_timeline",
+        "role_explainer", "net_impact_summary", "causal_chain",
+        "analysis", "headline", "core_mechanism", "translation",
+        "profitability_connection",
+    ):
+        if key in deep_insight:
+            deep_insight[key] = _retag(deep_insight[key])
+
+    # 3. Prepend disclosure to net_impact_summary
+    nis = deep_insight.get("net_impact_summary") or ""
+    if isinstance(nis, str):
+        disclosure = (
+            "Headline-only analysis — full article body unavailable. "
+            "Numbers below are scenario projections, not engine-calibrated "
+            "estimates from source text. "
+        )
+        if disclosure not in nis:
+            deep_insight["net_impact_summary"] = disclosure + nis
+
+    # 4. Persist the cap signal on the warnings array + analysis sidecar so the
+    # unified-analysis frontend can render the "Headline-only" badge near the
+    # materiality chip.
+    deep_insight.setdefault("warnings", []).append("headline_only_capped")
+    if isinstance(wim, dict):
+        # Don't overwrite a more specific warning (e.g. all_estimate) — add
+        # to a list-shape sidecar so multiple guards can coexist.
+        existing = wim.get("warning")
+        if existing and existing != "headline_only":
+            wim["warning"] = f"{existing},headline_only"
+        else:
+            wim["warning"] = "headline_only"
+        analysis["why_it_matters"] = wim
+        deep_insight["analysis"] = analysis
+
+    warnings_added.append("headline_only_capped")
+    return deep_insight, warnings_added
+
+
+def verify_engine_estimate_grounding(
+    deep_insight: dict,
+) -> tuple[dict, list[str]]:
+    """Phase 33 4.5.E — flag articles where every ₹ figure is an
+    `engine estimate`.
+
+    When NLP/Stage-12.7 audited every ``(from article)`` tag and downgraded
+    all of them to ``(engine estimate)``, the article literally has no
+    article-grounded ₹ figures. The unified analysis would still surface
+    "₹X Cr exposure" as if material. We surface an `all_estimate` warning
+    so the UI renders an "estimate-only" badge near the materiality chip,
+    and we leave the narrative untouched (the figures are still useful
+    scenarios — they just need framing as such, not facts).
+
+    Returns ``(updated_insight, warnings_added)``.
+    """
+    import re
+
+    # Walk every string in impact_analysis + decision_summary + financial_timeline
+    # + role_explainer.* + net_impact_summary; count "(from article)" vs
+    # "(engine estimate)" tag occurrences.
+    paths_to_scan = [
+        deep_insight.get("impact_analysis"),
+        deep_insight.get("decision_summary"),
+        deep_insight.get("financial_timeline"),
+        deep_insight.get("role_explainer"),
+        deep_insight.get("net_impact_summary"),
+        deep_insight.get("causal_chain"),
+    ]
+
+    from_article = 0
+    engine_estimate = 0
+    has_rupee_figure = False
+
+    def _scan(node):
+        nonlocal from_article, engine_estimate, has_rupee_figure
+        if isinstance(node, dict):
+            for v in node.values():
+                _scan(v)
+        elif isinstance(node, list):
+            for v in node:
+                _scan(v)
+        elif isinstance(node, str):
+            if re.search(r"₹\s*[\d,]+", node) or re.search(r"\bRs\.?\s*[\d,]+", node, re.I):
+                has_rupee_figure = True
+                from_article += len(re.findall(r"\(from article\)", node, re.I))
+                engine_estimate += len(re.findall(r"\(engine estimate\)", node, re.I))
+
+    for p in paths_to_scan:
+        _scan(p)
+
+    warnings: list[str] = []
+    if has_rupee_figure and from_article == 0 and engine_estimate >= 2:
+        # All ₹ figures are engine-estimated AND there are at least 2 of them
+        # (otherwise a single "(engine estimate)" tag in a 1-figure article
+        # is fine). Set the all_estimate warning so the UI can flag.
+        warnings.append("all_estimate")
+        deep_insight.setdefault("warnings", []).append("all_estimate")
+        analysis = deep_insight.get("analysis") or {}
+        wim = analysis.get("why_it_matters") or {}
+        # Surface to the unified analysis composer's output too (frontend
+        # reads `analysis.why_it_matters.warning` for the badge).
+        if "warning" not in wim or not wim.get("warning"):
+            wim["warning"] = "all_estimate"
+            analysis["why_it_matters"] = wim
+            deep_insight["analysis"] = analysis
+
+    return deep_insight, warnings
+
+
 def verify_narrative_coherence(
     deep_insight: dict,
     event_id: str,
@@ -1578,6 +1839,39 @@ def verify_narrative_coherence(
                 f"materiality downgraded {materiality} → {new_materiality}"
             )
             report.math_ok = False  # piggyback on existing flag to surface warning
+
+    # Phase 33 4.5.C — also catch neutral-event + HIGH-materiality + ACT-verdict
+    # mismatch. The classic failure mode: a regulatory disclosure (e.g. SEBI
+    # share-pledge filing, periodic compliance report) is neutral but the
+    # LLM stamps materiality=HIGH + action=ACT because the topic is "governance",
+    # producing a confidently-alarmist brief on a routine disclosure.
+    # Require BOTH event_sign=0 AND sentiment_sign=0 to avoid false positives
+    # on negative events that aren't in the canonical _NEGATIVE_EVENTS set yet.
+    action = (decision.get("action") or "").upper()
+    if (
+        event_sign == 0
+        and sent_sign == 0
+        and materiality in {"CRITICAL", "HIGH"}
+        and action == "ACT"
+    ):
+        _downgrade = {
+            "CRITICAL": "HIGH",
+            "HIGH": "MODERATE",
+            "MODERATE": "LOW",
+            "LOW": "LOW",
+            "NON-MATERIAL": "NON-MATERIAL",
+        }
+        new_materiality = _downgrade.get(materiality, materiality)
+        if new_materiality and new_materiality != materiality:
+            decision["materiality"] = new_materiality
+            out["decision_summary"] = decision
+            report.corrections.append(
+                f"coherence_neutral_high_act_mismatch: event polarity is "
+                f"neutral but materiality={materiality} + action=ACT; "
+                f"downgraded materiality → {new_materiality}"
+            )
+            report.warnings.append("coherence_neutral_high_act_mismatch")
+            report.math_ok = False
     return out, report
 
 
@@ -1624,6 +1918,18 @@ def verify_and_correct(
         _audit = None
     # 1. Margin math
     out, report = verify_margin_math(deep_insight, revenue_cr)
+
+    # 1.0a Phase 33 — narrative bps clamp. Sweep every string in the
+    # insight + walk to ±500 bps any "X bps" prose where |X| > 500. The
+    # Stage-10 LLM writes margin numbers into free-form narrative that
+    # bypasses the engine clamp; this is the post-parse safety net.
+    out, narrative_bps_clamped = clamp_narrative_margin_bps(out)
+    if narrative_bps_clamped > 0:
+        report.corrections.append(
+            f"narrative bps clamp: rewrote {narrative_bps_clamped} 'X bps' "
+            f"value(s) above ±{int(_MARGIN_BPS_MAX)} bps in free-form fields"
+        )
+        report.warnings.append("margin_bps_clamped")
 
     # 1.5. Phase 12.7 — hallucination audit. Downgrade "(from article)" tags
     # the LLM invented for figures not actually present in the article. Must
@@ -1688,8 +1994,51 @@ def verify_and_correct(
         out, coherence = verify_narrative_coherence(out, event_id, nlp_sentiment)
         # Merge coherence corrections into the main report
         report.corrections.extend(coherence.corrections)
+        report.warnings.extend(coherence.warnings)  # Phase 33 — coherence_neutral_high_act_mismatch
         if not coherence.math_ok:
             report.math_ok = False  # preserve the "hallucination detected" signal
+
+    # Phase 35 — Headline-only cap. Runs BEFORE engine-estimate-grounding so
+    # the "(engine estimate)" → "(scenario estimate)" retag here is reflected
+    # in the downstream check. When `headline_only` is set (stamped by
+    # insight_generator from actual body length), this hard-caps materiality
+    # at MODERATE + retags exposure language + emits the
+    # `headline_only_capped` warning the UI uses to surface the yellow badge.
+    materiality_before_headline = (out.get("decision_summary") or {}).get("materiality")
+    out, headline_warnings = verify_headline_only_cap(out)
+    if headline_warnings:
+        report.warnings.extend(headline_warnings)
+        report.corrections.append(
+            "headline-only cap: hard-downgraded materiality + retagged "
+            "'(engine estimate)' to '(scenario estimate)' on narrative fields"
+        )
+        if _audit_enabled and _audit is not None:
+            try:
+                _audit.append_decision(
+                    "headline_only_cap_applied",
+                    article_id=article_id,
+                    company_slug=company_slug,
+                    extra={
+                        "materiality_before": materiality_before_headline,
+                        "materiality_after": (out.get("decision_summary") or {}).get("materiality"),
+                        "body_char_count": out.get("body_char_count", 0),
+                    },
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("audit append (headline_only_cap) failed: %s", exc)
+
+    # Phase 33 4.5.E — engine-estimate grounding check. Flags articles where
+    # every ₹ figure is "(engine estimate)" so the UI shows an "estimate-only"
+    # badge near the materiality chip. Idempotent.
+    out, est_warnings = verify_engine_estimate_grounding(out)
+    if est_warnings:
+        report.warnings.extend(est_warnings)
+        if "all_estimate" in est_warnings:
+            report.corrections.append(
+                "engine-estimate grounding: every ₹ figure in this insight is "
+                "an engine estimate (no article-grounded figures) — surfaced as "
+                "'all_estimate' warning + materiality badge"
+            )
         # Phase 24 — emit decision log entries for materiality downgrades
         materiality_after = (out.get("decision_summary") or {}).get("materiality")
         if (

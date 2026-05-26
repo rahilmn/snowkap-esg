@@ -29,7 +29,7 @@ import { Spinner } from "@/components/ui/Spinner";
 export default function SettingsBatchOnboardPage() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
   if (!hasPermission("manage_drip_campaigns")) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/now" replace />;
   }
   return <SettingsBatchOnboardInner />;
 }

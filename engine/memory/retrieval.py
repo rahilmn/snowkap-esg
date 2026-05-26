@@ -57,11 +57,17 @@ def retrieve_for_injection(
     user_id: str | None,
     query: str,
     top_n: int = 8,
+    only_kinds: list[str] | tuple[str, ...] | None = None,
 ) -> list[MemoryRecord]:
     """Top-N memories most relevant to `query`, scoped to (tenant, user).
 
     Side effect: touches last_accessed + access_count on returned rows
     so frequent memories age slower.
+
+    Phase 27 — `only_kinds` filters by ``fact_kind`` (e.g.
+    ``["preference"]`` to fetch user preferences only, leaving facts,
+    decisions, and open_threads untouched). ``None`` or empty list →
+    no kind filter (legacy behaviour).
     """
     query_terms = _tokenize(query)
     if not query_terms:
@@ -73,6 +79,13 @@ def retrieve_for_injection(
     )
     if not candidates:
         return []
+
+    if only_kinds:
+        allowed = {k.strip().lower() for k in only_kinds if k}
+        if allowed:
+            candidates = [m for m in candidates if m.fact_kind in allowed]
+            if not candidates:
+                return []
 
     # Build a tiny BM25 index in memory
     docs_tokens: list[list[str]] = [_tokenize(m.content) for m in candidates]

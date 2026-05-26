@@ -22,6 +22,7 @@ Boost rules (per the plan):
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -30,6 +31,7 @@ from engine.persona.persona_model import Persona
 
 HOME_FLOOR = 0.65
 MAX_FINAL_SCORE = 1.0
+_PREFERENCE_WORD_RE = re.compile(r"[a-z0-9_]+")
 
 
 @dataclass
@@ -67,6 +69,71 @@ def _safe_overlap(article_set: set[str], persona_list: list[str]) -> float:
     return len(article_set & set(persona_list)) / len(persona_list)
 
 
+def _memory_preference_overlap(
+    tenant_id: str | None,
+    user_id: str | None,
+    article_topics: list[str] | None,
+) -> float:
+    """Phase 27 — fraction of the user's stored 'preference' memories whose
+    content overlaps the article's topics on word boundaries.
+
+    Returns 0.0 when:
+      - tenant_id or article_topics is missing
+      - the memory module is unavailable
+      - the user has no preference memories
+      - none of the preferences mention any article topic as a whole token
+
+    Capped at 1.0 (always 0..1 range). Never raises — any error path
+    collapses to 0.0 so persona scoring degrades gracefully.
+
+    Word-boundary match: "esg" matches "ESG focus" but NOT "ESGallow".
+    Multi-word topics like "supply chain" match when ALL constituent
+    tokens appear in the memory's token set.
+    """
+    if not tenant_id or not article_topics:
+        return 0.0
+    try:
+        from engine.memory.retrieval import retrieve_for_injection
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+    try:
+        records = retrieve_for_injection(
+            tenant_id=tenant_id,
+            user_id=user_id,
+            query=" ".join(str(t) for t in article_topics),
+            top_n=8,
+            only_kinds=["preference"],
+        )
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+    if not records:
+        return 0.0
+
+    # Each topic → set of constituent tokens; the article matches a memory
+    # when ALL tokens of at least one topic appear as whole words in that
+    # memory's token set.
+    topic_token_sets: list[frozenset[str]] = []
+    for topic in article_topics:
+        if not topic:
+            continue
+        toks = frozenset(_PREFERENCE_WORD_RE.findall(str(topic).lower()))
+        if toks:
+            topic_token_sets.append(toks)
+    if not topic_token_sets:
+        return 0.0
+
+    matches = 0
+    for rec in records:
+        rec_tokens = set(_PREFERENCE_WORD_RE.findall((rec.content or "").lower()))
+        if not rec_tokens:
+            continue
+        if any(topic_toks <= rec_tokens for topic_toks in topic_token_sets):
+            matches += 1
+    return matches / len(records)
+
+
 def compute_persona_boost(
     persona: Persona,
     article_topics: list[str] | None = None,
@@ -75,12 +142,21 @@ def compute_persona_boost(
     cascade_dominant_lag_months: int | None = None,
     event_type: str | None = None,
     polarity: str | None = None,
+    tenant_id: str | None = None,
+    user_id: str | None = None,
 ) -> tuple[float, bool]:
     """Compute the multiplicative persona boost + outside-focus flag.
 
     All article-side inputs are optional — missing data defaults to "no
     overlap" (boost = 1.0 for that dimension), so the function tolerates
     partially-tagged articles without crashing.
+
+    Phase 27 — when `tenant_id` is supplied, preferences stored in
+    ``tenant_memory`` for this (tenant, user) contribute up to +20% boost
+    (``memory_preference_match``). Preferences raise rank; they never gate
+    the feed and never flip the ``outside_focus`` flag — so a user who
+    says "I track water risk" sees water articles boosted, but a CRITICAL
+    governance article still surfaces via the existing 0.65 home floor.
 
     Returns (boost, outside_focus). `outside_focus` is True iff the
     article's topics have ZERO overlap with the persona's esg_focus —
@@ -126,6 +202,11 @@ def compute_persona_boost(
             click = persona.click_affinity[top_topic]
             boost *= 1.0 + 0.2 * max(0.0, min(1.0, click))
 
+    # Phase 27 — memory preference match → up to +20%
+    mem_overlap = _memory_preference_overlap(tenant_id, user_id, article_topics)
+    if mem_overlap > 0:
+        boost *= 1.0 + 0.2 * mem_overlap
+
     outside_focus = persona.esg_focus and len(topics_set & set(persona.esg_focus)) == 0
     return boost, bool(outside_focus)
 
@@ -139,6 +220,8 @@ def score_with_persona(
     cascade_dominant_lag_months: int | None = None,
     event_type: str | None = None,
     polarity: str | None = None,
+    tenant_id: str | None = None,
+    user_id: str | None = None,
 ) -> PersonaScoredResult:
     """Apply persona modulation on top of a Phase 1 CriticalityResult.
 
@@ -147,6 +230,10 @@ def score_with_persona(
     and `.role_scores` (dict). Real callers pass an
     `engine.analysis.criticality_scorer.CriticalityResult`; tests can
     pass a duck-typed stub.
+
+    Phase 27 — `tenant_id` / `user_id` (optional) enable the
+    memory-preference-match boost; omitted by default to keep the
+    function testable in isolation.
     """
     base_score = float(getattr(base_result, "score", 0.0))
     band = str(getattr(base_result, "band", "LOW"))
@@ -159,6 +246,8 @@ def score_with_persona(
         cascade_dominant_lag_months=cascade_dominant_lag_months,
         event_type=event_type,
         polarity=polarity,
+        tenant_id=tenant_id,
+        user_id=user_id,
     )
 
     raw_final = base_score * boost

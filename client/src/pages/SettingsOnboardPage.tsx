@@ -56,7 +56,7 @@ const STATE_COPY: Record<OnboardState, { label: string; sub: string; color: stri
 export default function SettingsOnboardPage() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
   if (!hasPermission("manage_drip_campaigns")) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/now" replace />;
   }
   return <SettingsOnboardInner />;
 }

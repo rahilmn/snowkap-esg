@@ -45,9 +45,19 @@ import { GeographicSignalPanel } from "./GeographicSignalPanel";
 import { RiskSpotlight } from "./RiskSpotlight";
 import { UnlockFullAnalysis } from "./UnlockFullAnalysis";
 import { CrispInsight } from "@/components/CrispInsight";
-import { PerspectiveSwitcher } from "@/components/PerspectiveSwitcher";
-import { usePerspective } from "@/stores/perspectiveStore";
+// POW-6 — PerspectiveSwitcher + perspectiveStore retired (Phase 32
+// already collapsed the role surface). Default to 'esg-analyst' for the
+// legacy callers still routed through this sheet — POW-6 will replace
+// them with the new Power-of-Now ArticleSheet on /now.
 import { useRolePanels } from "@/hooks/useRolePanels";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { MethodologyDrawer } from "@/components/explainer/MethodologyDrawer";
+import { PanelInfoPopover } from "@/components/explainer/PanelInfoPopover";
+import { RoleSummary } from "@/components/insight/RoleSummary";
+import { UnifiedAnalysisCard } from "@/components/insight/UnifiedAnalysisCard";
+import { TLDRLine } from "@/components/insight/TLDRLine";
+import type { UnifiedAnalysis } from "@/types";
+import { useRoleEssentials, type Role as EssentialRole } from "@/hooks/useRoleEssentials";
 // Phase 25 W10 — "Why this matters to YOU" personal stakes card. Renders
 // nothing when stakes_for_company is empty so this is purely additive.
 import { PersonalStakesCard } from "./PersonalStakesCard";
@@ -60,33 +70,120 @@ interface ArticleDetailSheetProps {
   onClose: () => void;
 }
 
-/* Collapsible section wrapper */
+/* Collapsible section wrapper.
+ * Phase 29 — optional `panelId` + `onInfoClick` add a per-panel "i"
+ * icon next to the title. When the user clicks "i", the parent opens
+ * `PanelInfoPopover` anchored to the click location showing just THIS
+ * panel's methodology (no big drawer). `panelId` must match an entry
+ * in `engine/analysis/methodology_provenance.py:METRIC_DISPATCH`. */
 function Section({
   title,
   children,
   defaultOpen = false,
   accent,
+  panelId,
+  onInfoClick,
 }: {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
   accent?: string;
+  panelId?: string;
+  onInfoClick?: (rect: DOMRect, panelId: string) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div style={{ padding: "16px 24px" }}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between"
-        style={{ border: "none", background: "none", cursor: "pointer", padding: "0 0 8px" }}
-      >
-        <h3 style={{ fontSize: "14px", fontWeight: 600, color: accent || COLORS.textSecondary, margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-          {title}
-        </h3>
-        <span style={{ fontSize: "11px", color: COLORS.textMuted }}>{open ? "Hide" : "Show"}</span>
-      </button>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 0 8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flex: 1 }}>
+          <h3
+            onClick={() => setOpen(!open)}
+            style={{
+              fontSize: "14px", fontWeight: 600,
+              color: accent || COLORS.textSecondary, margin: 0,
+              textTransform: "uppercase", letterSpacing: "0.5px",
+              cursor: "pointer", userSelect: "none",
+            }}
+          >
+            {title}
+          </h3>
+          {panelId && onInfoClick && (
+            <button
+              type="button"
+              aria-label={`How is "${title}" calculated?`}
+              title="How is this calculated?"
+              onClick={(e) => {
+                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                onInfoClick(rect, panelId);
+              }}
+              style={{
+                width: 18, height: 18, borderRadius: 9,
+                border: `1px solid ${COLORS.brand}`,
+                background: "transparent", color: COLORS.brand,
+                fontStyle: "italic", fontWeight: 700, fontSize: 10,
+                cursor: "pointer", lineHeight: 1, padding: 0,
+              }}
+            >
+              i
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => setOpen(!open)}
+          style={{ border: "none", background: "none", cursor: "pointer", padding: 0 }}
+        >
+          <span style={{ fontSize: "11px", color: COLORS.textMuted }}>{open ? "Hide" : "Show"}</span>
+        </button>
+      </div>
       {open && <div style={{ paddingBottom: "4px" }}>{children}</div>}
       <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}` }} />
+    </div>
+  );
+}
+
+/* Phase 29 — inline panel header with optional "i" icon. Used for
+ * panels that DON'T live inside a `<Section>` wrapper (e.g. ESG Relevance
+ * Score + AI Recommendations which render a raw `<h3>` today). The
+ * "i" icon is gated by `panelId + onInfoClick` so callers who don't
+ * want it just pass nothing and get the legacy h3 styling. */
+function PanelHeaderInline({
+  title, panelId, onInfoClick, accent,
+}: {
+  title: string;
+  panelId?: string;
+  onInfoClick?: (rect: DOMRect, panelId: string) => void;
+  accent?: string;
+}) {
+  return (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 8, marginBottom: "12px",
+    }}>
+      <h3 style={{
+        fontSize: "14px", fontWeight: 600, color: accent || COLORS.textSecondary,
+        margin: 0, textTransform: "uppercase", letterSpacing: "0.5px",
+      }}>
+        {title}
+      </h3>
+      {panelId && onInfoClick && (
+        <button
+          type="button"
+          aria-label={`How is "${title}" calculated?`}
+          title="How is this calculated?"
+          onClick={(e) => {
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            onInfoClick(rect, panelId);
+          }}
+          style={{
+            width: 18, height: 18, borderRadius: 9,
+            border: `1px solid ${COLORS.brand}`,
+            background: "transparent", color: COLORS.brand,
+            fontStyle: "italic", fontWeight: 700, fontSize: 10,
+            cursor: "pointer", lineHeight: 1, padding: 0,
+          }}
+        >
+          i
+        </button>
+      )}
     </div>
   );
 }
@@ -99,8 +196,15 @@ function P({ text, fallback }: { text?: string | null; fallback?: string }) {
   );
 }
 
-/* New 6D ESG Relevance Score from deep_insight.esg_relevance_score */
+/* New 6D ESG Relevance Score from deep_insight.esg_relevance_score
+ * Phase 33 — only dimensions scoring >= 4/10 render by default. Lower
+ * dimensions indicate "not material to this event" (e.g. Environment
+ * 0/10 on a banking governance article) — they're noise rather than
+ * useful signal. A "Show all 6 dimensions" toggle reveals the rest. */
+const ESG_RELEVANCE_VISIBLE_THRESHOLD = 4;
+
 function ESGRelevanceScore6D({ score }: { score: Record<string, { score: number; rationale: string }> }) {
+  const [showAll, setShowAll] = useState(false);
   const dims = [
     { key: "environment",          label: "Environment",         color: "#16a34a" },
     { key: "social",               label: "Social",              color: "#2563eb" },
@@ -111,34 +215,73 @@ function ESGRelevanceScore6D({ score }: { score: Record<string, { score: number;
   ];
   const avg = dims.reduce((s, d) => s + (score[d.key]?.score ?? 0), 0) / dims.length;
 
+  // Phase 33 — partition into high-relevance (visible) vs low-relevance (hidden by default).
+  const highRelevance = dims.filter((d) => (score[d.key]?.score ?? 0) >= ESG_RELEVANCE_VISIBLE_THRESHOLD);
+  const lowRelevance = dims.filter((d) => (score[d.key]?.score ?? 0) < ESG_RELEVANCE_VISIBLE_THRESHOLD);
+  const visibleDims = showAll ? dims : highRelevance;
+
+  const renderDim = (d: { key: string; label: string; color: string }) => {
+    const val = score[d.key];
+    if (!val) return null;
+    return (
+      <div key={d.key}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
+          <span style={{ fontSize: "11px", fontWeight: 600, color: COLORS.textSecondary }}>{d.label}</span>
+          <span style={{ fontSize: "11px", fontWeight: 700, color: d.color }}>{val.score}/10</span>
+        </div>
+        <div style={{ height: "4px", borderRadius: "2px", backgroundColor: COLORS.textDisabled, overflow: "hidden", marginBottom: "3px" }}>
+          <div style={{ width: `${(val.score / 10) * 100}%`, height: "100%", backgroundColor: d.color, borderRadius: "2px" }} />
+        </div>
+        {val.rationale && (
+          <p style={{ fontSize: "10px", color: COLORS.textMuted, margin: 0, lineHeight: "1.4" }}>{val.rationale}</p>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div>
       <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginBottom: "14px" }}>
         <span style={{ fontSize: "28px", fontWeight: 700, color: avg >= 7 ? COLORS.brand : avg >= 4 ? COLORS.textPrimary : COLORS.textMuted }}>
           {avg.toFixed(1)}
         </span>
-        <span style={{ fontSize: "12px", color: COLORS.textMuted }}>/10 avg across 6 dimensions</span>
+        <span style={{ fontSize: "12px", color: COLORS.textMuted }}>
+          /10 avg across 6 dimensions
+          {!showAll && lowRelevance.length > 0 && (
+            <span style={{ marginLeft: 8, fontSize: 10, fontStyle: "italic" }}>
+              · {lowRelevance.length} low-relevance hidden
+            </span>
+          )}
+        </span>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        {dims.map((d) => {
-          const val = score[d.key];
-          if (!val) return null;
-          return (
-            <div key={d.key}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
-                <span style={{ fontSize: "11px", fontWeight: 600, color: COLORS.textSecondary }}>{d.label}</span>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: d.color }}>{val.score}/10</span>
-              </div>
-              <div style={{ height: "4px", borderRadius: "2px", backgroundColor: COLORS.textDisabled, overflow: "hidden", marginBottom: "3px" }}>
-                <div style={{ width: `${(val.score / 10) * 100}%`, height: "100%", backgroundColor: d.color, borderRadius: "2px" }} />
-              </div>
-              {val.rationale && (
-                <p style={{ fontSize: "10px", color: COLORS.textMuted, margin: 0, lineHeight: "1.4" }}>{val.rationale}</p>
-              )}
-            </div>
-          );
-        })}
+        {visibleDims.length > 0
+          ? visibleDims.map(renderDim)
+          : (
+            <p style={{ fontSize: 11, color: COLORS.textMuted, fontStyle: "italic", margin: 0 }}>
+              No dimensions scored ≥ {ESG_RELEVANCE_VISIBLE_THRESHOLD}/10 — this event is below the material-relevance threshold across all 6 dimensions.
+            </p>
+          )}
       </div>
+      {lowRelevance.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowAll(!showAll)}
+          style={{
+            marginTop: 10,
+            fontSize: 11, fontWeight: 600,
+            color: COLORS.brand,
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+            padding: 0,
+          }}
+        >
+          {showAll
+            ? `Hide ${lowRelevance.length} low-relevance dimension${lowRelevance.length === 1 ? "" : "s"}`
+            : `Show all 6 dimensions (${lowRelevance.length} hidden — score < ${ESG_RELEVANCE_VISIBLE_THRESHOLD})`}
+        </button>
+      )}
     </div>
   );
 }
@@ -221,13 +364,20 @@ function RecommendationCard({
   const frameworkDisplay = rec.framework_section || rec.framework;
 
   const handleAskAIAboutRec = () => {
-    sessionStorage.setItem("agent_context", JSON.stringify({
+    // Phase 31 — route to /chat (Phase C surface with MCP + memory +
+    // persistence), not the legacy /agent page. The chat seed picks up
+    // the article-context fields via URL params; for the
+    // recommendation-specific deep-dive we keep the prompt in session
+    // storage and prime the input on first /chat mount.
+    sessionStorage.setItem("chat_context", JSON.stringify({
       article_id: articleId,
       recommendation_title: rec.title,
       recommendation_description: rec.description,
-      prompt: `Tell me more about: "${rec.title}" — ${rec.description}`,
+      prompt: `Walk me through this recommendation in detail: "${rec.title}" — ${rec.description}. What's the supporting evidence and how does the engine score the inaction risk?`,
     }));
-    navigate("/agent");
+    const params = new URLSearchParams();
+    if (articleId) params.set("article", String(articleId));
+    navigate(`/chat?${params.toString()}`);
   };
 
   return (
@@ -340,7 +490,7 @@ function RecommendationCard({
             padding: "2px 0", textDecoration: "underline", textUnderlineOffset: "2px",
           }}
         >
-          Ask AI about this &rarr;
+          Discuss in chat &rarr;
         </button>
       </div>
       {rec.validation_notes && (
@@ -534,7 +684,36 @@ function renderDeepDict(val: unknown): React.ReactNode {
 
 export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps) {
   const navigate = useNavigate();
-  const activePerspective = usePerspective((s) => s.active);
+  // POW-6 — perspective retired; default to esg-analyst for legacy panels.
+  // Cast to the union so the few remaining `=== "cfo"` / `=== "ceo"`
+  // branches stay type-valid (they're dead branches now but harmless).
+  const activePerspective = "esg-analyst" as "cfo" | "ceo" | "esg-analyst";
+
+  // Phase 28 / Feature 2 — methodology drawer state.
+  // Triggered by the "i" icon in the top-right; opens a side panel with
+  // per-role analysis (Why matters / How impacts / Result) + per-metric
+  // source + simple-language logic for every score we show.
+  const [methodologyOpen, setMethodologyOpen] = useState<boolean>(false);
+
+  // Phase 33 §5 — collapse Risk / ESG / Impact / AI Recs behind a
+  // "Show full breakdown" toggle when the unified `insight.analysis`
+  // block is present. Pre-Phase-32 articles render the flat layout
+  // (showDetails defaults to false there because hasUnified is false,
+  // and the gate is `!hasUnified || showDetails`).
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+
+  // Phase 29 — per-panel info popover state. Replaces the global "i"
+  // for everyday use: each kept panel gets its own "i" that opens a
+  // small popover anchored next to it. The global drawer stays for
+  // power users who want everything in one place.
+  const [activePanelInfo, setActivePanelInfo] = useState<
+    { panelId: string; anchorRect: DOMRect } | null
+  >(null);
+
+  // Phase 29 — role-essential blocks + filter helpers. `essentials` is
+  // declared for future panel-level filtering hooks; not yet read by JSX
+  // (Phase 29 stitches it incrementally — RoleSummary already renders).
+  void useRoleEssentials(activePerspective as EssentialRole | null);
 
   // W4e — role-aware panel visibility. Reads insight.role_panel_order
   // (stamped by backend W4d) and returns isHidden(panelId) so we can
@@ -545,6 +724,16 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
     activePerspective,
     (article?.deep_insight as { role_panel_order?: never } | undefined)?.role_panel_order,
   );
+
+  // Phase 28 / Feature 5 — mobile role-aware visibility. On viewports
+  // ≤640px we additionally hide non-essential panels per the role's
+  // MOBILE_ESSENTIAL_PANELS set in useRolePanels. The "Show all panels"
+  // toggle below overrides this so power-users on mobile can still see
+  // everything when they want to.
+  const isMobile = useIsMobile();
+  const [showAllOnMobile, setShowAllOnMobile] = useState<boolean>(false);
+  const shouldHideOnMobile = (panelId: string): boolean =>
+    isMobile && !showAllOnMobile && rolePanels.isHiddenOnMobile(panelId);
 
   // ── On-demand analysis state (hooks must be before early return) ──
   // Only skip trigger if deep_insight has actual content (headline exists).
@@ -590,15 +779,21 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
     }
   }, [article?.id, article?.deep_insight?.headline]);
 
-  // Trigger analysis (extracted so retry can reuse)
+  // Phase 31 — detect live-fetched articles. They land here from
+  // /api/news/live with is_analyzed=false and a SHA256-derived id that
+  // doesn't yet exist in article_index. Hitting trigger-analysis
+  // directly would 404. Instead we bootstrap via /api/news/live/analyze
+  // (runs stages 1-9 + indexes), then continue with the normal flow.
+  const isLiveUnanalyzed = !!(
+    article && (article as unknown as { is_analyzed?: boolean }).is_analyzed === false
+  );
+
   const doTrigger = (id: string, force = false) => {
     setAnalysisStatus("pending");
-    // Phase 13 B6: pass force=true when the user explicitly clicks the
-    // "Generate <persona> view" fallback button so we re-run perspective
-    // generation even if a stale schema-version insight is cached.
-    newsApi.triggerAnalysis(id, force)
-      .then(async (res) => {
-        // Both "cached" and "done" mean analysis is ready — fetch it
+
+    const continueWithTrigger = async () => {
+      try {
+        const res = await newsApi.triggerAnalysis(id, force);
         if (res.status === "cached" || res.status === "done") {
           try {
             const r = await newsApi.getAnalysisStatus(id);
@@ -609,14 +804,44 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             }
           } catch { /* fall through to pending */ }
         }
-        // "failed" — show error
-        if (res.status === "failed" as string) {
+        if (res.status === ("failed" as string)) {
           setAnalysisStatus("failed");
           return;
         }
-        // Any other status — polling will handle it (keep "pending")
+        // Other statuses — let the polling effect take it from here.
+      } catch {
+        setAnalysisStatus("failed");
+      }
+    };
+
+    if (isLiveUnanalyzed && article?.url && article?.company_slug) {
+      // Bootstrap path: indexes the article first, then runs the same
+      // on-demand trigger as the legacy SECONDARY-click flow.
+      newsApi.liveAnalyze({
+        url: String(article.url),
+        company_slug: String(article.company_slug),
+        title: String(article.title || ""),
+        summary: String((article as unknown as { summary?: string }).summary || ""),
+        source: String((article as unknown as { source?: string }).source || ""),
+        published_at: (article.published_at as string) || undefined,
+        image_url: String((article as unknown as { image_url?: string }).image_url || ""),
       })
-      .catch(() => { setAnalysisStatus("failed"); });
+        .then(async (res) => {
+          if (res.status === "daily_cap_reached") {
+            setAnalysisStatus("failed");
+            return;
+          }
+          // Use the canonical id the backend returned (matches the
+          // article_index PK so the subsequent /trigger-analysis +
+          // /analysis polls hit the right row).
+          await continueWithTrigger();
+        })
+        .catch(() => setAnalysisStatus("failed"));
+      return;
+    }
+
+    // Already-indexed article (legacy SECONDARY click or cached HOME).
+    continueWithTrigger();
   };
 
   // Auto-trigger analysis when article opens and has no analysis
@@ -713,6 +938,15 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
   const hasDeep = !!di && Object.keys(di).length > 0;
   const hasRereact = !!rr?.validated_recommendations?.length;
 
+  // Phase 33 — Phase 5: when the unified `insight.analysis` block is
+  // present (schema 3.0+), the article opens with: hero + TL;DR +
+  // 4-bullet card. We hide Executive Insight + Framework Alignment
+  // (redundant with the card) and collapse Risk + ESG + Impact +
+  // AI Recommendations behind a single "Show full breakdown" accordion.
+  // Pre-Phase-32 articles fall through to the flat legacy layout.
+  const _diRaw = effectiveArticle.deep_insight as { analysis?: UnifiedAnalysis | null } | null | undefined;
+  const hasUnified = !!_diRaw?.analysis?.what_changed;
+
   // Derive labels for hero card
   const primaryTheme = themes?.primary_theme || article.frameworks?.[0]?.split(":")[0] || "ESG";
   const pillarLabel = themes?.primary_pillar || (
@@ -737,32 +971,19 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
 
   const handleAskAI = () => {
     onClose();
-    // Pass v2 context for richer auto-prompt
-    const rm = article.risk_matrix;
-    const topRisk = rm?.top_risks?.[0];
-    navigate("/agent", {
-      state: {
-        articleId: article.id,
-        articleTitle: article.title,
-        articleSummary: article.summary,
-        priorityLevel: article.priority_level,
-        contentType: article.content_type,
-        frameworks: article.frameworks,
-        impactScore: topScore?.impact_score,
-        explanation: topScore?.explanation,
-        executiveInsight: article.executive_insight,
-        // v2 context for richer prompt
-        topRiskName: topRisk?.category_name,
-        topRiskScore: topRisk?.risk_score,
-        topRiskClass: topRisk?.classification,
-        tonePrimary: tonePrimary,
-        primaryTheme: primaryTheme,
-        frameworkCount: article.framework_matches?.length || 0,
-        aggregateRisk: rm?.aggregate_score,
-        riskMode: riskMode || "spotlight",
-        relevanceScore: article.relevance_score,
-      },
-    });
+    // Phase 31 — consolidated to /chat (Phase C persistent chat with
+    // MCP tools, Toulmin badges, advisor hints, stateful conversations).
+    // Previously this routed to /agent (legacy AgentChatPage) which is
+    // a strictly weaker surface — no MCP, no persistence, no role
+    // routing. Both buttons ("Ask AI" + "Discuss this article in chat")
+    // now land on the same `/chat?company=…&article=…` URL so behaviour
+    // is identical and the user has one mental model.
+    const params = new URLSearchParams();
+    if (article.company_id || article.company_slug) {
+      params.set("company", String(article.company_id ?? article.company_slug));
+    }
+    params.set("article", String(article.id));
+    navigate(`/chat?${params.toString()}`);
   };
 
   return (
@@ -784,6 +1005,32 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         >
           &larr;
         </button>
+
+        {/* Phase 28 / Feature 2 — "How is this calculated?" info icon.
+            Opens MethodologyDrawer showing the per-role analysis +
+            per-metric source / simple-language logic / formula. Sits
+            next to the back button on the left so it doesn't fight
+            the share button on the right. */}
+        {article?.id && (
+          <button
+            onClick={() => setMethodologyOpen(true)}
+            className="fixed z-50"
+            style={{
+              top: "28px",
+              left: "max(64px, calc((100vw - 440px) / 2 + 64px))",
+              width: "32px", height: "32px", borderRadius: "50%",
+              backgroundColor: COLORS.bgWhite, boxShadow: SHADOWS.button,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "14px", fontWeight: 700,
+              fontStyle: "italic", color: COLORS.brand,
+              border: "none", cursor: "pointer",
+            }}
+            aria-label="How is this calculated?"
+            title="How is this calculated?"
+          >
+            i
+          </button>
+        )}
 
         {/* Share button (super-admin only) — fixed top-right, mirrors the back button.
             Phase 13 B7: gated on BOTH `manage_drip_campaigns` permission AND
@@ -899,20 +1146,68 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
           </div>
         )}
 
-        {/* ═══ ZONE B1.5: INLINE PERSPECTIVE SWITCHER ═══
-            The global PerspectiveSwitcher in MinimalHeader is hidden behind
-            this fullscreen article sheet (z-50 overlay). Without an inline
-            switcher, users had no way to toggle CFO ↔ CEO ↔ ESG Analyst from
-            within the article view. Phase 16 fix. */}
-        {effectiveArticle.perspectives && Object.keys(effectiveArticle.perspectives).length > 0 && (
-          <div style={{
-            padding: "16px 24px 0",
-            display: "flex",
-            justifyContent: "center",
-          }}>
-            <PerspectiveSwitcher />
-          </div>
-        )}
+        {/* ═══ ZONE B1.5: INLINE PERSPECTIVE SWITCHER (REMOVED) ═══
+            Phase 32 — role toggle removed from the article-detail view.
+            The unified 4-bullet analysis is horizontally consumable by any
+            role, so the CFO/CEO/Analyst chooser is dead weight. The
+            PerspectiveSwitcher component is still mounted globally in the
+            header for pages that haven't been migrated yet; this in-sheet
+            mount is gone for good. */}
+
+        {/* Phase 29 — 2-liner role summary at the top of the role view.
+            Reads `deep_insight.criticality_summary` (global) +
+            `deep_insight.role_explainer[role].why_important_for_me`
+            (role-specific). Renders ABOVE everything else; hides itself
+            when both values are empty (REJECTED / low-confidence). */}
+        {(() => {
+          // Phase 33 — TL;DR line above the unified card. Renders
+          // `criticality_summary` with a band-tinted chip. Hidden when
+          // empty (REJECTED articles).
+          const di = effectiveArticle.deep_insight as {
+            analysis?: UnifiedAnalysis | null;
+            criticality_summary?: string;
+            criticality?: { band?: string };
+          } | undefined;
+          const summary = di?.criticality_summary || "";
+          if (!summary.trim()) return null;
+          return <TLDRLine summary={summary} band={di?.criticality?.band ?? null} />;
+        })()}
+        {(() => {
+          // Phase 32 — Unified 4-bullet analysis card. Replaces the per-role
+          // RoleSummary + RoleDistinctView + CrispInsight stack as the
+          // visual focus. Hidden on pre-Phase-32 articles where
+          // `insight.analysis` isn't stamped yet — those fall back to the
+          // legacy stack below (1-release shim per DECISION 5.2). The
+          // on-demand re-enrichment path stamps `analysis` on next view.
+          const di = effectiveArticle.deep_insight as {
+            analysis?: UnifiedAnalysis | null;
+            criticality_summary?: string;
+            criticality?: { band?: string };
+            role_explainer?: Record<string, { why_important_for_me?: string }>;
+          } | undefined;
+          const unified = di?.analysis;
+          if (unified && unified.what_changed) {
+            return (
+              <UnifiedAnalysisCard
+                analysis={unified}
+                articleId={effectiveArticle.id}
+              />
+            );
+          }
+          // Legacy fallback (1-release shim) — pre-Phase-32 article.
+          const critSummary = di?.criticality_summary ?? "";
+          const whyMatters = di?.role_explainer?.[activePerspective]?.why_important_for_me ?? "";
+          const band = di?.criticality?.band ?? null;
+          if (!critSummary && !whyMatters) return null;
+          return (
+            <RoleSummary
+              criticalitySummary={critSummary}
+              whyItMattersToYou={whyMatters}
+              role={activePerspective as EssentialRole}
+              band={band}
+            />
+          );
+        })()}
 
         {/* ═══ ZONE B2: CRISP INSIGHT — ontology-driven perspective view ═══
             Renders the CFO / CEO / ESG Analyst crisp card based on the
@@ -929,52 +1224,77 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             headline + hero metric + role takeaways + role paragraph
             from the shared EvidencePack. Skips silently when absent
             (pre-Phase-3 articles). */}
-        {effectiveArticle.role_payloads?.[activePerspective] && (
-          <div style={{ padding: "12px 24px 0" }}>
-            <RoleDistinctView payload={effectiveArticle.role_payloads[activePerspective]} />
-          </div>
-        )}
-        {effectiveArticle.perspectives?.[activePerspective] ? (
-          <div style={{ padding: "12px 24px 0" }}>
-            <CrispInsight
-              view={effectiveArticle.perspectives[activePerspective] as unknown as NewCrispView}
-            />
-          </div>
-        ) : hasDeep && analysisStatus !== "pending" ? (
-          <div style={{ padding: "12px 24px 0" }}>
-            <div style={{
-              padding: "16px 18px", borderRadius: "10px",
-              background: "rgba(0,0,0,0.03)",
-              border: "1px solid rgba(0,0,0,0.08)",
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              gap: "16px", flexWrap: "wrap",
-            }}>
-              <div style={{ flex: 1, minWidth: "220px" }}>
-                <p style={{ fontSize: "13px", fontWeight: 600, color: COLORS.textPrimary, margin: 0 }}>
-                  {activePerspective === "cfo" ? "CFO" : activePerspective === "ceo" ? "CEO" : "ESG Analyst"} view not yet available
-                </p>
-                <p style={{ fontSize: "11px", color: COLORS.textMuted, margin: "4px 0 0", lineHeight: 1.45 }}>
-                  Deep insight is ready, but this perspective hasn't been generated.
-                  Click below to run the perspective generator (~10s).
-                </p>
+        {(() => {
+          // Phase 32 — hide legacy role-distinct + CrispInsight blocks when
+          // unified analysis is present (UnifiedAnalysisCard above is now
+          // the canonical surface). 1-release shim: pre-Phase-32 articles
+          // without `analysis` still see the legacy stack.
+          const di = effectiveArticle.deep_insight as { analysis?: UnifiedAnalysis | null } | undefined;
+          const hasUnified = !!di?.analysis?.what_changed;
+          if (hasUnified) return null;
+          return (
+            <>
+              {effectiveArticle.role_payloads?.[activePerspective] && (
+                <div style={{ padding: "12px 24px 0" }}>
+                  <RoleDistinctView payload={effectiveArticle.role_payloads[activePerspective]} />
+                </div>
+              )}
+              {effectiveArticle.perspectives?.[activePerspective] ? (
+                <div style={{ padding: "12px 24px 0" }}>
+                  <CrispInsight
+                    view={effectiveArticle.perspectives[activePerspective] as unknown as NewCrispView}
+                  />
+                </div>
+              ) : null}
+            </>
+          );
+        })()}
+        {/* Phase 32 — legacy "perspective not yet generated" fallback only
+            shows for pre-Phase-32 articles (no unified analysis stamped).
+            Phase 30 will delete this block along with the rest of the
+            role-toggle surface. */}
+        {(() => {
+          const di = effectiveArticle.deep_insight as { analysis?: UnifiedAnalysis | null } | undefined;
+          const hasUnified = !!di?.analysis?.what_changed;
+          if (hasUnified) return null;
+          if (effectiveArticle.perspectives?.[activePerspective]) return null;
+          if (!hasDeep || analysisStatus === "pending") return null;
+          return (
+            <div style={{ padding: "12px 24px 0" }}>
+              <div style={{
+                padding: "16px 18px", borderRadius: "10px",
+                background: "rgba(0,0,0,0.03)",
+                border: "1px solid rgba(0,0,0,0.08)",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                gap: "16px", flexWrap: "wrap",
+              }}>
+                <div style={{ flex: 1, minWidth: "220px" }}>
+                  <p style={{ fontSize: "13px", fontWeight: 600, color: COLORS.textPrimary, margin: 0 }}>
+                    {activePerspective === "cfo" ? "CFO" : activePerspective === "ceo" ? "CEO" : "ESG Analyst"} view not yet available
+                  </p>
+                  <p style={{ fontSize: "11px", color: COLORS.textMuted, margin: "4px 0 0", lineHeight: 1.45 }}>
+                    Deep insight is ready, but this perspective hasn't been generated.
+                    Click below to run the perspective generator (~10s).
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    triggeredRef.current = false;
+                    doTrigger(article.id, /* force */ true);
+                  }}
+                  style={{
+                    fontSize: "12px", fontWeight: 600, color: "#fff",
+                    background: COLORS.brand, border: "none",
+                    borderRadius: "16px", padding: "6px 16px", cursor: "pointer",
+                    flexShrink: 0,
+                  }}
+                >
+                  Generate {activePerspective === "esg-analyst" ? "ESG Analyst" : activePerspective.toUpperCase()} view
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  triggeredRef.current = false;
-                  doTrigger(article.id, /* force */ true);
-                }}
-                style={{
-                  fontSize: "12px", fontWeight: 600, color: "#fff",
-                  background: COLORS.brand, border: "none",
-                  borderRadius: "16px", padding: "6px 16px", cursor: "pointer",
-                  flexShrink: 0,
-                }}
-              >
-                Generate {activePerspective === "esg-analyst" ? "ESG Analyst" : activePerspective.toUpperCase()} view
-              </button>
             </div>
-          </div>
-        ) : null}
+          );
+        })()}
 
         {/* ═══ On-demand analysis loading skeleton ═══
             Phase 13 S5: faux-progress stage labels advance every 6s so the
@@ -1070,9 +1390,15 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
           </Section>
         )}
 
-        {/* ═══ 2. FINANCIAL IMPACT & TIMELINE ═══ */}
+        {/* ═══ 2. FINANCIAL IMPACT & TIMELINE ═══
+            Phase 31 — (i) icon opens financial_timeline methodology
+            popover (cascade β × Δ × base, primitive-engine sourcing). */}
         {hasDeep && di?.financial_timeline ? (
-          <Section title="Financial Impact & Timeline">
+          <Section
+            title="Financial Impact & Timeline"
+            panelId="financial_timeline"
+            onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+          >
             {(() => {
               const ft = di.financial_timeline as Record<string, unknown>;
 
@@ -1214,14 +1540,55 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
           </>
         ) : null}
 
-        {/* ═══ 3. RISK ASSESSMENT ═══ */}
-        {riskMode === "full" ? (
+        {/* ═══ TIER 2 — DETAILED BREAKDOWN (Phase 33 §5) ═══
+            When the unified `insight.analysis` is stamped, sections 3, 4,
+            5, 7 below are gated on `showDetails`. The reader sees a
+            single "Show full breakdown" toggle above the detailed block
+            and expands on demand. Pre-Phase-32 articles render the flat
+            layout (showDetails defaults to true). */}
+        {hasUnified && (
+          <div style={{
+            padding: "16px 24px 0", display: "flex",
+            alignItems: "center", gap: 10,
+          }}>
+            <div style={{ flex: 1, borderTop: `1px solid ${COLORS.textDisabled}` }} />
+            <button
+              type="button"
+              onClick={() => setShowDetails((v) => !v)}
+              style={{
+                fontSize: "11px", fontWeight: 700, letterSpacing: "0.5px",
+                textTransform: "uppercase", color: COLORS.brand,
+                background: "transparent", border: "none", cursor: "pointer",
+                padding: "4px 8px",
+              }}
+            >
+              {showDetails ? "▾ Hide full breakdown" : "▸ Show full breakdown — Risk · ESG · Impact · Recs"}
+            </button>
+            <div style={{ flex: 1, borderTop: `1px solid ${COLORS.textDisabled}` }} />
+          </div>
+        )}
+
+        {/* ═══ 3. RISK ASSESSMENT ═══
+            Phase 29 — "i" icon opens risk_matrix methodology popover
+            (TEMPLES P×E logic, industry weighting). Phase 33 §5 —
+            gated on `showDetails` when `hasUnified`. */}
+        {(!hasUnified || showDetails) && (riskMode === "full" ? (
           <div style={{ padding: "16px 24px 0" }}>
+            <PanelHeaderInline
+              title="Risk Assessment"
+              panelId="risk_matrix"
+              onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+            />
             <RiskMatrixDisplay riskMatrix={article.risk_matrix} />
             <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
           </div>
         ) : article.risk_matrix?.top_risks ? (
           <div style={{ padding: "16px 24px 0" }}>
+            <PanelHeaderInline
+              title="Risk Spotlight"
+              panelId="risk_matrix"
+              onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+            />
             <RiskSpotlight topRisks={(article.risk_matrix as unknown as Record<string, unknown>).top_risks as Array<{category_name: string; classification: string; rationale: string}>} />
             <UnlockFullAnalysis
               relevanceScore={article.relevance_score ?? 0}
@@ -1229,50 +1596,83 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             />
             <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
           </div>
-        ) : null}
+        ) : null)}
 
         {/* ═══ TIER 2 — STRATEGIC CONTEXT ═══ */}
 
-        {/* ═══ 4. ESG RELEVANCE SCORE ═══ */}
-        {(hasDeep && di?.esg_relevance_score && Object.keys(di.esg_relevance_score).length > 0) ? (
-          <div style={{ padding: "16px 24px 0" }}>
-            <h3 style={{ fontSize: "14px", fontWeight: 600, color: COLORS.textSecondary, marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              ESG Relevance Score
-            </h3>
-            <ESGRelevanceScore6D score={di.esg_relevance_score as unknown as Record<string, { score: number; rationale: string }>} />
-            <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
-          </div>
-        ) : article.relevance_breakdown ? (
-          <div style={{ padding: "16px 24px 0" }}>
-            <h3 style={{ fontSize: "14px", fontWeight: 600, color: COLORS.textSecondary, marginBottom: "12px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              ESG Relevance Score
-            </h3>
-            <RelevanceBreakdown breakdown={article.relevance_breakdown} />
-            <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
-          </div>
-        ) : null}
+        {/* ═══ 4. ESG RELEVANCE SCORE ═══
+            Phase 29 — `panelId="esg_relevance_score"` enables the per-panel
+            "i" icon → opens PanelInfoPopover with calculation methodology
+            for this block only. Phase 33 §5 — gated on `showDetails`
+            when `hasUnified`. */}
+        {(!hasUnified || showDetails) && (
+          (hasDeep && di?.esg_relevance_score && Object.keys(di.esg_relevance_score).length > 0) ? (
+            <div style={{ padding: "16px 24px 0" }}>
+              <PanelHeaderInline
+                title="ESG Relevance Score"
+                panelId="esg_relevance_score"
+                onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+              />
+              <ESGRelevanceScore6D score={di.esg_relevance_score as unknown as Record<string, { score: number; rationale: string }>} />
+              <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
+            </div>
+          ) : article.relevance_breakdown ? (
+            <div style={{ padding: "16px 24px 0" }}>
+              <PanelHeaderInline
+                title="ESG Relevance Score"
+                panelId="relevance"
+                onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+              />
+              <RelevanceBreakdown breakdown={article.relevance_breakdown} />
+              <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "16px" }} />
+            </div>
+          ) : null
+        )}
 
-        {/* ═══ 5. IMPACT ANALYSIS (6 dimensions) ═══ */}
-        {hasDeep && di?.impact_analysis && (
-          <Section title="Impact Analysis" defaultOpen>
+        {/* ═══ 5. IMPACT ANALYSIS (6 dimensions) ═══
+            Phase 29 — "i" icon opens the per-panel popover with the
+            generation methodology for these 6 sub-blocks. */}
+        {(!hasUnified || showDetails) && hasDeep && di?.impact_analysis && (
+          <Section
+            title="Impact Analysis"
+            defaultOpen
+            panelId="impact_analysis"
+            onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+          >
             {renderDeepDict(di.impact_analysis)}
           </Section>
         )}
-        {hasDeep && !di?.impact_analysis && di?.esg_impact_analysis && (
-          <Section title="ESG Impact Analysis" defaultOpen>
+        {(!hasUnified || showDetails) && hasDeep && !di?.impact_analysis && di?.esg_impact_analysis && (
+          <Section
+            title="ESG Impact Analysis"
+            defaultOpen
+            panelId="impact_analysis"
+            onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+          >
             {renderDeepDict(di.esg_impact_analysis)}
           </Section>
         )}
 
-        {/* ═══ 6. FRAMEWORK ALIGNMENT ═══ */}
-        {/* W4e — hidden for CFO + CEO per RolePanelPriority ontology rules */}
-        {!rolePanels.isHidden("framework_alignment") && (
+        {/* ═══ 6. FRAMEWORK ALIGNMENT ═══
+            W4e — hidden for CFO + CEO per RolePanelPriority ontology rules.
+            Phase 29 — "i" icon opens framework_match methodology popover.
+            Phase 33 — hidden permanently when the unified analysis is
+            present (framework codes already in `what_it_triggers`). */}
+        {!hasUnified && !rolePanels.isHidden("framework_alignment") && !shouldHideOnMobile("framework_alignment") && (
           article.framework_matches && article.framework_matches.length > 0 ? (
-            <Section title="Framework Alignment">
+            <Section
+              title="Framework Alignment"
+              panelId="framework_match"
+              onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+            >
               <FrameworkAlignmentV2 frameworkMatches={article.framework_matches} />
             </Section>
           ) : hasDeep && di?.compliance_regulatory_impact ? (
-            <Section title="Compliance & Regulatory Impact">
+            <Section
+              title="Compliance & Regulatory Impact"
+              panelId="framework_match"
+              onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+            >
               {renderDeepDict(di.compliance_regulatory_impact)}
             </Section>
           ) : null
@@ -1280,14 +1680,19 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
 
         {/* ═══ TIER 3 — ACTION & INTELLIGENCE ═══ */}
 
-        {/* ═══ 7. AI RECOMMENDATIONS (REREACT) ═══ */}
-        {hasRereact && (
+        {/* ═══ 7. AI RECOMMENDATIONS (REREACT) ═══
+            Phase 29 — "i" icon opens ai_recommendations methodology popover
+            (3-agent RE³ pipeline explanation + per-rec type breakdown). */}
+        {(!hasUnified || showDetails) && hasRereact && (
           <div style={{ padding: "16px 24px 0" }}>
             <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginBottom: "16px" }} />
-            <h3 style={{ fontSize: "14px", fontWeight: 600, color: COLORS.brand, marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              AI Recommendations
-            </h3>
-            <p style={{ fontSize: "12px", color: COLORS.textMuted, marginBottom: "12px" }}>
+            <PanelHeaderInline
+              title="AI Recommendations"
+              panelId="ai_recommendations"
+              onInfoClick={(rect, id) => setActivePanelInfo({ panelId: id, anchorRect: rect })}
+              accent={COLORS.brand}
+            />
+            <p style={{ fontSize: "12px", color: COLORS.textMuted, marginBottom: "12px", marginTop: "-8px" }}>
               Validated by 3-agent RE³ pipeline
             </p>
             {(() => {
@@ -1328,19 +1733,24 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
           </div>
         )}
 
-        {/* ═══ 8. EXECUTIVE INSIGHT ═══ */}
-        <div style={{ padding: "16px 24px 0" }}>
-          <h3 style={{ fontSize: "14px", fontWeight: 600, color: COLORS.textSecondary, marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Executive Insight</h3>
-          <P
-            text={article.executive_insight}
-            fallback={topScore?.explanation ? `${topScore.explanation}.` : "Tap Ask AI for a detailed executive briefing."}
-          />
-          <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "8px" }} />
-        </div>
+        {/* ═══ 8. EXECUTIVE INSIGHT ═══
+            Phase 33 — hidden permanently when the unified analysis is
+            present (the headline + criticality_summary already cover
+            this on the unified card + TL;DR). */}
+        {!hasUnified && (
+          <div style={{ padding: "16px 24px 0" }}>
+            <h3 style={{ fontSize: "14px", fontWeight: 600, color: COLORS.textSecondary, marginBottom: "4px", textTransform: "uppercase", letterSpacing: "0.5px" }}>Executive Insight</h3>
+            <P
+              text={article.executive_insight}
+              fallback={topScore?.explanation ? `${topScore.explanation}.` : "Open '💬 Discuss this article in chat' below for a detailed executive briefing."}
+            />
+            <div style={{ borderBottom: `1px solid ${COLORS.textDisabled}`, marginTop: "8px" }} />
+          </div>
+        )}
 
         {/* ═══ TIER 4 — SUPPORTING EVIDENCE (grouped collapsible) ═══ */}
         {/* W4e — entire supporting-evidence section hidden for CFO per ontology */}
-        {!rolePanels.isHidden("narrative_intelligence") && (
+        {!rolePanels.isHidden("narrative_intelligence") && !shouldHideOnMobile("narrative_intelligence") && (
         <Section title={`Supporting Evidence (${supportingEvidenceCount})`} defaultOpen={false}><>
           {/* Narrative Intelligence */}
           <div style={{ marginBottom: "14px" }}>
@@ -1398,15 +1808,11 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
         </></Section>
         )}
 
-        {/* ═══ ACTION BUTTONS ═══ */}
-        <div className="flex gap-3" style={{ padding: "24px 24px 32px" }}>
-          <button
-            onClick={handleAskAI}
-            className="flex-1 text-white font-medium"
-            style={{ backgroundColor: COLORS.darkCard, borderRadius: RADII.button, padding: "14px 0", fontSize: "18px", fontWeight: 500, border: "none", cursor: "pointer" }}
-          >
-            Ask AI
-          </button>
+        {/* ═══ ACTION BUTTONS ═══
+            Phase 31 — "Ask AI" removed; the same destination is served
+            by "💬 Discuss this article in chat" below. Keeping one CTA
+            instead of two stops the confusion the user flagged. */}
+        <div className="flex gap-3" style={{ padding: "24px 24px 12px" }}>
           <button
             onClick={() => article.url && window.open(article.url, "_blank")}
             className="flex-1 font-medium"
@@ -1415,7 +1821,127 @@ export function ArticleDetailSheet({ article, onClose }: ArticleDetailSheetProps
             View Article
           </button>
         </div>
+
+        {/* Phase 28 / Feature 6 — "Discuss this article" entrypoint.
+            Opens /chat with `?company=...&article=...` URL params so
+            the chat page auto-primes a contextual prompt + the LLM can
+            call `intelligence-forecast` / `intelligence-competitors` /
+            `memory-recall` MCP tools against the right company. */}
+        {article?.id && (
+          <div style={{ padding: "0 24px 28px" }}>
+            <button
+              onClick={() => {
+                const params = new URLSearchParams();
+                if (article.company_id || article.company_slug) {
+                  params.set(
+                    "company",
+                    String(article.company_id ?? article.company_slug),
+                  );
+                }
+                params.set("article", String(article.id));
+                onClose();
+                navigate(`/chat?${params.toString()}`);
+              }}
+              className="w-full font-medium"
+              style={{
+                background: "none",
+                color: COLORS.brand,
+                border: `1px dashed ${COLORS.brand}`,
+                borderRadius: RADII.button,
+                padding: "12px 0", fontSize: 13, fontWeight: 600,
+                cursor: "pointer",
+              }}
+            >
+              💬 Discuss this article in chat
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Phase 28 / Feature 5 — "Show all panels" override on mobile.
+          Only renders when we're actually hiding panels (mobile + role
+          active) so the desktop view never sees this toggle. */}
+      {isMobile && activePerspective && !showAllOnMobile && (
+        <div style={{
+          maxWidth: 440, margin: "12px auto 0",
+          padding: "0 24px",
+          textAlign: "center",
+        }}>
+          <button
+            onClick={() => setShowAllOnMobile(true)}
+            style={{
+              background: "none", border: `1px dashed ${COLORS.textMuted}`,
+              borderRadius: 8, padding: "8px 14px", color: COLORS.textMuted,
+              fontSize: 12, fontWeight: 500, cursor: "pointer",
+            }}
+          >
+            Show all panels for this article
+          </button>
+        </div>
+      )}
+
+      {/* Phase 28 / Feature 2 — methodology drawer (mounted at sheet
+          root so it overlays the entire detail view).
+          Phase 29: kept reachable for power users (chat slash-command,
+          deep-link). The default per-panel "i" icons use the popover
+          below instead, which is lighter-weight. */}
+      <MethodologyDrawer
+        articleId={methodologyOpen && article?.id ? String(article.id) : null}
+        role={activePerspective}
+        onClose={() => setMethodologyOpen(false)}
+      />
+
+      {/* Phase 29 — per-panel info popover. Anchored to whichever "i"
+          icon was clicked (panel header). Closes on click-outside or
+          Escape. Cached by React Query so re-open is instant. */}
+      {activePanelInfo && article?.id && (
+        <PanelInfoPopover
+          articleId={String(article.id)}
+          panelId={activePanelInfo.panelId}
+          role={activePerspective || "cfo"}
+          anchorRect={activePanelInfo.anchorRect}
+          onClose={() => setActivePanelInfo(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+
+/** Phase 29 — `<PanelHeader>` wraps a section title + an "i" icon that
+ * opens the per-panel info popover. Any caller that wants per-panel
+ * methodology disclosure just renders this in place of a raw <h3>. */
+export interface PanelHeaderProps {
+  title: string;
+  panelId: string;
+  /** Callback the parent uses to open the popover with anchorRect. */
+  onInfoClick: (anchorRect: DOMRect, panelId: string) => void;
+}
+
+export function PanelHeader({ title, panelId, onInfoClick }: PanelHeaderProps) {
+  const btnRef = (el: HTMLButtonElement | null) => { (btnRef as { current?: HTMLButtonElement | null }).current = el; };
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ flex: 1 }}>{title}</span>
+      <button
+        ref={btnRef}
+        type="button"
+        aria-label={`How is "${title}" calculated?`}
+        title="How is this calculated?"
+        onClick={(e) => {
+          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+          onInfoClick(rect, panelId);
+        }}
+        style={{
+          width: 20, height: 20, borderRadius: 10,
+          border: `1px solid ${COLORS.brand}`,
+          background: "transparent", color: COLORS.brand,
+          fontStyle: "italic", fontWeight: 700, fontSize: 11,
+          cursor: "pointer", lineHeight: 1, padding: 0,
+        }}
+      >
+        i
+      </button>
     </div>
   );
 }

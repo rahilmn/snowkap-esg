@@ -64,7 +64,7 @@ export default function SettingsCampaignsPage() {
   const canManage = hasPermission("manage_drip_campaigns");
 
   if (!canManage) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/now" replace />;
   }
 
   return <SettingsCampaignsPageInner />;

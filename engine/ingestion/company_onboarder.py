@@ -131,23 +131,68 @@ def _slugify(name: str) -> str:
 # gets CSRD + ESRS flavour, instead of every onboarded company getting
 # the Indian regulator names regardless of HQ.
 _UNIVERSAL_QUERIES = [
+    # Direct ESG hits (highest-signal, broadly applicable across industries)
+    "{company} ESG news",
+    "{company} sustainability report",
     "{company} ESG rating",
+    "{company} ESG controversy",
+    "{company} greenwashing",
+    "{company} sustainability commitment",
+    # Climate + emissions
+    "{company} net zero commitment",
+    "{company} carbon neutral",
+    "{company} scope 1 emissions",
+    "{company} scope 2 emissions",
+    "{company} scope 3 emissions",
+    "{company} carbon emissions",
+    "{company} climate target",
+    "{company} climate transition plan",
+    "{company} renewable energy investment",
+    "{company} green hydrogen",
+    "{company} energy efficiency",
+    # Climate disclosure + finance
     "{company} climate disclosure",
     "{company} TCFD disclosure",
     "{company} mandatory disclosure",
+    "{company} green bond",
+    "{company} sustainability linked loan",
+    "{company} sustainable finance",
+    "{company} ESG investment",
+    # Social / labour
     "{company} forced labour",
     "{company} child labour",
     "{company} modern slavery",
     "{company} wage theft",
     "{company} factory audit",
+    "{company} supplier code of conduct",
+    "{company} workplace safety",
+    "{company} diversity inclusion",
+    "{company} ethical sourcing",
+    "{company} human rights",
+    "{company} community impact",
+    # Environmental / physical
     "{company} flood",
     "{company} drought",
     "{company} extreme weather",
     "{company} water stress",
+    "{company} water management",
     "{company} heatwave",
     "{company} land acquisition",
     "{company} biodiversity",
+    "{company} deforestation",
     "{company} hazardous waste",
+    "{company} waste management",
+    "{company} circular economy",
+    "{company} pollution",
+    "{company} environmental compliance",
+    "{company} EPR compliance",
+    # Governance
+    "{company} governance breach",
+    "{company} board diversity",
+    "{company} whistleblower",
+    "{company} ESG audit",
+    "{company} sustainability rating upgrade",
+    "{company} sustainability rating downgrade",
 ]
 
 # Region-specific regulator + framework flavour. Keys must match the values
@@ -545,7 +590,14 @@ def _resolve_from_domain(domain: str) -> tuple[str, dict] | None:
             except Exception:
                 continue
 
-    # Pass 3 — first hit with revenue (any exchange, last resort)
+    # Pass 3 — first hit with revenue AND whose name overlaps the domain
+    # stem. We deliberately do NOT fall through to "any first hit with
+    # revenue" because that's what mis-resolved reliance.com to a random
+    # US-listed "Reliance Inc" with zero ESG-relevant news. If no yfinance
+    # hit cleanly matches the domain, return None and let the caller fall
+    # back to the domain-only path (no ticker / no financials, but name +
+    # news queries derived from the domain stem).
+    stem_lower = stem.lower()
     for q in quotes[:8]:
         sym = q.get("symbol", "")
         if not sym:
@@ -553,11 +605,40 @@ def _resolve_from_domain(domain: str) -> tuple[str, dict] | None:
         try:
             tk = yf.Ticker(sym)
             info = tk.info or {}
-            if info.get("totalRevenue"):
+            if not info.get("totalRevenue"):
+                continue
+            name_lower = (info.get("longName") or info.get("shortName") or "").lower()
+            if stem_lower and stem_lower in name_lower.replace(" ", ""):
                 return sym, info
         except Exception:
             continue
     return None
+
+
+def _domain_only_profile(domain: str) -> tuple[str, dict]:
+    """Final fallback when yfinance cannot resolve the domain cleanly.
+
+    Returns a synthetic (ticker='', info=…) pair so the onboarder can still
+    proceed using just the domain. The name is derived from the domain stem
+    (title-cased), industry defaults to "Other / General", and financial
+    fields are zero so the cascade engine uses the industry-default ratios.
+    """
+    stem = _domain_to_search_term(domain) or "company"
+    # Try splitting common Indian conglomerate prefixes for a nicer display
+    # name ("tatachemicals" → "Tata Chemicals").
+    parts = _split_indian_compound_stem(stem)
+    name_seed = parts[1] if len(parts) > 1 else stem  # prefer "tata chemicals" over "tatachemicals"
+    name = " ".join(w.capitalize() for w in name_seed.split())
+    info: dict[str, Any] = {
+        "longName": name,
+        "shortName": name,
+        "website": domain,
+        "industry": "",
+        "sector": "",
+        "totalRevenue": 0,
+        "marketCap": 0,
+    }
+    return "", info
 
 
 def _resolve_yfinance_ticker(
@@ -670,11 +751,22 @@ def onboard_company(
     if resolved is None and domain:
         resolved = _resolve_from_domain(domain)
     if resolved is None:
-        logger.error(
-            "could not resolve yfinance ticker (name=%r, hint=%r, domain=%r)",
-            company_name, ticker_hint, domain,
-        )
-        return None
+        # Domain-only fallback — yfinance returned nothing usable. Onboard
+        # with name derived from the domain stem, no ticker, no financial
+        # calibration. The pipeline still works (industry-default ratios
+        # kick in for the cascade engine).
+        if domain:
+            logger.info(
+                "onboard_company: no yfinance hit for domain=%r — falling back to domain-only profile",
+                domain,
+            )
+            resolved = _domain_only_profile(domain)
+        else:
+            logger.error(
+                "could not resolve company (name=%r, hint=%r, domain=%r)",
+                company_name, ticker_hint, domain,
+            )
+            return None
     ticker, info = resolved
     resolved_name = (
         info.get("longName")
@@ -725,6 +817,22 @@ def onboard_company(
 
     # 2. Industry
     industry = _infer_our_industry(info.get("industry", ""), info.get("sector", ""))
+
+    # Phase 31 — LLM-craft the two live-fetch queries (sustainability +
+    # general) right after we know the industry. Cheap call (~$0.0003)
+    # and the result is stored on the companies row so subsequent live
+    # fetches don't repeat it. We don't yet know the region (computed
+    # below from hq_country) so we pass None here and let the generator's
+    # fallback handle missing region context.
+    try:
+        from engine.ingestion.llm_query_generator import generate_queries
+        _llm_queries = generate_queries(resolved_name, industry=industry, region=None)
+        sustainability_query = _llm_queries.sustainability_query
+        general_query = _llm_queries.general_query
+    except Exception as exc:  # noqa: BLE001 — onboarder must never fail on this
+        logger.warning("onboard_company: query generation failed for %s: %s", slug, exc)
+        sustainability_query = f"{resolved_name} ESG sustainability climate disclosure"
+        general_query = f"{resolved_name} earnings results regulatory action"
 
     # 3. SASB category
     sasb_category = _INDUSTRY_TO_SASB.get(industry, "Other / General")
@@ -899,6 +1007,11 @@ def onboard_company(
         "primitive_calibration": calibration,
         "yfinance_ticker": ticker,
         "eodhd_ticker": ticker.replace(".NS", ".NSE") if ticker.endswith(".NS") else ticker,
+        # Phase 31 — live-fetch queries persisted on the companies.json
+        # entry so mark_ready's dual-write into the companies table can
+        # pick them up via engine.config.get_company().
+        "sustainability_query": sustainability_query,
+        "general_query": general_query,
     }
 
     if dry_run:

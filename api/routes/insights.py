@@ -43,6 +43,97 @@ def company_insights(
     return {"count": len(rows), "company_slug": slug, "items": rows}
 
 
+@router.get("/api/insights/critical-three")
+def critical_three(
+    company: str = Query(..., min_length=1, max_length=120,
+                         description="Company slug (or alias)."),
+) -> dict:
+    """Phase 28 / Feature 3 — Today's 3 critical articles for a company.
+
+    Returns exactly the top three HOME-tier articles ordered by
+    ``criticality_score DESC, published_at DESC``. The pipeline already
+    narrows to top-3 via ``select_top_n_for_pipeline(n=3)`` at ingest
+    time, but this endpoint also enforces the cap at read time so the
+    HomePage hero strip can render a fixed 3-card layout even when an
+    older run accidentally produced more HOME-tier articles.
+
+    Falls back gracefully when fewer than 3 HOME articles exist:
+        - count=N (0..3) is always honest
+        - the response carries ``hint`` text explaining the shortfall so
+          the UI can render skeleton placeholders for the missing slots.
+    """
+    # Phase 36 — resolve the alias slug (user-visible login slug like
+    # `tatasteel`) to the canonical slug (`tata-steel-limited`) before
+    # looking up the company. Without this, JWT-derived slugs from new
+    # tenants 404 because the canonical record is keyed under a
+    # different slug.
+    try:
+        from engine.index.sqlite_index import resolve_slug
+        canonical = resolve_slug(company) or company
+    except Exception:  # noqa: BLE001 — resolver optional, fall through
+        canonical = company
+    try:
+        get_company(canonical)
+    except KeyError:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Company '{canonical}' is not yet onboarded. "
+                "Submit the company via /settings/onboard or wait for "
+                "the onboarding pipeline to complete."
+            ),
+        )
+
+    rows = query_feed(
+        company_slug=canonical,
+        tier="HOME",
+        limit=3,
+        offset=0,
+        min_criticality=0.65,  # home-page floor enforced for safety
+    )
+
+    # Cold-start fallback — when a freshly-onboarded tenant has 0 HOME-tier
+    # rows, pull the highest-criticality SECONDARY articles so the hero strip
+    # has something to show. The user can still click into them for the full
+    # on-demand enrichment. Without this, the home page sits empty for hours
+    # waiting for an article to clear the HOME threshold.
+    #
+    # `max_age_days=0` disables the freshness filter for the backfill: Google
+    # News routinely returns articles published 30-90 days ago, all of which
+    # fail the default 20-day window. The full feed still enforces the
+    # window — this is just the hero-strip cold-start ladder.
+    if len(rows) < 3:
+        backfill_needed = 3 - len(rows)
+        existing_ids = {r.get("id") for r in rows}
+        secondary = query_feed(
+            company_slug=company,
+            tier="SECONDARY",
+            limit=backfill_needed + len(existing_ids),
+            offset=0,
+            max_age_days=0,
+        )
+        for r in secondary:
+            if r.get("id") in existing_ids:
+                continue
+            rows.append(r)
+            if len(rows) >= 3:
+                break
+
+    hint: str | None = None
+    if len(rows) < 3:
+        hint = (
+            f"Only {len(rows)} article(s) available so far — "
+            "the rest of the feed is still being indexed."
+        )
+
+    return {
+        "count": len(rows),
+        "company_slug": company,
+        "items": rows,
+        "hint": hint,
+    }
+
+
 def _trigger_background_regenerate(article_id: str, slug: str) -> None:
     """Phase 13 B4: schedule on-demand re-enrichment when an indexed JSON
     file is missing or malformed. Best-effort — failures here are logged
