@@ -1,0 +1,64 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Risk Management",
+        "Financials/Banking",
+        "YES Bank"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Risk Management is material for Financials/Banking → impacts YES Bank"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "TCFD",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers TCFD disclosure obligation for YES Bank"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "COSO ERM",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers COSO ERM disclosure obligation for YES Bank"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "ISSB / IFRS S1 S2",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers ISSB / IFRS S1 S2 disclosure obligation for YES Bank"
+    }
+  ]
+}
