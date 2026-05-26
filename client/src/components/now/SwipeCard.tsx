@@ -146,17 +146,17 @@ export function SwipeCard({ article, bookmarked }: Props) {
         background: categoryTint(category),
         flex: "0 0 auto",
       }}>
-        {/* Striped placeholder texture */}
-        <div
-          className="placeholder-stripe"
-          data-label={article.image_url ? "" : "hero image"}
-          style={{
-            position: "absolute", inset: 0,
-            mixBlendMode: "multiply", opacity: 0.55,
-            backgroundImage: article.image_url ? `url(${article.image_url})` : undefined,
-            backgroundSize: "cover", backgroundPosition: "center",
-          }}
-        />
+        {/* Hero image overlay — only rendered when a real image URL exists */}
+        {article.image_url && (
+          <div
+            style={{
+              position: "absolute", inset: 0,
+              mixBlendMode: "multiply", opacity: 0.55,
+              backgroundImage: `url(${article.image_url})`,
+              backgroundSize: "cover", backgroundPosition: "center",
+            }}
+          />
+        )}
         {/* top chip row: category + source */}
         <div style={{
           position: "absolute", top: 12, left: 14, right: 14,

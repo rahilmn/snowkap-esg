@@ -2,13 +2,23 @@
 @prefix snowkap: <http://snowkap.com/ontology/esg#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-snowkap:disc_test_co a snowkap:Competitor,
+<http://snowkap.com/ontology/esg#disc_fw_sebi_(depositories_and_participants)_regulations,_2018> a snowkap:ComplianceDeadline,
         snowkap:DiscoveredTriple ;
-    rdfs:label "Test Co" ;
-    snowkap:discoveredAt "2026-05-04T00:00:00+00:00" ;
-    snowkap:discoveredFrom "a1" ;
-    snowkap:discoveryCategory "entity" ;
+    rdfs:label "SEBI (Depositories and Participants) Regulations, 2018" ;
+    snowkap:discoveredAt "2026-05-26T11:44:48.036654+00:00" ;
+    snowkap:discoveredFrom "2966de54c63b3ed1" ;
+    snowkap:discoveryCategory "framework" ;
     snowkap:discoveryConfidence 8.5e-01 ;
     snowkap:discoveryStatus "promoted" ;
-    snowkap:slug "test_co" .
+    snowkap:slug "sebi_(depositories_and_participants)_regulations,_2018" .
+
+<http://snowkap.com/ontology/esg#disc_fw_sebi_(lodr)_regulations,_2015> a snowkap:ComplianceDeadline,
+        snowkap:DiscoveredTriple ;
+    rdfs:label "SEBI (LODR) Regulations, 2015" ;
+    snowkap:discoveredAt "2026-05-26T11:44:48.036654+00:00" ;
+    snowkap:discoveredFrom "2966de54c63b3ed1" ;
+    snowkap:discoveryCategory "framework" ;
+    snowkap:discoveryConfidence 8.5e-01 ;
+    snowkap:discoveryStatus "promoted" ;
+    snowkap:slug "sebi_(lodr)_regulations,_2015" .
 

@@ -1,0 +1,895 @@
+{
+  "article": {
+    "id": "2966de54c63b3ed1",
+    "title": "SEBI Issues Administrative Warning to ICICI Bank Over Depository Participant Non-Compliances - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOT2J6bHJDTGg2QVB1d1IyT2NCOUdkUGMyakdFNWJSSmc4ZUhoRVNaR1NOTXRMWFlPbTB2ZGd0UVZVQXBCQ05iajB5ZUYwajNDU0dQdDRpRy1hSklyeVFqYXlLbmhFSVpUWi1CX3VtbDNxTWhlMlE5T3pySWM2NHZBbnF4RDVMZDdLX1Y0Xzl5YUFxQl85eWR3QTZleXNhVWF3WmpPSk9QRFRldHVqdG4tajl6cU5hMDd1MVo0S09FWUNYQjFEUVJVVGhvUEVUdTEtMDl0TDZSNUdzcnFMUHBoekpnNA?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-05-05T07:00:00+00:00",
+    "company_slug": "icici-bank",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "2966de54c63b3ed1",
+    "title": "SEBI Issues Administrative Warning to ICICI Bank Over Depository Participant Non-Compliances - scanx.trade",
+    "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOT2J6bHJDTGg2QVB1d1IyT2NCOUdkUGMyakdFNWJSSmc4ZUhoRVNaR1NOTXRMWFlPbTB2ZGd0UVZVQXBCQ05iajB5ZUYwajNDU0dQdDRpRy1hSklyeVFqYXlLbmhFSVpUWi1CX3VtbDNxTWhlMlE5T3pySWM2NHZBbnF4RDVMZDdLX1Y0Xzl5YUFxQl85eWR3QTZleXNhVWF3WmpPSk9QRFRldHVqdG4tajl6cU5hMDd1MVo0S09FWUNYQjFEUVJVVGhvUEVUdTEtMDl0TDZSNUdzcnFMUHBoekpnNA?oc=5",
+    "source": "scanx.trade",
+    "published_at": "2026-05-05T07:00:00+00:00",
+    "company_slug": "icici-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 46,
+    "elapsed_seconds": 22.609,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite",
+      "criticality_scoring"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.85,
+      "tone": [
+        "cautionary",
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "SEBI issued an administrative warning to ICICI Bank for non-compliances in its depository participant activities.",
+      "narrative_implied_causation": "Non-compliances identified during SEBI's periodic inspection caused the regulatory warning, prompting corrective actions by the bank.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist addressing regulatory concerns; SEBI is the regulator enforcing compliance; investors and clients are affected stakeholders.",
+      "entities": [
+        "SEBI",
+        "ICICI Bank",
+        "Regulation 30",
+        "SEBI (LODR) Regulations, 2015",
+        "SEBI (Depositories and Participants) Regulations, 2018",
+        "Prachiti Lalingkar",
+        "BSE Limited",
+        "National Stock Exchange of India Limited",
+        "New York Stock Exchange",
+        "SIX Swiss Exchange Ltd."
+      ],
+      "entity_types": {
+        "SEBI": "regulator",
+        "ICICI Bank": "company",
+        "Regulation 30": "regulation",
+        "SEBI (LODR) Regulations, 2015": "regulation",
+        "SEBI (Depositories and Participants) Regulations, 2018": "regulation",
+        "Prachiti Lalingkar": "person",
+        "BSE Limited": "stock exchange",
+        "National Stock Exchange of India Limited": "stock exchange",
+        "New York Stock Exchange": "stock exchange",
+        "SIX Swiss Exchange Ltd.": "stock exchange"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [
+        "SEBI",
+        "Regulation 30",
+        "SEBI (LODR) Regulations, 2015",
+        "SEBI (Depositories and Participants) Regulations, 2018"
+      ],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "regulatory compliance",
+        "governance",
+        "operational risk"
+      ],
+      "content_type": "regulatory",
+      "urgency": "medium",
+      "time_horizon": "weeks",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Ethics & Compliance",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "regulatory_compliance",
+        "code_of_conduct",
+        "fines",
+        "whistleblower_protection"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness",
+            "audit_quality"
+          ]
+        },
+        {
+          "theme": "Risk Management",
+          "pillar": "G",
+          "sub_metrics": [
+            "business_continuity",
+            "erm_maturity",
+            "risk_committees"
+          ]
+        }
+      ],
+      "confidence": 0.95,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_criminal_indictment",
+      "label": "Criminal Indictment",
+      "score_floor": 8,
+      "score_ceiling": 10,
+      "financial_transmission": "brand destruction → share price → cost of capital spike",
+      "matched_keywords": [
+        "[theme_fallback]"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 0,
+      "compliance_risk": 2,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 1.0,
+      "adjusted_total": 4.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "ICICI Bank"
+        ],
+        "edges": [],
+        "hops": 0,
+        "relationship_type": "directOperational",
+        "impact_score": 1.0,
+        "explanation": "ICICI Bank"
+      },
+      {
+        "nodes": [
+          "ICICI Bank Bangalore Ops",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "ICICI Bank Bangalore Ops -> ICICI Bank"
+      },
+      {
+        "nodes": [
+          "ICICI Bank HQ",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "ICICI Bank HQ -> ICICI Bank"
+      },
+      {
+        "nodes": [
+          "ICICI Bank Hyderabad Ops",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "directOperational"
+        ],
+        "hops": 1,
+        "relationship_type": "directOperational",
+        "impact_score": 0.7,
+        "explanation": "ICICI Bank Hyderabad Ops -> ICICI Bank"
+      },
+      {
+        "nodes": [
+          "Ethics & Compliance",
+          "Financials/Banking",
+          "ICICI Bank"
+        ],
+        "edges": [
+          "materialFor",
+          "industrySpillover"
+        ],
+        "hops": 2,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.6,
+        "explanation": "Ethics & Compliance is material for Financials/Banking → impacts ICICI Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:G1"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Ethics & Compliance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.43000000000000005,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.5,
+          "adjusted_score": 22.5,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.6,
+          "adjusted_score": 16.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.4,
+          "adjusted_score": 14.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.4,
+          "adjusted_score": 14.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.0,
+          "adjusted_score": 10.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.0,
+          "adjusted_score": 10.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Litigation Risk",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.5,
+          "adjusted_score": 22.5,
+          "level": "CRITICAL",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.6,
+          "adjusted_score": 16.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 5,
+          "raw_score": 15,
+          "industry_weight": 1.0,
+          "adjusted_score": 15.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.4,
+          "adjusted_score": 14.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Market & Uncertainty",
+          "probability": 2,
+          "exposure": 5,
+          "raw_score": 10,
+          "industry_weight": 1.4,
+          "adjusted_score": 14.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        }
+      ],
+      "aggregate_score": 0.406,
+      "ontology_queries": 14
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [
+      "Peace, Justice and Strong Institutions"
+    ],
+    "article_content": "SEBI Issues Administrative Warning to ICICI Bank Over Depository Participant Non-Compliances\nSEBI issued an administrative warning to ICICI Bank on May 4, 2026, citing non-compliances in its depository participant activities identified during a periodic inspection conducted jointly with depositories. The bank disclosed the matter under Regulation 30 of SEBI (LODR) Regulations, 2015, and stated it is taking corrective action with no material impact on its financial or operational activities.\n*this image is generated using AI for illustrative purposes only.\nICICI Bank has disclosed that the Securities and Exchange Board of India (SEBI) issued an administrative warning to the bank via a letter dated May 4, 2026, received on the same day at 4:07 p.m. The warning pertains to certain non-compliances identified in relation to the bank's activities as a depository participant. The disclosure was made to stock exchanges under Regulation 30 of the SEBI (Listing Obligations and Disclosure Requirements) Regulations, 2015, on May 5, 2026.\nNature of the Regulatory Action\nThe administrative warning was issued by SEBI in connection with ICICI Bank's functioning as a depository participant under the SEBI (Depositories and Participants) Regulations, 2018. The non-compliances were identified during a periodic inspection carried out by SEBI jointly with the depositories. The bank has not disclosed the specific nature of the non-compliances in its regulatory filing.\nKey details of the regulatory communication are summarised below:\nBank's Response and Impact Assessment\nICICI Bank stated in its disclosure that it is in the process of taking necessary corrective action in response to the observations raised by SEBI. The bank has explicitly noted that there is no material impact on its financial, operational, or other activities as a result of this administrative warning. The disclosure was signed by Prachiti Lalingkar, Company Secretary, on May 5, 2026.\nThe communication was addressed to the listing departments of both BSE Limited and the National Stock Exchange of India Limited, with copies also sent to the New York Stock Exchange (NYSE), SIX Swiss Exchange Ltd., Singapore Stock Exchange, and Japan Securities Dealers Association.\nHistorical Stock Returns for ICICI Bank\nCould repeated SEBI warnings related to depository participant activities eventually lead to stricter penalties or suspension of ICICI Bank's depository participant license?\nHow might SEBI's increased scrutiny of depository participants impact the broader banking sector's compliance costs and operational frameworks?\nWhat corrective measures is ICICI Bank likely to implement, and could these changes affect the quality or speed of depository services offered to its clients?",
+    "image_url": "",
+    "criticality": {
+      "score": 0.1511,
+      "band": "LOW",
+      "components": {
+        "materiality": 0.4,
+        "financial_magnitude": 0.0,
+        "actionability": 0.2,
+        "painpoint_match": 0.0,
+        "recency": 0.0484,
+        "source_authority": 0.5,
+        "sentiment_trajectory": 0.5,
+        "staleness_penalty": 0.0,
+        "confidence_penalty": 0.0,
+        "polarity_drift_penalty": 0.0
+      },
+      "role_scores": {
+        "cfo": 0.1411,
+        "ceo": 0.1636,
+        "analyst": 0.1911
+      }
+    }
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "evidence_pack": {
+    "cascade": {
+      "total_cr": 0.0,
+      "margin_bps": null,
+      "dominant_lag_months": null,
+      "hops": [],
+      "source_flag": ""
+    },
+    "frameworks": [
+      {
+        "code": "BRSR",
+        "name": "BRSR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": true
+      },
+      {
+        "code": "GRI",
+        "name": "GRI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "COSO_ERM",
+        "name": "COSO_ERM",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "DJSI:DJSI:Econ",
+        "name": "DJSI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ESRS:ESRS:G1",
+        "name": "ESRS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "EDELMAN",
+        "name": "EDELMAN",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SP_GLOBAL_ESG",
+        "name": "SP_GLOBAL_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "TCFD",
+        "name": "TCFD",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SFDR",
+        "name": "SFDR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "BCG_MATRIX",
+        "name": "BCG_MATRIX",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "CFA_ESG",
+        "name": "CFA_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ISSB",
+        "name": "ISSB",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "MCKINSEY_3_HORIZONS",
+        "name": "MCKINSEY_3_HORIZONS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "PORTER_5_FORCES",
+        "name": "PORTER_5_FORCES",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      }
+    ],
+    "stakeholders": [],
+    "painpoint_matches": [],
+    "causal_chain": {
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "explanation": "ICICI Bank",
+      "impact_score": 1.0
+    },
+    "comparables": [],
+    "polarity": "neutral",
+    "confidence_bounds": {
+      "figure_lo_cr": null,
+      "figure_hi_cr": null,
+      "method": "",
+      "notes": ""
+    },
+    "decision_windows": []
+  },
+  "role_payloads": {
+    "cfo": {
+      "role": "cfo",
+      "headline": "P&L exposure: pending cascade",
+      "hero_metric": {
+        "value": "TBD",
+        "label": "P&L exposure",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "No quantified P&L exposure surfaced; monitor only."
+      ],
+      "role_paragraph": "No quantified P&L exposure surfaced; monitor only.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "impact_metrics",
+        "recommendations_list",
+        "audit_trail"
+      ],
+      "hidden_panels": [
+        "narrative_intelligence",
+        "sdg_map",
+        "causal_chain_viz"
+      ]
+    },
+    "ceo": {
+      "role": "ceo",
+      "headline": "Direct Operational exposure — FY27-29 positioning under review",
+      "hero_metric": {
+        "value": "Direct Operational exposure",
+        "label": "Strategic position",
+        "decision_window": "",
+        "horizon": "FY27-29",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "Direct Operational exposure reshapes the FY27-29 competitive frame.",
+        "Trajectory if act now: Set explicit FY27-29 stance to anchor stakeholder communication."
+      ],
+      "role_paragraph": "Direct Operational exposure is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "three_year_trajectory",
+        "stakeholder_map",
+        "board_paragraph",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "kpi_table",
+        "framework_alignment_v2",
+        "audit_trail"
+      ]
+    },
+    "esg-analyst": {
+      "role": "esg-analyst",
+      "headline": "BRSR disclosure trigger [unverified]",
+      "hero_metric": {
+        "value": "BRSR",
+        "label": "Disclosure trigger",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "BRSR: action required [unverified].",
+        "Checklist: 5 framework section(s) flagged."
+      ],
+      "role_paragraph": "BRSR is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI, COSO_ERM.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "kpi_table",
+        "framework_alignment_v2",
+        "causal_chain_viz",
+        "audit_trail",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "board_paragraph",
+        "three_year_trajectory"
+      ]
+    }
+  },
+  "meta": {
+    "written_at": "2026-05-26T11:44:40.683607+00:00",
+    "schema_version": "3.2-template-hardened"
+  }
+}

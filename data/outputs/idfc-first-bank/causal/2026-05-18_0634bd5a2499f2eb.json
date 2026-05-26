@@ -1,0 +1,83 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Stakeholder Governance",
+        "BRSR",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Stakeholder Governance triggers BRSR disclosure obligation for IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Stakeholder Governance",
+        "GRI",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Stakeholder Governance triggers GRI disclosure obligation for IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Stakeholder Governance",
+        "ESRS",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Stakeholder Governance triggers ESRS disclosure obligation for IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "SEBI Disclosure Violation",
+        "BRSR",
+        "Financials/Banking",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "SEBI Disclosure Violation -> BRSR -> Financials/Banking -> IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "SEBI Quarterly Corporate Governance Report",
+        "BRSR",
+        "Financials/Banking",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "SEBI Quarterly Corporate Governance Report -> BRSR -> Financials/Banking -> IDFC First Bank"
+    }
+  ]
+}

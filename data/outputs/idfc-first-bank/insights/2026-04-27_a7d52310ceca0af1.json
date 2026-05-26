@@ -1,0 +1,569 @@
+{
+  "article": {
+    "id": "a7d52310ceca0af1",
+    "title": "IDFC First Bank Ltd. Reports Mixed Quarterly Results Amid Positive Financial Trend - Markets Mojo",
+    "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxONW5jRTZST1hRTFhTd0ZSQ21ZYjBzMURHUndKMDNlSWFzX1Nya1Y5MTBIMkNyUk9Yb2FnZERFY3Z3YVlNNUk0QmVrR19uZHJrWTcwdktxdHNBeUNxaW92Rkh0N3RZLVZVZUtoY0ljMUpjWnNZeHAzUGJmN05mM1hlcUJ3QkZkTHpoTVYwRXp3SFZ0eGNUdU9mRVkzcDVmdTRqU0IxMDk5NXdMOXN4R3pTbjB1dkdlN1h3bFpZa3Z2dHRPWnBaNWtVQ0c4bFpKTW5SVmN1Q2ZB?oc=5",
+    "source": "Markets Mojo",
+    "published_at": "2026-04-27T05:41:01+00:00",
+    "company_slug": "idfc-first-bank",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "a7d52310ceca0af1",
+    "title": "IDFC First Bank Ltd. Reports Mixed Quarterly Results Amid Positive Financial Trend - Markets Mojo",
+    "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxONW5jRTZST1hRTFhTd0ZSQ21ZYjBzMURHUndKMDNlSWFzX1Nya1Y5MTBIMkNyUk9Yb2FnZERFY3Z3YVlNNUk0QmVrR19uZHJrWTcwdktxdHNBeUNxaW92Rkh0N3RZLVZVZUtoY0ljMUpjWnNZeHAzUGJmN05mM1hlcUJ3QkZkTHpoTVYwRXp3SFZ0eGNUdU9mRVkzcDVmdTRqU0IxMDk5NXdMOXN4R3pTbjB1dkdlN1h3bFpZa3Z2dHRPWnBaNWtVQ0c4bFpKTW5SVmN1Q2ZB?oc=5",
+    "source": "Markets Mojo",
+    "published_at": "2026-04-27T05:41:01+00:00",
+    "company_slug": "idfc-first-bank",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 27,
+    "elapsed_seconds": 5.194,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite",
+      "criticality_scoring"
+    ],
+    "nlp": {
+      "sentiment": 0,
+      "sentiment_confidence": 0.7,
+      "tone": [
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "IDFC First Bank Ltd. reports mixed quarterly results while showing a positive financial trend.",
+      "narrative_implied_causation": "Despite mixed quarterly results, the bank's overall financial trend remains positive.",
+      "narrative_stakeholder_framing": "IDFC First Bank Ltd. is the protagonist; investors and customers are affected by the financial performance.",
+      "entities": [
+        "IDFC First Bank Ltd.",
+        "Markets Mojo"
+      ],
+      "entity_types": {
+        "IDFC First Bank Ltd.": "company",
+        "Markets Mojo": "source"
+      },
+      "financial_signal": {
+        "amount": null,
+        "unit": null,
+        "context": ""
+      },
+      "regulatory_references": [],
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "financial performance"
+      ],
+      "content_type": "financial",
+      "urgency": "low",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Transparency & Disclosure",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "esg_reporting",
+        "disclosure_completeness"
+      ],
+      "secondary_themes": [],
+      "confidence": 0.6,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
+      "matched_keywords": [
+        "quarterly results"
+      ],
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
+    },
+    "relevance": {
+      "total": 3,
+      "tier": "SECONDARY",
+      "esg_correlation": 1,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.9,
+      "adjusted_total": 3.0,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "BRSR",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "GRI",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for IDFC First Bank"
+      },
+      {
+        "nodes": [
+          "Transparency & Disclosure",
+          "ESRS",
+          "IDFC First Bank"
+        ],
+        "edges": [
+          "triggersFramework",
+          "regulatoryContagion"
+        ],
+        "hops": 2,
+        "relationship_type": "regulatoryContagion",
+        "impact_score": 0.48,
+        "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for IDFC First Bank"
+      }
+    ],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.65,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "GRI:207"
+        ]
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.55,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.4,
+          "adjusted_score": 4.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 1,
+          "exposure": 3,
+          "raw_score": 3,
+          "industry_weight": 1.4,
+          "adjusted_score": 4.2,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        }
+      ],
+      "aggregate_score": 0.079,
+      "ontology_queries": 6
+    },
+    "stakeholders": [
+      "Customers",
+      "Employees",
+      "Investors",
+      "Regulators"
+    ],
+    "sdgs": [],
+    "article_content": "IDFC First Bank Ltd. Reports Mixed Quarterly Results Amid Positive Financial Trend Markets Mojo",
+    "image_url": "",
+    "criticality": {
+      "score": 0.2186,
+      "band": "LOW",
+      "components": {
+        "materiality": 0.3,
+        "financial_magnitude": 0.0,
+        "actionability": 0.8,
+        "painpoint_match": 0.0,
+        "recency": 0.0153,
+        "source_authority": 0.5,
+        "sentiment_trajectory": 0.5,
+        "staleness_penalty": 0.0,
+        "confidence_penalty": 0.0,
+        "polarity_drift_penalty": 0.0
+      },
+      "role_scores": {
+        "cfo": 0.2436,
+        "ceo": 0.1944,
+        "analyst": 0.2486
+      }
+    }
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "evidence_pack": {
+    "cascade": {
+      "total_cr": 0.0,
+      "margin_bps": null,
+      "dominant_lag_months": null,
+      "hops": [],
+      "source_flag": ""
+    },
+    "frameworks": [
+      {
+        "code": "BRSR",
+        "name": "BRSR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "GRI:GRI:207",
+        "name": "GRI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "DJSI",
+        "name": "DJSI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ESRS",
+        "name": "ESRS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "EDELMAN",
+        "name": "EDELMAN",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SP_GLOBAL_ESG",
+        "name": "SP_GLOBAL_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SFDR",
+        "name": "SFDR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      }
+    ],
+    "stakeholders": [],
+    "painpoint_matches": [],
+    "causal_chain": {
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for IDFC First Bank",
+      "impact_score": 0.48
+    },
+    "comparables": [],
+    "polarity": "neutral",
+    "confidence_bounds": {
+      "figure_lo_cr": null,
+      "figure_hi_cr": null,
+      "method": "",
+      "notes": ""
+    },
+    "decision_windows": []
+  },
+  "role_payloads": {
+    "cfo": {
+      "role": "cfo",
+      "headline": "P&L exposure: pending cascade",
+      "hero_metric": {
+        "value": "TBD",
+        "label": "P&L exposure",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "No quantified P&L exposure surfaced; monitor only."
+      ],
+      "role_paragraph": "No quantified P&L exposure surfaced; monitor only.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "impact_metrics",
+        "recommendations_list",
+        "audit_trail"
+      ],
+      "hidden_panels": [
+        "narrative_intelligence",
+        "sdg_map",
+        "causal_chain_viz"
+      ]
+    },
+    "ceo": {
+      "role": "ceo",
+      "headline": "Regulatory Contagion exposure — FY27-29 positioning under review",
+      "hero_metric": {
+        "value": "Regulatory Contagion exposure",
+        "label": "Strategic position",
+        "decision_window": "",
+        "horizon": "FY27-29",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "Regulatory Contagion exposure reshapes the FY27-29 competitive frame.",
+        "Trajectory if act now: Set explicit FY27-29 stance to anchor stakeholder communication."
+      ],
+      "role_paragraph": "Regulatory Contagion exposure is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "three_year_trajectory",
+        "stakeholder_map",
+        "board_paragraph",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "kpi_table",
+        "framework_alignment_v2",
+        "audit_trail"
+      ]
+    },
+    "esg-analyst": {
+      "role": "esg-analyst",
+      "headline": "GRI:GRI:207 disclosure trigger [unverified]",
+      "hero_metric": {
+        "value": "GRI:GRI:207",
+        "label": "Disclosure trigger",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "GRI:GRI:207: action required [unverified].",
+        "Checklist: 5 framework section(s) flagged."
+      ],
+      "role_paragraph": "GRI:GRI:207 is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI:GRI:207, DJSI.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "kpi_table",
+        "framework_alignment_v2",
+        "causal_chain_viz",
+        "audit_trail",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "board_paragraph",
+        "three_year_trajectory"
+      ]
+    }
+  },
+  "meta": {
+    "written_at": "2026-05-26T11:52:01.576012+00:00",
+    "schema_version": "3.2-template-hardened"
+  }
+}

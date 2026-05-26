@@ -1,0 +1,83 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "BRSR",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for YES Bank"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "GRI",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for YES Bank"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "ESRS",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for YES Bank"
+    },
+    {
+      "nodes": [
+        "SEBI Disclosure Violation",
+        "BRSR",
+        "Financials/Banking",
+        "YES Bank"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "SEBI Disclosure Violation -> BRSR -> Financials/Banking -> YES Bank"
+    },
+    {
+      "nodes": [
+        "SEBI Quarterly Corporate Governance Report",
+        "BRSR",
+        "Financials/Banking",
+        "YES Bank"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "SEBI Quarterly Corporate Governance Report -> BRSR -> Financials/Banking -> YES Bank"
+    }
+  ]
+}
