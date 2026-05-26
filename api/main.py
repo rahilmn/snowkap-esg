@@ -189,19 +189,32 @@ app = FastAPI(
     version="0.2.0",
 )
 
+_cors_origins = [
+    "http://localhost:5173",
+    "http://localhost:5500",
+    "http://localhost:3000",
+    "http://localhost:4173",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:4173",
+]
+
+# Add Replit proxy domains dynamically so the app works in all Replit environments
+_replit_domains = os.environ.get("REPLIT_DOMAINS", "")
+for _d in _replit_domains.split(","):
+    _d = _d.strip()
+    if _d:
+        _cors_origins.append(f"https://{_d}")
+
+_replit_dev_domain = os.environ.get("REPLIT_DEV_DOMAIN", "")
+if _replit_dev_domain:
+    _cors_origins.append(f"https://{_replit_dev_domain}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://localhost:5500",
-        "http://localhost:3000",
-        "http://localhost:4173",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:5500",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:4173",
-    ],
-    allow_credentials=True,  # legacy client sends Authorization header
+    allow_origins=_cors_origins,
+    allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
