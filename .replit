@@ -23,7 +23,14 @@ entrypoint = "api/main.py"
 channel = "stable-25_05"
 
 [env]
-PYTHONPATH = "/home/runner/${REPL_SLUG}"
+# Include both the repo root (so `from api.* / engine.*` work) AND
+# Replit's pre-installed deps path `.pythonlibs/...` (so fastapi /
+# uvicorn / openai / rdflib resolve in EVERY workflow process, not
+# just the API workflow that goes through run.sh). Without the
+# .pythonlibs entry, the Onboarding Worker workflow crashes with
+# `ModuleNotFoundError: No module named 'fastapi'` when it imports
+# api.routes.admin_onboard inside its job loop.
+PYTHONPATH = "/home/runner/${REPL_SLUG}:/home/runner/${REPL_SLUG}/.pythonlibs/lib/python3.12/site-packages"
 PYTHONUNBUFFERED = "1"
 
 [deployment]
@@ -74,9 +81,13 @@ waitForPort = 5000
 name = "Onboarding Worker"
 author = "agent"
 
+# Wait ~6s on cold-start so run.sh has time to finish its frontend
+# build + dep install before the worker tries to import api.routes.*.
+# Run via `bash -c` so the worker inherits the same shell env as
+# run.sh (PATH + cwd) instead of getting a bare exec context.
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python scripts/onboarding_worker.py"
+args = "bash -c 'sleep 6 && cd /home/runner/${REPL_SLUG} && python scripts/onboarding_worker.py'"
 
 [workflows.workflow.metadata]
 outputType = "console"
