@@ -147,8 +147,63 @@ def me_onboard(
         "status": "queued",
         "slug": expected_slug,
         "domain": domain,
-        "poll_url": f"/api/admin/onboard/{expected_slug}/status",
+        "poll_url": f"/api/me/onboard/{expected_slug}/status",
     }
+
+
+@router.get("/onboard/{slug}/status")
+def me_onboard_status(
+    slug: str,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Tenant-scoped onboarding status poll.
+
+    The admin counterpart at /api/admin/onboard/{slug}/status is gated
+    by manage_drip_campaigns (super-admin only). Regular self-service
+    users need a path that lets them poll THEIR OWN onboarding progress
+    without that permission — that's this endpoint.
+
+    Scope rule: the requested slug must match the caller's JWT-bound
+    `company_id` (after alias resolution). A regular user can never
+    poll another tenant's onboarding state via this path.
+    """
+    if not slug:
+        raise HTTPException(status_code=422, detail="slug required")
+
+    caller_slug = (claims.get("company_id") or "").strip()
+    if not caller_slug:
+        raise HTTPException(status_code=403, detail="No tenant context on token")
+
+    # Resolve both the caller's slug + the requested slug to canonical
+    # form so alias-vs-canonical mismatches still match (e.g. caller's
+    # JWT has 'nestle' but the worker canonicalised to 'nestl-india-
+    # limited'). Both paths route through resolve_slug.
+    try:
+        from engine.index.sqlite_index import resolve_slug
+    except Exception:  # noqa: BLE001
+        resolve_slug = lambda s: s  # noqa: E731
+
+    caller_canonical = resolve_slug(caller_slug) or caller_slug
+    target_canonical = resolve_slug(slug) or slug
+
+    super_admin = "super_admin" in (claims.get("permissions") or [])
+    if not super_admin and caller_canonical != target_canonical and caller_slug != slug:
+        raise HTTPException(
+            status_code=403,
+            detail="You can only poll your own company's onboarding status.",
+        )
+
+    # Try the requested slug first; fall back to canonical if alias has
+    # no row of its own yet (worker writes status against the canonical
+    # slug, mirrors to alias at mark_ready time).
+    status = onboarding_status.get(slug) or onboarding_status.get(target_canonical)
+    if status is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No onboarding record for '{slug}' yet.",
+        )
+    return status.to_dict()
 
 
 # ---------------------------------------------------------------------------
