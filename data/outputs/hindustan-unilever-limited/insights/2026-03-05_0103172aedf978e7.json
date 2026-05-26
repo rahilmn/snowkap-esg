@@ -19,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 34,
-    "elapsed_seconds": 6.068,
+    "elapsed_seconds": 8.784,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -29,7 +29,8 @@
       "framework_matching",
       "stakeholder_mapping",
       "sdg_mapping",
-      "risk_assessment_lite"
+      "risk_assessment_lite",
+      "criticality_scoring"
     ],
     "nlp": {
       "sentiment": 1,
@@ -40,8 +41,8 @@
         "analytical"
       ],
       "narrative_core_claim": "Hindustan Unilever Limited is creating opportunities for women in its value chain.",
-      "narrative_implied_causation": "By focusing on inclusivity, Hindustan Unilever Limited aims to empower women and enhance its value chain.",
-      "narrative_stakeholder_framing": "Hindustan Unilever Limited is the protagonist enabling women in its value chain, who are the beneficiaries.",
+      "narrative_implied_causation": "By focusing on women in its value chain, Hindustan Unilever Limited aims to enhance gender inclusion and empowerment.",
+      "narrative_stakeholder_framing": "Hindustan Unilever Limited is the protagonist creating opportunities, women in the value chain are the affected beneficiaries.",
       "entities": [
         "Hindustan Unilever Limited"
       ],
@@ -56,9 +57,9 @@
       "regulatory_references": [],
       "esg_pillar": "S",
       "esg_topics": [
-        "gender equality",
+        "gender inclusion",
         "supply chain labor",
-        "diversity and inclusion"
+        "women empowerment"
       ],
       "content_type": "narrative",
       "urgency": "low",
@@ -88,7 +89,8 @@
           "pillar": "S",
           "sub_metrics": [
             "talent_retention",
-            "training_hours"
+            "training_hours",
+            "fair_wages"
           ]
         }
       ],
@@ -454,13 +456,194 @@
       "Reduced Inequalities"
     ],
     "article_content": "Creating opportunities for women in our value chain Hindustan Unilever Limited",
-    "image_url": ""
+    "image_url": "",
+    "criticality": {
+      "score": 0.0,
+      "band": "LOW",
+      "components": {
+        "materiality": 0.6,
+        "financial_magnitude": 0.0,
+        "actionability": 0.8,
+        "painpoint_match": 0.0,
+        "recency": 0.0,
+        "source_authority": 0.5,
+        "sentiment_trajectory": 0.5,
+        "staleness_penalty": 0.2,
+        "confidence_penalty": 0.0,
+        "polarity_drift_penalty": 0.2
+      },
+      "role_scores": {
+        "cfo": 0.0,
+        "ceo": 0.0,
+        "analyst": 0.0
+      }
+    }
   },
   "insight": null,
   "recommendations": null,
   "perspectives": {},
+  "evidence_pack": {
+    "cascade": {
+      "total_cr": 0.0,
+      "margin_bps": null,
+      "dominant_lag_months": null,
+      "hops": [],
+      "source_flag": ""
+    },
+    "frameworks": [
+      {
+        "code": "BRSR",
+        "name": "BRSR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": true
+      },
+      {
+        "code": "GRI",
+        "name": "GRI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ESRS",
+        "name": "ESRS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SASB",
+        "name": "SASB",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "DJSI",
+        "name": "DJSI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SP_GLOBAL_ESG",
+        "name": "SP_GLOBAL_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      }
+    ],
+    "stakeholders": [],
+    "painpoint_matches": [],
+    "causal_chain": {
+      "hops": 0,
+      "relationship_type": "",
+      "explanation": "",
+      "impact_score": 0.0
+    },
+    "comparables": [],
+    "polarity": "neutral",
+    "confidence_bounds": {
+      "figure_lo_cr": null,
+      "figure_hi_cr": null,
+      "method": "",
+      "notes": ""
+    },
+    "decision_windows": []
+  },
+  "role_payloads": {
+    "cfo": {
+      "role": "cfo",
+      "headline": "P&L exposure: pending cascade",
+      "hero_metric": {
+        "value": "TBD",
+        "label": "P&L exposure",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "No quantified P&L exposure surfaced; monitor only."
+      ],
+      "role_paragraph": "No quantified P&L exposure surfaced; monitor only.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "impact_metrics",
+        "recommendations_list",
+        "audit_trail"
+      ],
+      "hidden_panels": [
+        "narrative_intelligence",
+        "sdg_map",
+        "causal_chain_viz"
+      ]
+    },
+    "ceo": {
+      "role": "ceo",
+      "headline": "Strategic positioning under review — FY27-29 positioning under review",
+      "hero_metric": {
+        "value": "Strategic positioning under review",
+        "label": "Strategic position",
+        "decision_window": "",
+        "horizon": "FY27-29",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "Strategic positioning under review reshapes the FY27-29 competitive frame.",
+        "Trajectory if act now: Set explicit FY27-29 stance to anchor stakeholder communication."
+      ],
+      "role_paragraph": "Strategic positioning under review is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "three_year_trajectory",
+        "stakeholder_map",
+        "board_paragraph",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "kpi_table",
+        "framework_alignment_v2",
+        "audit_trail"
+      ]
+    },
+    "esg-analyst": {
+      "role": "esg-analyst",
+      "headline": "BRSR disclosure trigger [unverified]",
+      "hero_metric": {
+        "value": "BRSR",
+        "label": "Disclosure trigger",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "BRSR: action required [unverified].",
+        "Checklist: 5 framework section(s) flagged."
+      ],
+      "role_paragraph": "BRSR is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI, ESRS.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "kpi_table",
+        "framework_alignment_v2",
+        "causal_chain_viz",
+        "audit_trail",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "board_paragraph",
+        "three_year_trajectory"
+      ]
+    }
+  },
   "meta": {
-    "written_at": "2026-05-03T19:59:41.373373+00:00",
-    "schema_version": "2.0-primitives-l2"
+    "written_at": "2026-05-26T09:53:57.537719+00:00",
+    "schema_version": "3.2-template-hardened"
   }
 }

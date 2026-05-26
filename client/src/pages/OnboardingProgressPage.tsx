@@ -234,7 +234,7 @@ export default function OnboardingProgressPage() {
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 24px 64px" }}>
       <header style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: COLORS.textPrimary }}>
-          Personalising Snowkap
+          Personalising Power of Now
         </h1>
         <p style={{ fontSize: 13, color: COLORS.textMuted, margin: "8px 0 0", lineHeight: 1.55 }}>
           Setting up <strong>{profile?.name || slug}</strong>
@@ -316,6 +316,50 @@ export default function OnboardingProgressPage() {
             </Button>
           </div>
         )}
+      </div>
+
+      {/* Manual controls — refresh + escape hatch. Helps when the SSE
+          stream drops silently (Replit proxy can timeout long-lived
+          connections) or when the user wants to step out and come back. */}
+      <div style={{
+        marginTop: 20,
+        display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between",
+        flexWrap: "wrap",
+      }}>
+        <button
+          type="button"
+          onClick={() => {
+            statusQuery.refetch();
+            // Also kick the SSE stream back up if it dropped.
+            if (cancelRef.current) {
+              cancelRef.current();
+              cancelRef.current = null;
+            }
+            setSseAlive(false);
+            window.setTimeout(() => window.location.reload(), 100);
+          }}
+          style={{
+            padding: "8px 14px",
+            background: "transparent",
+            border: "1px solid #E2E8F0",
+            borderRadius: 8,
+            fontSize: 12, fontWeight: 600,
+            color: COLORS.textPrimary,
+            cursor: "pointer",
+          }}
+        >
+          ↻ Refresh
+        </button>
+        <a
+          href="/now"
+          style={{
+            fontSize: 12, fontWeight: 600,
+            color: COLORS.textMuted,
+            textDecoration: "none",
+          }}
+        >
+          Go to /now →
+        </a>
       </div>
     </div>
   );

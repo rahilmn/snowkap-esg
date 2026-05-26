@@ -1779,8 +1779,12 @@ export const me = {
       }
     ),
 
+  // Tenant-scoped self-service status poll. The admin-only path
+  // /api/admin/onboard/{slug}/status 403s for regular users (gated by
+  // manage_drip_campaigns); this path matches the JWT's company_id so
+  // any user can poll THEIR OWN onboarding progress.
   onboardStatus: (slug: string) =>
-    request<OnboardStatus>(`/admin/onboard/${slug}/status`),
+    request<OnboardStatus>(`/me/onboard/${encodeURIComponent(slug)}/status`),
 
   // Phase 6 — persona MCQ
   personaQuestions: () =>

@@ -240,6 +240,16 @@ snowkap:event_board_change a snowkap:EventType ; rdfs:label "Board / Senior Lead
     snowkap:eventKeyword "new ceo, resignation, board reshuffle, chairperson, md appointment, independent director, whole-time director, chief financial officer, key managerial personnel, succession" ;
     snowkap:financialTransmission "governance signal -> share price volatility" .
 
+# Phase 33 4.5.A — dedicated event type for shareholding disclosure +
+# SEBI Takeover Regulations filings. Pre-fix this kind of article got
+# classified as `event_board_change` via the `topic_stakeholder_governance`
+# theme fallback, producing generic board-governance recommendations
+# instead of pledge-specific ones.
+snowkap:event_shareholding_change a snowkap:EventType ; rdfs:label "Shareholding / Control Disclosure" ;
+    snowkap:scoreFloor 4 ; snowkap:scoreCeiling 8 ;
+    snowkap:eventKeyword "pledge, shareholding, share pledge, encumbrance, control disclosure, sebi takeover, controlling stake, beneficial ownership, substantial acquisition, share transfer, stake change, promoter holding, promoter pledge" ;
+    snowkap:financialTransmission "control change -> investor sentiment + cost of capital + valuation re-rating" .
+
 snowkap:event_ma_deal a snowkap:EventType ; rdfs:label "Merger / Acquisition" ;
     snowkap:scoreFloor 4 ; snowkap:scoreCeiling 8 ;
     snowkap:eventKeyword "merger, acquisition, takeover, divestiture, spin-off, stake sale" ;
@@ -437,4 +447,4 @@ snowkap:topic_ethics_compliance snowkap:defaultEventForTheme snowkap:event_crimi
 snowkap:topic_risk_management snowkap:defaultEventForTheme snowkap:event_credit_rating .
 snowkap:topic_transparency   snowkap:defaultEventForTheme snowkap:event_esg_rating_change .
 snowkap:topic_tax_transparency snowkap:defaultEventForTheme snowkap:event_heavy_penalty .
-snowkap:topic_stakeholder_governance snowkap:defaultEventForTheme snowkap:event_board_change .
+snowkap:topic_stakeholder_governance snowkap:defaultEventForTheme snowkap:event_shareholding_change .
