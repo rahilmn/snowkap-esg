@@ -243,7 +243,10 @@ def test_onboard_flow(
         r = requests.post(
             f"{api_base}/api/onboard/v2",
             headers=_auth_headers(token),
-            json={"domain": domain, "limit": 5},
+            # Phase 45.F: match the v2 endpoint's new default (limit=3).
+            # Test 04 needs ≥1 article in the deck, test 06 needs ≥2 with
+            # recs — limit=3 satisfies both with margin to spare.
+            json={"domain": domain, "limit": 3},
             timeout=240,  # client-side bar
         )
         if r.status_code != 200:
