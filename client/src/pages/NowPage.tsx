@@ -14,7 +14,7 @@
  *              a Power-of-Now-styled `ArticleSheet`).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { now } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
 import { useSavedStore } from "@/stores/savedStore";
@@ -76,6 +76,24 @@ export function NowPage() {
   const greeting = _useGreeting(firstName);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      // Invalidate both the feed query AND any per-article analysis caches
+      // so a refresh re-fetches everything from the server.
+      await queryClient.invalidateQueries({ queryKey: ["now-feed", companyId] });
+      await queryClient.invalidateQueries({ queryKey: ["now-article-analysis"] });
+      // Force-await one refetch so the spinner only stops when fresh data lands.
+      await queryClient.refetchQueries({ queryKey: ["now-feed", companyId] });
+    } finally {
+      // Tiny delay so the spinner is visible on near-instant cache hits.
+      window.setTimeout(() => setIsRefreshing(false), 400);
+    }
+  };
 
   // Close the profile dropdown on outside-click / escape.
   useEffect(() => {
@@ -227,8 +245,45 @@ export function NowPage() {
               {greeting.line}
             </span>
           </div>
-          {/* Profile + logout dropdown trigger. */}
-          <div ref={profileRef} style={{ position: "relative" }}>
+          {/* Right-side controls: refresh + profile menu. */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {/* Refresh button — invalidates feed + per-article query caches
+                so the user can force a re-fetch when something looks stale.
+                The auto-poll on /api/now/feed already refreshes every 90s
+                in the background; this is the explicit "I want it now"
+                lever. Spinner is visible for at least 400ms even on
+                instant cache hits so the click feels acknowledged. */}
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              aria-label="Refresh feed"
+              className="tap"
+              style={{
+                width: 34, height: 34, borderRadius: 999,
+                background: isRefreshing ? "#f1f5f9" : "transparent",
+                border: `1px solid ${TOKENS.line}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: isRefreshing ? "wait" : "pointer",
+                color: TOKENS.ink2,
+                transition: "background 160ms ease",
+              }}
+            >
+              <svg
+                width="16" height="16" viewBox="0 0 16 16" fill="none"
+                style={{
+                  animation: isRefreshing ? "snowkap-spin 0.9s linear infinite" : undefined,
+                }}
+              >
+                <path
+                  d="M2 8a6 6 0 0 1 10.5-4M14 8a6 6 0 0 1-10.5 4M12.5 4V2m0 2h-2M3.5 12v2m0-2h2"
+                  stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                />
+              </svg>
+              <style>{`@keyframes snowkap-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+            </button>
+
+            {/* Profile + logout dropdown trigger. */}
+            <div ref={profileRef} style={{ position: "relative" }}>
             <button
               className="tap"
               onClick={() => setProfileOpen((v) => !v)}
@@ -286,7 +341,7 @@ export function NowPage() {
                   display: "flex", flexDirection: "column", gap: 2,
                 }}>
                   <a
-                    href="/settings/onboard"
+                    href="/profile"
                     onClick={() => setProfileOpen(false)}
                     style={{
                       display: "block", padding: "8px 6px",
@@ -294,7 +349,7 @@ export function NowPage() {
                       textDecoration: "none", borderRadius: 6,
                     }}
                   >
-                    Settings
+                    Profile &amp; preferences
                   </a>
                   <button
                     onClick={handleLogout}
@@ -315,6 +370,7 @@ export function NowPage() {
                 </div>
               </div>
             )}
+            </div>
           </div>
         </div>
 

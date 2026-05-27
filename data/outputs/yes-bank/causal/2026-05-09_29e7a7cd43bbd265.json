@@ -1,0 +1,70 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "YES Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank Delhi Branch",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank Delhi Branch -> YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank HQ",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank HQ -> YES Bank"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "Financials/Banking",
+        "YES Bank"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Ethics & Compliance is material for Financials/Banking → impacts YES Bank"
+    },
+    {
+      "nodes": [
+        "Ethics & Compliance",
+        "BRSR",
+        "YES Bank"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Ethics & Compliance triggers BRSR disclosure obligation for YES Bank"
+    }
+  ]
+}
