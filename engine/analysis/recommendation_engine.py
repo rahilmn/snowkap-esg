@@ -820,7 +820,20 @@ def _generate_recommendations(
 ) -> list[Recommendation]:
     settings = load_settings()
     llm_cfg = settings.get("llm", {})
-    model = llm_cfg.get("model_light", "gpt-4.1-mini")
+    # Phase 43.A (2026-05-27) — Stage 12 now routes through the
+    # OpenRouter gateway (caller passes a gateway client). The model
+    # name comes from the gateway's task_class routing, not the
+    # settings.json "model_light" key. That settings key is preserved
+    # for back-compat with tests that inject their own stub client.
+    try:
+        from engine.llm import get_llm_client
+        _gw = get_llm_client(task_class="reasoning_heavy")
+        model = _gw.model_for()  # "anthropic/claude-opus-4.6" via OpenRouter
+    except Exception:
+        # Fall back to the legacy gpt-4.1-mini name when the gateway
+        # import fails (test environments, etc.). The settings.json
+        # override still works.
+        model = llm_cfg.get("model_light", "gpt-4.1-mini")
     # Phase 13 hotfix — bump token budget from 1500 → 3000 because the new
     # `audit_trail` field (S1) adds ~150-300 tokens per rec. The 1500-cap
     # was being hit mid-JSON, producing JSONDecodeError and empty rec
@@ -1509,7 +1522,16 @@ def generate_recommendations(
             validated_count=1,
         )
 
-    client = OpenAI(api_key=get_openai_api_key())
+    # Phase 43.A — Stage 12 LLM routing now goes through the OpenRouter
+    # gateway (task_class="reasoning_heavy" → Claude Opus 4.6). Pre-Phase-43
+    # this used a direct `OpenAI(api_key=...)` client wired to gpt-4.1-mini,
+    # which produced templated recommendations that felt identical across
+    # articles in the same event class. Opus 4.6 reads the article body +
+    # the audit_trail context and writes article-specific recs that vary
+    # with the actual event detail.
+    from engine.llm import get_llm_client
+    llm = get_llm_client(task_class="reasoning_heavy")
+    client = llm.sync
     raw_recs = _generate_recommendations(insight, result, company, client)
     validated = _post_process(raw_recs)
     # Phase 24.6 — region-incompatible framework citations get rewritten

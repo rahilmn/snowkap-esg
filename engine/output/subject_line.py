@@ -258,13 +258,21 @@ def _llm_subject(
     if cache_key in _LLM_CACHE:
         return _LLM_CACHE[cache_key]
 
-    if not os.environ.get("OPENAI_API_KEY"):
+    # Phase 43.B (2026-05-27) — route through OpenRouter gateway.
+    # Falls back gracefully when neither key is set.
+    if not (os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENROUTER_API_KEY")):
         return None
 
     try:
-        from openai import OpenAI
+        from engine.llm import get_llm_client
     except ImportError:
-        return None
+        # Legacy fallback path — should not fire in production but kept
+        # so test environments that don't install the gateway still work.
+        try:
+            from openai import OpenAI  # noqa: F401
+        except ImportError:
+            return None
+        get_llm_client = None  # type: ignore[assignment]
 
     decision = insight.get("decision_summary") or {}
     headline = insight.get("headline") or article.get("title") or ""
@@ -321,14 +329,31 @@ def _llm_subject(
     )
 
     try:
-        client = OpenAI()
-        resp = client.chat.completions.create(
-            model="gpt-4.1-mini",
-            messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-            temperature=0.3,
-            max_tokens=60,
-        )
-        text = (resp.choices[0].message.content or "").strip().strip('"').strip("'")
+        # Phase 43.B — route through OpenRouter "composition" task class
+        # (→ openai/gpt-4.1 via OpenRouter when the key is set, direct
+        # gpt-4.1-mini fallback when not). Opus is overkill for ≤90-char
+        # subject lines; gpt-4.1 hits the right tone-to-cost balance.
+        if get_llm_client is not None:
+            llm = get_llm_client(task_class="composition")
+            resp = llm.complete(
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0.3,
+                max_tokens=60,
+            )
+            text = (getattr(resp, "text", "") or "").strip().strip('"').strip("'")
+        else:
+            from openai import OpenAI
+            client = OpenAI()
+            resp = client.chat.completions.create(
+                model="gpt-4.1-mini",
+                messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+                temperature=0.3,
+                max_tokens=60,
+            )
+            text = (resp.choices[0].message.content or "").strip().strip('"').strip("'")
     except Exception as exc:
         logger.warning("subject_line LLM failed: %s", exc)
         return None
