@@ -60,7 +60,14 @@ logger = logging.getLogger(__name__)
 # Module-level cache (mirrors engine/output/subject_line.py:_LLM_CACHE)
 # ---------------------------------------------------------------------------
 
+# Phase 44.C — concurrent onboarding via ThreadPoolExecutor means multiple
+# threads can hit this cache simultaneously. Different article_ids never
+# collide on the same key but the get-then-set sequence inside `write_lede`
+# still needs a lock so two threads don't compute the same lede twice. The
+# lock is held for microseconds — no contention impact.
+import threading as _threading
 _LLM_LEDE_CACHE: dict[str, dict[str, Any]] = {}
+_LLM_LEDE_LOCK = _threading.Lock()
 
 
 # ---------------------------------------------------------------------------
@@ -802,9 +809,13 @@ def write_lede(
     """
     if not article_id:
         return {}
-    if force_refresh:
-        _LLM_LEDE_CACHE.pop(article_id, None)
-    cached = _LLM_LEDE_CACHE.get(article_id)
+    # Phase 44.C — short critical section: just the cache lookup. The
+    # actual LLM call below runs OUTSIDE the lock so concurrent articles
+    # don't serialise on the lock.
+    with _LLM_LEDE_LOCK:
+        if force_refresh:
+            _LLM_LEDE_CACHE.pop(article_id, None)
+        cached = _LLM_LEDE_CACHE.get(article_id)
     if cached:
         return {**cached, "cached": True}
 
@@ -861,7 +872,10 @@ def write_lede(
         "char_count": len(text),
         "word_count": _count_words(text),
     }
-    _LLM_LEDE_CACHE[article_id] = result_dict
+    # Phase 44.C — write under the lock to avoid losing increments
+    # under concurrent onboard threads.
+    with _LLM_LEDE_LOCK:
+        _LLM_LEDE_CACHE[article_id] = result_dict
     return result_dict
 
 

@@ -30,6 +30,7 @@ queries + mandatory frameworks match the company's home jurisdiction.
 from __future__ import annotations
 
 import logging
+import os
 import traceback
 from typing import Any
 
@@ -362,20 +363,43 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
                 "article_ids": critical_three,
             })
 
+        # Phase 44.C (2026-05-28) — articles are independent (no cross-article
+        # data flow), so the per-article pipeline runs concurrently via a
+        # ThreadPoolExecutor. Cuts onboard wall-clock from ~14 min (PUMA
+        # baseline) → ~3 min on a typical 5-HOME-article onboard. Per-article
+        # failure isolation preserved (one bad article doesn't poison the
+        # others). Counter mutations + onboarding_status writes happen inside
+        # `counter_lock` so concurrent threads can't lose increments.
+        #
+        # Env knob: SNOWKAP_ONBOARD_PARALLEL_N (default 3). Set to 1 for the
+        # legacy sequential behaviour (kill switch for any thread-related bug).
+        import concurrent.futures as _cf
+        import threading as _th
+        max_workers = int(os.environ.get("SNOWKAP_ONBOARD_PARALLEL_N", "3"))
+        max_workers = max(1, min(max_workers, 5))  # clamp 1-5
+        counter_lock = _th.Lock()
+
         attempted = 0
         analysed = 0
         home_count = 0
         total_to_analyse = min(limit, len(fresh))
-        for article in fresh:
-            if attempted >= limit:
-                break
-            attempted += 1
+        articles_to_analyse = fresh[:total_to_analyse]
+
+        # Emit analysis_started for every article up-front so the frontend's
+        # progress strip can render all N positions immediately instead of
+        # filling in one at a time as completions arrive.
+        for idx, article in enumerate(articles_to_analyse, start=1):
             onboarding_events.emit_event(canonical_slug, "analysis_started", {
                 "article_id": article.id,
-                "position": attempted,
+                "position": idx,
                 "total": total_to_analyse,
             })
-            article_dict = {
+
+        # Build the article payload list outside the pool so we don't share
+        # the `article` dataclass instances across threads.
+        article_payloads = []
+        for idx, article in enumerate(articles_to_analyse, start=1):
+            article_payloads.append({
                 "id": article.id,
                 "title": article.title,
                 "content": article.content,
@@ -384,32 +408,66 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
                 "url": article.url,
                 "published_at": article.published_at,
                 "metadata": article.metadata,
-            }
+                "__position": idx,
+            })
+
+        def _run_one_safe(payload, company):
+            """Wraps _run_article so executor sees exceptions as return values,
+            not as raised errors — preserves per-article failure isolation
+            without aborting the whole pool."""
             try:
-                summary = _run_article(article_dict, company_obj)
-                if not summary.rejected:
-                    analysed += 1
-                    if summary.tier == "HOME":
-                        home_count += 1
-                onboarding_status.upsert(canonical_slug, analysed=analysed, home_count=home_count)
-                onboarding_events.emit_event(canonical_slug, "analysis_done", {
-                    "article_id": article.id,
-                    "headline": (article.title or "")[:200],
-                    "criticality_band": getattr(summary, "tier", "UNKNOWN"),
-                    "position": attempted,
-                    "total": total_to_analyse,
-                })
+                return payload["id"], _run_article(payload, company)
             except Exception as exc:
-                logger.exception("[onboard %s] article %s failed: %s", canonical_slug, article.id, exc)
+                return payload["id"], exc
+
+        with _cf.ThreadPoolExecutor(
+            max_workers=max_workers,
+            thread_name_prefix="onboard-analyse",
+        ) as pool:
+            futures = {
+                pool.submit(_run_one_safe, ap, company_obj): ap
+                for ap in article_payloads
+            }
+            for fut in _cf.as_completed(futures):
+                ap = futures[fut]
+                position = ap["__position"]
+                title = (ap.get("title") or "")[:200]
+                try:
+                    article_id, result = fut.result()
+                except Exception as exc:
+                    # _run_one_safe catches; this is defence-in-depth
+                    logger.exception(
+                        "[onboard %s][art %s] worker exited: %s",
+                        canonical_slug, ap["id"], exc,
+                    )
+                    article_id, result = ap["id"], exc
+
+                with counter_lock:
+                    attempted += 1
+                    if isinstance(result, Exception):
+                        logger.warning(
+                            "[onboard %s][art %s] pipeline failed: %s",
+                            canonical_slug, article_id, type(result).__name__,
+                        )
+                        tier = "FAILED"
+                    else:
+                        if not getattr(result, "rejected", True):
+                            analysed += 1
+                            if getattr(result, "tier", "") == "HOME":
+                                home_count += 1
+                        tier = getattr(result, "tier", "UNKNOWN")
+                    onboarding_status.upsert(
+                        canonical_slug,
+                        analysed=analysed, home_count=home_count,
+                    )
+
                 onboarding_events.emit_event(canonical_slug, "analysis_done", {
-                    "article_id": article.id,
-                    "headline": (article.title or "")[:200],
-                    "criticality_band": "FAILED",
-                    "position": attempted,
+                    "article_id": article_id,
+                    "headline": title,
+                    "criticality_band": tier,
+                    "position": position,
                     "total": total_to_analyse,
                 })
-                # Continue with the rest — one bad article shouldn't fail the whole onboarding.
-                continue
 
         # Phase 36 — Eager Stage 10 on the top-3 by criticality, regardless
         # of tier. Without this, new tenants whose articles all score
@@ -422,7 +480,13 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
         # Cost: 3 × ~$0.05 = ~$0.15 LLM per onboard. Acceptable. The HOME-
         # only gate in engine.main._run_article still applies at the
         # nightly ingestion path — this is an onboarding-only one-shot.
+        # Phase 44.B (2026-05-28) — time-budget the eager pass so a hung
+        # enrich_on_demand call can NEVER prevent mark_ready from running.
+        # Without this, `lululemon-athletica-inc` got stuck in `analysing`
+        # state for 5+ hours because one of the 3 eager pulls hung and
+        # blocked the worker forever. Hard 90s budget across all 3 pulls.
         try:
+            import time as _time_eager
             from engine.db import connect as _db_connect
             with _db_connect() as _c:
                 _rows = _c.execute(
@@ -433,11 +497,18 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
             top3_ids = [r[0] for r in _rows]
             if top3_ids:
                 from engine.analysis.on_demand import enrich_on_demand
+                eager_deadline = _time_eager.monotonic() + 90.0
                 logger.info(
-                    "[onboard %s] eager Stage 10 on top-3 by criticality: %s",
+                    "[onboard %s] eager Stage 10 on top-3 (90s budget): %s",
                     canonical_slug, top3_ids,
                 )
                 for aid in top3_ids:
+                    if _time_eager.monotonic() > eager_deadline:
+                        logger.info(
+                            "[onboard %s] eager Stage 10 budget hit, skipping remaining",
+                            canonical_slug,
+                        )
+                        break
                     try:
                         enrich_on_demand(aid, canonical_slug, force=True)
                         onboarding_events.emit_event(canonical_slug, "analysis_done", {
@@ -520,40 +591,92 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
         # `article_index.id` is the primary key and all read helpers
         # already route through `resolve_slug`. Without this call the
         # dashboard stays empty even when the analysis succeeded.
-        if alias_slug:
-            from engine.index import sqlite_index
-            mirrored = sqlite_index.mirror_to_slug(canonical_slug, alias_slug)
-            logger.info("[onboard %s] mirrored %d rows to alias=%s",
-                        canonical_slug, mirrored, alias_slug)
+        #
+        # Phase 44.B — wrap in try/except so a mirror failure can't
+        # block the mark_ready transition below.
+        try:
+            if alias_slug:
+                from engine.index import sqlite_index
+                mirrored = sqlite_index.mirror_to_slug(canonical_slug, alias_slug)
+                logger.info("[onboard %s] mirrored %d rows to alias=%s",
+                            canonical_slug, mirrored, alias_slug)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "[onboard %s] mirror_to_slug failed (non-fatal): %s",
+                canonical_slug, exc,
+            )
 
-        onboarding_status.mark_ready(canonical_slug,
-                                     fetched=len(fresh),
-                                     analysed=analysed,
-                                     home_count=home_count)
-        # Mirror canonical's final stats to the alias slug so the
-        # frontend (which is polling the placeholder) shows the right
-        # numbers + clears the stale error from any earlier failed run.
-        if alias_slug:
-            onboarding_status.mark_ready(alias_slug,
+        # Phase 44.B (2026-05-28) — mark_ready is now BULLETPROOF. The whole
+        # state-transition + final-SSE-emit block is wrapped in a try/except
+        # so a Postgres write hiccup or SSE emit failure can't leave the row
+        # orphan in `analysing` state (the bug that wedged
+        # `lululemon-athletica-inc` for 5+ hours despite analysed==fetched).
+        # If mark_ready itself fails, we fall through to mark_failed so the
+        # row at least lands in a terminal state.
+        try:
+            onboarding_status.mark_ready(canonical_slug,
                                          fetched=len(fresh),
                                          analysed=analysed,
                                          home_count=home_count)
-        logger.info("[onboard %s] done: %d/%d analysed (rejected %d), %d HOME",
-                    canonical_slug, analysed, attempted, attempted - analysed, home_count)
+            # Mirror canonical's final stats to the alias slug so the
+            # frontend (polling the placeholder) shows the right numbers.
+            if alias_slug:
+                try:
+                    onboarding_status.mark_ready(alias_slug,
+                                                 fetched=len(fresh),
+                                                 analysed=analysed,
+                                                 home_count=home_count)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning(
+                        "[onboard %s] alias mark_ready failed (non-fatal): %s",
+                        canonical_slug, exc,
+                    )
+            logger.info(
+                "[onboard %s] done: %d/%d analysed (rejected %d), %d HOME",
+                canonical_slug, analysed, attempted, attempted - analysed, home_count,
+            )
 
-        # Phase 28 — terminal SSE event. Emit on BOTH slugs so the
-        # alias-listening frontend (login-time slug) also closes its
-        # stream cleanly.
-        done_payload = {
-            "slug": canonical_slug,
-            "ready_at": onboarding_status.get(canonical_slug).finished_at if onboarding_status.get(canonical_slug) else None,
-            "fetched": len(fresh),
-            "analysed": analysed,
-            "home_count": home_count,
-        }
-        onboarding_events.emit_event(canonical_slug, "onboard_complete", done_payload)
-        if alias_slug:
-            onboarding_events.emit_event(alias_slug, "onboard_complete", done_payload)
+            # Phase 28 — terminal SSE event. Emit on BOTH slugs so the
+            # alias-listening frontend (login-time slug) also closes its
+            # stream cleanly. Inside the same try block: if the emit
+            # itself raises we still want to log + try mark_failed.
+            row = onboarding_status.get(canonical_slug)
+            done_payload = {
+                "slug": canonical_slug,
+                "ready_at": row.finished_at if row else None,
+                "fetched": len(fresh),
+                "analysed": analysed,
+                "home_count": home_count,
+            }
+            onboarding_events.emit_event(canonical_slug, "onboard_complete", done_payload)
+            if alias_slug:
+                try:
+                    onboarding_events.emit_event(alias_slug, "onboard_complete", done_payload)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning(
+                        "[onboard %s] alias onboard_complete emit failed: %s",
+                        canonical_slug, exc,
+                    )
+        except Exception as exc:  # noqa: BLE001 — canonical mark_ready blew up
+            logger.exception(
+                "[onboard %s] mark_ready/onboard_complete BLEW UP: %s",
+                canonical_slug, exc,
+            )
+            # Last-ditch: mark failed so the row doesn't stay orphan.
+            try:
+                onboarding_status.mark_failed(
+                    canonical_slug,
+                    f"post-analysis state transition failed: {exc}",
+                )
+                onboarding_events.emit_event(canonical_slug, "onboard_failed", {
+                    "slug": canonical_slug,
+                    "error": str(exc)[:300],
+                })
+            except Exception as inner_exc:  # noqa: BLE001
+                logger.exception(
+                    "[onboard %s] mark_failed ALSO failed: %s",
+                    canonical_slug, inner_exc,
+                )
 
         # Forum v1.1 — make sure the 5 welcome threads exist so the new
         # tenant doesn't land on an empty /forum page. Idempotent — if

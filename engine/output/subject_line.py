@@ -236,7 +236,11 @@ def _template_generic(company: str, insight: dict[str, Any]) -> str:
 # ---------------------------------------------------------------------------
 
 
+# Phase 44.C — concurrent onboarding adds multiple article subject lines
+# at once. Lock protects the get-then-set pattern.
+import threading as _threading
 _LLM_CACHE: dict[str, str] = {}
+_LLM_CACHE_LOCK = _threading.Lock()
 
 
 def _llm_subject(
@@ -255,8 +259,10 @@ def _llm_subject(
     """
     article_id = str(article.get("id") or "")
     cache_key = f"{article_id}:{'pos' if is_positive else 'neg'}"
-    if cache_key in _LLM_CACHE:
-        return _LLM_CACHE[cache_key]
+    # Phase 44.C — thread-safe lookup
+    with _LLM_CACHE_LOCK:
+        if cache_key in _LLM_CACHE:
+            return _LLM_CACHE[cache_key]
 
     # Phase 43.B (2026-05-27) — route through OpenRouter gateway.
     # Falls back gracefully when neither key is set.
@@ -362,7 +368,9 @@ def _llm_subject(
     text = re.sub(r"^\s*(Subject|SUBJECT)\s*:?\s*", "", text)
     text = _truncate(text, MAX_LEN)
     if cache_key:
-        _LLM_CACHE[cache_key] = text
+        # Phase 44.C — thread-safe write
+        with _LLM_CACHE_LOCK:
+            _LLM_CACHE[cache_key] = text
     return text or None
 
 
