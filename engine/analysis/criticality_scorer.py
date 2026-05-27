@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import logging
 import math
+import re
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Literal
@@ -224,6 +225,9 @@ def _actionability_component(
 def _painpoint_match_component(
     article_embedding: list[float] | None,
     painpoint_embeddings: list[tuple[list[float], float]] | None,
+    *,
+    inferred_painpoints: list[str] | None = None,
+    article_text: str | None = None,
 ) -> float:
     """Plan §3.2 — max cosine match across tenant painpoints,
     weighted by the painpoint's severity.
@@ -231,20 +235,57 @@ def _painpoint_match_component(
     `painpoint_embeddings` is a list of (embedding, severity_weight) tuples
     loaded from the tenant's painpoints.ttl + cache.
 
-    Returns 0.0 if either input is missing.
+    Phase 46.D fallback: when no embeddings are available (e.g. a
+    fresh self-service onboard where the user didn't manually set up
+    painpoints.ttl), fall back to token overlap between
+    LLM-inferred painpoint strings and the article text. This means
+    every tenant — even one onboarded 5 minutes ago — has a non-zero
+    painpoint signal in the criticality score.
+
+    Returns 0.0 only if BOTH paths have no inputs.
     """
-    if not article_embedding or not painpoint_embeddings:
-        return 0.0
-    best: float = 0.0
-    for emb, severity in painpoint_embeddings:
-        if not emb:
-            continue
-        cos = _cosine(article_embedding, emb)
-        # Multiply by severity so high-severity painpoint matches dominate
-        weighted = cos * float(severity or 0.5)
-        if weighted > best:
-            best = weighted
-    return _clip01(best)
+    # Primary path: embedding-based cosine match (tenants with curated
+    # painpoint embeddings — the 7 baseline companies + anyone who
+    # explicitly set up painpoints.ttl).
+    if article_embedding and painpoint_embeddings:
+        best: float = 0.0
+        for emb, severity in painpoint_embeddings:
+            if not emb:
+                continue
+            cos = _cosine(article_embedding, emb)
+            weighted = cos * float(severity or 0.5)
+            if weighted > best:
+                best = weighted
+        if best > 0:
+            return _clip01(best)
+
+    # Fallback path: LLM-inferred painpoints as strings (Phase 46.A).
+    # Token overlap with the article text. Each painpoint contributes
+    # the fraction of its substantive tokens that appear in the article.
+    # We take the max across painpoints (the strongest match wins).
+    if inferred_painpoints and article_text:
+        text_lower = article_text.lower()
+        # Tokens worth at least 3 chars, filter common stopwords
+        _STOP = {
+            "the", "and", "for", "with", "from", "this", "that", "into",
+            "their", "have", "been", "will", "are", "was", "were",
+            "under", "over", "between", "across", "around",
+        }
+        best_match: float = 0.0
+        for painpoint in inferred_painpoints:
+            tokens = [
+                t for t in re.findall(r"\b[a-z][a-z0-9]{2,}\b", painpoint.lower())
+                if t not in _STOP
+            ]
+            if not tokens:
+                continue
+            hits = sum(1 for t in tokens if t in text_lower)
+            match_ratio = hits / len(tokens)
+            if match_ratio > best_match:
+                best_match = match_ratio
+        return _clip01(best_match)
+
+    return 0.0
 
 
 def _recency_component(published_at: str | None, now: datetime | None = None) -> float:
@@ -446,6 +487,13 @@ def score_components(
     narrative_polarity: str | None = None,
     forecaster_output: dict[str, Any] | None = None,
     now: datetime | None = None,
+    # Phase 46.D — domain-only onboards have no curated painpoint
+    # embeddings. Pass through the LLM-inferred painpoint strings + the
+    # article title/body so the painpoint scorer can fall back to
+    # token-overlap matching. Mediates the criticality score by the
+    # tenant's actual concerns even on day-zero of a fresh onboard.
+    inferred_painpoints: list[str] | None = None,
+    article_text: str | None = None,
 ) -> CriticalityComponents:
     """Compute all 7 positive components + 3 penalties for one article.
 
@@ -462,6 +510,8 @@ def score_components(
         ),
         painpoint_match=_painpoint_match_component(
             article_embedding, painpoint_embeddings,
+            inferred_painpoints=inferred_painpoints,
+            article_text=article_text,
         ),
         recency=_recency_component(published_at, now=now),
         source_authority=_source_authority_component(source, url=url),
@@ -520,6 +570,10 @@ def score(
     narrative_polarity: str | None = None,
     forecaster_output: dict[str, Any] | None = None,
     now: datetime | None = None,
+    # Phase 46.D — LLM-inferred painpoints + article text for token-overlap
+    # fallback when no curated embeddings exist for the tenant.
+    inferred_painpoints: list[str] | None = None,
+    article_text: str | None = None,
 ) -> CriticalityResult:
     """Score an article for criticality. Returns a `CriticalityResult` with
     the final score, band, all components, and per-role scores.
@@ -544,6 +598,8 @@ def score(
         narrative_polarity=narrative_polarity,
         forecaster_output=forecaster_output,
         now=now,
+        inferred_painpoints=inferred_painpoints,
+        article_text=article_text,
     )
 
     final = _weighted_score(components, WEIGHTS_DEFAULT)

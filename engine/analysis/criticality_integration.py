@@ -106,6 +106,36 @@ def _load_painpoint_embeddings_safely(tenant_id: str) -> list[tuple[list[float],
         return []
 
 
+def _get_inferred_painpoints(company: Any) -> list[str]:
+    """Phase 46.D — pull LLM-inferred painpoint strings off the company.
+
+    Set by the Phase 46.A LLM resolver into
+    `company.primitive_calibration["inferred_painpoints"]`. Returns []
+    if missing — the criticality scorer's fallback path then yields 0.
+    """
+    calib = getattr(company, "primitive_calibration", None) or {}
+    if not isinstance(calib, dict):
+        return []
+    items = calib.get("inferred_painpoints") or []
+    if not isinstance(items, list):
+        return []
+    return [str(s) for s in items if isinstance(s, str) and s.strip()]
+
+
+def _get_article_text_for_match(result: Any, insight_dict: dict[str, Any] | None) -> str:
+    """Concat title + first 800 chars of body + headline for token-overlap.
+
+    Insight headline is included because Stage 10 sometimes surfaces
+    keywords that don't appear in the raw article body (LLM elaboration).
+    """
+    title = (getattr(result, "title", "") or "")[:240]
+    body = (getattr(result, "article_content", "") or "")[:800]
+    headline = ""
+    if isinstance(insight_dict, dict):
+        headline = (insight_dict.get("headline") or "")[:240]
+    return f"{title} {headline} {body}".strip()
+
+
 def _event_polarity_from_event(event: Any) -> str | None:
     """Pull polarity from EventClassification if available."""
     if event is None:
@@ -174,6 +204,10 @@ def score_at_pipeline_end(
             event_id=event_id,
             article_embedding=article_emb,
             painpoint_embeddings=painpoint_embs,
+            # Phase 46.D — fall back to LLM-inferred painpoint strings
+            # when no curated embeddings are cached for this tenant.
+            inferred_painpoints=_get_inferred_painpoints(company),
+            article_text=_get_article_text_for_match(result, None),
             published_at=getattr(result, "published_at", None),
             source=getattr(result, "source", None),
             url=getattr(result, "url", None),
@@ -238,6 +272,10 @@ def score_at_insight_time(
             event_id=event_id,
             article_embedding=article_emb,
             painpoint_embeddings=painpoint_embs,
+            # Phase 46.D — fall back to LLM-inferred painpoint strings
+            # when no curated embeddings are cached for this tenant.
+            inferred_painpoints=_get_inferred_painpoints(company),
+            article_text=_get_article_text_for_match(result, insight_dict),
             published_at=getattr(result, "published_at", None),
             source=getattr(result, "source", None),
             url=getattr(result, "url", None),
