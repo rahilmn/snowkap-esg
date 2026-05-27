@@ -339,10 +339,21 @@ def forecast_sentiment_trajectory(
     if not series:
         horizons = _deterministic_horizons(series)
     else:
+        # Phase v1.1 — route sentiment-trajectory forecasting through the
+        # search_aided task class. When OPENROUTER_API_KEY is set this
+        # routes to Perplexity Sonar-pro which grounds the forecast in
+        # live web search results — material precision win over training-
+        # data extrapolation for ESG context that changes weekly. Falls
+        # back to direct OpenAI when the key is absent.
         if client is None:
             try:
                 from engine.llm import get_llm_client
-                client = get_llm_client(task_class="extraction").sync
+                _llm = get_llm_client(task_class="search_aided")
+                client = _llm.sync
+                # Override the model so Perplexity's identifier wins when
+                # OpenRouter is active; falls back to gpt-4.1 on direct
+                # OpenAI mode per the legacy routing table.
+                model = _llm.model_for()
             except Exception as exc:  # noqa: BLE001
                 logger.debug("forecaster: client init failed: %s", exc)
                 client = None

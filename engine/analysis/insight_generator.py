@@ -609,11 +609,20 @@ def generate_deep_insight(
 
     settings = load_settings()
     llm_cfg = settings.get("llm", {})
-    model = llm_cfg.get("model_heavy", "gpt-4.1")
     max_tokens = llm_cfg.get("max_tokens_insight", 2400)
     temperature = llm_cfg.get("temperature", 0.2)
 
-    client = OpenAI(api_key=get_openai_api_key())
+    # Phase v1.1 — Stage 10 routes through the OpenRouter gateway using
+    # task_class="reasoning_heavy". When OPENROUTER_API_KEY is set this
+    # lights up Claude Opus 4.6 (per engine/llm/routing.py); when absent,
+    # falls back to direct OpenAI gpt-4.1 (byte-equivalent to legacy).
+    # Opus on Stage 10 materially reduces hallucinated frameworks +
+    # cascade-math drift — the failure modes the verifier layer has been
+    # guarding against.
+    from engine.llm import get_llm_client
+    llm = get_llm_client(task_class="reasoning_heavy")
+    client = llm.sync
+    model = llm.model_for()
     user_prompt = _build_user_prompt(result, company)
 
     # Phase 14.4 — append a POSITIVE-EVENT polarity directive when the event
