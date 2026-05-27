@@ -316,7 +316,42 @@ def _rerun_full_pipeline(
     """
     from engine.analysis.pipeline import process_article
 
+    # Try the requested slug first; fall back to canonical via the
+    # slug_aliases table; finally walk every company dir as a last
+    # resort. This handles the alias/canonical mismatch that occurs
+    # when the caller's JWT carries an alias (e.g. "nestle") but the
+    # raw input files live under the canonical ("nestl-india-limited").
     inputs_dir = get_data_path("inputs", "news", company_slug)
+    if not inputs_dir.exists():
+        try:
+            from engine.index.sqlite_index import resolve_slug
+            canonical = resolve_slug(company_slug)
+            if canonical and canonical != company_slug:
+                alt_dir = get_data_path("inputs", "news", canonical)
+                if alt_dir.exists():
+                    logger.info(
+                        "_rerun_full_pipeline: alias %s -> canonical %s for inputs",
+                        company_slug, canonical,
+                    )
+                    inputs_dir = alt_dir
+                    company_slug = canonical
+        except Exception:  # noqa: BLE001
+            pass
+    if not inputs_dir.exists():
+        # Last-resort: glob across every company dir for the article id.
+        base = get_data_path("inputs", "news")
+        if base.exists():
+            for candidate_dir in base.iterdir():
+                if not candidate_dir.is_dir():
+                    continue
+                if list(candidate_dir.glob(f"*{article_id}*")):
+                    logger.info(
+                        "_rerun_full_pipeline: located %s under %s (caller asked for %s)",
+                        article_id, candidate_dir.name, company_slug,
+                    )
+                    inputs_dir = candidate_dir
+                    company_slug = candidate_dir.name
+                    break
     if not inputs_dir.exists():
         logger.warning("_rerun_full_pipeline: no inputs dir for %s", company_slug)
         return None
