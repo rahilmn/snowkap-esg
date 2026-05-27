@@ -341,7 +341,7 @@ export function NowPage() {
                   display: "flex", flexDirection: "column", gap: 2,
                 }}>
                   <a
-                    href="/settings/onboard"
+                    href="/profile"
                     onClick={() => setProfileOpen(false)}
                     style={{
                       display: "block", padding: "8px 6px",
@@ -349,7 +349,7 @@ export function NowPage() {
                       textDecoration: "none", borderRadius: 6,
                     }}
                   >
-                    Settings
+                    Profile &amp; preferences
                   </a>
                   <button
                     onClick={handleLogout}
