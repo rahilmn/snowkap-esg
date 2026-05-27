@@ -2,7 +2,7 @@
 
 Wraps the OpenAI SDK with two transports:
   - When OPENROUTER_API_KEY is set: base_url → OpenRouter, model strings
-    are vendor-prefixed (e.g. `anthropic/claude-opus-4.7`)
+    are vendor-prefixed (e.g. `anthropic/claude-opus-4.6`)
   - Otherwise: base_url → OpenAI directly, model strings are bare
     (e.g. `gpt-4.1`). Byte-equivalent to the legacy code path so Phase 26
     tests keep passing without modification.

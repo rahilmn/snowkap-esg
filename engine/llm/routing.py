@@ -18,7 +18,7 @@ from engine.llm.keys import is_using_legacy_openai
 # active, these strings go straight to the API. When legacy OpenAI is
 # active, we strip the `vendor/` prefix and use the model bare.
 TASK_CLASS_TO_MODEL: dict[str, str] = {
-    "reasoning_heavy":   "anthropic/claude-opus-4.7",
+    "reasoning_heavy":   "anthropic/claude-opus-4.6",
     "reasoning_default": "openai/gpt-4.1",
     "extraction":        "openai/gpt-4.1-mini",
     "composition":       "openai/gpt-4.1",

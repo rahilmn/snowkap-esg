@@ -19,7 +19,7 @@
 | Layer | Technology | Notes |
 |-------|-----------|-------|
 | Language | Python 3.12+ | Engine + API |
-| LLM | OpenAI (gpt-4.1, gpt-4.1-mini) by default | OpenRouter gateway (anthropic/claude-opus-4.7, perplexity/sonar-pro, openai/gpt-4o-mini) lights up when `OPENROUTER_API_KEY` is set — Phase C |
+| LLM | OpenAI (gpt-4.1, gpt-4.1-mini) by default | OpenRouter gateway (anthropic/claude-opus-4.6, perplexity/sonar-pro, openai/gpt-4o-mini) lights up when `OPENROUTER_API_KEY` is set — Phase C |
 | LLM gateway | `engine/llm/` (OpenRouter passthrough) | Task-class routing; cost from `usage.cost` (authoritative when OpenRouter active) |
 | Ontology | rdflib (in-process, persists to `.ttl`) | The intelligence brain |
 | Ontology validation | owlrl + pyshacl | OWL-RL deductive closure + SHACL shape validation (Phase C drop-ins) |
@@ -1386,7 +1386,7 @@ Plus **`engine/analysis/forecaster.py`** (~400 LoC) — OpenAI-native sentiment-
 
 | task_class | model |
 |---|---|
-| `reasoning_heavy` | `anthropic/claude-opus-4.7` |
+| `reasoning_heavy` | `anthropic/claude-opus-4.6` |
 | `reasoning_default` | `openai/gpt-4.1` |
 | `extraction` | `openai/gpt-4.1-mini` |
 | `composition` | `openai/gpt-4.1` |
