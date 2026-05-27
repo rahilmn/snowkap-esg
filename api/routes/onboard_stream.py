@@ -100,28 +100,82 @@ async def _stream_events(slug: str) -> AsyncIterator[str]:
     the skeleton immediately, then replays any pre-existing events for
     this slug (covers the race between POST /onboard and the SSE
     connection), then tails the table.
+
+    Phase 44.E (2026-05-28) — also tails events for the CANONICAL slug
+    when the requested slug is an alias. Pre-fix, a client listening on
+    `/api/me/onboard/reliance/stream` only saw events emitted under
+    `slug='reliance'` (the alias) — but after `company_profile_ready`
+    the worker switches to emitting under the canonical slug
+    (`reliance-inc`). Without bridging alias→canonical here, 80% of the
+    onboarding events get dropped on the client side. The bug
+    manifested as every onboard appearing to "freeze after
+    company_profile_ready" in the SSE stream even though the worker
+    was completing successfully (proven by onboarding_status going to
+    state=ready).
     """
     yield _format_sse("stream_start", {"slug": slug})
 
-    last_seq = 0
+    # Resolve the canonical slug for this request (one-shot at stream start).
+    # Most onboards have alias != canonical (e.g. "puma" → "puma-se").
+    canonical_slug = slug
+    try:
+        from engine.index import sqlite_index
+        resolved = sqlite_index.resolve_slug(slug)
+        if resolved and resolved != slug:
+            canonical_slug = resolved
+            logger.info("onboard_stream: tailing both alias=%s + canonical=%s",
+                        slug, canonical_slug)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("onboard_stream: alias resolve failed for %s: %s", slug, exc)
+
+    # Track last seq per slug so we don't replay events.
+    last_seq_alias = 0
+    last_seq_canonical = 0
     elapsed = 0.0
 
     while elapsed < _HARD_CAP_S:
+        # Pull events for the alias slug (early onboard_started, etc.)
         try:
-            events = onboarding_events.list_since(slug, after_seq=last_seq)
+            events_alias = onboarding_events.list_since(slug, after_seq=last_seq_alias)
         except Exception as exc:  # noqa: BLE001
-            logger.warning("onboard_stream: tail failed for %s: %s", slug, exc)
-            events = []
+            logger.warning("onboard_stream: alias tail failed for %s: %s", slug, exc)
+            events_alias = []
 
-        for ev in events:
-            last_seq = ev.seq
+        # Pull events for the canonical slug (the bulk of the pipeline emits here)
+        events_canonical: list = []
+        if canonical_slug != slug:
+            try:
+                events_canonical = onboarding_events.list_since(
+                    canonical_slug, after_seq=last_seq_canonical,
+                )
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "onboard_stream: canonical tail failed for %s: %s",
+                    canonical_slug, exc,
+                )
+
+        # Merge + sort by timestamp so the client sees events in
+        # chronological order (alias's onboard_started comes before
+        # canonical's news_fetch_started).
+        all_events = list(events_alias) + list(events_canonical)
+        all_events.sort(key=lambda e: e.seq)
+
+        for ev in all_events:
+            if ev.slug == slug:
+                last_seq_alias = max(last_seq_alias, ev.seq)
+            else:
+                last_seq_canonical = max(last_seq_canonical, ev.seq)
             yield _format_sse(ev.kind, ev.to_sse_dict())
 
-        if events and events[-1].kind in _TERMINAL_KINDS:
+        # Terminal-event check: if EITHER stream emits a terminal kind,
+        # we're done. (Worker emits onboard_complete on canonical AND
+        # mirrors it to alias in admin_onboard.py — but we close on the
+        # first one we see to avoid hanging.)
+        if all_events and all_events[-1].kind in _TERMINAL_KINDS:
             return
 
         # Fallback heartbeat — keeps proxies from dropping idle streams.
-        if not events:
+        if not all_events:
             yield ": keepalive\n\n"
 
         await asyncio.sleep(_POLL_INTERVAL_S)
