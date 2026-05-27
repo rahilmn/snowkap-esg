@@ -159,14 +159,14 @@ def test_postgres_writes(report: TestReport, alias_slug: str, canonical_slug: st
         with connect() as conn:
             # slug_aliases — Phase 42 should have written this BEFORE analysis
             cur = conn.execute(
-                "SELECT canonical FROM slug_aliases WHERE alias = %s",
+                "SELECT canonical FROM slug_aliases WHERE alias = ?",
                 (alias_slug,),
             )
             alias_row = cur.fetchone()
             if not alias_row:
                 # Alias might equal canonical (no rename happened) — also accept
                 cur = conn.execute(
-                    "SELECT slug FROM companies WHERE slug = %s",
+                    "SELECT slug FROM companies WHERE slug = ?",
                     (alias_slug,),
                 )
                 if not cur.fetchone():
@@ -180,7 +180,7 @@ def test_postgres_writes(report: TestReport, alias_slug: str, canonical_slug: st
 
             # companies — onboarder writes this
             cur = conn.execute(
-                "SELECT slug, name, industry FROM companies WHERE slug = %s",
+                "SELECT slug, name, industry FROM companies WHERE slug = ?",
                 (resolved,),
             )
             comp_row = cur.fetchone()
@@ -192,7 +192,7 @@ def test_postgres_writes(report: TestReport, alias_slug: str, canonical_slug: st
                 """
                 SELECT COUNT(*) FROM article_pool a
                 JOIN company_article_view v ON v.article_id = a.id
-                WHERE v.company_slug = %s
+                WHERE v.company_slug = ?
                 """,
                 (resolved,),
             )
