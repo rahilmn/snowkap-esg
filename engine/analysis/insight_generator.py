@@ -983,7 +983,42 @@ def generate_deep_insight(
         role_explainer_block = build_role_explainer(merged_for_explainer)
         criticality_summary_text = build_criticality_summary(merged_for_explainer)
     except Exception as exc:  # noqa: BLE001 — additive, never break the write
-        logger.warning("insight_generator: role_explainer/criticality_summary failed (%s)", exc)
+        # Phase 45.H — full traceback so we can see WHAT failed instead of
+        # a one-line warning. Previous "(%s)" formatter hid the cause.
+        logger.exception(
+            "insight_generator: role_explainer/criticality_summary failed: %s",
+            exc,
+        )
+
+    # Phase 45.H — defensive fallback. If the try/except above silently
+    # caught an exception, criticality_summary_text is still "" which
+    # propagates into unified_analysis.why_it_matters and breaks the UI
+    # contract ("Critical — ..." sentence is the first thing the reader
+    # sees on the article sheet). Recompute inline from the criticality
+    # block + decision_summary so the field is NEVER empty on a non-
+    # rejected article.
+    if not criticality_summary_text:
+        try:
+            from engine.analysis.role_explainer import build_criticality_summary
+            criticality_summary_text = build_criticality_summary({
+                "criticality": criticality_block or {},
+                "decision_summary": parsed.get("decision_summary") or {},
+                "event_polarity": polarity,
+            })
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("criticality_summary fallback failed: %s", exc)
+            # Last-resort literal — never empty.
+            band = (
+                (criticality_block or {}).get("band", "MEDIUM") if criticality_block
+                else "MEDIUM"
+            )
+            band_prefix = {
+                "CRITICAL": "Critical", "HIGH": "High priority",
+                "MEDIUM": "Worth reviewing", "LOW": "Low priority",
+            }.get(str(band).upper(), "Worth reviewing")
+            criticality_summary_text = (
+                f"{band_prefix} — ESG-relevant article requires review."
+            )
 
     return DeepInsight(
         headline=str(parsed.get("headline", "") or result.title)[:200],

@@ -199,6 +199,41 @@ def _build_why_it_matters(
     summary = (getattr(insight, "criticality_summary", "") if insight else "") or ""
     exposure = _financial_exposure_block(insight)
     stakes = _stakes_text(insight)
+    # Phase 45.H — defensive fallback when insight_generator's role_explainer
+    # block silently failed (caught by its try/except, leaving the
+    # criticality_summary field as the dataclass default ""). The reader
+    # MUST see a non-empty sentence here — it's the first thing they
+    # read after the headline. Recompute inline from the criticality
+    # block + exposure + band using the same logic build_criticality_summary
+    # uses. Defensive — only runs when the upstream stamp is missing.
+    if not summary:
+        try:
+            from engine.analysis.role_explainer import build_criticality_summary
+            # Build the dict shape build_criticality_summary expects: it
+            # reads .criticality.components, .decision_summary, .event_polarity.
+            decision_for_summary: dict[str, Any] = {}
+            if insight is not None:
+                ds = getattr(insight, "decision_summary", None)
+                if isinstance(ds, dict):
+                    decision_for_summary = ds
+            recovered = build_criticality_summary({
+                "criticality": criticality,
+                "decision_summary": decision_for_summary,
+                "event_polarity": getattr(insight, "event_polarity", "") if insight else "",
+            })
+            if recovered:
+                summary = recovered
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("criticality_summary fallback failed (%s)", exc)
+            # Last-resort literal: never let the field be empty so the
+            # downstream UI + validation contract holds.
+            band_prefix = {
+                "CRITICAL": "Critical",
+                "HIGH": "High priority",
+                "MEDIUM": "Worth reviewing",
+                "LOW": "Low priority",
+            }.get(band, "Worth reviewing")
+            summary = f"{band_prefix} — multiple signals point to ESG materiality for this article."
     # Fall back to a deterministic stakes sentence when the LLM stamp is
     # empty. The "For you · " paragraph on the article sheet is one of the
     # three things the reader actually scans; never leave it blank.

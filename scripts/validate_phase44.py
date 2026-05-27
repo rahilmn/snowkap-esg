@@ -554,18 +554,30 @@ def test_chat_grounded(
         )
         if r.status_code != 200:
             raise AssertionError(f"POST /api/chat returned {r.status_code}: {r.text[:300]}")
+        # Phase 45.H — the chat SSE format is `event: <kind>\ndata: <json>`.
+        # Event type lives in the `event:` line, NOT the data payload. We
+        # track the most recent event header so the data line that follows
+        # knows whether it's a token / done / error.
         reply = ""
+        current_event = ""
         for raw_line in r.iter_lines(decode_unicode=True):
-            if not raw_line:
+            if raw_line is None:
                 continue
-            if raw_line.startswith("data: "):
+            line = raw_line.strip() if isinstance(raw_line, str) else ""
+            if not line:
+                continue
+            if line.startswith("event:"):
+                current_event = line.split(":", 1)[1].strip()
+                continue
+            if line.startswith("data:"):
+                payload_str = line[5:].lstrip()
                 try:
-                    evt = json.loads(raw_line[6:])
+                    evt = json.loads(payload_str)
                 except json.JSONDecodeError:
                     continue
-                if evt.get("type") == "token":
+                if current_event == "token":
                     reply += evt.get("delta", "")
-                if evt.get("type") in ("done", "error"):
+                elif current_event in ("done", "error"):
                     break
 
         if len(reply) < 50:

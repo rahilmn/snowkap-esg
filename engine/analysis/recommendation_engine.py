@@ -1534,6 +1534,30 @@ def generate_recommendations(
     client = llm.sync
     raw_recs = _generate_recommendations(insight, result, company, client)
     validated = _post_process(raw_recs)
+
+    # Phase 45.H — fail-soft fallback. Opus 4.6 on OpenRouter occasionally
+    # returns 5xx / timeout / truncated JSON. Pre-fix that returned []
+    # and the article landed with zero recs on disk, breaking the
+    # rereact_recommendations panel + tests that assert ≥1 rec on a
+    # non-rejected HOME-tier article. Now: if the LLM produced nothing
+    # validated, fall back to the deterministic monitoring recommendation
+    # so the UI never shows blank "RECOMMENDED ACTIONS". The do_nothing
+    # flag stays False (this was a HOME-tier article — Stage 10 succeeded
+    # — Stage 12 just hiccuped) so callers can distinguish from the
+    # genuine LOW-materiality monitor case.
+    if not validated:
+        logger.warning(
+            "Stage 12 returned 0 recommendations for %s — falling back to "
+            "deterministic monitor rec so UI never shows blank.",
+            getattr(result, "article_id", "?"),
+        )
+        validated = [
+            _build_monitoring_recommendation(
+                insight, result, company,
+                reason="Stage 12 LLM returned no validated recommendations; "
+                       "monitoring rec inserted as deterministic fallback.",
+            ),
+        ]
     # Phase 24.6 — region-incompatible framework citations get rewritten
     # so a coal-heavy Indian power company never sees "EU Taxonomy
     # Article 8" in its green-bond rec. Falls through to a sensible
