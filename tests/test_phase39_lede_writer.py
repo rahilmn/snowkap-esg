@@ -435,3 +435,168 @@ def test_renderer_omits_lede_block_when_absent():
     # Layout still renders the structured sections
     assert "What changed" in html
     assert "Why it matters" in html
+
+
+# ---------------------------------------------------------------------------
+# Phase 40.A — lede article-body grounding
+# ---------------------------------------------------------------------------
+
+
+def test_grounding_rejects_invented_peer_company():
+    """The PUMA hallucination bug: lede claimed 'Mark Langer steered
+    Hugo Boss through ESRS reporting' on an article that contained
+    zero mention of Hugo Boss. Verifier must reject this."""
+    from engine.analysis.lede_writer import _verify_lede
+
+    bad_lede = (
+        "PUMA named Mark Langer as Chief Financial Officer on 30 April. "
+        "Langer built his reputation steering Hugo Boss through ESRS reporting "
+        "before its 2024 turnaround. The board now treats sustainability as a "
+        "finance function."
+    )
+    article_body = (
+        "PUMA SE today announced the appointment of Mark Langer as Chief "
+        "Financial Officer, effective 30 April 2026. Langer joins the "
+        "executive board to oversee finance and controlling."
+    )
+    passed, reason = _verify_lede(bad_lede, article_body=article_body, company_name="PUMA SE")
+    assert not passed
+    assert "ungrounded" in reason
+    assert "hugo" in reason.lower() or "boss" in reason.lower()
+
+
+def test_grounding_passes_when_lede_is_article_grounded():
+    """Lede that only mentions facts present in the article body
+    should clear the grounding check."""
+    from engine.analysis.lede_writer import _verify_lede
+
+    clean = (
+        "PUMA SE named Mark Langer as Chief Financial Officer on 30 April. "
+        "Langer joins the executive board to oversee finance. "
+        "The appointment closes the CFO succession opened by Hubert Hinterseher."
+    )
+    article_body = (
+        "PUMA SE today announced the appointment of Mark Langer as Chief "
+        "Financial Officer, effective 30 April 2026. Langer joins the "
+        "executive board to oversee finance and controlling. The company "
+        "thanked outgoing CFO Hubert Hinterseher for his contribution."
+    )
+    passed, reason = _verify_lede(clean, article_body=article_body, company_name="PUMA SE")
+    assert passed, f"clean lede rejected for reason: {reason}"
+
+
+def test_grounding_allows_whitelisted_regulators_and_frameworks():
+    """Regulators (RBI, SEBI, SEC, MSCI, etc.) and frameworks (BRSR,
+    GRI, CSRD) are allowed in the lede even when not in the article
+    body — they're institutional context, not invented entities."""
+    from engine.analysis.lede_writer import _verify_lede
+
+    lede = (
+        "YES Bank received an RBI penalty of ₹31.80 lakh this Friday. "
+        "The notice cites BRSR Principle 9 governance lapses. "
+        "It is the third KYC penalty this calendar year."
+    )
+    article_body = (
+        "The Reserve Bank of India has imposed a monetary penalty of "
+        "Rs 31.80 lakh on YES Bank for non-compliance with KYC norms."
+    )
+    passed, _ = _verify_lede(lede, article_body=article_body, company_name="YES Bank")
+    # Allowed even though "BRSR" + "Principle" don't appear in the body
+    # — RBI is article-grounded, BRSR is a whitelist framework.
+    assert passed
+
+
+def test_grounding_skips_when_article_body_empty():
+    """When article body is empty/missing (headline-only), skip the
+    grounding check — there's nothing to check against."""
+    from engine.analysis.lede_writer import _verify_lede
+
+    lede = (
+        "Test Company posted ₹500 Cr Q4 turnover. "
+        "Operating margin expanded to 14%. The cycle has turned."
+    )
+    passed, _ = _verify_lede(lede, article_body="", company_name="Test Company")
+    assert passed  # No body → skip grounding
+
+
+# ---------------------------------------------------------------------------
+# Phase 40.B — recommendation topic-drift verifier
+# ---------------------------------------------------------------------------
+
+
+def test_drift_check_drops_off_topic_supplier_engagement_on_cfo_article():
+    """The PUMA bug: a CFO appointment article produced 'Launch
+    Supplier Engagement Program for Scope 3 Reduction'. The drift
+    check must drop this — zero overlap with article title or body."""
+    import re
+    from engine.analysis.recommendation_engine import _REC_TOPIC_DRIFT_STOPWORDS
+
+    article_title = "PUMA appoints Mark Langer as Chief Financial Officer"
+    article_body = (
+        "PUMA SE announced the appointment of Mark Langer as Chief "
+        "Financial Officer, effective 30 April 2026."
+    )
+    rec_title = "Launch Supplier Engagement Program for Scope 3 Reduction"
+
+    rec_tokens = [
+        t for t in re.findall(r"\b[a-z]{3,}\b", rec_title.lower())
+        if t not in _REC_TOPIC_DRIFT_STOPWORDS
+    ]
+    strong = article_title.lower()
+    weak = article_body.lower()
+    strong_overlap = [t for t in set(rec_tokens) if t in strong]
+    weak_overlap = [t for t in set(rec_tokens) if t in weak]
+
+    # Should fall through both checks → DROP
+    assert len(strong_overlap) < 1
+    assert len(weak_overlap) < 2
+
+
+def test_drift_check_keeps_legitimate_rec_with_strong_signal_overlap():
+    """A rec that shares even ONE stem with article title (strong
+    signal) survives — the verifier is biased toward keeping recs
+    that have ANY topical thread to the article. The stem-aware
+    match means 'appointment' counts as overlapping with 'appoints'."""
+    import re
+    from engine.analysis.recommendation_engine import _REC_TOPIC_DRIFT_STOPWORDS
+
+    article_title = "PUMA appoints Mark Langer as Chief Financial Officer"
+    rec_title = "Update Investor Communications on CFO Appointment"
+
+    rec_tokens = [
+        t for t in re.findall(r"\b[a-z]{3,}\b", rec_title.lower())
+        if t not in _REC_TOPIC_DRIFT_STOPWORDS
+    ]
+    # Stem-aware match (mirrors the verifier's _token_in_universe)
+    def _in(token: str, universe: str) -> bool:
+        if token in universe:
+            return True
+        stem = token[:5] if len(token) > 5 else token
+        return len(stem) >= 4 and stem in universe
+    overlap = [t for t in set(rec_tokens) if _in(t, article_title.lower())]
+    # "appointment" stem "appoi" overlaps with "appoints" in title → KEEP
+    assert len(overlap) >= 1, f"expected stem-overlap; got tokens={rec_tokens}"
+
+
+def test_drift_check_keeps_rec_with_multiple_weak_overlaps():
+    """When strong signal (title) has no overlap but the article body
+    shares 2+ substantive tokens with the rec, keep it."""
+    import re
+    from engine.analysis.recommendation_engine import _REC_TOPIC_DRIFT_STOPWORDS
+
+    article_title = "Acme Bank Q4 Results"
+    article_body = (
+        "Acme Bank announced ₹3,200 Cr profit on a 22% lift in retail "
+        "lending. Credit growth accelerated across small business and "
+        "mortgage portfolios."
+    )
+    rec_title = "Refine Credit Underwriting in Small Business Lending"
+
+    rec_tokens = [
+        t for t in re.findall(r"\b[a-z]{3,}\b", rec_title.lower())
+        if t not in _REC_TOPIC_DRIFT_STOPWORDS
+    ]
+    weak = article_body.lower()
+    weak_overlap = [t for t in set(rec_tokens) if t in weak]
+    # "credit" + "lending" + "small" + "business" all overlap
+    assert len(weak_overlap) >= 2

@@ -499,6 +499,26 @@ that hook the reader before the structured brief below.
 Voice: serious, named-entity-first, story-driven. Mint editorial / FT
 Alphaville / Bloomberg Opinion register. Never Morning Brew casual.
 
+GROUNDING — ABSOLUTE RULE (Phase 40 hard constraint):
+Every named person, peer company, prior event, framework, ₹ figure, or
+date you mention MUST appear verbatim or as a clear synonym in the
+ARTICLE BODY EXCERPT below. If a fact is not in the body, do not write
+it. The post-generation verifier extracts every proper noun from your
+lede and checks it against the article body — any ungrounded name
+triggers a fallback to a deterministic template, wasting the LLM call.
+
+Specifically:
+  * Do NOT invent prior employers ("Langer led Hugo Boss through ESRS").
+  * Do NOT invent prior achievements ("the company's 2024 turnaround").
+  * Do NOT invent peer comparisons unless the body cites the peer.
+  * Do NOT invent regulator actions, framework citations, or ₹ figures.
+  * Do NOT speculate about the company's strategy or board intent.
+
+If the article body is thin (e.g. just a headline like "PUMA appoints
+Mark Langer as CFO"), keep the lede equally thin — name the company +
+the appointment + the date + the function. Do NOT pad with invented
+context. A short, accurate lede beats a long, fabricated one.
+
 The full editorial discipline appears in the EDITORIAL LEDE block below.
 Read it before composing. Every constraint is enforced post-generation —
 violations trigger a fallback to a deterministic template. Composing
@@ -575,8 +595,132 @@ def _count_sentences(text: str) -> int:
     return len([p for p in parts if p.strip()])
 
 
-def _verify_lede(text: str) -> tuple[bool, str]:
-    """Return (passed, reason). Reason is non-empty when verification fails."""
+# Phase 40.A — proper-noun extraction for grounding check.
+# Matches sequences of 1-4 capitalised tokens, excluding the leading
+# token if it's a sentence-start article (The / A / An).
+_PROPER_NOUN_RE = re.compile(
+    r"\b(?:[A-Z][a-zA-Z&]{1,30}(?:\s+(?:[A-Z][a-zA-Z&]{1,30}|of|the|and|&)){0,3})\b"
+)
+
+# Tokens we IGNORE when extracting proper nouns from the lede — common
+# function words capitalised at sentence start, abbreviations the LLM
+# might safely include, and our own structural language.
+_GROUNDING_IGNORE = frozenset({
+    "the", "a", "an", "this", "that", "these", "those", "his", "her",
+    "their", "its", "our", "we", "they", "he", "she", "it",
+    "for", "with", "from", "into", "of", "and", "but", "or", "yet",
+    "in", "on", "at", "by", "to", "as", "is", "are", "was", "were",
+    "be", "been", "has", "have", "had", "do", "does", "did",
+    "will", "would", "could", "should", "may", "might", "shall",
+    "first", "second", "third", "fourth", "fifth", "last",
+    "before", "after", "during", "since", "until", "while", "when",
+    "now", "today", "yesterday", "tomorrow", "soon",
+    "year", "month", "quarter", "week", "day",
+    # Days of the week + months — calendar tokens are not entities
+    "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday",
+    "january", "february", "march", "april", "may", "june",
+    "july", "august", "september", "october", "november", "december",
+    "ceo", "cfo", "coo", "cmo", "cto", "chairperson",
+    "company", "board", "filing", "release", "statement",
+    "recovery", "turnaround", "cycle", "narrative", "story",
+    "regulator", "regulators", "peer", "peers", "investor", "investors",
+    # Framework section words — "Principle 9", "Article 19a", "Standard"
+    "principle", "principles", "article", "articles", "standard",
+    "standards", "section", "sections", "rule", "rules", "act", "norms",
+    # Common ESG topic words the lede WOULD use without inventing
+    "esg", "climate", "emissions", "scope", "carbon", "energy",
+    "water", "waste", "biodiversity", "labor", "labour",
+    "sustainability", "transition", "renewable",
+    # Common framework names from the whitelist (allowed everywhere)
+    "brsr", "gri", "csrd", "esrs", "tcfd", "sasb", "issb", "cdp",
+    "sebi", "rbi", "epa", "ftc", "sec", "fca", "esma", "sbti",
+    "msci", "djsi", "crisil", "sustainalytics", "iss",
+    "kyc", "aml", "ifsca", "irdai",
+})
+
+
+def _extract_named_entities(text: str) -> list[str]:
+    """Pull substantive proper nouns from `text` for grounding checks.
+
+    Returns lowercased tokens (single words from multi-token phrases too)
+    so the caller can substring-match against article body text without
+    case sensitivity. Function words, common nouns, regulators, and
+    framework names are filtered out — what's left is article-specific
+    proper nouns (Mark Langer, Hugo Boss, Tata Power, etc.).
+    """
+    if not text:
+        return []
+    out: list[str] = []
+    for m in _PROPER_NOUN_RE.finditer(text):
+        phrase = m.group(0)
+        # Skip if the whole phrase is just one ignored token
+        words = [w.lower() for w in re.split(r"\s+", phrase) if w]
+        substantive = [w for w in words if w not in _GROUNDING_IGNORE and len(w) > 2]
+        if not substantive:
+            continue
+        # Keep the multi-word phrase + each substantive single word
+        out.append(phrase)
+        out.extend(w for w in substantive if w not in out)
+    return out
+
+
+def _is_grounded_in_article(lede: str, article_body: str,
+                             company_name: str) -> tuple[bool, list[str]]:
+    """Phase 40.A — verify every substantive proper noun in the lede
+    appears in the article body or the company's own name.
+
+    Returns (passed, ungrounded_entities). Caller rejects the lede when
+    `passed` is False — usually means the LLM invented a biographical
+    claim or a peer company that's not in the source material.
+    """
+    if not lede or not article_body:
+        # Without an article body we can't ground anything — skip the
+        # check entirely. Deterministic templates and short articles
+        # (< 200 chars) fall through here.
+        if article_body and len(article_body.strip()) < 200:
+            return True, []
+        if not article_body:
+            return True, []
+
+    entities = _extract_named_entities(lede)
+    if not entities:
+        return True, []  # Nothing to ground
+
+    body_lc = (article_body or "").lower()
+    company_lc = (company_name or "").lower()
+    # Strip the suffix variants we commonly see ("Inc.", "Ltd.", "SE", "AG", "Bank")
+    # so "PUMA" matches "PUMA SE", "ICICI Bank" matches "ICICI".
+    company_tokens = {t for t in re.split(r"\s+", company_lc) if t and len(t) > 2}
+
+    ungrounded: list[str] = []
+    for entity in entities:
+        ent_lc = entity.lower()
+        # Skip if the entity IS the company (or a token thereof)
+        if any(t in ent_lc or ent_lc in t for t in company_tokens):
+            continue
+        # Skip if entity appears in the article body
+        if ent_lc in body_lc:
+            continue
+        # For multi-token entities, also accept if each substantive
+        # token appears in the body — covers "Hugo Boss" matching
+        # "hugo" + "boss" in the body even if not adjacent.
+        tokens = [w for w in re.split(r"\s+", ent_lc) if w and len(w) > 2]
+        if tokens and all(t in body_lc for t in tokens):
+            continue
+        ungrounded.append(entity)
+
+    return (len(ungrounded) == 0), ungrounded
+
+
+def _verify_lede(text: str, article_body: str = "",
+                  company_name: str = "") -> tuple[bool, str]:
+    """Return (passed, reason). Reason is non-empty when verification fails.
+
+    Phase 40.A — also verifies every named entity in the lede appears in
+    the article body. Without this check the LLM invents biographical
+    claims (e.g. "Mark Langer steered Hugo Boss through ESRS reporting"
+    on a PUMA CFO-appointment article that contains no such fact).
+    """
     if not text or not text.strip():
         return False, "empty"
 
@@ -614,6 +758,12 @@ def _verify_lede(text: str) -> tuple[bool, str]:
         soft = [h for h in hits if h.get("kind") in {"banned_word", "jargon"}]
         if len(soft) > 2:
             return False, f"too_many_soft_violations_{len(soft)}"
+
+    # Phase 40.A — article-body grounding
+    if article_body:
+        grounded, ungrounded = _is_grounded_in_article(text, article_body, company_name)
+        if not grounded:
+            return False, f"ungrounded_entities:{','.join(ungrounded[:3])}"
 
     return True, ""
 
@@ -668,10 +818,18 @@ def write_lede(
     pattern = _select_pattern(insight, analysis, evidence_pack)
     company = _company_name_from_insight(insight, analysis)
 
+    # Phase 40.A — pull article body for grounding check. Without this
+    # the lede LLM hallucinates biographical claims (e.g. "Mark Langer
+    # steered Hugo Boss through ESRS reporting" on a CFO appointment
+    # article that contains no such fact).
+    article = insight.get("article") if isinstance(insight, dict) else {}
+    article_body = (article or {}).get("content") if isinstance(article, dict) else ""
+    article_body = article_body or ""
+
     # 2. Try LLM
     text, model_used = _call_llm(pattern, company, insight, analysis, evidence_pack)
     if text:
-        passed, reason = _verify_lede(text)
+        passed, reason = _verify_lede(text, article_body=article_body, company_name=company)
         if not passed:
             logger.info(
                 "lede_writer: LLM candidate rejected (reason=%s) "

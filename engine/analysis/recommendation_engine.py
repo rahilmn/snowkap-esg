@@ -1008,6 +1008,34 @@ def _generate_recommendations(
     return recommendations
 
 
+# Phase 40.B — stopwords for the rec topic-drift check. Filters out
+# rec-template boilerplate so the overlap signal is dominated by
+# substantive topical tokens (climate / governance / disclosure / etc.)
+# rather than meta-words ("recommendation", "company", "owner").
+_REC_TOPIC_DRIFT_STOPWORDS = frozenset({
+    # Rec template scaffolding
+    "owner", "cost", "payback", "deliver", "ensure", "establish",
+    "implement", "launch", "update", "publish", "issue", "review",
+    "audit", "engage", "engagement", "program", "programme", "annual",
+    "report", "reporting", "investor", "stakeholder", "policy",
+    "framework", "section", "compliance", "governance",
+    # ESG generic terms — too broad to count as topical overlap on
+    # their own (used everywhere by the LLM as filler)
+    "sustainability", "environmental", "social",
+    # Generic business filler
+    "company", "business", "operations", "management", "strategy",
+    "strategic", "performance", "system", "process", "industry",
+    "sector", "leadership", "executive", "board", "function",
+    "across", "around", "through", "before", "after", "during",
+    "while", "where", "when", "this", "that", "these", "those",
+    "with", "from", "into", "their", "would", "could", "should",
+    "have", "been", "will", "more", "less", "such", "some",
+    "many", "most", "next", "first", "last", "second",
+    "the", "and", "for", "but", "not", "are", "was", "were",
+    "its", "his", "her", "our", "out", "all", "any", "you",
+})
+
+
 def verify_recommendation_accuracy(
     recs: list[Recommendation],
     *,
@@ -1127,6 +1155,87 @@ def verify_recommendation_accuracy(
             continue
         # Replace audit_trail with just the valid entries
         r.audit_trail = valid_audit_entries
+
+        # 3.5. Phase 40.B — topic-drift check.
+        # User report (2026-05-27): a CFO appointment article generated
+        # "Launch Supplier Engagement Program for Scope 3 Reduction" —
+        # completely off-topic. The LLM defaults to industry-generic
+        # ESG recs even when the event is governance / disclosure /
+        # earnings. Reject recs that share ZERO substantive tokens with
+        # the article TITLE (strong signal) AND with the article BODY.
+        # A single overlap with title is enough; two with body alone is
+        # enough; zero with both is fatal.
+        article_body = (getattr(result, "article_content", "") or "")[:4000].lower()
+        article_title = (getattr(result, "title", "") or "").lower()
+        # Pull the event-classifier matched keywords too — these are
+        # the topical anchors the pipeline already trusts.
+        event_keywords: list[str] = []
+        if getattr(result, "event", None):
+            mk = getattr(result.event, "matched_keywords", None) or []
+            event_keywords = [str(k).lower() for k in mk]
+        # Build theme tokens from Stage 2 NLP
+        theme = getattr(result, "theme", None)
+        theme_tokens: list[str] = []
+        if theme:
+            primary = getattr(theme, "primary", None) or ""
+            secondaries = getattr(theme, "secondaries", None) or []
+            for t in [primary, *secondaries]:
+                if t:
+                    theme_tokens.extend(
+                        x.lower() for x in re.split(r"[\s_/-]+", str(t)) if len(x) > 2
+                    )
+        # Title + event keywords + theme tokens are the STRONG signal —
+        # any overlap here is meaningful. Body is the WEAK signal —
+        # need at least 2 overlapping tokens.
+        strong_universe = (
+            article_title + " "
+            + " ".join(event_keywords) + " "
+            + " ".join(theme_tokens)
+        ).lower()
+        weak_universe = article_body
+
+        # Pull substantive tokens from the rec title + audit_trail values.
+        # Allow 3+ chars (catches "CFO", "ESG", "AGM", "SEC" — short
+        # acronyms are meaningful signal, not filler).
+        rec_text = (r.title or "") + " " + " ".join(
+            str(e.get("value", "")) for e in r.audit_trail
+        )
+        rec_tokens = [
+            t for t in re.findall(r"\b[a-z]{3,}\b", rec_text.lower())
+            if t not in _REC_TOPIC_DRIFT_STOPWORDS
+        ]
+        rec_tok_set = set(rec_tokens)
+
+        # Stem-aware match: a token counts as overlapping if EITHER
+        # the full token appears in the universe, OR the token's
+        # 5-char prefix appears (catches appointment/appoints/appointed,
+        # finance/financial, governance/governance, etc.). 5 chars is
+        # a sweet spot — too few false-positives, enough morphology.
+        def _token_in_universe(token: str, universe: str) -> bool:
+            if token in universe:
+                return True
+            stem = token[:5] if len(token) > 5 else token
+            return len(stem) >= 4 and stem in universe
+
+        strong_overlap = [t for t in rec_tok_set
+                          if _token_in_universe(t, strong_universe)]
+        weak_overlap = [t for t in rec_tok_set
+                        if _token_in_universe(t, weak_universe)]
+
+        # Keep if EITHER:
+        #   * ≥1 strong overlap (rec title/audit shares a token with
+        #     the article title, event keywords, or themes), OR
+        #   * ≥2 weak overlaps (rec shares 2+ tokens with article body).
+        # Drop ONLY when both signals are absent.
+        if (strong_universe.strip() or weak_universe.strip()) and (
+            len(strong_overlap) < 1 and len(weak_overlap) < 2
+        ):
+            dropped_reasons.append(
+                f"topic drift on rec '{r.title[:40]}' "
+                f"(strong={strong_overlap or 'zero'}, "
+                f"weak={weak_overlap or 'zero'})"
+            )
+            continue
 
         # 4. Headline-only handling
         if headline_only:

@@ -243,18 +243,69 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
               {band}
             </span>
           </div>
-          <h1 className="serif" style={{
-            margin: 0, fontSize: 22, lineHeight: 1.25, fontWeight: 600,
-            color: TOKENS.ink, letterSpacing: "-0.015em",
-          }}>
-            {article.title}
-          </h1>
+          {/* Phase 40.C — headline is clickable to the source article
+              when article.url is present (most articles ingested via
+              Google News + NewsAPI.ai carry the canonical publisher URL).
+              Opens in a new tab so the reader doesn't lose the Snowkap
+              context. Falls back to non-clickable when URL is missing. */}
+          {article.url ? (
+            <a
+              href={article.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="serif"
+              style={{
+                display: "block",
+                margin: 0,
+                fontSize: 22,
+                lineHeight: 1.25,
+                fontWeight: 600,
+                color: TOKENS.ink,
+                letterSpacing: "-0.015em",
+                textDecoration: "none",
+              }}
+              title="Open the original article in a new tab"
+            >
+              {article.title}
+            </a>
+          ) : (
+            <h1 className="serif" style={{
+              margin: 0, fontSize: 22, lineHeight: 1.25, fontWeight: 600,
+              color: TOKENS.ink, letterSpacing: "-0.015em",
+            }}>
+              {article.title}
+            </h1>
+          )}
           <div style={{
             marginTop: 10, display: "flex", gap: 10, alignItems: "center",
             fontSize: 11, color: TOKENS.ink3,
           }}>
             {article.source && <span>{article.source}</span>}
             {article.published_at && <span>· {new Date(article.published_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>}
+            {/* Phase 40.C — explicit "Read original →" pill so the source-
+                link affordance is discoverable even when the title isn't
+                obviously a link. */}
+            {article.url && (
+              <a
+                href={article.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: "2px 8px",
+                  borderRadius: 999,
+                  background: "rgba(255,255,255,0.85)",
+                  border: "1px solid rgba(15,23,42,0.12)",
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  color: TOKENS.brand,
+                  textDecoration: "none",
+                  letterSpacing: "0.02em",
+                }}
+                title="Open the original article in a new tab"
+              >
+                Read original →
+              </a>
+            )}
             {exposureLabel && (
               <span style={{
                 marginLeft: "auto",
