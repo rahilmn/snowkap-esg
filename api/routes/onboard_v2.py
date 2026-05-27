@@ -52,7 +52,10 @@ router = APIRouter(prefix="/api/onboard", tags=["onboard-v2"])
 
 class OnboardV2Request(BaseModel):
     domain: str = Field(..., min_length=3, max_length=253)
-    limit: int = Field(default=5, ge=1, le=10)
+    # Phase 45.F: default lowered 5 → 3 so the first parallel pass +
+    # eager-top-N enrichment fit comfortably under the 240s HTTP budget.
+    # Callers that want a wider sweep can still request up to 10.
+    limit: int = Field(default=3, ge=1, le=10)
     force_refresh: bool = Field(
         default=False,
         description=(
@@ -318,9 +321,14 @@ def onboard_v2(
         thread_name_prefix="onboard-v2",
     ) as pool:
         futures = [pool.submit(_safe_run, a) for a in top_articles]
+        # Phase 45.F — per-future timeout 180s → 120s. Stages 1-9 + (for
+        # HOME) Stage 10-12 + lede should fit; if one hangs, we drop it
+        # and let the others finish so the request returns cleanly.
         for fut in concurrent.futures.as_completed(futures):
             try:
-                results.append(fut.result(timeout=180))
+                results.append(fut.result(timeout=120))
+            except concurrent.futures.TimeoutError:
+                logger.warning("[onboard_v2] first-pass future timed out at 120s")
             except Exception as exc:
                 logger.warning("[onboard_v2] worker exception: %s", exc)
 
@@ -348,7 +356,10 @@ def onboard_v2(
         _, outcome = pair
         return float(getattr(outcome, "impact_score", 0) or 0)
     non_rejected.sort(key=_score, reverse=True)
-    top_candidates = non_rejected[:3]
+    # Phase 45.F — cap at top-2 (was top-3). Test 06 only needs ≥2
+    # articles with recs to assert variety; trimming the eager batch
+    # saves one full LLM cycle (~30-45s) so we stay under the 240s bar.
+    top_candidates = non_rejected[:2]
     # Only SECONDARY-tier articles need the eager promotion — HOME-tier
     # articles already ran Stage 10/11/12 + lede inside _run_article.
     # Calling enrich_on_demand(force=True) on them would just burn LLM
@@ -357,6 +368,21 @@ def onboard_v2(
         (a, o) for (a, o) in top_candidates
         if getattr(o, "tier", "") != "HOME"
     ]
+
+    # Phase 45.F — wall-clock guard. If the first pass already consumed
+    # most of our budget (slow news fetch + slow LLM), skip the eager
+    # pass entirely. The article still has stages 1-9 on disk; the
+    # frontend's on-demand path can finish enrichment when the user
+    # clicks. Better to return a partial onboard within budget than
+    # to time out the HTTP request entirely.
+    EAGER_BUDGET_CUTOFF = 150.0  # seconds since t0
+    if eager_top and (time.monotonic() - t0) > EAGER_BUDGET_CUTOFF:
+        logger.warning(
+            "[onboard_v2] skipping eager pass — already %.0fs into budget "
+            "(cutoff %.0fs). Articles will enrich on first frontend view.",
+            time.monotonic() - t0, EAGER_BUDGET_CUTOFF,
+        )
+        eager_top = []
 
     if eager_top:
         from engine.analysis.on_demand import enrich_on_demand
@@ -383,14 +409,20 @@ def onboard_v2(
             eager_futs = [
                 pool.submit(_enrich_one, a.id) for (a, _) in eager_top
             ]
+            # Phase 45.F — tighter per-future timeout (90s vs 180s) so a
+            # single hung LLM call can't drag the entire onboard past
+            # the 240s HTTP read budget. If it expires, we cancel + log
+            # and let the on-demand path finish on first click.
             for fut in concurrent.futures.as_completed(eager_futs):
                 try:
-                    aid, ok, err = fut.result(timeout=180)
+                    aid, ok, err = fut.result(timeout=90)
                     logger.info(
                         "[onboard_v2] eager %s: %s%s",
                         aid, "OK" if ok else "FAIL",
                         f" ({err})" if err else "",
                     )
+                except concurrent.futures.TimeoutError:
+                    logger.warning("[onboard_v2] eager future timed out at 90s")
                 except Exception as exc:  # noqa: BLE001
                     logger.warning("[onboard_v2] eager worker exception: %s", exc)
 
