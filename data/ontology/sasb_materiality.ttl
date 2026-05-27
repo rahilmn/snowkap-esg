@@ -1,0 +1,584 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# ─────────────────────────────────────────────────────────────────────────
+# Phase 32 — SASB sector materiality TTL
+# ─────────────────────────────────────────────────────────────────────────
+# Source-of-truth: SASB Standards (as of 2024 ISSB consolidation)
+# https://sasb.ifrs.org/standards/
+#
+# Covers 16 sectors mapped by engine/ingestion/company_onboarder.py
+# `_INDUSTRY_TO_SASB`. Each sector carries 3-6 most-material topics
+# split into:
+#   * snowkap:directMaterial  — topics arising from the company's OWN
+#                               operations (Scope 1, workforce, product
+#                               safety, governance, etc.)
+#   * snowkap:assetBasedMaterial — topics arising from the company's
+#                               financed / supplied / portfolio activities
+#                               (Scope 3 financed emissions for banks,
+#                               supply-chain labour for apparel, etc.)
+#
+# Weights are 0.4-0.95 on the SASB rubric where:
+#   * 0.85-0.95 = "most material" (top 1-2 topics for the sector)
+#   * 0.65-0.84 = "highly material"
+#   * 0.45-0.64 = "moderately material"
+#   * < 0.45    = "low material" (omitted; falls through to ontology default)
+#
+# Topic URIs reuse the existing knowledge_base.ttl topic namespace
+# (topic_climate, topic_supply_chain_labor, topic_water, etc.) so the
+# materiality query `STRENDS(STR(?topic), ?topic_id)` matches cleanly.
+# ─────────────────────────────────────────────────────────────────────────
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# FINANCIALS
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+snowkap:sasb_commercial_banks a snowkap:SASBSector ;
+    rdfs:label "Commercial Banks" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_data_privacy ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_ethics_compliance ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_stakeholder_governance ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_human_capital ;
+        snowkap:materialityWeight "0.60"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.65"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+snowkap:sasb_asset_management_and_custody_activities a snowkap:SASBSector ;
+    rdfs:label "Asset Management & Custody Activities" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_data_privacy ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_ethics_compliance ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_transparency ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_stakeholder_governance ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+snowkap:sasb_insurance a snowkap:SASBSector ;
+    rdfs:label "Insurance" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_data_privacy ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_ethics_compliance ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_risk_management ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_climate_adaptation ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ENERGY / UTILITIES
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+snowkap:sasb_electric_utilities_and_power_generators a snowkap:SASBSector ;
+    rdfs:label "Electric Utilities & Power Generators" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_energy ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_pollution ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+snowkap:sasb_solar_technology_and_project_developers a snowkap:SASBSector ;
+    rdfs:label "Solar Technology & Project Developers" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_energy ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_waste ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.65"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+snowkap:sasb_oil_and_gas_exploration_and_production a snowkap:SASBSector ;
+    rdfs:label "Oil & Gas — Exploration & Production" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_biodiversity ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_pollution ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+snowkap:sasb_oil_and_gas_refining_and_marketing a snowkap:SASBSector ;
+    rdfs:label "Oil & Gas — Refining & Marketing" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_pollution ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# MATERIALS / EXTRACTIVES
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+snowkap:sasb_iron_and_steel_producers a snowkap:SASBSector ;
+    rdfs:label "Iron & Steel Producers" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_energy ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_waste ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_pollution ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+snowkap:sasb_metals_and_mining a snowkap:SASBSector ;
+    rdfs:label "Metals & Mining" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_biodiversity ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_community ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# AUTOMOTIVE
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+snowkap:sasb_automobiles a snowkap:SASBSector ;
+    rdfs:label "Automobiles" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_energy ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+snowkap:sasb_auto_parts a snowkap:SASBSector ;
+    rdfs:label "Auto Parts" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CHEMICALS / PHARMA / TECH
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+snowkap:sasb_chemicals a snowkap:SASBSector ;
+    rdfs:label "Chemicals" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_pollution ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_waste ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+snowkap:sasb_pharmaceuticals a snowkap:SASBSector ;
+    rdfs:label "Pharmaceuticals" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_ethics_compliance ;
+        snowkap:materialityWeight "0.90"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_data_privacy ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_health_safety ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.65"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+snowkap:sasb_software_and_it_services a snowkap:SASBSector ;
+    rdfs:label "Software & IT Services" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_data_privacy ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_human_capital ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_dei ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_energy ;
+        snowkap:materialityWeight "0.65"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_ethics_compliance ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] .
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# CONSUMER GOODS (Beverage, Foods, Apparel/Footwear)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+snowkap:sasb_non_alcoholic_beverages a snowkap:SASBSector ;
+    rdfs:label "Non-Alcoholic Beverages" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_waste ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+snowkap:sasb_processed_foods a snowkap:SASBSector ;
+    rdfs:label "Processed Foods" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_waste ;
+        snowkap:materialityWeight "0.80"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_climate ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .
+
+# Apparel / Footwear (added 2026-05-27 — PUMA SE was the trigger)
+snowkap:sasb_apparel_accessories_and_footwear a snowkap:SASBSector ;
+    rdfs:label "Apparel, Accessories & Footwear" ;
+    snowkap:directMaterial [
+        snowkap:topic snowkap:topic_product_safety ;
+        snowkap:materialityWeight "0.75"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_emissions ;
+        snowkap:materialityWeight "0.60"^^xsd:decimal ;
+        snowkap:materialityKind "direct"
+    ] ;
+    snowkap:assetBasedMaterial [
+        snowkap:topic snowkap:topic_supply_chain_labor ;
+        snowkap:materialityWeight "0.95"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_water ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_pollution ;
+        snowkap:materialityWeight "0.85"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] ,
+    [
+        snowkap:topic snowkap:topic_human_capital ;
+        snowkap:materialityWeight "0.70"^^xsd:decimal ;
+        snowkap:materialityKind "asset_based"
+    ] .

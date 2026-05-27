@@ -58,6 +58,12 @@ _INDUSTRY_TO_SASB: dict[str, str] = {
     "Information Technology": "Software & IT Services",
     "Consumer/Beverage": "Non-Alcoholic Beverages",
     "FMCG": "Processed Foods",
+    # Apparel / Footwear — added 2026-05-27 after PUMA SE onboard surfaced
+    # the gap (SASB-unmapped → neutral 0.5 fallback on materiality).
+    "Footwear & Accessories": "Apparel, Accessories & Footwear",
+    "Apparel Manufacturing": "Apparel, Accessories & Footwear",
+    "Textile Manufacturing": "Apparel, Accessories & Footwear",
+    "Luxury Goods": "Apparel, Accessories & Footwear",
 }
 
 
