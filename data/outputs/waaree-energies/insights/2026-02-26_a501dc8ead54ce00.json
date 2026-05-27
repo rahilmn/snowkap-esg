@@ -15,11 +15,11 @@
     "source": "Mint",
     "published_at": "2026-02-26T08:00:00+00:00",
     "company_slug": "waaree-energies",
-    "tier": "SECONDARY",
+    "tier": "HOME",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 46,
-    "elapsed_seconds": 16.568,
+    "ontology_query_count": 56,
+    "elapsed_seconds": 35.568,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -29,42 +29,64 @@
       "framework_matching",
       "stakeholder_mapping",
       "sdg_mapping",
-      "risk_assessment_lite",
+      "risk_assessment",
       "criticality_scoring"
     ],
     "nlp": {
       "sentiment": 0,
-      "sentiment_confidence": 0.7,
+      "sentiment_confidence": 0.85,
       "tone": [
         "analytical",
-        "neutral",
-        "speculative"
+        "cautionary",
+        "neutral"
       ],
-      "narrative_core_claim": "Waaree Energies is exploring ways to avoid US import duties.",
-      "narrative_implied_causation": "US duties may impact Waaree Energies' costs, prompting strategies to sidestep them.",
-      "narrative_stakeholder_framing": "Waaree Energies is the protagonist seeking to mitigate financial impact; US regulatory environment is the external factor.",
+      "narrative_core_claim": "Waaree Energies is strategically mitigating US countervailing duties risks through US manufacturing expansion and contract clauses.",
+      "narrative_implied_causation": "US duties on solar imports cause investor concern, but Waaree's US manufacturing and contract pass-through clauses protect margins and export viability.",
+      "narrative_stakeholder_framing": "Waaree Energies is the protagonist managing risks; investors and the US market are affected stakeholders.",
       "entities": [
-        "Waaree Energies",
-        "US"
+        "Waaree Energies Ltd",
+        "US",
+        "India",
+        "Premier Energies",
+        "Websol",
+        "Nuvama Research",
+        "Reliance",
+        "Adani",
+        "Bloomberg",
+        "US IRA"
       ],
       "entity_types": {
-        "Waaree Energies": "company",
-        "US": "location"
+        "Waaree Energies Ltd": "company",
+        "US": "location",
+        "India": "location",
+        "Premier Energies": "company",
+        "Websol": "company",
+        "Nuvama Research": "company",
+        "Reliance": "company",
+        "Adani": "company",
+        "Bloomberg": "organization",
+        "US IRA": "regulatory framework"
       },
       "financial_signal": {
-        "amount": null,
-        "unit": null,
-        "context": ""
+        "amount": 7565,
+        "unit": "crore",
+        "context": "Q3FY26 revenue"
       },
-      "regulatory_references": [],
-      "esg_pillar": "G",
-      "esg_topics": [
-        "trade compliance",
-        "regulatory risk"
+      "regulatory_references": [
+        "US IRA",
+        "DCR"
       ],
-      "content_type": "narrative",
+      "esg_pillar": "mixed",
+      "esg_topics": [
+        "trade policy",
+        "manufacturing",
+        "market competition",
+        "supply chain risk",
+        "domestic content requirement"
+      ],
+      "content_type": "financial",
       "urgency": "medium",
-      "time_horizon": "weeks",
+      "time_horizon": "months",
       "source_credibility_tier": 2,
       "climate_events": []
     },
@@ -73,15 +95,18 @@
       "primary_pillar": "E",
       "primary_sub_metrics": [
         "renewable_energy_use",
-        "fossil_fuel_dependency"
+        "fossil_fuel_dependency",
+        "energy_intensity",
+        "power_purchase_agreements"
       ],
       "secondary_themes": [
         {
-          "theme": "Transparency & Disclosure",
-          "pillar": "G",
+          "theme": "Climate Change",
+          "pillar": "E",
           "sub_metrics": [
-            "esg_reporting",
-            "disclosure_completeness"
+            "scope_1_direct",
+            "scope_2_indirect",
+            "ghg_reduction_targets"
           ]
         },
         {
@@ -91,47 +116,47 @@
             "business_continuity",
             "erm_maturity"
           ]
+        },
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
         }
       ],
-      "confidence": 0.6,
+      "confidence": 0.85,
       "method": "llm"
     },
     "event": {
-      "event_id": "event_routine_capex",
-      "label": "Routine Capex",
-      "score_floor": 1,
-      "score_ceiling": 5,
-      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
       "matched_keywords": [
-        "[theme_fallback]"
+        "Q2",
+        "EBITDA",
+        "margin"
       ],
-      "has_financial_quantum": false,
-      "financial_amount_cr": null
+      "has_financial_quantum": true,
+      "financial_amount_cr": 80.0
     },
     "relevance": {
-      "total": 2,
-      "tier": "SECONDARY",
-      "esg_correlation": 1,
-      "financial_impact": 1,
-      "compliance_risk": 0,
+      "total": 6,
+      "tier": "HOME",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 2,
       "supply_chain_impact": 0,
       "people_impact": 0,
       "materiality_weight": 1.0,
-      "adjusted_total": 2.0,
+      "adjusted_total": 6.0,
       "rejection_reason": "",
       "ontology_queries": 1
     },
     "causal_chains": [
-      {
-        "nodes": [
-          "Waaree Energies"
-        ],
-        "edges": [],
-        "hops": 0,
-        "relationship_type": "directOperational",
-        "impact_score": 1.0,
-        "explanation": "Waaree Energies"
-      },
       {
         "nodes": [
           "Energy",
@@ -191,6 +216,23 @@
         "relationship_type": "regulatoryContagion",
         "impact_score": 0.48,
         "explanation": "Energy triggers TCFD disclosure obligation for Waaree Energies"
+      },
+      {
+        "nodes": [
+          "Diversity, Equity & Inclusion",
+          "BRSR",
+          "Renewable Energy",
+          "Waaree Energies"
+        ],
+        "edges": [
+          "indirectImpact",
+          "indirectImpact",
+          "industrySpillover"
+        ],
+        "hops": 3,
+        "relationship_type": "industrySpillover",
+        "impact_score": 0.2,
+        "explanation": "Diversity, Equity & Inclusion -> BRSR -> Renewable Energy -> Waaree Energies"
       }
     ],
     "frameworks": [
@@ -202,6 +244,7 @@
         "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
         "triggered_by_themes": [
           "Energy",
+          "Climate Change",
           "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
@@ -210,11 +253,12 @@
       {
         "framework_id": "GRI",
         "framework_label": "GRI",
-        "relevance": 0.7100000000000001,
+        "relevance": 0.7700000000000001,
         "is_mandatory": false,
         "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
         "triggered_by_themes": [
           "Energy",
+          "Climate Change",
           "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
@@ -225,11 +269,12 @@
       {
         "framework_id": "TCFD",
         "framework_label": "TCFD",
-        "relevance": 0.7100000000000001,
+        "relevance": 0.7700000000000001,
         "is_mandatory": false,
         "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
         "triggered_by_themes": [
           "Energy",
+          "Climate Change",
           "Risk Management"
         ],
         "applicable_deadlines": [],
@@ -238,11 +283,12 @@
       {
         "framework_id": "CDP",
         "framework_label": "CDP",
-        "relevance": 0.65,
+        "relevance": 0.7100000000000001,
         "is_mandatory": false,
         "profitability_link": "CDP score tracked by investors; A-list inclusion = premium valuation",
         "triggered_by_themes": [
-          "Energy"
+          "Energy",
+          "Climate Change"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -260,12 +306,39 @@
         "triggered_sections": []
       },
       {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
         "framework_id": "DJSI",
         "framework_label": "Dow Jones Sustainability Index",
-        "relevance": 0.33,
+        "relevance": 0.39,
         "is_mandatory": false,
         "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
         "triggered_by_themes": [
+          "Climate Change",
           "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
@@ -274,10 +347,11 @@
       {
         "framework_id": "ESRS",
         "framework_label": "ESRS",
-        "relevance": 0.33,
+        "relevance": 0.39,
         "is_mandatory": false,
         "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
         "triggered_by_themes": [
+          "Climate Change",
           "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
@@ -286,11 +360,38 @@
       {
         "framework_id": "EDELMAN",
         "framework_label": "Edelman Trust Barometer",
-        "relevance": 0.33,
+        "relevance": 0.39,
         "is_mandatory": false,
         "profitability_link": "Trust score correlates with customer retention, talent acquisition",
         "triggered_by_themes": [
+          "Climate Change",
           "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Climate Change",
+          "Risk Management"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -298,23 +399,48 @@
       {
         "framework_id": "SP_GLOBAL_ESG",
         "framework_label": "S&P Global ESG",
-        "relevance": 0.33,
+        "relevance": 0.39,
         "is_mandatory": false,
         "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
         "triggered_by_themes": [
+          "Climate Change",
           "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
       },
       {
-        "framework_id": "SFDR",
-        "framework_label": "SFDR",
+        "framework_id": "CSRD",
+        "framework_label": "CSRD",
         "relevance": 0.33,
         "is_mandatory": false,
-        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "profitability_link": "Non-compliance → 2% global turnover fine, EU market access loss",
         "triggered_by_themes": [
-          "Transparency & Disclosure"
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SBTI",
+        "framework_label": "SBTi",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Credibility for net-zero claims → investor confidence",
+        "triggered_by_themes": [
+          "Climate Change"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SEC_CLIMATE",
+        "framework_label": "SEC Climate Rule",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "US-listed companies face enforcement + litigation risk",
+        "triggered_by_themes": [
+          "Climate Change"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -325,42 +451,6 @@
         "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "CFA_ESG",
-        "framework_label": "CFA ESG Integration",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "COSO_ERM",
-        "framework_label": "COSO ERM",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "ISSB",
-        "framework_label": "ISSB / IFRS S1 S2",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "Global baseline — affects cross-border investor confidence",
         "triggered_by_themes": [
           "Risk Management"
         ],
@@ -380,13 +470,13 @@
         "triggered_sections": []
       },
       {
-        "framework_id": "PORTER_5_FORCES",
-        "framework_label": "Porter Five Forces",
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
         "relevance": 0.33,
         "is_mandatory": false,
-        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "profitability_link": "Required for EU fund marketing — affects capital access",
         "triggered_by_themes": [
-          "Risk Management"
+          "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -395,13 +485,32 @@
     "risk": {
       "esg_risks": [
         {
+          "category": "Market & Uncertainty",
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
+          "industry_weight": 1.2,
+          "adjusted_score": 19.2,
+          "level": "HIGH",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
           "category": "Regulatory Risk",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.3,
-          "adjusted_score": 11.7,
-          "level": "MODERATE",
+          "adjusted_score": 20.8,
+          "level": "CRITICAL",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -414,13 +523,51 @@
           ]
         },
         {
-          "category": "Transition Risk",
-          "probability": 2,
+          "category": "Supply Chain Risk",
+          "probability": 3,
           "exposure": 3,
-          "raw_score": 6,
-          "industry_weight": 0.8,
+          "raw_score": 9,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "supplier financial health",
+            "concentration ratios"
+          ],
+          "lag_indicators": [
+            "supplier failures",
+            "delivery delays",
+            "cost overruns"
+          ]
+        },
+        {
+          "category": "Technological Risk",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.2,
           "adjusted_score": 4.8,
           "level": "LOW",
+          "lead_indicators": [
+            "penetration testing results",
+            "vulnerability disclosures",
+            "tech debt"
+          ],
+          "lag_indicators": [
+            "data breaches",
+            "system outages",
+            "customer data loss"
+          ]
+        },
+        {
+          "category": "Transition Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 0.8,
+          "adjusted_score": 7.2,
+          "level": "MODERATE",
           "lead_indicators": [
             "tech adoption curves",
             "policy roadmaps",
@@ -431,55 +578,17 @@
             "demand destruction",
             "market share loss"
           ]
-        },
-        {
-          "category": "Reputational Risk",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
-          "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "social media sentiment",
-            "NGO campaigns",
-            "whistleblower reports"
-          ],
-          "lag_indicators": [
-            "brand score decline",
-            "customer churn",
-            "boycotts"
-          ]
-        },
-        {
-          "category": "Market & Uncertainty",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
-          "industry_weight": 1.2,
-          "adjusted_score": 7.2,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "VIX",
-            "FX volatility",
-            "geopolitical tensions"
-          ],
-          "lag_indicators": [
-            "valuation compression",
-            "capital flight",
-            "downgrades"
-          ]
         }
       ],
       "temples_risks": [
         {
           "category": "Economic",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
+          "adjusted_score": 16.0,
+          "level": "HIGH",
           "lead_indicators": [
             "commodity price trends",
             "FX volatility",
@@ -492,31 +601,12 @@
           ]
         },
         {
-          "category": "Environmental",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
-          "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "weather pattern shifts",
-            "water table data",
-            "air quality index"
-          ],
-          "lag_indicators": [
-            "insurance claims",
-            "production downtime",
-            "remediation costs"
-          ]
-        },
-        {
           "category": "Legal",
-          "probability": 2,
+          "probability": 3,
           "exposure": 3,
-          "raw_score": 6,
+          "raw_score": 9,
           "industry_weight": 1.0,
-          "adjusted_score": 6.0,
+          "adjusted_score": 9.0,
           "level": "MODERATE",
           "lead_indicators": [
             "draft regulations",
@@ -528,17 +618,55 @@
             "lawsuits",
             "settlements"
           ]
+        },
+        {
+          "category": "Political",
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
+          "industry_weight": 1.0,
+          "adjusted_score": 16.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Technological",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.2,
+          "adjusted_score": 4.8,
+          "level": "LOW",
+          "lead_indicators": [
+            "penetration testing results",
+            "vulnerability disclosures",
+            "tech debt"
+          ],
+          "lag_indicators": [
+            "data breaches",
+            "system outages",
+            "customer data loss"
+          ]
         }
       ],
       "top_risks": [
         {
           "category": "Regulatory Risk",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.3,
-          "adjusted_score": 11.7,
-          "level": "MODERATE",
+          "adjusted_score": 20.8,
+          "level": "CRITICAL",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -551,32 +679,13 @@
           ]
         },
         {
-          "category": "Economic",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
-          "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "commodity price trends",
-            "FX volatility",
-            "customer order pipeline"
-          ],
-          "lag_indicators": [
-            "revenue decline",
-            "margin erosion",
-            "write-downs"
-          ]
-        },
-        {
           "category": "Market & Uncertainty",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.2,
-          "adjusted_score": 7.2,
-          "level": "MODERATE",
+          "adjusted_score": 19.2,
+          "level": "HIGH",
           "lead_indicators": [
             "VIX",
             "FX volatility",
@@ -589,46 +698,65 @@
           ]
         },
         {
-          "category": "Reputational Risk",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "category": "Economic",
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
+          "adjusted_score": 16.0,
+          "level": "HIGH",
           "lead_indicators": [
-            "social media sentiment",
-            "NGO campaigns",
-            "whistleblower reports"
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
           ],
           "lag_indicators": [
-            "brand score decline",
-            "customer churn",
-            "boycotts"
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
           ]
         },
         {
-          "category": "Environmental",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "category": "Political",
+          "probability": 4,
+          "exposure": 4,
+          "raw_score": 16,
           "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
+          "adjusted_score": 16.0,
+          "level": "HIGH",
           "lead_indicators": [
-            "weather pattern shifts",
-            "water table data",
-            "air quality index"
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
           ],
           "lag_indicators": [
-            "insurance claims",
-            "production downtime",
-            "remediation costs"
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Supply Chain Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
+          "level": "HIGH",
+          "lead_indicators": [
+            "commodity price trends",
+            "supplier financial health",
+            "concentration ratios"
+          ],
+          "lag_indicators": [
+            "supplier failures",
+            "delivery delays",
+            "cost overruns"
           ]
         }
       ],
-      "aggregate_score": 0.203,
-      "ontology_queries": 14
+      "aggregate_score": 0.445,
+      "ontology_queries": 18
     },
     "stakeholders": [
       "Investors"
@@ -637,15 +765,15 @@
       "Affordable and Clean Energy",
       "Climate Action"
     ],
-    "article_content": "How Waaree Energies may sidestep US duties Mint",
+    "article_content": "The news that US authorities had slapped countervailing duties on solar imports from India, citing unfair government subsidies, left investors jittery. For Waaree Energies Ltd, given 30-35% revenue-share from exports and US manufacturing, fears around export viability and margin erosion took centre stage. The stock plunged 10.4% on Wednesday, recovering less than 1% on Thursday.\nBut nuances paint a different picture. Waaree believes that the duties apply to imports of cells, not assembly of modules. Waaree imports solar cells from regions that attract only 10% duty on module assembly in the US.\nMoreover, with a pass-through clause in contracts, margins should remain protected, even as consistent US exports despite previous 50% tariffs lend confidence.\nAlso, Waaree has a manufacturing base of 2.6GW in the US, with plans of expansion to 4.2GW by June. This should help hedge part of the tariff risk, while also building up incentives under the US IRA (inflation reduction act) that offered ₹80 crore incentives to Waaree in Q3FY26 for US-based solar manufacturing.\nNotably, over the years, it has scaled into India’s solar manufacturing bellwether, with 21.2GW of module capacity and 22% market-share. Its expansion roadmap pencils in 30.4GW module, 18.4GW cell, and 10GW wafer and ingot capacity by FY28.\nEven as Waaree’s new green businesses pave the way for robust growth, it is strategically integrating backwards to protect margins. Its margins have lagged integrated peers, Premier Energies and Websol. But with the new 5.4GW cell-manufacturing facility, Nuvama Research expects Waaree to become DCR-compliant, resulting in over 40% higher realizations and better margins. DCR refers to domestic content requirement that mandates domestic procurement of cells.\nExecution has kept pace, too. Revenue more than doubled in Q3FY26 to ₹7,565 crore, Ebitda margin grew to 25.6%, and order book to ₹60,000 crore, from ₹47,000 crore in Q2.\nStill, heavy capex across the solar value-chain raises execution complexity. While Waaree has been diversifying sourcing beyond China, and has provisioned ₹300 crore for any anti-China action, any escalation in US trade action could dent execution, given that 65% of its order-book is focused overseas.\nThe domestic competitive landscape is also set to heat up with Reliance and Adani added to the mix, increasing overcapacity risk in India post-FY27.\nStill, the market reaction, which has pushed the EV/Ebitda down to 10x FY27 estimates per Bloomberg, reflects policy anxiety more than business fragility.",
     "image_url": "",
     "criticality": {
-      "score": 0.0,
+      "score": 0.0775,
       "band": "LOW",
       "components": {
-        "materiality": 0.2,
+        "materiality": 0.6,
         "financial_magnitude": 0.0,
-        "actionability": 0.2,
+        "actionability": 0.8,
         "painpoint_match": 0.0,
         "recency": 0.0,
         "source_authority": 0.5,
@@ -655,18 +783,1536 @@
         "polarity_drift_penalty": 0.0
       },
       "role_scores": {
-        "cfo": 0.0,
-        "ceo": 0.0,
-        "analyst": 0.0
+        "cfo": 0.0875,
+        "ceo": 0.0675,
+        "analyst": 0.1375
       }
     }
   },
-  "insight": null,
-  "recommendations": null,
-  "perspectives": {},
+  "insight": {
+    "headline": "US duties on Indian solar imports prompt ~₹8,100 Cr exposure for Waaree Energies, but US manufacturing and contract clauses mitigate margin risk",
+    "impact_score": 6,
+    "core_mechanism": "US authorities imposed countervailing duties on Indian solar imports, raising concerns over Waaree Energies' export viability and margins. Waaree's strategic expansion of US manufacturing capacity, pass-through clauses in contracts, and backward integration efforts structurally reduce direct tariff exposure and support margin protection.",
+    "profitability_connection": "Despite investor anxiety and a 10.4% stock drop, Waaree's US-based manufacturing and contract structures limit direct margin erosion from US duties. The company’s Q3FY26 revenue of ₹6,800–8,400 Cr and order book growth to ₹60,000 Cr indicate continued demand resilience, though execution complexity and overseas exposure heighten risk.",
+    "translation": "US tariffs on Indian solar imports initially worried investors, but Waaree Energies is reducing risk by making more products in the US and using contract terms that pass on extra costs. This means the company’s profits and growth plans are less likely to be hurt by these duties, though it still faces challenges from heavy investments and global competition.",
+    "impact_analysis": {
+      "esg_positioning": "Waaree's proactive risk management and US IRA-aligned manufacturing support ESG ratings, but lagging margins versus integrated peers like Premier Energies and Websol highlight a moderate ESG score gap.",
+      "capital_allocation": "US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China action (engine estimate) support capital flexibility, but policy uncertainty may widen bond spreads and increase cost of capital by 20-40bps (engine estimate).",
+      "valuation_cashflow": "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate.",
+      "compliance_regulatory": "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist.",
+      "supply_chain_transmission": "No supply chain transmission from duties directly, as Waaree sources cells from low-duty regions and is diversifying beyond China; backward integration reduces Tier 2/3 risk.",
+      "people_demand": "Investor sentiment is sensitive to policy shifts, as seen in the 10.4% stock drop; no direct impact on workforce or community demand, but competitive pressure from Reliance and Adani may affect talent retention and market share."
+    },
+    "financial_timeline": {
+      "immediate": {
+        "headline": "₹8,094.6 Cr exposure from US duties and export risk (engine estimate)",
+        "profitability_pathway": "US duties on Indian solar imports → investor anxiety and potential export disruption → ₹8,094.6 Cr exposure (engine estimate)",
+        "margin_pressure": "+500 bps (clamped from 5630.8 — engine overflow) (computed_override)",
+        "revenue_at_risk": "₹7,565 Cr Q3FY26 revenue (from article) forms the base; of which up to ₹529.5 Cr could be at risk if US trade actions escalate (engine estimate)"
+      },
+      "structural": {
+        "valuation_rerating": "P/E compression of 0.1x due to policy uncertainty and margin risk (engine estimate)",
+        "competitive_position": "Waaree's US manufacturing and DCR compliance improve resilience versus Premier Energies and Websol, but Reliance and Adani's entry increases overcapacity risk post-FY27"
+      },
+      "long_term": {
+        "secular_trajectory": "3-5 year outlook remains positive if US manufacturing expansion to 4.2GW and backward integration are executed, supporting green revenue growth and margin recovery.",
+        "green_revenue_opportunity": "US IRA incentives of ₹80 Cr in Q3FY26 (from article) with further upside as US capacity scales (engine estimate)"
+      }
+    },
+    "esg_relevance_score": {
+      "environment": {
+        "score": 8,
+        "rationale": "Event is highly material to renewable energy transition and climate impact, with direct links to green manufacturing and US IRA incentives."
+      },
+      "social": {
+        "score": 4,
+        "rationale": "No direct workforce or community impact, but competitive dynamics may affect employment and local economic benefits."
+      },
+      "governance": {
+        "score": 7,
+        "rationale": "Strong governance response via contract clauses and compliance with US IRA/DCR; ongoing disclosure and regulatory complexity remain."
+      },
+      "financial_materiality": {
+        "score": 8,
+        "rationale": "₹8,094.6 Cr (engine estimate) exposure and 500 bps margin pressure are financially significant for a mid-cap company."
+      },
+      "regulatory_exposure": {
+        "score": 7,
+        "rationale": "US trade policy and DCR/IRA compliance create ongoing regulatory obligations and risk of further action."
+      },
+      "stakeholder_impact": {
+        "score": 6,
+        "rationale": "Investor sentiment is volatile, as shown by the 10.4% stock drop; no immediate impact on other stakeholders."
+      }
+    },
+    "net_impact_summary": "US countervailing duties create a headline exposure of ₹7,300–8,900 Cr for Waaree Energies, but the company’s US manufacturing expansion, contract pass-through clauses, and DCR compliance structurally mitigate direct margin risk. ESG frameworks such as BRSR, GRI, and TCFD are triggered, requiring ongoing disclosure and compliance. While the immediate financial impact is buffered, execution complexity and overseas order-book concentration remain key risks. The company’s ability to secure US IRA incentives and maintain export viability will be critical for sustaining valuation and growth.",
+    "decision_summary": {
+      "materiality": "HIGH",
+      "action": "ACT",
+      "verdict": "Immediate board-level monitoring and scenario planning are required to manage ₹8,094.6 Cr (engine estimate) exposure and 500 bps margin risk from US trade actions.",
+      "financial_exposure": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+      "key_risk": "₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate)",
+      "top_opportunity": "Expand US manufacturing to 4.2GW and secure additional US IRA incentives (potential ₹72–88 Cr+ per quarter, engine estimate) (of ₹8094.6 Cr canonical event exposure)",
+      "timeline": "within 4-8 weeks"
+    },
+    "causal_chain": {
+      "event": "US authorities impose countervailing duties on Indian solar imports, raising investor concerns for Waaree Energies.",
+      "mechanism": "Duties threaten export viability and margins, but Waaree’s US manufacturing, contract pass-through clauses, and backward integration reduce direct exposure and support compliance with US IRA and DCR requirements.",
+      "company_impact": "Potential margin erosion of 500 bps and headline exposure of ₹8,094.6 Cr (engine estimate), but mitigated by strategic actions; valuation compressed to 10x EV/Ebitda due to policy anxiety.",
+      "transmission_type": "regulatory"
+    },
+    "warnings": [
+      "verifier: margin math at financial_timeline.immediate: cited 500.0 bps, computed 5630.8 bps (dev 91.1%)",
+      "verifier: narrative bps clamp: rewrote 1 'X bps' value(s) above ±500 bps in free-form fields",
+      "verifier: added 7 source tags on ₹ figures",
+      "verifier: coherence_neutral_high_act_mismatch: event polarity is neutral but materiality=CRITICAL + action=ACT; downgraded materiality → HIGH",
+      "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹8094.6 Cr",
+      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+      "verifier: render-protocol: stripped 5 provenance tag(s) from narrative; sidecar staged for frontend tooltip",
+      "verifier: margin math auto-corrected (original 500.0 bps, computed 5630.8 bps)"
+    ],
+    "event_polarity": "neutral",
+    "toulmin": {
+      "claim": "Immediate board-level monitoring and scenario planning are required to manage ₹8,094.6 Cr (engine estimate) exposure and 500 bps margin risk from US trade actions.",
+      "grounds": [
+        "Financial exposure: ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+        "Key risk: ₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate)",
+        "Event classification: event_quarterly_results",
+        "Relevance score: 6.0/10",
+        "Materiality weight (ontology): 1.0",
+        "Frameworks triggered: BRSR, GRI, TCFD"
+      ],
+      "warrant": "Direct revenue or contract figures cited in the article are recognised as known exposure; speculative downstream cascades are recognised separately as engine estimates.",
+      "warrant_cite": "NP-FIN-001 (Snowkap source-tagging discipline (CLAUDE.md rule 7))",
+      "qualifier": "Moderate relevance signal; article-cited ₹ quantum present",
+      "rebuttal": "If additional reporting clarifies the financial materiality or a regulator action escalates the consequence, the verdict would shift if new evidence surfaces."
+    },
+    "cfo_preflight": {
+      "passed": false,
+      "gates": {
+        "financial_impact_quantified": true,
+        "framework_mapped": false,
+        "no_stale_data": false,
+        "polarity_coherent": false,
+        "numeric_consistent": true,
+        "stakeholder_polarity_matched": true
+      },
+      "failures": [
+        {
+          "gate": "framework_mapped",
+          "reason": "frameworks present (5) but no section codes (e.g. BRSR:P5, GRI:303); too coarse for CFO citation"
+        },
+        {
+          "gate": "no_stale_data",
+          "reason": "article is 89d old; freshness window for event_quarterly_results is 14d"
+        },
+        {
+          "gate": "polarity_coherent",
+          "reason": "coherence warning(s): 1"
+        }
+      ],
+      "canonical_exposure_cr": 8900.0,
+      "freshness_window_days": 14
+    },
+    "stakes_for_company": {
+      "personal_stakes_paragraphs": {
+        "cfo": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+        "ceo": "How does this shift YOUR competitive story? The US trade action challenges Waaree’s export model, but your proactive expansion of US manufacturing and robust contract structures help preserve your position in a volatile market. Over the next three years, the board will expect a narrative that demonstrates resilience, leverages US incentives, and sustains order book momentum, even as global policy headwinds intensify and execution complexity rises.",
+        "analyst": "This event directly impacts your upcoming disclosures, particularly around export risk and mitigation strategies. While no specific framework region is mandated, you should prepare to address scenario planning and margin protection in sections analogous to BRSR P6:Q14 (supply chain risk), GRI:303 (indirect economic impacts), and ESRS:E1 (climate-related financial risks). Monitor for any new disclosure deadlines, as the board will expect a robust, methodology-driven update reflecting the ₹8,094.6 Cr exposure and mitigation actions."
+      },
+      "personal_stakes_paragraph": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+      "revenue_pct_at_stake": 56.31,
+      "peer_action_summary": "No peer precedent yet.",
+      "do_nothing_risk_paragraph": "If Waaree Energies ignores this development, the company risks regulatory scrutiny, potential MSCI rating downgrades, and heightened investor anxiety—already reflected in a 10.4% stock drop. Lenders may question the company’s risk controls, and supply-chain partners could reconsider commitments, given the ₹8,094.6 Cr exposure. Inaction could erode market confidence and jeopardize future export viability."
+    },
+    "role_panel_order": {
+      "cfo": {
+        "order": [
+          "personal_stakes",
+          "why_critical",
+          "crisp_insight",
+          "impact_metrics",
+          "recommendations",
+          "audit_trail"
+        ],
+        "hidden": [
+          "narrative_intelligence",
+          "sdg_map",
+          "causal_chain",
+          "three_year_trajectory",
+          "board_paragraph",
+          "kpi_table",
+          "stakeholder_map",
+          "framework_alignment"
+        ]
+      },
+      "ceo": {
+        "order": [
+          "personal_stakes",
+          "why_critical",
+          "crisp_insight",
+          "three_year_trajectory",
+          "stakeholder_map",
+          "board_paragraph",
+          "recommendations"
+        ],
+        "hidden": [
+          "kpi_table",
+          "framework_alignment",
+          "audit_trail",
+          "causal_chain",
+          "impact_metrics"
+        ]
+      },
+      "esg-analyst": {
+        "order": [
+          "personal_stakes",
+          "why_critical",
+          "crisp_insight",
+          "kpi_table",
+          "framework_alignment",
+          "causal_chain",
+          "audit_trail",
+          "recommendations",
+          "sdg_map"
+        ],
+        "hidden": [
+          "board_paragraph",
+          "three_year_trajectory"
+        ]
+      }
+    },
+    "criticality": {
+      "score": 0.423,
+      "band": "MEDIUM",
+      "components": {
+        "materiality": 0.6,
+        "financial_magnitude": 0.8791,
+        "actionability": 0.8,
+        "painpoint_match": 0.4087,
+        "recency": 0.0,
+        "source_authority": 0.5,
+        "sentiment_trajectory": 0.5,
+        "staleness_penalty": 0.2,
+        "confidence_penalty": 0.0,
+        "polarity_drift_penalty": 0.0
+      },
+      "role_scores": {
+        "cfo": 0.48,
+        "ceo": 0.3455,
+        "analyst": 0.3715
+      }
+    },
+    "sentiment_trajectory": {
+      "company_slug": "waaree-energies",
+      "polarity_series": [
+        {
+          "month": "2026-02",
+          "polarity_mean": 0.0,
+          "count": 2
+        },
+        {
+          "month": "2026-04",
+          "polarity_mean": 0.0,
+          "count": 3
+        }
+      ],
+      "horizons": {
+        "3m": {
+          "direction": "stable",
+          "confidence": "low",
+          "rationale": "Limited data points with neutral polarity and low event counts."
+        },
+        "6m": {
+          "direction": "stable",
+          "confidence": "low",
+          "rationale": "Sparse and neutral polarity data prevents clear trend identification."
+        },
+        "12m": {
+          "direction": "stable",
+          "confidence": "low",
+          "rationale": "Insufficient historical data to determine ESG sentiment trajectory."
+        }
+      },
+      "trajectory": [
+        {
+          "month": "2026-05",
+          "central": 0.0,
+          "lo": -0.09,
+          "hi": 0.09
+        },
+        {
+          "month": "2026-06",
+          "central": 0.0,
+          "lo": -0.13,
+          "hi": 0.13
+        },
+        {
+          "month": "2026-07",
+          "central": 0.0,
+          "lo": -0.16999999999999998,
+          "hi": 0.16999999999999998
+        },
+        {
+          "month": "2026-08",
+          "central": 0.0,
+          "lo": -0.21000000000000002,
+          "hi": 0.21000000000000002
+        },
+        {
+          "month": "2026-09",
+          "central": 0.0,
+          "lo": -0.25,
+          "hi": 0.25
+        },
+        {
+          "month": "2026-10",
+          "central": 0.0,
+          "lo": -0.29,
+          "hi": 0.29
+        },
+        {
+          "month": "2026-11",
+          "central": 0.0,
+          "lo": -0.33,
+          "hi": 0.33
+        },
+        {
+          "month": "2026-12",
+          "central": 0.0,
+          "lo": -0.37,
+          "hi": 0.37
+        },
+        {
+          "month": "2027-01",
+          "central": 0.0,
+          "lo": -0.41,
+          "hi": 0.41
+        },
+        {
+          "month": "2027-02",
+          "central": 0.0,
+          "lo": -0.45,
+          "hi": 0.45
+        },
+        {
+          "month": "2027-03",
+          "central": 0.0,
+          "lo": -0.49,
+          "hi": 0.49
+        },
+        {
+          "month": "2027-04",
+          "central": 0.0,
+          "lo": -0.53,
+          "hi": 0.53
+        }
+      ],
+      "llm_used": true
+    },
+    "role_explainer": {
+      "cfo": {
+        "why_important_for_me": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
+        "how_it_impacts_business": "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate. US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China ",
+        "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
+        "simple_logic": "Flagged for you because financial_magnitude=0.88 and the CFO role weights financial 40%. Your role-specific score: 0.48."
+      },
+      "ceo": {
+        "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
+        "how_it_impacts_business": "Waaree's proactive risk management and US IRA-aligned manufacturing support ESG ratings, but lagging margins versus integrated peers like Premier Energies and Websol highlight a moderate ESG score gap. Investor sentiment is sensitive to policy shifts, as seen in the 10.4% stock d",
+        "analysis_result": "Track competitive movement; revisit at the next strategy review.",
+        "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.35."
+      },
+      "esg-analyst": {
+        "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
+        "how_it_impacts_business": "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist. No supply chain transmission from duties directly, as Waaree sources cells from low-d",
+        "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
+        "simple_logic": ""
+      }
+    },
+    "criticality_summary": "Worth reviewing — ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate).",
+    "headline_only": false,
+    "body_char_count": 0,
+    "analysis": {
+      "what_changed": {
+        "headline": "US duties on Indian solar imports prompt ~₹8,100 Cr exposure for Waaree Energies, but US manufacturing and contract clauses mitigate margin risk",
+        "event_type": "event_quarterly_results",
+        "polarity": "neutral",
+        "source": "Mint",
+        "published_at": "2026-02-26T08:00:00+00:00",
+        "url": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxPWlpldW9jRzVmeV9WWnA0eHpQYkhyWHUwb0l2V3REQUZhOFZ5Wndvbm5DLVBaQTdNTDJtZ0o4X0s2Y1N1QXduWEpLaFVzbTUzdThYUFFLY1NMS2tzR3pnWFVRZy00S2F2b2RDTjNqYWwtRUR1QjNWM1RhbjhMRkh3Rkc3RjNIZGMyWEhQdXJBTS1ySnJiNXgwOV90THprQTFOVldqNjYxS180WGRVSGV1VWswUG1zeEJrbkRXTGlhTkh4R1QzNEZ0MEZhaGFHaTlQYTVka25hUTlSMDlHNUVuczMtQ3dqY2JSbzFnekxn0gHzAUFVX3lxTE12V0RpWlY2cnZWLVQ3TktSUF9qVkhsMC1SS2R4YU10SDVzSThLbEdpVnRlTUVET011RkYtMkJYa29xSEVuU0tLTldLU3hPajRGX0dNSkFicjNvTVo3cjY3a21mTVEwMXRBZDBiVWd2OVpESTdFQ1FaTlRjTkhVVVVZY3RrWmhlVEZfTUVGSm1CNHlNTmJOZDM5S3Y0enlVSjVTbW4yYVE1X2pISll6NWQ3OExQclNUSjM4NnkxLTRscnQ5YnFSM3k4WHh1dV91WFlaV05VY2xNbERGc3VWZk0tMjAtOGk5aEl6ZnkzcU56RGJ6OA?oc=5"
+      },
+      "why_it_matters": {
+        "materiality_band": "MEDIUM",
+        "materiality_weight": 1.0,
+        "dominant_signal": "financial_magnitude",
+        "criticality_summary": "Worth reviewing — ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate).",
+        "stakes_for_company": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+        "financial_exposure": {
+          "amount_cr": 8094.6,
+          "kind": "exposure",
+          "source": "engine_estimate",
+          "label": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)"
+        },
+        "warning": "sasb_unmapped"
+      },
+      "what_it_triggers": {
+        "frameworks": [
+          {
+            "code": "BRSR",
+            "section": "",
+            "is_mandatory": false
+          },
+          {
+            "code": "GRI",
+            "section": "GRI:302",
+            "is_mandatory": false
+          },
+          {
+            "code": "TCFD",
+            "section": "",
+            "is_mandatory": false
+          }
+        ],
+        "recommended_actions": [
+          {
+            "title": "Audit BRSR P6 Disclosure for US Duties Impact",
+            "deadline": "2026-05-30",
+            "owner": "Head of ESG Reporting",
+            "budget": "₹0.5-1 Cr",
+            "framework_section": "BRSR:P6",
+            "type": "compliance",
+            "payback_months": 12.0,
+            "roi_pct": 100.0,
+            "estimated_impact": "Medium"
+          },
+          {
+            "title": "Prepare Investor Q&A on US Duties and Margin Outlook",
+            "deadline": "2027-05-15",
+            "owner": "Investor Relations Manager",
+            "budget": "₹0.5-1 Cr",
+            "framework_section": "BRSR:P6:Q14",
+            "type": "esg_positioning",
+            "payback_months": 6.0,
+            "roi_pct": 120.0,
+            "estimated_impact": "Medium"
+          },
+          {
+            "title": "Implement KPI Dashboard to Monitor US Regulatory and Margin Metrics",
+            "deadline": "2026-06-30",
+            "owner": "Head of Operations",
+            "budget": "₹1-2 Cr",
+            "framework_section": "TCFD:Metrics",
+            "type": "operational",
+            "payback_months": 12.0,
+            "roi_pct": 150.0,
+            "estimated_impact": "Medium"
+          }
+        ]
+      },
+      "what_to_watch": {
+        "sentiment_trajectory": {
+          "horizon_3m": "stable",
+          "horizon_6m": "stable",
+          "horizon_12m": "stable",
+          "confidence": "low"
+        },
+        "top_risk_categories": [],
+        "lead_indicators": [],
+        "benchmarks": [
+          {
+            "source": "MSCI ESG",
+            "metric": "rating",
+            "value": "A",
+            "as_of": "2026-04-15"
+          },
+          {
+            "source": "SBTI",
+            "metric": "target_status",
+            "value": "Set",
+            "as_of": "2026-03-12"
+          }
+        ],
+        "next_decision_window": {}
+      },
+      "methodology": {
+        "what_changed": {
+          "metric": "what_changed",
+          "source": "Snowkap event classifier (keyword + theme matching against the ESG ontology)",
+          "simple_logic": "Snowkap read this story as a — event — low confidence (theme fallback — no keyword match). The classifier matched 0 keyword(s). The story is framed as a neutral / factual disclosure, so we calibrate downstream weights accordingly.",
+          "formula_human": "The event is the best keyword match in the ontology that clears the confidence bar (2+ hits). Score floor for this event type is 0, and the polarity tag is 'neutral'.",
+          "ontology_anchors": [
+            "Event-type catalogue",
+            "score floor / ceiling",
+            "polarity tags"
+          ],
+          "your_inputs": {
+            "event_id": "—",
+            "matched_keyword_count": 0,
+            "sample_keywords": "no specific keywords",
+            "polarity": "neutral",
+            "score_floor": 0
+          }
+        },
+        "why_it_matters": {
+          "metric": "why_it_matters",
+          "source": "Snowkap criticality scorer + SASB industry-materiality overlay",
+          "simple_logic": "We rated this medium priority — the rupee impact is large relative to revenue (composite score 0.42 out of 1.00). No specific ₹ exposure was quoted in the article — this figure is an engine estimate (not quoted in the article body) based on the company’s P&L profile. Industry materiality weights come from this company's SASB sector mapping.",
+          "formula_human": "Priority is a weighted blend of seven signals (materiality, financial magnitude, actionability, painpoint match, recency, source authority, sentiment trajectory). The dominant signal is the largest individual component.",
+          "ontology_anchors": [
+            "SASB sector mapping",
+            "direct vs asset-based materiality",
+            "company painpoint overlay"
+          ],
+          "your_inputs": {
+            "band": "MEDIUM",
+            "score": 0.423,
+            "dominant_signal": "financial_magnitude",
+            "dominant_value": 0.879,
+            "exposure_label": "",
+            "exposure_source": "engine_estimate"
+          }
+        },
+        "what_it_triggers": {
+          "metric": "what_it_triggers",
+          "source": "Snowkap framework matcher + event-archetype recommendation library",
+          "simple_logic": "This story touches 0 disclosure framework(s). The 0 recommended action(s) come from the — playbook and are vetted by a three-step review (proposal → analysis → validation), then ranked by compliance urgency and expected return.",
+          "formula_human": "Frameworks are pulled from the topic→framework map in the ontology, boosted by region (India / EU / US / UK / APAC / Global) and filtered by the company's cap tier. Recommendations run through a three-step review (proposal → analysis → validation) and are sorted by compliance urgency × ROI.",
+          "ontology_anchors": [
+            "21-framework taxonomy",
+            "framework sections",
+            "mandatory disclosure rules"
+          ],
+          "your_inputs": {
+            "framework_codes": [],
+            "mandatory_count": 0,
+            "recommendation_count": 0,
+            "event_id": "—"
+          }
+        },
+        "what_to_watch": {
+          "metric": "what_to_watch",
+          "source": "Snowkap sentiment forecaster + TEMPLES risk model + external-benchmark loader",
+          "simple_logic": "Looking ahead, sentiment is expected to be stable at 3 months, stable at 6 months, and stable at 12 months (confidence: low). The forecast blends Snowkap’s rolling polarity series for this company with a short LLM polish step. Top risk categories to track: none flagged on this story. 0 external benchmark(s) (MSCI / SBTI / CRISIL / Sustainalytics) are currently loaded for context.",
+          "formula_human": "Sentiment trajectory is a forecast of the rolling polarity series at three horizons (3 / 6 / 12 months). Risks are the top three TEMPLES categories scored by probability × exposure × industry weight. Benchmarks are the most-recent values loaded into the company benchmark store.",
+          "ontology_anchors": [
+            "TEMPLES risk taxonomy",
+            "industry risk-weight table",
+            "rolling polarity series"
+          ],
+          "your_inputs": {
+            "horizon_3m": "stable",
+            "horizon_6m": "stable",
+            "horizon_12m": "stable",
+            "confidence": "low",
+            "top_risk_categories": [],
+            "benchmark_count": 0,
+            "llm_used": true
+          }
+        }
+      },
+      "headline_only": false,
+      "body_char_count": 0
+    }
+  },
+  "recommendations": {
+    "recommendations": [
+      {
+        "title": "Audit BRSR P6 Disclosure for US Duties Impact by 2026-05-30",
+        "description": "Conduct a thorough audit of the BRSR P6 section to ensure complete and accurate disclosure of the ₹8,095 Cr US duties exposure and related margin risks, aligning with SEBI requirements.",
+        "type": "compliance",
+        "responsible_party": "Head of ESG Reporting",
+        "framework_section": "BRSR:P6",
+        "deadline": "2026-05-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "₹0.5-1 Cr documentation-discipline cost-avoidance over 3 years",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 8,
+        "roi_percentage": 100.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power BRSR FY25 disclosure",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "BRSR:P6",
+            "value": "BRSR P6 requires detailed disclosure of regulatory risks impacting financials, including trade duties"
+          }
+        ]
+      },
+      {
+        "title": "Prepare Investor Q&A on US Duties and Margin Outlook by 2026-05-15",
+        "description": "Develop a comprehensive Q&A document addressing investor concerns on the ₹8,095 Cr exposure and 500 bps margin risk, highlighting mitigation via US manufacturing and contract clauses.",
+        "type": "esg_positioning",
+        "responsible_party": "Investor Relations Manager",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2027-05-15",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "₹0.5-1 Cr investor-comms budget to maintain investor confidence",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 7,
+        "roi_percentage": 120.0,
+        "payback_months": 6.0,
+        "peer_benchmark": "Tata Power investor Q&A on regulatory risks",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "article",
+            "ref": "BRSR:P6:Q14",
+            "value": "BRSR mandates proactive investor communication on material regulatory risks"
+          }
+        ]
+      },
+      {
+        "title": "Implement KPI Dashboard to Monitor US Regulatory and Margin Metrics by 2026-06-30",
+        "description": "Set up a real-time dashboard tracking US trade policy changes, manufacturing capacity utilization, and margin impact to enable timely management decisions on the ₹8,095 Cr exposure.",
+        "type": "operational",
+        "responsible_party": "Head of Operations",
+        "framework_section": "TCFD:Metrics",
+        "deadline": "2026-06-30",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "₹2-3 Cr efficiency gains and margin protection over 18 months",
+        "priority": "MEDIUM",
+        "urgency": "medium_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 4,
+        "roi_percentage": 150.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Tata Power operational KPI tracking for regulatory risks",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "TCFD:Metrics",
+            "value": "TCFD recommends detailed metrics and targets for regulatory risk monitoring"
+          }
+        ]
+      },
+      {
+        "title": "Benchmark US Duties Disclosure Against Tata Power by 2026-05-31",
+        "description": "Conduct a peer benchmarking exercise comparing Waaree Energies’ US duties and margin risk disclosures with Tata Power’s recent filings to identify disclosure gaps and best practices.",
+        "type": "strategic",
+        "responsible_party": "ESG Strategy Lead",
+        "framework_section": "BRSR:P6",
+        "deadline": "2026-05-31",
+        "estimated_budget": "₹0.2-0.5 Cr",
+        "profitability_link": "₹0.2-0.5 Cr improved disclosure quality supporting cost of capital reduction",
+        "priority": "MEDIUM",
+        "urgency": "short_term",
+        "estimated_impact": "Low",
+        "risk_of_inaction": 4,
+        "roi_percentage": 90.0,
+        "payback_months": 9.0,
+        "peer_benchmark": "Tata Power BRSR FY25 disclosures",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "peer",
+            "ref": "Tata Power BRSR FY25",
+            "value": "Tata Power’s disclosure on renewable portfolio transition and regulatory risks"
+          }
+        ]
+      },
+      {
+        "title": "Document Regulator Correspondence on US Duties by 2026-06-15",
+        "description": "Maintain a detailed log of all communications with regulators and stakeholders regarding the US duties exposure to ensure audit readiness and transparency.",
+        "type": "compliance",
+        "responsible_party": "Compliance Officer",
+        "framework_section": "BRSR:P6",
+        "deadline": "2026-06-15",
+        "estimated_budget": "₹0.1-0.3 Cr",
+        "profitability_link": "₹0.1-0.3 Cr cost avoidance in audit and compliance processes",
+        "priority": "LOW",
+        "urgency": "medium_term",
+        "estimated_impact": "Low",
+        "risk_of_inaction": 4,
+        "roi_percentage": 80.0,
+        "payback_months": 12.0,
+        "peer_benchmark": null,
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "BRSR:P6",
+            "value": "BRSR requires documentation discipline for regulatory correspondence"
+          }
+        ]
+      }
+    ],
+    "do_nothing": false,
+    "gate_reason": "",
+    "generator_count": 5,
+    "validated_count": 5,
+    "priority_matrix": {
+      "immediate_high": [],
+      "immediate_low": [
+        {
+          "index": 0,
+          "title": "Audit BRSR P6 Disclosure for US Duties Impact by 2026-05-30",
+          "type": "compliance",
+          "roi": 100.0,
+          "budget": "₹0.5-1 Cr"
+        },
+        {
+          "index": 1,
+          "title": "Prepare Investor Q&A on US Duties and Margin Outlook by 2026-05-15",
+          "type": "esg_positioning",
+          "roi": 120.0,
+          "budget": "₹0.5-1 Cr"
+        },
+        {
+          "index": 3,
+          "title": "Benchmark US Duties Disclosure Against Tata Power by 2026-05-31",
+          "type": "strategic",
+          "roi": 90.0,
+          "budget": "₹0.2-0.5 Cr"
+        }
+      ],
+      "deferred_high": [],
+      "deferred_low": [
+        {
+          "index": 2,
+          "title": "Implement KPI Dashboard to Monitor US Regulatory and Margin Metrics by 2026-06-30",
+          "type": "operational",
+          "roi": 150.0,
+          "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 4,
+          "title": "Document Regulator Correspondence on US Duties by 2026-06-15",
+          "type": "compliance",
+          "roi": 80.0,
+          "budget": "₹0.1-0.3 Cr"
+        }
+      ]
+    },
+    "recommendation_rankings": {
+      "cfo": [
+        2,
+        0,
+        4
+      ],
+      "ceo": [
+        3,
+        1,
+        2
+      ],
+      "esg-analyst": [
+        0,
+        4,
+        1,
+        3,
+        2
+      ]
+    }
+  },
+  "perspectives": {
+    "esg-analyst": {
+      "headline": "US duties create ₹8,900 Cr (engine estimate) exposure for Waaree Energies, but US manufacturing and contract pass-throughs limit direct margin risk.",
+      "generated_by": "esg_analyst_generator_v1",
+      "kpi_table": [
+        {
+          "kpi_name": "Renewable Energy Share (% of total energy consumption)",
+          "company_value": "75%",
+          "unit": "%",
+          "peer_quartile": "P25 (below peer median 88%)",
+          "peer_examples": "Adani Green 95%, ReNew 88%, Azure 92%",
+          "data_source": "BRSR FY24, company disclosures",
+          "significance": "This KPI is material as it reflects Waaree's progress toward decarbonization and eligibility for US/EU procurement, directly impacting export market access and regulatory compliance."
+        }
+      ],
+      "confidence_bounds": [
+        {
+          "figure": "₹8,900 Cr (engine estimate) total exposure",
+          "source_type": "engine estimate",
+          "beta_range": "0.60-0.95",
+          "lag": "1-6 quarters",
+          "functional_form": "linear",
+          "confidence": "medium",
+          "rationale": "Canonical exposure per Phase-14 constraint; aligns with article's cited risk and sectoral precedent for US trade actions."
+        },
+        {
+          "figure": "₹529.5 Cr (engine estimate) direct margin risk",
+          "source_type": "engine estimate",
+          "beta_range": "0.05-0.10",
+          "lag": "1-4 quarters",
+          "functional_form": "linear",
+          "confidence": "medium",
+          "rationale": "Derived from margin pressure and pass-through clause mitigation; consistent with computed margin impact."
+        },
+        {
+          "figure": "10.0 bps margin pressure",
+          "source_type": "engine estimate",
+          "beta_range": "0.070",
+          "lag": "1-4 quarters",
+          "functional_form": "linear",
+          "confidence": "high",
+          "rationale": "Directly from computed financial cascade; verified per provided primitive."
+        }
+      ],
+      "double_materiality": {
+        "financial_impact": "The US duties expose Waaree Energies to a potential ₹8,900 Cr (engine estimate) topline risk, but US manufacturing expansion and contract pass-through clauses limit direct margin impact to 10 bps, moderating WACC and preserving cost of capital. Export market access remains contingent on compliance and supply-chain transparency.",
+        "impact_on_world": "Waaree's ability to maintain and expand renewable energy exports supports global decarbonization (SDG 7.2) and energy efficiency (SDG 7.3), with indirect positive effects on clean energy adoption in major markets."
+      },
+      "tcfd_scenarios": {
+        "1_5c": "In a 1.5°C pathway, Waaree benefits from strong global RE demand and UFLPA-compliant supply chains, turning US duties into a competitive advantage via local manufacturing and robust audit trails.",
+        "2c": "Under 2°C, moderate RE growth and ongoing trade barriers require continued investment in compliance and supply-chain transparency, with margin compression offset by scale and efficiency gains.",
+        "4c": "In a 4°C scenario, global RE growth slows and trade barriers persist, amplifying the impact of US duties and increasing volatility in export revenues and supply-chain costs."
+      },
+      "sdg_targets": [
+        {
+          "code": "7.2",
+          "title": "Substantially increase renewable energy share",
+          "applicability": "direct",
+          "rationale": "Waaree's core business is solar module manufacturing, directly contributing to increasing renewable energy share in global markets."
+        },
+        {
+          "code": "7.3",
+          "title": "Double the rate of improvement in energy efficiency",
+          "applicability": "indirect",
+          "rationale": "Waaree's products enable downstream users to improve energy efficiency, supporting SDG 7.3 through technology diffusion."
+        }
+      ],
+      "audit_trail": [
+        {
+          "claim": "₹8,900 Cr (engine estimate) total exposure",
+          "derivation": "Canonical exposure per Phase-14 anti-drift constraint; aligns with article's cited risk and sectoral precedent for US trade actions.",
+          "sources": [
+            "article: Mint US duties coverage",
+            "primitive: event_quarterly_results",
+            "cascade: P2::RV→WF"
+          ]
+        },
+        {
+          "claim": "10.0 bps margin pressure",
+          "derivation": "Direct from computed financial cascade (P2::RV→WF, β=0.070, lag=1–4q), as per provided primitive.",
+          "sources": [
+            "primitive: event_quarterly_results",
+            "cascade: P2::RV→WF"
+          ]
+        }
+      ],
+      "framework_citations": [
+        {
+          "code": "BRSR:P6:Q14",
+          "rationale": "Supply-chain labour audit is mandatory for Large Cap companies exporting to US/EU under emerging trade policy requirements.",
+          "region": "India",
+          "deadline": "2026-05-30"
+        }
+      ],
+      "warnings": [
+        "verifier: added 5 source tags on ₹ figures"
+      ],
+      "full_insight": {
+        "headline": "US duties on Indian solar imports prompt ~₹8,100 Cr exposure for Waaree Energies, but US manufacturing and contract clauses mitigate margin risk",
+        "impact_score": 6,
+        "core_mechanism": "US authorities imposed countervailing duties on Indian solar imports, raising concerns over Waaree Energies' export viability and margins. Waaree's strategic expansion of US manufacturing capacity, pass-through clauses in contracts, and backward integration efforts structurally reduce direct tariff exposure and support margin protection.",
+        "profitability_connection": "Despite investor anxiety and a 10.4% stock drop, Waaree's US-based manufacturing and contract structures limit direct margin erosion from US duties. The company’s Q3FY26 revenue of ₹6,800–8,400 Cr and order book growth to ₹60,000 Cr indicate continued demand resilience, though execution complexity and overseas exposure heighten risk.",
+        "translation": "US tariffs on Indian solar imports initially worried investors, but Waaree Energies is reducing risk by making more products in the US and using contract terms that pass on extra costs. This means the company’s profits and growth plans are less likely to be hurt by these duties, though it still faces challenges from heavy investments and global competition.",
+        "impact_analysis": {
+          "esg_positioning": "Waaree's proactive risk management and US IRA-aligned manufacturing support ESG ratings, but lagging margins versus integrated peers like Premier Energies and Websol highlight a moderate ESG score gap.",
+          "capital_allocation": "US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China action (engine estimate) support capital flexibility, but policy uncertainty may widen bond spreads and increase cost of capital by 20-40bps (engine estimate).",
+          "valuation_cashflow": "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate.",
+          "compliance_regulatory": "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist.",
+          "supply_chain_transmission": "No supply chain transmission from duties directly, as Waaree sources cells from low-duty regions and is diversifying beyond China; backward integration reduces Tier 2/3 risk.",
+          "people_demand": "Investor sentiment is sensitive to policy shifts, as seen in the 10.4% stock drop; no direct impact on workforce or community demand, but competitive pressure from Reliance and Adani may affect talent retention and market share."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹8,094.6 Cr exposure from US duties and export risk (engine estimate)",
+            "profitability_pathway": "US duties on Indian solar imports → investor anxiety and potential export disruption → ₹8,094.6 Cr exposure (engine estimate)",
+            "margin_pressure": "+500 bps (clamped from 5630.8 — engine overflow) (computed_override)",
+            "revenue_at_risk": "₹7,565 Cr Q3FY26 revenue (from article) forms the base; of which up to ₹529.5 Cr could be at risk if US trade actions escalate (engine estimate)"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.1x due to policy uncertainty and margin risk (engine estimate)",
+            "competitive_position": "Waaree's US manufacturing and DCR compliance improve resilience versus Premier Energies and Websol, but Reliance and Adani's entry increases overcapacity risk post-FY27"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year outlook remains positive if US manufacturing expansion to 4.2GW and backward integration are executed, supporting green revenue growth and margin recovery.",
+            "green_revenue_opportunity": "US IRA incentives of ₹80 Cr in Q3FY26 (from article) with further upside as US capacity scales (engine estimate)"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 8,
+            "rationale": "Event is highly material to renewable energy transition and climate impact, with direct links to green manufacturing and US IRA incentives."
+          },
+          "social": {
+            "score": 4,
+            "rationale": "No direct workforce or community impact, but competitive dynamics may affect employment and local economic benefits."
+          },
+          "governance": {
+            "score": 7,
+            "rationale": "Strong governance response via contract clauses and compliance with US IRA/DCR; ongoing disclosure and regulatory complexity remain."
+          },
+          "financial_materiality": {
+            "score": 8,
+            "rationale": "₹8,094.6 Cr (engine estimate) exposure and 500 bps margin pressure are financially significant for a mid-cap company."
+          },
+          "regulatory_exposure": {
+            "score": 7,
+            "rationale": "US trade policy and DCR/IRA compliance create ongoing regulatory obligations and risk of further action."
+          },
+          "stakeholder_impact": {
+            "score": 6,
+            "rationale": "Investor sentiment is volatile, as shown by the 10.4% stock drop; no immediate impact on other stakeholders."
+          }
+        },
+        "net_impact_summary": "US countervailing duties create a headline exposure of ₹7,300–8,900 Cr for Waaree Energies, but the company’s US manufacturing expansion, contract pass-through clauses, and DCR compliance structurally mitigate direct margin risk. ESG frameworks such as BRSR, GRI, and TCFD are triggered, requiring ongoing disclosure and compliance. While the immediate financial impact is buffered, execution complexity and overseas order-book concentration remain key risks. The company’s ability to secure US IRA incentives and maintain export viability will be critical for sustaining valuation and growth.",
+        "decision_summary": {
+          "materiality": "HIGH",
+          "action": "ACT",
+          "verdict": "Immediate board-level monitoring and scenario planning are required to manage ₹8,094.6 Cr (engine estimate) exposure and 500 bps margin risk from US trade actions.",
+          "financial_exposure": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+          "key_risk": "₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate)",
+          "top_opportunity": "Expand US manufacturing to 4.2GW and secure additional US IRA incentives (potential ₹72–88 Cr+ per quarter, engine estimate) (of ₹8094.6 Cr canonical event exposure)",
+          "timeline": "within 4-8 weeks"
+        },
+        "causal_chain": {
+          "event": "US authorities impose countervailing duties on Indian solar imports, raising investor concerns for Waaree Energies.",
+          "mechanism": "Duties threaten export viability and margins, but Waaree’s US manufacturing, contract pass-through clauses, and backward integration reduce direct exposure and support compliance with US IRA and DCR requirements.",
+          "company_impact": "Potential margin erosion of 500 bps and headline exposure of ₹8,094.6 Cr (engine estimate), but mitigated by strategic actions; valuation compressed to 10x EV/Ebitda due to policy anxiety.",
+          "transmission_type": "regulatory"
+        },
+        "warnings": [
+          "verifier: margin math at financial_timeline.immediate: cited 500.0 bps, computed 5630.8 bps (dev 91.1%)",
+          "verifier: narrative bps clamp: rewrote 1 'X bps' value(s) above ±500 bps in free-form fields",
+          "verifier: added 7 source tags on ₹ figures",
+          "verifier: coherence_neutral_high_act_mismatch: event polarity is neutral but materiality=CRITICAL + action=ACT; downgraded materiality → HIGH",
+          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹8094.6 Cr",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+          "verifier: render-protocol: stripped 5 provenance tag(s) from narrative; sidecar staged for frontend tooltip",
+          "verifier: margin math auto-corrected (original 500.0 bps, computed 5630.8 bps)"
+        ],
+        "event_polarity": "neutral",
+        "toulmin": {
+          "claim": "Immediate board-level monitoring and scenario planning are required to manage ₹8,094.6 Cr (engine estimate) exposure and 500 bps margin risk from US trade actions.",
+          "grounds": [
+            "Financial exposure: ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+            "Key risk: ₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate)",
+            "Event classification: event_quarterly_results",
+            "Relevance score: 6.0/10",
+            "Materiality weight (ontology): 1.0",
+            "Frameworks triggered: BRSR, GRI, TCFD"
+          ],
+          "warrant": "Direct revenue or contract figures cited in the article are recognised as known exposure; speculative downstream cascades are recognised separately as engine estimates.",
+          "warrant_cite": "NP-FIN-001 (Snowkap source-tagging discipline (CLAUDE.md rule 7))",
+          "qualifier": "Moderate relevance signal; article-cited ₹ quantum present",
+          "rebuttal": "If additional reporting clarifies the financial materiality or a regulator action escalates the consequence, the verdict would shift if new evidence surfaces."
+        },
+        "cfo_preflight": {},
+        "stakes_for_company": {
+          "personal_stakes_paragraphs": {
+            "cfo": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+            "ceo": "How does this shift YOUR competitive story? The US trade action challenges Waaree’s export model, but your proactive expansion of US manufacturing and robust contract structures help preserve your position in a volatile market. Over the next three years, the board will expect a narrative that demonstrates resilience, leverages US incentives, and sustains order book momentum, even as global policy headwinds intensify and execution complexity rises.",
+            "analyst": "This event directly impacts your upcoming disclosures, particularly around export risk and mitigation strategies. While no specific framework region is mandated, you should prepare to address scenario planning and margin protection in sections analogous to BRSR P6:Q14 (supply chain risk), GRI:303 (indirect economic impacts), and ESRS:E1 (climate-related financial risks). Monitor for any new disclosure deadlines, as the board will expect a robust, methodology-driven update reflecting the ₹8,094.6 Cr exposure and mitigation actions."
+          },
+          "personal_stakes_paragraph": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+          "revenue_pct_at_stake": 56.31,
+          "peer_action_summary": "No peer precedent yet.",
+          "do_nothing_risk_paragraph": "If Waaree Energies ignores this development, the company risks regulatory scrutiny, potential MSCI rating downgrades, and heightened investor anxiety—already reflected in a 10.4% stock drop. Lenders may question the company’s risk controls, and supply-chain partners could reconsider commitments, given the ₹8,094.6 Cr exposure. Inaction could erode market confidence and jeopardize future export viability."
+        },
+        "role_panel_order": {
+          "cfo": {
+            "order": [
+              "personal_stakes",
+              "why_critical",
+              "crisp_insight",
+              "impact_metrics",
+              "recommendations",
+              "audit_trail"
+            ],
+            "hidden": [
+              "narrative_intelligence",
+              "sdg_map",
+              "causal_chain",
+              "three_year_trajectory",
+              "board_paragraph",
+              "kpi_table",
+              "stakeholder_map",
+              "framework_alignment"
+            ]
+          },
+          "ceo": {
+            "order": [
+              "personal_stakes",
+              "why_critical",
+              "crisp_insight",
+              "three_year_trajectory",
+              "stakeholder_map",
+              "board_paragraph",
+              "recommendations"
+            ],
+            "hidden": [
+              "kpi_table",
+              "framework_alignment",
+              "audit_trail",
+              "causal_chain",
+              "impact_metrics"
+            ]
+          },
+          "esg-analyst": {
+            "order": [
+              "personal_stakes",
+              "why_critical",
+              "crisp_insight",
+              "kpi_table",
+              "framework_alignment",
+              "causal_chain",
+              "audit_trail",
+              "recommendations",
+              "sdg_map"
+            ],
+            "hidden": [
+              "board_paragraph",
+              "three_year_trajectory"
+            ]
+          }
+        },
+        "criticality": {
+          "score": 0.423,
+          "band": "MEDIUM",
+          "components": {
+            "materiality": 0.6,
+            "financial_magnitude": 0.8791,
+            "actionability": 0.8,
+            "painpoint_match": 0.4087,
+            "recency": 0.0,
+            "source_authority": 0.5,
+            "sentiment_trajectory": 0.5,
+            "staleness_penalty": 0.2,
+            "confidence_penalty": 0.0,
+            "polarity_drift_penalty": 0.0
+          },
+          "role_scores": {
+            "cfo": 0.48,
+            "ceo": 0.3455,
+            "analyst": 0.3715
+          }
+        },
+        "sentiment_trajectory": {
+          "company_slug": "waaree-energies",
+          "polarity_series": [
+            {
+              "month": "2026-02",
+              "polarity_mean": 0.0,
+              "count": 2
+            },
+            {
+              "month": "2026-04",
+              "polarity_mean": 0.0,
+              "count": 3
+            }
+          ],
+          "horizons": {
+            "3m": {
+              "direction": "stable",
+              "confidence": "low",
+              "rationale": "Limited data points with neutral polarity and low event counts."
+            },
+            "6m": {
+              "direction": "stable",
+              "confidence": "low",
+              "rationale": "Sparse and neutral polarity data prevents clear trend identification."
+            },
+            "12m": {
+              "direction": "stable",
+              "confidence": "low",
+              "rationale": "Insufficient historical data to determine ESG sentiment trajectory."
+            }
+          },
+          "trajectory": [
+            {
+              "month": "2026-05",
+              "central": 0.0,
+              "lo": -0.09,
+              "hi": 0.09
+            },
+            {
+              "month": "2026-06",
+              "central": 0.0,
+              "lo": -0.13,
+              "hi": 0.13
+            },
+            {
+              "month": "2026-07",
+              "central": 0.0,
+              "lo": -0.16999999999999998,
+              "hi": 0.16999999999999998
+            },
+            {
+              "month": "2026-08",
+              "central": 0.0,
+              "lo": -0.21000000000000002,
+              "hi": 0.21000000000000002
+            },
+            {
+              "month": "2026-09",
+              "central": 0.0,
+              "lo": -0.25,
+              "hi": 0.25
+            },
+            {
+              "month": "2026-10",
+              "central": 0.0,
+              "lo": -0.29,
+              "hi": 0.29
+            },
+            {
+              "month": "2026-11",
+              "central": 0.0,
+              "lo": -0.33,
+              "hi": 0.33
+            },
+            {
+              "month": "2026-12",
+              "central": 0.0,
+              "lo": -0.37,
+              "hi": 0.37
+            },
+            {
+              "month": "2027-01",
+              "central": 0.0,
+              "lo": -0.41,
+              "hi": 0.41
+            },
+            {
+              "month": "2027-02",
+              "central": 0.0,
+              "lo": -0.45,
+              "hi": 0.45
+            },
+            {
+              "month": "2027-03",
+              "central": 0.0,
+              "lo": -0.49,
+              "hi": 0.49
+            },
+            {
+              "month": "2027-04",
+              "central": 0.0,
+              "lo": -0.53,
+              "hi": 0.53
+            }
+          ],
+          "llm_used": true
+        },
+        "role_explainer": {
+          "cfo": {
+            "why_important_for_me": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
+            "how_it_impacts_business": "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate. US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China ",
+            "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
+            "simple_logic": "Flagged for you because financial_magnitude=0.88 and the CFO role weights financial 40%. Your role-specific score: 0.48."
+          },
+          "ceo": {
+            "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
+            "how_it_impacts_business": "Waaree's proactive risk management and US IRA-aligned manufacturing support ESG ratings, but lagging margins versus integrated peers like Premier Energies and Websol highlight a moderate ESG score gap. Investor sentiment is sensitive to policy shifts, as seen in the 10.4% stock d",
+            "analysis_result": "Track competitive movement; revisit at the next strategy review.",
+            "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.35."
+          },
+          "esg-analyst": {
+            "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
+            "how_it_impacts_business": "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist. No supply chain transmission from duties directly, as Waaree sources cells from low-d",
+            "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
+            "simple_logic": ""
+          }
+        },
+        "criticality_summary": "Worth reviewing — ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate).",
+        "headline_only": false,
+        "body_char_count": 0,
+        "analysis": {}
+      },
+      "why_critical_for_analyst": "For an ESG Analyst, the gating question is whether this event fires a disclosure trigger that the next reporting cycle must address. Audit-trail strength is high: every ₹ figure traces back to either the source article or an engine-computed primitive cascade, so the analyst can defend the analysis to assurance reviewers. Verification priority: ₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate) — confirm against peer disclosures and the company's own materiality assessment before the next stakeholder review."
+    },
+    "ceo": {
+      "headline": "US duties create ₹8,900 Cr exposure; US manufacturing expansion mitigates risk",
+      "generated_by": "ceo_narrative_generator_v1",
+      "board_paragraph": "The imposition of US duties on Indian solar imports exposes Waaree Energies to a material risk of ₹8,900.0 Cr over the next three years. The board should approve immediate expansion of US manufacturing capacity to 4.2GW and renegotiate contract clauses to secure IRA incentives, with action required within 4-8 weeks. Failure to act could result in direct margin erosion of up to ₹8,900.0 Cr (engine estimate), potential credit rating downgrade, and loss of US market share. Timely intervention can limit direct margin risk to ₹529.5 Cr and unlock quarterly incentives of ₹72–88 Cr (engine estimate).",
+      "stakeholder_map": [
+        {
+          "stakeholder": "Tata Power",
+          "stance": "Committed to 80% renewable portfolio by 2030, divesting coal assets",
+          "precedent": "Tata Power → P/E rerating from 12x to 18x, ₹5000 Cr (engine estimate) green bond issued"
+        }
+      ],
+      "analogous_precedent": {},
+      "three_year_trajectory": {
+        "do_nothing": "If no remediation is undertaken, Waaree Energies faces up to ₹8,900.0 Cr (engine estimate) in export and margin losses by FY27-29, likely leading to credit rating pressure and reduced investor confidence. US market share could decline sharply, impacting long-term growth and valuation.",
+        "act_now": "By expanding US manufacturing and securing IRA incentives at a cost of ₹529.5 Cr (engine estimate), Waaree can limit direct margin risk and potentially gain ₹72–88 Cr per quarter in incentives. This positions the company for stable US revenues and improved investor sentiment by FY27-29."
+      },
+      "qna_drafts": {
+        "earnings_call": "We are proactively addressing the US duty exposure by accelerating our US manufacturing expansion and leveraging IRA incentives. This approach is expected to limit our direct margin risk and sustain our US market presence.",
+        "press_statement": "Waaree Energies acknowledges the impact of recent US duties on Indian solar imports. We are expanding our US manufacturing footprint and renegotiating contracts to secure incentives, ensuring continued value for stakeholders.",
+        "board_qa": "Q: What is the maximum penalty exposure? A: The total exposure is ₹8,900.0 Cr (engine estimate). Q: What is the FY26 capex impact? A: Capex will increase by up to ₹529.5 Cr (engine estimate) to support US manufacturing expansion. Q: What is the expected return timeline? A: Quarterly incentives of ₹72–88 Cr (engine estimate) are expected to begin within 4-8 weeks of expansion.",
+        "regulator_qa": "Waaree Energies is fully committed to compliance with international trade regulations. We are expanding US manufacturing and updating contract structures to ensure alignment with US policy and safeguard our export commitments."
+      },
+      "warnings": [
+        "verifier: added 2 source tags on ₹ figures"
+      ],
+      "why_critical_for_ceo": "For a CEO, this shifts the competitive picture: waaree's US manufacturing and DCR compliance improve resilience versus Premier Energies and Websol, but Reliance and Adani's entry increases overcapacity risk post-FY27 at Waaree Energies. The investor narrative writes itself: expand US manufacturing to 4.2GW and secure additional US IRA incentives (potential ₹72–88 Cr+ per quarter, engine estimate) (of ₹8094.6 Cr canonical event exposure), with execution discipline as the proof point. On the FY+1 to FY+3 horizon, this is the kind of signal that ESG-tilted investor mandates read first — silence is the costliest option."
+    },
+    "cfo": {
+      "perspective": "cfo",
+      "headline": "P&L exposure: ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+      "impact_grid": {
+        "financial": "HIGH",
+        "regulatory": "HIGH",
+        "strategic": "HIGH"
+      },
+      "what_matters": [
+        "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate.",
+        "US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China action (engine estimate) support capital flexibility, but policy uncertainty may widen bond spreads and increase cost of capital by 20-40bps (engine estimate).",
+        "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist."
+      ],
+      "action": [
+        "Quantify exposure: ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+        "Revenue at risk: ₹7,565 Cr Q3FY26 revenue (from article) forms the base; of which up to ₹529.5 Cr could be at risk if US trade actions escalate (engine estimate)"
+      ],
+      "materiality": "HIGH",
+      "do_nothing": false,
+      "active_impact_dimensions": [
+        "cost",
+        "financial",
+        "operational",
+        "regulatory",
+        "volume"
+      ],
+      "full_insight": {
+        "headline": "US duties on Indian solar imports prompt ~₹8,100 Cr exposure for Waaree Energies, but US manufacturing and contract clauses mitigate margin risk",
+        "impact_score": 6,
+        "core_mechanism": "US authorities imposed countervailing duties on Indian solar imports, raising concerns over Waaree Energies' export viability and margins. Waaree's strategic expansion of US manufacturing capacity, pass-through clauses in contracts, and backward integration efforts structurally reduce direct tariff exposure and support margin protection.",
+        "profitability_connection": "Despite investor anxiety and a 10.4% stock drop, Waaree's US-based manufacturing and contract structures limit direct margin erosion from US duties. The company’s Q3FY26 revenue of ₹6,800–8,400 Cr and order book growth to ₹60,000 Cr indicate continued demand resilience, though execution complexity and overseas exposure heighten risk.",
+        "translation": "US tariffs on Indian solar imports initially worried investors, but Waaree Energies is reducing risk by making more products in the US and using contract terms that pass on extra costs. This means the company’s profits and growth plans are less likely to be hurt by these duties, though it still faces challenges from heavy investments and global competition.",
+        "impact_analysis": {
+          "esg_positioning": "Waaree's proactive risk management and US IRA-aligned manufacturing support ESG ratings, but lagging margins versus integrated peers like Premier Energies and Websol highlight a moderate ESG score gap.",
+          "capital_allocation": "US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China action (engine estimate) support capital flexibility, but policy uncertainty may widen bond spreads and increase cost of capital by 20-40bps (engine estimate).",
+          "valuation_cashflow": "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate.",
+          "compliance_regulatory": "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist.",
+          "supply_chain_transmission": "No supply chain transmission from duties directly, as Waaree sources cells from low-duty regions and is diversifying beyond China; backward integration reduces Tier 2/3 risk.",
+          "people_demand": "Investor sentiment is sensitive to policy shifts, as seen in the 10.4% stock drop; no direct impact on workforce or community demand, but competitive pressure from Reliance and Adani may affect talent retention and market share."
+        },
+        "financial_timeline": {
+          "immediate": {
+            "headline": "₹8,094.6 Cr exposure from US duties and export risk (engine estimate)",
+            "profitability_pathway": "US duties on Indian solar imports → investor anxiety and potential export disruption → ₹8,094.6 Cr exposure (engine estimate)",
+            "margin_pressure": "+500 bps (clamped from 5630.8 — engine overflow) (computed_override)",
+            "revenue_at_risk": "₹7,565 Cr Q3FY26 revenue (from article) forms the base; of which up to ₹529.5 Cr could be at risk if US trade actions escalate (engine estimate)"
+          },
+          "structural": {
+            "valuation_rerating": "P/E compression of 0.1x due to policy uncertainty and margin risk (engine estimate)",
+            "competitive_position": "Waaree's US manufacturing and DCR compliance improve resilience versus Premier Energies and Websol, but Reliance and Adani's entry increases overcapacity risk post-FY27"
+          },
+          "long_term": {
+            "secular_trajectory": "3-5 year outlook remains positive if US manufacturing expansion to 4.2GW and backward integration are executed, supporting green revenue growth and margin recovery.",
+            "green_revenue_opportunity": "US IRA incentives of ₹80 Cr in Q3FY26 (from article) with further upside as US capacity scales (engine estimate)"
+          }
+        },
+        "esg_relevance_score": {
+          "environment": {
+            "score": 8,
+            "rationale": "Event is highly material to renewable energy transition and climate impact, with direct links to green manufacturing and US IRA incentives."
+          },
+          "social": {
+            "score": 4,
+            "rationale": "No direct workforce or community impact, but competitive dynamics may affect employment and local economic benefits."
+          },
+          "governance": {
+            "score": 7,
+            "rationale": "Strong governance response via contract clauses and compliance with US IRA/DCR; ongoing disclosure and regulatory complexity remain."
+          },
+          "financial_materiality": {
+            "score": 8,
+            "rationale": "₹8,094.6 Cr (engine estimate) exposure and 500 bps margin pressure are financially significant for a mid-cap company."
+          },
+          "regulatory_exposure": {
+            "score": 7,
+            "rationale": "US trade policy and DCR/IRA compliance create ongoing regulatory obligations and risk of further action."
+          },
+          "stakeholder_impact": {
+            "score": 6,
+            "rationale": "Investor sentiment is volatile, as shown by the 10.4% stock drop; no immediate impact on other stakeholders."
+          }
+        },
+        "net_impact_summary": "US countervailing duties create a headline exposure of ₹7,300–8,900 Cr for Waaree Energies, but the company’s US manufacturing expansion, contract pass-through clauses, and DCR compliance structurally mitigate direct margin risk. ESG frameworks such as BRSR, GRI, and TCFD are triggered, requiring ongoing disclosure and compliance. While the immediate financial impact is buffered, execution complexity and overseas order-book concentration remain key risks. The company’s ability to secure US IRA incentives and maintain export viability will be critical for sustaining valuation and growth.",
+        "decision_summary": {
+          "materiality": "HIGH",
+          "action": "ACT",
+          "verdict": "Immediate board-level monitoring and scenario planning are required to manage ₹8,094.6 Cr (engine estimate) exposure and 500 bps margin risk from US trade actions.",
+          "financial_exposure": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+          "key_risk": "₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate)",
+          "top_opportunity": "Expand US manufacturing to 4.2GW and secure additional US IRA incentives (potential ₹72–88 Cr+ per quarter, engine estimate) (of ₹8094.6 Cr canonical event exposure)",
+          "timeline": "within 4-8 weeks"
+        },
+        "causal_chain": {
+          "event": "US authorities impose countervailing duties on Indian solar imports, raising investor concerns for Waaree Energies.",
+          "mechanism": "Duties threaten export viability and margins, but Waaree’s US manufacturing, contract pass-through clauses, and backward integration reduce direct exposure and support compliance with US IRA and DCR requirements.",
+          "company_impact": "Potential margin erosion of 500 bps and headline exposure of ₹8,094.6 Cr (engine estimate), but mitigated by strategic actions; valuation compressed to 10x EV/Ebitda due to policy anxiety.",
+          "transmission_type": "regulatory"
+        },
+        "warnings": [
+          "verifier: margin math at financial_timeline.immediate: cited 500.0 bps, computed 5630.8 bps (dev 91.1%)",
+          "verifier: narrative bps clamp: rewrote 1 'X bps' value(s) above ±500 bps in free-form fields",
+          "verifier: added 7 source tags on ₹ figures",
+          "verifier: coherence_neutral_high_act_mismatch: event polarity is neutral but materiality=CRITICAL + action=ACT; downgraded materiality → HIGH",
+          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹8094.6 Cr",
+          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
+          "verifier: render-protocol: stripped 5 provenance tag(s) from narrative; sidecar staged for frontend tooltip",
+          "verifier: margin math auto-corrected (original 500.0 bps, computed 5630.8 bps)"
+        ],
+        "event_polarity": "neutral",
+        "toulmin": {
+          "claim": "Immediate board-level monitoring and scenario planning are required to manage ₹8,094.6 Cr (engine estimate) exposure and 500 bps margin risk from US trade actions.",
+          "grounds": [
+            "Financial exposure: ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate)",
+            "Key risk: ₹8,094.6 Cr export and margin exposure from US duties and policy escalation (engine estimate)",
+            "Event classification: event_quarterly_results",
+            "Relevance score: 6.0/10",
+            "Materiality weight (ontology): 1.0",
+            "Frameworks triggered: BRSR, GRI, TCFD"
+          ],
+          "warrant": "Direct revenue or contract figures cited in the article are recognised as known exposure; speculative downstream cascades are recognised separately as engine estimates.",
+          "warrant_cite": "NP-FIN-001 (Snowkap source-tagging discipline (CLAUDE.md rule 7))",
+          "qualifier": "Moderate relevance signal; article-cited ₹ quantum present",
+          "rebuttal": "If additional reporting clarifies the financial materiality or a regulator action escalates the consequence, the verdict would shift if new evidence surfaces."
+        },
+        "cfo_preflight": {},
+        "stakes_for_company": {
+          "personal_stakes_paragraphs": {
+            "cfo": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+            "ceo": "How does this shift YOUR competitive story? The US trade action challenges Waaree’s export model, but your proactive expansion of US manufacturing and robust contract structures help preserve your position in a volatile market. Over the next three years, the board will expect a narrative that demonstrates resilience, leverages US incentives, and sustains order book momentum, even as global policy headwinds intensify and execution complexity rises.",
+            "analyst": "This event directly impacts your upcoming disclosures, particularly around export risk and mitigation strategies. While no specific framework region is mandated, you should prepare to address scenario planning and margin protection in sections analogous to BRSR P6:Q14 (supply chain risk), GRI:303 (indirect economic impacts), and ESRS:E1 (climate-related financial risks). Monitor for any new disclosure deadlines, as the board will expect a robust, methodology-driven update reflecting the ₹8,094.6 Cr exposure and mitigation actions."
+          },
+          "personal_stakes_paragraph": "Your company is exposed to a significant ₹8,094.6 Cr risk from new US duties on Indian solar imports, with a direct margin impact estimated at ₹529.5 Cr. This exposure could affect your next quarterly close, especially if pass-through clauses or US manufacturing ramp-up face delays. Immediate attention is required to monitor cash flow, assess contract enforceability, and ensure that capital-at-risk is minimized in light of these regulatory cost pressures.",
+          "revenue_pct_at_stake": 56.31,
+          "peer_action_summary": "No peer precedent yet.",
+          "do_nothing_risk_paragraph": "If Waaree Energies ignores this development, the company risks regulatory scrutiny, potential MSCI rating downgrades, and heightened investor anxiety—already reflected in a 10.4% stock drop. Lenders may question the company’s risk controls, and supply-chain partners could reconsider commitments, given the ₹8,094.6 Cr exposure. Inaction could erode market confidence and jeopardize future export viability."
+        },
+        "role_panel_order": {
+          "cfo": {
+            "order": [
+              "personal_stakes",
+              "why_critical",
+              "crisp_insight",
+              "impact_metrics",
+              "recommendations",
+              "audit_trail"
+            ],
+            "hidden": [
+              "narrative_intelligence",
+              "sdg_map",
+              "causal_chain",
+              "three_year_trajectory",
+              "board_paragraph",
+              "kpi_table",
+              "stakeholder_map",
+              "framework_alignment"
+            ]
+          },
+          "ceo": {
+            "order": [
+              "personal_stakes",
+              "why_critical",
+              "crisp_insight",
+              "three_year_trajectory",
+              "stakeholder_map",
+              "board_paragraph",
+              "recommendations"
+            ],
+            "hidden": [
+              "kpi_table",
+              "framework_alignment",
+              "audit_trail",
+              "causal_chain",
+              "impact_metrics"
+            ]
+          },
+          "esg-analyst": {
+            "order": [
+              "personal_stakes",
+              "why_critical",
+              "crisp_insight",
+              "kpi_table",
+              "framework_alignment",
+              "causal_chain",
+              "audit_trail",
+              "recommendations",
+              "sdg_map"
+            ],
+            "hidden": [
+              "board_paragraph",
+              "three_year_trajectory"
+            ]
+          }
+        },
+        "criticality": {
+          "score": 0.423,
+          "band": "MEDIUM",
+          "components": {
+            "materiality": 0.6,
+            "financial_magnitude": 0.8791,
+            "actionability": 0.8,
+            "painpoint_match": 0.4087,
+            "recency": 0.0,
+            "source_authority": 0.5,
+            "sentiment_trajectory": 0.5,
+            "staleness_penalty": 0.2,
+            "confidence_penalty": 0.0,
+            "polarity_drift_penalty": 0.0
+          },
+          "role_scores": {
+            "cfo": 0.48,
+            "ceo": 0.3455,
+            "analyst": 0.3715
+          }
+        },
+        "sentiment_trajectory": {
+          "company_slug": "waaree-energies",
+          "polarity_series": [
+            {
+              "month": "2026-02",
+              "polarity_mean": 0.0,
+              "count": 2
+            },
+            {
+              "month": "2026-04",
+              "polarity_mean": 0.0,
+              "count": 3
+            }
+          ],
+          "horizons": {
+            "3m": {
+              "direction": "stable",
+              "confidence": "low",
+              "rationale": "Limited data points with neutral polarity and low event counts."
+            },
+            "6m": {
+              "direction": "stable",
+              "confidence": "low",
+              "rationale": "Sparse and neutral polarity data prevents clear trend identification."
+            },
+            "12m": {
+              "direction": "stable",
+              "confidence": "low",
+              "rationale": "Insufficient historical data to determine ESG sentiment trajectory."
+            }
+          },
+          "trajectory": [
+            {
+              "month": "2026-05",
+              "central": 0.0,
+              "lo": -0.09,
+              "hi": 0.09
+            },
+            {
+              "month": "2026-06",
+              "central": 0.0,
+              "lo": -0.13,
+              "hi": 0.13
+            },
+            {
+              "month": "2026-07",
+              "central": 0.0,
+              "lo": -0.16999999999999998,
+              "hi": 0.16999999999999998
+            },
+            {
+              "month": "2026-08",
+              "central": 0.0,
+              "lo": -0.21000000000000002,
+              "hi": 0.21000000000000002
+            },
+            {
+              "month": "2026-09",
+              "central": 0.0,
+              "lo": -0.25,
+              "hi": 0.25
+            },
+            {
+              "month": "2026-10",
+              "central": 0.0,
+              "lo": -0.29,
+              "hi": 0.29
+            },
+            {
+              "month": "2026-11",
+              "central": 0.0,
+              "lo": -0.33,
+              "hi": 0.33
+            },
+            {
+              "month": "2026-12",
+              "central": 0.0,
+              "lo": -0.37,
+              "hi": 0.37
+            },
+            {
+              "month": "2027-01",
+              "central": 0.0,
+              "lo": -0.41,
+              "hi": 0.41
+            },
+            {
+              "month": "2027-02",
+              "central": 0.0,
+              "lo": -0.45,
+              "hi": 0.45
+            },
+            {
+              "month": "2027-03",
+              "central": 0.0,
+              "lo": -0.49,
+              "hi": 0.49
+            },
+            {
+              "month": "2027-04",
+              "central": 0.0,
+              "lo": -0.53,
+              "hi": 0.53
+            }
+          ],
+          "llm_used": true
+        },
+        "role_explainer": {
+          "cfo": {
+            "why_important_for_me": "₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
+            "how_it_impacts_business": "EV/Ebitda compressed to 10x FY27 (from article), reflecting policy anxiety; potential margin erosion of 500 bps (engine estimate) on ₹8,094.6 Cr exposure could pressure cash flows if US trade actions escalate. US IRA incentives of ₹72–88 Cr and a ₹300 Cr provision for anti-China ",
+            "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
+            "simple_logic": "Flagged for you because financial_magnitude=0.88 and the CFO role weights financial 40%. Your role-specific score: 0.48."
+          },
+          "ceo": {
+            "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
+            "how_it_impacts_business": "Waaree's proactive risk management and US IRA-aligned manufacturing support ESG ratings, but lagging margins versus integrated peers like Premier Energies and Websol highlight a moderate ESG score gap. Investor sentiment is sensitive to policy shifts, as seen in the 10.4% stock d",
+            "analysis_result": "Track competitive movement; revisit at the next strategy review.",
+            "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.35."
+          },
+          "esg-analyst": {
+            "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
+            "how_it_impacts_business": "Triggered frameworks: BRSR, GRI, TCFD; US IRA and DCR compliance are critical for incentives and market access. No immediate penalties, but ongoing disclosure and compliance obligations persist. No supply chain transmission from duties directly, as Waaree sources cells from low-d",
+            "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
+            "simple_logic": ""
+          }
+        },
+        "criticality_summary": "Worth reviewing — ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate).",
+        "headline_only": false,
+        "body_char_count": 0,
+        "analysis": {}
+      },
+      "why_critical": "This represents ₹8,094.6 Cr total exposure (engine estimate), of which ₹529.5 Cr is direct margin risk (engine estimate) for the company — quantifying it is the CFO's first decision. The strategic offset is expand US manufacturing to 4.2GW and secure additional US IRA incentives (potential ₹72–88 Cr+ per quarter, engine estimate) (of ₹8094.6 Cr canonical event exposure), which a CFO weighs against the cost of action. Decision window: within 4-8 weeks. Action: quantify exposure, set the provision or capex line, and brief audit + finance committee."
+    }
+  },
   "evidence_pack": {
     "cascade": {
-      "total_cr": 0.0,
+      "total_cr": 8094.6,
       "margin_bps": null,
       "dominant_lag_months": null,
       "hops": [],
@@ -709,6 +2355,20 @@
         "is_mandatory": false
       },
       {
+        "code": "CFA_ESG",
+        "name": "CFA_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "COSO_ERM",
+        "name": "COSO_ERM",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
         "code": "DJSI",
         "name": "DJSI",
         "rationale": "",
@@ -730,6 +2390,20 @@
         "is_mandatory": false
       },
       {
+        "code": "ISSB",
+        "name": "ISSB",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "PORTER_5_FORCES",
+        "name": "PORTER_5_FORCES",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
         "code": "SP_GLOBAL_ESG",
         "name": "SP_GLOBAL_ESG",
         "rationale": "",
@@ -737,8 +2411,22 @@
         "is_mandatory": false
       },
       {
-        "code": "SFDR",
-        "name": "SFDR",
+        "code": "CSRD",
+        "name": "CSRD",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SBTI",
+        "name": "SBTI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SEC_CLIMATE",
+        "name": "SEC_CLIMATE",
         "rationale": "",
         "region": "",
         "is_mandatory": false
@@ -751,27 +2439,6 @@
         "is_mandatory": false
       },
       {
-        "code": "CFA_ESG",
-        "name": "CFA_ESG",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "COSO_ERM",
-        "name": "COSO_ERM",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "ISSB",
-        "name": "ISSB",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
         "code": "MCKINSEY_3_HORIZONS",
         "name": "MCKINSEY_3_HORIZONS",
         "rationale": "",
@@ -779,47 +2446,99 @@
         "is_mandatory": false
       },
       {
-        "code": "PORTER_5_FORCES",
-        "name": "PORTER_5_FORCES",
+        "code": "SFDR",
+        "name": "SFDR",
         "rationale": "",
         "region": "",
         "is_mandatory": false
       }
     ],
-    "stakeholders": [],
-    "painpoint_matches": [],
+    "stakeholders": [
+      {
+        "name": "Tata Power",
+        "stance": "Committed to 80% renewable portfolio by 2030, divesting coal assets",
+        "precedent": "Tata Power → P/E rerating from 12x to 18x, ₹5000 Cr (engine estimate) green bond issued"
+      }
+    ],
+    "painpoint_matches": [
+      {
+        "topic": "aggregate",
+        "similarity": 0.4087,
+        "severity": 0.4087,
+        "evidence": "aggregate similarity score from Stage 9.5 scorer"
+      }
+    ],
     "causal_chain": {
-      "hops": 0,
-      "relationship_type": "directOperational",
-      "explanation": "Waaree Energies",
-      "impact_score": 1.0
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "explanation": "Energy is material for Renewable Energy → impacts Waaree Energies",
+      "impact_score": 0.6
     },
     "comparables": [],
     "polarity": "neutral",
     "confidence_bounds": {
       "figure_lo_cr": null,
       "figure_hi_cr": null,
-      "method": "",
-      "notes": ""
+      "method": "engine estimate",
+      "notes": "Canonical exposure per Phase-14 constraint; aligns with article's cited risk and sectoral precedent for US trade actions."
     },
-    "decision_windows": []
+    "decision_windows": [
+      {
+        "label": "Immediate",
+        "deadline": "{'headline': '₹8,094.6 Cr exposure from US duties and export",
+        "severity": "soft"
+      },
+      {
+        "label": "Structural",
+        "deadline": "{'valuation_rerating': 'P/E compression of 0.1x due to polic",
+        "severity": "soft"
+      },
+      {
+        "label": "Long Term",
+        "deadline": "{'secular_trajectory': '3-5 year outlook remains positive if",
+        "severity": "soft"
+      }
+    ]
   },
   "role_payloads": {
     "cfo": {
       "role": "cfo",
-      "headline": "P&L exposure: pending cascade",
+      "headline": "P&L lifts ~₹8,100 Cr",
       "hero_metric": {
-        "value": "TBD",
+        "value": "~₹8,100 Cr",
         "label": "P&L exposure",
-        "decision_window": "",
+        "decision_window": "{'headline': '₹8,094.6 Cr exposure from US duties and export",
         "horizon": "",
         "deadline": ""
       },
       "role_takeaways": [
-        "No quantified P&L exposure surfaced; monitor only."
+        "P&L exposure: ~₹8,100 Cr.",
+        "Audit BRSR P6 Disclosure for US Duties Impact by 2026-05-30; budget ~₹1 Cr; payback 12mo."
       ],
-      "role_paragraph": "No quantified P&L exposure surfaced; monitor only.",
-      "recommendations": [],
+      "role_paragraph": "P&L exposure: ~₹8,100 Cr. Audit BRSR P6 Disclosure for US Duties Impact by 2026-05-30; budget ~₹1 Cr; payback 12mo. Decide by {'headline': '₹8,094.6 Cr exposure from US duties and export.",
+      "recommendations": [
+        {
+          "title": "Audit BRSR P6 Disclosure for US Duties Impact by 2026-05-30",
+          "type": "compliance",
+          "budget_cr": 1.0,
+          "payback_months": 12.0,
+          "framework_section": "BRSR:P6"
+        },
+        {
+          "title": "Implement KPI Dashboard to Monitor US Regulatory and Margin Metrics by 2026-06-30",
+          "type": "operational",
+          "budget_cr": 2.0,
+          "payback_months": 12.0,
+          "framework_section": "TCFD:Metrics"
+        },
+        {
+          "title": "Document Regulator Correspondence on US Duties by 2026-06-15",
+          "type": "compliance",
+          "budget_cr": 0.3,
+          "payback_months": 12.0,
+          "framework_section": "BRSR:P6"
+        }
+      ],
       "visible_panels": [
         "personal_stakes",
         "crisp_insight",
@@ -835,20 +2554,35 @@
     },
     "ceo": {
       "role": "ceo",
-      "headline": "Direct Operational exposure — FY27-29 positioning under review",
+      "headline": "Tata Power committed to 80% renewable portfolio by 2030, divesting coal assets — FY27-29 positioning under review",
       "hero_metric": {
-        "value": "Direct Operational exposure",
+        "value": "Tata Power committed to 80% renewable portfolio by 2030, divesting coal assets",
         "label": "Strategic position",
         "decision_window": "",
         "horizon": "FY27-29",
         "deadline": ""
       },
       "role_takeaways": [
-        "Direct Operational exposure reshapes the FY27-29 competitive frame.",
+        "Tata Power committed to 80% renewable portfolio by 2030, divesting coal assets reshapes the FY27-29 competitive frame.",
         "Trajectory if act now: Set explicit FY27-29 stance to anchor stakeholder communication."
       ],
-      "role_paragraph": "Direct Operational exposure is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
-      "recommendations": [],
+      "role_paragraph": "Tata Power committed to 80% renewable portfolio by 2030, divesting coal assets is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
+      "recommendations": [
+        {
+          "title": "Prepare Investor Q&A on US Duties and Margin Outlook by 2026-05-15",
+          "type": "esg_positioning",
+          "budget_cr": 1.0,
+          "payback_months": 6.0,
+          "framework_section": "BRSR:P6:Q14"
+        },
+        {
+          "title": "Benchmark US Duties Disclosure Against Tata Power by 2026-05-31",
+          "type": "strategic",
+          "budget_cr": 0.5,
+          "payback_months": 9.0,
+          "framework_section": "BRSR:P6"
+        }
+      ],
       "visible_panels": [
         "personal_stakes",
         "crisp_insight",
@@ -865,19 +2599,20 @@
     },
     "esg-analyst": {
       "role": "esg-analyst",
-      "headline": "GRI:GRI:302 disclosure trigger [unverified]",
+      "headline": "GRI:GRI:302 disclosure trigger — due {'headline': '₹8,094.6 Cr exposure from US duties and export",
       "hero_metric": {
         "value": "GRI:GRI:302",
         "label": "Disclosure trigger",
         "decision_window": "",
         "horizon": "",
-        "deadline": ""
+        "deadline": "{'headline': '₹8,094.6 Cr exposure from US duties and export"
       },
       "role_takeaways": [
-        "GRI:GRI:302: action required [unverified].",
+        "GRI:GRI:302: action required by {'headline': '₹8,094.6 Cr exposure from US duties and export (engine estimate).",
+        "Cascade ₹8,094.6 Cr (engine estimate).",
         "Checklist: 5 framework section(s) flagged."
       ],
-      "role_paragraph": "GRI:GRI:302 is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI:GRI:302, TCFD.",
+      "role_paragraph": "GRI:GRI:302 is the dominant disclosure trigger with deadline {'headline': '₹8,094.6 Cr exposure from US duties and export. Confidence: engine estimate. Regulatory checklist: 5 entries; BRSR, GRI:GRI:302, TCFD. Computed cascade: ₹8,094.6 Cr.",
       "recommendations": [],
       "visible_panels": [
         "personal_stakes",
@@ -895,7 +2630,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:54:14.846869+00:00",
+    "written_at": "2026-05-26T14:39:33.767347+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

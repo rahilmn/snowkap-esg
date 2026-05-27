@@ -56,25 +56,6 @@
         "settlements",
         "penalties"
       ]
-    },
-    {
-      "category": "Market & Uncertainty",
-      "probability": 1,
-      "exposure": 3,
-      "raw_score": 3,
-      "industry_weight": 1.4,
-      "adjusted_score": 4.2,
-      "level": "LOW",
-      "lead_indicators": [
-        "VIX",
-        "FX volatility",
-        "geopolitical tensions"
-      ],
-      "lag_indicators": [
-        "valuation compression",
-        "capital flight",
-        "downgrades"
-      ]
     }
   ],
   "temples_risks": [
@@ -114,25 +95,6 @@
         "policy changes",
         "license restrictions",
         "trade barriers"
-      ]
-    },
-    {
-      "category": "Economic",
-      "probability": 1,
-      "exposure": 3,
-      "raw_score": 3,
-      "industry_weight": 1.0,
-      "adjusted_score": 3.0,
-      "level": "LOW",
-      "lead_indicators": [
-        "commodity price trends",
-        "FX volatility",
-        "customer order pipeline"
-      ],
-      "lag_indicators": [
-        "revenue decline",
-        "margin erosion",
-        "write-downs"
       ]
     }
   ],
@@ -214,25 +176,25 @@
       ]
     },
     {
-      "category": "Market & Uncertainty",
+      "category": "Political",
       "probability": 1,
       "exposure": 3,
       "raw_score": 3,
-      "industry_weight": 1.4,
-      "adjusted_score": 4.2,
+      "industry_weight": 1.0,
+      "adjusted_score": 3.0,
       "level": "LOW",
       "lead_indicators": [
-        "VIX",
-        "FX volatility",
-        "geopolitical tensions"
+        "election cycles",
+        "policy white papers",
+        "diplomatic tensions"
       ],
       "lag_indicators": [
-        "valuation compression",
-        "capital flight",
-        "downgrades"
+        "policy changes",
+        "license restrictions",
+        "trade barriers"
       ]
     }
   ],
-  "aggregate_score": 0.138,
-  "ontology_queries": 14
+  "aggregate_score": 0.109,
+  "ontology_queries": 10
 }

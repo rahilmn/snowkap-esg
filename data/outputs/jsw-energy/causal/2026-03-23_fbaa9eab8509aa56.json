@@ -1,0 +1,79 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Mumbai",
+        "JSW Energy"
+      ],
+      "edges": [
+        "geographicProximity"
+      ],
+      "hops": 1,
+      "relationship_type": "geographicProximity",
+      "impact_score": 0.7,
+      "explanation": "Mumbai -> JSW Energy"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "BRSR",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "GRI",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Transparency & Disclosure",
+        "ESRS",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "SEBI Disclosure Violation",
+        "BRSR",
+        "Power/Energy",
+        "JSW Energy"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "SEBI Disclosure Violation -> BRSR -> Power/Energy -> JSW Energy"
+    }
+  ]
+}

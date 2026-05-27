@@ -1,0 +1,72 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Adani Power"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "Adani Power"
+    },
+    {
+      "nodes": [
+        "Adani Power HQ",
+        "Adani Power"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "Adani Power HQ -> Adani Power"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "Power/Energy",
+        "Adani Power"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Energy is material for Power/Energy → impacts Adani Power"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "BRSR",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers BRSR disclosure obligation for Adani Power"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "GRI",
+        "Adani Power"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers GRI disclosure obligation for Adani Power"
+    }
+  ]
+}

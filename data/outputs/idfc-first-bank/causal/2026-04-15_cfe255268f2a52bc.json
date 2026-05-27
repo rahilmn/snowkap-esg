@@ -1,0 +1,68 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "IDFC First Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "IDFC First Bank Chennai",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "IDFC First Bank Chennai -> IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "IDFC First Bank HQ",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "IDFC First Bank HQ -> IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "industrySpillover"
+      ],
+      "hops": 1,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.7,
+      "explanation": "YES Bank -> IDFC First Bank"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "Financials/Banking",
+        "IDFC First Bank"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Risk Management is material for Financials/Banking → impacts IDFC First Bank"
+    }
+  ]
+}

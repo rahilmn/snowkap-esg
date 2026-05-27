@@ -1,0 +1,713 @@
+{
+  "article": {
+    "id": "f57cbdb83c1280db",
+    "title": "Wipro Q4 profit dips 2%; unveils record ₹15,000 cr buyback - Communications Today",
+    "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQYkVsTVR6OXZVa2NmUnlkR2tPa1VUM0dKUFNmd0dCQU1XVXM5T2drMDBTb0dUZE12N3NWSGtGM2hpb29INXhKYnRhbUV0NUVQS3duZzhQbjFTZng0VmhMaWtBWDl2ZmpkM2RJRUF2Q01UeFhKbWRqbDFIWVJWNm9BNlJiMDhMcVFkNGFJbEp6MEpxVTNqeThRQnlkV1psbklEa091cQ?oc=5",
+    "source": "Communications Today",
+    "published_at": "2026-04-17T07:00:00+00:00",
+    "company_slug": "wipro-limited",
+    "image_url": ""
+  },
+  "pipeline": {
+    "article_id": "f57cbdb83c1280db",
+    "title": "Wipro Q4 profit dips 2%; unveils record ₹15,000 cr buyback - Communications Today",
+    "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxQYkVsTVR6OXZVa2NmUnlkR2tPa1VUM0dKUFNmd0dCQU1XVXM5T2drMDBTb0dUZE12N3NWSGtGM2hpb29INXhKYnRhbUV0NUVQS3duZzhQbjFTZng0VmhMaWtBWDl2ZmpkM2RJRUF2Q01UeFhKbWRqbDFIWVJWNm9BNlJiMDhMcVFkNGFJbEp6MEpxVTNqeThRQnlkV1psbklEa091cQ?oc=5",
+    "source": "Communications Today",
+    "published_at": "2026-04-17T07:00:00+00:00",
+    "company_slug": "wipro-limited",
+    "tier": "SECONDARY",
+    "rejected": false,
+    "rejection_reason": "",
+    "ontology_query_count": 39,
+    "elapsed_seconds": 17.0,
+    "stages_executed": [
+      "nlp_extraction",
+      "theme_tagging",
+      "event_classification",
+      "relevance_scoring",
+      "causal_chains",
+      "framework_matching",
+      "stakeholder_mapping",
+      "sdg_mapping",
+      "risk_assessment_lite",
+      "criticality_scoring"
+    ],
+    "nlp": {
+      "sentiment": -1,
+      "sentiment_confidence": 0.7,
+      "tone": [
+        "analytical",
+        "neutral"
+      ],
+      "narrative_core_claim": "Wipro's Q4 profit declined by 2% while announcing a record ₹15,000 crore buyback.",
+      "narrative_implied_causation": "Despite a slight profit dip, Wipro is initiating a large buyback to possibly boost shareholder value.",
+      "narrative_stakeholder_framing": "Wipro is the protagonist; shareholders are affected by the profit dip and buyback announcement.",
+      "entities": [
+        "Wipro",
+        "₹15,000 crore"
+      ],
+      "entity_types": {
+        "Wipro": "company",
+        "₹15,000 crore": "financial amount"
+      },
+      "financial_signal": {
+        "amount": 15000,
+        "unit": "crore",
+        "context": "record buyback amount announced by Wipro"
+      },
+      "regulatory_references": [],
+      "esg_pillar": "G",
+      "esg_topics": [
+        "corporate governance",
+        "shareholder returns"
+      ],
+      "content_type": "financial",
+      "urgency": "medium",
+      "time_horizon": "immediate",
+      "source_credibility_tier": 3,
+      "climate_events": []
+    },
+    "themes": {
+      "primary_theme": "Stakeholder Governance",
+      "primary_pillar": "G",
+      "primary_sub_metrics": [
+        "shareholder_rights",
+        "engagement_programs",
+        "voting_rights"
+      ],
+      "secondary_themes": [
+        {
+          "theme": "Board & Leadership",
+          "pillar": "G",
+          "sub_metrics": [
+            "board_independence",
+            "succession_planning"
+          ]
+        },
+        {
+          "theme": "Transparency & Disclosure",
+          "pillar": "G",
+          "sub_metrics": [
+            "esg_reporting",
+            "disclosure_completeness"
+          ]
+        }
+      ],
+      "confidence": 0.8,
+      "method": "llm"
+    },
+    "event": {
+      "event_id": "event_quarterly_results",
+      "label": "Quarterly / Annual Financial Results",
+      "score_floor": 3,
+      "score_ceiling": 6,
+      "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
+      "matched_keywords": [
+        "Q4",
+        "profit"
+      ],
+      "has_financial_quantum": true,
+      "financial_amount_cr": 15000.0
+    },
+    "relevance": {
+      "total": 4,
+      "tier": "SECONDARY",
+      "esg_correlation": 2,
+      "financial_impact": 2,
+      "compliance_risk": 0,
+      "supply_chain_impact": 0,
+      "people_impact": 0,
+      "materiality_weight": 0.5,
+      "adjusted_total": 3.4,
+      "rejection_reason": "",
+      "ontology_queries": 1
+    },
+    "causal_chains": [],
+    "frameworks": [
+      {
+        "framework_id": "BRSR",
+        "framework_label": "BRSR",
+        "relevance": 1.0,
+        "is_mandatory": true,
+        "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
+        "triggered_by_themes": [
+          "Stakeholder Governance",
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [
+          "BRSR FY26 Filing",
+          "BRSR Core FY26 Filing",
+          "SEBI Quarterly Corporate Governance Report"
+        ],
+        "triggered_sections": [
+          "BRSR:P4"
+        ]
+      },
+      {
+        "framework_id": "GRI",
+        "framework_label": "GRI",
+        "relevance": 0.7700000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
+        "triggered_by_themes": [
+          "Stakeholder Governance",
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
+        "relevance": 0.6700000000000002,
+        "is_mandatory": false,
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "triggered_by_themes": [
+          "Stakeholder Governance",
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "DJSI:Econ"
+        ]
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.6700000000000002,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Stakeholder Governance",
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "ESRS:G1"
+        ]
+      },
+      {
+        "framework_id": "EDELMAN",
+        "framework_label": "Edelman Trust Barometer",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Trust score correlates with customer retention, talent acquisition",
+        "triggered_by_themes": [
+          "Stakeholder Governance",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "SP_GLOBAL_ESG",
+        "framework_label": "S&P Global ESG",
+        "relevance": 0.39,
+        "is_mandatory": false,
+        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
+        "triggered_by_themes": [
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
+        "triggered_by_themes": [
+          "Board & Leadership"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Board & Leadership"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "COSO:Gov"
+        ]
+      },
+      {
+        "framework_id": "SFDR",
+        "framework_label": "SFDR",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Required for EU fund marketing — affects capital access",
+        "triggered_by_themes": [
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      }
+    ],
+    "risk": {
+      "esg_risks": [
+        {
+          "category": "Market & Uncertainty",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        }
+      ],
+      "temples_risks": [
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Social",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "enforcement priorities",
+            "litigation precedents"
+          ],
+          "lag_indicators": [
+            "fines",
+            "lawsuits",
+            "settlements"
+          ]
+        }
+      ],
+      "top_risks": [
+        {
+          "category": "Market & Uncertainty",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
+          ],
+          "lag_indicators": [
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Political",
+          "probability": 3,
+          "exposure": 4,
+          "raw_score": 12,
+          "industry_weight": 1.0,
+          "adjusted_score": 12.0,
+          "level": "HIGH",
+          "lead_indicators": [
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
+          ],
+          "lag_indicators": [
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
+          ]
+        },
+        {
+          "category": "Reputational Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "social media sentiment",
+            "NGO campaigns",
+            "whistleblower reports"
+          ],
+          "lag_indicators": [
+            "brand score decline",
+            "customer churn",
+            "boycotts"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 4,
+          "raw_score": 8,
+          "industry_weight": 1.0,
+          "adjusted_score": 8.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        }
+      ],
+      "aggregate_score": 0.256,
+      "ontology_queries": 14
+    },
+    "stakeholders": [
+      "Employees",
+      "Investors"
+    ],
+    "sdgs": [],
+    "article_content": "Wipro Q4 profit dips 2%; unveils record ₹15,000 cr buyback Communications Today",
+    "image_url": "",
+    "criticality": {
+      "score": 0.0,
+      "band": "LOW",
+      "components": {
+        "materiality": 0.4,
+        "financial_magnitude": 0.0,
+        "actionability": 0.8,
+        "painpoint_match": 0.0,
+        "recency": 0.0036,
+        "source_authority": 0.5,
+        "sentiment_trajectory": 0.5,
+        "staleness_penalty": 0.2,
+        "confidence_penalty": 0.0,
+        "polarity_drift_penalty": 0.2
+      },
+      "role_scores": {
+        "cfo": 0.0,
+        "ceo": 0.0,
+        "analyst": 0.0
+      }
+    }
+  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
+  "evidence_pack": {
+    "cascade": {
+      "total_cr": 0.0,
+      "margin_bps": null,
+      "dominant_lag_months": null,
+      "hops": [],
+      "source_flag": ""
+    },
+    "frameworks": [
+      {
+        "code": "BRSR:BRSR:P4",
+        "name": "BRSR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": true
+      },
+      {
+        "code": "GRI",
+        "name": "GRI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "DJSI:DJSI:Econ",
+        "name": "DJSI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ESRS:ESRS:G1",
+        "name": "ESRS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "EDELMAN",
+        "name": "EDELMAN",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SP_GLOBAL_ESG",
+        "name": "SP_GLOBAL_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "CFA_ESG",
+        "name": "CFA_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "COSO_ERM:COSO:Gov",
+        "name": "COSO_ERM",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SFDR",
+        "name": "SFDR",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      }
+    ],
+    "stakeholders": [],
+    "painpoint_matches": [],
+    "causal_chain": {
+      "hops": 0,
+      "relationship_type": "",
+      "explanation": "",
+      "impact_score": 0.0
+    },
+    "comparables": [],
+    "polarity": "neutral",
+    "confidence_bounds": {
+      "figure_lo_cr": null,
+      "figure_hi_cr": null,
+      "method": "",
+      "notes": ""
+    },
+    "decision_windows": []
+  },
+  "role_payloads": {
+    "cfo": {
+      "role": "cfo",
+      "headline": "P&L exposure: pending cascade",
+      "hero_metric": {
+        "value": "TBD",
+        "label": "P&L exposure",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "No quantified P&L exposure surfaced; monitor only."
+      ],
+      "role_paragraph": "No quantified P&L exposure surfaced; monitor only.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "impact_metrics",
+        "recommendations_list",
+        "audit_trail"
+      ],
+      "hidden_panels": [
+        "narrative_intelligence",
+        "sdg_map",
+        "causal_chain_viz"
+      ]
+    },
+    "ceo": {
+      "role": "ceo",
+      "headline": "Strategic positioning under review — FY27-29 positioning under review",
+      "hero_metric": {
+        "value": "Strategic positioning under review",
+        "label": "Strategic position",
+        "decision_window": "",
+        "horizon": "FY27-29",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "Strategic positioning under review reshapes the FY27-29 competitive frame.",
+        "Trajectory if act now: Set explicit FY27-29 stance to anchor stakeholder communication."
+      ],
+      "role_paragraph": "Strategic positioning under review is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "three_year_trajectory",
+        "stakeholder_map",
+        "board_paragraph",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "kpi_table",
+        "framework_alignment_v2",
+        "audit_trail"
+      ]
+    },
+    "esg-analyst": {
+      "role": "esg-analyst",
+      "headline": "BRSR:BRSR:P4 disclosure trigger [unverified]",
+      "hero_metric": {
+        "value": "BRSR:BRSR:P4",
+        "label": "Disclosure trigger",
+        "decision_window": "",
+        "horizon": "",
+        "deadline": ""
+      },
+      "role_takeaways": [
+        "BRSR:BRSR:P4: action required [unverified].",
+        "Checklist: 5 framework section(s) flagged."
+      ],
+      "role_paragraph": "BRSR:BRSR:P4 is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR:BRSR:P4, GRI, DJSI:DJSI:Econ.",
+      "recommendations": [],
+      "visible_panels": [
+        "personal_stakes",
+        "crisp_insight",
+        "kpi_table",
+        "framework_alignment_v2",
+        "causal_chain_viz",
+        "audit_trail",
+        "recommendations_list"
+      ],
+      "hidden_panels": [
+        "board_paragraph",
+        "three_year_trajectory"
+      ]
+    }
+  },
+  "meta": {
+    "written_at": "2026-05-26T14:52:28.116310+00:00",
+    "schema_version": "3.2-template-hardened"
+  }
+}

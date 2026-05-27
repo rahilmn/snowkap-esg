@@ -19,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 45,
-    "elapsed_seconds": 15.791,
+    "elapsed_seconds": 25.412,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -33,15 +33,16 @@
       "criticality_scoring"
     ],
     "nlp": {
-      "sentiment": 0,
+      "sentiment": 1,
       "sentiment_confidence": 0.8,
       "tone": [
         "analytical",
-        "neutral"
+        "neutral",
+        "optimistic"
       ],
-      "narrative_core_claim": "Waaree Energies' Hitesh Doshi downplays the impact of US solar imports' duty shock.",
-      "narrative_implied_causation": "Despite the US imposing duties on solar imports, Waaree Energies believes it will have zero impact on their business.",
-      "narrative_stakeholder_framing": "Waaree Energies (protagonist) assesses the effect of US trade policy on their operations (affected).",
+      "narrative_core_claim": "Waaree Energies' Hitesh Doshi downplays the impact of US solar import duties, suggesting minimal effect on the company.",
+      "narrative_implied_causation": "Despite US imposing duties on solar imports, Waaree Energies expects zero impact due to their strategic positioning or supply chain adjustments.",
+      "narrative_stakeholder_framing": "Protagonist is Waaree Energies and Hitesh Doshi; affected stakeholders include the solar industry and importers.",
       "entities": [
         "Waaree Energies",
         "Hitesh Doshi",
@@ -58,11 +59,11 @@
         "context": ""
       },
       "regulatory_references": [],
-      "esg_pillar": "mixed",
+      "esg_pillar": "E",
       "esg_topics": [
-        "supply chain",
-        "trade policy",
-        "renewable energy"
+        "solar imports",
+        "renewable energy",
+        "trade duties"
       ],
       "content_type": "narrative",
       "urgency": "low",
@@ -393,11 +394,11 @@
         {
           "category": "Regulatory Risk",
           "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "exposure": 2,
+          "raw_score": 4,
           "industry_weight": 1.3,
-          "adjusted_score": 7.8,
-          "level": "MODERATE",
+          "adjusted_score": 5.2,
+          "level": "LOW",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -412,10 +413,10 @@
         {
           "category": "Transition Risk",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 0.8,
-          "adjusted_score": 2.4,
+          "adjusted_score": 1.6,
           "level": "LOW",
           "lead_indicators": [
             "tech adoption curves",
@@ -431,10 +432,10 @@
         {
           "category": "Physical Risk",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.3,
-          "adjusted_score": 3.9,
+          "adjusted_score": 2.6,
           "level": "LOW",
           "lead_indicators": [
             "monsoon forecast",
@@ -450,10 +451,10 @@
         {
           "category": "Reputational Risk",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 3.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
@@ -471,11 +472,11 @@
         {
           "category": "Economic",
           "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "exposure": 2,
+          "raw_score": 4,
           "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
+          "adjusted_score": 4.0,
+          "level": "LOW",
           "lead_indicators": [
             "commodity price trends",
             "FX volatility",
@@ -490,10 +491,10 @@
         {
           "category": "Environmental",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 3.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "weather pattern shifts",
@@ -511,11 +512,11 @@
         {
           "category": "Regulatory Risk",
           "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "exposure": 2,
+          "raw_score": 4,
           "industry_weight": 1.3,
-          "adjusted_score": 7.8,
-          "level": "MODERATE",
+          "adjusted_score": 5.2,
+          "level": "LOW",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -530,11 +531,11 @@
         {
           "category": "Economic",
           "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
+          "exposure": 2,
+          "raw_score": 4,
           "industry_weight": 1.0,
-          "adjusted_score": 6.0,
-          "level": "MODERATE",
+          "adjusted_score": 4.0,
+          "level": "LOW",
           "lead_indicators": [
             "commodity price trends",
             "FX volatility",
@@ -549,10 +550,10 @@
         {
           "category": "Physical Risk",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.3,
-          "adjusted_score": 3.9,
+          "adjusted_score": 2.6,
           "level": "LOW",
           "lead_indicators": [
             "monsoon forecast",
@@ -568,10 +569,10 @@
         {
           "category": "Reputational Risk",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 3.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
@@ -587,10 +588,10 @@
         {
           "category": "Environmental",
           "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 3.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "weather pattern shifts",
@@ -604,7 +605,7 @@
           ]
         }
       ],
-      "aggregate_score": 0.104,
+      "aggregate_score": 0.07,
       "ontology_queries": 12
     },
     "stakeholders": [
@@ -624,7 +625,7 @@
         "financial_magnitude": 0.0,
         "actionability": 0.2,
         "painpoint_match": 0.0,
-        "recency": 0.01,
+        "recency": 0.0099,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.2,
@@ -872,7 +873,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:53:49.470817+00:00",
+    "written_at": "2026-05-26T14:37:21.697561+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

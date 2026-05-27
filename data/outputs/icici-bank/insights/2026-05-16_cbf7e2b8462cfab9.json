@@ -18,8 +18,8 @@
     "tier": "HOME",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 38,
-    "elapsed_seconds": 12.68,
+    "ontology_query_count": 40,
+    "elapsed_seconds": 18.158,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -40,22 +40,24 @@
         "neutral",
         "speculative"
       ],
-      "narrative_core_claim": "ICICI Bank sold 3.55% stake in Jaiprakash Power Ventures via open market sales, reducing its holding from 9.97% to 6.42%.",
-      "narrative_implied_causation": "ICICI Bank's divestment may reflect strategic portfolio adjustment or concerns about Jaiprakash Power Ventures' financial outlook, influencing market perceptions.",
-      "narrative_stakeholder_framing": "ICICI Bank is the protagonist executing the stake sale; Jaiprakash Power Ventures and its shareholders are affected by the change in institutional ownership.",
+      "narrative_core_claim": "ICICI Bank divested 3.55% stake in Jaiprakash Power Ventures via open market sales, reducing its holding from 9.97% to 6.42%.",
+      "narrative_implied_causation": "The divestment may reflect ICICI Bank's strategic decision or concerns about Jaiprakash Power Ventures' financial outlook, influencing market perception.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist executing the divestment; Jaiprakash Power Ventures and other shareholders are affected stakeholders.",
       "entities": [
         "ICICI Bank Limited",
         "Jaiprakash Power Ventures Ltd",
         "BSE Limited",
         "National Stock Exchange of India Limited",
-        "SEBI"
+        "SEBI",
+        "Mumbai"
       ],
       "entity_types": {
         "ICICI Bank Limited": "company",
         "Jaiprakash Power Ventures Ltd": "company",
         "BSE Limited": "regulator/stock exchange",
         "National Stock Exchange of India Limited": "regulator/stock exchange",
-        "SEBI": "regulator"
+        "SEBI": "regulator",
+        "Mumbai": "location"
       },
       "financial_signal": {
         "amount": 2435000000,
@@ -69,7 +71,7 @@
       "esg_topics": [
         "governance",
         "shareholder rights",
-        "market transparency"
+        "regulatory compliance"
       ],
       "content_type": "financial",
       "urgency": "low",
@@ -99,13 +101,15 @@
       "method": "llm"
     },
     "event": {
-      "event_id": "event_board_change",
-      "label": "Board / Senior Leadership Change",
-      "score_floor": 3,
-      "score_ceiling": 7,
-      "financial_transmission": "governance signal -> share price volatility",
+      "event_id": "event_shareholding_change",
+      "label": "Shareholding / Control Disclosure",
+      "score_floor": 4,
+      "score_ceiling": 8,
+      "financial_transmission": "control change -> investor sentiment + cost of capital + valuation re-rating",
       "matched_keywords": [
-        "[theme_fallback]"
+        "shareholding",
+        "encumbrance",
+        "substantial acquisition"
       ],
       "has_financial_quantum": false,
       "financial_amount_cr": null
@@ -294,12 +298,12 @@
         },
         {
           "category": "Regulatory Risk",
-          "probability": 2,
-          "exposure": 2,
-          "raw_score": 4,
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
           "industry_weight": 1.6,
-          "adjusted_score": 6.4,
-          "level": "MODERATE",
+          "adjusted_score": 14.4,
+          "level": "HIGH",
           "lead_indicators": [
             "draft regulations",
             "public consultations",
@@ -372,12 +376,12 @@
         },
         {
           "category": "Legal",
-          "probability": 2,
-          "exposure": 2,
-          "raw_score": 4,
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
           "industry_weight": 1.0,
-          "adjusted_score": 4.0,
-          "level": "LOW",
+          "adjusted_score": 9.0,
+          "level": "MODERATE",
           "lead_indicators": [
             "draft regulations",
             "enforcement priorities",
@@ -407,9 +411,47 @@
             "brand value decline",
             "customer boycotts"
           ]
+        },
+        {
+          "category": "Technological",
+          "probability": 2,
+          "exposure": 2,
+          "raw_score": 4,
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "penetration testing results",
+            "vulnerability disclosures",
+            "tech debt"
+          ],
+          "lag_indicators": [
+            "data breaches",
+            "system outages",
+            "customer data loss"
+          ]
         }
       ],
       "top_risks": [
+        {
+          "category": "Regulatory Risk",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.6,
+          "adjusted_score": 14.4,
+          "level": "HIGH",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
+          ]
+        },
         {
           "category": "Market & Uncertainty",
           "probability": 3,
@@ -449,65 +491,46 @@
           ]
         },
         {
-          "category": "Regulatory Risk",
-          "probability": 2,
-          "exposure": 2,
-          "raw_score": 4,
-          "industry_weight": 1.6,
-          "adjusted_score": 6.4,
+          "category": "Legal",
+          "probability": 3,
+          "exposure": 3,
+          "raw_score": 9,
+          "industry_weight": 1.0,
+          "adjusted_score": 9.0,
           "level": "MODERATE",
           "lead_indicators": [
             "draft regulations",
-            "public consultations",
-            "regulator speeches"
+            "enforcement priorities",
+            "litigation precedents"
           ],
           "lag_indicators": [
-            "enforcement actions",
             "fines",
-            "license conditions"
+            "lawsuits",
+            "settlements"
           ]
         },
         {
-          "category": "Reputational Risk",
+          "category": "Technological",
           "probability": 2,
           "exposure": 2,
           "raw_score": 4,
-          "industry_weight": 1.4,
-          "adjusted_score": 5.6,
-          "level": "LOW",
+          "industry_weight": 1.5,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
           "lead_indicators": [
-            "social media sentiment",
-            "NGO campaigns",
-            "whistleblower reports"
+            "penetration testing results",
+            "vulnerability disclosures",
+            "tech debt"
           ],
           "lag_indicators": [
-            "brand score decline",
-            "customer churn",
-            "boycotts"
-          ]
-        },
-        {
-          "category": "Transition Risk",
-          "probability": 2,
-          "exposure": 2,
-          "raw_score": 4,
-          "industry_weight": 1.3,
-          "adjusted_score": 5.2,
-          "level": "LOW",
-          "lead_indicators": [
-            "tech adoption curves",
-            "policy roadmaps",
-            "customer preference shifts"
-          ],
-          "lag_indicators": [
-            "stranded assets",
-            "demand destruction",
-            "market share loss"
+            "data breaches",
+            "system outages",
+            "customer data loss"
           ]
         }
       ],
-      "aggregate_score": 0.187,
-      "ontology_queries": 14
+      "aggregate_score": 0.263,
+      "ontology_queries": 16
     },
     "stakeholders": [
       "Employees",
@@ -517,14 +540,14 @@
     "article_content": "ICICI Bank Divests 3.55% Stake in Jaiprakash Power Ventures via Open Market Sales\nICICI Bank Limited disclosed the sale of 24,35,00,000 equity shares (3.55%) in Jaiprakash Power Ventures Ltd through multiple open market tranches, with the last transaction on May 15, 2026. Prior to the sale, ICICI Bank held 68,33,61,064 equity shares representing 9.97% of Jaiprakash Power Ventures' total equity share capital. Post-disposal, the bank's residual holding stands at 43,98,61,064 equity shares, amounting to 6.42% of the target company's issued and paid-up equity share capital. The disclosure was filed under Regulation 29(2) of the SEBI (Substantial Acquisition of Shares and Takeovers) Regulations, 2011, with ICICI Bank confirmed as a non-promoter entity.\n*this image is generated using AI for illustrative purposes only.\nICICI Bank Limited has notified BSE Limited of a substantial disposal of shares in jaiprakash power ventures Ltd, pursuant to Regulation 29(2) of the SEBI (Substantial Acquisition of Shares and Takeovers) Regulations, 2011. The bank sold an aggregate of 24,35,00,000 equity shares of face value of Rs. 10 each through multiple open market tranches, with the last transaction completed on May 15, 2026. The disclosure was filed with the stock exchange on May 16, 2026, and signed by the authorised signatory at ICICI Bank's Mumbai office.\nShareholding Before and After the Sale\nPrior to the disposal, ICICI Bank held a total of 68,33,61,064 equity shares in Jaiprakash Power Ventures, representing 9.97% of the company's total issued and paid-up equity share capital. The bank confirmed that it held no shares under encumbrance, no voting rights otherwise than by shares, and no warrants or convertible securities in the target company at that time. The following table summarises the key shareholding details before and after the transaction:\nDetails of the Disposal\nThe sale comprised 24,35,00,000 equity shares carrying voting rights, accounting for 3.55% of both the total and diluted share/voting capital of Jaiprakash Power Ventures. No voting rights were sold otherwise than by shares, and no warrants, convertible securities, or encumbered shares were involved in the transaction. The disposal was executed entirely through the open market.\nTarget Company Capital Structure\nThe equity share capital and total voting capital of Jaiprakash Power Ventures Ltd remained unchanged both before and after the sale. The company's total equity share capital stands at Rs. 68,53,45,88,270, comprising 6,85,34,58,827 equity shares of Rs. 10 each. This figure also represents the total diluted share/voting capital of the target company after the said sale.\nRegulatory Compliance\nThe disclosure was made in compliance with Regulation 29(2) of the SEBI (Substantial Acquisition of Shares and Takeovers) Regulations, 2011. ICICI Bank confirmed that it is not part of the promoter or promoter group of Jaiprakash Power Ventures Ltd. The shares of the target company are listed on BSE Limited and National Stock Exchange of India Limited. Following the completion of all tranches, ICICI Bank's residual holding in Jaiprakash Power Ventures stands at 43,98,61,064 equity shares, equivalent to 6.42% of the issued and paid-up equity share capital.\nHistorical Stock Returns for Jaiprakash Power Ventures\nWill ICICI Bank continue to divest its remaining 6.42% stake in Jaiprakash Power Ventures, and what timeline might the bank be targeting for a complete exit?\nHow might this significant stake reduction by a major institutional investor like ICICI Bank influence other institutional shareholders' confidence in Jaiprakash Power Ventures?\nCould ICICI Bank's divestment signal concerns about Jaiprakash Power Ventures' debt restructuring progress or future financial performance in the power sector?",
     "image_url": "",
     "criticality": {
-      "score": 0.2955,
+      "score": 0.2053,
       "band": "LOW",
       "components": {
         "materiality": 0.6,
         "financial_magnitude": 0.0,
-        "actionability": 0.8,
+        "actionability": 0.2,
         "painpoint_match": 0.0,
-        "recency": 0.2404,
+        "recency": 0.2368,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.0,
@@ -532,107 +555,103 @@
         "polarity_drift_penalty": 0.0
       },
       "role_scores": {
-        "cfo": 0.3055,
-        "ceo": 0.2976,
-        "analyst": 0.3555
+        "cfo": 0.1853,
+        "ceo": 0.2371,
+        "analyst": 0.2653
       }
     }
   },
   "insight": {
-    "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering ₹8,851.23 Cr governance signal (engine estimate)",
+    "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering governance disclosure and minor market sentiment shift",
     "impact_score": 6.0,
-    "core_mechanism": "ICICI Bank's open market sale of 24.35 Cr shares (3.55% stake) in Jaiprakash Power Ventures reduces its holding from 9.97% to 6.42%. This significant divestment, disclosed under SEBI SAST Regulation 29(2), signals a strategic portfolio adjustment and may influence investor sentiment regarding both ICICI Bank's governance approach and Jaiprakash Power Ventures' outlook.",
-    "profitability_connection": "The transaction transmits a governance signal that could affect ICICI Bank's ESG ratings, cost of capital, and passive fund flows. While the direct P&L impact is limited, the event's scale (₹8,000–9,800 Cr, from article) may drive short-term share price volatility and influence institutional investor engagement.",
-    "translation": "ICICI Bank sold a large portion of its shares in Jaiprakash Power Ventures, following all regulatory requirements. This move may affect how investors and ESG rating agencies view the bank's governance and transparency, but it does not directly impact ICICI Bank's core profitability.",
+    "core_mechanism": "ICICI Bank's reduction of its stake in Jaiprakash Power Ventures from 9.97% to 6.42% via open market sales triggers mandatory SEBI disclosure under Regulation 29(2). This event primarily affects stakeholder governance and transparency, with potential secondary impacts on investor sentiment and ESG ratings if not managed proactively.",
+    "profitability_connection": "The divestment itself is a portfolio rebalancing action with negligible direct P&L impact for ICICI Bank, but incomplete or delayed disclosure could expose the bank to SEBI penalties and minor cost of capital increases. Market perception of governance standards may influence institutional investor confidence and, by extension, valuation multiples.",
+    "translation": "ICICI Bank sold a portion of its shares in Jaiprakash Power Ventures and reported this as required by regulations. While the sale is routine, any lapse in disclosure could lead to regulatory fines and affect how investors view the bank's governance, but the direct financial impact is limited.",
     "impact_analysis": {
-      "esg_positioning": "The event highlights ICICI Bank's adherence to disclosure norms (BRSR, GRI), but a large stake sale in a single entity may prompt peer and index scrutiny, potentially affecting ESG ratings if not contextualized.",
-      "capital_allocation": "Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if perceived as a negative governance signal by ESG funds or index providers.",
-      "valuation_cashflow": "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission.",
-      "compliance_regulatory": "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent).",
-      "supply_chain_transmission": "No supply chain transmission, as the event is limited to financial asset disposal and does not affect operational suppliers.",
-      "people_demand": "Limited direct impact on talent or consumer demand; potential indirect effect on employee perception of governance culture."
+      "esg_positioning": "Minor negative gap if disclosure is incomplete, but no index exclusion expected; peer banks (YES Bank, IDFC First Bank) have similar governance disclosures.",
+      "capital_allocation": "Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine estimate).",
+      "valuation_cashflow": "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate).",
+      "compliance_regulatory": "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate).",
+      "supply_chain_transmission": "No supply chain transmission, as event is limited to financial asset management and disclosure.",
+      "people_demand": "No direct impact on talent, consumer, or community demand, as event is not operational or reputational in nature."
     },
     "financial_timeline": {
       "immediate": {
-        "headline": "₹8,851.23 Cr governance signal from stake sale (engine estimate)",
-        "profitability_pathway": "Stake sale → governance signal → potential ESG rating impact → cost of capital or fund flow shift → ₹8,851.23 Cr exposure (engine estimate)",
-        "margin_pressure": "500.0 bps",
-        "revenue_at_risk": "No direct revenue at risk; indirect risk if ESG fund outflows materialize (engine estimate)"
+        "headline": "₹10-50 Cr potential SEBI penalty exposure (engine estimate)",
+        "profitability_pathway": "Governance disclosure event → SEBI compliance review → possible penalty of ₹10-50 Cr (engine estimate)",
+        "margin_pressure": "2-0.5 bps (computed_override) (engine estimate, based on ₹10-50 Cr on ~₹50,000 Cr revenue)",
+        "revenue_at_risk": "No direct revenue at risk; only contingent penalty exposure (engine estimate)"
       },
       "structural": {
-        "valuation_rerating": "Potential 0.1x P/E compression if ESG index exclusion or negative fund flows occur (engine estimate)",
-        "competitive_position": "Comparable governance disclosures to YES Bank and IDFC First Bank; no immediate competitive loss, but peer ESG positioning may shift if narrative is not managed."
+        "valuation_rerating": "Potential 0.05x P/E compression if governance perception weakens (engine estimate)",
+        "competitive_position": "Neutral to minor negative vs YES Bank and IDFC First Bank, who have similar disclosure practices"
       },
       "long_term": {
-        "secular_trajectory": "Over 3-5 years, consistent transparent disclosures can reinforce trust and stabilize ESG ratings, mitigating long-term capital cost risk.",
-        "green_revenue_opportunity": "No direct green revenue opportunity identified, as the event is a financial divestment."
+        "secular_trajectory": "No material long-term impact unless repeated disclosure lapses occur; isolated event unlikely to affect 3-5 year outlook",
+        "green_revenue_opportunity": "No green revenue opportunity, as this is a governance disclosure event"
       }
     },
     "esg_relevance_score": {
       "environment": {
         "score": 0,
-        "rationale": "No environmental dimension; the event is a financial governance action."
+        "rationale": "No environmental dimension; event is purely governance/disclosure related."
       },
       "social": {
-        "score": 2,
-        "rationale": "Minimal social impact; only indirect effects on employee perception of governance."
+        "score": 1,
+        "rationale": "Minimal social impact; no workforce, community, or consumer dimension."
       },
       "governance": {
         "score": 8,
-        "rationale": "High governance relevance due to regulatory disclosure, board-level decision, and potential ESG rating impact."
+        "rationale": "High governance relevance due to regulatory disclosure and stakeholder transparency obligations."
       },
       "financial_materiality": {
-        "score": 6,
-        "rationale": "Material at the governance signal level (₹8,851.23 Cr (engine estimate) exposure, from article), but not a direct P&L event."
+        "score": 3,
+        "rationale": "Limited direct financial exposure; only contingent penalty risk (₹10-50 Cr engine estimate)."
       },
       "regulatory_exposure": {
-        "score": 5,
-        "rationale": "Moderate regulatory exposure; compliant with SEBI SAST, but ongoing scrutiny if disclosure lapses occur."
+        "score": 6,
+        "rationale": "Moderate regulatory exposure due to SEBI and BRSR compliance requirements."
       },
       "stakeholder_impact": {
-        "score": 6,
-        "rationale": "Moderate impact on institutional investor sentiment and potential index/fund rebalancing."
+        "score": 4,
+        "rationale": "Moderate impact on investor sentiment and institutional confidence; no direct effect on other stakeholders."
       }
     },
-    "net_impact_summary": "ICICI Bank's divestment of a 3.55% stake in Jaiprakash Power Ventures, valued at ₹8,000–9,800 Cr, is a significant governance event with moderate financial materiality. The transaction was fully compliant with SEBI SAST Regulation 29(2), triggering BRSR and GRI disclosure obligations. While there is no direct revenue or supply chain impact, the event may influence ESG ratings, cost of capital, and institutional investor sentiment if not proactively managed.",
+    "net_impact_summary": "ICICI Bank's divestment of a 3.55% stake in Jaiprakash Power Ventures is a routine portfolio action, but triggers mandatory SEBI and BRSR governance disclosures. The primary risk is a potential SEBI penalty of ₹10-50 Cr (engine estimate) if disclosure is found lacking, with a minor possible impact on cost of capital and P/E multiples. No supply chain or environmental transmission is present, and the event does not affect core banking operations or revenue streams.",
     "decision_summary": {
-      "materiality": "LOW",
+      "materiality": "MODERATE",
       "action": "MONITOR",
-      "verdict": "No immediate financial or compliance action required; monitor ESG rating and investor sentiment for secondary effects.",
-      "financial_exposure": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-      "key_risk": "Potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure)",
-      "top_opportunity": "Proactively communicate governance rationale to ESG rating agencies and investors to mitigate rating or fund flow risk",
-      "timeline": "within next quarterly review"
+      "verdict": "No immediate action required beyond ensuring full regulatory compliance; monitor for any SEBI queries or penalty notices.",
+      "financial_exposure": "₹10-50 Cr contingent SEBI penalty (engine estimate)",
+      "key_risk": "₹10-50 Cr SEBI disclosure penalty precedent (engine estimate)",
+      "top_opportunity": "Strengthen governance disclosure controls to pre-empt regulatory scrutiny; potential to reinforce ESG ratings.",
+      "timeline": "within 4-8 weeks (regulatory review cycle)"
     },
     "causal_chain": {
-      "event": "ICICI Bank sold 3.55% stake in Jaiprakash Power Ventures via open market transactions.",
-      "mechanism": "The sale, disclosed under SEBI SAST Regulation 29(2), signals a governance action that may affect ESG ratings and institutional investor sentiment.",
-      "company_impact": "Potential for modest P/E compression, cost of capital increase, or fund outflows if perceived negatively by ESG stakeholders; no direct revenue or operational impact.",
+      "event": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures and discloses under SEBI Regulation 29(2).",
+      "mechanism": "The sale triggers mandatory governance disclosures; any lapse could result in SEBI scrutiny and penalty, affecting investor sentiment and cost of capital.",
+      "company_impact": "Potential contingent penalty of ₹10-50 Cr (engine estimate) and minor P/E compression if governance perception is affected.",
       "transmission_type": "regulatory"
     },
     "warnings": [
-      "verifier: hallucination audit: downgraded 5 unsupported '(from article)' claim(s) to '(engine estimate)'",
-      "verifier: added 2 source tags on ₹ figures",
+      "verifier: margin math at financial_timeline.immediate: cited 10.0 bps, computed 0.5 bps (dev 1721.7%)",
       "verifier: engine-estimate grounding: every ₹ figure in this insight is an engine estimate (no article-grounded figures) — surfaced as 'all_estimate' warning + materiality badge",
-      "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹8851.2 Cr",
-      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
-      "verifier: low-confidence classification — review before sending (event matched only via theme fallback); materiality MODERATE → LOW",
-      "verifier: render-protocol: stripped 2 provenance tag(s) from narrative; sidecar staged for frontend tooltip"
+      "verifier: margin math auto-corrected (original 10.0 bps, computed 0.5 bps)"
     ],
     "event_polarity": "neutral",
     "toulmin": {
-      "claim": "No immediate financial or compliance action required; monitor ESG rating and investor sentiment for secondary effects.",
+      "claim": "No immediate action required beyond ensuring full regulatory compliance; monitor for any SEBI queries or penalty notices.",
       "grounds": [
-        "Financial exposure: ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-        "Key risk: Potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure)",
-        "Event classification: event_board_change",
+        "Financial exposure: ₹10-50 Cr contingent SEBI penalty (engine estimate)",
+        "Key risk: ₹10-50 Cr SEBI disclosure penalty precedent (engine estimate)",
+        "Event classification: event_shareholding_change",
         "Relevance score: 6.0/10",
         "Materiality weight (ontology): 0.8",
         "Frameworks triggered: BRSR, GRI, DJSI"
       ],
       "warrant": "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation.",
       "warrant_cite": "NP-FIN-002 (Snowkap CFO-credibility threshold (Phase 11 audit))",
-      "qualifier": "Low classification confidence; moderate relevance signal; no article-cited ₹ quantum (engine estimate)",
+      "qualifier": "Moderate relevance signal; no article-cited ₹ quantum (engine estimate)",
       "rebuttal": "If a company-specific transmission becomes evident — direct ₹ exposure, regulator notice naming the company, or peer action setting an enforcement precedent in the same jurisdiction, the verdict would shift to ACT."
     },
     "cfo_preflight": {
@@ -651,10 +670,20 @@
           "reason": "frameworks present (5) but no section codes (e.g. BRSR:P5, GRI:303); too coarse for CFO citation"
         }
       ],
-      "canonical_exposure_cr": 9800.0,
+      "canonical_exposure_cr": 50.0,
       "freshness_window_days": 14
     },
-    "stakes_for_company": {},
+    "stakes_for_company": {
+      "personal_stakes_paragraphs": {
+        "cfo": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
+        "ceo": "How does this shift YOUR competitive story? This event is a chance to reinforce ICICI Bank’s reputation for governance transparency, especially as investor scrutiny on board-level decisions intensifies. Proactive, visible compliance can differentiate you from peers in the eyes of institutional investors and the board over the next three years, while any perceived lapse could undermine confidence and weaken your narrative around responsible stewardship.",
+        "analyst": "This divestment directly impacts your governance and stakeholder disclosure sections. Specifically, ensure full compliance with SEBI Regulation 29(2) in your next reporting cycle. While no BRSR, GRI, or ESRS codes are cited in the current context, you should update all relevant governance disclosures and monitor for any new SEBI guidance or deadlines. Stay alert for any regulatory queries, as these may require rapid response and supplementary documentation in your upcoming filings."
+      },
+      "personal_stakes_paragraph": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
+      "revenue_pct_at_stake": 0.01,
+      "peer_action_summary": "No peer precedent yet.",
+      "do_nothing_risk_paragraph": "If ICICI Bank ignores this event, it risks a ₹10-50 Cr SEBI penalty for incomplete or delayed disclosure, as well as potential negative shifts in market sentiment. Regulatory action could trigger further scrutiny, and any perceived governance lapse may lead to questions from lenders and institutional investors, potentially impacting access to capital and future ESG ratings."
+    },
     "role_panel_order": {
       "cfo": {
         "order": [
@@ -713,14 +742,14 @@
       }
     },
     "criticality": {
-      "score": 0.4748,
-      "band": "MEDIUM",
+      "score": 0.2697,
+      "band": "LOW",
       "components": {
         "materiality": 0.6,
-        "financial_magnitude": 0.3839,
-        "actionability": 0.8,
+        "financial_magnitude": 0.0012,
+        "actionability": 0.2,
         "painpoint_match": 0.3204,
-        "recency": 0.2404,
+        "recency": 0.2368,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.0,
@@ -728,77 +757,161 @@
         "polarity_drift_penalty": 0.0
       },
       "role_scores": {
-        "cfo": 0.4911,
-        "ceo": 0.4544,
-        "analyst": 0.4932
+        "cfo": 0.2178,
+        "ceo": 0.3174,
+        "analyst": 0.3455
       }
     },
     "sentiment_trajectory": {
       "company_slug": "icici-bank",
-      "polarity_series": [],
+      "polarity_series": [
+        {
+          "month": "2026-04",
+          "polarity_mean": 0.0,
+          "count": 3
+        },
+        {
+          "month": "2026-05",
+          "polarity_mean": 0.0,
+          "count": 4
+        }
+      ],
       "horizons": {
         "3m": {
           "direction": "stable",
-          "confidence": "moderate",
-          "rationale": "deterministic linear-trend fallback"
+          "confidence": "low",
+          "rationale": "Recent polarity is neutral with minimal data, showing no clear trend."
         },
         "6m": {
           "direction": "stable",
           "confidence": "low",
-          "rationale": "deterministic linear-trend fallback"
+          "rationale": "Limited data and neutral polarity suggest no significant change expected."
         },
         "12m": {
           "direction": "stable",
           "confidence": "low",
-          "rationale": "horizon too distant for deterministic projection"
+          "rationale": "Insufficient historical polarity variation to predict directional change."
         }
       },
-      "trajectory": [],
-      "llm_used": false
+      "trajectory": [
+        {
+          "month": "2026-06",
+          "central": 0.0,
+          "lo": -0.09,
+          "hi": 0.09
+        },
+        {
+          "month": "2026-07",
+          "central": 0.0,
+          "lo": -0.13,
+          "hi": 0.13
+        },
+        {
+          "month": "2026-08",
+          "central": 0.0,
+          "lo": -0.16999999999999998,
+          "hi": 0.16999999999999998
+        },
+        {
+          "month": "2026-09",
+          "central": 0.0,
+          "lo": -0.21000000000000002,
+          "hi": 0.21000000000000002
+        },
+        {
+          "month": "2026-10",
+          "central": 0.0,
+          "lo": -0.25,
+          "hi": 0.25
+        },
+        {
+          "month": "2026-11",
+          "central": 0.0,
+          "lo": -0.29,
+          "hi": 0.29
+        },
+        {
+          "month": "2026-12",
+          "central": 0.0,
+          "lo": -0.33,
+          "hi": 0.33
+        },
+        {
+          "month": "2027-01",
+          "central": 0.0,
+          "lo": -0.37,
+          "hi": 0.37
+        },
+        {
+          "month": "2027-02",
+          "central": 0.0,
+          "lo": -0.41,
+          "hi": 0.41
+        },
+        {
+          "month": "2027-03",
+          "central": 0.0,
+          "lo": -0.45,
+          "hi": 0.45
+        },
+        {
+          "month": "2027-04",
+          "central": 0.0,
+          "lo": -0.49,
+          "hi": 0.49
+        },
+        {
+          "month": "2027-05",
+          "central": 0.0,
+          "lo": -0.53,
+          "hi": 0.53
+        }
+      ],
+      "llm_used": true
     },
     "role_explainer": {
       "cfo": {
-        "why_important_for_me": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
-        "how_it_impacts_business": "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission. Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if ",
+        "why_important_for_me": "₹10-50 Cr contingent SEBI penalty (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
+        "how_it_impacts_business": "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate). Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine e",
         "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
-        "simple_logic": "Flagged for you because financial_magnitude=0.38 and the CFO role weights financial 40%. Your role-specific score: 0.49."
+        "simple_logic": "Flagged for you because financial_magnitude=0.00 and the CFO role weights financial 40%. Your role-specific score: 0.22."
       },
       "ceo": {
         "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
-        "how_it_impacts_business": "The event highlights ICICI Bank's adherence to disclosure norms (BRSR, GRI), but a large stake sale in a single entity may prompt peer and index scrutiny, potentially affecting ESG ratings if not contextualized. Limited direct impact on talent or consumer demand; potential indire",
+        "how_it_impacts_business": "Minor negative gap if disclosure is incomplete, but no index exclusion expected; peer banks (YES Bank, IDFC First Bank) have similar governance disclosures. No direct impact on talent, consumer, or community demand, as event is not operational or reputational in nature.",
         "analysis_result": "Track competitive movement; revisit at the next strategy review.",
-        "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.45."
+        "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.32."
       },
       "esg-analyst": {
         "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
-        "how_it_impacts_business": "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent). No supply chain transmission, as the event is limited to financial asset disposal and does not affect operational s",
+        "how_it_impacts_business": "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate). No supply chain transmission, as event is limited to financial asset management and disclosure.",
         "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
         "simple_logic": ""
       }
     },
-    "criticality_summary": "Worth reviewing — ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified.",
+    "criticality_summary": "Low priority — ₹10-50 Cr contingent SEBI penalty (engine estimate).",
     "headline_only": false,
     "body_char_count": 0,
     "analysis": {
       "what_changed": {
-        "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering ₹8,851.23 Cr governance signal (engine estimate)",
-        "event_type": "event_board_change",
+        "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering governance disclosure and minor market sentiment shift",
+        "event_type": "event_shareholding_change",
         "polarity": "neutral",
         "source": "scanx.trade",
         "published_at": "2026-05-16T12:15:27+00:00",
         "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQNVRNaEZNZ3NYMTB2ekxkSXJ0dXRfaUcyMGlRaHE0aGU1UmtlZDMxdjhra2tGMnJtTlM3VjNFSnJaWjUyWHdHcUU1VWFrNzRXSk1xUkoxQWxJYWRDam5ZOElSbWRrWi1qcVFhTWQyNXkwWVEwWHFvRlJPY3Q2bDdkQWlFRUw4cDBfQVhqVjhJWjBUYmk0Z0VwM3NoTEVOMlBvR0VDYmNlRExYZVMyaEZNZG9HbEZ2NTV6QURpT0tZLWxqdy1Mb2dfYzJRR0o2TE40N19F?oc=5"
       },
       "why_it_matters": {
-        "materiality_band": "MEDIUM",
+        "materiality_band": "LOW",
         "materiality_weight": 0.8,
-        "dominant_signal": "actionability",
-        "criticality_summary": "Worth reviewing — ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified.",
-        "stakes_for_company": "Worth tracking for your watchlist — no immediate action required, but the underlying topic is material to your industry.",
+        "dominant_signal": "materiality",
+        "criticality_summary": "Low priority — ₹10-50 Cr contingent SEBI penalty (engine estimate).",
+        "stakes_for_company": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
         "financial_exposure": {
-          "amount_cr": 8851.23,
+          "amount_cr": 50.0,
           "kind": "exposure",
           "source": "engine_estimate",
-          "label": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified"
+          "label": "₹10-50 Cr contingent SEBI penalty (engine estimate)"
         },
         "warning": "sasb_unmapped"
       },
@@ -822,36 +935,36 @@
         ],
         "recommended_actions": [
           {
-            "title": "Monitor SEBI Disclosure Compliance Quarterly",
-            "deadline": "2026-07-15",
-            "owner": "Compliance Officer",
-            "budget": "₹0.1-0.2 Cr",
+            "title": "Audit BRSR P6 Governance Disclosure",
+            "deadline": "2027-05-15",
+            "owner": "Head of ESG Reporting",
+            "budget": "₹0.5-1 Cr",
             "framework_section": "BRSR:P6",
             "type": "compliance",
-            "payback_months": 3.0,
-            "roi_pct": 500.0,
-            "estimated_impact": "High"
+            "payback_months": 12.0,
+            "roi_pct": 100.0,
+            "estimated_impact": "Medium"
           },
           {
-            "title": "Initiate Investor Briefing on Divestment Rationale",
-            "deadline": "2027-05-15",
-            "owner": "Head of Investor Relations",
-            "budget": "₹0.2-0.4 Cr",
-            "framework_section": "BRSR:P6",
-            "type": "esg_positioning",
-            "payback_months": 6.0,
-            "roi_pct": 200.0,
-            "estimated_impact": "High"
-          },
-          {
-            "title": "Conduct Governance Committee Independence Review",
-            "deadline": "2026-05-30",
-            "owner": "Chief Governance Officer",
+            "title": "Develop Investor FAQ on Stake Divestment",
+            "deadline": "2027-04-30",
+            "owner": "Investor Relations Head",
             "budget": "₹0.5-1 Cr",
             "framework_section": "BRSR:P6:Q14",
-            "type": "governance",
+            "type": "esg_positioning",
+            "payback_months": 6.0,
+            "roi_pct": 120.0,
+            "estimated_impact": "Medium"
+          },
+          {
+            "title": "Implement KPI Dashboard for Governance Metrics",
+            "deadline": "2026-06-15",
+            "owner": "Chief Compliance Officer",
+            "budget": "₹1-2 Cr",
+            "framework_section": "BRSR:P6",
+            "type": "operational",
             "payback_months": 12.0,
-            "roi_pct": 300.0,
+            "roi_pct": 150.0,
             "estimated_impact": "Medium"
           }
         ]
@@ -909,7 +1022,7 @@
         "why_it_matters": {
           "metric": "why_it_matters",
           "source": "Snowkap criticality scorer + SASB industry-materiality overlay",
-          "simple_logic": "We rated this medium priority — there is a concrete deadline you can act on (composite score 0.47 out of 1.00). No specific ₹ exposure was quoted in the article — this figure is an engine estimate (not quoted in the article body) based on the company’s P&L profile. Industry materiality weights come from this company's SASB sector mapping.",
+          "simple_logic": "We rated this low priority — the topic is highly material to this industry (composite score 0.27 out of 1.00). No specific ₹ exposure was quoted in the article — this figure is an engine estimate (not quoted in the article body) based on the company’s P&L profile. Industry materiality weights come from this company's SASB sector mapping.",
           "formula_human": "Priority is a weighted blend of seven signals (materiality, financial magnitude, actionability, painpoint match, recency, source authority, sentiment trajectory). The dominant signal is the largest individual component.",
           "ontology_anchors": [
             "SASB sector mapping",
@@ -917,10 +1030,10 @@
             "company painpoint overlay"
           ],
           "your_inputs": {
-            "band": "MEDIUM",
-            "score": 0.475,
-            "dominant_signal": "actionability",
-            "dominant_value": 0.8,
+            "band": "LOW",
+            "score": 0.27,
+            "dominant_signal": "materiality",
+            "dominant_value": 0.6,
             "exposure_label": "",
             "exposure_source": "engine_estimate"
           }
@@ -945,7 +1058,7 @@
         "what_to_watch": {
           "metric": "what_to_watch",
           "source": "Snowkap sentiment forecaster + TEMPLES risk model + external-benchmark loader",
-          "simple_logic": "Looking ahead, sentiment is expected to be stable at 3 months, stable at 6 months, and stable at 12 months (confidence: moderate). The trajectory is derived deterministically from the rolling polarity series for this company. Top risk categories to track: none flagged on this story. 0 external benchmark(s) (MSCI / SBTI / CRISIL / Sustainalytics) are currently loaded for context.",
+          "simple_logic": "Looking ahead, sentiment is expected to be stable at 3 months, stable at 6 months, and stable at 12 months (confidence: low). The forecast blends Snowkap’s rolling polarity series for this company with a short LLM polish step. Top risk categories to track: none flagged on this story. 0 external benchmark(s) (MSCI / SBTI / CRISIL / Sustainalytics) are currently loaded for context.",
           "formula_human": "Sentiment trajectory is a forecast of the rolling polarity series at three horizons (3 / 6 / 12 months). Risks are the top three TEMPLES categories scored by probability × exposure × industry weight. Benchmarks are the most-recent values loaded into the company benchmark store.",
           "ontology_anchors": [
             "TEMPLES risk taxonomy",
@@ -956,10 +1069,10 @@
             "horizon_3m": "stable",
             "horizon_6m": "stable",
             "horizon_12m": "stable",
-            "confidence": "moderate",
+            "confidence": "low",
             "top_risk_categories": [],
             "benchmark_count": 0,
-            "llm_used": false
+            "llm_used": true
           }
         }
       },
@@ -970,106 +1083,106 @@
   "recommendations": {
     "recommendations": [
       {
-        "title": "Monitor SEBI Disclosure Compliance Quarterly",
-        "description": "Implement a quarterly monitoring system for SEBI disclosure compliance with escalation triggers if lapses exceed 1% of total disclosures within 3 months, to avoid penalties. Reporting to be integrated into SEBI Quarterly Corporate Governance Reports due 2026-07-15. Estimated budget ₹0.1-0.2 Cr annually.",
+        "title": "Audit BRSR P6 Governance Disclosure by 2026-05-15",
+        "description": "Conduct a thorough audit of the BRSR P6 governance disclosures related to the stake divestment to ensure completeness and accuracy ahead of the FY26 filing deadline.",
         "type": "compliance",
-        "responsible_party": "Compliance Officer",
-        "framework_section": "BRSR:P6",
-        "deadline": "2026-07-15",
-        "estimated_budget": "₹0.1-0.2 Cr",
-        "profitability_link": "Avoid ₹10-50 Cr in SEBI penalties by early detection and remediation, ROI estimated at 500%",
-        "priority": "CRITICAL",
-        "urgency": "immediate",
-        "estimated_impact": "High",
-        "risk_of_inaction": 10,
-        "roi_percentage": 500.0,
-        "payback_months": 3.0,
-        "peer_benchmark": "Peers have established quarterly SEBI compliance monitoring to prevent penalties",
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "article",
-            "ref": "₹8851 Cr canonical exposure",
-            "value": "SEBI disclosure lapses risk ₹10-50 Cr penalties"
-          }
-        ]
-      },
-      {
-        "title": "Initiate Investor Briefing on Divestment Rationale",
-        "description": "Organize a detailed investor briefing by 2026-05-15 to communicate the governance rationale behind the 3.55% stake divestment in Jaiprakash Power Ventures, leveraging the event to reinforce stewardship narrative and mitigate ESG rating risks. Budget ₹0.2-0.4 Cr for investor relations and communication materials.",
-        "type": "esg_positioning",
-        "responsible_party": "Head of Investor Relations",
+        "responsible_party": "Head of ESG Reporting",
         "framework_section": "BRSR:P6",
         "deadline": "2027-05-15",
-        "estimated_budget": "₹0.2-0.4 Cr",
-        "profitability_link": "Mitigate potential fund outflows and valuation discount, preserving up to ₹177 Cr valuation premium (2% of ₹8851 Cr) with an ROI of 200%",
-        "priority": "CRITICAL",
-        "urgency": "short_term",
-        "estimated_impact": "High",
-        "risk_of_inaction": 9,
-        "roi_percentage": 200.0,
-        "payback_months": 6.0,
-        "peer_benchmark": "Competitor banks conducted proactive investor briefings post-divestments to maintain ESG ratings",
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "article",
-            "ref": "₹8851 Cr canonical exposure",
-            "value": "Divestment triggered ₹8851 Cr governance signal requiring communication"
-          }
-        ]
-      },
-      {
-        "title": "Conduct Governance Committee Independence Review",
-        "description": "Perform a detailed review of the governance committee composition and independence to ensure alignment with BRSR requirements and mitigate potential SEBI scrutiny risks by 2026-05-30. Allocate ₹0.5-1 Cr for external governance consultancy and legal advisory.",
-        "type": "governance",
-        "responsible_party": "Chief Governance Officer",
-        "framework_section": "BRSR:P6:Q14",
-        "deadline": "2026-05-30",
         "estimated_budget": "₹0.5-1 Cr",
-        "profitability_link": "Avoid ₹10-50 Cr SEBI penalties by ensuring compliance and reducing governance risk with an estimated ROI of 400%",
+        "profitability_link": "₹0.5 Cr documentation-discipline cost-avoidance over 3 years (scenario)",
         "priority": "HIGH",
         "urgency": "short_term",
         "estimated_impact": "Medium",
-        "risk_of_inaction": 6,
-        "roi_percentage": 300.0,
+        "risk_of_inaction": 8,
+        "roi_percentage": 100.0,
         "payback_months": 12.0,
-        "peer_benchmark": "Peer banks enhanced governance committee independence ahead of BRSR FY26 filings",
-        "roi_capped": true,
-        "roi_cap_reason": "Capped at 300% (governance ceiling). Raw estimate was 400%; cap prevents over-claim.",
-        "audit_trail": [
-          {
-            "source": "article",
-            "ref": "₹8851 Cr canonical exposure",
-            "value": "Potential ₹10-50 Cr SEBI penalty risk from governance lapses"
-          }
-        ]
-      },
-      {
-        "title": "Develop Stakeholder Communication Plan for ESG Impact",
-        "description": "Create and deploy a stakeholder communication plan targeting media and employees by 2026-06-30 to explain the divestment's governance implications and enhance trust scores per Edelman Trust Barometer insights. Estimated budget ₹0.3-0.6 Cr.",
-        "type": "esg_positioning",
-        "responsible_party": "Chief Communications Officer",
-        "framework_section": "BRSR:P6",
-        "deadline": "2026-06-30",
-        "estimated_budget": "₹0.3-0.6 Cr",
-        "profitability_link": "Improved trust can increase customer retention and talent acquisition, potentially preserving ₹50-100 Cr in revenue impact, ROI estimated at 150%",
-        "priority": "MEDIUM",
-        "urgency": "medium_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 5,
-        "roi_percentage": 150.0,
-        "payback_months": 12.0,
-        "peer_benchmark": "Leading banks utilize stakeholder communication to sustain ESG ratings post governance events",
+        "peer_benchmark": "HDFC Bank FY25 BRSR governance disclosure audit",
         "roi_capped": false,
         "roi_cap_reason": "",
         "audit_trail": [
           {
-            "source": "article",
-            "ref": "Edelman Trust Barometer",
-            "value": "Trust score correlates with customer retention and talent acquisition"
+            "source": "primitive",
+            "ref": "BRSR:P6",
+            "value": "BRSR FY26 Filing deadline 2026-05-30 requires accurate governance disclosures"
+          }
+        ]
+      },
+      {
+        "title": "Develop Investor FAQ on Stake Divestment by 2026-04-30",
+        "description": "Prepare and disseminate a detailed FAQ document for investors explaining the rationale and governance aspects of the 3.55% stake divestment to maintain stakeholder confidence.",
+        "type": "esg_positioning",
+        "responsible_party": "Investor Relations Head",
+        "framework_section": "BRSR:P6:Q14",
+        "deadline": "2027-04-30",
+        "estimated_budget": "₹0.5-1 Cr",
+        "profitability_link": "₹1 Cr investor-comms budget to support stable market sentiment (scenario)",
+        "priority": "HIGH",
+        "urgency": "short_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 7,
+        "roi_percentage": 120.0,
+        "payback_months": 6.0,
+        "peer_benchmark": "Kotak Mahindra Bank investor communication post stake sale",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "BRSR:P6:Q14",
+            "value": "Governance disclosures impact investor confidence and market sentiment"
+          }
+        ]
+      },
+      {
+        "title": "Implement KPI Dashboard for Governance Metrics by 2026-06-15",
+        "description": "Set up a real-time dashboard to monitor governance-related KPIs, including disclosure timeliness and regulatory queries, to proactively manage compliance risks.",
+        "type": "operational",
+        "responsible_party": "Chief Compliance Officer",
+        "framework_section": "BRSR:P6",
+        "deadline": "2026-06-15",
+        "estimated_budget": "₹1-2 Cr",
+        "profitability_link": "₹2 Cr cost-avoidance from early detection of disclosure gaps (scenario)",
+        "priority": "MEDIUM",
+        "urgency": "medium_term",
+        "estimated_impact": "Medium",
+        "risk_of_inaction": 4,
+        "roi_percentage": 150.0,
+        "payback_months": 12.0,
+        "peer_benchmark": "Axis Bank governance KPI dashboard implementation",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "BRSR:P6",
+            "value": "BRSR emphasizes governance KPI tracking for compliance"
+          }
+        ]
+      },
+      {
+        "title": "Maintain Regulator Correspondence Log by 2026-07-15",
+        "description": "Establish and maintain a detailed log of all correspondence with SEBI and other regulators regarding the stake divestment to ensure audit readiness and transparency.",
+        "type": "compliance",
+        "responsible_party": "Legal & Compliance Team",
+        "framework_section": "BRSR:P6",
+        "deadline": "2026-07-15",
+        "estimated_budget": "₹0.1-0.3 Cr",
+        "profitability_link": "₹0.3 Cr documentation discipline cost-avoidance over 3 years (scenario)",
+        "priority": "LOW",
+        "urgency": "medium_term",
+        "estimated_impact": "Low",
+        "risk_of_inaction": 4,
+        "roi_percentage": 80.0,
+        "payback_months": 18.0,
+        "peer_benchmark": "ICICI Prudential SEBI correspondence log practice",
+        "roi_capped": false,
+        "roi_cap_reason": "",
+        "audit_trail": [
+          {
+            "source": "primitive",
+            "ref": "BRSR:P6",
+            "value": "Regulator correspondence documentation supports compliance audit"
           }
         ]
       }
@@ -1079,254 +1192,229 @@
     "generator_count": 4,
     "validated_count": 4,
     "priority_matrix": {
-      "immediate_high": [
+      "immediate_high": [],
+      "immediate_low": [
         {
           "index": 0,
-          "title": "Monitor SEBI Disclosure Compliance Quarterly",
+          "title": "Audit BRSR P6 Governance Disclosure by 2026-05-15",
           "type": "compliance",
-          "roi": 500.0,
-          "budget": "₹0.1-0.2 Cr"
+          "roi": 100.0,
+          "budget": "₹0.5-1 Cr"
         },
         {
           "index": 1,
-          "title": "Initiate Investor Briefing on Divestment Rationale",
+          "title": "Develop Investor FAQ on Stake Divestment by 2026-04-30",
           "type": "esg_positioning",
-          "roi": 200.0,
-          "budget": "₹0.2-0.4 Cr"
-        }
-      ],
-      "immediate_low": [
-        {
-          "index": 2,
-          "title": "Conduct Governance Committee Independence Review",
-          "type": "governance",
-          "roi": 300.0,
+          "roi": 120.0,
           "budget": "₹0.5-1 Cr"
         }
       ],
       "deferred_high": [],
       "deferred_low": [
         {
-          "index": 3,
-          "title": "Develop Stakeholder Communication Plan for ESG Impact",
-          "type": "esg_positioning",
+          "index": 2,
+          "title": "Implement KPI Dashboard for Governance Metrics by 2026-06-15",
+          "type": "operational",
           "roi": 150.0,
-          "budget": "₹0.3-0.6 Cr"
+          "budget": "₹1-2 Cr"
+        },
+        {
+          "index": 3,
+          "title": "Maintain Regulator Correspondence Log by 2026-07-15",
+          "type": "compliance",
+          "roi": 80.0,
+          "budget": "₹0.1-0.3 Cr"
         }
       ]
     },
     "recommendation_rankings": {
       "cfo": [
+        2,
         0,
-        2
+        3
       ],
       "ceo": [
-        2,
-        3,
-        1
+        1,
+        2
       ],
       "esg-analyst": [
         0,
+        3,
         1,
-        2,
-        3
+        2
       ]
     }
   },
   "perspectives": {
     "esg-analyst": {
-      "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering ₹9,800 Cr governance signal (engine estimate).",
+      "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering governance disclosure and minor market sentiment shift.",
       "generated_by": "esg_analyst_generator_v1",
       "kpi_table": [
         {
           "kpi_name": "Scope 3 GHG Emissions (financed)",
-          "company_value": "45 Mt CO2e (financed)",
+          "company_value": "45 Mt CO2e",
           "unit": "Mt CO2e",
-          "peer_quartile": "P75 (above peer median 32 Mt, p75 58 Mt)",
+          "peer_quartile": "P75 (above peer median 32 Mt)",
           "peer_examples": "HDFC Bank 28, ICICI Bank 45, SBI 120",
           "data_source": "CDP 2024 + BRSR FY24",
-          "significance": "This KPI is material because financed emissions represent the bank's indirect climate impact through its lending and investment portfolio, a key focus for regulators and investors."
+          "significance": "This KPI is material because financed emissions represent the largest climate risk exposure for banks, directly impacting regulatory scrutiny and investor expectations."
         }
       ],
       "confidence_bounds": [
         {
-          "figure": "₹9,800 Cr (engine estimate) governance signal",
-          "source_type": "engine estimate",
-          "beta_range": "canonical event, not cascade",
-          "lag": "immediate",
-          "functional_form": "step",
-          "confidence": "high",
-          "rationale": "Phase-14 anti-drift constraint; canonical exposure specified in scenario."
-        },
-        {
-          "figure": "₹10-50 Cr SEBI disclosure penalty (future risk)",
-          "source_type": "engine estimate",
-          "beta_range": "0.01-0.05",
-          "lag": "1-4 quarters (if triggered)",
-          "functional_form": "step",
-          "confidence": "low",
-          "rationale": "Primitive cascade for regulatory penalty risk; not observed in this event but plausible for future lapses."
+          "figure": "₹50.0 Cr (engine estimate) potential SEBI penalty",
+          "source_type": "engine_estimate",
+          "beta_range": "0.20-0.40",
+          "lag": "1-3 quarters",
+          "functional_form": "linear",
+          "confidence": "medium",
+          "rationale": "Based on SEBI disclosure penalty precedents for large-cap banks and mandatory reporting thresholds."
         }
       ],
       "double_materiality": {
-        "financial_impact": "The divestment signals a strategic governance shift, potentially affecting investor perceptions, cost of capital, and portfolio risk appetite, but does not directly impact P&L. Margin impact is estimated at 10.0 bps, with total exposure of ₹662.2 Cr (engine estimate) from regulatory and reputational cascades.",
-        "impact_on_world": "ICICI Bank's portfolio adjustment may indirectly influence capital allocation to high-emission sectors, affecting progress on SDG 13.2 (climate action integration) and SDG 8.10 (universal access to banking), by shifting exposure away from carbon-intensive assets."
+        "financial_impact": "A ₹50 Cr penalty exposure (engine estimate) would have a marginal impact on ICICI Bank's FY25 earnings and WACC, but could increase cost of capital if governance disclosure lapses persist or trigger further regulatory scrutiny.",
+        "impact_on_world": "The divestment and associated disclosure reinforce market transparency and governance standards, supporting SDG 16.6 (effective, accountable institutions) by promoting responsible ownership and stakeholder trust."
       },
       "tcfd_scenarios": {
-        "1_5c": "In a 1.5°C pathway, regulatory and investor scrutiny on financed emissions intensifies, making such divestments a positive governance signal and potentially reducing transition risk exposure. Portfolio repositioning toward green assets is accelerated by RBI and PCAF mandates.",
-        "2c": "Under a 2°C scenario, the divestment aligns with gradual portfolio decarbonization. Regulatory pressure is moderate, and the governance signal supports steady capital buildup and risk-adjusted lending practices.",
-        "4c": "In a 4°C world, the governance signal from divestment is less impactful as transition risk is deprioritized, but physical climate risks and litigation exposure rise, increasing the importance of prudent portfolio management to mitigate NPA spikes."
+        "1_5c": "In a 1.5°C pathway, mandatory climate and governance disclosures intensify, increasing compliance costs but reducing long-term regulatory risk; divestments in high-emission sectors become more frequent.",
+        "2c": "Under a 2°C scenario, gradual tightening of disclosure norms and moderate fossil-fuel exposure reductions maintain steady compliance costs, with limited immediate financial impact from such divestments.",
+        "4c": "In a 4°C world, governance and disclosure lapses attract higher market and regulatory penalties as climate shocks amplify risk, and banks face elevated litigation and reputational costs for legacy exposures."
       },
       "sdg_targets": [
         {
-          "code": "13.2",
-          "title": "Integrate climate change measures into national policies, strategies and planning",
-          "applicability": "indirect",
-          "rationale": "Bank's portfolio decisions influence capital flows to high- or low-carbon sectors, affecting climate policy implementation."
-        },
-        {
-          "code": "8.10",
-          "title": "Strengthen the capacity of domestic financial institutions to encourage and expand access to banking, insurance and financial services",
-          "applicability": "indirect",
-          "rationale": "Strategic divestment and governance actions affect the bank's ability to support inclusive and sustainable financial services."
+          "code": "16.6",
+          "title": "Develop effective, accountable and transparent institutions",
+          "applicability": "direct",
+          "rationale": "The event directly relates to governance transparency and regulatory disclosure, core to SDG 16.6."
         }
       ],
       "audit_trail": [
         {
-          "claim": "₹9,800 Cr (engine estimate) governance signal",
-          "derivation": "Canonical event exposure as mandated by Phase-14 anti-drift constraint; not recomputed from cascade.",
+          "claim": "₹50.0 Cr (engine estimate) potential SEBI penalty exposure",
+          "derivation": "Engine estimate based on SEBI disclosure penalty precedents for large-cap banks, using Regulation 29(2) event threshold and peer event history.",
           "sources": [
-            "article: scanx.trade divestment report",
-            "scenario: Phase-14 canonical exposure"
-          ]
-        },
-        {
-          "claim": "Scope 3 GHG Emissions (financed) 45 Mt CO2e",
-          "derivation": "Company reported value, peer context from KPI CONTEXT block.",
-          "sources": [
-            "CDP 2024",
-            "BRSR FY24"
-          ]
-        },
-        {
-          "claim": "Total exposure ₹662.2 Cr (engine estimate) (regulatory + reputational cascade)",
-          "derivation": "Sum of primitive cascade events per COMPUTED FINANCIAL CASCADE block.",
-          "sources": [
-            "ontology: P2::RG→CL",
-            "article: scanx.trade divestment report"
+            "ontology: P2::CL→RG",
+            "precedent: case_sebi_disclosure_penalty_2019",
+            "article: scanx.trade ICICI Bank divestment report"
           ]
         }
       ],
       "framework_citations": [
         {
           "code": "BRSR:P6:Q14",
-          "rationale": "Banks must disclose portfolio-level climate and ESG risks, including governance actions affecting material exposures.",
+          "rationale": "Large Cap banks are required to disclose significant changes in ownership and governance under BRSR, aligning with SEBI Regulation 29(2) for market transparency.",
           "region": "India",
           "deadline": "2026-05-30"
         }
       ],
       "warnings": [
-        "verifier: added 3 source tags on ₹ figures"
+        "verifier: added 2 source tags on ₹ figures"
       ],
       "full_insight": {
-        "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering ₹8,851.23 Cr governance signal (engine estimate)",
+        "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering governance disclosure and minor market sentiment shift",
         "impact_score": 6.0,
-        "core_mechanism": "ICICI Bank's open market sale of 24.35 Cr shares (3.55% stake) in Jaiprakash Power Ventures reduces its holding from 9.97% to 6.42%. This significant divestment, disclosed under SEBI SAST Regulation 29(2), signals a strategic portfolio adjustment and may influence investor sentiment regarding both ICICI Bank's governance approach and Jaiprakash Power Ventures' outlook.",
-        "profitability_connection": "The transaction transmits a governance signal that could affect ICICI Bank's ESG ratings, cost of capital, and passive fund flows. While the direct P&L impact is limited, the event's scale (₹8,000–9,800 Cr, from article) may drive short-term share price volatility and influence institutional investor engagement.",
-        "translation": "ICICI Bank sold a large portion of its shares in Jaiprakash Power Ventures, following all regulatory requirements. This move may affect how investors and ESG rating agencies view the bank's governance and transparency, but it does not directly impact ICICI Bank's core profitability.",
+        "core_mechanism": "ICICI Bank's reduction of its stake in Jaiprakash Power Ventures from 9.97% to 6.42% via open market sales triggers mandatory SEBI disclosure under Regulation 29(2). This event primarily affects stakeholder governance and transparency, with potential secondary impacts on investor sentiment and ESG ratings if not managed proactively.",
+        "profitability_connection": "The divestment itself is a portfolio rebalancing action with negligible direct P&L impact for ICICI Bank, but incomplete or delayed disclosure could expose the bank to SEBI penalties and minor cost of capital increases. Market perception of governance standards may influence institutional investor confidence and, by extension, valuation multiples.",
+        "translation": "ICICI Bank sold a portion of its shares in Jaiprakash Power Ventures and reported this as required by regulations. While the sale is routine, any lapse in disclosure could lead to regulatory fines and affect how investors view the bank's governance, but the direct financial impact is limited.",
         "impact_analysis": {
-          "esg_positioning": "The event highlights ICICI Bank's adherence to disclosure norms (BRSR, GRI), but a large stake sale in a single entity may prompt peer and index scrutiny, potentially affecting ESG ratings if not contextualized.",
-          "capital_allocation": "Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if perceived as a negative governance signal by ESG funds or index providers.",
-          "valuation_cashflow": "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission.",
-          "compliance_regulatory": "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent).",
-          "supply_chain_transmission": "No supply chain transmission, as the event is limited to financial asset disposal and does not affect operational suppliers.",
-          "people_demand": "Limited direct impact on talent or consumer demand; potential indirect effect on employee perception of governance culture."
+          "esg_positioning": "Minor negative gap if disclosure is incomplete, but no index exclusion expected; peer banks (YES Bank, IDFC First Bank) have similar governance disclosures.",
+          "capital_allocation": "Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine estimate).",
+          "valuation_cashflow": "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate).",
+          "compliance_regulatory": "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate).",
+          "supply_chain_transmission": "No supply chain transmission, as event is limited to financial asset management and disclosure.",
+          "people_demand": "No direct impact on talent, consumer, or community demand, as event is not operational or reputational in nature."
         },
         "financial_timeline": {
           "immediate": {
-            "headline": "₹8,851.23 Cr governance signal from stake sale (engine estimate)",
-            "profitability_pathway": "Stake sale → governance signal → potential ESG rating impact → cost of capital or fund flow shift → ₹8,851.23 Cr exposure (engine estimate)",
-            "margin_pressure": "500.0 bps",
-            "revenue_at_risk": "No direct revenue at risk; indirect risk if ESG fund outflows materialize (engine estimate)"
+            "headline": "₹10-50 Cr potential SEBI penalty exposure (engine estimate)",
+            "profitability_pathway": "Governance disclosure event → SEBI compliance review → possible penalty of ₹10-50 Cr (engine estimate)",
+            "margin_pressure": "2-0.5 bps (computed_override) (engine estimate, based on ₹10-50 Cr on ~₹50,000 Cr revenue)",
+            "revenue_at_risk": "No direct revenue at risk; only contingent penalty exposure (engine estimate)"
           },
           "structural": {
-            "valuation_rerating": "Potential 0.1x P/E compression if ESG index exclusion or negative fund flows occur (engine estimate)",
-            "competitive_position": "Comparable governance disclosures to YES Bank and IDFC First Bank; no immediate competitive loss, but peer ESG positioning may shift if narrative is not managed."
+            "valuation_rerating": "Potential 0.05x P/E compression if governance perception weakens (engine estimate)",
+            "competitive_position": "Neutral to minor negative vs YES Bank and IDFC First Bank, who have similar disclosure practices"
           },
           "long_term": {
-            "secular_trajectory": "Over 3-5 years, consistent transparent disclosures can reinforce trust and stabilize ESG ratings, mitigating long-term capital cost risk.",
-            "green_revenue_opportunity": "No direct green revenue opportunity identified, as the event is a financial divestment."
+            "secular_trajectory": "No material long-term impact unless repeated disclosure lapses occur; isolated event unlikely to affect 3-5 year outlook",
+            "green_revenue_opportunity": "No green revenue opportunity, as this is a governance disclosure event"
           }
         },
         "esg_relevance_score": {
           "environment": {
             "score": 0,
-            "rationale": "No environmental dimension; the event is a financial governance action."
+            "rationale": "No environmental dimension; event is purely governance/disclosure related."
           },
           "social": {
-            "score": 2,
-            "rationale": "Minimal social impact; only indirect effects on employee perception of governance."
+            "score": 1,
+            "rationale": "Minimal social impact; no workforce, community, or consumer dimension."
           },
           "governance": {
             "score": 8,
-            "rationale": "High governance relevance due to regulatory disclosure, board-level decision, and potential ESG rating impact."
+            "rationale": "High governance relevance due to regulatory disclosure and stakeholder transparency obligations."
           },
           "financial_materiality": {
-            "score": 6,
-            "rationale": "Material at the governance signal level (₹8,851.23 Cr (engine estimate) exposure, from article), but not a direct P&L event."
+            "score": 3,
+            "rationale": "Limited direct financial exposure; only contingent penalty risk (₹10-50 Cr engine estimate)."
           },
           "regulatory_exposure": {
-            "score": 5,
-            "rationale": "Moderate regulatory exposure; compliant with SEBI SAST, but ongoing scrutiny if disclosure lapses occur."
+            "score": 6,
+            "rationale": "Moderate regulatory exposure due to SEBI and BRSR compliance requirements."
           },
           "stakeholder_impact": {
-            "score": 6,
-            "rationale": "Moderate impact on institutional investor sentiment and potential index/fund rebalancing."
+            "score": 4,
+            "rationale": "Moderate impact on investor sentiment and institutional confidence; no direct effect on other stakeholders."
           }
         },
-        "net_impact_summary": "ICICI Bank's divestment of a 3.55% stake in Jaiprakash Power Ventures, valued at ₹8,000–9,800 Cr, is a significant governance event with moderate financial materiality. The transaction was fully compliant with SEBI SAST Regulation 29(2), triggering BRSR and GRI disclosure obligations. While there is no direct revenue or supply chain impact, the event may influence ESG ratings, cost of capital, and institutional investor sentiment if not proactively managed.",
+        "net_impact_summary": "ICICI Bank's divestment of a 3.55% stake in Jaiprakash Power Ventures is a routine portfolio action, but triggers mandatory SEBI and BRSR governance disclosures. The primary risk is a potential SEBI penalty of ₹10-50 Cr (engine estimate) if disclosure is found lacking, with a minor possible impact on cost of capital and P/E multiples. No supply chain or environmental transmission is present, and the event does not affect core banking operations or revenue streams.",
         "decision_summary": {
-          "materiality": "LOW",
+          "materiality": "MODERATE",
           "action": "MONITOR",
-          "verdict": "No immediate financial or compliance action required; monitor ESG rating and investor sentiment for secondary effects.",
-          "financial_exposure": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-          "key_risk": "Potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure)",
-          "top_opportunity": "Proactively communicate governance rationale to ESG rating agencies and investors to mitigate rating or fund flow risk",
-          "timeline": "within next quarterly review"
+          "verdict": "No immediate action required beyond ensuring full regulatory compliance; monitor for any SEBI queries or penalty notices.",
+          "financial_exposure": "₹10-50 Cr contingent SEBI penalty (engine estimate)",
+          "key_risk": "₹10-50 Cr SEBI disclosure penalty precedent (engine estimate)",
+          "top_opportunity": "Strengthen governance disclosure controls to pre-empt regulatory scrutiny; potential to reinforce ESG ratings.",
+          "timeline": "within 4-8 weeks (regulatory review cycle)"
         },
         "causal_chain": {
-          "event": "ICICI Bank sold 3.55% stake in Jaiprakash Power Ventures via open market transactions.",
-          "mechanism": "The sale, disclosed under SEBI SAST Regulation 29(2), signals a governance action that may affect ESG ratings and institutional investor sentiment.",
-          "company_impact": "Potential for modest P/E compression, cost of capital increase, or fund outflows if perceived negatively by ESG stakeholders; no direct revenue or operational impact.",
+          "event": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures and discloses under SEBI Regulation 29(2).",
+          "mechanism": "The sale triggers mandatory governance disclosures; any lapse could result in SEBI scrutiny and penalty, affecting investor sentiment and cost of capital.",
+          "company_impact": "Potential contingent penalty of ₹10-50 Cr (engine estimate) and minor P/E compression if governance perception is affected.",
           "transmission_type": "regulatory"
         },
         "warnings": [
-          "verifier: hallucination audit: downgraded 5 unsupported '(from article)' claim(s) to '(engine estimate)'",
-          "verifier: added 2 source tags on ₹ figures",
+          "verifier: margin math at financial_timeline.immediate: cited 10.0 bps, computed 0.5 bps (dev 1721.7%)",
           "verifier: engine-estimate grounding: every ₹ figure in this insight is an engine estimate (no article-grounded figures) — surfaced as 'all_estimate' warning + materiality badge",
-          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹8851.2 Cr",
-          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
-          "verifier: low-confidence classification — review before sending (event matched only via theme fallback); materiality MODERATE → LOW",
-          "verifier: render-protocol: stripped 2 provenance tag(s) from narrative; sidecar staged for frontend tooltip"
+          "verifier: margin math auto-corrected (original 10.0 bps, computed 0.5 bps)"
         ],
         "event_polarity": "neutral",
         "toulmin": {
-          "claim": "No immediate financial or compliance action required; monitor ESG rating and investor sentiment for secondary effects.",
+          "claim": "No immediate action required beyond ensuring full regulatory compliance; monitor for any SEBI queries or penalty notices.",
           "grounds": [
-            "Financial exposure: ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-            "Key risk: Potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure)",
-            "Event classification: event_board_change",
+            "Financial exposure: ₹10-50 Cr contingent SEBI penalty (engine estimate)",
+            "Key risk: ₹10-50 Cr SEBI disclosure penalty precedent (engine estimate)",
+            "Event classification: event_shareholding_change",
             "Relevance score: 6.0/10",
             "Materiality weight (ontology): 0.8",
             "Frameworks triggered: BRSR, GRI, DJSI"
           ],
           "warrant": "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation.",
           "warrant_cite": "NP-FIN-002 (Snowkap CFO-credibility threshold (Phase 11 audit))",
-          "qualifier": "Low classification confidence; moderate relevance signal; no article-cited ₹ quantum (engine estimate)",
+          "qualifier": "Moderate relevance signal; no article-cited ₹ quantum (engine estimate)",
           "rebuttal": "If a company-specific transmission becomes evident — direct ₹ exposure, regulator notice naming the company, or peer action setting an enforcement precedent in the same jurisdiction, the verdict would shift to ACT."
         },
         "cfo_preflight": {},
-        "stakes_for_company": {},
+        "stakes_for_company": {
+          "personal_stakes_paragraphs": {
+            "cfo": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
+            "ceo": "How does this shift YOUR competitive story? This event is a chance to reinforce ICICI Bank’s reputation for governance transparency, especially as investor scrutiny on board-level decisions intensifies. Proactive, visible compliance can differentiate you from peers in the eyes of institutional investors and the board over the next three years, while any perceived lapse could undermine confidence and weaken your narrative around responsible stewardship.",
+            "analyst": "This divestment directly impacts your governance and stakeholder disclosure sections. Specifically, ensure full compliance with SEBI Regulation 29(2) in your next reporting cycle. While no BRSR, GRI, or ESRS codes are cited in the current context, you should update all relevant governance disclosures and monitor for any new SEBI guidance or deadlines. Stay alert for any regulatory queries, as these may require rapid response and supplementary documentation in your upcoming filings."
+          },
+          "personal_stakes_paragraph": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
+          "revenue_pct_at_stake": 0.01,
+          "peer_action_summary": "No peer precedent yet.",
+          "do_nothing_risk_paragraph": "If ICICI Bank ignores this event, it risks a ₹10-50 Cr SEBI penalty for incomplete or delayed disclosure, as well as potential negative shifts in market sentiment. Regulatory action could trigger further scrutiny, and any perceived governance lapse may lead to questions from lenders and institutional investors, potentially impacting access to capital and future ESG ratings."
+        },
         "role_panel_order": {
           "cfo": {
             "order": [
@@ -1385,14 +1473,14 @@
           }
         },
         "criticality": {
-          "score": 0.4748,
-          "band": "MEDIUM",
+          "score": 0.2697,
+          "band": "LOW",
           "components": {
             "materiality": 0.6,
-            "financial_magnitude": 0.3839,
-            "actionability": 0.8,
+            "financial_magnitude": 0.0012,
+            "actionability": 0.2,
             "painpoint_match": 0.3204,
-            "recency": 0.2404,
+            "recency": 0.2368,
             "source_authority": 0.5,
             "sentiment_trajectory": 0.5,
             "staleness_penalty": 0.0,
@@ -1400,230 +1488,320 @@
             "polarity_drift_penalty": 0.0
           },
           "role_scores": {
-            "cfo": 0.4911,
-            "ceo": 0.4544,
-            "analyst": 0.4932
+            "cfo": 0.2178,
+            "ceo": 0.3174,
+            "analyst": 0.3455
           }
         },
         "sentiment_trajectory": {
           "company_slug": "icici-bank",
-          "polarity_series": [],
+          "polarity_series": [
+            {
+              "month": "2026-04",
+              "polarity_mean": 0.0,
+              "count": 3
+            },
+            {
+              "month": "2026-05",
+              "polarity_mean": 0.0,
+              "count": 4
+            }
+          ],
           "horizons": {
             "3m": {
               "direction": "stable",
-              "confidence": "moderate",
-              "rationale": "deterministic linear-trend fallback"
+              "confidence": "low",
+              "rationale": "Recent polarity is neutral with minimal data, showing no clear trend."
             },
             "6m": {
               "direction": "stable",
               "confidence": "low",
-              "rationale": "deterministic linear-trend fallback"
+              "rationale": "Limited data and neutral polarity suggest no significant change expected."
             },
             "12m": {
               "direction": "stable",
               "confidence": "low",
-              "rationale": "horizon too distant for deterministic projection"
+              "rationale": "Insufficient historical polarity variation to predict directional change."
             }
           },
-          "trajectory": [],
-          "llm_used": false
+          "trajectory": [
+            {
+              "month": "2026-06",
+              "central": 0.0,
+              "lo": -0.09,
+              "hi": 0.09
+            },
+            {
+              "month": "2026-07",
+              "central": 0.0,
+              "lo": -0.13,
+              "hi": 0.13
+            },
+            {
+              "month": "2026-08",
+              "central": 0.0,
+              "lo": -0.16999999999999998,
+              "hi": 0.16999999999999998
+            },
+            {
+              "month": "2026-09",
+              "central": 0.0,
+              "lo": -0.21000000000000002,
+              "hi": 0.21000000000000002
+            },
+            {
+              "month": "2026-10",
+              "central": 0.0,
+              "lo": -0.25,
+              "hi": 0.25
+            },
+            {
+              "month": "2026-11",
+              "central": 0.0,
+              "lo": -0.29,
+              "hi": 0.29
+            },
+            {
+              "month": "2026-12",
+              "central": 0.0,
+              "lo": -0.33,
+              "hi": 0.33
+            },
+            {
+              "month": "2027-01",
+              "central": 0.0,
+              "lo": -0.37,
+              "hi": 0.37
+            },
+            {
+              "month": "2027-02",
+              "central": 0.0,
+              "lo": -0.41,
+              "hi": 0.41
+            },
+            {
+              "month": "2027-03",
+              "central": 0.0,
+              "lo": -0.45,
+              "hi": 0.45
+            },
+            {
+              "month": "2027-04",
+              "central": 0.0,
+              "lo": -0.49,
+              "hi": 0.49
+            },
+            {
+              "month": "2027-05",
+              "central": 0.0,
+              "lo": -0.53,
+              "hi": 0.53
+            }
+          ],
+          "llm_used": true
         },
         "role_explainer": {
           "cfo": {
-            "why_important_for_me": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
-            "how_it_impacts_business": "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission. Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if ",
+            "why_important_for_me": "₹10-50 Cr contingent SEBI penalty (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
+            "how_it_impacts_business": "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate). Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine e",
             "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
-            "simple_logic": "Flagged for you because financial_magnitude=0.38 and the CFO role weights financial 40%. Your role-specific score: 0.49."
+            "simple_logic": "Flagged for you because financial_magnitude=0.00 and the CFO role weights financial 40%. Your role-specific score: 0.22."
           },
           "ceo": {
             "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
-            "how_it_impacts_business": "The event highlights ICICI Bank's adherence to disclosure norms (BRSR, GRI), but a large stake sale in a single entity may prompt peer and index scrutiny, potentially affecting ESG ratings if not contextualized. Limited direct impact on talent or consumer demand; potential indire",
+            "how_it_impacts_business": "Minor negative gap if disclosure is incomplete, but no index exclusion expected; peer banks (YES Bank, IDFC First Bank) have similar governance disclosures. No direct impact on talent, consumer, or community demand, as event is not operational or reputational in nature.",
             "analysis_result": "Track competitive movement; revisit at the next strategy review.",
-            "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.45."
+            "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.32."
           },
           "esg-analyst": {
             "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
-            "how_it_impacts_business": "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent). No supply chain transmission, as the event is limited to financial asset disposal and does not affect operational s",
+            "how_it_impacts_business": "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate). No supply chain transmission, as event is limited to financial asset management and disclosure.",
             "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
             "simple_logic": ""
           }
         },
-        "criticality_summary": "Worth reviewing — ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified.",
+        "criticality_summary": "Low priority — ₹10-50 Cr contingent SEBI penalty (engine estimate).",
         "headline_only": false,
         "body_char_count": 0,
         "analysis": {}
       },
-      "why_critical_for_analyst": "For an ESG Analyst, the gating question is whether this event fires a disclosure trigger that the next reporting cycle must address. Audit-trail strength is high: every ₹ figure traces back to either the source article or an engine-computed primitive cascade, so the analyst can defend the analysis to assurance reviewers. Verification priority: potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure) — confirm against peer disclosures and the company's own materiality assessment before the next stakeholder review."
+      "why_critical_for_analyst": "For an ESG Analyst, the gating question is whether this event fires a disclosure trigger that the next reporting cycle must address. Audit-trail strength is high: every ₹ figure traces back to either the source article or an engine-computed primitive cascade, so the analyst can defend the analysis to assurance reviewers. Verification priority: ₹10-50 Cr SEBI disclosure penalty precedent (engine estimate) — confirm against peer disclosures and the company's own materiality assessment before the next stakeholder review."
     },
     "ceo": {
-      "headline": "ICICI Bank divests Jaiprakash Power stake; governance signal, no direct P&L impact",
+      "headline": "ICICI Bank stake sale in Jaiprakash Power triggers governance disclosure review",
       "generated_by": "ceo_narrative_generator_v1",
-      "board_paragraph": "ICICI Bank has divested a 3.55% stake in Jaiprakash Power Ventures via open market sales, representing a governance signal with a canonical exposure of ₹9800.0 Cr (engine estimate). While no direct P&L loss is identified, the board should monitor for potential governance perception risks and proactively communicate the rationale to ESG rating agencies and investors within the next quarterly review. Failure to act could result in a potential ₹10-50 Cr SEBI disclosure penalty (engine estimate) and trigger negative rating actions, impacting fund flows and market perception.",
+      "board_paragraph": "ICICI Bank’s divestment of a 3.55% stake in Jaiprakash Power Ventures has triggered a governance disclosure event, requiring immediate board oversight. The board should direct the risk and compliance committees to review and strengthen disclosure controls within the next 4-8 weeks, aligning with SEBI’s regulatory review cycle. Failure to act could expose the bank to a potential ₹50.0 Cr SEBI penalty (engine estimate), with additional risks of governance rating downgrades and negative investor sentiment. Timely action will mitigate regulatory and reputational costs.",
       "stakeholder_map": [
         {
           "stakeholder": "SEBI (Securities & Exchange Board of India)",
           "stance": "Enforcement escalation if remediation plan absent within 30-60 days. Formal show-cause → interim penalty → appeal window. Settlement via Consent Mechanism in 40-60% of cases.",
-          "precedent": "Vedanta 2020 SCN → ₹450 Cr (engine estimate) settlement"
+          "precedent": "Vedanta 2020 SCN → ₹450 Cr (engine estimate) settlement; ICICI Bank 2018-23 CEO clawback ₹450 Cr + 5-year debarment recommendation; Kotak 2018 promoter-stake dispute resolved via SC"
+        },
+        {
+          "stakeholder": "RBI (Reserve Bank of India)",
+          "stance": "Direct intervention via moratorium, AQR, or governance restructuring for material asset-quality or fraud events. Climate stress test framework applies to top-16 banks from FY27.",
+          "precedent": "YES Bank 2020 moratorium; HDFC Bank 2020-21 tech-freeze; Kotak promoter dispute 2018-20; RBI AQR 2015-18 exposed ₹5 lakh (engine estimate) Cr hidden NPAs"
         },
         {
           "stakeholder": "ISS + Glass Lewis (proxy advisors)",
           "stance": "AGAINST vote recommendation on audit committee chair or CEO re-election for material governance failures. Downgrade of governance rating (MSCI/ISS QualityScore) by 1-2 bands. AGM season cadence: April-September.",
-          "precedent": "Infosys 2017 Sikka exit → ISS flagged 2 AGMs"
+          "precedent": "Infosys 2017 Sikka exit → ISS flagged 2 AGMs; Tata Sons-Mistry 2016-18 dispute → multiple ISS downgrades; Zee Entertainment 2023 Sony merger collapse → ISS against AGM resolutions"
         },
         {
           "stakeholder": "MSCI ESG Ratings",
           "stance": "Rating action (e.g., BBB → BB) within 90-180 days of material event. Watch-list status in interim. Flow-through to MSCI ESG Leaders / SRI indices triggers 1 (engine estimate)-3% AUM outflow from passive strategies.",
-          "precedent": "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion"
-        },
-        {
-          "stakeholder": "Sustainalytics (Morningstar)",
-          "stance": "ESG Risk Rating increase (lower = better); severity category escalation (medium → high → severe) triggers flow-through to EU Article 8/9 fund screens. Sign review cycle quarterly. Corporate Governance Risk Rating separate scale.",
-          "precedent": "Adani Mundra 2020 NGT → medium→high risk"
+          "precedent": "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion; Adani Group 2023 free-float weight cut; Wells Fargo 2016 BBB→B over fraud"
         },
         {
           "stakeholder": "BlackRock + Norges Bank IM + CalPERS (Top-10 AUM)",
           "stance": "Private engagement first (letter/meeting) within 30-60 days. Vote against if remediation absent by next AGM. Exclusion from ESG mandate AUM if severity=high sustained 2+ quarters. Position review on 8-12% AUM flows.",
-          "precedent": "NBIM 2017 excluded 11 coal miners incl. Adani Ports"
+          "precedent": "NBIM 2017 excluded 11 coal miners incl. Adani Ports; BlackRock 2020 engagement with Exxon led to board shake-up; CalPERS 2023  (engine estimate)Japanese corp governance push"
         }
       ],
       "analogous_precedent": {},
       "three_year_trajectory": {
-        "do_nothing": "If no remediation is undertaken, by FY27-29, the company could face up to ₹9800.0 Cr (engine estimate) in canonical exposure, including potential SEBI penalties, governance rating downgrades, and 1-3% AUM outflows from ESG-linked funds. Credit rating agencies may place the bank on negative watch, and top institutional investors could vote against key resolutions or reduce holdings.",
-        "act_now": "By proactively communicating the governance rationale and engaging with ESG rating agencies and investors within the next quarterly review, the company can limit exposure to a potential ₹10-50 Cr SEBI penalty (engine estimate), maintain stable credit ratings, and mitigate the risk of significant AUM outflows. The cost of intervention is minimal compared to the potential ₹9800.0 Cr exposure."
+        "do_nothing": "If no remediation is undertaken, by FY27-29 ICICI Bank could face a ₹50.0 Cr SEBI penalty (engine estimate), potential downgrades in ESG and governance ratings, and negative investor actions including against-votes and possible AUM outflows. Credit rating agencies may place the bank on watch, and investor confidence could weaken, impacting share price and cost of capital.",
+        "act_now": "By acting within the 4-8 week regulatory review window, the bank can limit exposure to the ₹50.0 Cr penalty (engine estimate), reinforce governance standards, and maintain or improve ESG ratings. The cost of intervention is primarily internal compliance resources, with benefits including regulatory goodwill, stable investor sentiment, and protection of long-term franchise value."
       },
       "qna_drafts": {
-        "earnings_call": "We have completed the divestment of our 3.55% stake in Jaiprakash Power Ventures as part of our ongoing portfolio review. There is no direct P&L impact from this transaction. We remain committed to transparent governance and will continue to engage proactively with our stakeholders.",
-        "press_statement": "ICICI Bank has divested its 3.55% stake in Jaiprakash Power Ventures through open market sales. This decision aligns with our governance and portfolio management objectives. We are committed to maintaining the highest standards of transparency and stakeholder engagement.",
-        "board_qa": "Q: What is the maximum penalty risk? A: The potential SEBI disclosure penalty is estimated at ₹10-50 Cr (engine estimate) if future lapses occur. Q: What is the FY26 capex impact? A: There is no direct capex impact from this divestment; the canonical exposure is ₹9800.0 Cr (engine estimate), but this is not a direct cash outflow. Q: Should we expect rating downgrades? A: Proactive engagement with ESG agencies should mitigate rating action risk, provided we communicate our governance rationale promptly.",
-        "regulator_qa": "We acknowledge SEBI’s focus on timely and transparent disclosures. ICICI Bank has acted in accordance with all applicable regulations in this divestment and will continue to provide full cooperation and timely updates. We are committed to maintaining robust governance standards and will submit any additional information required within the stipulated timeframe."
+        "earnings_call": "We have completed a minor stake sale in Jaiprakash Power Ventures and are proactively reviewing our governance disclosure controls. We do not expect any material financial impact, and our compliance teams are fully engaged to ensure all regulatory requirements are met.",
+        "press_statement": "ICICI Bank confirms the divestment of a 3.55% stake in Jaiprakash Power Ventures. We are reviewing our disclosure processes to ensure full regulatory compliance and remain committed to the highest standards of governance.",
+        "board_qa": "Q: What is the maximum penalty exposure? A: The estimated maximum SEBI penalty is ₹50.0 Cr (engine estimate). Q: Will this impact FY26 capex plans? A: No material impact is expected on FY26 capex; internal compliance costs are manageable. Q: Are there risks to our ESG ratings? A: Timely remediation will mitigate rating downgrade risks; delay could trigger negative watch-listing.",
+        "regulator_qa": "ICICI Bank acknowledges the recent stake sale disclosure and is undertaking a comprehensive review of governance controls. We are committed to submitting a remediation plan within the regulatory timeline and will cooperate fully with SEBI to ensure all compliance standards are met."
       },
       "warnings": [
-        "verifier: added 2 source tags on ₹ figures"
+        "verifier: added 4 source tags on ₹ figures"
       ],
-      "why_critical_for_ceo": "For a CEO, this shifts the competitive picture: comparable governance disclosures to YES Bank and IDFC First Bank; no immediate competitive loss, but peer ESG positioning may shift if narrative is not managed. at ICICI Bank. The investor narrative writes itself: proactively communicate governance rationale to ESG rating agencies and investors to mitigate rating or fund flow risk, with execution discipline as the proof point. On the FY+1 to FY+3 horizon, this is the kind of signal that ESG-tilted investor mandates read first — silence is the costliest option."
+      "why_critical_for_ceo": "For a CEO, this shifts the competitive picture: neutral to minor negative vs YES Bank and IDFC First Bank, who have similar disclosure practices at ICICI Bank. The investor narrative writes itself: strengthen governance disclosure controls to pre-empt regulatory scrutiny; potential to reinforce ESG ratings., with execution discipline as the proof point. On the FY+1 to FY+3 horizon, this is the kind of signal that ESG-tilted investor mandates read first — silence is the costliest option."
     },
     "cfo": {
       "perspective": "cfo",
-      "headline": "P&L exposure: ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
+      "headline": "P&L exposure: ₹10-50 Cr contingent SEBI penalty (engine estimate)",
       "impact_grid": {
-        "financial": "MEDIUM",
+        "financial": "LOW",
         "regulatory": "MEDIUM",
         "strategic": "HIGH"
       },
       "what_matters": [
-        "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission.",
-        "Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if perceived as a negative governance signal by ESG funds or index providers.",
-        "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent)."
+        "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate).",
+        "Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine estimate).",
+        "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate)."
       ],
       "action": [
-        "Quantify exposure: ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-        "Revenue at risk: No direct revenue at risk; indirect risk if ESG fund outflows materialize (engine estimate)"
+        "Quantify exposure: ₹10-50 Cr contingent SEBI penalty (engine estimate)",
+        "Revenue at risk: No direct revenue at risk; only contingent penalty exposure (engine estimate)"
       ],
-      "materiality": "LOW",
+      "materiality": "MODERATE",
       "do_nothing": false,
       "active_impact_dimensions": [
         "financial",
         "regulatory"
       ],
       "full_insight": {
-        "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering ₹8,851.23 Cr governance signal (engine estimate)",
+        "headline": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures, triggering governance disclosure and minor market sentiment shift",
         "impact_score": 6.0,
-        "core_mechanism": "ICICI Bank's open market sale of 24.35 Cr shares (3.55% stake) in Jaiprakash Power Ventures reduces its holding from 9.97% to 6.42%. This significant divestment, disclosed under SEBI SAST Regulation 29(2), signals a strategic portfolio adjustment and may influence investor sentiment regarding both ICICI Bank's governance approach and Jaiprakash Power Ventures' outlook.",
-        "profitability_connection": "The transaction transmits a governance signal that could affect ICICI Bank's ESG ratings, cost of capital, and passive fund flows. While the direct P&L impact is limited, the event's scale (₹8,000–9,800 Cr, from article) may drive short-term share price volatility and influence institutional investor engagement.",
-        "translation": "ICICI Bank sold a large portion of its shares in Jaiprakash Power Ventures, following all regulatory requirements. This move may affect how investors and ESG rating agencies view the bank's governance and transparency, but it does not directly impact ICICI Bank's core profitability.",
+        "core_mechanism": "ICICI Bank's reduction of its stake in Jaiprakash Power Ventures from 9.97% to 6.42% via open market sales triggers mandatory SEBI disclosure under Regulation 29(2). This event primarily affects stakeholder governance and transparency, with potential secondary impacts on investor sentiment and ESG ratings if not managed proactively.",
+        "profitability_connection": "The divestment itself is a portfolio rebalancing action with negligible direct P&L impact for ICICI Bank, but incomplete or delayed disclosure could expose the bank to SEBI penalties and minor cost of capital increases. Market perception of governance standards may influence institutional investor confidence and, by extension, valuation multiples.",
+        "translation": "ICICI Bank sold a portion of its shares in Jaiprakash Power Ventures and reported this as required by regulations. While the sale is routine, any lapse in disclosure could lead to regulatory fines and affect how investors view the bank's governance, but the direct financial impact is limited.",
         "impact_analysis": {
-          "esg_positioning": "The event highlights ICICI Bank's adherence to disclosure norms (BRSR, GRI), but a large stake sale in a single entity may prompt peer and index scrutiny, potentially affecting ESG ratings if not contextualized.",
-          "capital_allocation": "Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if perceived as a negative governance signal by ESG funds or index providers.",
-          "valuation_cashflow": "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission.",
-          "compliance_regulatory": "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent).",
-          "supply_chain_transmission": "No supply chain transmission, as the event is limited to financial asset disposal and does not affect operational suppliers.",
-          "people_demand": "Limited direct impact on talent or consumer demand; potential indirect effect on employee perception of governance culture."
+          "esg_positioning": "Minor negative gap if disclosure is incomplete, but no index exclusion expected; peer banks (YES Bank, IDFC First Bank) have similar governance disclosures.",
+          "capital_allocation": "Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine estimate).",
+          "valuation_cashflow": "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate).",
+          "compliance_regulatory": "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate).",
+          "supply_chain_transmission": "No supply chain transmission, as event is limited to financial asset management and disclosure.",
+          "people_demand": "No direct impact on talent, consumer, or community demand, as event is not operational or reputational in nature."
         },
         "financial_timeline": {
           "immediate": {
-            "headline": "₹8,851.23 Cr governance signal from stake sale (engine estimate)",
-            "profitability_pathway": "Stake sale → governance signal → potential ESG rating impact → cost of capital or fund flow shift → ₹8,851.23 Cr exposure (engine estimate)",
-            "margin_pressure": "500.0 bps",
-            "revenue_at_risk": "No direct revenue at risk; indirect risk if ESG fund outflows materialize (engine estimate)"
+            "headline": "₹10-50 Cr potential SEBI penalty exposure (engine estimate)",
+            "profitability_pathway": "Governance disclosure event → SEBI compliance review → possible penalty of ₹10-50 Cr (engine estimate)",
+            "margin_pressure": "2-0.5 bps (computed_override) (engine estimate, based on ₹10-50 Cr on ~₹50,000 Cr revenue)",
+            "revenue_at_risk": "No direct revenue at risk; only contingent penalty exposure (engine estimate)"
           },
           "structural": {
-            "valuation_rerating": "Potential 0.1x P/E compression if ESG index exclusion or negative fund flows occur (engine estimate)",
-            "competitive_position": "Comparable governance disclosures to YES Bank and IDFC First Bank; no immediate competitive loss, but peer ESG positioning may shift if narrative is not managed."
+            "valuation_rerating": "Potential 0.05x P/E compression if governance perception weakens (engine estimate)",
+            "competitive_position": "Neutral to minor negative vs YES Bank and IDFC First Bank, who have similar disclosure practices"
           },
           "long_term": {
-            "secular_trajectory": "Over 3-5 years, consistent transparent disclosures can reinforce trust and stabilize ESG ratings, mitigating long-term capital cost risk.",
-            "green_revenue_opportunity": "No direct green revenue opportunity identified, as the event is a financial divestment."
+            "secular_trajectory": "No material long-term impact unless repeated disclosure lapses occur; isolated event unlikely to affect 3-5 year outlook",
+            "green_revenue_opportunity": "No green revenue opportunity, as this is a governance disclosure event"
           }
         },
         "esg_relevance_score": {
           "environment": {
             "score": 0,
-            "rationale": "No environmental dimension; the event is a financial governance action."
+            "rationale": "No environmental dimension; event is purely governance/disclosure related."
           },
           "social": {
-            "score": 2,
-            "rationale": "Minimal social impact; only indirect effects on employee perception of governance."
+            "score": 1,
+            "rationale": "Minimal social impact; no workforce, community, or consumer dimension."
           },
           "governance": {
             "score": 8,
-            "rationale": "High governance relevance due to regulatory disclosure, board-level decision, and potential ESG rating impact."
+            "rationale": "High governance relevance due to regulatory disclosure and stakeholder transparency obligations."
           },
           "financial_materiality": {
-            "score": 6,
-            "rationale": "Material at the governance signal level (₹8,851.23 Cr (engine estimate) exposure, from article), but not a direct P&L event."
+            "score": 3,
+            "rationale": "Limited direct financial exposure; only contingent penalty risk (₹10-50 Cr engine estimate)."
           },
           "regulatory_exposure": {
-            "score": 5,
-            "rationale": "Moderate regulatory exposure; compliant with SEBI SAST, but ongoing scrutiny if disclosure lapses occur."
+            "score": 6,
+            "rationale": "Moderate regulatory exposure due to SEBI and BRSR compliance requirements."
           },
           "stakeholder_impact": {
-            "score": 6,
-            "rationale": "Moderate impact on institutional investor sentiment and potential index/fund rebalancing."
+            "score": 4,
+            "rationale": "Moderate impact on investor sentiment and institutional confidence; no direct effect on other stakeholders."
           }
         },
-        "net_impact_summary": "ICICI Bank's divestment of a 3.55% stake in Jaiprakash Power Ventures, valued at ₹8,000–9,800 Cr, is a significant governance event with moderate financial materiality. The transaction was fully compliant with SEBI SAST Regulation 29(2), triggering BRSR and GRI disclosure obligations. While there is no direct revenue or supply chain impact, the event may influence ESG ratings, cost of capital, and institutional investor sentiment if not proactively managed.",
+        "net_impact_summary": "ICICI Bank's divestment of a 3.55% stake in Jaiprakash Power Ventures is a routine portfolio action, but triggers mandatory SEBI and BRSR governance disclosures. The primary risk is a potential SEBI penalty of ₹10-50 Cr (engine estimate) if disclosure is found lacking, with a minor possible impact on cost of capital and P/E multiples. No supply chain or environmental transmission is present, and the event does not affect core banking operations or revenue streams.",
         "decision_summary": {
-          "materiality": "LOW",
+          "materiality": "MODERATE",
           "action": "MONITOR",
-          "verdict": "No immediate financial or compliance action required; monitor ESG rating and investor sentiment for secondary effects.",
-          "financial_exposure": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-          "key_risk": "Potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure)",
-          "top_opportunity": "Proactively communicate governance rationale to ESG rating agencies and investors to mitigate rating or fund flow risk",
-          "timeline": "within next quarterly review"
+          "verdict": "No immediate action required beyond ensuring full regulatory compliance; monitor for any SEBI queries or penalty notices.",
+          "financial_exposure": "₹10-50 Cr contingent SEBI penalty (engine estimate)",
+          "key_risk": "₹10-50 Cr SEBI disclosure penalty precedent (engine estimate)",
+          "top_opportunity": "Strengthen governance disclosure controls to pre-empt regulatory scrutiny; potential to reinforce ESG ratings.",
+          "timeline": "within 4-8 weeks (regulatory review cycle)"
         },
         "causal_chain": {
-          "event": "ICICI Bank sold 3.55% stake in Jaiprakash Power Ventures via open market transactions.",
-          "mechanism": "The sale, disclosed under SEBI SAST Regulation 29(2), signals a governance action that may affect ESG ratings and institutional investor sentiment.",
-          "company_impact": "Potential for modest P/E compression, cost of capital increase, or fund outflows if perceived negatively by ESG stakeholders; no direct revenue or operational impact.",
+          "event": "ICICI Bank divests 3.55% stake in Jaiprakash Power Ventures and discloses under SEBI Regulation 29(2).",
+          "mechanism": "The sale triggers mandatory governance disclosures; any lapse could result in SEBI scrutiny and penalty, affecting investor sentiment and cost of capital.",
+          "company_impact": "Potential contingent penalty of ₹10-50 Cr (engine estimate) and minor P/E compression if governance perception is affected.",
           "transmission_type": "regulatory"
         },
         "warnings": [
-          "verifier: hallucination audit: downgraded 5 unsupported '(from article)' claim(s) to '(engine estimate)'",
-          "verifier: added 2 source tags on ₹ figures",
+          "verifier: margin math at financial_timeline.immediate: cited 10.0 bps, computed 0.5 bps (dev 1721.7%)",
           "verifier: engine-estimate grounding: every ₹ figure in this insight is an engine estimate (no article-grounded figures) — surfaced as 'all_estimate' warning + materiality badge",
-          "verifier: drift auto-fix: normalised 1 field(s) to canonical ₹8851.2 Cr",
-          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
-          "verifier: low-confidence classification — review before sending (event matched only via theme fallback); materiality MODERATE → LOW",
-          "verifier: render-protocol: stripped 2 provenance tag(s) from narrative; sidecar staged for frontend tooltip"
+          "verifier: margin math auto-corrected (original 10.0 bps, computed 0.5 bps)"
         ],
         "event_polarity": "neutral",
         "toulmin": {
-          "claim": "No immediate financial or compliance action required; monitor ESG rating and investor sentiment for secondary effects.",
+          "claim": "No immediate action required beyond ensuring full regulatory compliance; monitor for any SEBI queries or penalty notices.",
           "grounds": [
-            "Financial exposure: ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified",
-            "Key risk: Potential ₹10-50 Cr SEBI disclosure penalty if future lapses occur (engine estimate) (of ₹8851.2 Cr canonical event exposure)",
-            "Event classification: event_board_change",
+            "Financial exposure: ₹10-50 Cr contingent SEBI penalty (engine estimate)",
+            "Key risk: ₹10-50 Cr SEBI disclosure penalty precedent (engine estimate)",
+            "Event classification: event_shareholding_change",
             "Relevance score: 6.0/10",
             "Materiality weight (ontology): 0.8",
             "Frameworks triggered: BRSR, GRI, DJSI"
           ],
           "warrant": "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation.",
           "warrant_cite": "NP-FIN-002 (Snowkap CFO-credibility threshold (Phase 11 audit))",
-          "qualifier": "Low classification confidence; moderate relevance signal; no article-cited ₹ quantum (engine estimate)",
+          "qualifier": "Moderate relevance signal; no article-cited ₹ quantum (engine estimate)",
           "rebuttal": "If a company-specific transmission becomes evident — direct ₹ exposure, regulator notice naming the company, or peer action setting an enforcement precedent in the same jurisdiction, the verdict would shift to ACT."
         },
         "cfo_preflight": {},
-        "stakes_for_company": {},
+        "stakes_for_company": {
+          "personal_stakes_paragraphs": {
+            "cfo": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
+            "ceo": "How does this shift YOUR competitive story? This event is a chance to reinforce ICICI Bank’s reputation for governance transparency, especially as investor scrutiny on board-level decisions intensifies. Proactive, visible compliance can differentiate you from peers in the eyes of institutional investors and the board over the next three years, while any perceived lapse could undermine confidence and weaken your narrative around responsible stewardship.",
+            "analyst": "This divestment directly impacts your governance and stakeholder disclosure sections. Specifically, ensure full compliance with SEBI Regulation 29(2) in your next reporting cycle. While no BRSR, GRI, or ESRS codes are cited in the current context, you should update all relevant governance disclosures and monitor for any new SEBI guidance or deadlines. Stay alert for any regulatory queries, as these may require rapid response and supplementary documentation in your upcoming filings."
+          },
+          "personal_stakes_paragraph": "Your company is exposed to a contingent ₹10-50 Cr SEBI penalty if disclosure requirements tied to the Jaiprakash Power Ventures stake sale are not met in a timely and complete manner. This exposure could hit the next quarterly close if SEBI initiates an inquiry or issues a penalty notice. While the divestment itself has negligible direct P&L impact, any regulatory cost or capital-at-risk from non-compliance must be closely monitored and provisioned for as needed.",
+          "revenue_pct_at_stake": 0.01,
+          "peer_action_summary": "No peer precedent yet.",
+          "do_nothing_risk_paragraph": "If ICICI Bank ignores this event, it risks a ₹10-50 Cr SEBI penalty for incomplete or delayed disclosure, as well as potential negative shifts in market sentiment. Regulatory action could trigger further scrutiny, and any perceived governance lapse may lead to questions from lenders and institutional investors, potentially impacting access to capital and future ESG ratings."
+        },
         "role_panel_order": {
           "cfo": {
             "order": [
@@ -1682,14 +1860,14 @@
           }
         },
         "criticality": {
-          "score": 0.4748,
-          "band": "MEDIUM",
+          "score": 0.2697,
+          "band": "LOW",
           "components": {
             "materiality": 0.6,
-            "financial_magnitude": 0.3839,
-            "actionability": 0.8,
+            "financial_magnitude": 0.0012,
+            "actionability": 0.2,
             "painpoint_match": 0.3204,
-            "recency": 0.2404,
+            "recency": 0.2368,
             "source_authority": 0.5,
             "sentiment_trajectory": 0.5,
             "staleness_penalty": 0.0,
@@ -1697,65 +1875,149 @@
             "polarity_drift_penalty": 0.0
           },
           "role_scores": {
-            "cfo": 0.4911,
-            "ceo": 0.4544,
-            "analyst": 0.4932
+            "cfo": 0.2178,
+            "ceo": 0.3174,
+            "analyst": 0.3455
           }
         },
         "sentiment_trajectory": {
           "company_slug": "icici-bank",
-          "polarity_series": [],
+          "polarity_series": [
+            {
+              "month": "2026-04",
+              "polarity_mean": 0.0,
+              "count": 3
+            },
+            {
+              "month": "2026-05",
+              "polarity_mean": 0.0,
+              "count": 4
+            }
+          ],
           "horizons": {
             "3m": {
               "direction": "stable",
-              "confidence": "moderate",
-              "rationale": "deterministic linear-trend fallback"
+              "confidence": "low",
+              "rationale": "Recent polarity is neutral with minimal data, showing no clear trend."
             },
             "6m": {
               "direction": "stable",
               "confidence": "low",
-              "rationale": "deterministic linear-trend fallback"
+              "rationale": "Limited data and neutral polarity suggest no significant change expected."
             },
             "12m": {
               "direction": "stable",
               "confidence": "low",
-              "rationale": "horizon too distant for deterministic projection"
+              "rationale": "Insufficient historical polarity variation to predict directional change."
             }
           },
-          "trajectory": [],
-          "llm_used": false
+          "trajectory": [
+            {
+              "month": "2026-06",
+              "central": 0.0,
+              "lo": -0.09,
+              "hi": 0.09
+            },
+            {
+              "month": "2026-07",
+              "central": 0.0,
+              "lo": -0.13,
+              "hi": 0.13
+            },
+            {
+              "month": "2026-08",
+              "central": 0.0,
+              "lo": -0.16999999999999998,
+              "hi": 0.16999999999999998
+            },
+            {
+              "month": "2026-09",
+              "central": 0.0,
+              "lo": -0.21000000000000002,
+              "hi": 0.21000000000000002
+            },
+            {
+              "month": "2026-10",
+              "central": 0.0,
+              "lo": -0.25,
+              "hi": 0.25
+            },
+            {
+              "month": "2026-11",
+              "central": 0.0,
+              "lo": -0.29,
+              "hi": 0.29
+            },
+            {
+              "month": "2026-12",
+              "central": 0.0,
+              "lo": -0.33,
+              "hi": 0.33
+            },
+            {
+              "month": "2027-01",
+              "central": 0.0,
+              "lo": -0.37,
+              "hi": 0.37
+            },
+            {
+              "month": "2027-02",
+              "central": 0.0,
+              "lo": -0.41,
+              "hi": 0.41
+            },
+            {
+              "month": "2027-03",
+              "central": 0.0,
+              "lo": -0.45,
+              "hi": 0.45
+            },
+            {
+              "month": "2027-04",
+              "central": 0.0,
+              "lo": -0.49,
+              "hi": 0.49
+            },
+            {
+              "month": "2027-05",
+              "central": 0.0,
+              "lo": -0.53,
+              "hi": 0.53
+            }
+          ],
+          "llm_used": true
         },
         "role_explainer": {
           "cfo": {
-            "why_important_for_me": "₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
-            "how_it_impacts_business": "Possible P/E compression of 0.1x (engine estimate) if passive funds or ESG investors reduce exposure; margin erosion estimated at 500.0 bps (engine estimate) due to governance signal transmission. Potential for a modest increase in cost of capital (+20-40bps, engine estimate) if ",
+            "why_important_for_me": "₹10-50 Cr contingent SEBI penalty (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
+            "how_it_impacts_business": "Possible P/E compression of 0.05x if event is perceived as governance weakness, but no direct revenue or margin erosion (engine estimate). Potential for a small increase in cost of capital (up to 2-5 bps) if regulatory scrutiny escalates; no immediate bond spread impact (engine e",
             "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
-            "simple_logic": "Flagged for you because financial_magnitude=0.38 and the CFO role weights financial 40%. Your role-specific score: 0.49."
+            "simple_logic": "Flagged for you because financial_magnitude=0.00 and the CFO role weights financial 40%. Your role-specific score: 0.22."
           },
           "ceo": {
             "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
-            "how_it_impacts_business": "The event highlights ICICI Bank's adherence to disclosure norms (BRSR, GRI), but a large stake sale in a single entity may prompt peer and index scrutiny, potentially affecting ESG ratings if not contextualized. Limited direct impact on talent or consumer demand; potential indire",
+            "how_it_impacts_business": "Minor negative gap if disclosure is incomplete, but no index exclusion expected; peer banks (YES Bank, IDFC First Bank) have similar governance disclosures. No direct impact on talent, consumer, or community demand, as event is not operational or reputational in nature.",
             "analysis_result": "Track competitive movement; revisit at the next strategy review.",
-            "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.45."
+            "simple_logic": "Flagged for you because materiality=0.60 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.32."
           },
           "esg-analyst": {
             "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
-            "how_it_impacts_business": "Triggers BRSR (SEBI), GRI, and ESRS G1 disclosure obligations; no penalty cited, but non-compliance could attract SEBI scrutiny (₹10-50 Cr per violation precedent). No supply chain transmission, as the event is limited to financial asset disposal and does not affect operational s",
+            "how_it_impacts_business": "Triggers BRSR (SEBI), GRI 207, ESRS G1; Regulation 29(2) compliance required. SEBI penalty precedent: ₹10-50 Cr per violation (engine estimate). No supply chain transmission, as event is limited to financial asset management and disclosure.",
             "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
             "simple_logic": ""
           }
         },
-        "criticality_summary": "Worth reviewing — ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified.",
+        "criticality_summary": "Low priority — ₹10-50 Cr contingent SEBI penalty (engine estimate).",
         "headline_only": false,
         "body_char_count": 0,
         "analysis": {}
       },
-      "why_critical": "This represents ₹8,851.23 Cr governance signal (engine estimate); no direct P&L loss identified for the company — quantifying it is the CFO's first decision. The strategic offset is proactively communicate governance rationale to ESG rating agencies and investors to mitigate rating or fund flow risk, which a CFO weighs against the cost of action. Decision window: within next quarterly review. Action: quantify exposure, set the provision or capex line, and brief audit + finance committee."
+      "why_critical": "This represents ₹10-50 Cr contingent SEBI penalty (engine estimate) for the company — quantifying it is the CFO's first decision. The strategic offset is strengthen governance disclosure controls to pre-empt regulatory scrutiny; potential to reinforce ESG ratings., which a CFO weighs against the cost of action. Decision window: within 4-8 weeks (regulatory review cycle). Action: quantify exposure, set the provision or capex line, and brief audit + finance committee."
     }
   },
   "evidence_pack": {
     "cascade": {
-      "total_cr": 8851.23,
+      "total_cr": 0.0,
       "margin_bps": null,
       "dominant_lag_months": null,
       "hops": [],
@@ -1816,27 +2078,27 @@
       {
         "name": "SEBI (Securities & Exchange Board of India)",
         "stance": "Enforcement escalation if remediation plan absent within 30-60 days. Formal show-cause → interim penalty → appeal window. Settlement via Consent Mechanism in 40-60% of cases.",
-        "precedent": "Vedanta 2020 SCN → ₹450 Cr (engine estimate) settlement"
+        "precedent": "Vedanta 2020 SCN → ₹450 Cr (engine estimate) settlement; ICICI Bank 2018-23 CEO clawback ₹450 Cr + 5-year debarment recommendation; Kotak 2018 promoter-stake dispute resolved via SC"
+      },
+      {
+        "name": "RBI (Reserve Bank of India)",
+        "stance": "Direct intervention via moratorium, AQR, or governance restructuring for material asset-quality or fraud events. Climate stress test framework applies to top-16 banks from FY27.",
+        "precedent": "YES Bank 2020 moratorium; HDFC Bank 2020-21 tech-freeze; Kotak promoter dispute 2018-20; RBI AQR 2015-18 exposed ₹5 lakh (engine estimate) Cr hidden NPAs"
       },
       {
         "name": "ISS + Glass Lewis (proxy advisors)",
         "stance": "AGAINST vote recommendation on audit committee chair or CEO re-election for material governance failures. Downgrade of governance rating (MSCI/ISS QualityScore) by 1-2 bands. AGM season cadence: April-September.",
-        "precedent": "Infosys 2017 Sikka exit → ISS flagged 2 AGMs"
+        "precedent": "Infosys 2017 Sikka exit → ISS flagged 2 AGMs; Tata Sons-Mistry 2016-18 dispute → multiple ISS downgrades; Zee Entertainment 2023 Sony merger collapse → ISS against AGM resolutions"
       },
       {
         "name": "MSCI ESG Ratings",
         "stance": "Rating action (e.g., BBB → BB) within 90-180 days of material event. Watch-list status in interim. Flow-through to MSCI ESG Leaders / SRI indices triggers 1 (engine estimate)-3% AUM outflow from passive strategies.",
-        "precedent": "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion"
-      },
-      {
-        "name": "Sustainalytics (Morningstar)",
-        "stance": "ESG Risk Rating increase (lower = better); severity category escalation (medium → high → severe) triggers flow-through to EU Article 8/9 fund screens. Sign review cycle quarterly. Corporate Governance Risk Rating separate scale.",
-        "precedent": "Adani Mundra 2020 NGT → medium→high risk"
+        "precedent": "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion; Adani Group 2023 free-float weight cut; Wells Fargo 2016 BBB→B over fraud"
       },
       {
         "name": "BlackRock + Norges Bank IM + CalPERS (Top-10 AUM)",
         "stance": "Private engagement first (letter/meeting) within 30-60 days. Vote against if remediation absent by next AGM. Exclusion from ESG mandate AUM if severity=high sustained 2+ quarters. Position review on 8-12% AUM flows.",
-        "precedent": "NBIM 2017 excluded 11 coal miners incl. Adani Ports"
+        "precedent": "NBIM 2017 excluded 11 coal miners incl. Adani Ports; BlackRock 2020 engagement with Exxon led to board shake-up; CalPERS 2023  (engine estimate)Japanese corp governance push"
       }
     ],
     "painpoint_matches": [
@@ -1858,23 +2120,23 @@
     "confidence_bounds": {
       "figure_lo_cr": null,
       "figure_hi_cr": null,
-      "method": "engine estimate",
-      "notes": "Phase-14 anti-drift constraint; canonical exposure specified in scenario."
+      "method": "engine_estimate",
+      "notes": "Based on SEBI disclosure penalty precedents for large-cap banks and mandatory reporting thresholds."
     },
     "decision_windows": [
       {
         "label": "Immediate",
-        "deadline": "{'headline': '₹8,851.23 Cr governance signal from stake sale",
+        "deadline": "{'headline': '₹10-50 Cr potential SEBI penalty exposure (eng",
         "severity": "soft"
       },
       {
         "label": "Structural",
-        "deadline": "{'valuation_rerating': 'Potential 0.1x P/E compression if ES",
+        "deadline": "{'valuation_rerating': 'Potential 0.05x P/E compression if g",
         "severity": "soft"
       },
       {
         "label": "Long Term",
-        "deadline": "{'secular_trajectory': 'Over 3-5 years, consistent transpare",
+        "deadline": "{'secular_trajectory': 'No material long-term impact unless ",
         "severity": "soft"
       }
     ]
@@ -1882,25 +2144,38 @@
   "role_payloads": {
     "cfo": {
       "role": "cfo",
-      "headline": "P&L lifts ~₹8,900 Cr",
+      "headline": "P&L exposure: pending cascade",
       "hero_metric": {
-        "value": "~₹8,900 Cr",
+        "value": "TBD",
         "label": "P&L exposure",
-        "decision_window": "{'headline': '₹8,851.23 Cr governance signal from stake sale",
+        "decision_window": "{'headline': '₹10-50 Cr potential SEBI penalty exposure (eng",
         "horizon": "",
         "deadline": ""
       },
       "role_takeaways": [
-        "P&L exposure: ~₹8,900 Cr.",
-        "Monitor SEBI Disclosure Compliance Quarterly; budget ~₹0.2 Cr; payback 3mo."
+        "Audit BRSR P6 Governance Disclosure by 2026-05-15; budget ~₹1 Cr; payback 12mo."
       ],
-      "role_paragraph": "P&L exposure: ~₹8,900 Cr. Monitor SEBI Disclosure Compliance Quarterly; budget ~₹0.2 Cr; payback 3mo. Decide by {'headline': '₹8,851.23 Cr governance signal from stake sale.",
+      "role_paragraph": "Audit BRSR P6 Governance Disclosure by 2026-05-15; budget ~₹1 Cr; payback 12mo. Decide by {'headline': '₹10-50 Cr potential SEBI penalty exposure (eng.",
       "recommendations": [
         {
-          "title": "Monitor SEBI Disclosure Compliance Quarterly",
+          "title": "Audit BRSR P6 Governance Disclosure by 2026-05-15",
           "type": "compliance",
-          "budget_cr": 0.2,
-          "payback_months": 3.0,
+          "budget_cr": 1.0,
+          "payback_months": 12.0,
+          "framework_section": "BRSR:P6"
+        },
+        {
+          "title": "Implement KPI Dashboard for Governance Metrics by 2026-06-15",
+          "type": "operational",
+          "budget_cr": 2.0,
+          "payback_months": 12.0,
+          "framework_section": "BRSR:P6"
+        },
+        {
+          "title": "Maintain Regulator Correspondence Log by 2026-07-15",
+          "type": "compliance",
+          "budget_cr": 0.3,
+          "payback_months": 18.0,
           "framework_section": "BRSR:P6"
         }
       ],
@@ -1934,18 +2209,11 @@
       "role_paragraph": "SEBI (Securities & Exchange Board of India) enforcement escalation if remediation plan absent within 30-60 days. formal show-cause → interim penalty → appeal window. settlement via consent mechanism in 40-60% of cases. is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
       "recommendations": [
         {
-          "title": "Initiate Investor Briefing on Divestment Rationale",
+          "title": "Develop Investor FAQ on Stake Divestment by 2026-04-30",
           "type": "esg_positioning",
-          "budget_cr": 0.4,
+          "budget_cr": 1.0,
           "payback_months": 6.0,
-          "framework_section": "BRSR:P6"
-        },
-        {
-          "title": "Develop Stakeholder Communication Plan for ESG Impact",
-          "type": "esg_positioning",
-          "budget_cr": 0.6,
-          "payback_months": 12.0,
-          "framework_section": "BRSR:P6"
+          "framework_section": "BRSR:P6:Q14"
         }
       ],
       "visible_panels": [
@@ -1964,20 +2232,19 @@
     },
     "esg-analyst": {
       "role": "esg-analyst",
-      "headline": "BRSR:BRSR:P4 disclosure trigger — due {'headline': '₹8,851.23 Cr governance signal from stake sale",
+      "headline": "BRSR:BRSR:P4 disclosure trigger — due {'headline': '₹10-50 Cr potential SEBI penalty exposure (eng",
       "hero_metric": {
         "value": "BRSR:BRSR:P4",
         "label": "Disclosure trigger",
         "decision_window": "",
         "horizon": "",
-        "deadline": "{'headline': '₹8,851.23 Cr governance signal from stake sale"
+        "deadline": "{'headline': '₹10-50 Cr potential SEBI penalty exposure (eng"
       },
       "role_takeaways": [
-        "BRSR:BRSR:P4: action required by {'headline': '₹8,851.23 Cr governance signal from stake sale (engine estimate).",
-        "Cascade ₹8,851.2 Cr (engine estimate).",
+        "BRSR:BRSR:P4: action required by {'headline': '₹10-50 Cr potential SEBI penalty exposure (eng (engine_estimate).",
         "Checklist: 5 framework section(s) flagged."
       ],
-      "role_paragraph": "BRSR:BRSR:P4 is the dominant disclosure trigger with deadline {'headline': '₹8,851.23 Cr governance signal from stake sale. Confidence: engine estimate. Regulatory checklist: 5 entries; BRSR:BRSR:P4, GRI, DJSI:DJSI:Econ. Computed cascade: ₹8,851.2 Cr.",
+      "role_paragraph": "BRSR:BRSR:P4 is the dominant disclosure trigger with deadline {'headline': '₹10-50 Cr potential SEBI penalty exposure (eng. Confidence: engine_estimate. Regulatory checklist: 5 entries; BRSR:BRSR:P4, GRI, DJSI:DJSI:Econ.",
       "recommendations": [],
       "visible_panels": [
         "personal_stakes",
@@ -1995,7 +2262,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:44:08.816386+00:00",
+    "written_at": "2026-05-26T14:17:03.286395+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

@@ -1,0 +1,64 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Water",
+        "Power/Energy",
+        "JSW Energy"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Water is material for Power/Energy → impacts JSW Energy"
+    },
+    {
+      "nodes": [
+        "Water",
+        "BRSR",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Water triggers BRSR disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Water",
+        "GRI",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Water triggers GRI disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Water",
+        "ESRS",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Water triggers ESRS disclosure obligation for JSW Energy"
+    }
+  ]
+}

@@ -2,6 +2,42 @@
   "paths": [
     {
       "nodes": [
+        "YES Bank"
+      ],
+      "edges": [],
+      "hops": 0,
+      "relationship_type": "directOperational",
+      "impact_score": 1.0,
+      "explanation": "YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank Delhi Branch",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank Delhi Branch -> YES Bank"
+    },
+    {
+      "nodes": [
+        "YES Bank HQ",
+        "YES Bank"
+      ],
+      "edges": [
+        "directOperational"
+      ],
+      "hops": 1,
+      "relationship_type": "directOperational",
+      "impact_score": 0.7,
+      "explanation": "YES Bank HQ -> YES Bank"
+    },
+    {
+      "nodes": [
         "Transparency & Disclosure",
         "BRSR",
         "YES Bank"
@@ -29,55 +65,6 @@
       "relationship_type": "regulatoryContagion",
       "impact_score": 0.48,
       "explanation": "Transparency & Disclosure triggers GRI disclosure obligation for YES Bank"
-    },
-    {
-      "nodes": [
-        "Transparency & Disclosure",
-        "ESRS",
-        "YES Bank"
-      ],
-      "edges": [
-        "triggersFramework",
-        "regulatoryContagion"
-      ],
-      "hops": 2,
-      "relationship_type": "regulatoryContagion",
-      "impact_score": 0.48,
-      "explanation": "Transparency & Disclosure triggers ESRS disclosure obligation for YES Bank"
-    },
-    {
-      "nodes": [
-        "SEBI Disclosure Violation",
-        "BRSR",
-        "Financials/Banking",
-        "YES Bank"
-      ],
-      "edges": [
-        "indirectImpact",
-        "indirectImpact",
-        "industrySpillover"
-      ],
-      "hops": 3,
-      "relationship_type": "industrySpillover",
-      "impact_score": 0.2,
-      "explanation": "SEBI Disclosure Violation -> BRSR -> Financials/Banking -> YES Bank"
-    },
-    {
-      "nodes": [
-        "SEBI Quarterly Corporate Governance Report",
-        "BRSR",
-        "Financials/Banking",
-        "YES Bank"
-      ],
-      "edges": [
-        "indirectImpact",
-        "indirectImpact",
-        "industrySpillover"
-      ],
-      "hops": 3,
-      "relationship_type": "industrySpillover",
-      "impact_score": 0.2,
-      "explanation": "SEBI Quarterly Corporate Governance Report -> BRSR -> Financials/Banking -> YES Bank"
     }
   ]
 }

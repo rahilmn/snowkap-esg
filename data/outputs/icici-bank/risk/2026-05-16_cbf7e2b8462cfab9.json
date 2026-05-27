@@ -21,12 +21,12 @@
     },
     {
       "category": "Regulatory Risk",
-      "probability": 2,
-      "exposure": 2,
-      "raw_score": 4,
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
       "industry_weight": 1.6,
-      "adjusted_score": 6.4,
-      "level": "MODERATE",
+      "adjusted_score": 14.4,
+      "level": "HIGH",
       "lead_indicators": [
         "draft regulations",
         "public consultations",
@@ -99,12 +99,12 @@
     },
     {
       "category": "Legal",
-      "probability": 2,
-      "exposure": 2,
-      "raw_score": 4,
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
       "industry_weight": 1.0,
-      "adjusted_score": 4.0,
-      "level": "LOW",
+      "adjusted_score": 9.0,
+      "level": "MODERATE",
       "lead_indicators": [
         "draft regulations",
         "enforcement priorities",
@@ -134,9 +134,47 @@
         "brand value decline",
         "customer boycotts"
       ]
+    },
+    {
+      "category": "Technological",
+      "probability": 2,
+      "exposure": 2,
+      "raw_score": 4,
+      "industry_weight": 1.5,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
+      "lead_indicators": [
+        "penetration testing results",
+        "vulnerability disclosures",
+        "tech debt"
+      ],
+      "lag_indicators": [
+        "data breaches",
+        "system outages",
+        "customer data loss"
+      ]
     }
   ],
   "top_risks": [
+    {
+      "category": "Regulatory Risk",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.6,
+      "adjusted_score": 14.4,
+      "level": "HIGH",
+      "lead_indicators": [
+        "draft regulations",
+        "public consultations",
+        "regulator speeches"
+      ],
+      "lag_indicators": [
+        "enforcement actions",
+        "fines",
+        "license conditions"
+      ]
+    },
     {
       "category": "Market & Uncertainty",
       "probability": 3,
@@ -176,63 +214,44 @@
       ]
     },
     {
-      "category": "Regulatory Risk",
-      "probability": 2,
-      "exposure": 2,
-      "raw_score": 4,
-      "industry_weight": 1.6,
-      "adjusted_score": 6.4,
+      "category": "Legal",
+      "probability": 3,
+      "exposure": 3,
+      "raw_score": 9,
+      "industry_weight": 1.0,
+      "adjusted_score": 9.0,
       "level": "MODERATE",
       "lead_indicators": [
         "draft regulations",
-        "public consultations",
-        "regulator speeches"
+        "enforcement priorities",
+        "litigation precedents"
       ],
       "lag_indicators": [
-        "enforcement actions",
         "fines",
-        "license conditions"
+        "lawsuits",
+        "settlements"
       ]
     },
     {
-      "category": "Reputational Risk",
+      "category": "Technological",
       "probability": 2,
       "exposure": 2,
       "raw_score": 4,
-      "industry_weight": 1.4,
-      "adjusted_score": 5.6,
-      "level": "LOW",
+      "industry_weight": 1.5,
+      "adjusted_score": 6.0,
+      "level": "MODERATE",
       "lead_indicators": [
-        "social media sentiment",
-        "NGO campaigns",
-        "whistleblower reports"
+        "penetration testing results",
+        "vulnerability disclosures",
+        "tech debt"
       ],
       "lag_indicators": [
-        "brand score decline",
-        "customer churn",
-        "boycotts"
-      ]
-    },
-    {
-      "category": "Transition Risk",
-      "probability": 2,
-      "exposure": 2,
-      "raw_score": 4,
-      "industry_weight": 1.3,
-      "adjusted_score": 5.2,
-      "level": "LOW",
-      "lead_indicators": [
-        "tech adoption curves",
-        "policy roadmaps",
-        "customer preference shifts"
-      ],
-      "lag_indicators": [
-        "stranded assets",
-        "demand destruction",
-        "market share loss"
+        "data breaches",
+        "system outages",
+        "customer data loss"
       ]
     }
   ],
-  "aggregate_score": 0.187,
-  "ontology_queries": 14
+  "aggregate_score": 0.263,
+  "ontology_queries": 16
 }

@@ -19,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 46,
-    "elapsed_seconds": 22.609,
+    "elapsed_seconds": 24.241,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -34,15 +34,15 @@
     ],
     "nlp": {
       "sentiment": -1,
-      "sentiment_confidence": 0.85,
+      "sentiment_confidence": 0.9,
       "tone": [
         "cautionary",
         "analytical",
         "neutral"
       ],
       "narrative_core_claim": "SEBI issued an administrative warning to ICICI Bank for non-compliances in its depository participant activities.",
-      "narrative_implied_causation": "Non-compliances identified during SEBI's periodic inspection caused the regulatory warning, prompting corrective actions by the bank.",
-      "narrative_stakeholder_framing": "ICICI Bank is the protagonist addressing regulatory concerns; SEBI is the regulator enforcing compliance; investors and clients are affected stakeholders.",
+      "narrative_implied_causation": "Non-compliances identified during SEBI's periodic inspection caused the issuance of an administrative warning to ICICI Bank.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist taking corrective action; SEBI is the regulator enforcing compliance; investors and clients are affected stakeholders.",
       "entities": [
         "SEBI",
         "ICICI Bank",
@@ -80,8 +80,8 @@
       ],
       "esg_pillar": "G",
       "esg_topics": [
-        "regulatory compliance",
         "governance",
+        "regulatory compliance",
         "operational risk"
       ],
       "content_type": "regulatory",
@@ -95,9 +95,9 @@
       "primary_pillar": "G",
       "primary_sub_metrics": [
         "regulatory_compliance",
-        "code_of_conduct",
-        "fines",
-        "whistleblower_protection"
+        "administrative_warnings",
+        "corrective_actions",
+        "code_of_conduct"
       ],
       "secondary_themes": [
         {
@@ -106,7 +106,7 @@
           "sub_metrics": [
             "esg_reporting",
             "disclosure_completeness",
-            "audit_quality"
+            "regulatory_filings"
           ]
         },
         {
@@ -655,7 +655,7 @@
         "financial_magnitude": 0.0,
         "actionability": 0.2,
         "painpoint_match": 0.0,
-        "recency": 0.0484,
+        "recency": 0.0477,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.0,
@@ -664,7 +664,7 @@
       },
       "role_scores": {
         "cfo": 0.1411,
-        "ceo": 0.1636,
+        "ceo": 0.1635,
         "analyst": 0.1911
       }
     }
@@ -889,7 +889,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:44:40.683607+00:00",
+    "written_at": "2026-05-26T14:17:36.886611+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

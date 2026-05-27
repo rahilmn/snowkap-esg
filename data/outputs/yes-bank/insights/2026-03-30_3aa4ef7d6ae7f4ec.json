@@ -19,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 41,
-    "elapsed_seconds": 38.274,
+    "elapsed_seconds": 14.542,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -41,8 +41,8 @@
         "analytical"
       ],
       "narrative_core_claim": "YES BANK has led ESG performance among Indian banks for four consecutive years according to S&P Global CSA rankings.",
-      "narrative_implied_causation": "YES BANK's sustained ESG initiatives have resulted in top rankings by S&P Global CSA among Indian banks.",
-      "narrative_stakeholder_framing": "YES BANK is the protagonist demonstrating leadership; Indian banking sector and stakeholders are positively affected.",
+      "narrative_implied_causation": "YES BANK's sustained ESG leadership is due to its consistent focus on environmental, social, and governance practices.",
+      "narrative_stakeholder_framing": "YES BANK is the protagonist demonstrating leadership; stakeholders include Indian banking sector and ESG rating agencies.",
       "entities": [
         "YES BANK",
         "S&P Global CSA",
@@ -51,8 +51,8 @@
       ],
       "entity_types": {
         "YES BANK": "company",
-        "S&P Global CSA": "regulatory framework",
-        "Indian Banks": "industry",
+        "S&P Global CSA": "regulator/agency",
+        "Indian Banks": "sector",
         "ThePrint": "media"
       },
       "financial_signal": {
@@ -66,8 +66,10 @@
       "esg_pillar": "mixed",
       "esg_topics": [
         "ESG leadership",
+        "banking sector sustainability",
         "governance",
-        "sustainability performance"
+        "social responsibility",
+        "environmental management"
       ],
       "content_type": "narrative",
       "urgency": "low",
@@ -80,7 +82,8 @@
       "primary_pillar": "G",
       "primary_sub_metrics": [
         "esg_reporting",
-        "disclosure_completeness"
+        "disclosure_completeness",
+        "audit_quality"
       ],
       "secondary_themes": [
         {
@@ -88,7 +91,8 @@
           "pillar": "G",
           "sub_metrics": [
             "engagement_programs",
-            "voting_rights"
+            "voting_rights",
+            "shareholder_rights"
           ]
         },
         {
@@ -96,7 +100,8 @@
           "pillar": "G",
           "sub_metrics": [
             "board_diversity",
-            "board_independence"
+            "board_independence",
+            "succession_planning"
           ]
         }
       ],
@@ -772,7 +777,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:48:00.613595+00:00",
+    "written_at": "2026-05-26T15:17:17.765404+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

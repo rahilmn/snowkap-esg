@@ -1,0 +1,64 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Risk Management",
+        "Power/Energy",
+        "JSW Energy"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Risk Management is material for Power/Energy → impacts JSW Energy"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "TCFD",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers TCFD disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "COSO ERM",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers COSO ERM disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Risk Management",
+        "ISSB / IFRS S1 S2",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Risk Management triggers ISSB / IFRS S1 S2 disclosure obligation for JSW Energy"
+    }
+  ]
+}

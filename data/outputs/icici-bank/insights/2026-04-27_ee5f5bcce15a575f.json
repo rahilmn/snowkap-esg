@@ -18,8 +18,8 @@
     "tier": "SECONDARY",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 46,
-    "elapsed_seconds": 8.324,
+    "ontology_query_count": 37,
+    "elapsed_seconds": 31.25,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -39,9 +39,9 @@
         "analytical",
         "neutral"
       ],
-      "narrative_core_claim": "The article compares dividend yields of HDFC Bank, ICICI Bank, and Axis Bank against fixed deposit returns to assess wealth creation.",
-      "narrative_implied_causation": "Comparing dividend yields and fixed deposit rates helps investors decide which option creates more wealth.",
-      "narrative_stakeholder_framing": "Banks are the protagonists providing investment options; investors are the affected stakeholders deciding where to invest.",
+      "narrative_core_claim": "The article compares dividend yields of HDFC Bank, ICICI Bank, and Axis Bank against fixed deposit returns to evaluate wealth creation.",
+      "narrative_implied_causation": "Differences in dividend yields and fixed deposit rates influence which investment option creates more wealth for investors.",
+      "narrative_stakeholder_framing": "Banks are the financial entities analyzed; investors are the affected stakeholders deciding between dividend yields and fixed deposits.",
       "entities": [
         "HDFC Bank",
         "ICICI Bank",
@@ -88,15 +88,15 @@
           ]
         },
         {
-          "theme": "Risk Management",
+          "theme": "Tax Transparency",
           "pillar": "G",
           "sub_metrics": [
-            "business_continuity",
-            "erm_maturity"
+            "effective_tax_rate",
+            "country_by_country_reporting"
           ]
         }
       ],
-      "confidence": 0.4,
+      "confidence": 0.6,
       "method": "llm"
     },
     "event": {
@@ -211,12 +211,13 @@
       {
         "framework_id": "GRI",
         "framework_label": "GRI",
-        "relevance": 0.7100000000000001,
+        "relevance": 0.7700000000000001,
         "is_mandatory": false,
         "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
         "triggered_by_themes": [
           "Transparency & Disclosure",
-          "Board & Leadership"
+          "Board & Leadership",
+          "Tax Transparency"
         ],
         "applicable_deadlines": [],
         "triggered_sections": [
@@ -224,24 +225,25 @@
         ]
       },
       {
-        "framework_id": "DJSI",
-        "framework_label": "Dow Jones Sustainability Index",
-        "relevance": 0.6100000000000001,
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.6700000000000002,
         "is_mandatory": false,
-        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
         "triggered_by_themes": [
           "Transparency & Disclosure",
-          "Board & Leadership"
+          "Board & Leadership",
+          "Tax Transparency"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
       },
       {
-        "framework_id": "ESRS",
-        "framework_label": "ESRS",
+        "framework_id": "DJSI",
+        "framework_label": "Dow Jones Sustainability Index",
         "relevance": 0.6100000000000001,
         "is_mandatory": false,
-        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
         "triggered_by_themes": [
           "Transparency & Disclosure",
           "Board & Leadership"
@@ -287,26 +289,13 @@
         "triggered_sections": []
       },
       {
-        "framework_id": "TCFD",
-        "framework_label": "TCFD",
-        "relevance": 0.43000000000000005,
-        "is_mandatory": false,
-        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
         "framework_id": "CFA_ESG",
         "framework_label": "CFA ESG Integration",
-        "relevance": 0.39,
+        "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
         "triggered_by_themes": [
-          "Board & Leadership",
-          "Risk Management"
+          "Board & Leadership"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -314,60 +303,11 @@
       {
         "framework_id": "COSO_ERM",
         "framework_label": "COSO ERM",
-        "relevance": 0.39,
+        "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
         "triggered_by_themes": [
-          "Board & Leadership",
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "BCG_MATRIX",
-        "framework_label": "BCG Matrix",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "ISSB",
-        "framework_label": "ISSB / IFRS S1 S2",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "Global baseline — affects cross-border investor confidence",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "MCKINSEY_3_HORIZONS",
-        "framework_label": "McKinsey Three Horizons",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
-        "triggered_by_themes": [
-          "Risk Management"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "PORTER_5_FORCES",
-        "framework_label": "Porter Five Forces",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
-        "triggered_by_themes": [
-          "Risk Management"
+          "Board & Leadership"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -431,25 +371,6 @@
             "settlements",
             "penalties"
           ]
-        },
-        {
-          "category": "Market & Uncertainty",
-          "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
-          "industry_weight": 1.4,
-          "adjusted_score": 4.2,
-          "level": "LOW",
-          "lead_indicators": [
-            "VIX",
-            "FX volatility",
-            "geopolitical tensions"
-          ],
-          "lag_indicators": [
-            "valuation compression",
-            "capital flight",
-            "downgrades"
-          ]
         }
       ],
       "temples_risks": [
@@ -489,25 +410,6 @@
             "policy changes",
             "license restrictions",
             "trade barriers"
-          ]
-        },
-        {
-          "category": "Economic",
-          "probability": 1,
-          "exposure": 3,
-          "raw_score": 3,
-          "industry_weight": 1.0,
-          "adjusted_score": 3.0,
-          "level": "LOW",
-          "lead_indicators": [
-            "commodity price trends",
-            "FX volatility",
-            "customer order pipeline"
-          ],
-          "lag_indicators": [
-            "revenue decline",
-            "margin erosion",
-            "write-downs"
           ]
         }
       ],
@@ -589,27 +491,27 @@
           ]
         },
         {
-          "category": "Market & Uncertainty",
+          "category": "Political",
           "probability": 1,
           "exposure": 3,
           "raw_score": 3,
-          "industry_weight": 1.4,
-          "adjusted_score": 4.2,
+          "industry_weight": 1.0,
+          "adjusted_score": 3.0,
           "level": "LOW",
           "lead_indicators": [
-            "VIX",
-            "FX volatility",
-            "geopolitical tensions"
+            "election cycles",
+            "policy white papers",
+            "diplomatic tensions"
           ],
           "lag_indicators": [
-            "valuation compression",
-            "capital flight",
-            "downgrades"
+            "policy changes",
+            "license restrictions",
+            "trade barriers"
           ]
         }
       ],
-      "aggregate_score": 0.138,
-      "ontology_queries": 14
+      "aggregate_score": 0.109,
+      "ontology_queries": 10
     },
     "stakeholders": [
       "Customers",
@@ -621,14 +523,14 @@
     "article_content": "HDFC Bank Vs ICICI Bank Vs Axis Bank: Dividend Yield Or Fixed Deposit? Which Creates More Wealth NDTV Profit",
     "image_url": "",
     "criticality": {
-      "score": 0.2187,
+      "score": 0.2186,
       "band": "LOW",
       "components": {
         "materiality": 0.3,
         "financial_magnitude": 0.0,
         "actionability": 0.8,
         "painpoint_match": 0.0,
-        "recency": 0.0154,
+        "recency": 0.0152,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.0,
@@ -636,9 +538,9 @@
         "polarity_drift_penalty": 0.0
       },
       "role_scores": {
-        "cfo": 0.2437,
+        "cfo": 0.2436,
         "ceo": 0.1944,
-        "analyst": 0.2487
+        "analyst": 0.2486
       }
     }
   },
@@ -669,15 +571,15 @@
         "is_mandatory": false
       },
       {
-        "code": "DJSI",
-        "name": "DJSI",
+        "code": "ESRS",
+        "name": "ESRS",
         "rationale": "",
         "region": "",
         "is_mandatory": false
       },
       {
-        "code": "ESRS",
-        "name": "ESRS",
+        "code": "DJSI",
+        "name": "DJSI",
         "rationale": "",
         "region": "",
         "is_mandatory": false
@@ -704,13 +606,6 @@
         "is_mandatory": false
       },
       {
-        "code": "TCFD",
-        "name": "TCFD",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
         "code": "CFA_ESG",
         "name": "CFA_ESG",
         "rationale": "",
@@ -720,34 +615,6 @@
       {
         "code": "COSO_ERM",
         "name": "COSO_ERM",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "BCG_MATRIX",
-        "name": "BCG_MATRIX",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "ISSB",
-        "name": "ISSB",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "MCKINSEY_3_HORIZONS",
-        "name": "MCKINSEY_3_HORIZONS",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "PORTER_5_FORCES",
-        "name": "PORTER_5_FORCES",
         "rationale": "",
         "region": "",
         "is_mandatory": false
@@ -844,7 +711,7 @@
         "BRSR: action required [unverified].",
         "Checklist: 5 framework section(s) flagged."
       ],
-      "role_paragraph": "BRSR is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI:GRI:207, DJSI.",
+      "role_paragraph": "BRSR is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI:GRI:207, ESRS.",
       "recommendations": [],
       "visible_panels": [
         "personal_stakes",
@@ -862,7 +729,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:45:37.131010+00:00",
+    "written_at": "2026-05-26T14:18:42.261171+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

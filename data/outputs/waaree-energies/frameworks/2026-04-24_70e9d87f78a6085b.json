@@ -14,6 +14,20 @@
       "triggered_sections": []
     },
     {
+      "framework_id": "TCFD",
+      "framework_label": "TCFD",
+      "relevance": 0.7700000000000001,
+      "is_mandatory": false,
+      "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+      "triggered_by_themes": [
+        "Energy",
+        "Climate Change",
+        "Risk Management"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
       "framework_id": "CDP",
       "framework_label": "CDP",
       "relevance": 0.7100000000000001,
@@ -42,19 +56,6 @@
       ]
     },
     {
-      "framework_id": "TCFD",
-      "framework_label": "TCFD",
-      "relevance": 0.7100000000000001,
-      "is_mandatory": false,
-      "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
-      "triggered_by_themes": [
-        "Energy",
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": []
-    },
-    {
       "framework_id": "EU_TAXONOMY",
       "framework_label": "EU Taxonomy",
       "relevance": 0.55,
@@ -69,11 +70,12 @@
     {
       "framework_id": "CFA_ESG",
       "framework_label": "CFA ESG Integration",
-      "relevance": 0.33,
+      "relevance": 0.39,
       "is_mandatory": false,
       "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
       "triggered_by_themes": [
-        "Climate Change"
+        "Climate Change",
+        "Risk Management"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []
@@ -81,11 +83,38 @@
     {
       "framework_id": "COSO_ERM",
       "framework_label": "COSO ERM",
-      "relevance": 0.33,
+      "relevance": 0.39,
       "is_mandatory": false,
       "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
       "triggered_by_themes": [
-        "Climate Change"
+        "Climate Change",
+        "Risk Management"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "ISSB",
+      "framework_label": "ISSB / IFRS S1 S2",
+      "relevance": 0.39,
+      "is_mandatory": false,
+      "profitability_link": "Global baseline — affects cross-border investor confidence",
+      "triggered_by_themes": [
+        "Climate Change",
+        "Risk Management"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "PORTER_5_FORCES",
+      "framework_label": "Porter Five Forces",
+      "relevance": 0.39,
+      "is_mandatory": false,
+      "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+      "triggered_by_themes": [
+        "Climate Change",
+        "Risk Management"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []
@@ -139,30 +168,6 @@
       "triggered_sections": []
     },
     {
-      "framework_id": "ISSB",
-      "framework_label": "ISSB / IFRS S1 S2",
-      "relevance": 0.33,
-      "is_mandatory": false,
-      "profitability_link": "Global baseline — affects cross-border investor confidence",
-      "triggered_by_themes": [
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": []
-    },
-    {
-      "framework_id": "PORTER_5_FORCES",
-      "framework_label": "Porter Five Forces",
-      "relevance": 0.33,
-      "is_mandatory": false,
-      "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
-      "triggered_by_themes": [
-        "Climate Change"
-      ],
-      "applicable_deadlines": [],
-      "triggered_sections": []
-    },
-    {
       "framework_id": "SP_GLOBAL_ESG",
       "framework_label": "S&P Global ESG",
       "relevance": 0.33,
@@ -194,6 +199,30 @@
       "profitability_link": "US-listed companies face enforcement + litigation risk",
       "triggered_by_themes": [
         "Climate Change"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "BCG_MATRIX",
+      "framework_label": "BCG Matrix",
+      "relevance": 0.33,
+      "is_mandatory": false,
+      "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+      "triggered_by_themes": [
+        "Risk Management"
+      ],
+      "applicable_deadlines": [],
+      "triggered_sections": []
+    },
+    {
+      "framework_id": "MCKINSEY_3_HORIZONS",
+      "framework_label": "McKinsey Three Horizons",
+      "relevance": 0.33,
+      "is_mandatory": false,
+      "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+      "triggered_by_themes": [
+        "Risk Management"
       ],
       "applicable_deadlines": [],
       "triggered_sections": []

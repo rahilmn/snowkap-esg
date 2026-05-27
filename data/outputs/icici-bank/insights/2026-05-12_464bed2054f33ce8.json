@@ -19,7 +19,7 @@
     "rejected": false,
     "rejection_reason": "",
     "ontology_query_count": 29,
-    "elapsed_seconds": 11.561,
+    "elapsed_seconds": 13.033,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -40,8 +40,8 @@
         "analytical"
       ],
       "narrative_core_claim": "ICICI Bank will hold an investor meeting at Citi's 2026 Pan-Asia Conference on May 18.",
-      "narrative_implied_causation": "The scheduling of the investor meet is to engage with investors during the Citi Pan-Asia Conference.",
-      "narrative_stakeholder_framing": "ICICI Bank is the protagonist organizing the meet; investors are the affected stakeholders.",
+      "narrative_implied_causation": "ICICI Bank's participation in the conference aims to engage investors and provide updates.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist engaging with investors who are the affected stakeholders.",
       "entities": [
         "ICICI Bank",
         "Citi",
@@ -72,8 +72,8 @@
       "primary_theme": "Stakeholder Governance",
       "primary_pillar": "G",
       "primary_sub_metrics": [
-        "shareholder_rights",
         "engagement_programs",
+        "shareholder_rights",
         "voting_rights"
       ],
       "secondary_themes": [],
@@ -81,11 +81,11 @@
       "method": "llm"
     },
     "event": {
-      "event_id": "event_board_change",
-      "label": "Board / Senior Leadership Change",
-      "score_floor": 3,
-      "score_ceiling": 7,
-      "financial_transmission": "governance signal -> share price volatility",
+      "event_id": "event_shareholding_change",
+      "label": "Shareholding / Control Disclosure",
+      "score_floor": 4,
+      "score_ceiling": 8,
+      "financial_transmission": "control change -> investor sentiment + cost of capital + valuation re-rating",
       "matched_keywords": [
         "[theme_fallback]"
       ],
@@ -413,14 +413,14 @@
     "article_content": "ICICI Bank Schedules Investor Meet at Citi's 2026 Pan-Asia Conference on May 18 scanx.trade",
     "image_url": "",
     "criticality": {
-      "score": 0.2074,
+      "score": 0.1172,
       "band": "LOW",
       "components": {
         "materiality": 0.2,
         "financial_magnitude": 0.0,
-        "actionability": 0.8,
+        "actionability": 0.2,
         "painpoint_match": 0.0,
-        "recency": 0.1316,
+        "recency": 0.1288,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.0,
@@ -428,9 +428,9 @@
         "polarity_drift_penalty": 0.0
       },
       "role_scores": {
-        "cfo": 0.2374,
-        "ceo": 0.1839,
-        "analyst": 0.2274
+        "cfo": 0.1172,
+        "ceo": 0.1236,
+        "analyst": 0.1372
       }
     }
   },
@@ -591,7 +591,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:45:19.903475+00:00",
+    "written_at": "2026-05-26T15:15:31.998435+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

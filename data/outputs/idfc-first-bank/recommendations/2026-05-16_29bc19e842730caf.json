@@ -1,0 +1,144 @@
+{
+  "recommendations": [
+    {
+      "title": "Establish Legal Reserve for CBI Probe Defense",
+      "description": "Allocate ₹30-40 Cr (5-7% of ₹590 Cr exposure) as a legal reserve for expert counsel and litigation expenses related to the ongoing CBI probe, ensuring readiness for regulatory deadlines and minimizing penalty risks under BRSR:P6:Q14.",
+      "type": "compliance",
+      "responsible_party": "Chief Legal Officer",
+      "framework_section": "BRSR:P6:Q14",
+      "deadline": "2026-05-30",
+      "estimated_budget": "₹30-40 Cr",
+      "profitability_link": "Avoids ₹900-1,100 Cr penalty exposure by enabling robust legal defense, ROI estimated at 225% (₹900 Cr penalty avoided / ₹40 Cr cost).",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "High",
+      "risk_of_inaction": 10,
+      "roi_percentage": 225.0,
+      "payback_months": 12.0,
+      "peer_benchmark": "Peer banks allocated 5-10% of exposure for legal contingencies in similar probes",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "BRSR:P6:Q14",
+          "value": "₹900–1,100 Cr compliance/legal and penalty exposure from CBI probe"
+        },
+        {
+          "source": "ontology",
+          "ref": "BRSR:P6:Q14",
+          "value": "Compliance risk management required under BRSR for regulatory scrutiny"
+        }
+      ]
+    },
+    {
+      "title": "Monitor Cyber Vulnerability Scores Monthly",
+      "description": "Track CVSS scores monthly; escalate to board if CVSS ≥7.0 or red-team achieves primary objective within 3 months to prevent data breaches and regulatory penalties under BRSR and GRI compliance frameworks.",
+      "type": "compliance",
+      "responsible_party": "Chief Information Security Officer",
+      "framework_section": "BRSR:P6, GRI:418-1",
+      "deadline": "2026-07-01",
+      "estimated_budget": "₹0.5-1 Cr",
+      "profitability_link": "Avoids potential ₹50-70 Cr regulatory fines and reputational loss from data breaches, ROI ~350%.",
+      "priority": "CRITICAL",
+      "urgency": "immediate",
+      "estimated_impact": "High",
+      "risk_of_inaction": 10,
+      "roi_percentage": 350.0,
+      "payback_months": 3.0,
+      "peer_benchmark": "Peers escalated cyber risk alerts promptly, reducing breach incidents by 30%",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "primitive",
+          "ref": "CVSS >=7.0",
+          "value": "Cyber vulnerability threshold τ=CVSS≥7.0"
+        },
+        {
+          "source": "article",
+          "ref": "BRSR:P6",
+          "value": "Regulatory scrutiny requires proactive risk monitoring"
+        }
+      ]
+    },
+    {
+      "title": "Implement Enhanced Anti-Fraud Compliance System",
+      "description": "Invest ₹12-18 Cr (2-3% of ₹590 Cr exposure) by 2026-10-31 to deploy advanced anti-fraud technology and strengthen internal controls, targeting ₹120-140 Cr in penalty and fraud loss reduction as per COSO ERM guidelines.",
+      "type": "operational",
+      "responsible_party": "Chief Risk Officer",
+      "framework_section": "COSO ERM",
+      "deadline": "2026-10-31",
+      "estimated_budget": "₹12-18 Cr",
+      "profitability_link": "Potential cost savings of ₹120-140 Cr from reduced fraud and penalties, ROI ~700% capped at 200% for operational improvements.",
+      "priority": "CRITICAL",
+      "urgency": "short_term",
+      "estimated_impact": "High",
+      "risk_of_inaction": 8,
+      "roi_percentage": 200.0,
+      "payback_months": 18.0,
+      "peer_benchmark": "Competitors enhanced fraud controls post-scandal, reducing penalty costs by 20-25%",
+      "roi_capped": false,
+      "roi_cap_reason": "",
+      "audit_trail": [
+        {
+          "source": "article",
+          "ref": "COSO ERM",
+          "value": "Potential cost savings up to ₹120–140 Cr engine estimate from enhanced anti-fraud systems"
+        },
+        {
+          "source": "ontology",
+          "ref": "COSO ERM",
+          "value": "ERM maturity affects penalty risk and cost of capital"
+        }
+      ]
+    }
+  ],
+  "do_nothing": false,
+  "gate_reason": "",
+  "generator_count": 3,
+  "validated_count": 3,
+  "priority_matrix": {
+    "immediate_high": [
+      {
+        "index": 0,
+        "title": "Establish Legal Reserve for CBI Probe Defense",
+        "type": "compliance",
+        "roi": 225.0,
+        "budget": "₹30-40 Cr"
+      },
+      {
+        "index": 1,
+        "title": "Monitor Cyber Vulnerability Scores Monthly",
+        "type": "compliance",
+        "roi": 350.0,
+        "budget": "₹0.5-1 Cr"
+      },
+      {
+        "index": 2,
+        "title": "Implement Enhanced Anti-Fraud Compliance System",
+        "type": "operational",
+        "roi": 200.0,
+        "budget": "₹12-18 Cr"
+      }
+    ],
+    "immediate_low": [],
+    "deferred_high": [],
+    "deferred_low": []
+  },
+  "recommendation_rankings": {
+    "cfo": [
+      1,
+      0,
+      2
+    ],
+    "ceo": [
+      2
+    ],
+    "esg-analyst": [
+      0,
+      1,
+      2
+    ]
+  }
+}

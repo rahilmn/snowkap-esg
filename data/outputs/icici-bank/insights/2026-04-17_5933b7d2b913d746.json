@@ -18,8 +18,8 @@
     "tier": "SECONDARY",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 35,
-    "elapsed_seconds": 7.233,
+    "ontology_query_count": 46,
+    "elapsed_seconds": 15.422,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -34,63 +34,88 @@
     ],
     "nlp": {
       "sentiment": 0,
-      "sentiment_confidence": 0.8,
+      "sentiment_confidence": 0.85,
       "tone": [
+        "analytical",
         "neutral",
-        "analytical"
+        "cautionary"
       ],
-      "narrative_core_claim": "ICICI Bank's Q4 FY26 results are anticipated to reveal insights on profit, dividend, and fundraising plans.",
-      "narrative_implied_causation": "The bank's financial performance in Q4 FY26 will influence its dividend distribution and fundraising strategies.",
-      "narrative_stakeholder_framing": "ICICI Bank is the protagonist, with shareholders and investors as the affected stakeholders.",
+      "narrative_core_claim": "ICICI Bank is expected to announce steady Q4FY26 results with stable loan growth but pressure on margins and profits.",
+      "narrative_implied_causation": "Strong loan growth supports operational performance, but margin pressure and weaker treasury income may limit profit growth.",
+      "narrative_stakeholder_framing": "ICICI Bank is the protagonist managing financial performance; investors and analysts are the affected stakeholders monitoring results.",
       "entities": [
         "ICICI Bank",
-        "Q4 FY26"
+        "Nomura",
+        "Kotak Institutional Equities",
+        "India",
+        "Q4FY26",
+        "Q3FY26",
+        "₹12,390 crore",
+        "₹22,700 crore",
+        "₹15.3 trillion",
+        "₹17.6 trillion"
       ],
       "entity_types": {
         "ICICI Bank": "company",
-        "Q4 FY26": "time period"
+        "Nomura": "company",
+        "Kotak Institutional Equities": "company",
+        "India": "location",
+        "Q4FY26": "time_period",
+        "Q3FY26": "time_period",
+        "₹12,390 crore": "financial_amount",
+        "₹22,700 crore": "financial_amount",
+        "₹15.3 trillion": "financial_amount",
+        "₹17.6 trillion": "financial_amount"
       },
       "financial_signal": {
-        "amount": null,
-        "unit": null,
-        "context": ""
+        "amount": 12390,
+        "unit": "crore",
+        "context": "expected net profit for Q4FY26"
       },
       "regulatory_references": [],
       "esg_pillar": "mixed",
-      "esg_topics": [],
+      "esg_topics": [
+        "financial performance",
+        "asset quality",
+        "provisions",
+        "loan growth",
+        "deposit growth",
+        "margin pressure"
+      ],
       "content_type": "financial",
       "urgency": "medium",
-      "time_horizon": "weeks",
+      "time_horizon": "immediate",
       "source_credibility_tier": 3,
       "climate_events": []
     },
     "themes": {
-      "primary_theme": "Transparency & Disclosure",
+      "primary_theme": "Board & Leadership",
       "primary_pillar": "G",
       "primary_sub_metrics": [
-        "esg_reporting",
-        "disclosure_completeness",
-        "audit_quality"
+        "board_diversity",
+        "succession_planning",
+        "board_independence"
       ],
       "secondary_themes": [
         {
-          "theme": "Board & Leadership",
+          "theme": "Risk Management",
           "pillar": "G",
           "sub_metrics": [
-            "board_diversity",
-            "succession_planning"
+            "business_continuity",
+            "erm_maturity",
+            "risk_committees"
           ]
         },
         {
-          "theme": "Tax Transparency",
+          "theme": "Transparency & Disclosure",
           "pillar": "G",
           "sub_metrics": [
-            "effective_tax_rate",
-            "country_by_country_reporting"
+            "esg_reporting",
+            "disclosure_completeness"
           ]
         }
       ],
-      "confidence": 0.7,
+      "confidence": 0.8,
       "method": "llm"
     },
     "event": {
@@ -100,12 +125,17 @@
       "score_ceiling": 6,
       "financial_transmission": "actual financial performance → earnings revision → valuation re-rating → investor flow",
       "matched_keywords": [
+        "earnings",
+        "Q3",
         "Q4",
+        "FY25",
         "FY26",
-        "profit"
+        "profit",
+        "net profit",
+        "margin"
       ],
-      "has_financial_quantum": false,
-      "financial_amount_cr": null
+      "has_financial_quantum": true,
+      "financial_amount_cr": 12390.0
     },
     "relevance": {
       "total": 4,
@@ -115,7 +145,7 @@
       "compliance_risk": 0,
       "supply_chain_impact": 0,
       "people_impact": 0,
-      "materiality_weight": 0.9,
+      "materiality_weight": 1.0,
       "adjusted_total": 4.0,
       "rejection_reason": "",
       "ontology_queries": 1
@@ -172,7 +202,7 @@
       },
       {
         "nodes": [
-          "Transparency & Disclosure",
+          "Board & Leadership",
           "BRSR",
           "ICICI Bank"
         ],
@@ -183,7 +213,7 @@
         "hops": 2,
         "relationship_type": "regulatoryContagion",
         "impact_score": 0.48,
-        "explanation": "Transparency & Disclosure triggers BRSR disclosure obligation for ICICI Bank"
+        "explanation": "Board & Leadership triggers BRSR disclosure obligation for ICICI Bank"
       }
     ],
     "frameworks": [
@@ -194,8 +224,8 @@
         "is_mandatory": true,
         "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
         "triggered_by_themes": [
-          "Transparency & Disclosure",
-          "Board & Leadership"
+          "Board & Leadership",
+          "Transparency & Disclosure"
         ],
         "applicable_deadlines": [
           "BRSR FY26 Filing",
@@ -207,29 +237,38 @@
       {
         "framework_id": "GRI",
         "framework_label": "GRI",
-        "relevance": 0.7700000000000001,
+        "relevance": 0.7100000000000001,
         "is_mandatory": false,
         "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
         "triggered_by_themes": [
-          "Transparency & Disclosure",
           "Board & Leadership",
-          "Tax Transparency"
+          "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
-        "triggered_sections": [
-          "GRI:207"
-        ]
+        "triggered_sections": []
       },
       {
-        "framework_id": "ESRS",
-        "framework_label": "ESRS",
-        "relevance": 0.6700000000000002,
+        "framework_id": "CFA_ESG",
+        "framework_label": "CFA ESG Integration",
+        "relevance": 0.6100000000000001,
         "is_mandatory": false,
-        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
         "triggered_by_themes": [
-          "Transparency & Disclosure",
           "Board & Leadership",
-          "Tax Transparency"
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "COSO_ERM",
+        "framework_label": "COSO ERM",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
+        "triggered_by_themes": [
+          "Board & Leadership",
+          "Risk Management"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -241,8 +280,21 @@
         "is_mandatory": false,
         "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
         "triggered_by_themes": [
-          "Transparency & Disclosure",
-          "Board & Leadership"
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ESRS",
+        "framework_label": "ESRS",
+        "relevance": 0.6100000000000001,
+        "is_mandatory": false,
+        "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
+        "triggered_by_themes": [
+          "Board & Leadership",
+          "Transparency & Disclosure"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -254,8 +306,74 @@
         "is_mandatory": false,
         "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
         "triggered_by_themes": [
-          "Transparency & Disclosure",
-          "Board & Leadership"
+          "Board & Leadership",
+          "Transparency & Disclosure"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "TCFD",
+        "framework_label": "TCFD",
+        "relevance": 0.43000000000000005,
+        "is_mandatory": false,
+        "profitability_link": "Non-disclosure → FII outflow → P/E compression 5-10%",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Governance"
+        ]
+      },
+      {
+        "framework_id": "BCG_MATRIX",
+        "framework_label": "BCG Matrix",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Classify ESG initiatives as stars, cash cows, question marks, dogs",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "ISSB",
+        "framework_label": "ISSB / IFRS S1 S2",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Global baseline — affects cross-border investor confidence",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": [
+          "TCFD:Gov",
+          "TCFD:Governance"
+        ]
+      },
+      {
+        "framework_id": "MCKINSEY_3_HORIZONS",
+        "framework_label": "McKinsey Three Horizons",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "ESG opportunities mapped across H1/H2/H3 investment horizons",
+        "triggered_by_themes": [
+          "Risk Management"
+        ],
+        "applicable_deadlines": [],
+        "triggered_sections": []
+      },
+      {
+        "framework_id": "PORTER_5_FORCES",
+        "framework_label": "Porter Five Forces",
+        "relevance": 0.33,
+        "is_mandatory": false,
+        "profitability_link": "Structural industry analysis for ESG-driven competitive shifts",
+        "triggered_by_themes": [
+          "Risk Management"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -263,7 +381,7 @@
       {
         "framework_id": "EDELMAN",
         "framework_label": "Edelman Trust Barometer",
-        "relevance": 0.55,
+        "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "Trust score correlates with customer retention, talent acquisition",
         "triggered_by_themes": [
@@ -275,35 +393,11 @@
       {
         "framework_id": "SFDR",
         "framework_label": "SFDR",
-        "relevance": 0.55,
+        "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "Required for EU fund marketing — affects capital access",
         "triggered_by_themes": [
           "Transparency & Disclosure"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "CFA_ESG",
-        "framework_label": "CFA ESG Integration",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "ESG factors integrated into DCF, multiples, cost of capital models",
-        "triggered_by_themes": [
-          "Board & Leadership"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "COSO_ERM",
-        "framework_label": "COSO ERM",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "ERM maturity affects credit rating, cost of capital, board oversight",
-        "triggered_by_themes": [
-          "Board & Leadership"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -312,22 +406,22 @@
     "risk": {
       "esg_risks": [
         {
-          "category": "Regulatory Risk",
+          "category": "Litigation Risk",
           "probability": 3,
           "exposure": 3,
           "raw_score": 9,
-          "industry_weight": 1.6,
-          "adjusted_score": 14.4,
+          "industry_weight": 1.5,
+          "adjusted_score": 13.5,
           "level": "HIGH",
           "lead_indicators": [
-            "draft regulations",
-            "public consultations",
-            "regulator speeches"
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
           ],
           "lag_indicators": [
-            "enforcement actions",
-            "fines",
-            "license conditions"
+            "lawsuits filed",
+            "settlements",
+            "penalties"
           ]
         },
         {
@@ -350,22 +444,41 @@
           ]
         },
         {
-          "category": "Litigation Risk",
+          "category": "Market & Uncertainty",
           "probability": 2,
           "exposure": 3,
           "raw_score": 6,
-          "industry_weight": 1.5,
-          "adjusted_score": 9.0,
+          "industry_weight": 1.4,
+          "adjusted_score": 8.4,
           "level": "MODERATE",
           "lead_indicators": [
-            "class action pre-filings",
-            "activist investor campaigns",
-            "regulatory investigations"
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
           ],
           "lag_indicators": [
-            "lawsuits filed",
-            "settlements",
-            "penalties"
+            "valuation compression",
+            "capital flight",
+            "downgrades"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
           ]
         }
       ],
@@ -407,36 +520,36 @@
             "license restrictions",
             "trade barriers"
           ]
+        },
+        {
+          "category": "Economic",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.0,
+          "adjusted_score": 6.0,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "commodity price trends",
+            "FX volatility",
+            "customer order pipeline"
+          ],
+          "lag_indicators": [
+            "revenue decline",
+            "margin erosion",
+            "write-downs"
+          ]
         }
       ],
       "top_risks": [
         {
-          "category": "Regulatory Risk",
+          "category": "Litigation Risk",
           "probability": 3,
           "exposure": 3,
           "raw_score": 9,
-          "industry_weight": 1.6,
-          "adjusted_score": 14.4,
-          "level": "HIGH",
-          "lead_indicators": [
-            "draft regulations",
-            "public consultations",
-            "regulator speeches"
-          ],
-          "lag_indicators": [
-            "enforcement actions",
-            "fines",
-            "license conditions"
-          ]
-        },
-        {
-          "category": "Litigation Risk",
-          "probability": 2,
-          "exposure": 3,
-          "raw_score": 6,
           "industry_weight": 1.5,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
+          "adjusted_score": 13.5,
+          "level": "HIGH",
           "lead_indicators": [
             "class action pre-filings",
             "activist investor campaigns",
@@ -446,6 +559,25 @@
             "lawsuits filed",
             "settlements",
             "penalties"
+          ]
+        },
+        {
+          "category": "Regulatory Risk",
+          "probability": 2,
+          "exposure": 3,
+          "raw_score": 6,
+          "industry_weight": 1.6,
+          "adjusted_score": 9.6,
+          "level": "MODERATE",
+          "lead_indicators": [
+            "draft regulations",
+            "public consultations",
+            "regulator speeches"
+          ],
+          "lag_indicators": [
+            "enforcement actions",
+            "fines",
+            "license conditions"
           ]
         },
         {
@@ -487,36 +619,36 @@
           ]
         },
         {
-          "category": "Political",
+          "category": "Market & Uncertainty",
           "probability": 2,
           "exposure": 3,
           "raw_score": 6,
-          "industry_weight": 1.0,
-          "adjusted_score": 6.0,
+          "industry_weight": 1.4,
+          "adjusted_score": 8.4,
           "level": "MODERATE",
           "lead_indicators": [
-            "election cycles",
-            "policy white papers",
-            "diplomatic tensions"
+            "VIX",
+            "FX volatility",
+            "geopolitical tensions"
           ],
           "lag_indicators": [
-            "policy changes",
-            "license restrictions",
-            "trade barriers"
+            "valuation compression",
+            "capital flight",
+            "downgrades"
           ]
         }
       ],
-      "aggregate_score": 0.187,
-      "ontology_queries": 10
+      "aggregate_score": 0.244,
+      "ontology_queries": 14
     },
     "stakeholders": [
-      "Customers",
-      "Employees",
       "Investors",
       "Regulators"
     ],
-    "sdgs": [],
-    "article_content": "ICICI Bank Q4 FY26 Results: What to Expect on Profit, Dividend & Fundraising Plans outlookbusiness.com",
+    "sdgs": [
+      "Peace, Justice and Strong Institutions"
+    ],
+    "article_content": "ICICI Bank to announce Q4FY26 results, dividend decision also likely\nAnalysts expect steady growth, but margins and profits may stay under pressure\nLoan growth strong; deposits lag, with focus on asset quality outlook\nPrivate lender ICICI Bank is all set to declare its financial results for the quarter ended March 31, 2026 on Saturday (April 18). The board is also expected to take up a potential dividend proposal, if any.\nThe lender may announce its earnings during market hours, though the exact timing has not been officially confirmed. Along with the results, the board could consider recommending a dividend for FY26.\n“We wish to inform you that the meeting of the Board of Directors of ICICI Bank Limited (“the Bank”) is scheduled to be held on Saturday, April 18, 2026, to, inter alia, consider and approve the audited financial results (standalone and consolidated) for the quarter and year ending March 31, 2026 and recommendation of dividend, if any, for the financial year ending March 31, 2026,” the bank said.\nThe bank will hold a media briefing at 4:00 pm (IST) on April 18, 2026, to discuss its financial performance. The bank will follow this with an earnings call for analysts and investors at 5:00 pm IST on the same day.\nThe board is also expected to evaluate fundraising plans. “und raising by way of issuance of debt securities including by way of non-convertible debentures in domestic markets by way of private placement and issuance of bonds/notes/offshore certificate of deposits in overseas markets; and buyback of debt securities within the limits that the Board is authorised to approve under applicable law,” the statement read.\nWhat Do Brokerages Expect?\nAnalysts predict that the bank is likely to deliver stable operational performance in Q4FY26, though overall profit growth may appear muted due to a high base and normalisation in provisions. In addition, they expect steady growth in net interest income (NII) and robust loan expansion.\nHowever, they stated that gains could be tempered by pressure on margins and weaker treasury income. Analysts say investors will closely track management commentary on margin outlook, along with trends in loan and deposit growth.\n\"ICICI Bank to post a net profit of ₹12,390 crore in Q4FY26, implying a marginal 2% year-on-year (Y-o-Y) decline, though profit is likely to rise 9% sequentially. NII is projected at ₹22,700 crore, marking a growth of around 7% Y-o-Y and 4% quarter-on-quarter (Q-o-Q),\" said Nomura in its recent report.\nThe brokerage projects loan growth of about 14% year-on-year, with advances likely to reach roughly ₹15.3 trillion. Deposit growth is expected to be comparatively slower at around 9% YoY, taking the total to nearly ₹17.6 trillion.\nIt further estimates net interest margins (NIMs) could ease by around 2 basis points sequentially to about 4.2%, reflecting the full impact of the December 2025 rate cut. This could be partially cushioned by term deposit repricing and gains from the cash reserve ratio (CRR) adjustment.\nOn the other hand, Kotak Institutional Equities expects deposit growth to remain modest at around 9% year-on-year (₹17.6 trillion), which could result in a sequential NIM compression of about 10 basis points to nearly 4.1%.\n\"...while net profit is pegged at ₹13,084.8 crore, up 4% YoY and 15.6% QoQ. Lower credit costs of around 0.3% for Q4FY26, with no major surprises expected on the provisioning front,\" it added.\nICICI Bank Q3FY26\nThe bank reported a 4% year-on-year decline in standalone net profit for the third quarter of FY26. India’s second-largest private lender reported profit after tax of ₹11,318 crore in Q3 FY26, compared with ₹11,792 crore in the year-ago quarter.\nA sharp increase in provisions weighed on the bank’s bottom line, even as operating performance remained steady and asset quality improved. Provisions (excluding tax) rose 108% year on year to ₹2,556 crore in Q3 FY26, compared with ₹1,227 crore in Q3 FY25.\nIt also took a one-time charge of around ₹145 crore during the quarter based on estimates linked to the implementation of new labour codes, which further weighed on earnings.\nNet interest income rose 7.7% YoY to ₹21,932 crore from ₹20,371 crore in Q3 FY25, supported by loan growth and stable margins. Net interest margin stood at 4.30%, unchanged sequentially and slightly higher than 4.25% a year ago.\nOperating expenses increased 13.2% YoY to ₹11,944 crore, partly due to the labour code-related provision. Treasury performance also impacted the quarter, with the bank reporting a loss of ₹157 crore compared with a gain of ₹371 crore in Q3 FY25.",
     "image_url": "",
     "criticality": {
       "score": 0.0378,
@@ -526,7 +658,7 @@
         "financial_magnitude": 0.0,
         "actionability": 0.8,
         "painpoint_match": 0.0,
-        "recency": 0.0037,
+        "recency": 0.0036,
         "source_authority": 0.5,
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.2,
@@ -560,43 +692,8 @@
         "is_mandatory": true
       },
       {
-        "code": "GRI:GRI:207",
+        "code": "GRI",
         "name": "GRI",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "ESRS",
-        "name": "ESRS",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "DJSI",
-        "name": "DJSI",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "SP_GLOBAL_ESG",
-        "name": "SP_GLOBAL_ESG",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "EDELMAN",
-        "name": "EDELMAN",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "SFDR",
-        "name": "SFDR",
         "rationale": "",
         "region": "",
         "is_mandatory": false
@@ -611,6 +708,90 @@
       {
         "code": "COSO_ERM",
         "name": "COSO_ERM",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "DJSI",
+        "name": "DJSI",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ESRS",
+        "name": "ESRS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SP_GLOBAL_ESG",
+        "name": "SP_GLOBAL_ESG",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "TCFD:TCFD:Gov",
+        "name": "TCFD",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "TCFD:TCFD:Governance",
+        "name": "TCFD",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "BCG_MATRIX",
+        "name": "BCG_MATRIX",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ISSB:TCFD:Gov",
+        "name": "ISSB",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "ISSB:TCFD:Governance",
+        "name": "ISSB",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "MCKINSEY_3_HORIZONS",
+        "name": "MCKINSEY_3_HORIZONS",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "PORTER_5_FORCES",
+        "name": "PORTER_5_FORCES",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "EDELMAN",
+        "name": "EDELMAN",
+        "rationale": "",
+        "region": "",
+        "is_mandatory": false
+      },
+      {
+        "code": "SFDR",
+        "name": "SFDR",
         "rationale": "",
         "region": "",
         "is_mandatory": false
@@ -707,7 +888,7 @@
         "BRSR: action required [unverified].",
         "Checklist: 5 framework section(s) flagged."
       ],
-      "role_paragraph": "BRSR is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI:GRI:207, ESRS.",
+      "role_paragraph": "BRSR is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR, GRI, CFA_ESG.",
       "recommendations": [],
       "visible_panels": [
         "personal_stakes",
@@ -725,7 +906,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:59:30.143921+00:00",
+    "written_at": "2026-05-26T14:18:01.524656+00:00",
     "schema_version": "3.2-template-hardened"
   }
 }

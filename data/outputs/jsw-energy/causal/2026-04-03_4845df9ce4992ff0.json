@@ -1,0 +1,81 @@
+{
+  "paths": [
+    {
+      "nodes": [
+        "Energy",
+        "Power/Energy",
+        "JSW Energy"
+      ],
+      "edges": [
+        "materialFor",
+        "industrySpillover"
+      ],
+      "hops": 2,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.6,
+      "explanation": "Energy is material for Power/Energy → impacts JSW Energy"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "BRSR",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers BRSR disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "GRI",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers GRI disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "Energy",
+        "TCFD",
+        "JSW Energy"
+      ],
+      "edges": [
+        "triggersFramework",
+        "regulatoryContagion"
+      ],
+      "hops": 2,
+      "relationship_type": "regulatoryContagion",
+      "impact_score": 0.48,
+      "explanation": "Energy triggers TCFD disclosure obligation for JSW Energy"
+    },
+    {
+      "nodes": [
+        "McKinsey Three Horizons",
+        "Risk Management",
+        "Power/Energy",
+        "JSW Energy"
+      ],
+      "edges": [
+        "indirectImpact",
+        "indirectImpact",
+        "industrySpillover"
+      ],
+      "hops": 3,
+      "relationship_type": "industrySpillover",
+      "impact_score": 0.2,
+      "explanation": "McKinsey Three Horizons -> Risk Management -> Power/Energy -> JSW Energy"
+    }
+  ]
+}

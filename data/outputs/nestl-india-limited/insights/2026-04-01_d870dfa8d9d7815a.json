@@ -15,11 +15,11 @@
     "source": "scanx.trade",
     "published_at": "2026-04-01T07:00:00+00:00",
     "company_slug": "nestl-india-limited",
-    "tier": "HOME",
+    "tier": "SECONDARY",
     "rejected": false,
     "rejection_reason": "",
-    "ontology_query_count": 43,
-    "elapsed_seconds": 13.579,
+    "ontology_query_count": 40,
+    "elapsed_seconds": 10.533,
     "stages_executed": [
       "nlp_extraction",
       "theme_tagging",
@@ -29,54 +29,44 @@
       "framework_matching",
       "stakeholder_mapping",
       "sdg_mapping",
-      "risk_assessment",
+      "risk_assessment_lite",
       "criticality_scoring"
     ],
     "nlp": {
       "sentiment": 1,
-      "sentiment_confidence": 0.9,
+      "sentiment_confidence": 0.8,
       "tone": [
-        "analytical",
         "neutral",
-        "optimistic"
+        "optimistic",
+        "analytical"
       ],
-      "narrative_core_claim": "Nestlé India is expanding Maggi Noodles production capacity at its Sanand Factory with a new line adding 20,500 tons per annum.",
-      "narrative_implied_causation": "The capacity expansion is driven by anticipated future demand and funded through internal accruals to support self-funded growth.",
-      "narrative_stakeholder_framing": "Nestlé India is the protagonist expanding production capacity to meet consumer demand in the instant noodles market.",
+      "narrative_core_claim": "Nestlé India is expanding Maggi noodles production by adding a new production line at its Sanand factory.",
+      "narrative_implied_causation": "The expansion of production capacity at the Sanand factory will increase Maggi noodles output to meet growing demand.",
+      "narrative_stakeholder_framing": "Nestlé India is the protagonist expanding operations; consumers and supply chain stakeholders are affected by increased product availability.",
       "entities": [
-        "Nestlé India Limited",
+        "Nestlé India",
         "Maggi Noodles",
-        "Sanand Factory",
-        "Gujarat",
-        "SEBI",
-        "₹90 crores",
-        "Financial Year 2026-27"
+        "Sanand Factory"
       ],
       "entity_types": {
-        "Nestlé India Limited": "company",
+        "Nestlé India": "company",
         "Maggi Noodles": "product",
-        "Sanand Factory": "location",
-        "Gujarat": "location",
-        "SEBI": "regulator",
-        "₹90 crores": "financial",
-        "Financial Year 2026-27": "time_period"
+        "Sanand Factory": "location"
       },
       "financial_signal": {
-        "amount": 90,
-        "unit": "crore",
-        "context": "investment for new Maggi Noodles production line at Sanand Factory"
+        "amount": null,
+        "unit": null,
+        "context": ""
       },
-      "regulatory_references": [
-        "SEBI"
-      ],
+      "regulatory_references": [],
       "esg_pillar": "mixed",
       "esg_topics": [
-        "manufacturing capacity",
-        "capital expenditure",
-        "supply chain efficiency"
+        "supply chain",
+        "production capacity",
+        "operational expansion"
       ],
       "content_type": "operational",
-      "urgency": "medium",
+      "urgency": "low",
       "time_horizon": "months",
       "source_credibility_tier": 3,
       "climate_events": []
@@ -85,19 +75,11 @@
       "primary_theme": "Human Capital",
       "primary_pillar": "S",
       "primary_sub_metrics": [
+        "local_employment",
         "talent_retention",
-        "training_hours",
-        "employee_turnover"
+        "training_hours"
       ],
       "secondary_themes": [
-        {
-          "theme": "Supply Chain Labor",
-          "pillar": "S",
-          "sub_metrics": [
-            "living_wage_compliance",
-            "supplier_audits"
-          ]
-        },
         {
           "theme": "Community Impact",
           "pillar": "S",
@@ -107,11 +89,11 @@
           ]
         },
         {
-          "theme": "Transparency & Disclosure",
-          "pillar": "G",
+          "theme": "Supply Chain Labor",
+          "pillar": "S",
           "sub_metrics": [
-            "esg_reporting",
-            "disclosure_completeness"
+            "living_wage_compliance",
+            "supplier_audits"
           ]
         }
       ],
@@ -119,29 +101,27 @@
       "method": "llm"
     },
     "event": {
-      "event_id": "event_routine_capex",
-      "label": "Routine Capex",
-      "score_floor": 1,
-      "score_ceiling": 5,
-      "financial_transmission": "balance sheet growth — no immediate ESG signal",
+      "event_id": "event_labour_strike",
+      "label": "Labour Strike / Dispute",
+      "score_floor": 5,
+      "score_ceiling": 8,
+      "financial_transmission": "operational disruption -> production loss, brand damage",
       "matched_keywords": [
-        "greenfield",
-        "brownfield",
-        "capacity addition"
+        "[theme_fallback]"
       ],
-      "has_financial_quantum": true,
-      "financial_amount_cr": 90.0
+      "has_financial_quantum": false,
+      "financial_amount_cr": null
     },
     "relevance": {
-      "total": 10,
-      "tier": "HOME",
+      "total": 7,
+      "tier": "SECONDARY",
       "esg_correlation": 2,
-      "financial_impact": 2,
-      "compliance_risk": 2,
+      "financial_impact": 1,
+      "compliance_risk": 0,
       "supply_chain_impact": 2,
       "people_impact": 2,
       "materiality_weight": 0.5,
-      "adjusted_total": 8.5,
+      "adjusted_total": 5.95,
       "rejection_reason": "",
       "ontology_queries": 1
     },
@@ -155,9 +135,8 @@
         "profitability_link": "Non-disclosure → SEBI scrutiny → trading restrictions → cost of capital +20-40bps",
         "triggered_by_themes": [
           "Human Capital",
-          "Supply Chain Labor",
           "Community Impact",
-          "Transparency & Disclosure"
+          "Supply Chain Labor"
         ],
         "applicable_deadlines": [
           "BRSR FY26 Filing",
@@ -171,14 +150,13 @@
       {
         "framework_id": "GRI",
         "framework_label": "GRI",
-        "relevance": 0.8300000000000002,
+        "relevance": 0.7700000000000001,
         "is_mandatory": false,
         "profitability_link": "Weak GRI disclosure → lower ESG ratings → fund outflow",
         "triggered_by_themes": [
           "Human Capital",
-          "Supply Chain Labor",
           "Community Impact",
-          "Transparency & Disclosure"
+          "Supply Chain Labor"
         ],
         "applicable_deadlines": [],
         "triggered_sections": [
@@ -189,14 +167,13 @@
       {
         "framework_id": "ESRS",
         "framework_label": "ESRS",
-        "relevance": 0.7300000000000002,
+        "relevance": 0.6700000000000002,
         "is_mandatory": false,
         "profitability_link": "Part of CSRD compliance — mandatory for EU operations",
         "triggered_by_themes": [
           "Human Capital",
-          "Supply Chain Labor",
           "Community Impact",
-          "Transparency & Disclosure"
+          "Supply Chain Labor"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -217,12 +194,11 @@
       {
         "framework_id": "DJSI",
         "framework_label": "Dow Jones Sustainability Index",
-        "relevance": 0.39,
+        "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "DJSI inclusion → ESG fund inflows, ~5-10% valuation premium",
         "triggered_by_themes": [
-          "Community Impact",
-          "Transparency & Disclosure"
+          "Community Impact"
         ],
         "applicable_deadlines": [],
         "triggered_sections": [
@@ -232,36 +208,11 @@
       {
         "framework_id": "EDELMAN",
         "framework_label": "Edelman Trust Barometer",
-        "relevance": 0.39,
+        "relevance": 0.33,
         "is_mandatory": false,
         "profitability_link": "Trust score correlates with customer retention, talent acquisition",
         "triggered_by_themes": [
-          "Community Impact",
-          "Transparency & Disclosure"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "SP_GLOBAL_ESG",
-        "framework_label": "S&P Global ESG",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "Score drives DJSI inclusion + passive ESG fund tracking",
-        "triggered_by_themes": [
-          "Transparency & Disclosure"
-        ],
-        "applicable_deadlines": [],
-        "triggered_sections": []
-      },
-      {
-        "framework_id": "SFDR",
-        "framework_label": "SFDR",
-        "relevance": 0.33,
-        "is_mandatory": false,
-        "profitability_link": "Required for EU fund marketing — affects capital access",
-        "triggered_by_themes": [
-          "Transparency & Disclosure"
+          "Community Impact"
         ],
         "applicable_deadlines": [],
         "triggered_sections": []
@@ -270,26 +221,7 @@
     "risk": {
       "esg_risks": [
         {
-          "category": "Market & Uncertainty",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
-          "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "VIX",
-            "FX volatility",
-            "geopolitical tensions"
-          ],
-          "lag_indicators": [
-            "valuation compression",
-            "capital flight",
-            "downgrades"
-          ]
-        },
-        {
-          "category": "Regulatory Risk",
+          "category": "Human Capital Risk",
           "probability": 2,
           "exposure": 2,
           "raw_score": 4,
@@ -297,23 +229,61 @@
           "adjusted_score": 4.0,
           "level": "LOW",
           "lead_indicators": [
-            "draft regulations",
-            "public consultations",
-            "regulator speeches"
+            "employee engagement surveys",
+            "turnover trends",
+            "union activity"
           ],
           "lag_indicators": [
-            "enforcement actions",
-            "fines",
-            "license conditions"
+            "mass attrition",
+            "strikes",
+            "talent gaps"
+          ]
+        },
+        {
+          "category": "Manpower Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "labor market indicators",
+            "demographic shifts",
+            "skill gap analyses"
+          ],
+          "lag_indicators": [
+            "absenteeism",
+            "productivity drops",
+            "recruitment failures"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
           ]
         },
         {
           "category": "Reputational Risk",
-          "probability": 2,
+          "probability": 1,
           "exposure": 2,
-          "raw_score": 4,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 4.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
@@ -328,12 +298,12 @@
         },
         {
           "category": "Supply Chain Risk",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
+          "adjusted_score": 2.0,
+          "level": "LOW",
           "lead_indicators": [
             "commodity price trends",
             "supplier financial health",
@@ -348,31 +318,50 @@
       ],
       "temples_risks": [
         {
-          "category": "Economic",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
-          "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "commodity price trends",
-            "FX volatility",
-            "customer order pipeline"
-          ],
-          "lag_indicators": [
-            "revenue decline",
-            "margin erosion",
-            "write-downs"
-          ]
-        },
-        {
-          "category": "Legal",
+          "category": "Social",
           "probability": 2,
           "exposure": 2,
           "raw_score": 4,
           "industry_weight": 1.0,
           "adjusted_score": 4.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "workforce sentiment surveys",
+            "union activity",
+            "community engagement feedback"
+          ],
+          "lag_indicators": [
+            "strikes",
+            "protests",
+            "community opposition"
+          ]
+        },
+        {
+          "category": "Media",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "social media sentiment shifts",
+            "journalist inquiries",
+            "activist group interest"
+          ],
+          "lag_indicators": [
+            "negative coverage",
+            "brand value decline",
+            "customer boycotts"
+          ]
+        },
+        {
+          "category": "Legal",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "draft regulations",
@@ -384,9 +373,11 @@
             "lawsuits",
             "settlements"
           ]
-        },
+        }
+      ],
+      "top_risks": [
         {
-          "category": "Media",
+          "category": "Human Capital Risk",
           "probability": 2,
           "exposure": 2,
           "raw_score": 4,
@@ -394,14 +385,14 @@
           "adjusted_score": 4.0,
           "level": "LOW",
           "lead_indicators": [
-            "social media sentiment shifts",
-            "journalist inquiries",
-            "activist group interest"
+            "employee engagement surveys",
+            "turnover trends",
+            "union activity"
           ],
           "lag_indicators": [
-            "negative coverage",
-            "brand value decline",
-            "customer boycotts"
+            "mass attrition",
+            "strikes",
+            "talent gaps"
           ]
         },
         {
@@ -422,92 +413,52 @@
             "protests",
             "community opposition"
           ]
-        }
-      ],
-      "top_risks": [
-        {
-          "category": "Market & Uncertainty",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
-          "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "VIX",
-            "FX volatility",
-            "geopolitical tensions"
-          ],
-          "lag_indicators": [
-            "valuation compression",
-            "capital flight",
-            "downgrades"
-          ]
         },
         {
-          "category": "Supply Chain Risk",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
-          "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "commodity price trends",
-            "supplier financial health",
-            "concentration ratios"
-          ],
-          "lag_indicators": [
-            "supplier failures",
-            "delivery delays",
-            "cost overruns"
-          ]
-        },
-        {
-          "category": "Economic",
-          "probability": 3,
-          "exposure": 3,
-          "raw_score": 9,
-          "industry_weight": 1.0,
-          "adjusted_score": 9.0,
-          "level": "MODERATE",
-          "lead_indicators": [
-            "commodity price trends",
-            "FX volatility",
-            "customer order pipeline"
-          ],
-          "lag_indicators": [
-            "revenue decline",
-            "margin erosion",
-            "write-downs"
-          ]
-        },
-        {
-          "category": "Regulatory Risk",
-          "probability": 2,
+          "category": "Manpower Risk",
+          "probability": 1,
           "exposure": 2,
-          "raw_score": 4,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 4.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
-            "draft regulations",
-            "public consultations",
-            "regulator speeches"
+            "labor market indicators",
+            "demographic shifts",
+            "skill gap analyses"
           ],
           "lag_indicators": [
-            "enforcement actions",
-            "fines",
-            "license conditions"
+            "absenteeism",
+            "productivity drops",
+            "recruitment failures"
+          ]
+        },
+        {
+          "category": "Litigation Risk",
+          "probability": 1,
+          "exposure": 2,
+          "raw_score": 2,
+          "industry_weight": 1.0,
+          "adjusted_score": 2.0,
+          "level": "LOW",
+          "lead_indicators": [
+            "class action pre-filings",
+            "activist investor campaigns",
+            "regulatory investigations"
+          ],
+          "lag_indicators": [
+            "lawsuits filed",
+            "settlements",
+            "penalties"
           ]
         },
         {
           "category": "Reputational Risk",
-          "probability": 2,
+          "probability": 1,
           "exposure": 2,
-          "raw_score": 4,
+          "raw_score": 2,
           "industry_weight": 1.0,
-          "adjusted_score": 4.0,
+          "adjusted_score": 2.0,
           "level": "LOW",
           "lead_indicators": [
             "social media sentiment",
@@ -521,7 +472,7 @@
           ]
         }
       ],
-      "aggregate_score": 0.188,
+      "aggregate_score": 0.08,
       "ontology_queries": 16
     },
     "stakeholders": [
@@ -531,13 +482,13 @@
       "Decent Work and Economic Growth",
       "Quality Education"
     ],
-    "article_content": "Nestlé India Expands Maggi Noodles Production with New Line at Sanand Factory\nNestlé India Limited announced the addition of a new Maggi Noodles production line at its Sanand Factory in Gujarat, adding 20,500 tons per annum capacity with an investment of ₹90 crores funded through internal accruals. The expansion is scheduled for completion during Financial Year 2026-27 and is part of the company's planned capital expenditure to meet future demand. The Sanand Factory currently has existing capacity of 141,600 tons per annum with 80% utilization rate.\n*this image is generated using AI for illustrative purposes only.\nNestlé India Limited has announced the addition of a new Maggi Noodles production line at its Sanand Factory in Gujarat, marking a significant expansion in its manufacturing capabilities. The company disclosed this development through a regulatory filing under Regulation 30 of the SEBI Listing Regulations.\nProduction Capacity Enhancement\nThe new production line will substantially boost the company's Maggi Noodles manufacturing capacity at the Sanand facility. The expansion represents a strategic move to strengthen the company's position in the instant noodles market.\nInvestment and Financing\nThe capacity expansion project requires a total investment of ₹90 crores (approx.), which will be funded entirely through internal accruals. This financing approach demonstrates the company's strong cash generation capabilities and commitment to self-funded growth initiatives.\nStrategic Rationale\nThe company stated that this capacity addition forms part of its planned capital expenditure in both greenfield and brownfield projects aimed at increasing overall manufacturing capacities. The expansion is specifically designed to meet anticipated future demand for Maggi Noodles products. Nestlé India also manufactures Maggi Noodles at other factories within its production network, indicating a comprehensive approach to capacity management across multiple locations.\nThe Sanand Factory currently operates at approximately 80% capacity utilization, suggesting room for growth in existing operations alongside the new production line addition. This expansion will enable the company to better serve market demand while maintaining operational efficiency across its manufacturing network.\nHistorical Stock Returns for Nestle\nHow will this capacity expansion impact Nestlé India's market share in the competitive instant noodles segment by 2027?\nWhat factors are driving Nestlé's demand forecasts that justify a 14.5% capacity increase for Maggi Noodles?\nWill Nestlé India announce similar brownfield expansions at other manufacturing facilities to maintain regional supply chain efficiency?",
+    "article_content": "Nestlé India Expands Maggi Noodles Production with New Line at Sanand Factory scanx.trade",
     "image_url": "",
     "criticality": {
-      "score": 0.0675,
+      "score": 0.0,
       "band": "LOW",
       "components": {
-        "materiality": 1.0,
+        "materiality": 0.7,
         "financial_magnitude": 0.0,
         "actionability": 0.2,
         "painpoint_match": 0.0,
@@ -546,1499 +497,21 @@
         "sentiment_trajectory": 0.5,
         "staleness_penalty": 0.2,
         "confidence_penalty": 0.0,
-        "polarity_drift_penalty": 0.0
+        "polarity_drift_penalty": 0.2
       },
       "role_scores": {
-        "cfo": 0.0275,
-        "ceo": 0.1075,
-        "analyst": 0.1675
+        "cfo": 0.0,
+        "ceo": 0.0,
+        "analyst": 0.0
       }
     }
   },
-  "insight": {
-    "headline": "Nestlé India invests ~₹90 Cr to expand Maggi Noodles capacity at Sanand, targeting future demand growth",
-    "impact_score": 4.5,
-    "core_mechanism": "The addition of a new Maggi Noodles production line at the Sanand Factory increases annual capacity by 20,500 tons, representing a 14.5% uplift. This expansion, funded through internal accruals, is designed to capture anticipated demand and reinforce Nestlé India's market position in the instant noodles segment.",
-    "profitability_connection": "The ₹90 Cr capex (engine estimate) is expected to drive incremental revenue and operational leverage as utilization rises, with margin impact estimated at 44.8 bps on annual revenue. Enhanced capacity positions the company to capture market share and improve supply chain efficiency.",
-    "translation": "Nestlé India is spending ₹81–99 Cr to expand its Maggi Noodles factory in Gujarat, aiming to make and sell more noodles as demand grows. This move should help the company serve more customers, stay ahead of competitors, and use its factories more efficiently.",
-    "impact_analysis": {
-      "esg_positioning": "Routine capex with positive human capital and supply chain signaling; no ESG score gap versus peers, but improved disclosure may support index inclusion.",
-      "capital_allocation": "₹90 Cr self-funded investment (engine estimate) signals strong cash flows; no adverse cost of capital impact expected, potential for positive investor perception.",
-      "valuation_cashflow": "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization.",
-      "compliance_regulatory": "SEBI Regulation 30 disclosure triggered; BRSR and GRI reporting required for transparency. No penalty or deadline risk as event is proactive and disclosed.",
-      "supply_chain_transmission": "Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply chain risk identified.",
-      "people_demand": "Positive impact on talent retention and community employment; expansion may enhance employer brand and local economic development."
-    },
-    "financial_timeline": {
-      "immediate": {
-        "headline": "₹90 Cr capex deployed for new production line (engine estimate)",
-        "profitability_pathway": "Capex investment → increased production capacity → potential revenue growth as demand materializes",
-        "margin_pressure": "44.8 bps (engine estimate)",
-        "revenue_at_risk": "No direct revenue at risk; upside potential if demand forecasts are realized"
-      },
-      "structural": {
-        "valuation_rerating": "Potential for slight P/E expansion if capacity utilization improves and revenue grows",
-        "competitive_position": "Strengthens position versus ITC and Hindustan Unilever in instant noodles; supports regional supply chain resilience"
-      },
-      "long_term": {
-        "secular_trajectory": "3-5 year view: supports sustained growth in Maggi Noodles, aligns with rising urban demand and packaged food trends",
-        "green_revenue_opportunity": "No direct green revenue opportunity; event is conventional capacity expansion"
-      }
-    },
-    "esg_relevance_score": {
-      "environment": {
-        "score": 1,
-        "rationale": "Minimal environmental dimension; event is focused on production capacity, not emissions or resource use."
-      },
-      "social": {
-        "score": 7,
-        "rationale": "Significant positive impact on human capital, local employment, and supply chain labor practices."
-      },
-      "governance": {
-        "score": 5,
-        "rationale": "Strong disclosure under SEBI Regulation 30; routine governance compliance with no adverse findings."
-      },
-      "financial_materiality": {
-        "score": 5,
-        "rationale": "₹90 Cr (from article) capex is material for growth but not transformative for a large cap company."
-      },
-      "regulatory_exposure": {
-        "score": 2,
-        "rationale": "Low regulatory risk; event is disclosed and compliant with SEBI and BRSR requirements."
-      },
-      "stakeholder_impact": {
-        "score": 6,
-        "rationale": "Positive for employees and local communities; enhances employer brand and supports talent retention."
-      }
-    },
-    "net_impact_summary": "The ₹90 Cr investment (engine estimate) in expanding Maggi Noodles capacity at Sanand is a routine but strategically positive capex, supporting Nestlé India's ability to meet growing demand and maintain operational efficiency. The event triggers SEBI Regulation 30 and BRSR/GRI reporting, but carries no penalty or compliance risk. While not directly linked to environmental outcomes, the expansion is expected to benefit human capital and community stakeholders, with potential for modest margin and valuation uplift if demand materializes.",
-    "decision_summary": {
-      "materiality": "MODERATE",
-      "action": "ACT",
-      "verdict": "Leverage the expansion for proactive investor and stakeholder communication, highlighting growth and human capital benefits.",
-      "financial_exposure": "₹90 Cr capex opportunity (engine estimate)",
-      "key_risk": "Execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate)",
-      "top_opportunity": "Highlight ₹81–99 Cr self-funded expansion in ESG and investor disclosures to reinforce growth narrative and attract ESG-focused capital",
-      "timeline": "within next quarterly review"
-    },
-    "causal_chain": {
-      "event": "Nestlé India announces ₹90 Cr (from article) investment to add 20,500 tons Maggi Noodles capacity at Sanand Factory",
-      "mechanism": "Increased production capacity enables higher sales volumes if demand forecasts are realized, while internal funding signals financial strength and supports positive stakeholder perception",
-      "company_impact": "Potential for incremental revenue growth, improved operational leverage, and enhanced market share in instant noodles segment",
-      "transmission_type": "direct"
-    },
-    "warnings": [
-      "verifier: added 5 source tags on ₹ figures",
-      "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
-      "verifier: render-protocol: stripped 3 provenance tag(s) from narrative; sidecar staged for frontend tooltip"
-    ],
-    "event_polarity": "neutral",
-    "toulmin": {
-      "claim": "Leverage the expansion for proactive investor and stakeholder communication, highlighting growth and human capital benefits.",
-      "grounds": [
-        "Financial exposure: ₹90 Cr capex opportunity (engine estimate)",
-        "Key risk: Execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate)",
-        "Event classification: event_routine_capex",
-        "Relevance score: 8.5/10",
-        "Materiality weight (ontology): 0.5",
-        "Frameworks triggered: BRSR, GRI, ESRS"
-      ],
-      "warrant": "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation.",
-      "warrant_cite": "NP-FIN-002 (Snowkap CFO-credibility threshold (Phase 11 audit))",
-      "qualifier": "Strong relevance signal; article-cited ₹ quantum present; positive sentiment",
-      "rebuttal": "If additional reporting clarifies the financial materiality or a regulator action escalates the consequence, the verdict would shift if new evidence surfaces."
-    },
-    "cfo_preflight": {
-      "passed": false,
-      "gates": {
-        "financial_impact_quantified": true,
-        "framework_mapped": false,
-        "no_stale_data": false,
-        "polarity_coherent": true,
-        "numeric_consistent": true,
-        "stakeholder_polarity_matched": true
-      },
-      "failures": [
-        {
-          "gate": "framework_mapped",
-          "reason": "frameworks present (5) but no section codes (e.g. BRSR:P5, GRI:303); too coarse for CFO citation"
-        },
-        {
-          "gate": "no_stale_data",
-          "reason": "article is 55d old; freshness window for event_routine_capex is 14d"
-        }
-      ],
-      "canonical_exposure_cr": 99.0,
-      "freshness_window_days": 14
-    },
-    "stakes_for_company": {
-      "personal_stakes_paragraphs": {
-        "cfo": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-        "ceo": "How does this shift YOUR competitive story? The Sanand expansion positions Nestlé India to reinforce its leadership in the instant noodles market, signaling proactive growth to the board. By communicating the human capital and supply chain benefits, you can frame this move as a forward-looking response to evolving consumer demand, strengthening the company’s narrative as an agile, market-driven innovator over the next three years.",
-        "analyst": "This expansion directly affects your upcoming ESG and investor disclosures. For BRSR, reference P6:Q14 on resource efficiency and capacity utilization, and highlight the self-funded nature of the ₹90 Cr investment. While no new GRI or ESRS codes are cited, you should prepare to update operational and capital allocation sections, emphasizing the 14.5% capacity uplift. Monitor for any new disclosure requirements as the filing window approaches, especially regarding execution and utilization metrics."
-      },
-      "personal_stakes_paragraph": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-      "revenue_pct_at_stake": 0.45,
-      "peer_action_summary": "No peer precedent yet.",
-      "do_nothing_risk_paragraph": "If this expansion is ignored in disclosures and stakeholder communication, Nestlé India risks regulatory scrutiny for incomplete reporting, potential MSCI ESG rating downgrades, and increased questioning from lenders and investors about capital deployment. Failure to address underutilization or execution risks could erode trust and trigger supply chain concerns, undermining the company’s growth narrative and access to ESG-focused capital."
-    },
-    "role_panel_order": {
-      "cfo": {
-        "order": [
-          "personal_stakes",
-          "why_critical",
-          "crisp_insight",
-          "impact_metrics",
-          "recommendations",
-          "audit_trail"
-        ],
-        "hidden": [
-          "narrative_intelligence",
-          "sdg_map",
-          "causal_chain",
-          "three_year_trajectory",
-          "board_paragraph",
-          "kpi_table",
-          "stakeholder_map",
-          "framework_alignment"
-        ]
-      },
-      "ceo": {
-        "order": [
-          "personal_stakes",
-          "why_critical",
-          "crisp_insight",
-          "three_year_trajectory",
-          "stakeholder_map",
-          "board_paragraph",
-          "recommendations"
-        ],
-        "hidden": [
-          "kpi_table",
-          "framework_alignment",
-          "audit_trail",
-          "causal_chain",
-          "impact_metrics"
-        ]
-      },
-      "esg-analyst": {
-        "order": [
-          "personal_stakes",
-          "why_critical",
-          "crisp_insight",
-          "kpi_table",
-          "framework_alignment",
-          "causal_chain",
-          "audit_trail",
-          "recommendations",
-          "sdg_map"
-        ],
-        "hidden": [
-          "board_paragraph",
-          "three_year_trajectory"
-        ]
-      }
-    },
-    "criticality": {
-      "score": 0.0917,
-      "band": "LOW",
-      "components": {
-        "materiality": 1.0,
-        "financial_magnitude": 0.0804,
-        "actionability": 0.2,
-        "painpoint_match": 0.0,
-        "recency": 0.0004,
-        "source_authority": 0.5,
-        "sentiment_trajectory": 0.5,
-        "staleness_penalty": 0.2,
-        "confidence_penalty": 0.0,
-        "polarity_drift_penalty": 0.0
-      },
-      "role_scores": {
-        "cfo": 0.0597,
-        "ceo": 0.1236,
-        "analyst": 0.1796
-      }
-    },
-    "sentiment_trajectory": {
-      "company_slug": "nestl-india-limited",
-      "polarity_series": [
-        {
-          "month": "2026-03",
-          "polarity_mean": 0.0,
-          "count": 2
-        },
-        {
-          "month": "2026-04",
-          "polarity_mean": 0.0,
-          "count": 2
-        },
-        {
-          "month": "2026-05",
-          "polarity_mean": 0.0,
-          "count": 1
-        }
-      ],
-      "horizons": {
-        "3m": {
-          "direction": "stable",
-          "confidence": "low",
-          "rationale": "Polarity mean is consistently neutral with very low event counts."
-        },
-        "6m": {
-          "direction": "stable",
-          "confidence": "low",
-          "rationale": "Limited data and neutral polarity suggest no clear trend."
-        },
-        "12m": {
-          "direction": "stable",
-          "confidence": "low",
-          "rationale": "Sparse and neutral polarity data over recent months imply stable sentiment."
-        }
-      },
-      "trajectory": [
-        {
-          "month": "2026-06",
-          "central": 0.0,
-          "lo": -0.09,
-          "hi": 0.09
-        },
-        {
-          "month": "2026-07",
-          "central": 0.0,
-          "lo": -0.13,
-          "hi": 0.13
-        },
-        {
-          "month": "2026-08",
-          "central": 0.0,
-          "lo": -0.16999999999999998,
-          "hi": 0.16999999999999998
-        },
-        {
-          "month": "2026-09",
-          "central": 0.0,
-          "lo": -0.21000000000000002,
-          "hi": 0.21000000000000002
-        },
-        {
-          "month": "2026-10",
-          "central": 0.0,
-          "lo": -0.25,
-          "hi": 0.25
-        },
-        {
-          "month": "2026-11",
-          "central": 0.0,
-          "lo": -0.29,
-          "hi": 0.29
-        },
-        {
-          "month": "2026-12",
-          "central": 0.0,
-          "lo": -0.33,
-          "hi": 0.33
-        },
-        {
-          "month": "2027-01",
-          "central": 0.0,
-          "lo": -0.37,
-          "hi": 0.37
-        },
-        {
-          "month": "2027-02",
-          "central": 0.0,
-          "lo": -0.41,
-          "hi": 0.41
-        },
-        {
-          "month": "2027-03",
-          "central": 0.0,
-          "lo": -0.45,
-          "hi": 0.45
-        },
-        {
-          "month": "2027-04",
-          "central": 0.0,
-          "lo": -0.49,
-          "hi": 0.49
-        },
-        {
-          "month": "2027-05",
-          "central": 0.0,
-          "lo": -0.53,
-          "hi": 0.53
-        }
-      ],
-      "llm_used": true
-    },
-    "role_explainer": {
-      "cfo": {
-        "why_important_for_me": "₹90 Cr capex opportunity (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
-        "how_it_impacts_business": "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization. ₹90 Cr self-funded investment (engine estimate) signals strong cash flows; no adverse cost of capital impact expected, poten",
-        "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
-        "simple_logic": "Flagged for you because financial_magnitude=0.08 and the CFO role weights financial 40%. Your role-specific score: 0.06."
-      },
-      "ceo": {
-        "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
-        "how_it_impacts_business": "Routine capex with positive human capital and supply chain signaling; no ESG score gap versus peers, but improved disclosure may support index inclusion. Positive impact on talent retention and community employment; expansion may enhance employer brand and local economic developm",
-        "analysis_result": "Track competitive movement; revisit at the next strategy review.",
-        "simple_logic": "Flagged for you because materiality=1.00 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.12."
-      },
-      "esg-analyst": {
-        "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
-        "how_it_impacts_business": "SEBI Regulation 30 disclosure triggered; BRSR and GRI reporting required for transparency. No penalty or deadline risk as event is proactive and disclosed. Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply",
-        "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
-        "simple_logic": ""
-      }
-    },
-    "criticality_summary": "Low priority — ₹90 Cr capex opportunity (engine estimate).",
-    "headline_only": false,
-    "body_char_count": 0,
-    "analysis": {
-      "what_changed": {
-        "headline": "Nestlé India invests ~₹90 Cr to expand Maggi Noodles capacity at Sanand, targeting future demand growth",
-        "event_type": "event_routine_capex",
-        "polarity": "neutral",
-        "source": "scanx.trade",
-        "published_at": "2026-04-01T07:00:00+00:00",
-        "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQNlJmQWY2YTAtQV9QOU5yTTFRenlUY2xwV253NEp2dnZfdk83SjZrODR4TG16MTNmdVNQTjdKMGZNbXlGVmN3V2FVZkNkbjlYeTFZby1JbW15WWxzQzNJRjRrS3lRUENQMnVINUtoczVMOUdfeTRMUFBLWEF6aWdNUEs5WWFFNDJGMjI2bDNlaGJGT3pNTldic29pUnhGUnlJeWdKR0cxWVZNSzk4SVFQUDdhVW9ldktodHRRMWl6RFVFbXc1VVFEWjRHaXNuUQ?oc=5"
-      },
-      "why_it_matters": {
-        "materiality_band": "LOW",
-        "materiality_weight": 0.5,
-        "dominant_signal": "materiality",
-        "criticality_summary": "Low priority — ₹90 Cr capex opportunity (engine estimate).",
-        "stakes_for_company": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-        "financial_exposure": {
-          "amount_cr": 90.0,
-          "kind": "exposure",
-          "source": "engine_estimate",
-          "label": "₹90 Cr capex opportunity (engine estimate)"
-        },
-        "warning": "sasb_unmapped"
-      },
-      "what_it_triggers": {
-        "frameworks": [
-          {
-            "code": "BRSR",
-            "section": "BRSR:P5",
-            "is_mandatory": true
-          },
-          {
-            "code": "GRI",
-            "section": "GRI:412",
-            "is_mandatory": false
-          },
-          {
-            "code": "ESRS",
-            "section": "",
-            "is_mandatory": false
-          }
-        ],
-        "recommended_actions": [
-          {
-            "title": "Publish ESG-Linked Capex Disclosure in BRSR FY26",
-            "deadline": "2026-05-30",
-            "owner": "Head of Sustainability Reporting",
-            "budget": "₹0.5-1 Cr",
-            "framework_section": "BRSR:P6:Q14",
-            "type": "esg_positioning",
-            "payback_months": 12.0,
-            "roi_pct": 200.0,
-            "estimated_impact": "High"
-          },
-          {
-            "title": "Launch Investor Communication Campaign on Expansion",
-            "deadline": "2026-06-30",
-            "owner": "Chief Investor Relations Officer",
-            "budget": "₹1-2 Cr",
-            "framework_section": "",
-            "type": "strategic",
-            "payback_months": 6.0,
-            "roi_pct": 300.0,
-            "estimated_impact": "High"
-          },
-          {
-            "title": "Monitor Capacity Utilization and Demand Monthly",
-            "deadline": "2026-07-31",
-            "owner": "Factory Operations Manager",
-            "budget": "₹0.1-0.3 Cr",
-            "framework_section": "",
-            "type": "operational",
-            "payback_months": 3.0,
-            "roi_pct": 150.0,
-            "estimated_impact": "Medium"
-          }
-        ]
-      },
-      "what_to_watch": {
-        "sentiment_trajectory": {
-          "horizon_3m": "stable",
-          "horizon_6m": "stable",
-          "horizon_12m": "stable",
-          "confidence": "low"
-        },
-        "top_risk_categories": [],
-        "lead_indicators": [],
-        "benchmarks": [],
-        "next_decision_window": {}
-      },
-      "methodology": {
-        "what_changed": {
-          "metric": "what_changed",
-          "source": "Snowkap event classifier (keyword + theme matching against the ESG ontology)",
-          "simple_logic": "Snowkap read this story as a — event — low confidence (theme fallback — no keyword match). The classifier matched 0 keyword(s). The story is framed as a neutral / factual disclosure, so we calibrate downstream weights accordingly.",
-          "formula_human": "The event is the best keyword match in the ontology that clears the confidence bar (2+ hits). Score floor for this event type is 0, and the polarity tag is 'neutral'.",
-          "ontology_anchors": [
-            "Event-type catalogue",
-            "score floor / ceiling",
-            "polarity tags"
-          ],
-          "your_inputs": {
-            "event_id": "—",
-            "matched_keyword_count": 0,
-            "sample_keywords": "no specific keywords",
-            "polarity": "neutral",
-            "score_floor": 0
-          }
-        },
-        "why_it_matters": {
-          "metric": "why_it_matters",
-          "source": "Snowkap criticality scorer + SASB industry-materiality overlay",
-          "simple_logic": "We rated this low priority — the topic is highly material to this industry (composite score 0.09 out of 1.00). No specific ₹ exposure was quoted in the article — this figure is an engine estimate (not quoted in the article body) based on the company’s P&L profile. Industry materiality weights come from this company's SASB sector mapping.",
-          "formula_human": "Priority is a weighted blend of seven signals (materiality, financial magnitude, actionability, painpoint match, recency, source authority, sentiment trajectory). The dominant signal is the largest individual component.",
-          "ontology_anchors": [
-            "SASB sector mapping",
-            "direct vs asset-based materiality",
-            "company painpoint overlay"
-          ],
-          "your_inputs": {
-            "band": "LOW",
-            "score": 0.092,
-            "dominant_signal": "materiality",
-            "dominant_value": 1.0,
-            "exposure_label": "",
-            "exposure_source": "engine_estimate"
-          }
-        },
-        "what_it_triggers": {
-          "metric": "what_it_triggers",
-          "source": "Snowkap framework matcher + event-archetype recommendation library",
-          "simple_logic": "This story touches 0 disclosure framework(s). The 0 recommended action(s) come from the — playbook and are vetted by a three-step review (proposal → analysis → validation), then ranked by compliance urgency and expected return.",
-          "formula_human": "Frameworks are pulled from the topic→framework map in the ontology, boosted by region (India / EU / US / UK / APAC / Global) and filtered by the company's cap tier. Recommendations run through a three-step review (proposal → analysis → validation) and are sorted by compliance urgency × ROI.",
-          "ontology_anchors": [
-            "21-framework taxonomy",
-            "framework sections",
-            "mandatory disclosure rules"
-          ],
-          "your_inputs": {
-            "framework_codes": [],
-            "mandatory_count": 0,
-            "recommendation_count": 0,
-            "event_id": "—"
-          }
-        },
-        "what_to_watch": {
-          "metric": "what_to_watch",
-          "source": "Snowkap sentiment forecaster + TEMPLES risk model + external-benchmark loader",
-          "simple_logic": "Looking ahead, sentiment is expected to be stable at 3 months, stable at 6 months, and stable at 12 months (confidence: low). The forecast blends Snowkap’s rolling polarity series for this company with a short LLM polish step. Top risk categories to track: none flagged on this story. 0 external benchmark(s) (MSCI / SBTI / CRISIL / Sustainalytics) are currently loaded for context.",
-          "formula_human": "Sentiment trajectory is a forecast of the rolling polarity series at three horizons (3 / 6 / 12 months). Risks are the top three TEMPLES categories scored by probability × exposure × industry weight. Benchmarks are the most-recent values loaded into the company benchmark store.",
-          "ontology_anchors": [
-            "TEMPLES risk taxonomy",
-            "industry risk-weight table",
-            "rolling polarity series"
-          ],
-          "your_inputs": {
-            "horizon_3m": "stable",
-            "horizon_6m": "stable",
-            "horizon_12m": "stable",
-            "confidence": "low",
-            "top_risk_categories": [],
-            "benchmark_count": 0,
-            "llm_used": true
-          }
-        }
-      },
-      "headline_only": false,
-      "body_char_count": 0
-    }
-  },
-  "recommendations": {
-    "recommendations": [
-      {
-        "title": "Publish ESG-Linked Capex Disclosure in BRSR FY26",
-        "description": "Disclose the ₹90 Cr Maggi Noodles capacity expansion in the BRSR FY26 filing by 2026-05-30, highlighting self-funded growth and human capital benefits to improve ESG ratings and attract ESG-focused capital.",
-        "type": "esg_positioning",
-        "responsible_party": "Head of Sustainability Reporting",
-        "framework_section": "BRSR:P6:Q14",
-        "deadline": "2026-05-30",
-        "estimated_budget": "₹0.5-1 Cr",
-        "profitability_link": "Improved ESG ratings can reduce cost of capital by 20-40 bps, saving ₹1.8-3.6 Cr annually on ₹9000 Cr market cap",
-        "priority": "CRITICAL",
-        "urgency": "short_term",
-        "estimated_impact": "High",
-        "risk_of_inaction": 9,
-        "roi_percentage": 200.0,
-        "payback_months": 12.0,
-        "peer_benchmark": "Peer FMCG companies increased ESG disclosures on capex to secure ESG fund inflows",
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "article",
-            "ref": "BRSR:P6:Q14",
-            "value": "₹90 Cr expansion to be disclosed in BRSR FY26 by 2026-05-30"
-          },
-          {
-            "source": "ontology",
-            "ref": "BRSR:P6",
-            "value": "BRSR disclosure improves ESG ratings and reduces cost of capital by 20-40 bps"
-          }
-        ]
-      },
-      {
-        "title": "Launch Investor Communication Campaign on Expansion",
-        "description": "Initiate a targeted investor relations campaign by 2026-06-30 to highlight the ₹90 Cr Maggi capacity expansion and its strategic growth potential, aiming to attract ESG-focused and growth-oriented investors.",
-        "type": "strategic",
-        "responsible_party": "Chief Investor Relations Officer",
-        "framework_section": "",
-        "deadline": "2026-06-30",
-        "estimated_budget": "₹1-2 Cr",
-        "profitability_link": "Potential valuation uplift of 3-5% on ₹9000 Cr market cap equals ₹270-450 Cr valuation premium",
-        "priority": "CRITICAL",
-        "urgency": "short_term",
-        "estimated_impact": "High",
-        "risk_of_inaction": 8,
-        "roi_percentage": 300.0,
-        "payback_months": 6.0,
-        "peer_benchmark": "Competitors leveraged capacity expansions for investor engagement and valuation gains",
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "article",
-            "ref": "₹90 Cr capex",
-            "value": "₹90 Cr investment signals growth opportunity"
-          }
-        ]
-      },
-      {
-        "title": "Monitor Capacity Utilization and Demand Monthly",
-        "description": "Track monthly capacity utilization rates and demand trends at Sanand factory; escalate to executive committee if utilization falls below 70% for 3 consecutive months to mitigate underutilization risk.",
-        "type": "operational",
-        "responsible_party": "Factory Operations Manager",
-        "framework_section": "",
-        "deadline": "2026-07-31",
-        "estimated_budget": "₹0.1-0.3 Cr",
-        "profitability_link": "Early detection of underutilization can avoid ₹10-15 Cr losses from inefficient capex use",
-        "priority": "CRITICAL",
-        "urgency": "immediate",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 8,
-        "roi_percentage": 150.0,
-        "payback_months": 3.0,
-        "peer_benchmark": "Peers monitor utilization closely to optimize capex ROI",
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "article",
-            "ref": "execution risk on capacity absorption",
-            "value": "Risk of underutilization impacting ROI on ₹90 Cr investment"
-          }
-        ]
-      },
-      {
-        "title": "Evaluate Energy Price Hedging Strategy for Sanand Plant",
-        "description": "Assess and implement an energy price hedging strategy by 2026-09-30 to mitigate risk from energy price shocks (≥25% YoY increase), protecting operating margins of the expanded capacity.",
-        "type": "financial",
-        "responsible_party": "Chief Financial Officer",
-        "framework_section": "",
-        "deadline": "2026-09-30",
-        "estimated_budget": "₹0.5-1 Cr",
-        "profitability_link": "Hedging can prevent margin erosion of ₹3-5 Cr annually from energy price volatility",
-        "priority": "MEDIUM",
-        "urgency": "medium_term",
-        "estimated_impact": "Medium",
-        "risk_of_inaction": 4,
-        "roi_percentage": 200.0,
-        "payback_months": 12.0,
-        "peer_benchmark": "Some FMCG peers hedge energy costs to stabilize margins post-capex",
-        "roi_capped": false,
-        "roi_cap_reason": "",
-        "audit_trail": [
-          {
-            "source": "primitive",
-            "ref": "Energy price shock τ",
-            "value": "Energy price shock threshold ΔEP ≥ 25% YoY"
-          },
-          {
-            "source": "article",
-            "ref": "₹90 Cr capex exposure",
-            "value": "Energy cost volatility can impact operating margins of new capacity"
-          }
-        ]
-      }
-    ],
-    "do_nothing": false,
-    "gate_reason": "",
-    "generator_count": 4,
-    "validated_count": 4,
-    "priority_matrix": {
-      "immediate_high": [
-        {
-          "index": 0,
-          "title": "Publish ESG-Linked Capex Disclosure in BRSR FY26",
-          "type": "esg_positioning",
-          "roi": 200.0,
-          "budget": "₹0.5-1 Cr"
-        },
-        {
-          "index": 1,
-          "title": "Launch Investor Communication Campaign on Expansion",
-          "type": "strategic",
-          "roi": 300.0,
-          "budget": "₹1-2 Cr"
-        }
-      ],
-      "immediate_low": [
-        {
-          "index": 2,
-          "title": "Monitor Capacity Utilization and Demand Monthly",
-          "type": "operational",
-          "roi": 150.0,
-          "budget": "₹0.1-0.3 Cr"
-        }
-      ],
-      "deferred_high": [],
-      "deferred_low": [
-        {
-          "index": 3,
-          "title": "Evaluate Energy Price Hedging Strategy for Sanand Plant",
-          "type": "financial",
-          "roi": 200.0,
-          "budget": "₹0.5-1 Cr"
-        }
-      ]
-    },
-    "recommendation_rankings": {
-      "cfo": [
-        3,
-        2
-      ],
-      "ceo": [
-        2,
-        3,
-        0,
-        1
-      ],
-      "esg-analyst": [
-        2,
-        0,
-        1
-      ]
-    }
-  },
-  "perspectives": {
-    "esg-analyst": {
-      "headline": "Nestlé India deploys ₹99.0 Cr (engine estimate) capex to expand Maggi Noodles production by 14.5% at Sanand facility.",
-      "generated_by": "esg_analyst_generator_v1",
-      "kpi_table": [
-        {
-          "kpi_name": "GHG Emissions Intensity (revenue-normalized)",
-          "company_value": "0.55 tCO2e/₹ Cr (engine estimate)",
-          "unit": "tCO2e/₹ Cr",
-          "peer_quartile": "P50 (peer median 0.50)",
-          "peer_examples": "Britannia 0.45, ITC Foods 0.60",
-          "data_source": "CDP 2024 + BRSR FY24",
-          "significance": "This KPI is material because it reflects the carbon efficiency of operations relative to revenue, directly impacting sustainability ratings and cost of capital."
-        }
-      ],
-      "confidence_bounds": [
-        {
-          "figure": "₹20.1 Cr (engine estimate) direct capex exposure",
-          "source_type": "engine_estimate",
-          "beta_range": "0.15-0.30",
-          "lag": "1-2 quarters",
-          "functional_form": "linear",
-          "confidence": "low",
-          "rationale": "primitive cascade event_routine_capex with margin impact as per canonical exposure"
-        },
-        {
-          "figure": "10.0 bps margin pressure",
-          "source_type": "engine_estimate",
-          "beta_range": "0.10-0.20",
-          "lag": "1-2 quarters",
-          "functional_form": "linear",
-          "confidence": "medium",
-          "rationale": "directly derived from computed financial cascade for routine capex"
-        }
-      ],
-      "double_materiality": {
-        "financial_impact": "The ₹99.0 Cr (engine estimate) capex increases asset base and may temporarily pressure margins by 10.0 bps, but is expected to support future revenue growth and maintain competitive positioning. Underutilization risk could affect ROI if demand projections are not met.",
-        "impact_on_world": "The expansion may increase absolute energy and water use, but if managed with best practices, can support SDG 12.2 (sustainable management of natural resources) and SDG 8.5 (full and productive employment)."
-      },
-      "tcfd_scenarios": {
-        "1_5c": "In a 1.5°C scenario, regulatory and consumer pressure for low-carbon operations intensifies, making energy efficiency and renewable sourcing at the new line critical for long-term viability.",
-        "2c": "In a 2°C pathway, moderate carbon pricing and evolving disclosure norms require Nestlé India to optimize operational emissions and resource use to avoid cost escalation.",
-        "4c": "In a 4°C world, physical climate risks (e.g., water scarcity, supply chain disruptions) may threaten production continuity and asset utilization, increasing operational and reputational risks."
-      },
-      "sdg_targets": [
-        {
-          "code": "12.2",
-          "title": "By 2030, achieve the sustainable management and efficient use of natural resources",
-          "applicability": "direct",
-          "rationale": "The new production line will increase resource consumption, making efficient management essential to align with SDG 12.2."
-        },
-        {
-          "code": "8.5",
-          "title": "By 2030, achieve full and productive employment and decent work for all women and men",
-          "applicability": "indirect",
-          "rationale": "Capacity expansion may create new jobs and improve local employment opportunities, supporting SDG 8.5."
-        }
-      ],
-      "audit_trail": [
-        {
-          "claim": "₹99.0 Cr (engine estimate) capex headline exposure",
-          "derivation": "CANONICAL_EXPOSURE as mandated by Phase-14 anti-drift constraint; not recomputed from cascade.",
-          "sources": [
-            "article: scanx.trade headline",
-            "primitive: event_routine_capex"
-          ]
-        },
-        {
-          "claim": "10.0 bps margin pressure",
-          "derivation": "Direct from computed financial cascade for event_routine_capex; margin impact specified in cascade.",
-          "sources": [
-            "ontology: event_routine_capex",
-            "computed_cascade: margin_impact"
-          ]
-        }
-      ],
-      "framework_citations": [
-        {
-          "code": "BRSR:P6:Q14",
-          "rationale": "Large Cap companies must disclose resource efficiency and environmental impact of new investments, including energy and water use.",
-          "region": "India",
-          "deadline": "2026-05-30"
-        }
-      ],
-      "warnings": [
-        "verifier: added 4 source tags on ₹ figures"
-      ],
-      "full_insight": {
-        "headline": "Nestlé India invests ~₹90 Cr to expand Maggi Noodles capacity at Sanand, targeting future demand growth",
-        "impact_score": 4.5,
-        "core_mechanism": "The addition of a new Maggi Noodles production line at the Sanand Factory increases annual capacity by 20,500 tons, representing a 14.5% uplift. This expansion, funded through internal accruals, is designed to capture anticipated demand and reinforce Nestlé India's market position in the instant noodles segment.",
-        "profitability_connection": "The ₹90 Cr capex (engine estimate) is expected to drive incremental revenue and operational leverage as utilization rises, with margin impact estimated at 44.8 bps on annual revenue. Enhanced capacity positions the company to capture market share and improve supply chain efficiency.",
-        "translation": "Nestlé India is spending ₹81–99 Cr to expand its Maggi Noodles factory in Gujarat, aiming to make and sell more noodles as demand grows. This move should help the company serve more customers, stay ahead of competitors, and use its factories more efficiently.",
-        "impact_analysis": {
-          "esg_positioning": "Routine capex with positive human capital and supply chain signaling; no ESG score gap versus peers, but improved disclosure may support index inclusion.",
-          "capital_allocation": "₹90 Cr self-funded investment (engine estimate) signals strong cash flows; no adverse cost of capital impact expected, potential for positive investor perception.",
-          "valuation_cashflow": "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization.",
-          "compliance_regulatory": "SEBI Regulation 30 disclosure triggered; BRSR and GRI reporting required for transparency. No penalty or deadline risk as event is proactive and disclosed.",
-          "supply_chain_transmission": "Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply chain risk identified.",
-          "people_demand": "Positive impact on talent retention and community employment; expansion may enhance employer brand and local economic development."
-        },
-        "financial_timeline": {
-          "immediate": {
-            "headline": "₹90 Cr capex deployed for new production line (engine estimate)",
-            "profitability_pathway": "Capex investment → increased production capacity → potential revenue growth as demand materializes",
-            "margin_pressure": "44.8 bps (engine estimate)",
-            "revenue_at_risk": "No direct revenue at risk; upside potential if demand forecasts are realized"
-          },
-          "structural": {
-            "valuation_rerating": "Potential for slight P/E expansion if capacity utilization improves and revenue grows",
-            "competitive_position": "Strengthens position versus ITC and Hindustan Unilever in instant noodles; supports regional supply chain resilience"
-          },
-          "long_term": {
-            "secular_trajectory": "3-5 year view: supports sustained growth in Maggi Noodles, aligns with rising urban demand and packaged food trends",
-            "green_revenue_opportunity": "No direct green revenue opportunity; event is conventional capacity expansion"
-          }
-        },
-        "esg_relevance_score": {
-          "environment": {
-            "score": 1,
-            "rationale": "Minimal environmental dimension; event is focused on production capacity, not emissions or resource use."
-          },
-          "social": {
-            "score": 7,
-            "rationale": "Significant positive impact on human capital, local employment, and supply chain labor practices."
-          },
-          "governance": {
-            "score": 5,
-            "rationale": "Strong disclosure under SEBI Regulation 30; routine governance compliance with no adverse findings."
-          },
-          "financial_materiality": {
-            "score": 5,
-            "rationale": "₹90 Cr (from article) capex is material for growth but not transformative for a large cap company."
-          },
-          "regulatory_exposure": {
-            "score": 2,
-            "rationale": "Low regulatory risk; event is disclosed and compliant with SEBI and BRSR requirements."
-          },
-          "stakeholder_impact": {
-            "score": 6,
-            "rationale": "Positive for employees and local communities; enhances employer brand and supports talent retention."
-          }
-        },
-        "net_impact_summary": "The ₹90 Cr investment (engine estimate) in expanding Maggi Noodles capacity at Sanand is a routine but strategically positive capex, supporting Nestlé India's ability to meet growing demand and maintain operational efficiency. The event triggers SEBI Regulation 30 and BRSR/GRI reporting, but carries no penalty or compliance risk. While not directly linked to environmental outcomes, the expansion is expected to benefit human capital and community stakeholders, with potential for modest margin and valuation uplift if demand materializes.",
-        "decision_summary": {
-          "materiality": "MODERATE",
-          "action": "ACT",
-          "verdict": "Leverage the expansion for proactive investor and stakeholder communication, highlighting growth and human capital benefits.",
-          "financial_exposure": "₹90 Cr capex opportunity (engine estimate)",
-          "key_risk": "Execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate)",
-          "top_opportunity": "Highlight ₹81–99 Cr self-funded expansion in ESG and investor disclosures to reinforce growth narrative and attract ESG-focused capital",
-          "timeline": "within next quarterly review"
-        },
-        "causal_chain": {
-          "event": "Nestlé India announces ₹90 Cr (from article) investment to add 20,500 tons Maggi Noodles capacity at Sanand Factory",
-          "mechanism": "Increased production capacity enables higher sales volumes if demand forecasts are realized, while internal funding signals financial strength and supports positive stakeholder perception",
-          "company_impact": "Potential for incremental revenue growth, improved operational leverage, and enhanced market share in instant noodles segment",
-          "transmission_type": "direct"
-        },
-        "warnings": [
-          "verifier: added 5 source tags on ₹ figures",
-          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
-          "verifier: render-protocol: stripped 3 provenance tag(s) from narrative; sidecar staged for frontend tooltip"
-        ],
-        "event_polarity": "neutral",
-        "toulmin": {
-          "claim": "Leverage the expansion for proactive investor and stakeholder communication, highlighting growth and human capital benefits.",
-          "grounds": [
-            "Financial exposure: ₹90 Cr capex opportunity (engine estimate)",
-            "Key risk: Execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate)",
-            "Event classification: event_routine_capex",
-            "Relevance score: 8.5/10",
-            "Materiality weight (ontology): 0.5",
-            "Frameworks triggered: BRSR, GRI, ESRS"
-          ],
-          "warrant": "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation.",
-          "warrant_cite": "NP-FIN-002 (Snowkap CFO-credibility threshold (Phase 11 audit))",
-          "qualifier": "Strong relevance signal; article-cited ₹ quantum present; positive sentiment",
-          "rebuttal": "If additional reporting clarifies the financial materiality or a regulator action escalates the consequence, the verdict would shift if new evidence surfaces."
-        },
-        "cfo_preflight": {},
-        "stakes_for_company": {
-          "personal_stakes_paragraphs": {
-            "cfo": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-            "ceo": "How does this shift YOUR competitive story? The Sanand expansion positions Nestlé India to reinforce its leadership in the instant noodles market, signaling proactive growth to the board. By communicating the human capital and supply chain benefits, you can frame this move as a forward-looking response to evolving consumer demand, strengthening the company’s narrative as an agile, market-driven innovator over the next three years.",
-            "analyst": "This expansion directly affects your upcoming ESG and investor disclosures. For BRSR, reference P6:Q14 on resource efficiency and capacity utilization, and highlight the self-funded nature of the ₹90 Cr investment. While no new GRI or ESRS codes are cited, you should prepare to update operational and capital allocation sections, emphasizing the 14.5% capacity uplift. Monitor for any new disclosure requirements as the filing window approaches, especially regarding execution and utilization metrics."
-          },
-          "personal_stakes_paragraph": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-          "revenue_pct_at_stake": 0.45,
-          "peer_action_summary": "No peer precedent yet.",
-          "do_nothing_risk_paragraph": "If this expansion is ignored in disclosures and stakeholder communication, Nestlé India risks regulatory scrutiny for incomplete reporting, potential MSCI ESG rating downgrades, and increased questioning from lenders and investors about capital deployment. Failure to address underutilization or execution risks could erode trust and trigger supply chain concerns, undermining the company’s growth narrative and access to ESG-focused capital."
-        },
-        "role_panel_order": {
-          "cfo": {
-            "order": [
-              "personal_stakes",
-              "why_critical",
-              "crisp_insight",
-              "impact_metrics",
-              "recommendations",
-              "audit_trail"
-            ],
-            "hidden": [
-              "narrative_intelligence",
-              "sdg_map",
-              "causal_chain",
-              "three_year_trajectory",
-              "board_paragraph",
-              "kpi_table",
-              "stakeholder_map",
-              "framework_alignment"
-            ]
-          },
-          "ceo": {
-            "order": [
-              "personal_stakes",
-              "why_critical",
-              "crisp_insight",
-              "three_year_trajectory",
-              "stakeholder_map",
-              "board_paragraph",
-              "recommendations"
-            ],
-            "hidden": [
-              "kpi_table",
-              "framework_alignment",
-              "audit_trail",
-              "causal_chain",
-              "impact_metrics"
-            ]
-          },
-          "esg-analyst": {
-            "order": [
-              "personal_stakes",
-              "why_critical",
-              "crisp_insight",
-              "kpi_table",
-              "framework_alignment",
-              "causal_chain",
-              "audit_trail",
-              "recommendations",
-              "sdg_map"
-            ],
-            "hidden": [
-              "board_paragraph",
-              "three_year_trajectory"
-            ]
-          }
-        },
-        "criticality": {
-          "score": 0.0917,
-          "band": "LOW",
-          "components": {
-            "materiality": 1.0,
-            "financial_magnitude": 0.0804,
-            "actionability": 0.2,
-            "painpoint_match": 0.0,
-            "recency": 0.0004,
-            "source_authority": 0.5,
-            "sentiment_trajectory": 0.5,
-            "staleness_penalty": 0.2,
-            "confidence_penalty": 0.0,
-            "polarity_drift_penalty": 0.0
-          },
-          "role_scores": {
-            "cfo": 0.0597,
-            "ceo": 0.1236,
-            "analyst": 0.1796
-          }
-        },
-        "sentiment_trajectory": {
-          "company_slug": "nestl-india-limited",
-          "polarity_series": [
-            {
-              "month": "2026-03",
-              "polarity_mean": 0.0,
-              "count": 2
-            },
-            {
-              "month": "2026-04",
-              "polarity_mean": 0.0,
-              "count": 2
-            },
-            {
-              "month": "2026-05",
-              "polarity_mean": 0.0,
-              "count": 1
-            }
-          ],
-          "horizons": {
-            "3m": {
-              "direction": "stable",
-              "confidence": "low",
-              "rationale": "Polarity mean is consistently neutral with very low event counts."
-            },
-            "6m": {
-              "direction": "stable",
-              "confidence": "low",
-              "rationale": "Limited data and neutral polarity suggest no clear trend."
-            },
-            "12m": {
-              "direction": "stable",
-              "confidence": "low",
-              "rationale": "Sparse and neutral polarity data over recent months imply stable sentiment."
-            }
-          },
-          "trajectory": [
-            {
-              "month": "2026-06",
-              "central": 0.0,
-              "lo": -0.09,
-              "hi": 0.09
-            },
-            {
-              "month": "2026-07",
-              "central": 0.0,
-              "lo": -0.13,
-              "hi": 0.13
-            },
-            {
-              "month": "2026-08",
-              "central": 0.0,
-              "lo": -0.16999999999999998,
-              "hi": 0.16999999999999998
-            },
-            {
-              "month": "2026-09",
-              "central": 0.0,
-              "lo": -0.21000000000000002,
-              "hi": 0.21000000000000002
-            },
-            {
-              "month": "2026-10",
-              "central": 0.0,
-              "lo": -0.25,
-              "hi": 0.25
-            },
-            {
-              "month": "2026-11",
-              "central": 0.0,
-              "lo": -0.29,
-              "hi": 0.29
-            },
-            {
-              "month": "2026-12",
-              "central": 0.0,
-              "lo": -0.33,
-              "hi": 0.33
-            },
-            {
-              "month": "2027-01",
-              "central": 0.0,
-              "lo": -0.37,
-              "hi": 0.37
-            },
-            {
-              "month": "2027-02",
-              "central": 0.0,
-              "lo": -0.41,
-              "hi": 0.41
-            },
-            {
-              "month": "2027-03",
-              "central": 0.0,
-              "lo": -0.45,
-              "hi": 0.45
-            },
-            {
-              "month": "2027-04",
-              "central": 0.0,
-              "lo": -0.49,
-              "hi": 0.49
-            },
-            {
-              "month": "2027-05",
-              "central": 0.0,
-              "lo": -0.53,
-              "hi": 0.53
-            }
-          ],
-          "llm_used": true
-        },
-        "role_explainer": {
-          "cfo": {
-            "why_important_for_me": "₹90 Cr capex opportunity (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
-            "how_it_impacts_business": "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization. ₹90 Cr self-funded investment (engine estimate) signals strong cash flows; no adverse cost of capital impact expected, poten",
-            "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
-            "simple_logic": "Flagged for you because financial_magnitude=0.08 and the CFO role weights financial 40%. Your role-specific score: 0.06."
-          },
-          "ceo": {
-            "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
-            "how_it_impacts_business": "Routine capex with positive human capital and supply chain signaling; no ESG score gap versus peers, but improved disclosure may support index inclusion. Positive impact on talent retention and community employment; expansion may enhance employer brand and local economic developm",
-            "analysis_result": "Track competitive movement; revisit at the next strategy review.",
-            "simple_logic": "Flagged for you because materiality=1.00 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.12."
-          },
-          "esg-analyst": {
-            "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
-            "how_it_impacts_business": "SEBI Regulation 30 disclosure triggered; BRSR and GRI reporting required for transparency. No penalty or deadline risk as event is proactive and disclosed. Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply",
-            "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
-            "simple_logic": ""
-          }
-        },
-        "criticality_summary": "Low priority — ₹90 Cr capex opportunity (engine estimate).",
-        "headline_only": false,
-        "body_char_count": 0,
-        "analysis": {}
-      },
-      "why_critical_for_analyst": "For an ESG Analyst, the gating question is whether this event fires a disclosure trigger that the next reporting cycle must address. Audit-trail strength is high: every ₹ figure traces back to either the source article or an engine-computed primitive cascade, so the analyst can defend the analysis to assurance reviewers. Verification priority: execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate) — confirm against peer disclosures and the company's own materiality assessment before the next stakeholder review."
-    },
-    "ceo": {
-      "headline": "Board to review ₹99 Cr Maggi Noodles capacity expansion at Sanand for FY27-29 growth",
-      "generated_by": "ceo_narrative_generator_v1",
-      "board_paragraph": "Nestlé India has initiated a ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) investment to expand Maggi Noodles production at the Sanand facility, targeting anticipated demand growth through FY27-29. The board should review execution progress and capacity absorption metrics in the next quarterly cycle to ensure alignment with demand forecasts. Delayed oversight or underutilization could impact ROI and dilute the growth narrative, risking negative investor sentiment and potential ESG rating action. Inaction may result in suboptimal capital deployment and missed opportunity to reinforce Nestlé’s leadership in the category.",
-      "stakeholder_map": [
-        {
-          "stakeholder": "SEBI (Securities & Exchange Board of India)",
-          "stance": "Enforcement escalation if remediation plan absent within 30-60 days. Formal show-cause → interim penalty → appeal window. Settlement via Consent Mechanism in 40-60% of cases.",
-          "precedent": "Vedanta 2020 SCN → ₹450 Cr (engine estimate) settlement"
-        },
-        {
-          "stakeholder": "RBI (Reserve Bank of India)",
-          "stance": "Direct intervention via moratorium, AQR, or governance restructuring for material asset-quality or fraud events. Climate stress test framework applies to top-16 banks from FY27.",
-          "precedent": "YES Bank 2020 moratorium"
-        },
-        {
-          "stakeholder": "MSCI ESG Ratings",
-          "stance": "Rating action (e.g., BBB → BB) within 90-180 days of material event. Watch-list status in interim. Flow-through to MSCI ESG Leaders / SRI indices triggers 1 (engine estimate)-3% AUM outflow from passive strategies.",
-          "precedent": "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion"
-        },
-        {
-          "stakeholder": "BlackRock + Norges Bank IM + CalPERS (Top-10 AUM)",
-          "stance": "Private engagement first (letter/meeting) within 30-60 days. Vote against if remediation absent by next AGM. Exclusion from ESG mandate AUM if severity=high sustained 2+ quarters. Position review on 8-12% AUM flows.",
-          "precedent": "NBIM 2017 excluded 11 coal miners incl. Adani Ports"
-        }
-      ],
-      "analogous_precedent": {},
-      "three_year_trajectory": {
-        "do_nothing": "If the board does not actively monitor and steer the ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) expansion, underutilization risk could lead to suboptimal ROI, potential negative rating action from MSCI ESG, and increased likelihood of top-10 investors voting against management at the next AGM. This may result in a 1-3% AUM outflow and muted share price performance through FY27-29. Credit rating could remain stable but with a negative outlook if capital efficiency metrics deteriorate.",
-        "act_now": "By closely tracking execution and demand absorption, the board can ensure the ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) capex delivers targeted growth, supports ESG disclosures, and attracts ESG-focused capital. Proactive oversight will reinforce Nestlé’s market leadership, minimize rating and investor risks, and position the company for sustained revenue and margin growth through FY27-29. Expected payback aligns with historical norms for category expansion."
-      },
-      "qna_drafts": {
-        "earnings_call": "We have invested ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) to expand Maggi Noodles production at Sanand, anticipating sustained demand growth. This self-funded expansion is aligned with our long-term strategy and will be closely monitored to ensure optimal capacity utilization and returns.",
-        "press_statement": "Nestlé India has committed ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) to expand Maggi Noodles capacity at our Sanand factory. This investment reinforces our confidence in India’s growth story and our commitment to meeting evolving consumer needs. We will ensure timely execution and transparent progress updates.",
-        "board_qa": "Q: What is the maximum penalty if the project underperforms? A: While there is no regulatory penalty for underutilization, failure to deliver expected returns could trigger negative investor and ESG rating actions. Q: What is the FY26 capex impact? A: The ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) investment is planned for completion within the next fiscal cycle, with no further major capex anticipated for this line in FY26. Q: What is the expected payback period? A: Payback is expected within standard industry timelines for category expansion, subject to demand realization.",
-        "regulator_qa": "We confirm that the ₹99.0 Cr (engine estimate) (CANONICAL_EXPOSURE) capex at Sanand is fully compliant with all applicable regulations. We will provide SEBI with timely updates on project milestones and capacity utilization, and remain available for any further clarifications or disclosures as required."
-      },
-      "warnings": [
-        "verifier: added 10 source tags on ₹ figures"
-      ],
-      "why_critical_for_ceo": "For a CEO, this shifts the competitive picture: strengthens position versus ITC and Hindustan Unilever in instant noodles; supports regional supply chain resilience at Nestlé India Limited. The investor narrative writes itself: highlight ₹81–99 Cr self-funded expansion in ESG and investor disclosures to reinforce growth narrative and attract ESG-focused capital, with execution discipline as the proof point. On the FY+1 to FY+3 horizon, this is the kind of signal that ESG-tilted investor mandates read first — silence is the costliest option."
-    },
-    "cfo": {
-      "perspective": "cfo",
-      "headline": "P&L exposure: ₹90 Cr capex opportunity (engine estimate)",
-      "impact_grid": {
-        "financial": "MEDIUM",
-        "regulatory": "LOW",
-        "strategic": "HIGH"
-      },
-      "what_matters": [
-        "Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply chain risk identified.",
-        "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization."
-      ],
-      "action": [
-        "Quantify exposure: ₹90 Cr capex opportunity (engine estimate)",
-        "Revenue at risk: No direct revenue at risk; upside potential if demand forecasts are realized"
-      ],
-      "materiality": "MODERATE",
-      "do_nothing": false,
-      "active_impact_dimensions": [
-        "cost",
-        "operational"
-      ],
-      "full_insight": {
-        "headline": "Nestlé India invests ~₹90 Cr to expand Maggi Noodles capacity at Sanand, targeting future demand growth",
-        "impact_score": 4.5,
-        "core_mechanism": "The addition of a new Maggi Noodles production line at the Sanand Factory increases annual capacity by 20,500 tons, representing a 14.5% uplift. This expansion, funded through internal accruals, is designed to capture anticipated demand and reinforce Nestlé India's market position in the instant noodles segment.",
-        "profitability_connection": "The ₹90 Cr capex (engine estimate) is expected to drive incremental revenue and operational leverage as utilization rises, with margin impact estimated at 44.8 bps on annual revenue. Enhanced capacity positions the company to capture market share and improve supply chain efficiency.",
-        "translation": "Nestlé India is spending ₹81–99 Cr to expand its Maggi Noodles factory in Gujarat, aiming to make and sell more noodles as demand grows. This move should help the company serve more customers, stay ahead of competitors, and use its factories more efficiently.",
-        "impact_analysis": {
-          "esg_positioning": "Routine capex with positive human capital and supply chain signaling; no ESG score gap versus peers, but improved disclosure may support index inclusion.",
-          "capital_allocation": "₹90 Cr self-funded investment (engine estimate) signals strong cash flows; no adverse cost of capital impact expected, potential for positive investor perception.",
-          "valuation_cashflow": "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization.",
-          "compliance_regulatory": "SEBI Regulation 30 disclosure triggered; BRSR and GRI reporting required for transparency. No penalty or deadline risk as event is proactive and disclosed.",
-          "supply_chain_transmission": "Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply chain risk identified.",
-          "people_demand": "Positive impact on talent retention and community employment; expansion may enhance employer brand and local economic development."
-        },
-        "financial_timeline": {
-          "immediate": {
-            "headline": "₹90 Cr capex deployed for new production line (engine estimate)",
-            "profitability_pathway": "Capex investment → increased production capacity → potential revenue growth as demand materializes",
-            "margin_pressure": "44.8 bps (engine estimate)",
-            "revenue_at_risk": "No direct revenue at risk; upside potential if demand forecasts are realized"
-          },
-          "structural": {
-            "valuation_rerating": "Potential for slight P/E expansion if capacity utilization improves and revenue grows",
-            "competitive_position": "Strengthens position versus ITC and Hindustan Unilever in instant noodles; supports regional supply chain resilience"
-          },
-          "long_term": {
-            "secular_trajectory": "3-5 year view: supports sustained growth in Maggi Noodles, aligns with rising urban demand and packaged food trends",
-            "green_revenue_opportunity": "No direct green revenue opportunity; event is conventional capacity expansion"
-          }
-        },
-        "esg_relevance_score": {
-          "environment": {
-            "score": 1,
-            "rationale": "Minimal environmental dimension; event is focused on production capacity, not emissions or resource use."
-          },
-          "social": {
-            "score": 7,
-            "rationale": "Significant positive impact on human capital, local employment, and supply chain labor practices."
-          },
-          "governance": {
-            "score": 5,
-            "rationale": "Strong disclosure under SEBI Regulation 30; routine governance compliance with no adverse findings."
-          },
-          "financial_materiality": {
-            "score": 5,
-            "rationale": "₹90 Cr (from article) capex is material for growth but not transformative for a large cap company."
-          },
-          "regulatory_exposure": {
-            "score": 2,
-            "rationale": "Low regulatory risk; event is disclosed and compliant with SEBI and BRSR requirements."
-          },
-          "stakeholder_impact": {
-            "score": 6,
-            "rationale": "Positive for employees and local communities; enhances employer brand and supports talent retention."
-          }
-        },
-        "net_impact_summary": "The ₹90 Cr investment (engine estimate) in expanding Maggi Noodles capacity at Sanand is a routine but strategically positive capex, supporting Nestlé India's ability to meet growing demand and maintain operational efficiency. The event triggers SEBI Regulation 30 and BRSR/GRI reporting, but carries no penalty or compliance risk. While not directly linked to environmental outcomes, the expansion is expected to benefit human capital and community stakeholders, with potential for modest margin and valuation uplift if demand materializes.",
-        "decision_summary": {
-          "materiality": "MODERATE",
-          "action": "ACT",
-          "verdict": "Leverage the expansion for proactive investor and stakeholder communication, highlighting growth and human capital benefits.",
-          "financial_exposure": "₹90 Cr capex opportunity (engine estimate)",
-          "key_risk": "Execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate)",
-          "top_opportunity": "Highlight ₹81–99 Cr self-funded expansion in ESG and investor disclosures to reinforce growth narrative and attract ESG-focused capital",
-          "timeline": "within next quarterly review"
-        },
-        "causal_chain": {
-          "event": "Nestlé India announces ₹90 Cr (from article) investment to add 20,500 tons Maggi Noodles capacity at Sanand Factory",
-          "mechanism": "Increased production capacity enables higher sales volumes if demand forecasts are realized, while internal funding signals financial strength and supports positive stakeholder perception",
-          "company_impact": "Potential for incremental revenue growth, improved operational leverage, and enhanced market share in instant noodles segment",
-          "transmission_type": "direct"
-        },
-        "warnings": [
-          "verifier: added 5 source tags on ₹ figures",
-          "verifier: semantic ₹ drift: 1 reused-value cluster(s) with distinct contexts",
-          "verifier: render-protocol: stripped 3 provenance tag(s) from narrative; sidecar staged for frontend tooltip"
-        ],
-        "event_polarity": "neutral",
-        "toulmin": {
-          "claim": "Leverage the expansion for proactive investor and stakeholder communication, highlighting growth and human capital benefits.",
-          "grounds": [
-            "Financial exposure: ₹90 Cr capex opportunity (engine estimate)",
-            "Key risk: Execution risk on capacity absorption; if demand underperforms, underutilization could impact ROI on ₹90 Cr investment (engine estimate)",
-            "Event classification: event_routine_capex",
-            "Relevance score: 8.5/10",
-            "Materiality weight (ontology): 0.5",
-            "Frameworks triggered: BRSR, GRI, ESRS"
-          ],
-          "warrant": "On Large-Cap balance sheets, single-event exposures below 0.1% of annual revenue do not warrant CFO-level escalation.",
-          "warrant_cite": "NP-FIN-002 (Snowkap CFO-credibility threshold (Phase 11 audit))",
-          "qualifier": "Strong relevance signal; article-cited ₹ quantum present; positive sentiment",
-          "rebuttal": "If additional reporting clarifies the financial materiality or a regulator action escalates the consequence, the verdict would shift if new evidence surfaces."
-        },
-        "cfo_preflight": {},
-        "stakes_for_company": {
-          "personal_stakes_paragraphs": {
-            "cfo": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-            "ceo": "How does this shift YOUR competitive story? The Sanand expansion positions Nestlé India to reinforce its leadership in the instant noodles market, signaling proactive growth to the board. By communicating the human capital and supply chain benefits, you can frame this move as a forward-looking response to evolving consumer demand, strengthening the company’s narrative as an agile, market-driven innovator over the next three years.",
-            "analyst": "This expansion directly affects your upcoming ESG and investor disclosures. For BRSR, reference P6:Q14 on resource efficiency and capacity utilization, and highlight the self-funded nature of the ₹90 Cr investment. While no new GRI or ESRS codes are cited, you should prepare to update operational and capital allocation sections, emphasizing the 14.5% capacity uplift. Monitor for any new disclosure requirements as the filing window approaches, especially regarding execution and utilization metrics."
-          },
-          "personal_stakes_paragraph": "Your company is exposed to a ₹90 Cr capital outlay for the Sanand Maggi Noodles expansion, funded via internal accruals. This investment will impact cash flows and quarterly capex reporting, with payback contingent on demand materializing as forecasted. Underutilization risk could affect ROI and margin realization in the near term, so close monitoring of capacity ramp-up and cost absorption is critical to avoid negative surprises at the next quarterly close.",
-          "revenue_pct_at_stake": 0.45,
-          "peer_action_summary": "No peer precedent yet.",
-          "do_nothing_risk_paragraph": "If this expansion is ignored in disclosures and stakeholder communication, Nestlé India risks regulatory scrutiny for incomplete reporting, potential MSCI ESG rating downgrades, and increased questioning from lenders and investors about capital deployment. Failure to address underutilization or execution risks could erode trust and trigger supply chain concerns, undermining the company’s growth narrative and access to ESG-focused capital."
-        },
-        "role_panel_order": {
-          "cfo": {
-            "order": [
-              "personal_stakes",
-              "why_critical",
-              "crisp_insight",
-              "impact_metrics",
-              "recommendations",
-              "audit_trail"
-            ],
-            "hidden": [
-              "narrative_intelligence",
-              "sdg_map",
-              "causal_chain",
-              "three_year_trajectory",
-              "board_paragraph",
-              "kpi_table",
-              "stakeholder_map",
-              "framework_alignment"
-            ]
-          },
-          "ceo": {
-            "order": [
-              "personal_stakes",
-              "why_critical",
-              "crisp_insight",
-              "three_year_trajectory",
-              "stakeholder_map",
-              "board_paragraph",
-              "recommendations"
-            ],
-            "hidden": [
-              "kpi_table",
-              "framework_alignment",
-              "audit_trail",
-              "causal_chain",
-              "impact_metrics"
-            ]
-          },
-          "esg-analyst": {
-            "order": [
-              "personal_stakes",
-              "why_critical",
-              "crisp_insight",
-              "kpi_table",
-              "framework_alignment",
-              "causal_chain",
-              "audit_trail",
-              "recommendations",
-              "sdg_map"
-            ],
-            "hidden": [
-              "board_paragraph",
-              "three_year_trajectory"
-            ]
-          }
-        },
-        "criticality": {
-          "score": 0.0917,
-          "band": "LOW",
-          "components": {
-            "materiality": 1.0,
-            "financial_magnitude": 0.0804,
-            "actionability": 0.2,
-            "painpoint_match": 0.0,
-            "recency": 0.0004,
-            "source_authority": 0.5,
-            "sentiment_trajectory": 0.5,
-            "staleness_penalty": 0.2,
-            "confidence_penalty": 0.0,
-            "polarity_drift_penalty": 0.0
-          },
-          "role_scores": {
-            "cfo": 0.0597,
-            "ceo": 0.1236,
-            "analyst": 0.1796
-          }
-        },
-        "sentiment_trajectory": {
-          "company_slug": "nestl-india-limited",
-          "polarity_series": [
-            {
-              "month": "2026-03",
-              "polarity_mean": 0.0,
-              "count": 2
-            },
-            {
-              "month": "2026-04",
-              "polarity_mean": 0.0,
-              "count": 2
-            },
-            {
-              "month": "2026-05",
-              "polarity_mean": 0.0,
-              "count": 1
-            }
-          ],
-          "horizons": {
-            "3m": {
-              "direction": "stable",
-              "confidence": "low",
-              "rationale": "Polarity mean is consistently neutral with very low event counts."
-            },
-            "6m": {
-              "direction": "stable",
-              "confidence": "low",
-              "rationale": "Limited data and neutral polarity suggest no clear trend."
-            },
-            "12m": {
-              "direction": "stable",
-              "confidence": "low",
-              "rationale": "Sparse and neutral polarity data over recent months imply stable sentiment."
-            }
-          },
-          "trajectory": [
-            {
-              "month": "2026-06",
-              "central": 0.0,
-              "lo": -0.09,
-              "hi": 0.09
-            },
-            {
-              "month": "2026-07",
-              "central": 0.0,
-              "lo": -0.13,
-              "hi": 0.13
-            },
-            {
-              "month": "2026-08",
-              "central": 0.0,
-              "lo": -0.16999999999999998,
-              "hi": 0.16999999999999998
-            },
-            {
-              "month": "2026-09",
-              "central": 0.0,
-              "lo": -0.21000000000000002,
-              "hi": 0.21000000000000002
-            },
-            {
-              "month": "2026-10",
-              "central": 0.0,
-              "lo": -0.25,
-              "hi": 0.25
-            },
-            {
-              "month": "2026-11",
-              "central": 0.0,
-              "lo": -0.29,
-              "hi": 0.29
-            },
-            {
-              "month": "2026-12",
-              "central": 0.0,
-              "lo": -0.33,
-              "hi": 0.33
-            },
-            {
-              "month": "2027-01",
-              "central": 0.0,
-              "lo": -0.37,
-              "hi": 0.37
-            },
-            {
-              "month": "2027-02",
-              "central": 0.0,
-              "lo": -0.41,
-              "hi": 0.41
-            },
-            {
-              "month": "2027-03",
-              "central": 0.0,
-              "lo": -0.45,
-              "hi": 0.45
-            },
-            {
-              "month": "2027-04",
-              "central": 0.0,
-              "lo": -0.49,
-              "hi": 0.49
-            },
-            {
-              "month": "2027-05",
-              "central": 0.0,
-              "lo": -0.53,
-              "hi": 0.53
-            }
-          ],
-          "llm_used": true
-        },
-        "role_explainer": {
-          "cfo": {
-            "why_important_for_me": "₹90 Cr capex opportunity (engine estimate) sits inside your direct P&L responsibility — the financial signal is the strongest of the seven we score.",
-            "how_it_impacts_business": "No immediate P/E compression; potential for modest P/E expansion if capacity is absorbed and revenue grows. Margin uplift possible with higher utilization. ₹90 Cr self-funded investment (engine estimate) signals strong cash flows; no adverse cost of capital impact expected, poten",
-            "analysis_result": "Monitor financial exposure quarterly; no immediate action required.",
-            "simple_logic": "Flagged for you because financial_magnitude=0.08 and the CFO role weights financial 40%. Your role-specific score: 0.06."
-          },
-          "ceo": {
-            "why_important_for_me": "Strategic positioning signal — track for board-level optics next quarter.",
-            "how_it_impacts_business": "Routine capex with positive human capital and supply chain signaling; no ESG score gap versus peers, but improved disclosure may support index inclusion. Positive impact on talent retention and community employment; expansion may enhance employer brand and local economic developm",
-            "analysis_result": "Track competitive movement; revisit at the next strategy review.",
-            "simple_logic": "Flagged for you because materiality=1.00 and the CEO role weights materiality 25% + painpoint 25%. Your role score: 0.12."
-          },
-          "esg-analyst": {
-            "why_important_for_me": "Framework disclosure obligation is the dominant lens here. Material under the mapped framework section.",
-            "how_it_impacts_business": "SEBI Regulation 30 disclosure triggered; BRSR and GRI reporting required for transparency. No penalty or deadline risk as event is proactive and disclosed. Capacity increase may require additional raw material sourcing and logistics optimization, but no negative Tier 1/2/3 supply",
-            "analysis_result": "Add to the watchlist; revisit on next ingest of the same theme.",
-            "simple_logic": ""
-          }
-        },
-        "criticality_summary": "Low priority — ₹90 Cr capex opportunity (engine estimate).",
-        "headline_only": false,
-        "body_char_count": 0,
-        "analysis": {}
-      },
-      "why_critical": "This represents ₹90 Cr capex opportunity (engine estimate) for the company — quantifying it is the CFO's first decision. The strategic offset is highlight ₹81–99 Cr self-funded expansion in ESG and investor disclosures to reinforce growth narrative and attract ESG-focused capital, which a CFO weighs against the cost of action. Decision window: within next quarterly review. Action: quantify exposure, set the provision or capex line, and brief audit + finance committee."
-    }
-  },
+  "insight": null,
+  "recommendations": null,
+  "perspectives": {},
   "evidence_pack": {
     "cascade": {
-      "total_cr": 90.0,
+      "total_cr": 0.0,
       "margin_bps": null,
       "dominant_lag_months": null,
       "hops": [],
@@ -2093,44 +566,9 @@
         "rationale": "",
         "region": "",
         "is_mandatory": false
-      },
-      {
-        "code": "SP_GLOBAL_ESG",
-        "name": "SP_GLOBAL_ESG",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
-      },
-      {
-        "code": "SFDR",
-        "name": "SFDR",
-        "rationale": "",
-        "region": "",
-        "is_mandatory": false
       }
     ],
-    "stakeholders": [
-      {
-        "name": "SEBI (Securities & Exchange Board of India)",
-        "stance": "Enforcement escalation if remediation plan absent within 30-60 days. Formal show-cause → interim penalty → appeal window. Settlement via Consent Mechanism in 40-60% of cases.",
-        "precedent": "Vedanta 2020 SCN → ₹450 Cr (engine estimate) settlement"
-      },
-      {
-        "name": "RBI (Reserve Bank of India)",
-        "stance": "Direct intervention via moratorium, AQR, or governance restructuring for material asset-quality or fraud events. Climate stress test framework applies to top-16 banks from FY27.",
-        "precedent": "YES Bank 2020 moratorium"
-      },
-      {
-        "name": "MSCI ESG Ratings",
-        "stance": "Rating action (e.g., BBB → BB) within 90-180 days of material event. Watch-list status in interim. Flow-through to MSCI ESG Leaders / SRI indices triggers 1 (engine estimate)-3% AUM outflow from passive strategies.",
-        "precedent": "Vedanta 2020 B→CCC → MSCI ESG Leaders exclusion"
-      },
-      {
-        "name": "BlackRock + Norges Bank IM + CalPERS (Top-10 AUM)",
-        "stance": "Private engagement first (letter/meeting) within 30-60 days. Vote against if remediation absent by next AGM. Exclusion from ESG mandate AUM if severity=high sustained 2+ quarters. Position review on 8-12% AUM flows.",
-        "precedent": "NBIM 2017 excluded 11 coal miners incl. Adani Ports"
-      }
-    ],
+    "stakeholders": [],
     "painpoint_matches": [],
     "causal_chain": {
       "hops": 0,
@@ -2143,59 +581,27 @@
     "confidence_bounds": {
       "figure_lo_cr": null,
       "figure_hi_cr": null,
-      "method": "engine_estimate",
-      "notes": "primitive cascade event_routine_capex with margin impact as per canonical exposure"
+      "method": "",
+      "notes": ""
     },
-    "decision_windows": [
-      {
-        "label": "Immediate",
-        "deadline": "{'headline': '₹90 Cr capex deployed for new production line ",
-        "severity": "soft"
-      },
-      {
-        "label": "Structural",
-        "deadline": "{'valuation_rerating': 'Potential for slight P/E expansion i",
-        "severity": "soft"
-      },
-      {
-        "label": "Long Term",
-        "deadline": "{'secular_trajectory': '3-5 year view: supports sustained gr",
-        "severity": "soft"
-      }
-    ]
+    "decision_windows": []
   },
   "role_payloads": {
     "cfo": {
       "role": "cfo",
-      "headline": "P&L lifts ~₹90 Cr",
+      "headline": "P&L exposure: pending cascade",
       "hero_metric": {
-        "value": "~₹90 Cr",
+        "value": "TBD",
         "label": "P&L exposure",
-        "decision_window": "{'headline': '₹90 Cr capex deployed for new production line ",
+        "decision_window": "",
         "horizon": "",
         "deadline": ""
       },
       "role_takeaways": [
-        "P&L exposure: ~₹90 Cr.",
-        "Monitor Capacity Utilization and Demand Monthly; budget ~₹0.3 Cr; payback 3mo."
+        "No quantified P&L exposure surfaced; monitor only."
       ],
-      "role_paragraph": "P&L exposure: ~₹90 Cr. Monitor Capacity Utilization and Demand Monthly; budget ~₹0.3 Cr; payback 3mo. Decide by {'headline': '₹90 Cr capex deployed for new production line .",
-      "recommendations": [
-        {
-          "title": "Monitor Capacity Utilization and Demand Monthly",
-          "type": "operational",
-          "budget_cr": 0.3,
-          "payback_months": 3.0,
-          "framework_section": ""
-        },
-        {
-          "title": "Evaluate Energy Price Hedging Strategy for Sanand Plant",
-          "type": "financial",
-          "budget_cr": 1.0,
-          "payback_months": 12.0,
-          "framework_section": ""
-        }
-      ],
+      "role_paragraph": "No quantified P&L exposure surfaced; monitor only.",
+      "recommendations": [],
       "visible_panels": [
         "personal_stakes",
         "crisp_insight",
@@ -2211,35 +617,20 @@
     },
     "ceo": {
       "role": "ceo",
-      "headline": "SEBI (Securities & Exchange Board of India) enforcement escalation if remediation plan absent within 30-60 days. formal show-cause → interim penalty → appeal window. settlement via consent mechanism in 40-60% of cases. — FY27-29 positioning under review",
+      "headline": "Strategic positioning under review — FY27-29 positioning under review",
       "hero_metric": {
-        "value": "SEBI (Securities & Exchange Board of India) enforcement escalation if remediation plan absent within 30-60 days. formal show-cause → interim penalty → appeal window. settlement via consent mechanism in 40-60% of cases.",
+        "value": "Strategic positioning under review",
         "label": "Strategic position",
         "decision_window": "",
         "horizon": "FY27-29",
         "deadline": ""
       },
       "role_takeaways": [
-        "SEBI (Securities & Exchange Board of India) enforcement escalation if remediation plan absent within 30-60 days. formal show-cause → interim penalty → appeal window. settlement via consent mechanism in 40-60% of cases. reshapes the FY27-29 competitive frame.",
+        "Strategic positioning under review reshapes the FY27-29 competitive frame.",
         "Trajectory if act now: Set explicit FY27-29 stance to anchor stakeholder communication."
       ],
-      "role_paragraph": "SEBI (Securities & Exchange Board of India) enforcement escalation if remediation plan absent within 30-60 days. formal show-cause → interim penalty → appeal window. settlement via consent mechanism in 40-60% of cases. is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
-      "recommendations": [
-        {
-          "title": "Publish ESG-Linked Capex Disclosure in BRSR FY26",
-          "type": "esg_positioning",
-          "budget_cr": 1.0,
-          "payback_months": 12.0,
-          "framework_section": "BRSR:P6:Q14"
-        },
-        {
-          "title": "Launch Investor Communication Campaign on Expansion",
-          "type": "strategic",
-          "budget_cr": 2.0,
-          "payback_months": 6.0,
-          "framework_section": ""
-        }
-      ],
+      "role_paragraph": "Strategic positioning under review is the FY27-29 story to tell the board. Do nothing → Status quo through FY27-29; competitive position drifts. Act now → Set explicit FY27-29 stance to anchor stakeholder communication.",
+      "recommendations": [],
       "visible_panels": [
         "personal_stakes",
         "crisp_insight",
@@ -2256,20 +647,19 @@
     },
     "esg-analyst": {
       "role": "esg-analyst",
-      "headline": "BRSR:BRSR:P5 disclosure trigger — due {'headline': '₹90 Cr capex deployed for new production line ",
+      "headline": "BRSR:BRSR:P5 disclosure trigger [unverified]",
       "hero_metric": {
         "value": "BRSR:BRSR:P5",
         "label": "Disclosure trigger",
         "decision_window": "",
         "horizon": "",
-        "deadline": "{'headline': '₹90 Cr capex deployed for new production line "
+        "deadline": ""
       },
       "role_takeaways": [
-        "BRSR:BRSR:P5: action required by {'headline': '₹90 Cr capex deployed for new production line  (engine_estimate).",
-        "Cascade ₹90.0 Cr (engine_estimate).",
+        "BRSR:BRSR:P5: action required [unverified].",
         "Checklist: 5 framework section(s) flagged."
       ],
-      "role_paragraph": "BRSR:BRSR:P5 is the dominant disclosure trigger with deadline {'headline': '₹90 Cr capex deployed for new production line . Confidence: engine_estimate. Regulatory checklist: 5 entries; BRSR:BRSR:P5, GRI:GRI:412, GRI:GRI:412. Computed cascade: ₹90.0 Cr.",
+      "role_paragraph": "BRSR:BRSR:P5 is the dominant disclosure trigger. Quantitative claims [unverified] — request methodology. Regulatory checklist: 5 entries; BRSR:BRSR:P5, GRI:GRI:412, GRI:GRI:412.",
       "recommendations": [],
       "visible_panels": [
         "personal_stakes",
@@ -2287,40 +677,7 @@
     }
   },
   "meta": {
-    "written_at": "2026-05-26T11:52:21.529363+00:00",
+    "written_at": "2026-05-26T12:30:04.627546+00:00",
     "schema_version": "3.2-template-hardened"
-  },
-  "intelligence": {
-    "anticipated_qa": [
-      {
-        "question": "What is the strategic rationale behind Nestlé India's ₹90 Cr investment in expanding Maggi Noodles capacity?",
-        "answer": "The investment aims to increase annual production capacity by 14.5%, enabling Nestlé India to meet anticipated demand growth, strengthen its market position in the instant noodles segment, and improve supply chain efficiency."
-      },
-      {
-        "question": "How will this capacity expansion impact Nestlé India's financial performance and margins?",
-        "answer": "The ₹90 Cr capex is expected to drive incremental revenue and operational leverage, with an estimated margin uplift of approximately 44.8 basis points annually, assuming effective utilization of the new capacity."
-      },
-      {
-        "question": "What are the ESG implications of this expansion for Nestlé India?",
-        "answer": "The expansion is a routine capital expenditure with positive signals for human capital and supply chain management; while it does not create an ESG score gap versus peers, improved disclosure could enhance ESG index inclusion prospects."
-      },
-      {
-        "question": "Are there any regulatory or compliance considerations related to this investment?",
-        "answer": "Yes, the investment triggers SEBI Regulation 30 disclosure requirements and mandates reporting under BRSR and GRI frameworks for transparency; however, there are no penalty or deadline risks as the event is proactively disclosed."
-      },
-      {
-        "question": "What are the potential risks or supply chain challenges associated with the increased production capacity?",
-        "answer": "While the capacity increase may require additional raw material sourcing and logistics optimization, no significant Tier 1/2/3 supply chain risks have been identified, indicating manageable operational adjustments."
-      }
-    ],
-    "sentiment_trajectory": {
-      "direction": "improving",
-      "summary": "Nestlé India is showing positive momentum with significant investments in expanding Maggi Noodles production capacity and strategic leadership appointments.",
-      "emerging_themes": [
-        "capacity expansion",
-        "leadership transition",
-        "future demand growth"
-      ]
-    }
   }
 }
