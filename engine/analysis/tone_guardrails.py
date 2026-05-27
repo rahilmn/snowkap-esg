@@ -385,12 +385,19 @@ VOICE — Mint editorial register:
 NO ENGINE SCORES — STRICT (Snowkap-specific rule, distinct from any other LLM
 prompt in this codebase):
 - The lede uses article-grounded FACTS only: ₹ figures, named regulators,
-  named peers, dates, framework citations.
+  named peers, dates, framework citations (BRSR / GRI / CSRD / TCFD).
 - NEVER cite engine-derived analytics scores. No "HIGH materiality", no
   "MODERATE priority", no "CRITICAL band", no "ROI 400%", no "criticality
   score 0.73", no "payback 6 mo", no "% confidence".
-- Scores live in WHY IT MATTERS and the methodology drawer. They do not
-  belong in the editorial opener.
+- NEVER cite third-party rating bureaus. No "MSCI ESG: BBB", no "CRISIL ESG
+  score 61", no "DJSI inclusion", no "Sustainalytics risk 23", no "ISS
+  QualityScore", no "S&P Global ESG", no "Refinitiv ESG". These ratings
+  are stale, opaque, and read as analytics-dashboard noise to a CFO.
+- Frameworks (BRSR / GRI / CSRD / TCFD / SEBI Takeover Reg) are FINE —
+  those are disclosure obligations, not opinion scores. Cite them when
+  the article is grounded in a specific section or filing.
+- Scores live in the methodology drawer. They do not belong anywhere in
+  the editorial opener.
 
 EXAMPLES OF ACCEPTABLE LEDES:
 
@@ -437,6 +444,7 @@ def apply_lede_guardrails(prompt: str) -> str:
 
 
 _SCORE_LEAK_PATTERNS: tuple[re.Pattern[str], ...] = (
+    # ── Engine-derived analytics (Phase 39 original set) ──────────────
     # "HIGH materiality", "CRITICAL priority", "MODERATE band"
     re.compile(
         r"\b(critical|high|moderate|low|medium)\s+(materiality|priority|band|criticality|relevance)\b",
@@ -456,6 +464,36 @@ _SCORE_LEAK_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bowner[:\s]+[A-Z]", re.IGNORECASE),
     # "materiality_band: HIGH"
     re.compile(r"\bmateriality_(band|score|weight)\b", re.IGNORECASE),
+
+    # ── Third-party rating leaks (Phase 39 polish — 2026-05-27) ──────
+    # User-stated rule: no MSCI ESG / CRISIL / DJSI / Sustainalytics /
+    # ISS QualityScore / S&P Global ESG / BlackRock weight / etc. in
+    # any user-facing prose. These ratings are stale, opaque, and feel
+    # like ESG-analytics dashboard noise. Frameworks are FINE
+    # (BRSR / GRI / CSRD / TCFD — those are disclosure obligations,
+    # not opinion scores). Rating bureaus are NOT.
+
+    # "MSCI ESG rating: BBB", "MSCI rating AA"
+    re.compile(r"\bMSCI\s+(ESG\s+)?(rating|score)\b", re.IGNORECASE),
+    # "CRISIL ESG score 61", "CRISIL ESG: 72"
+    re.compile(r"\bCRISIL\s+(ESG)?\s*(score|rating|esg_score)?\b", re.IGNORECASE),
+    # "Sustainalytics risk score 23", "Sustainalytics low risk"
+    re.compile(r"\bSustainalytics\b", re.IGNORECASE),
+    # "DJSI inclusion", "DJSI ranking"
+    re.compile(r"\bDJSI\b", re.IGNORECASE),
+    # "S&P Global ESG score"
+    re.compile(r"\bS&P\s+Global\s+ESG\b", re.IGNORECASE),
+    # "ISS QualityScore", "ISS ESG rating"
+    re.compile(r"\bISS\s+(QualityScore|ESG|governance)\b", re.IGNORECASE),
+    # "Refinitiv ESG", "FTSE Russell ESG"
+    re.compile(r"\b(Refinitiv|FTSE\s+Russell)\s+ESG\b", re.IGNORECASE),
+    # Generic "ESG rating", "ESG score" — scoped to numerical/grade
+    # context so we don't false-flag "ESG rating methodology" prose.
+    # Matches: "ESG rating: BBB", "ESG score 61", "ESG rating AA",
+    # "ESG score: 72". Optional whitespace between the punctuation
+    # and the grade letters / digits.
+    re.compile(r"\bESG\s+(?:rating|score)\s*[:\s]?\s*[A-D]{1,3}\b", re.IGNORECASE),
+    re.compile(r"\bESG\s+(?:rating|score)\s*[:\s]?\s*\d", re.IGNORECASE),
 )
 
 

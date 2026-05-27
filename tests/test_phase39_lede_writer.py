@@ -79,6 +79,87 @@ def test_score_leak_detector_passes_clean_editorial_lede():
     assert score_leaks == []
 
 
+@pytest.mark.parametrize("phrase", [
+    "MSCI ESG rating: BBB",
+    "CRISIL ESG score 61",
+    "DJSI Emerging Markets reviews ratings in October",
+    "Sustainalytics risk score moved from high to low",
+    "ISS QualityScore on governance improved",
+    "S&P Global ESG places the company in top quartile",
+    "Refinitiv ESG composite score above 80",
+    "ESG rating: AA on the latest cycle",
+    "ESG score 61 puts it third in the peer group",
+])
+def test_third_party_rating_bureaus_are_blocked(phrase):
+    """Phase 39 polish (2026-05-27) — user-stated rule: no third-party
+    rating bureau mentions in any user-facing prose. Frameworks like
+    BRSR / GRI / CSRD / TCFD remain allowed (disclosure obligations,
+    not opinion scores)."""
+    from engine.analysis.tone_guardrails import scan_for_violations
+
+    hits = [h for h in scan_for_violations(phrase) if h["kind"] == "score_leak"]
+    assert hits, f"expected score_leak hit for {phrase!r}"
+
+
+@pytest.mark.parametrize("phrase", [
+    "The disclosure aligns with BRSR Principle 9 reporting",
+    "GRI 207 tax-transparency framework",
+    "CSRD Article 19a applies in the EU",
+    "TCFD Strategy-c disclosure due Q3",
+    "ESG rating methodology under public consultation",  # methodology context
+    "Rating reviewed by the regulator's working group",  # no specific bureau
+])
+def test_framework_citations_are_allowed(phrase):
+    """Frameworks (BRSR / GRI / CSRD / TCFD / SEBI Takeover Reg) are
+    disclosure obligations and remain citable. Only opinion-scoring
+    bureaus (MSCI / CRISIL / DJSI / Sustainalytics / ISS / S&P / Refinitiv)
+    are stripped."""
+    from engine.analysis.tone_guardrails import scan_for_violations
+
+    hits = [h for h in scan_for_violations(phrase) if h["kind"] == "score_leak"]
+    assert hits == [], f"unexpected score_leak hits on {phrase!r}: {hits}"
+
+
+def test_renderer_omits_external_benchmarks_section():
+    """Phase 39 polish — the morning_brew renderer must not surface
+    company_benchmarks data (MSCI / CRISIL / DJSI / Sustainalytics)
+    even when the benchmarks field on the analysis block is populated.
+    Data still lives in SQLite for future analyst-mode use."""
+    from engine.output.newsletter_morning_brew import render_article_morning_brew
+
+    payload = {
+        "article": {"title": "x", "source": "Mint", "url": "https://example.com"},
+        "insight": {
+            "analysis": {
+                "what_changed": {"headline": "x", "polarity": "positive", "source": "Mint"},
+                "why_it_matters": {
+                    "materiality_band": "HIGH",
+                    "financial_exposure": {"amount_cr": 100, "kind": "exposure"},
+                    "criticality_summary": "y",
+                },
+                "what_it_triggers": {"recommended_actions": []},
+                "what_to_watch": {
+                    "sentiment_trajectory": {"horizon_3m": "stable", "horizon_6m": "stable", "horizon_12m": "stable"},
+                    "benchmarks": [
+                        {"source": "MSCI ESG", "metric": "rating", "value": "BBB"},
+                        {"source": "CRISIL", "metric": "esg_score", "value": "61"},
+                        {"source": "DJSI", "metric": "inclusion", "value": "Yes"},
+                    ],
+                },
+            },
+        },
+    }
+    html = render_article_morning_brew(
+        payload=payload, company_name="Test Co",
+        recipient_name="Rahil", company_slug="test-co", article_id="x",
+    )
+    # None of the bureau names should appear in the rendered email
+    assert "MSCI ESG" not in html
+    assert "CRISIL" not in html
+    assert "DJSI" not in html
+    assert "External benchmarks" not in html
+
+
 # ---------------------------------------------------------------------------
 # lede_writer — module surface
 # ---------------------------------------------------------------------------

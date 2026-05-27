@@ -13,8 +13,10 @@ Sustainability sections:
                         reader's company.
   * RECOMMENDED ACTIONS — top 2-3 recommended_actions (owner · cost ·
                           payback · ROI · deadline).
-  * FORWARD INDICATORS — sentiment trajectory in plain English + lead
-                         indicators + external benchmarks.
+  * FORWARD INDICATORS — sentiment trajectory in plain English + top
+                         risk categories. (External rating scores —
+                         MSCI ESG / CRISIL / DJSI / Sustainalytics —
+                         deliberately omitted; opaque + stale.)
   * CTAs          — "Read full article →" + "Contact Snowkap".
   * Footer        — same brand block as the dark-card layout.
 
@@ -331,26 +333,21 @@ def render_article_morning_brew(
         """
 
     # ── What to watch ──────────────────────────────────────────────────
+    # Phase 39 polish (2026-05-27) — external rating scores (MSCI ESG,
+    # CRISIL, DJSI, Sustainalytics, ISS QualityScore, etc.) are pulled
+    # entirely from this section. The reader trusts the article facts
+    # the engine surfaces; rating-shaped third-party scores add stale,
+    # opaque noise without informing the decision. Data still lives in
+    # the company_benchmarks table for future analyst-mode use; emails
+    # + /now + chat just don't show it.
     traj = what_to_watch.get("sentiment_trajectory") or {}
     risk_cats = what_to_watch.get("top_risk_categories") or []
-    benchmarks = what_to_watch.get("benchmarks") or []
     traj_phrase = _trajectory_phrase(traj if isinstance(traj, dict) else {})
     risk_phrase = ""
     if risk_cats:
         risk_phrase = (
             f'<p style="margin:6px 0 0; font-size:13px; color:{_INK};">'
             f"Top risk categories: <strong>{_escape(' · '.join(risk_cats[:3]))}</strong>"
-            f"</p>"
-        )
-    bm_phrase = ""
-    if benchmarks:
-        bm_chips = " · ".join(
-            f"{_escape(b.get('source'))} {_escape(b.get('metric'))}: <strong>{_escape(b.get('value'))}</strong>"
-            for b in benchmarks[:3] if isinstance(b, dict)
-        )
-        bm_phrase = (
-            f'<p style="margin:6px 0 0; font-size:12px; color:{_INK_MUTED};">'
-            f"External benchmarks: {bm_chips}"
             f"</p>"
         )
     watch_html = f"""
@@ -360,7 +357,6 @@ def render_article_morning_brew(
           {_escape(traj_phrase)}
         </p>
         {risk_phrase}
-        {bm_phrase}
       </div>
     """
 

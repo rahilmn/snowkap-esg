@@ -374,7 +374,14 @@ function WhatToWatchBullet({ data, onInfoClick }: {
   const hasTrajectory = !!(traj && (traj.horizon_3m || traj.horizon_6m || traj.horizon_12m));
   const hasRisks = (data.top_risk_categories || []).length > 0;
   const hasLeadIndicators = (data.lead_indicators || []).length > 0;
-  const hasBenchmarks = (data.benchmarks || []).length > 0;
+  // Phase 39 polish (2026-05-27) — external rating scores (MSCI ESG /
+  // CRISIL / DJSI / Sustainalytics / ISS QualityScore) are pulled from
+  // every user-facing surface. Data still lives in company_benchmarks
+  // for future analyst-mode use; the article-detail sheet just doesn't
+  // surface it. `hasBenchmarks` is forced false so the empty-state and
+  // section-omission logic both follow the same path as if the field
+  // were absent.
+  const hasBenchmarks = false;
 
   if (!hasTrajectory && !hasRisks && !hasLeadIndicators && !hasBenchmarks) {
     return (
@@ -462,25 +469,9 @@ function WhatToWatchBullet({ data, onInfoClick }: {
           </ul>
         </div>
       )}
-      {hasBenchmarks && (
-        <div>
-          <div style={subLabelStyle}>External benchmarks</div>
-          <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
-            {data.benchmarks.map((b, idx) => (
-              <li key={idx} style={{
-                fontSize: 12, color: COLORS.textPrimary,
-                display: "flex", justifyContent: "space-between", gap: 8,
-              }}>
-                <span style={{ fontWeight: 600 }}>{b.source}</span>
-                <span>{b.metric}: <strong>{b.value}</strong></span>
-                {b.as_of && (
-                  <span style={{ color: COLORS.textSecondary, fontSize: 11 }}>as of {b.as_of}</span>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Phase 39 polish — external rating benchmarks (MSCI ESG /
+          CRISIL / DJSI / Sustainalytics / ISS) deliberately omitted
+          from this surface. See WhatToWatchBullet header comment. */}
     </section>
   );
 }
