@@ -220,6 +220,34 @@ app.add_middleware(
 )
 
 
+# Phase 45.G — global unhandled-exception handler. Without this, FastAPI
+# returns a bare "Internal Server Error" with no class/message/traceback,
+# making 500s impossible to diagnose from the client side. Now: full
+# traceback to the logs (visible in Replit), and a structured JSON body
+# with the exception class + first line of the message so curl / the
+# validation script can see WHAT broke.
+from fastapi import Request
+from fastapi.responses import JSONResponse
+import traceback as _global_tb
+
+
+@app.exception_handler(Exception)
+async def _global_500_logger(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception(
+        "Unhandled exception on %s %s: %s",
+        request.method, request.url.path, exc,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error_class": type(exc).__name__,
+            "error_message": str(exc)[:300],
+            "path": request.url.path,
+            "trace_head": _global_tb.format_exc().splitlines()[-6:],
+        },
+    )
+
+
 @app.on_event("startup")
 def _startup() -> None:
     ensure_schema()

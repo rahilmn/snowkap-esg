@@ -1846,7 +1846,30 @@ def news_analysis(
     insight = (payload.get("insight") or {})
     if not insight.get("headline"):
         return {"status": "pending", "analysis": None}
-    legacy = build_legacy_article(dict(row), payload)
+    # Phase 45.G — surface the actual exception in the response body
+    # instead of letting FastAPI return a bare "Internal Server Error".
+    # build_legacy_article touches a lot of dict paths; a single missing
+    # key or shape mismatch turns into a 500 that hides the real cause.
+    # We log the full traceback for ops + return the exception type +
+    # first line of the message to the caller. Still HTTP 500 so the
+    # frontend's existing fallback paths fire normally.
+    try:
+        legacy = build_legacy_article(dict(row), payload)
+    except Exception as exc:  # noqa: BLE001
+        import traceback as _tb
+        logger.exception(
+            "news_analysis: build_legacy_article failed for %s",
+            article_id,
+        )
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error_class": type(exc).__name__,
+                "error_message": str(exc)[:300],
+                "article_id": article_id,
+                "trace_head": _tb.format_exc().splitlines()[-5:],
+            },
+        )
     return {
         "status": "done",
         "analysis": {
