@@ -324,10 +324,81 @@ def onboard_v2(
             except Exception as exc:
                 logger.warning("[onboard_v2] worker exception: %s", exc)
 
+    # ── 8b. Eager top-3 Stage 10+11+12 pass (mirrors legacy Phase 36) ────
+    # _run_article gates Stage 10 on HOME tier. SECONDARY articles get
+    # stages 1-9 only, leaving deep_insight + recommendations + lede unset.
+    # That's correct for cost reasons in steady-state ingest, but on a
+    # FRESH onboard the user expects the top-3 cards to land already
+    # body-grounded with full analysis. Without this pass, validation
+    # tests 05-08 fail: no analysis populated → no recs → email send
+    # rejects with "no HOME-tier analysis" → chat reply empty.
+    #
+    # We invoke `enrich_on_demand(force=True)` on the top-3 non-rejected
+    # articles. It's idempotent (won't re-fire if already HOME-grounded)
+    # and runs the full 1-12 + lede chain, writing the canonical insight
+    # JSON + article_pool + company_article_view rows.
+    non_rejected = [
+        (article, outcome) for (article, outcome) in results
+        if not isinstance(outcome, Exception)
+        and not getattr(outcome, "rejected", False)
+    ]
+    # Sort by impact_score DESC so the top-3 are the highest-criticality
+    # articles the user actually sees in the deck hero strip.
+    def _score(pair) -> float:
+        _, outcome = pair
+        return float(getattr(outcome, "impact_score", 0) or 0)
+    non_rejected.sort(key=_score, reverse=True)
+    top_candidates = non_rejected[:3]
+    # Only SECONDARY-tier articles need the eager promotion — HOME-tier
+    # articles already ran Stage 10/11/12 + lede inside _run_article.
+    # Calling enrich_on_demand(force=True) on them would just burn LLM
+    # cost for no quality gain.
+    eager_top = [
+        (a, o) for (a, o) in top_candidates
+        if getattr(o, "tier", "") != "HOME"
+    ]
+
+    if eager_top:
+        from engine.analysis.on_demand import enrich_on_demand
+        logger.info(
+            "[onboard_v2] eager top-3 enrichment for %d articles on %s",
+            len(eager_top), info.slug,
+        )
+
+        def _enrich_one(article_id: str) -> tuple[str, bool, str]:
+            try:
+                payload = enrich_on_demand(article_id, info.slug, force=True)
+                return article_id, payload is not None, ""
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "[onboard_v2] eager enrich failed for %s: %s",
+                    article_id, exc,
+                )
+                return article_id, False, f"{type(exc).__name__}: {exc}"
+
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=3,
+            thread_name_prefix="onboard-v2-eager",
+        ) as pool:
+            eager_futs = [
+                pool.submit(_enrich_one, a.id) for (a, _) in eager_top
+            ]
+            for fut in concurrent.futures.as_completed(eager_futs):
+                try:
+                    aid, ok, err = fut.result(timeout=180)
+                    logger.info(
+                        "[onboard_v2] eager %s: %s%s",
+                        aid, "OK" if ok else "FAIL",
+                        f" ({err})" if err else "",
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("[onboard_v2] eager worker exception: %s", exc)
+
     # ── 9. Tally + build response ────────────────────────────────────────
     article_summaries: list[ArticleSummary] = []
     analysed = 0
     home_count = 0
+    eager_promoted_ids = {a.id for (a, _) in eager_top}
     for article, outcome in results:
         if isinstance(outcome, Exception):
             logger.warning(
@@ -344,13 +415,25 @@ def onboard_v2(
             continue
         if not getattr(outcome, "rejected", False):
             analysed += 1
-            if getattr(outcome, "tier", "") == "HOME":
+            # Eager-enriched articles were promoted to HOME tier on disk
+            # even if _run_article tagged them SECONDARY. Reflect that
+            # here so the response + dashboard counts match what the user
+            # actually sees in the deck.
+            base_tier = getattr(outcome, "tier", "")
+            effective_tier = (
+                "HOME"
+                if article.id in eager_promoted_ids or base_tier == "HOME"
+                else base_tier
+            )
+            if effective_tier == "HOME":
                 home_count += 1
+        else:
+            effective_tier = getattr(outcome, "tier", "UNKNOWN")
         article_summaries.append(ArticleSummary(
             article_id=article.id,
             title=(article.title or "")[:300],
             url=article.url or "",
-            tier=getattr(outcome, "tier", "UNKNOWN"),
+            tier=effective_tier,
             rejected=bool(getattr(outcome, "rejected", False)),
         ))
 
