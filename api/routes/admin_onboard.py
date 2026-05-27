@@ -502,26 +502,52 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
                     "[onboard %s] eager Stage 10 on top-3 (90s budget): %s",
                     canonical_slug, top3_ids,
                 )
-                for aid in top3_ids:
+                # Phase 44.D (2026-05-28) — parallelise the eager Stage 10
+                # pass with ThreadPoolExecutor. Pre-fix the 3 enrich_on_demand
+                # calls ran sequentially, adding ~90s to every onboard. With
+                # 3-way parallelism they finish in ~30s. Same 90s wall-clock
+                # budget enforced — if individual calls hang, the budget
+                # check inside _eager_one catches it.
+                import concurrent.futures as _cf_eager
+
+                def _eager_one(aid: str) -> tuple[str, bool, str]:
+                    """Run enrich_on_demand for one article with thread-safe
+                    event emission. Returns (aid, success, msg)."""
                     if _time_eager.monotonic() > eager_deadline:
-                        logger.info(
-                            "[onboard %s] eager Stage 10 budget hit, skipping remaining",
-                            canonical_slug,
-                        )
-                        break
+                        return aid, False, "budget_exhausted"
                     try:
                         enrich_on_demand(aid, canonical_slug, force=True)
-                        onboarding_events.emit_event(canonical_slug, "analysis_done", {
-                            "article_id": aid,
-                            "headline": "(eager Stage 10)",
-                            "criticality_band": "EAGER",
-                            "position": 0, "total": 0,
-                        })
+                        return aid, True, ""
                     except Exception as exc:  # noqa: BLE001
-                        logger.warning(
-                            "[onboard %s] eager Stage 10 failed for %s: %s",
-                            canonical_slug, aid, exc,
-                        )
+                        return aid, False, f"{type(exc).__name__}: {exc}"
+
+                with _cf_eager.ThreadPoolExecutor(
+                    max_workers=min(3, len(top3_ids)),
+                    thread_name_prefix="onboard-eager",
+                ) as eager_pool:
+                    eager_futures = [eager_pool.submit(_eager_one, aid)
+                                     for aid in top3_ids]
+                    for fut in _cf_eager.as_completed(eager_futures):
+                        try:
+                            aid, success, msg = fut.result()
+                        except Exception as exc:  # noqa: BLE001
+                            logger.warning(
+                                "[onboard %s] eager worker exited: %s",
+                                canonical_slug, exc,
+                            )
+                            continue
+                        if success:
+                            onboarding_events.emit_event(canonical_slug, "analysis_done", {
+                                "article_id": aid,
+                                "headline": "(eager Stage 10)",
+                                "criticality_band": "EAGER",
+                                "position": 0, "total": 0,
+                            })
+                        else:
+                            logger.warning(
+                                "[onboard %s] eager Stage 10 failed for %s: %s",
+                                canonical_slug, aid, msg,
+                            )
         except Exception as exc:  # noqa: BLE001 — eager pass is additive
             logger.warning(
                 "[onboard %s] eager-Stage-10 pass failed (non-fatal): %s",
