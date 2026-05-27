@@ -289,6 +289,23 @@ def share_article_by_email(
             cta_label=cta_label,
         )
 
+    # Phase 38 — run the editorial tone scrubber over the rendered HTML
+    # before send. Last line of defence after the Stage-10/12 prompt-level
+    # tone guardrails. Strips em-dashes, swaps jargon ("utilize" → "use"),
+    # deletes banned-phrase sentences, trims AI-tell openers. Idempotent
+    # and tag-aware (never mangles inline styles or anchor hrefs). If
+    # parsing fails the scrubber returns the input verbatim so a send
+    # never blocks on a tone issue.
+    try:
+        from engine.output.content_scrubber import scrub_html, scrub_text
+        html = scrub_html(html)
+        # Also scrub the subject line. Subjects rarely violate (the
+        # Phase 11C subject builder is template-led) but the LLM path
+        # for HIGH/CRITICAL articles can still leak banned openers.
+        subject = scrub_text(subject)
+    except Exception as exc:  # noqa: BLE001 — defensive
+        logger.warning("content scrubber pass failed: %s", exc)
+
     # Phase 11+ — inline the Snowkap logo as a CID attachment so it renders
     # even in Outlook Desktop (which blocks external <img src="https://...">
     # by default). The renderer references it as <img src="cid:snowkap-logo">.
@@ -361,6 +378,13 @@ def preview_share_html(
             recipient_name=recipient_name,
             role=role,
         )
+        # Phase 38 — same editorial scrub the actual send uses, so the
+        # preview matches what ships.
+        try:
+            from engine.output.content_scrubber import scrub_html
+            html = scrub_html(html)
+        except Exception:
+            pass
         return html, result
 
     # Fallback to legacy newsletter layout if no insight is present
@@ -381,4 +405,9 @@ def preview_share_html(
             recipient_name, sender_note, target_article.company_name,
         ),
     )
+    try:
+        from engine.output.content_scrubber import scrub_html
+        html = scrub_html(html)
+    except Exception:
+        pass
     return html, result

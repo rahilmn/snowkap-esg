@@ -97,21 +97,13 @@ def _load_inline_logo_svg() -> str:
 
 SNOWKAP_LOGO_SVG_INLINE = _load_inline_logo_svg()
 
-# Emoji markers for highlights, one per industry (add more as needed)
-_INDUSTRY_EMOJI = {
-    "Power/Energy": "⚡",
-    "Financials/Banking": "🏦",
-    "Renewable Energy": "🌱",
-    "Asset Management": "📊",
-    "Pharmaceuticals": "💊",
-    "Consumer/Beverage": "🥤",
-    "Information Technology": "💻",
-    "Automotive": "🚗",
-    "Steel": "🔩",
-    "Oil & Gas": "🛢️",
-    "Chemicals": "🧪",
-    "Other": "🌿",
-}
+# Phase 38 — industry emoji map retired. Sidebar highlights now use a
+# brand-orange chevron marker; the no-image article banner falls back to
+# the SNOWKAP wordmark instead of a 64px emoji. The v17 dark-card audit
+# already flagged Outlook fragments emoji into coloured boxes, and the
+# editorial discipline in `content rule and structure.docx` bans emoji
+# in body content for a CFO-grade audience.
+_INDUSTRY_MARKER = "▸"  # single replacement marker, brand-orange in stylesheet
 
 
 # ---------------------------------------------------------------------------
@@ -134,7 +126,12 @@ class NewsletterArticle:
     article_id: str = ""  # pipeline article id — for filter-by-id in share service
 
     def emoji(self) -> str:
-        return _INDUSTRY_EMOJI.get(self.industry, "🌿")
+        """Phase 38 — legacy method name retained for callers; now returns
+        the brand-orange chevron marker instead of an industry emoji.
+        The render call sites in `_render_highlights` + `_render_article_block`
+        wrap this in inline-style spans so the marker picks up the brand
+        orange + uppercase typography."""
+        return _INDUSTRY_MARKER
 
     def short_headline(self, max_len: int = 120) -> str:
         return self.title[: max_len - 1] + "…" if len(self.title) > max_len else self.title
@@ -276,7 +273,7 @@ def _render_highlights(articles: list[NewsletterArticle]) -> str:
         for a in items:
             rows.append(f"""\
         <tr>
-          <td valign="top" style="padding:8px 0;width:32px;font-size:18px;">{a.emoji()}</td>
+          <td valign="top" style="padding:8px 0;width:32px;font-size:18px;font-weight:700;color:{BRAND_PRIMARY};">{a.emoji()}</td>
           <td valign="top" style="padding:8px 12px 8px 0;font-family:Arial,sans-serif;font-size:14px;color:{TEXT_PRIMARY};line-height:1.45;">
             {_esc(a.short_headline(110))}
           </td>
@@ -321,17 +318,16 @@ def _render_article_block(a: NewsletterArticle) -> str:
         </td>
       </tr>"""
     else:
-        # Emoji banner fallback — black with orange accent rule.
-        # (For articles ingested via NewsAPI.ai after Phase 9, `image_url` is
-        #  populated from the publisher's metadata. Old articles + manual
-        #  prompts fall through here.)
+        # Phase 38 — no-image fallback banner. Replaces the 64px industry
+        # emoji ("⚡ 🏦 🌱 📊 💊 🥤 💻 🚗") with the SNOWKAP wordmark + the
+        # company name in uppercase brand orange. Editorial, not playful.
         image_html = f"""\
       <tr>
         <td style="padding:0 0 20px 0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:{BRAND_DARK};">
             <tr>
-              <td align="center" style="padding:56px 16px 52px 16px;font-size:64px;color:{BRAND_PRIMARY};line-height:1;">
-                {a.emoji()}
+              <td align="center" style="padding:48px 16px 44px 16px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:800;color:{BRAND_PRIMARY};line-height:1.2;letter-spacing:1.4px;text-transform:uppercase;">
+                SNOWKAP &nbsp;·&nbsp; {_esc(a.company_name)}
               </td>
             </tr>
             <tr>

@@ -106,7 +106,11 @@ def test_highlights_grid_has_two_columns():
     assert 'width="50%"' in html
 
 
-def test_industry_emoji_mapping():
+def test_industry_marker_is_single_brand_chevron():
+    """Phase 38 — industry emoji map retired. The legacy ``emoji()`` method
+    now returns a single brand-orange chevron marker for every industry
+    so Outlook never fragments multi-coloured emoji + the docx editorial
+    discipline is honoured (no emoji in body content)."""
     a1 = NewsletterArticle(
         title="x", company_name="c", industry="Power/Energy",
         bottom_line="b", why_matters="w", read_more_url="http://x",
@@ -115,15 +119,19 @@ def test_industry_emoji_mapping():
         title="x", company_name="c", industry="Renewable Energy",
         bottom_line="b", why_matters="w", read_more_url="http://x",
     )
-    assert a1.emoji() != a2.emoji()  # different industries → different emojis
+    # Every article uses the same marker — industry hint comes from the
+    # company name + headline + framework citation in the body.
+    assert a1.emoji() == a2.emoji() == "▸"
 
 
-def test_unknown_industry_falls_back_to_generic_emoji():
+def test_unknown_industry_uses_same_marker():
+    """Phase 38 — unknown industries no longer fall back to a leaf emoji;
+    they use the same brand chevron as the known industries."""
     a = NewsletterArticle(
         title="x", company_name="c", industry="Martian Rover Manufacturing",
         bottom_line="b", why_matters="w", read_more_url="http://x",
     )
-    assert a.emoji() == "🌿"  # generic fallback
+    assert a.emoji() == "▸"
 
 
 # ---------------------------------------------------------------------------

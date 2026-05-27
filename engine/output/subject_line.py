@@ -299,6 +299,17 @@ def _llm_subject(
             "No colons at the start. No 'Snowkap' prefix. No emoji. No quotation "
             "marks. One line only."
         )
+
+    # Phase 38 — append subject-line tone guardrails (banned openers /
+    # banned words / max-1-comma rule). Smaller subset than the body
+    # guardrails since subject lines are ≤ 90 chars and don't carry
+    # paragraph-shape risks.
+    try:
+        from engine.analysis.tone_guardrails import apply_subject_line_guardrails
+        system = apply_subject_line_guardrails(system)
+    except Exception:
+        # Tone guardrails are additive; never block subject generation.
+        pass
     polarity_label = "POSITIVE / upside" if is_positive else "NEGATIVE / risk"
     user = (
         f"Polarity: {polarity_label}\n"

@@ -864,6 +864,18 @@ def _generate_recommendations(
     # to whichever polarity prompt the dispatcher selected. Same constraints
     # apply to positive + negative event flows.
     system_prompt_template = system_prompt_template + _ACCURACY_GUARDRAILS
+
+    # Phase 38 — editorial tone guardrails. Banned words, banned phrases,
+    # Hemingway voice rules, plain-English jargon swaps. The system-prompt
+    # layer catches ~85% of violations at generation time; the post-render
+    # scrubber (engine/output/content_scrubber.py) catches the rest.
+    try:
+        from engine.analysis.tone_guardrails import apply_to_system_prompt
+        system_prompt_template = apply_to_system_prompt(system_prompt_template)
+    except Exception:
+        # Tone guardrails are additive; never block recommendation generation.
+        pass
+
     try:
         resp = client.chat.completions.create(
             model=model,

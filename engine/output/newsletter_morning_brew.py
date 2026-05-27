@@ -1,32 +1,28 @@
-"""Phase 33 §6 — Morning-Brew-style newsletter renderer.
+"""Phase 33 §6 / Phase 38 — Morning-Brew-style newsletter renderer.
 
 Parallel to ``newsletter_renderer.render_article_brief_dark``, this
 template consumes the Phase 32 unified ``insight.analysis`` block and
-emits a conversational, scannable, second-person email patterned on
-Morning Brew's tone:
+emits a clean, editorial, decision-grade brief modelled on Mint / FT
+Sustainability sections:
 
-  * Subject line — verb-first, ≤90 chars, ₹ figure when material.
-  * Greeting     — "Hey {first_name}, here's what {company} is dealing
-                   with today."
-  * 📰 The story  — what_changed in one short paragraph.
-  * 💡 Why you'll care — why_it_matters + stakes_for_company, ₹ exposure
-                          framed as scenario when all_estimate is set.
-  * ⚡ What that means — top 2-3 recommended_actions as a bullet list
-                         (action + deadline + owner).
-  * 🔮 What to watch — sentiment_trajectory in plain English + lead
-                       indicators + benchmarks.
-  * CTAs         — "Read the full analysis →" + "Discuss this in chat →"
-  * Footer       — same brand block as the dark-card layout.
+  * Subject line  — verb-first, ≤90 chars, ₹ figure when material.
+  * Greeting      — "Hey {first_name}, here's what {company} is dealing
+                    with today."
+  * WHAT CHANGED      — what_changed in one short paragraph.
+  * WHY IT MATTERS    — materiality band + ₹ exposure + stakes for the
+                        reader's company.
+  * RECOMMENDED ACTIONS — top 2-3 recommended_actions (owner · cost ·
+                          payback · ROI · deadline).
+  * FORWARD INDICATORS — sentiment trajectory in plain English + lead
+                         indicators + external benchmarks.
+  * CTAs          — "Read full article →" + "Contact Snowkap".
+  * Footer        — same brand block as the dark-card layout.
 
-Ships behind ``SNOWKAP_EMAIL_LAYOUT=morning_brew`` (env flag) so the dark
-card stays the default until editorial approves three sample sends per
-the Phase 33 rollout decision.
-
-Outlook + Gmail + iOS Mail compatibility verified by reusing the
-table-based layout primitives + inline-styles approach from the dark
-card. Emoji headers render cleanly as single-character glyphs (the
-Phase 11C audit showed Outlook fragments multi-coloured emoji
-*backgrounds* but renders single Unicode glyphs fine).
+Phase 38 — emojis removed across every section (📰 💡 ⚡ 🔮 📈 📉).
+The v17 dark-card audit (newsletter_renderer.py) verified Outlook's
+Word engine fragments emoji icons into coloured boxes. Section identity
+is now carried by orange left-border accent + uppercase typographic
+hierarchy.
 """
 
 from __future__ import annotations
@@ -56,22 +52,27 @@ def _escape(s: Any) -> str:
     return html.escape(str(s)) if s is not None else ""
 
 
-def _polarity_emoji(polarity: str) -> str:
-    return {
-        "positive": "📈",
-        "negative": "📉",
-        "neutral": "📰",
-        "": "📰",
-    }.get((polarity or "").lower(), "📰")
+def _section_label(text: str) -> str:
+    """Phase 38 — orange-bordered uppercase label for a section header.
 
+    Replaces the emoji-prefixed labels (📰 The story, 💡 Why you'll care,
+    etc.) that read as AI-generated marketing copy. Visual identity now
+    carried by:
+      * orange left-border accent (3px, brand colour)
+      * uppercase + letter-spacing for editorial typographic rhythm
+      * bold weight at small size (11px) so it never competes with body
 
-def _polarity_verb(polarity: str) -> str:
-    return {
-        "positive": "scored a win",
-        "negative": "ran into trouble",
-        "neutral": "made a disclosure",
-        "": "made a move",
-    }.get((polarity or "").lower(), "made a move")
+    Mirrors the v17 dark-card audit's conclusion that Outlook's Word
+    engine fragments emoji into coloured boxes, so we lean on typography
+    instead.
+    """
+    return (
+        f'<div style="border-left:3px solid {_ACCENT}; padding-left:12px; '
+        f'margin-bottom:10px; font-size:11px; font-weight:800; '
+        f'letter-spacing:0.6px; text-transform:uppercase; color:{_INK};">'
+        f'{_escape(text)}'
+        f'</div>'
+    )
 
 
 def _format_inr_cr(amount: Any) -> str:
@@ -91,18 +92,20 @@ def _format_inr_cr(amount: Any) -> str:
 
 
 def _trajectory_phrase(traj: dict[str, Any]) -> str:
+    """Phase 38 — plain editorial English. No em-dashes, no breezy idioms
+    ("fire drill", "on the up"), no AI tells. Max one comma per sentence."""
     h3 = (traj.get("horizon_3m") or "").lower()
     h6 = (traj.get("horizon_6m") or "").lower()
     h12 = (traj.get("horizon_12m") or "").lower()
     if not any((h3, h6, h12)):
-        return "Sentiment baseline holding — nothing alarming on the horizon yet."
+        return "Sentiment is holding at baseline. No alert signals on the 12-month horizon."
     if h3 == h6 == h12 == "stable":
-        return "Sentiment is expected to hold steady across the next year — keep watching, but no fire drill."
+        return "Sentiment is set to hold steady through the next year. Track but no action needed."
     if h3 == h6 == h12 == "declining":
-        return "Sentiment is bending downward across the next year — plan a response narrative before the next investor touchpoint."
+        return "Sentiment is set to weaken through the next year. Plan a response narrative before the next investor touchpoint."
     if h3 == h6 == h12 == "improving":
-        return "Sentiment is on the up across the next year — capitalise on the momentum in the next earnings cycle."
-    return f"Trajectory at 3m: {h3 or '—'}, 6m: {h6 or '—'}, 12m: {h12 or '—'}."
+        return "Sentiment is set to strengthen through the next year. Lead with the recovery narrative at the next earnings call."
+    return f"Trajectory: 3m {h3 or 'unknown'}. 6m {h6 or 'unknown'}. 12m {h12 or 'unknown'}."
 
 
 # ---------------------------------------------------------------------------
@@ -181,14 +184,14 @@ def render_article_morning_brew(
     stakes = why_it_matters.get("stakes_for_company") or ""
     crit_summary = why_it_matters.get("criticality_summary") or ""
 
-    # ── The story ──────────────────────────────────────────────────────
+    # ── WHAT CHANGED ───────────────────────────────────────────────────
+    # Phase 38 — lead with the fact (Hemingway rule: never frame before
+    # facts). No polarity verb prefix ("scored a win" / "ran into trouble").
     story_html = f"""
       <div style="margin-bottom:24px;">
-        <div style="font-size:14px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:{_ACCENT}; margin-bottom:8px;">
-          {_polarity_emoji(polarity)} The story
-        </div>
+        {_section_label("What changed")}
         <p style="margin:0; font-size:16px; line-height:1.55; color:{_INK};">
-          <strong>{_escape(company_name)}</strong> {_escape(_polarity_verb(polarity))}: {_escape(headline)}
+          <strong>{_escape(company_name)}</strong>. {_escape(headline)}
         </p>
         <p style="margin:4px 0 0; font-size:12px; color:{_INK_MUTED};">
           Source: {_escape(source) or '—'}
@@ -228,9 +231,7 @@ def render_article_morning_brew(
         )
     why_html = f"""
       <div style="margin-bottom:24px;">
-        <div style="font-size:14px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:{_ACCENT}; margin-bottom:8px;">
-          💡 Why you'll care
-        </div>
+        {_section_label("Why it matters")}
         <div style="margin-bottom:8px;">
           {band_badge}{exposure_chip}
         </div>
@@ -296,9 +297,7 @@ def render_article_morning_brew(
     if actions_rows:
         means_html = f"""
           <div style="margin-bottom:24px;">
-            <div style="font-size:14px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:{_ACCENT}; margin-bottom:8px;">
-              ⚡ What that means for {_escape(company_name)}
-            </div>
+            {_section_label("Recommended actions")}
             <table cellpadding="0" cellspacing="0" border="0" width="100%">
               {actions_rows}
             </table>
@@ -330,9 +329,7 @@ def render_article_morning_brew(
         )
     watch_html = f"""
       <div style="margin-bottom:24px;">
-        <div style="font-size:14px; font-weight:800; letter-spacing:0.5px; text-transform:uppercase; color:{_ACCENT}; margin-bottom:8px;">
-          🔮 What to watch
-        </div>
+        {_section_label("Forward indicators")}
         <p style="margin:0; font-size:14px; line-height:1.55; color:{_INK};">
           {_escape(traj_phrase)}
         </p>
@@ -376,10 +373,8 @@ def render_article_morning_brew(
     """
 
     # ── Methodology disclaimer ─────────────────────────────────────────
-    # Phase 33 — professional methodology note positioned between the
-    # body + CTAs. Modelled on AI-platform "how this was made" disclosures.
-    # Plain language, no jargon — tells the reader what they're reading,
-    # how it was built, and where the receipts are.
+    # Phase 38 — plain editorial English. No em-dashes. Max 2 commas per
+    # sentence. Lead with the fact (what we read, what we computed).
     disclaimer_html = f"""
       <div style="margin:18px 0 6px; padding:12px 14px; background:{_BG};
                   border:1px solid {_DIVIDER}; border-radius:10px;">
@@ -388,16 +383,16 @@ def render_article_morning_brew(
           How this brief was built
         </p>
         <p style="margin:0; font-size:11px; line-height:1.6; color:{_INK_MUTED};">
-          Snowkap reads each article and scores it against industry-specific
-          materiality benchmarks, then estimates the financial exposure on
-          a per-company basis using our in-house calibration models.
-          Figures tagged <em>"(engine estimate)"</em> are scenario
-          projections — not numbers the article itself reported — and we
+          Snowkap reads each article and scores it against
+          industry-specific materiality benchmarks. We estimate the
+          financial exposure on a per-company basis using our in-house
+          calibration models. Figures tagged "(engine estimate)" are
+          scenario projections, not numbers the article reported. We
           clamp them to plausible ranges. The full breakdown, source
-          citations, and audit trail live inside the Snowkap app — tap the
-          <strong>(i)</strong> icons on each section. We surface analysis
-          to inform decisions; we don't provide investment, legal, or
-          compliance advice.
+          citations, and audit trail live inside the Snowkap app.
+          Tap the <strong>(i)</strong> icons on each section. We
+          surface analysis to inform decisions. We do not provide
+          investment, legal, or compliance advice.
         </p>
       </div>
     """
@@ -415,8 +410,10 @@ def render_article_morning_brew(
 
       <table cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px; max-width:600px; background:#FFFFFF; border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(15,23,42,0.06);">
         <!-- Header -->
+        <!-- Phase 38.4 — logo upsized 160 → 200px so the brand mark registers
+             on first glance. Source PNG is 240×40 so we have headroom. -->
         <tr><td style="padding:24px 28px 0; text-align:left;">
-          <img src="cid:{LOGO_CID}" alt="Snowkap" width="160" height="auto" style="display:block; max-width:160px; height:auto;" />
+          <img src="cid:{LOGO_CID}" alt="Snowkap" width="200" height="auto" style="display:block; max-width:200px; height:auto;" />
         </td></tr>
 
         <!-- Greeting -->

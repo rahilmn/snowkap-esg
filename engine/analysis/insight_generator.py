@@ -646,6 +646,18 @@ def generate_deep_insight(
         # Polarity directive is additive; never block insight generation.
         pass
 
+    # Phase 38 — append editorial tone guardrails (banned words, banned
+    # phrases, Hemingway rules, jargon swaps). Idempotent. Opus 4.6 follows
+    # the long structured block at generation time; the post-render scrubber
+    # catches the residual ~3% the prompt misses. See:
+    #   engine/analysis/tone_guardrails.py
+    try:
+        from engine.analysis.tone_guardrails import apply_to_system_prompt
+        system_prompt = apply_to_system_prompt(system_prompt)
+    except Exception:
+        # Tone guardrails are additive; never block insight generation.
+        pass
+
     try:
         resp = client.chat.completions.create(
             model=model,
