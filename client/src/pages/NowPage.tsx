@@ -69,7 +69,6 @@ function _useGreeting(firstName: string): { eyebrow: string; line: string } {
 
 export function NowPage() {
   const name = useAuthStore((s) => s.name) || "there";
-  const userId = useAuthStore((s) => s.userId);  // JWT sub = email
   const companyId = useAuthStore((s) => s.companyId);
   const logout = useAuthStore((s) => s.logout);
   const firstName = name.split(" ")[0] || "there";
@@ -304,40 +303,15 @@ export function NowPage() {
               <div style={{
                 position: "absolute",
                 top: 42, right: 0,
-                width: 232,
+                width: 160,
                 background: "#fff",
                 border: `1px solid ${TOKENS.line}`,
                 borderRadius: 12,
                 boxShadow: "0 18px 40px rgba(15,17,21,0.18)",
-                padding: "14px 14px 8px",
+                padding: 6,
                 zIndex: 60,
               }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: TOKENS.ink }}>
-                  {name}
-                </div>
-                {userId && /@/.test(userId) && (
-                  <div style={{
-                    fontSize: 11, color: TOKENS.ink3, marginTop: 2,
-                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }}>
-                    {userId}
-                  </div>
-                )}
-                {companyId && (
-                  <div style={{
-                    marginTop: 10, padding: "4px 8px",
-                    background: "#f6f3ef", border: `1px solid ${TOKENS.line}`,
-                    borderRadius: 999,
-                    fontSize: 10.5, color: TOKENS.ink2, fontWeight: 600,
-                    display: "inline-block",
-                  }}>
-                    {companyId}
-                  </div>
-                )}
                 <div style={{
-                  marginTop: 12,
-                  borderTop: `1px solid ${TOKENS.line}`,
-                  paddingTop: 8,
                   display: "flex", flexDirection: "column", gap: 2,
                 }}>
                   <button
@@ -345,7 +319,7 @@ export function NowPage() {
                     className="tap"
                     style={{
                       textAlign: "left",
-                      padding: "8px 6px",
+                      padding: "8px 10px",
                       fontSize: 12.5, fontWeight: 600,
                       color: TOKENS.critical,
                       background: "transparent",
