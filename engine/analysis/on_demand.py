@@ -25,15 +25,13 @@ from engine.index.sqlite_index import resolve_slug
 logger = logging.getLogger(__name__)
 
 
-# Phase 34 polish — bumped 3.1-intelligence-hardened -> 3.2-template-hardened
-# so EVERY company's persisted insights (the 7 baselines + every
-# session-onboarded tenant) auto-re-enrich on next view and pick up the
-# unified-analysis template fixes (clean criticality_summary, always-
-# populated stakes_for_company, correctly-sourced materiality_weight,
-# polarity-aware top_risk_categories, dedup'd recommendation titles,
-# correct next_decision_window semantics). Files at 3.0/3.1/2.x remain
-# readable; the schema gate just triggers a fresh pipeline run.
-CURRENT_SCHEMA_VERSION = "3.2-template-hardened"
+# Phase 39 — bumped 3.2-template-hardened -> 3.3-editorial-lede so
+# every company's persisted insights auto-re-enrich on next view and
+# pick up the new analysis.lede block (2-3 sentence editorial story
+# opener that sits above WHAT CHANGED in the email + /now article
+# sheet + chat seed). Files at 3.0/3.1/3.2/2.x remain readable; the
+# schema gate just triggers a fresh pipeline run.
+CURRENT_SCHEMA_VERSION = "3.3-editorial-lede"
 
 
 def enrich_on_demand(

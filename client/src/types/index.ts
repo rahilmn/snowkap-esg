@@ -240,7 +240,23 @@ export interface UnifiedAnalysisMethodology {
   what_to_watch: UnifiedMethodologyBlock;
 }
 
+// Phase 39 — editorial lede (2-3 sentence story-style opener that sits
+// above the WHAT CHANGED bullet on the article-detail view + at the top
+// of the morning_brew newsletter). Composed once at write time by
+// engine.analysis.lede_writer; both surfaces read the same text.
+export interface UnifiedAnalysisLede {
+  text: string;
+  pattern: string; // one of: character | contrast | temporal | setup_twist | reset | generic
+  model_used?: string;
+  cached?: boolean;
+  char_count?: number;
+  word_count?: number;
+}
+
 export interface UnifiedAnalysis {
+  // Phase 39 — optional lede. Absent on pre-Phase-39 articles still at
+  // schema 3.2 or earlier; renders nothing when missing.
+  lede?: UnifiedAnalysisLede;
   what_changed: UnifiedAnalysisWhatChanged;
   why_it_matters: UnifiedAnalysisWhyItMatters;
   what_it_triggers: UnifiedAnalysisWhatItTriggers;

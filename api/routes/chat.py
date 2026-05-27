@@ -303,6 +303,23 @@ def _load_article_context(
                 ins = payload.get("insight") or {}
                 if ins.get("headline"):
                     parts.append(f"DEEP HEADLINE: {ins['headline']}")
+
+                # Phase 39 — editorial lede. 2-3 sentence story-style
+                # opener composed by engine.analysis.lede_writer at write
+                # time. Seeding the LLM with the lede primes the chat
+                # response with the same narrative voice the user just
+                # read in the email + on the /now article sheet. Without
+                # this the chat replies feel disconnected from the
+                # editorial framing the rest of the product established.
+                analysis_block = ins.get("analysis") or {}
+                lede_block = analysis_block.get("lede") or {}
+                lede_text = (lede_block.get("text") or "").strip() if isinstance(lede_block, dict) else ""
+                if lede_text:
+                    parts.append(
+                        f"EDITORIAL LEDE (story-driven framing for this "
+                        f"article — match this voice in your reply): {lede_text}"
+                    )
+
                 if ins.get("core_mechanism"):
                     parts.append(f"CORE MECHANISM: {ins['core_mechanism']}")
                 if ins.get("criticality_summary"):

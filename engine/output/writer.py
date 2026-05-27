@@ -203,6 +203,28 @@ def write_insight(
         if unified_analysis_dict:
             insight_dict_with_analysis["analysis"] = unified_analysis_dict
 
+    # Phase 39 — editorial lede pass. Adds the 2-3 sentence story-style
+    # opener that sits above the structured WHAT CHANGED / WHY IT MATTERS
+    # sections in the email + in-app /now article sheet + chat seed.
+    # Best-effort: never blocks the write. Per-article cached in-memory
+    # so resends pay zero LLM cost. See engine/analysis/lede_writer.py.
+    if unified_analysis_dict and insight_dict_with_analysis is not None:
+        try:
+            from engine.analysis.lede_writer import write_lede
+            lede = write_lede(
+                article_id=result.article_id,
+                insight=insight_dict_with_analysis,
+                result=result,
+                evidence_pack=evidence_pack_dict,
+            )
+            if lede and lede.get("text"):
+                # Stamp on the analysis block so the frontend, email
+                # renderer, and chat seed all read from the same place.
+                unified_analysis_dict["lede"] = lede
+                insight_dict_with_analysis["analysis"]["lede"] = lede
+        except Exception as exc:  # noqa: BLE001 — additive, never block writes
+            logger.warning("lede_writer failed (non-fatal): %s", exc)
+
     # Combined insight payload
     insight_payload: dict[str, Any] = {
         "article": {
@@ -246,7 +268,11 @@ def write_insight(
             #   - recommendation titles deduplicated of trailing "by <deadline>"
             # Old "3.x" and "2.x" files remain readable; the gate just
             # triggers a fresh pipeline run.
-            "schema_version": "3.2-template-hardened",
+            # Phase 39 — bump to 3.3-editorial-lede. Existing on-disk
+            # insights at schema 3.2 will re-enrich on next view via the
+            # engine.analysis.on_demand schema-stale check, picking up
+            # the new analysis.lede block.
+            "schema_version": "3.3-editorial-lede",
         },
     }
     written.insight = _write(base / "insights" / name, insight_payload)

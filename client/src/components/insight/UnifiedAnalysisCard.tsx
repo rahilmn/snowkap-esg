@@ -26,6 +26,7 @@ import type {
 } from "@/types";
 import { COLORS } from "@/lib/designTokens";
 import { MethodologyDrawer } from "@/components/explainer/MethodologyDrawer";
+import { EditorialLede } from "@/components/insight/EditorialLede";
 
 type BulletKey = "what_changed" | "why_it_matters" | "what_it_triggers" | "what_to_watch";
 
@@ -524,6 +525,10 @@ export function UnifiedAnalysisCard({ analysis, articleId }: Props) {
         display: "flex", flexDirection: "column", gap: 12,
       }}
     >
+      {/* Phase 39 — editorial lede. Story-style opener that sits above
+          the 4-bullet structure. Returns null when no lede present so the
+          layout falls back to Phase 32 behaviour cleanly. */}
+      <EditorialLede lede={analysis.lede} />
       <WhatChangedBullet
         data={analysis.what_changed}
         onInfoClick={() => setOpenBullet("what_changed")}

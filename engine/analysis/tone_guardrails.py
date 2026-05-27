@@ -346,6 +346,119 @@ def apply_to_system_prompt(prompt: str) -> str:
     return prompt.rstrip() + "\n\n" + _TONE_GUARDRAILS_BLOCK
 
 
+# ---------------------------------------------------------------------------
+# Phase 39 — Lede-specific tone rules
+# ---------------------------------------------------------------------------
+# Editorial-opener discipline. Stricter than the general tone block because
+# a lede must do real story work in ≤ 60 words: open with a specific fact,
+# create a curiosity gap, close with an implication. Score-leak detection
+# enforces the "no engine scores in the lede" invariant — materiality
+# bands, ROI %, criticality scores belong in the analytical body, never
+# in the editorial frame.
+
+
+_LEDE_TONE_RULES = """
+EDITORIAL LEDE — STRICT (Phase 39, Snowkap newsletter lede pass)
+
+You are writing the OPENING editorial paragraph for a Snowkap intelligence
+brief — the 2-3 sentence story-style lede that hooks a CFO/CEO before they
+read the structured analysis below. Voice: Mint editorial / FT Alphaville /
+Bloomberg Opinion. Serious, business-grade, story-driven. NEVER Morning
+Brew casual.
+
+HARD CONSTRAINTS (any violation triggers a deterministic-template fallback):
+- 2-3 sentences total. ≤ 60 words. Max 1 comma per sentence.
+- Open with a named entity (regulator, peer, framework, ₹ figure, date) in
+  the first 8 words. Never lead with framing.
+- Each sentence creates a gap. Final sentence closes it with the implication.
+- Lead with the fact, then the twist. Never lead with hedging.
+
+VOICE — Mint editorial register:
+- No second-person ("you'll see", "for you, this means", "if you're a banker").
+- No questions ("So what does this mean?", "Why does this matter?").
+- No throat-clearing ("In a major development", "It's worth noting that",
+  "Today we look at").
+- No "Picture this", "Imagine", "Have you ever wondered", "Let's start with".
+- No Morning Brew casual asides ("yeah, we know", "spoiler alert", "buckle up").
+- No interjections, no ironic em-dashes, no exclamation marks.
+
+NO ENGINE SCORES — STRICT (Snowkap-specific rule, distinct from any other LLM
+prompt in this codebase):
+- The lede uses article-grounded FACTS only: ₹ figures, named regulators,
+  named peers, dates, framework citations.
+- NEVER cite engine-derived analytics scores. No "HIGH materiality", no
+  "MODERATE priority", no "CRITICAL band", no "ROI 400%", no "criticality
+  score 0.73", no "payback 6 mo", no "% confidence".
+- Scores live in WHY IT MATTERS and the methodology drawer. They do not
+  belong in the editorial opener.
+
+EXAMPLES OF ACCEPTABLE LEDES:
+
+(Positive event — Q4 turnaround)
+"YES Bank's last AT-1 bond write-off cost retail investors ₹8,415 Cr. The
+same balance sheet just posted a 45% jump in Q4 profit. For the first time
+since the 2020 moratorium, the recovery has a quarterly number behind it."
+
+(Negative event — regulator penalty)
+"₹31.80 lakh is a rounding error for a bank with ₹3.5 lakh crore in assets.
+That is not why the RBI's Friday notice matters. It is the third KYC
+penalty this calendar year, and the second to cite beneficial ownership."
+
+(Neutral event — divestment disclosure)
+"In 2017 Jaiprakash Power Ventures was an ICICI Bank stress account. This
+week ICICI sold 3.55% of it on the open market. The recovery cycle has
+further to run than the bank's annual report suggests."
+
+Each lede opens with a specific concrete entity. Each closes with implication,
+not data. None contain engine scores, banned words, em-dashes, or AI tells.
+""".strip()
+
+
+def apply_lede_guardrails(prompt: str) -> str:
+    """Append Phase 39 lede-specific tone rules to an LLM system prompt.
+
+    Use exclusively at the `engine.analysis.lede_writer.write_lede()` call
+    site. Strictly enforces no-engine-scores + Mint editorial register +
+    ≤60 word + named-entity-first opener.
+
+    Idempotent — appending twice produces the same single trailing block.
+    """
+    if "EDITORIAL LEDE — STRICT" in prompt:
+        return prompt
+    return prompt.rstrip() + "\n\n" + _LEDE_TONE_RULES
+
+
+# ---------------------------------------------------------------------------
+# Phase 39 — Score-leak detection
+# ---------------------------------------------------------------------------
+# Engine-derived analytics scores have no place in the editorial lede.
+# These regex patterns flag any leaked score-shaped string so the verifier
+# can reject an LLM candidate and fall back to the deterministic template.
+
+
+_SCORE_LEAK_PATTERNS: tuple[re.Pattern[str], ...] = (
+    # "HIGH materiality", "CRITICAL priority", "MODERATE band"
+    re.compile(
+        r"\b(critical|high|moderate|low|medium)\s+(materiality|priority|band|criticality|relevance)\b",
+        re.IGNORECASE,
+    ),
+    # "ROI 400%", "ROI: 250%"
+    re.compile(r"\bROI[:\s]+\d+\s*%?\b", re.IGNORECASE),
+    # "criticality score 0.73", "criticality band"
+    re.compile(r"\bcriticality\s+(score|band|of)\b", re.IGNORECASE),
+    # "payback: 6 mo", "payback 1.5 yr"
+    re.compile(r"\bpayback[:\s]+\d", re.IGNORECASE),
+    # "cost: ₹0.5-1 Cr" (rec-template field leak)
+    re.compile(r"\bcost[:\s]+[<≤]?\s*₹", re.IGNORECASE),
+    # "85% confidence", "high confidence"
+    re.compile(r"\bconfidence[:\s]+(0\.\d+|\d{1,3}\s*%|high|medium|low)\b", re.IGNORECASE),
+    # "owner: Head of IR" (rec-template field leak)
+    re.compile(r"\bowner[:\s]+[A-Z]", re.IGNORECASE),
+    # "materiality_band: HIGH"
+    re.compile(r"\bmateriality_(band|score|weight)\b", re.IGNORECASE),
+)
+
+
 def apply_subject_line_guardrails(prompt: str) -> str:
     """A smaller subset for subject-line prompts (≤ 90 chars; cost matters less).
 
@@ -402,11 +515,21 @@ def scan_for_violations(text: str) -> list[dict]:
     """Return a list of violation dicts found in `text`.
 
     Each entry: `{kind, hit, start, end}` where kind ∈
-    {banned_word, banned_phrase, hedging, jargon, em_dash, banned_opener}.
+    {banned_word, banned_phrase, hedging, jargon, em_dash, banned_opener,
+    score_leak}.
 
     Pure read-only — used by the scrubber to decide what to rewrite, by
-    the test harness to assert clean output, and by the smoke endpoint
-    in admin for operator visibility.
+    the test harness to assert clean output, by `lede_writer` to verify
+    LLM candidates before stamping them, and by the smoke endpoint in
+    admin for operator visibility.
+
+    Phase 39 adds the `score_leak` kind for editorial-lede verification —
+    catches HIGH/MODERATE/LOW materiality strings, ROI %, criticality
+    scores, payback/cost rec-template fields that leak from an LLM that
+    grounded itself in the analytical sections instead of the article
+    facts. The score-leak detector is opt-in — `lede_writer` checks for
+    it; the general newsletter scrubber does not (scores are legitimate
+    in the WHY IT MATTERS body section).
     """
     if not text:
         return []
@@ -445,6 +568,12 @@ def scan_for_violations(text: str) -> list[dict]:
                              "end": sent_match.start() + len(opener)})
                 break
 
+    # Phase 39 — score-leak detection (engine-derived analytics in editorial copy).
+    for pattern in _SCORE_LEAK_PATTERNS:
+        for m in pattern.finditer(text):
+            hits.append({"kind": "score_leak", "hit": m.group(0),
+                         "start": m.start(), "end": m.end()})
+
     return hits
 
 
@@ -460,5 +589,6 @@ __all__ = [
     "MAX_PARAGRAPH_SENTENCES",
     "apply_to_system_prompt",
     "apply_subject_line_guardrails",
+    "apply_lede_guardrails",
     "scan_for_violations",
 ]

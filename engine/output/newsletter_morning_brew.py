@@ -177,12 +177,38 @@ def render_article_morning_brew(
     first_name = (recipient_name or "there").split()[0]
     greeting = f"Hey {_escape(first_name)},"
 
+    # Phase 39 — editorial lede. 2-3 sentence story-style opener that
+    # sits between the greeting and the structured WHAT CHANGED section.
+    # Composed once at write time via engine.analysis.lede_writer; the
+    # renderer just reads insight.analysis.lede.text and wraps it in
+    # serif italic typography. Falls back gracefully when absent
+    # (pre-Phase-39 articles still on schema 3.2 or earlier).
+    lede = analysis.get("lede") or {}
+    lede_text = (lede.get("text") or "").strip() if isinstance(lede, dict) else ""
+
     band = (why_it_matters.get("materiality_band") or "").upper()
     exposure = why_it_matters.get("financial_exposure") or {}
     exposure_label = exposure.get("label") or _format_inr_cr(exposure.get("amount_cr"))
     all_estimate = (why_it_matters.get("warning") or "") == "all_estimate"
     stakes = why_it_matters.get("stakes_for_company") or ""
     crit_summary = why_it_matters.get("criticality_summary") or ""
+
+    # ── Editorial lede (Phase 39) ─────────────────────────────────────
+    # Serif italic, larger font, generous padding, no decorative label.
+    # Signals "editor's voice" without shouting it — matches FT Alphaville
+    # lede styling. Renders nothing when the analysis block carries no
+    # lede (e.g. pre-Phase-39 articles still at schema 3.2 or earlier).
+    lede_html = ""
+    if lede_text:
+        lede_html = f"""
+          <tr><td style="padding:6px 28px 14px;">
+            <p style="margin:0; font-family:Georgia,'Times New Roman',serif;
+                      font-size:17px; line-height:1.55; color:{_INK};
+                      font-style:italic; letter-spacing:0.1px;">
+              {_escape(lede_text)}
+            </p>
+          </td></tr>
+        """
 
     # ── WHAT CHANGED ───────────────────────────────────────────────────
     # Phase 38 — lead with the fact (Hemingway rule: never frame before
@@ -424,8 +450,13 @@ def render_article_morning_brew(
           </p>
         </td></tr>
 
+        <!-- Phase 39 — editorial lede sits between greeting and the
+             structured WHAT CHANGED section. Renders nothing when the
+             insight has no analysis.lede (back-compat for old articles). -->
+        {lede_html}
+
         <!-- Body -->
-        <tr><td style="padding:24px 28px 8px;">
+        <tr><td style="padding:18px 28px 8px;">
           {story_html}
           {why_html}
           {means_html}
