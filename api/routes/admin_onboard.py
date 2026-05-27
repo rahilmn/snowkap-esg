@@ -201,6 +201,33 @@ def _background_onboard(slug: str, name: str | None, ticker_hint: str | None, do
             onboarding_status.upsert(alias_slug, state="fetching")
             onboarding_status.upsert(canonical_slug, state="fetching")
 
+            # Phase 42 fix (2026-05-27) — register the alias mapping
+            # IMMEDIATELY, not at the end of the analysis loop. Otherwise
+            # the user navigates to /now?company={typed_slug} during the
+            # 3-6 minute analysis window and gets 404 because
+            # resolve_slug("lululemon") returns "lululemon" (no alias),
+            # then get_company("lululemon") raises KeyError (canonical is
+            # "lululemon-athletica-inc"). Registering here means the alias
+            # resolves cleanly from the moment company_onboarder writes
+            # the canonical to companies.json. The deck starts empty +
+            # fills as analysis completes (each pipeline write upserts
+            # an article_pool + company_article_view row).
+            try:
+                from engine.index import sqlite_index
+                sqlite_index.register_alias(alias_slug, canonical_slug)
+                logger.info(
+                    "[onboard %s] early alias registered: %s → %s",
+                    canonical_slug, alias_slug, canonical_slug,
+                )
+            except Exception as exc:  # noqa: BLE001 — alias registration is
+                # additive; failure should never block the onboard. The
+                # later mirror_to_slug at the end of the analysis loop
+                # acts as a safety net.
+                logger.warning(
+                    "[onboard %s] early alias registration failed (non-fatal): %s",
+                    canonical_slug, exc,
+                )
+
         # Register in tenant_registry so the super-admin switcher picks it up.
         tenant_registry.register_tenant(
             domain=(domain or result.slug + ".example.com"),
