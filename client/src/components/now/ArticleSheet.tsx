@@ -94,9 +94,13 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
       const data = q.state.data as { status?: string; analysis?: { deep_insight?: { analysis?: { what_changed?: { headline?: string } } } } } | undefined;
       const hasContent = !!data?.analysis?.deep_insight?.analysis?.what_changed?.headline;
       if (hasContent) return false;
-      // No content yet → keep polling. 6s cadence balances responsiveness
-      // (median enrichment ~45s) against API load.
-      return 6000;
+      // Phase 41 — drop from 6s → 3s. The on-demand pipeline writes
+      // the result to disk + index within ~1s of Stage 12 completing,
+      // so a 3s poll catches it within at most 3s of being ready (vs
+      // up to 6s before). At 3s cadence, a typical 60s enrichment
+      // does ~20 polls instead of ~10 — fine for the API since each
+      // poll is a single SQLite read.
+      return 3000;
     },
   });
 
