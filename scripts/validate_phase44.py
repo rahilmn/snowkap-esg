@@ -238,14 +238,14 @@ def test_onboard_flow(
     use them. canonical_slug is None on failure.
     """
     t0 = time.monotonic()
-    name = "03  Onboard completes within 240s (v2 synchronous)"
+    name = "03  Onboard completes within 240s (v3 synchronous, full pipeline)"
     try:
+        # Phase 46.E: hit /api/onboard/v3 — single code path, every
+        # article gets Stage 10/11/12 + lede unconditionally. Returns
+        # 200 with full summary including inferred painpoints + KPIs.
         r = requests.post(
-            f"{api_base}/api/onboard/v2",
+            f"{api_base}/api/onboard/v3",
             headers=_auth_headers(token),
-            # Phase 45.F: match the v2 endpoint's new default (limit=3).
-            # Test 04 needs ≥1 article in the deck, test 06 needs ≥2 with
-            # recs — limit=3 satisfies both with margin to spare.
             json={"domain": domain, "limit": 3},
             timeout=240,  # client-side bar
         )
@@ -262,12 +262,19 @@ def test_onboard_flow(
         if elapsed > 240:
             raise AssertionError(f"Onboard exceeded 240s ({elapsed:.0f}s)")
 
+        # Phase 46.E v3 response surfaces personalization signals + per-article
+        # rec counts. Echo them in the pass message so the operator sees them.
+        painpoints = payload.get("inferred_painpoints") or []
+        kpis = payload.get("inferred_kpis") or []
+        role = payload.get("default_reader_role") or "?"
+        with_recs = payload.get("article_count_with_recs")
         report.record(
             name, "PASS",
             f"slug={slug} canonical_name={payload.get('canonical_name')!r} "
             f"industry={payload.get('industry')} ticker={payload.get('ticker')} "
+            f"role={role} painpoints={len(painpoints)} kpis={len(kpis)} "
             f"fetched={payload.get('fetched_count')} analysed={payload.get('analysed_count')} "
-            f"home={payload.get('home_count')} confidence={payload.get('confidence')}",
+            f"with_recs={with_recs} confidence={payload.get('confidence')}",
             elapsed,
         )
         return slug, payload

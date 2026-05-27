@@ -806,6 +806,12 @@ app.include_router(profile.router)  # W2: /api/me/onboard (self-service onboardi
 # worker-queue + SSE + alias-bridge complexity of /api/me/onboard. Postgres-only.
 from api.routes import onboard_v2 as _onboard_v2  # noqa: E402
 app.include_router(_onboard_v2.router)
+# Phase 46.E — POST /api/onboard/v3 — single clean synchronous endpoint
+# with full Stage 1-12 + lede on every article (no tier gate, no eager
+# pass, no SSE). Replaces v2 + admin_onboard for new onboards. v2 stays
+# registered for back-compat with any client still hitting it.
+from api.routes import onboard_v3 as _onboard_v3  # noqa: E402
+app.include_router(_onboard_v3.router)
 app.include_router(campaigns.router)  # Phase 10: /api/campaigns/* (manage_drip_campaigns only)
 
 # Phase 28 — SSE onboarding progress stream (companion to profile.me_onboard).

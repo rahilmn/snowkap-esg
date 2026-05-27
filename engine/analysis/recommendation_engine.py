@@ -1018,7 +1018,114 @@ def _generate_recommendations(
             "recommendation accuracy verifier failed (non-fatal): %s", exc,
         )
 
+    # Phase 46.B — hard quality gate. After the Phase 35 accuracy verifier
+    # we still see template-flavoured recs slip through (generic peer like
+    # "industry average", no ₹ budget, audit_trail with 1 weak entry).
+    # The gate ENFORCES all four professional-grade fields on every rec:
+    #
+    #   1. peer_benchmark — non-empty AND contains a capitalised proper noun
+    #      (named peer, not "industry standard" / "best practice")
+    #   2. framework_section — non-empty AND matches FRAMEWORK:SECTION shape
+    #   3. estimated_budget + payback_months — both populated
+    #   4. audit_trail — at least 2 valid entries (verifier already drops
+    #      entries with bad sources / short values; we just count survivors)
+    #
+    # Recs that miss any field are DROPPED. If ALL recs are dropped, the
+    # caller's _generate_recommendations retry path kicks in (see the
+    # generate_recommendations() dispatch — the empty-result fallback
+    # produces a deterministic monitor rec so the UI is never blank).
+    try:
+        recommendations = enforce_quality_gate(recommendations)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("quality gate failed (non-fatal): %s", exc)
+
     return recommendations
+
+
+def enforce_quality_gate(recs: list[Recommendation]) -> list[Recommendation]:
+    """Phase 46.B — drop recs that aren't professional-grade.
+
+    Every surviving rec carries: a named peer, a real framework section,
+    a ₹ budget + payback months, and ≥2 audit_trail entries. Returns the
+    filtered list (possibly empty); the caller decides whether to retry
+    the LLM with a stricter prompt or fall back to a deterministic rec.
+
+    Pure function. No LLM calls. ~100 us per rec.
+    """
+    import re
+
+    out: list[Recommendation] = []
+    dropped: list[tuple[str, str]] = []
+
+    # A "named peer" heuristic: must contain at least one capitalized word
+    # of length ≥3 that's not in the generic-noun banlist. Catches
+    # "Tata Power", "ICICI Bank", "Maruti Suzuki" — drops "industry
+    # average" / "best practice" / "leading peers".
+    _PEER_GENERIC_BAN = re.compile(
+        r"\b(industry|sector|leading|best|peer|standard|practice|average|"
+        r"global|local|major|top|broad|generic|typical|various|"
+        r"competitors?|peers?)\b",
+        re.IGNORECASE,
+    )
+    _PROPER_NOUN = re.compile(r"\b[A-Z][a-zA-Z]{2,}\b")
+
+    # Framework section shape: FRAMEWORK:SECTION (e.g. BRSR:P6, GRI:303,
+    # TCFD:Strategy-c). Loose enough to allow "GRI 305-1" or "ISSB S2".
+    _FRAMEWORK_SHAPE = re.compile(
+        r"\b(BRSR|GRI|TCFD|TNFD|CSRD|ESRS|ISSB|SASB|SBTi|"
+        r"CDP|EU\s*Taxonomy|SDR|SFDR|SEC|CBAM|RBI|SEBI|MCA|"
+        r"IFRS|COSO|DJSI|Porter|McKinsey|BCG|ICMA)\b",
+        re.IGNORECASE,
+    )
+
+    for r in recs:
+        problems: list[str] = []
+
+        # 1. Named peer
+        peer = (r.peer_benchmark or "").strip()
+        if not peer:
+            problems.append("no peer_benchmark")
+        else:
+            # Reject if it's purely generic language
+            if _PEER_GENERIC_BAN.search(peer) and not _PROPER_NOUN.search(peer):
+                problems.append(f"generic peer_benchmark: {peer[:40]!r}")
+            elif not _PROPER_NOUN.search(peer):
+                problems.append(f"peer_benchmark lacks named entity: {peer[:40]!r}")
+
+        # 2. Framework section
+        fwk = (r.framework_section or "").strip()
+        if not fwk:
+            problems.append("no framework_section")
+        elif not _FRAMEWORK_SHAPE.search(fwk):
+            problems.append(f"unrecognised framework_section: {fwk[:40]!r}")
+
+        # 3. Budget + payback both populated
+        budget = (r.estimated_budget or "").strip()
+        if not budget or budget.lower() in ("n/a", "none", "tbd", "null"):
+            problems.append("no estimated_budget")
+        if r.payback_months is None:
+            problems.append("no payback_months")
+
+        # 4. Audit trail ≥ 2 valid entries (Phase 35 verifier already
+        # filtered the list to only valid entries, so we just count).
+        if not r.audit_trail or len(r.audit_trail) < 2:
+            problems.append(
+                f"audit_trail too short ({len(r.audit_trail or [])} entries; need ≥2)"
+            )
+
+        if problems:
+            dropped.append((r.title[:40], "; ".join(problems[:3])))
+            continue
+        out.append(r)
+
+    if dropped:
+        logger.info(
+            "quality gate: kept %d/%d recs; dropped: %s",
+            len(out), len(recs),
+            ", ".join(f"{t!r}: {reason}" for t, reason in dropped[:5]),
+        )
+
+    return out
 
 
 # Phase 40.B — stopwords for the rec topic-drift check. Filters out

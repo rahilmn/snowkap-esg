@@ -44,7 +44,7 @@ from __future__ import annotations
 import json
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -111,6 +111,143 @@ INDUSTRY_TO_SASB_DEFAULT = {
 }
 
 
+# Phase 46.A — fallback signals when the LLM omits / malforms them.
+# Industry × region anchors so even a low-confidence resolve still
+# produces non-empty personalization signals for the rec engine.
+_CANONICAL_READER_ROLES = (
+    "CFO", "CEO", "Head of ESG", "Risk Officer", "Head of IR",
+)
+
+_DEFAULT_ROLE_BY_INDUSTRY = {
+    "Financials/Banking": "CFO",
+    "Asset Management": "Head of IR",
+    "Insurance": "Risk Officer",
+    "Power/Energy": "Head of ESG",
+    "Renewable Energy": "Head of ESG",
+    "Oil & Gas": "Head of ESG",
+    "Steel": "Head of ESG",
+    "Metals & Mining": "Head of ESG",
+    "Automotive": "CFO",
+    "Information Technology": "CEO",
+    "Pharmaceuticals": "Risk Officer",
+    "Chemicals": "Head of ESG",
+    "Consumer/Beverage": "Head of ESG",
+    "FMCG": "Head of ESG",
+    "Footwear & Accessories": "Head of ESG",
+    "Apparel Manufacturing": "Head of ESG",
+    "Luxury Goods": "CEO",
+    "Household & Personal Products": "Head of ESG",
+    "Industrials/Conglomerate": "CFO",
+    "Telecommunications": "CFO",
+    "Real Estate": "CFO",
+    "Aerospace & Defense": "Risk Officer",
+    "Other": "CFO",
+}
+
+_GENERIC_PAINPOINTS_BY_INDUSTRY = {
+    "Financials/Banking": [
+        "Scope 3 financed-emissions disclosure (PCAF methodology)",
+        "Climate-related credit risk + transition-finance exposure",
+        "Cybersecurity governance + data-breach disclosure",
+        "Regulatory stress test outcomes (RBI / Fed / ECB)",
+        "ESG-linked lending share + green bond issuance",
+    ],
+    "Power/Energy": [
+        "Coal-to-renewable transition capex commitments",
+        "Air-quality + water-use compliance under industry-specific rules",
+        "Stranded-asset risk on legacy fossil capacity",
+        "Climate adaptation for thermal plants (heat stress, water)",
+        "Just-transition commitments for displaced workforce",
+    ],
+    "Information Technology": [
+        "Data-centre Scope 2 emissions + PPA renewable share",
+        "Customer data privacy + cross-border data flow regulation",
+        "AI governance + responsible-use policy",
+        "DEI representation + pay-equity disclosure",
+        "Cybersecurity incident reporting cadence",
+    ],
+    "Automotive": [
+        "EV transition + battery supply-chain due diligence",
+        "Tier-2/3 supplier human-rights audits (cobalt, lithium)",
+        "Tailpipe + lifecycle emissions disclosure",
+        "Connected-vehicle data privacy",
+        "Recall + product-liability provisioning",
+    ],
+}
+
+_GENERIC_KPIS_BY_INDUSTRY = {
+    "Financials/Banking": [
+        "Cost of capital + green bond spread",
+        "ESG-linked lending share (% of portfolio)",
+        "Financed emissions intensity (tCO2e per $M lent)",
+        "Common Equity Tier 1 ratio",
+    ],
+    "Power/Energy": [
+        "Renewable capacity share (% of total)",
+        "Scope 1+2 emissions intensity (tCO2e/MWh)",
+        "Plant load factor + heat rate",
+        "Water consumption per MWh",
+    ],
+    "Information Technology": [
+        "Data centre PUE (Power Usage Effectiveness)",
+        "Renewable PPA coverage (% of grid load)",
+        "Customer NPS + churn rate",
+        "Revenue per employee + R&D % of revenue",
+    ],
+    "Automotive": [
+        "Scope 1+2+3 emissions intensity (tCO2e per vehicle)",
+        "EV share of total sales volume",
+        "Supplier audit coverage (% of tier-1 spend)",
+        "Recall provision / revenue ratio",
+    ],
+}
+
+
+def _default_painpoints_for(industry: str, region: str) -> list[str]:
+    """Return a non-empty list of industry-anchored ESG painpoints.
+
+    Used when the LLM resolver returned no painpoints or returned them
+    in a malformed shape. Keeps the recommendation engine's painpoint
+    scorer fed with non-zero signals.
+    """
+    base = _GENERIC_PAINPOINTS_BY_INDUSTRY.get(industry) or [
+        "Sector-relevant ESG materiality disclosure",
+        "Climate-related financial risk under TCFD / ISSB",
+        "Supply-chain due diligence (human rights + environment)",
+        "Stakeholder engagement + governance transparency",
+        "Regulatory + reputational risk monitoring",
+    ]
+    # Region-specific top-up so an Indian company gets BRSR-flavoured
+    # painpoints and an EU company gets CSRD-flavoured ones.
+    regional_top_up = {
+        "INDIA": "BRSR Principle-wise compliance + SEBI ESG disclosure",
+        "EU": "CSRD / ESRS reporting obligations + CBAM exposure",
+        "US": "SEC climate disclosure rule + California SB-253/261 reporting",
+        "UK": "FCA TCFD-aligned disclosures + Modern Slavery Act statement",
+        "APAC": "Local exchange ESG disclosure rules (HKEX / SGX / ASX)",
+    }.get(region)
+    if regional_top_up and regional_top_up not in base:
+        base = list(base) + [regional_top_up]
+    return base[:7]
+
+
+def _default_kpis_for(industry: str, region: str) -> list[str]:
+    """Return a non-empty list of industry-anchored KPIs."""
+    base = _GENERIC_KPIS_BY_INDUSTRY.get(industry) or [
+        "Revenue growth + EBITDA margin",
+        "Cost of capital + interest coverage",
+        "ESG rating (MSCI / Sustainalytics / DJSI)",
+        "Carbon emissions intensity (Scope 1+2 per unit revenue)",
+        "Employee engagement + voluntary turnover",
+    ]
+    return base[:5]
+
+
+def _default_reader_role_for(industry: str) -> str:
+    """Pick a default reader role from the canonical 5."""
+    return _DEFAULT_ROLE_BY_INDUSTRY.get(industry, "CFO")
+
+
 # ---------------------------------------------------------------------------
 # Output dataclass
 # ---------------------------------------------------------------------------
@@ -119,7 +256,15 @@ INDUSTRY_TO_SASB_DEFAULT = {
 @dataclass
 class CompanyInfo:
     """Resolved company profile. All fields populated unless explicitly
-    marked optional."""
+    marked optional.
+
+    Phase 46.A — extended to carry inferred personalization signals
+    (painpoints, KPIs, default reader role) so the recommendation engine
+    and criticality scorer have explicit per-company anchors. Pre-46
+    those signals were inferred weakly from industry alone; now the LLM
+    resolver produces them upfront so every downstream stage scores
+    against the same per-tenant context.
+    """
     canonical_name: str             # "Reliance Industries Limited"
     slug: str                       # "reliance-industries-limited"
     primary_ticker: str             # "RELIANCE.NS"
@@ -131,6 +276,10 @@ class CompanyInfo:
     market_cap_tier: str = "Mid Cap"     # Large Cap / Mid Cap / Small Cap
     description_short: str = ""          # 1-sentence company summary
     confidence: str = "medium"           # high / medium / low — how sure the LLM is
+    # Phase 46.A — inferred personalization signals
+    inferred_painpoints: list[str] = field(default_factory=list)  # 5-7 ESG concerns
+    inferred_kpis: list[str] = field(default_factory=list)        # 3-5 KPIs read by leadership
+    default_reader_role: str = "CFO"  # CFO | CEO | Head of ESG | Risk Officer | Head of IR
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -145,6 +294,9 @@ class CompanyInfo:
             "market_cap_tier": self.market_cap_tier,
             "description_short": self.description_short,
             "confidence": self.confidence,
+            "inferred_painpoints": list(self.inferred_painpoints),
+            "inferred_kpis": list(self.inferred_kpis),
+            "default_reader_role": self.default_reader_role,
         }
 
 
@@ -184,8 +336,30 @@ Return STRICT JSON with these fields (no commentary, no markdown fences):
   "headquarter_city": "City name (e.g. Mumbai, New York, Munich)",
   "market_cap_tier": "Large Cap | Mid Cap | Small Cap",
   "description_short": "1-sentence company description",
-  "confidence": "high | medium | low"
+  "confidence": "high | medium | low",
+
+  "inferred_painpoints": [
+    "5-7 SPECIFIC ESG concerns this company's leadership tracks today",
+    "Each phrased as a concrete worry, NOT a generic theme",
+    "e.g. 'Scope 3 supply-chain emissions disclosure' not 'climate change'",
+    "e.g. 'CBAM exposure on EU steel exports' not 'trade policy'",
+    "Use named regulations and frameworks where relevant"
+  ],
+  "inferred_kpis": [
+    "3-5 KPIs the CFO/CEO/Board actually report on quarterly",
+    "Each must be measurable, e.g. 'Cost of capital (green bond spread vs G-Sec)'",
+    "Mix financial + ESG, e.g. 'MSCI ESG rating', 'Scope 1+2 emissions intensity'"
+  ],
+  "default_reader_role": "CFO | CEO | Head of ESG | Risk Officer | Head of IR"
 }
+
+Painpoint + KPI guidance:
+- Painpoints must be SPECIFIC to this company's industry + region + market cap.
+  An Indian large-cap bank's painpoints are NOT the same as a US mid-cap retailer's.
+- KPIs must be ones a real CFO would have on their dashboard. Don't invent ratios.
+- default_reader_role: pick the role most likely to read this product daily for
+  this company. Banks/financials → CFO. Tech/SaaS → CEO. Heavy industry → Head of ESG.
+  Asset management → Head of IR.
 
 Canonical industries (pick exactly one):
 - Financials/Banking
@@ -225,7 +399,23 @@ Output: {
   "headquarter_city": "Mumbai",
   "market_cap_tier": "Large Cap",
   "description_short": "India's largest private-sector conglomerate, spanning oil refining, petrochemicals, telecom (Jio) and retail.",
-  "confidence": "high"
+  "confidence": "high",
+  "inferred_painpoints": [
+    "Refining sector Scope 1 + 2 emissions intensity under SEBI BRSR Principle 6",
+    "Petrochemical CBAM exposure on EU exports (2026 mandatory reporting)",
+    "Jio data privacy + cybersecurity disclosure under DPDP Act 2023",
+    "Renewable energy transition capex (RIL's 100 GW target by 2030)",
+    "Reliance Retail supplier code of conduct + forced-labor audits",
+    "Climate-related financial disclosures under RBI's TCFD-aligned framework"
+  ],
+  "inferred_kpis": [
+    "Scope 1+2+3 emissions intensity (tCO2e per tonne of crude processed)",
+    "Cost of capital + green bond spread vs sovereign benchmark",
+    "MSCI ESG rating + DJSI World Index inclusion",
+    "Renewable capacity build-out (% of 100 GW target achieved)",
+    "Net debt / EBITDA + capex-to-revenue ratio"
+  ],
+  "default_reader_role": "CFO"
 }
 
 Input: "underarmour.com"
@@ -239,7 +429,22 @@ Output: {
   "headquarter_city": "Baltimore",
   "market_cap_tier": "Mid Cap",
   "description_short": "American sports apparel and footwear manufacturer with global presence.",
-  "confidence": "high"
+  "confidence": "high",
+  "inferred_painpoints": [
+    "Tier-2 + Tier-3 supplier forced-labor risk (Xinjiang cotton exposure)",
+    "SEC climate disclosure rule compliance (Final Rule March 2024)",
+    "Scope 3 Category 1 (purchased goods) emissions disclosure",
+    "California Climate Disclosure Acts SB-253 + SB-261 reporting",
+    "Sustainable packaging mandates under California SB-54"
+  ],
+  "inferred_kpis": [
+    "Tier-2 supplier audit coverage (% of spend)",
+    "Scope 3 emissions intensity (tCO2e per garment shipped)",
+    "Recycled-content material share (% by weight)",
+    "DEI executive representation + pay-equity ratio",
+    "Net promoter score + customer-acquisition cost"
+  ],
+  "default_reader_role": "Head of ESG"
 }
 
 Input: "tatachemicals.com"
@@ -253,7 +458,22 @@ Output: {
   "headquarter_city": "Mumbai",
   "market_cap_tier": "Large Cap",
   "description_short": "Indian chemicals company, part of the Tata Group, producing inorganic chemicals and consumer products.",
-  "confidence": "high"
+  "confidence": "high",
+  "inferred_painpoints": [
+    "Hazardous chemical disclosures under GHS + REACH (EU export markets)",
+    "Soda ash plant Scope 1 emissions (process + combustion)",
+    "Water stress in Mithapur (Gujarat) operations under BRSR Principle 6",
+    "Plant safety + Process Safety Management (PSM) audit cadence",
+    "Circular economy raw-material sourcing (recycled glass for soda ash)"
+  ],
+  "inferred_kpis": [
+    "Process safety incident rate (PSER per 200,000 hours)",
+    "Water consumption per tonne of product (m3/tonne)",
+    "Scope 1+2 emissions intensity (tCO2e/tonne soda ash)",
+    "ESG rating (CRISIL + MSCI) + DJSI Emerging Markets inclusion",
+    "EBITDA margin + Tata Trust dividend payout ratio"
+  ],
+  "default_reader_role": "Head of ESG"
 }
 """
 
@@ -338,6 +558,38 @@ def _validate_response(parsed: dict[str, Any], domain: str) -> CompanyInfo:
     # directly (one less thing for the LLM to get wrong).
     sasb_category = INDUSTRY_TO_SASB_DEFAULT.get(industry, "")
 
+    # Phase 46.A — sanitize personalization signals. Each field is a
+    # safety net: if the LLM omitted or malformed them, we fall to a
+    # generic industry-flavoured default so the rec engine + scorer
+    # always have anchors to work with.
+    raw_painpoints = parsed.get("inferred_painpoints") or []
+    if not isinstance(raw_painpoints, list):
+        raw_painpoints = []
+    inferred_painpoints: list[str] = []
+    for item in raw_painpoints:
+        if isinstance(item, str) and item.strip():
+            inferred_painpoints.append(item.strip()[:240])
+        if len(inferred_painpoints) >= 7:
+            break
+    if not inferred_painpoints:
+        inferred_painpoints = _default_painpoints_for(industry, region)
+
+    raw_kpis = parsed.get("inferred_kpis") or []
+    if not isinstance(raw_kpis, list):
+        raw_kpis = []
+    inferred_kpis: list[str] = []
+    for item in raw_kpis:
+        if isinstance(item, str) and item.strip():
+            inferred_kpis.append(item.strip()[:200])
+        if len(inferred_kpis) >= 5:
+            break
+    if not inferred_kpis:
+        inferred_kpis = _default_kpis_for(industry, region)
+
+    default_reader_role = (parsed.get("default_reader_role") or "").strip()
+    if default_reader_role not in _CANONICAL_READER_ROLES:
+        default_reader_role = _default_reader_role_for(industry)
+
     return CompanyInfo(
         canonical_name=name,
         slug=slug,
@@ -350,6 +602,9 @@ def _validate_response(parsed: dict[str, Any], domain: str) -> CompanyInfo:
         market_cap_tier=cap_tier,
         description_short=description,
         confidence=confidence,
+        inferred_painpoints=inferred_painpoints,
+        inferred_kpis=inferred_kpis,
+        default_reader_role=default_reader_role,
     )
 
 
