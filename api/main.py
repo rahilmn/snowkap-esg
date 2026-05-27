@@ -774,6 +774,10 @@ app.include_router(admin_reanalyze.router)  # Phase 18: /api/admin/companies/{sl
 app.include_router(discovery.router)  # Phase 24 (W2): /api/admin/discovery/* (manage_drip_campaigns only)
 app.include_router(session.router)  # Phase 24 (W4): /api/session/* (analyst session state)
 app.include_router(profile.router)  # W2: /api/me/onboard (self-service onboarding for any signed-in user)
+# Phase 45 — POST /api/onboard/v2 — single synchronous endpoint replacing the
+# worker-queue + SSE + alias-bridge complexity of /api/me/onboard. Postgres-only.
+from api.routes import onboard_v2 as _onboard_v2  # noqa: E402
+app.include_router(_onboard_v2.router)
 app.include_router(campaigns.router)  # Phase 10: /api/campaigns/* (manage_drip_campaigns only)
 
 # Phase 28 — SSE onboarding progress stream (companion to profile.me_onboard).

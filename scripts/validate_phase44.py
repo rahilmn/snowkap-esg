@@ -176,7 +176,7 @@ def test_postgres_writes(report: TestReport, alias_slug: str, canonical_slug: st
                     )
                 resolved = alias_slug
             else:
-                resolved = alias_row[0] if not hasattr(alias_row, "keys") else alias_row["canonical"]
+                resolved = alias_row[0]  # index access works on both psycopg2 + sqlite Row wrappers
 
             # companies — onboarder writes this
             cur = conn.execute(
@@ -196,8 +196,11 @@ def test_postgres_writes(report: TestReport, alias_slug: str, canonical_slug: st
                 """,
                 (resolved,),
             )
-            n = cur.fetchone()
-            n_articles = n[0] if not hasattr(n, "keys") else list(n.values())[0]
+            n_row = cur.fetchone()
+            # Phase 45 — Row wrapper from engine/db/connection supports
+            # both index-style and dict-style access via __getitem__.
+            # Use index access since COUNT(*) returns a single column.
+            n_articles = n_row[0] if n_row else 0
             if n_articles < 1:
                 raise AssertionError(
                     f"company_article_view has 0 rows for {resolved!r} — writer.py is not "
@@ -227,91 +230,47 @@ def _auth_headers(token: str) -> dict[str, str]:
 
 def test_onboard_flow(
     report: TestReport, api_base: str, token: str, domain: str,
-) -> tuple[str | None, list[dict]]:
-    """Submit onboard + tail SSE stream until onboard_complete OR timeout.
+) -> tuple[str | None, dict | None]:
+    """Phase 45 — POST /api/onboard/v2 is synchronous. No SSE polling
+    needed; the endpoint returns when everything is done.
 
-    Returns (slug, events_seen) so subsequent tests can use the slug.
+    Returns (canonical_slug, response_payload) so downstream tests can
+    use them. canonical_slug is None on failure.
     """
     t0 = time.monotonic()
-    name = "03  Onboard completes within 240s"
+    name = "03  Onboard completes within 240s (v2 synchronous)"
     try:
-        # 1. Submit onboard
         r = requests.post(
-            f"{api_base}/api/me/onboard",
+            f"{api_base}/api/onboard/v2",
             headers=_auth_headers(token),
             json={"domain": domain, "limit": 5},
-            timeout=30,
+            timeout=240,  # client-side bar
         )
-        if r.status_code != 202:
+        if r.status_code != 200:
             raise AssertionError(
-                f"POST /api/me/onboard returned {r.status_code}: {r.text[:300]}"
+                f"POST /api/onboard/v2 returned {r.status_code}: {r.text[:400]}"
             )
-        submit_payload = r.json()
-        slug = submit_payload.get("slug")
+        payload = r.json()
+        slug = payload.get("slug")
         if not slug:
-            raise AssertionError(f"No slug in response: {submit_payload}")
-
-        # 2. Tail SSE until onboard_complete or 240s timeout. Bar raised from
-        # 180s after Phase 44 validation showed Nike (1 article + Opus 4.6 +
-        # Phase 36 eager pass) takes ~260s. 240s is realistic for a HOME-tier
-        # onboard with quality settings intact.
-        events: list[dict] = []
-        sse_url = f"{api_base}/api/me/onboard/{slug}/stream"
-        deadline = t0 + 240
-
-        with requests.get(
-            sse_url,
-            headers={"Authorization": f"Bearer {token}", "Accept": "text/event-stream"},
-            stream=True,
-            timeout=260,
-        ) as stream:
-            if stream.status_code != 200:
-                raise AssertionError(f"SSE stream returned {stream.status_code}")
-            for raw_line in stream.iter_lines(decode_unicode=True):
-                if time.monotonic() > deadline:
-                    last_kind = events[-1].get("kind") if events else "(no events)"
-                    raise AssertionError(
-                        f"Onboard timed out at 240s. "
-                        f"{len(events)} events received. Last: {last_kind}"
-                    )
-                if not raw_line:
-                    continue
-                if raw_line.startswith("data: "):
-                    body = raw_line[6:]
-                    try:
-                        evt = json.loads(body)
-                    except json.JSONDecodeError:
-                        continue
-                    events.append(evt)
-                    if evt.get("kind") == "onboard_complete":
-                        break
-                    if evt.get("kind") == "onboard_failed":
-                        raise AssertionError(
-                            f"Onboard failed: {evt.get('payload', {}).get('error', '?')}"
-                        )
+            raise AssertionError(f"No slug in v2 response: {payload}")
 
         elapsed = time.monotonic() - t0
         if elapsed > 240:
             raise AssertionError(f"Onboard exceeded 240s ({elapsed:.0f}s)")
 
-        # Extract canonical slug from events
-        canonical = slug
-        for evt in events:
-            if evt.get("kind") == "company_profile_ready":
-                payload = evt.get("payload") or {}
-                if payload.get("slug"):
-                    canonical = payload["slug"]
-                    break
-
         report.record(
             name, "PASS",
-            f"slug={slug} canonical={canonical} events={len(events)}",
+            f"slug={slug} canonical_name={payload.get('canonical_name')!r} "
+            f"industry={payload.get('industry')} ticker={payload.get('ticker')} "
+            f"fetched={payload.get('fetched_count')} analysed={payload.get('analysed_count')} "
+            f"home={payload.get('home_count')} confidence={payload.get('confidence')}",
             elapsed,
         )
-        return slug, events
+        return slug, payload
     except Exception as exc:
         report.record(name, "FAIL", str(exc), time.monotonic() - t0)
-        return None, []
+        return None, None
 
 
 def test_deck_loads(
@@ -358,26 +317,54 @@ def test_article_has_analysis(
     t0 = time.monotonic()
     name = "05  At least 1 article has lede + 4-bullet analysis populated"
     try:
-        deadline = t0 + 60
-        last_status = None
+        # Phase 45 — first POLL /analysis (in case onboard_v2 already
+        # ran the pipeline). If not populated, TRIGGER enrichment and
+        # then poll. Phase 44.D (deck pre-warm) only fires from the
+        # frontend, so server-side calls need an explicit trigger.
+        r = requests.get(
+            f"{api_base}/api/news/{article_id}/analysis",
+            headers=_auth_headers(token),
+            timeout=30,
+        )
         analysis_block = None
-        while time.monotonic() < deadline:
-            r = requests.get(
-                f"{api_base}/api/news/{article_id}/analysis",
+        if r.status_code == 200:
+            di = (r.json().get("analysis") or {}).get("deep_insight") or {}
+            if isinstance(di, dict):
+                candidate = di.get("analysis") or {}
+                if (candidate.get("what_changed") or {}).get("headline"):
+                    analysis_block = candidate
+
+        if analysis_block is None:
+            # Not yet enriched — trigger + poll
+            trig = requests.post(
+                f"{api_base}/api/news/{article_id}/trigger-analysis",
                 headers=_auth_headers(token),
                 timeout=30,
             )
-            if r.status_code != 200:
-                raise AssertionError(f"/analysis returned {r.status_code}: {r.text[:200]}")
-            payload = r.json()
-            deep_insight = (payload.get("analysis") or {}).get("deep_insight") or {}
-            if isinstance(deep_insight, dict):
-                analysis_block = deep_insight.get("analysis") or {}
-                headline = (analysis_block.get("what_changed") or {}).get("headline")
-                if headline:
-                    break
-            last_status = payload.get("status")
-            time.sleep(3)
+            if trig.status_code not in (200, 202):
+                raise AssertionError(
+                    f"trigger-analysis returned {trig.status_code}: {trig.text[:200]}"
+                )
+
+            deadline = t0 + 120
+            last_status = None
+            while time.monotonic() < deadline:
+                time.sleep(3)
+                r = requests.get(
+                    f"{api_base}/api/news/{article_id}/analysis",
+                    headers=_auth_headers(token),
+                    timeout=30,
+                )
+                if r.status_code != 200:
+                    raise AssertionError(f"/analysis returned {r.status_code}: {r.text[:200]}")
+                payload = r.json()
+                di = (payload.get("analysis") or {}).get("deep_insight") or {}
+                if isinstance(di, dict):
+                    candidate = di.get("analysis") or {}
+                    if (candidate.get("what_changed") or {}).get("headline"):
+                        analysis_block = candidate
+                        break
+                last_status = payload.get("status")
 
         if not analysis_block:
             raise AssertionError(
@@ -482,7 +469,7 @@ def test_email_clean(
     try:
         # 1. Trigger email-self
         r = requests.post(
-            f"{api_base}/api/news/{article_id}/email-self",
+            f"{api_base}/api/articles/{article_id}/email-self",
             headers=_auth_headers(token),
             timeout=60,
         )
@@ -557,7 +544,7 @@ def test_chat_grounded(
             json={
                 "company_slug": slug,
                 "article_id": article_id,
-                "messages": [{"role": "user", "content": "What happened in this article?"}],
+                "message": "What happened in this article?",
             },
             stream=True,
             timeout=90,
@@ -660,12 +647,12 @@ def main() -> int:
         print(f"\nAPI not reachable at {args.api_base}: {exc}")
         return 2
 
-    # Phase 3: onboard + collect canonical
+    # Phase 3: onboard + collect canonical slug from the v2 response
     if args.skip_onboard and args.existing_slug:
         slug = args.existing_slug
-        events = []
+        onboard_payload: dict | None = None
     else:
-        slug, events = test_onboard_flow(report, args.api_base, args.token, args.domain)
+        slug, onboard_payload = test_onboard_flow(report, args.api_base, args.token, args.domain)
 
     if not slug:
         report.render()
@@ -682,12 +669,11 @@ def main() -> int:
             test_email_clean(report, args.api_base, args.token, first_article_id, slug)
             test_chat_grounded(report, args.api_base, args.token, first_article_id, slug)
 
-    # Phase 5: Postgres write verification
+    # Phase 5: Postgres write verification — onboard_v2 returns the
+    # canonical slug directly in the response payload.
     canonical_slug = None
-    for evt in events:
-        if evt.get("kind") == "company_profile_ready":
-            canonical_slug = (evt.get("payload") or {}).get("slug")
-            break
+    if onboard_payload:
+        canonical_slug = onboard_payload.get("slug")
     test_postgres_writes(report, slug, canonical_slug)
 
     report.render()
