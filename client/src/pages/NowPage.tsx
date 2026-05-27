@@ -340,17 +340,6 @@ export function NowPage() {
                   paddingTop: 8,
                   display: "flex", flexDirection: "column", gap: 2,
                 }}>
-                  <a
-                    href="/profile"
-                    onClick={() => setProfileOpen(false)}
-                    style={{
-                      display: "block", padding: "8px 6px",
-                      fontSize: 12.5, color: TOKENS.ink,
-                      textDecoration: "none", borderRadius: 6,
-                    }}
-                  >
-                    Profile &amp; preferences
-                  </a>
                   <button
                     onClick={handleLogout}
                     className="tap"
