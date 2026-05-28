@@ -572,6 +572,39 @@ def _upsert_pool_and_view(
     crit_score = float(criticality.get("score") or 0.0)
     crit_band = (criticality.get("band") or "MEDIUM").upper()
 
+    # Phase 47.P — LLM materiality escalation.
+    #
+    # The deterministic criticality_scorer applies a 0.2 staleness penalty
+    # on articles >30 days old and a 0.2 polarity-drift penalty when the
+    # narrative tone disagrees with the event polarity. For positive ESG
+    # transition events (e.g. -47% Scope 1+2 reduction with ₹755 Cr cascade
+    # upside) both penalties can fire AND the financial_magnitude component
+    # is zero (upside, not exposure), driving the band to LOW.
+    #
+    # Stage 10's deep-insight LLM, by contrast, has seen the full article
+    # body PLUS the company context (industry, painpoints, KPIs, framework
+    # region) and rates these as MODERATE / HIGH / CRITICAL on the
+    # `decision_summary.materiality` field. That's the more reliable
+    # signal for surfacing to the reader.
+    #
+    # Rule: if the LLM materiality is HIGHER than the engine band,
+    # escalate. Never DOWNGRADE the engine band — when the engine
+    # detects a CRITICAL signal, that stands.
+    _LLM_TO_ENGINE = {
+        "CRITICAL": "CRITICAL",
+        "HIGH": "HIGH",
+        "MODERATE": "MEDIUM",
+        "MEDIUM": "MEDIUM",
+        "LOW": "LOW",
+    }
+    _BAND_RANK = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+    llm_mat = (
+        (insight.get("decision_summary") or {}).get("materiality") or ""
+    ).strip().upper()
+    llm_band = _LLM_TO_ENGINE.get(llm_mat)
+    if llm_band and _BAND_RANK.get(llm_band, 0) > _BAND_RANK.get(crit_band, 0):
+        crit_band = llm_band
+
     company_article_view.upsert(
         article_id=article_id,
         company_slug=company_slug,

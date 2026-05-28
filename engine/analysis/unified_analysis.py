@@ -177,6 +177,25 @@ def _build_why_it_matters(
     band = (criticality.get("band") or "MEDIUM").upper()
     dominant = _dominant_signal(components)
 
+    # Phase 47.P — LLM band escalation (mirrors writer.write_insight).
+    # When Stage 10's decision_summary.materiality rates higher than the
+    # deterministic engine band, escalate so the reader's UI shows the
+    # LLM's view. The LLM has seen article body + company context;
+    # engine penalties (staleness > 30 days, polarity drift on
+    # positive transition events) can mute the score artificially.
+    _LLM_TO_ENGINE = {
+        "CRITICAL": "CRITICAL", "HIGH": "HIGH",
+        "MODERATE": "MEDIUM", "MEDIUM": "MEDIUM", "LOW": "LOW",
+    }
+    _BAND_RANK = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+    if insight is not None:
+        ds = getattr(insight, "decision_summary", None)
+        if isinstance(ds, dict):
+            llm_mat = (ds.get("materiality") or "").strip().upper()
+            llm_band = _LLM_TO_ENGINE.get(llm_mat)
+            if llm_band and _BAND_RANK.get(llm_band, 0) > _BAND_RANK.get(band, 0):
+                band = llm_band
+
     # Materiality weight is the float 0.0–1.0 the ontology returns from
     # `query_materiality_weight(topic, industry)`. The old code read
     # `esg_correlation` (an int 0–2 across 5 dimensions), which produced
@@ -717,6 +736,14 @@ def split_analysis(unified: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
         "why_it_matters": unified.get("why_it_matters") or {},
         "what_it_triggers": unified.get("what_it_triggers") or {},
         "what_to_watch": unified.get("what_to_watch") or {},
+        # Phase 47.P — `lede` (Phase 39 editorial opener) is article-
+        # specific and per-company because the LLM grounds it in the
+        # caller's persona + painpoints. It belongs in the personalised
+        # half so the frontend's shared+personalised merge picks it up.
+        # Prior to this fix, lede was dropped on the floor at split
+        # time even though the writer stamped it on disk — `/now/feed`
+        # then served decks with no lede text.
+        "lede": unified.get("lede") or {},
         "methodology": {
             "why_it_matters": methodology.get("why_it_matters") or {},
             "what_it_triggers": methodology.get("what_it_triggers") or {},
