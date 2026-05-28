@@ -338,11 +338,10 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
             }}>
               <span style={{ fontSize: 14, flex: "0 0 auto" }}>ⓘ</span>
               <span>
-                <strong>Headline-only.</strong>{" "}
-                Full article body unavailable (publisher paywall or scraper
-                blocked). Specifics below — ₹ figures, frameworks, recommended
-                actions — are engine projections from the title + ontology, not
-                article facts.
+                <strong>Limited information.</strong>{" "}
+                Full article unavailable. Figures and actions below are
+                best-effort estimates — treat as a starting point, not
+                confirmed facts. Open the source for the full story.
               </span>
             </div>
           )}
@@ -383,17 +382,29 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
               )}
             </p>
           )}
-          {/* Para 3 — What you should do */}
+          {/* Para 3 — What you should do.
+              Phase 47.D — when the article is headline-only, the rec is
+              built from the title alone and the (deadline, owner) values
+              are template defaults — showing them gives false confidence
+              ("Chief Risk Officer must act by 2026-06-30"). On
+              headline-only articles we surface just the action label
+              without the fake deadline/owner. Body-grounded articles
+              keep the full attribution since those ARE real owners +
+              real deadlines derived from the article. */}
           {topAction?.title && (
             <p style={{
               margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: TOKENS.ink2,
             }}>
-              <strong style={{ color: TOKENS.brand }}>What to do · </strong>
-              {topAction.title}
-              {topAction.deadline && (
+              <strong style={{ color: TOKENS.brand }}>
+                {headlineOnly ? "Watch for · " : "What to do · "}
+              </strong>
+              {headlineOnly
+                ? "Track updates on this story; no immediate action."
+                : topAction.title}
+              {!headlineOnly && topAction.deadline && (
                 <span style={{ color: TOKENS.ink3 }}> (by {topAction.deadline})</span>
               )}
-              {topAction.owner && (
+              {!headlineOnly && topAction.owner && (
                 <span style={{ color: TOKENS.ink3 }}> · owner: {topAction.owner}</span>
               )}
             </p>

@@ -1649,9 +1649,8 @@ def verify_headline_only_cap(
     nis = deep_insight.get("net_impact_summary") or ""
     if isinstance(nis, str):
         disclosure = (
-            "Headline-only analysis — full article body unavailable. "
-            "Numbers below are scenario projections, not engine-calibrated "
-            "estimates from source text. "
+            "Limited information — full article unavailable. "
+            "Figures below are best-effort estimates, not facts from the article. "
         )
         if disclosure not in nis:
             deep_insight["net_impact_summary"] = disclosure + nis

@@ -58,10 +58,12 @@ router = APIRouter(prefix="/api/onboard", tags=["onboard-v3"])
 
 class OnboardV3Request(BaseModel):
     domain: str = Field(..., min_length=3, max_length=253)
-    # Default of 3 fits one max-3 ThreadPoolExecutor batch comfortably
-    # within the 240s HTTP read budget. Up to 5 allowed; 7+ requires
-    # tuning the wall-clock guard.
-    limit: int = Field(default=3, ge=1, le=5)
+    # Phase 47.C — default raised 3 → 10. The deck shows up to 10
+    # cards; processing 10 articles in parallel (max-5 workers) finishes
+    # within ~3-4 min wall-clock for a typical onboard. Cost lifts from
+    # ~$4.50 → ~$15 per onboard. Accepted to give users a richer deck
+    # day-one rather than a 3-card deck that looks sparse.
+    limit: int = Field(default=10, ge=1, le=10)
 
 
 class ArticleSummary(BaseModel):
@@ -545,8 +547,11 @@ def onboard_v3(
             return exc
 
     results: list[dict | Exception] = []
+    # Phase 47.C — workers raised 3 → 5 so the default limit=10 finishes
+    # in 2 batches instead of 4. OpenRouter handles parallel Opus 4.6
+    # requests cleanly; the rate limit is generous on the standard plan.
     with concurrent.futures.ThreadPoolExecutor(
-        max_workers=3, thread_name_prefix="onboard-v3",
+        max_workers=5, thread_name_prefix="onboard-v3",
     ) as pool:
         futures = [pool.submit(_safe_run, a) for a in top_articles]
         # Per-future 120s timeout. One hung LLM call can't drag the
