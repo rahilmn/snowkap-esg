@@ -18,12 +18,32 @@ tests set it explicitly via the context manager.
 from __future__ import annotations
 
 import logging
+import threading
 from pathlib import Path
 from typing import Iterable
 
 from rdflib import Graph, Namespace, URIRef
 from rdflib.namespace import OWL, RDF, RDFS, XSD
 from rdflib.query import Result
+
+
+# Phase 47.I — pyparsing is NOT thread-safe. rdflib's SPARQL query path
+# calls into pyparsing's parseString, which mutates global parser state.
+# When 2+ worker threads call .query() simultaneously, that state corrupts
+# and one or both crash with:
+#   TypeError: Param.postParse2() missing 1 required positional argument
+#
+# Repro: 5 parallel _run_full_pipeline_for_article calls → 4 of 5 crash
+# inside SPARQL queries during stages 4-9 of the pipeline.
+#
+# Fix: serialize all SPARQL parsing through a process-wide lock. Each
+# query is fast (~5-50ms) so the throughput cost is minimal — and the
+# alternative (random pipeline crashes) is unacceptable.
+#
+# This is a known long-standing pyparsing issue:
+#   https://github.com/pyparsing/pyparsing/issues/272
+#   https://github.com/RDFLib/rdflib/issues/2204
+_SPARQL_LOCK = threading.Lock()
 
 from engine.config import get_data_path
 from engine.ontology.tenant_resolver import (
@@ -175,10 +195,15 @@ class OntologyGraph:
 
         ``init_bindings`` lets callers pass parameter values safely, avoiding
         string interpolation and protecting against malformed inputs.
+
+        Phase 47.I — wrapped in `_SPARQL_LOCK` (process-wide) because
+        pyparsing (rdflib's parser dependency) is not thread-safe. See
+        module docstring for the rationale.
         """
         self.ensure_loaded()
         full_query = DEFAULT_PREFIXES + sparql
-        return self.graph.query(full_query, initBindings=init_bindings or {})
+        with _SPARQL_LOCK:
+            return self.graph.query(full_query, initBindings=init_bindings or {})
 
     def select_rows(
         self, sparql: str, init_bindings: dict | None = None

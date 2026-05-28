@@ -666,10 +666,28 @@ def generate_deep_insight(
                 {"role": "user", "content": user_prompt},
             ],
             temperature=temperature,
-            max_tokens=max_tokens,
+            # Phase 47.H — bumped 2400 → 5000. Opus 4.6 with Phase 47.B
+            # prompt requirements (EXACTLY 2 audit_trail entries, named
+            # peers, professional-grade detail) emits 2500-4000 token
+            # responses for richer articles. The 2400 cap was truncating
+            # mid-JSON → JSONDecodeError → minimal fallback → empty
+            # criticality_summary in the deck. 5000 gives headroom.
+            max_tokens=max(max_tokens, 5000),
             response_format={"type": "json_object"},
         )
         raw = resp.choices[0].message.content or "{}"
+        # Phase 47.H — Opus 4.6 sometimes ignores response_format and
+        # emits ```json ... ``` markdown fences or a preamble. Strip
+        # them defensively before parsing.
+        raw = raw.strip()
+        if raw.startswith("```"):
+            import re as _re
+            raw = _re.sub(r"^```(?:json)?\s*", "", raw)
+            raw = _re.sub(r"\s*```\s*$", "", raw)
+        # Skip any preamble before the first `{`
+        first_brace = raw.find("{")
+        if first_brace > 0:
+            raw = raw[first_brace:]
         parsed = json.loads(raw)
         # Phase 35 — deterministic `headline_only` stamp. The LLM is asked to
         # set this flag itself when the article body is < 300 chars, but
