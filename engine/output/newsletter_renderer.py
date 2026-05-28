@@ -604,23 +604,55 @@ def build_articles_from_outputs(
         except (OSError, json.JSONDecodeError):
             continue
         insight = payload.get("insight") or {}
-        if not insight:
-            continue  # SECONDARY / REJECTED — skip
-
         article_meta = payload.get("article") or {}
+
+        # Phase 47.E — relaxed include-check.
+        # Pre-Phase-46 the gate was strict ("HOME-tier only"): articles
+        # whose insight payload was empty got skipped. With Phase 47.C
+        # (deck = 10 articles, headline-only allowed) the deck contains
+        # articles whose disk JSON might have only a partial insight or
+        # an analysis block built from the headline alone. Skipping them
+        # broke the "Email me the report" button — the article was visible
+        # on screen but couldn't be loaded for email render.
+        #
+        # New rule: include any article that has EITHER (a) a title we
+        # can render OR (b) a unified analysis block stamped on the
+        # insight (Phase 32). Drop only completely empty payloads.
+        has_title = bool(insight.get("headline") or article_meta.get("title"))
+        has_analysis = bool(insight.get("analysis"))
+        if not (has_title or has_analysis):
+            continue  # truly empty payload — skip
+
         title = insight.get("headline") or article_meta.get("title") or ""
         article_url = article_meta.get("url") or ""
 
-        # Bottom line = decision_summary.key_risk or net_impact_summary
+        # Phase 47.E — bottom_line + why_matters fallback chain so
+        # headline-only / minimal-insight articles still produce a
+        # meaningful email body instead of empty sections.
         ds = insight.get("decision_summary") or {}
-        bottom_line = ds.get("key_risk") or insight.get("net_impact_summary") or ""
+        analysis_block = insight.get("analysis") or {}
+        why_block = analysis_block.get("why_it_matters") or {}
+
+        bottom_line = (
+            ds.get("key_risk")
+            or insight.get("net_impact_summary")
+            # Phase 32 unified-analysis fallback — populated by writer.py
+            # via build_unified_analysis() on every Phase 46+ article.
+            or why_block.get("criticality_summary")
+            or ""
+        )
         bottom_line = bottom_line[:400]
 
-        # Why matters = CEO board paragraph (first 250 chars) or top_opportunity
+        # Why matters = CEO board paragraph (first 250 chars) → top_opportunity
+        # → Phase 32 stakes_for_company → Phase 33 lede
         article_id = path.stem.split("_", 1)[1] if "_" in path.stem else path.stem
         why_matters = _load_ceo_board_excerpt(outputs_root / slug, article_id)
         if not why_matters:
             why_matters = ds.get("top_opportunity") or ""
+        if not why_matters:
+            why_matters = why_block.get("stakes_for_company") or ""
+        if not why_matters:
+            why_matters = (analysis_block.get("lede") or {}).get("text") or ""
         why_matters = why_matters[:400]
 
         # Image — try the input article JSON metadata

@@ -205,13 +205,23 @@ def share_article_by_email(
     )
     match = [a for a in all_articles if a.article_id == article_id or article_id in a.read_more_url]
     if not match:
-        # Fallback: look through all output JSON filenames for any containing article_id
-        # (build_articles_from_outputs filenames include article_id)
+        # Phase 47.E: more diagnostic + user-friendly error message.
+        # Pre-fix we said "no HOME-tier analysis found" which was both
+        # incorrect (the gate is now broader than HOME) and unhelpful
+        # to the user. The most likely causes here are: (a) on-disk
+        # JSON missing for the article (write_insight didn't run /
+        # failed), (b) article only in Postgres (article_pool) not
+        # disk, (c) genuinely empty payload that even the relaxed
+        # Phase 47.E include-check rejected.
         return ShareResult(
             status="failed", recipient=recipient_email, recipient_name=None,
             subject="", html_length=0, article_id=article_id,
             company_slug=company_slug, company_name="",
-            error=f"no HOME-tier analysis found for article_id {article_id}",
+            error=(
+                f"article {article_id} not found in {company_slug} outputs "
+                f"(scanned {len(all_articles)} candidates). Try re-onboarding "
+                f"the company so the article re-writes to disk."
+            ),
         )
 
     target_article = match[0]
