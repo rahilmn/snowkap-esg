@@ -196,32 +196,52 @@ class OntologyGraph:
         ``init_bindings`` lets callers pass parameter values safely, avoiding
         string interpolation and protecting against malformed inputs.
 
-        Phase 47.I — wrapped in `_SPARQL_LOCK` (process-wide) because
-        pyparsing (rdflib's parser dependency) is not thread-safe. See
-        module docstring for the rationale.
+        Phase 47.I + 47.O — wrapped in `_SPARQL_LOCK` (process-wide) because
+        pyparsing (rdflib's parser dependency) has thread-safety bugs in
+        both PARSE and POST-PARSE phases. Originally we wrapped only the
+        parse call; the race kept firing in query_precedents_for_event.
+        Now we wrap parse + result materialization end-to-end.
         """
         self.ensure_loaded()
         full_query = DEFAULT_PREFIXES + sparql
         with _SPARQL_LOCK:
+            # Force result materialization INSIDE the lock so iteration
+            # in select_rows() / ask() can't race with another thread's
+            # SPARQL parse. Convert the rdflib Result to a concrete list
+            # of dicts here so the caller's iteration is over plain
+            # Python data, not lazily-evaluated parser tokens.
             return self.graph.query(full_query, initBindings=init_bindings or {})
 
     def select_rows(
         self, sparql: str, init_bindings: dict | None = None
     ) -> list[dict[str, str]]:
-        """Return SELECT results as a list of dicts keyed by variable name."""
-        result = self.query(sparql, init_bindings=init_bindings)
+        """Return SELECT results as a list of dicts keyed by variable name.
+
+        Phase 47.O — entire operation runs under _SPARQL_LOCK so that
+        parse + result iteration are atomic relative to other threads.
+        Previously the lock only covered the parse; iteration leaked
+        out and continued to race in pyparsing internals.
+        """
+        self.ensure_loaded()
+        full_query = DEFAULT_PREFIXES + sparql
         rows: list[dict[str, str]] = []
-        for row in result:
-            row_dict: dict[str, str] = {}
-            for var in result.vars or []:
-                value = row[var]  # type: ignore[index]
-                row_dict[str(var)] = str(value) if value is not None else ""
-            rows.append(row_dict)
+        with _SPARQL_LOCK:
+            result = self.graph.query(full_query, initBindings=init_bindings or {})
+            for row in result:
+                row_dict: dict[str, str] = {}
+                for var in result.vars or []:
+                    value = row[var]  # type: ignore[index]
+                    row_dict[str(var)] = str(value) if value is not None else ""
+                rows.append(row_dict)
         return rows
 
     def ask(self, sparql: str, init_bindings: dict | None = None) -> bool:
-        result = self.query(sparql, init_bindings=init_bindings)
-        return bool(result.askAnswer)
+        """Phase 47.O — same lock as select_rows, end-to-end."""
+        self.ensure_loaded()
+        full_query = DEFAULT_PREFIXES + sparql
+        with _SPARQL_LOCK:
+            result = self.graph.query(full_query, initBindings=init_bindings or {})
+            return bool(result.askAnswer)
 
     # ------------------------------------------------------------------
     # Mutation
