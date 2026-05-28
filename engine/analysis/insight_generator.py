@@ -1034,8 +1034,14 @@ def generate_deep_insight(
                 "CRITICAL": "Critical", "HIGH": "High priority",
                 "MEDIUM": "Worth reviewing", "LOW": "Low priority",
             }.get(str(band).upper(), "Worth reviewing")
+            # Phase 47.L — article-specific fallback
+            topic = (result.title or "").strip()
+            for sep in (" — ", " - ", " | ", " : ", ": "):
+                if sep in topic:
+                    topic = topic.split(sep, 1)[0]
+            topic = topic.strip().rstrip(".")[:100] or "this article"
             criticality_summary_text = (
-                f"{band_prefix} — ESG-relevant article requires review."
+                f"{band_prefix} — developing story: {topic}."
             )
 
     return DeepInsight(

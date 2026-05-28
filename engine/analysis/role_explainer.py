@@ -99,14 +99,28 @@ def build_criticality_summary(insight: dict[str, Any]) -> str:
     if exposure:
         # Lead with the exposure. The dominant signal is implied by the
         # band + the ₹ figure; appending "and X is the dominant signal"
-        # produced grammatically broken sentences and added no value
-        # (the reader knows financial magnitude is the driver because
-        # they just read the rupee figure).
+        # produced grammatically broken sentences and added no value.
         sentence = f"{band_prefix} — {exposure}"
     elif dom_name and dom_val >= 0.5:
         sentence = f"{band_prefix} — {_COMPONENT_LABELS.get(dom_name, dom_name)}"
     else:
-        sentence = f"{band_prefix} — multiple signals agree but no single dominant driver"
+        # Phase 47.L — article-specific fallback so every card reads
+        # uniquely even when Stage 10 LLM was thin. Uses event polarity
+        # + headline first-clause as the topic hook.
+        polarity = (insight.get("event_polarity") or "neutral").lower()
+        headline = (insight.get("headline") or "").strip()
+        # Use the first clause of the headline (before "—", "-" or ":")
+        # as the topic anchor — typically the company + action.
+        topic_hint = headline
+        for sep in (" — ", " - ", " | ", " : ", ": "):
+            if sep in topic_hint:
+                topic_hint = topic_hint.split(sep, 1)[0]
+        topic_hint = topic_hint.strip().rstrip(".")[:100] or "this story"
+        polarity_verb = {
+            "positive": "positive signal",
+            "negative": "risk signal",
+        }.get(polarity, "developing story")
+        sentence = f"{band_prefix} — {polarity_verb}: {topic_hint}"
 
     # Ensure the sentence ends cleanly with a single full stop.
     sentence = sentence.rstrip(" .;,—-") + "."

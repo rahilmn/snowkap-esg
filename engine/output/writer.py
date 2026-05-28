@@ -325,10 +325,23 @@ def write_insight(
                     exc,
                 )
             if not recovered:
-                recovered = (
-                    f"{band_prefix} — ESG-relevant article flagged for "
-                    f"review by the Snowkap pipeline."
-                )
+                # Phase 47.L — article-specific fallback using headline.
+                # Avoids the user seeing identical "ESG-relevant article
+                # flagged" text on every card when the LLM was thin.
+                article_title = ""
+                if insight is not None:
+                    article_title = (
+                        getattr(insight, "headline", "") or ""
+                    ).strip()
+                if not article_title:
+                    article_title = (result.title or "").strip()
+                # Take first clause before separator
+                topic = article_title
+                for sep in (" — ", " - ", " | ", " : ", ": "):
+                    if sep in topic:
+                        topic = topic.split(sep, 1)[0]
+                topic = topic.strip().rstrip(".")[:100] or "this article"
+                recovered = f"{band_prefix} — developing story: {topic}."
             why_block["criticality_summary"] = recovered[:280]
             analysis_block["why_it_matters"] = why_block
             insight_dict_with_analysis["analysis"] = analysis_block

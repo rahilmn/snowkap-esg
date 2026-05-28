@@ -280,19 +280,27 @@ def deck_for_company(
         shared = _from_jsonb_value(_g("shared_analysis", 10)) or {}
         personal = _from_jsonb_value(_g("personalised_analysis", 11)) or {}
 
-        # Phase 46.E contract: the deck only shows articles that satisfy
-        # the user-facing analysis contract — a populated
-        # `why_it_matters.criticality_summary`. Rows missing it come
-        # from legacy v2 / admin_onboard runs (pre-Phase-46) where the
-        # tier gate left SECONDARY articles partially analysed. Showing
-        # them in the deck breaks user trust ("why does this card have
-        # no analysis?"). We filter them out at the read path so they
-        # silently disappear from the UI while staying in the DB for
-        # audit. A future cleanup script can prune the dead rows.
+        # Phase 46.E + Phase 47.K contract: the deck only shows articles
+        # with a populated, company-specific criticality_summary.
+        #
+        # Phase 47.K addition: also drop articles whose criticality_summary
+        # is the generic "no single dominant driver" / "ESG-relevant
+        # article flagged" literal fallback that fires when Stage 10 LLM
+        # failed silently (typically because article body was paywalled
+        # and only the headline was available). Showing 5 articles that
+        # all say the same generic line is worse than showing 1-2 with
+        # real analysis — the user instantly loses trust.
         why = (personal.get("why_it_matters") or {}) if isinstance(personal, dict) else {}
-        if not why.get("criticality_summary"):
+        crit_sum = (why.get("criticality_summary") or "").strip()
+        if not crit_sum:
             dropped_incomplete += 1
             continue
+        # Phase 47.L — kept all articles whose criticality_summary is
+        # populated. The previous version dropped generic-fallback text
+        # entirely, which emptied the deck when Stage 10 LLM was failing
+        # for many articles. Now we keep them but rely on the new
+        # article-specific fallback in role_explainer.build_criticality_summary
+        # (uses headline + theme) so each card reads uniquely.
 
         out.append({
             "article_id": _g("id", 0),
