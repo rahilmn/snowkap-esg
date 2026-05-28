@@ -679,12 +679,21 @@ def resolve_company_from_domain(domain: str) -> CompanyInfo | None:
                 {"role": "user", "content": f"Domain: {domain}\n\nReturn the JSON."},
             ],
             temperature=0.1,        # low — we want deterministic resolution
-            max_tokens=500,
+            # Phase 46.K: Pre-Phase-46-A the response was ~120 tokens
+            # (core fields only). Adding inferred_painpoints (5-7 items
+            # × ~30 tokens), inferred_kpis (3-5 × ~25 tokens) and the
+            # default_reader_role pushed real responses to ~400-700
+            # tokens. The previous 500-token cap was truncating Opus
+            # 4.6's JSON mid-array → JSONDecodeError → resolver returns
+            # None → onboard 422. Bumped to 2000 for headroom.
+            max_tokens=2000,
             response_format={"type": "json_object"},
         )
     except Exception as exc:
-        logger.warning("llm_company_resolver: LLM call failed for %s: %s",
-                       domain, type(exc).__name__)
+        logger.exception(
+            "llm_company_resolver: LLM call failed for %s: %s: %s",
+            domain, type(exc).__name__, exc,
+        )
         return None
 
     raw = (getattr(resp, "text", "") or "").strip()
@@ -700,15 +709,25 @@ def resolve_company_from_domain(domain: str) -> CompanyInfo | None:
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
-        logger.warning("llm_company_resolver: JSON parse failed for %s: %s",
-                       domain, exc)
+        # Phase 46.K — log the truncation evidence so we can see WHY
+        # parsing failed. Most common cause is response truncation at
+        # max_tokens (Opus 4.6 stops mid-array). Show the last 200
+        # chars of the raw response — if it ends mid-bracket, that's
+        # the smoking gun.
+        logger.warning(
+            "llm_company_resolver: JSON parse failed for %s: %s "
+            "(raw response len=%d, last 200 chars: %r)",
+            domain, exc, len(raw), raw[-200:],
+        )
         return None
 
     try:
         return _validate_response(parsed, domain)
     except Exception as exc:
-        logger.warning("llm_company_resolver: validation failed for %s: %s",
-                       domain, exc)
+        logger.exception(
+            "llm_company_resolver: validation failed for %s: %s: %s",
+            domain, type(exc).__name__, exc,
+        )
         return None
 
 
