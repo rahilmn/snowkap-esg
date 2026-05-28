@@ -551,11 +551,29 @@ def onboard_v3(
             return exc
 
     results: list[dict | Exception] = []
-    # Phase 47.C — workers raised 3 → 5 so the default limit=10 finishes
-    # in 2 batches instead of 4. OpenRouter handles parallel Opus 4.6
-    # requests cleanly; the rate limit is generous on the standard plan.
+    # Phase 47.G — workers REVERTED 5 → 3.
+    #
+    # Reason: Phase 47.C raised max_workers to 5 to fit a 10-article
+    # onboard in 2 batches. Local repro showed this triggers a pyparsing
+    # thread-safety race in rdflib (the ontology library used by Stages
+    # 3-9 SPARQL queries). With 5 simultaneous SPARQL parses, pyparsing's
+    # parser state corrupts and 4 of 5 workers crash with:
+    #   TypeError: Param.postParse2() missing 1 required positional
+    #              argument: 'tokenList'
+    # This was reproducible in <20s locally with synthetic articles +
+    # max_workers=5; same failure pattern observed on Replit (4 of 5
+    # articles in "(worker exception)" state on adidas.com onboard).
+    #
+    # max_workers=3 was the stable setting that produced the 11/11
+    # tatamotors.com validation run. Reverting to 3 closes the race.
+    # 10 articles run in 4 batches × ~30s = ~120s pipeline, still
+    # within the 240s HTTP budget.
+    #
+    # A longer-term fix (Phase 48?) would be a thread lock around the
+    # rdflib graph query functions, but adding the lock changes the
+    # query throughput and needs a careful benchmark.
     with concurrent.futures.ThreadPoolExecutor(
-        max_workers=5, thread_name_prefix="onboard-v3",
+        max_workers=3, thread_name_prefix="onboard-v3",
     ) as pool:
         futures = [pool.submit(_safe_run, a) for a in top_articles]
         # Per-future 120s timeout. One hung LLM call can't drag the
