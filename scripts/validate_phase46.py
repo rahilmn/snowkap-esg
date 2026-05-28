@@ -707,10 +707,50 @@ def main() -> int:
 
     articles = test_deck_loads(report, args.api_base, args.token, slug)
 
-    if articles:
-        first_article_id = articles[0].get("article_id") or articles[0].get("id")
-        test_every_article_has_analysis(report, args.api_base, args.token, articles)
-        test_quality_gate(report, args.api_base, args.token, articles)
+    # Phase 46.L — tests 06+07 must use the articles v3 JUST analysed,
+    # not whatever the deck returns. The deck can carry legacy rows
+    # from previous v2/admin_onboard runs that survive the criticality_summary
+    # filter (because their old Phase 33 data populates the field) but
+    # can't be loaded via /api/news/{id}/analysis (article_pool row
+    # exists but article_index row was purged, or vice versa).
+    #
+    # By keying off the v3 response's articles list we test the new
+    # onboard exclusively — which is what the validation is actually
+    # supposed to measure.
+    v3_articles = (payload or {}).get("articles") or []
+    v3_non_rejected = [a for a in v3_articles if not a.get("rejected")]
+
+    if not v3_non_rejected:
+        # v3 didn't analyse anything — surface as test 06 failure with
+        # a clear explanation instead of chasing legacy deck data.
+        # The downstream tests (07, 08, 09) skip with the same message.
+        fetched = (payload or {}).get("fetched_count", 0)
+        reason = (
+            f"v3 fetched {fetched} articles but analysed 0. "
+            f"All rejected by the pipeline OR Stage 10 returned None. "
+            f"Try a different --domain (e.g. tatamotors.com which is known to "
+            f"produce analyses) or check news_fetcher / Stage 10 logs for {slug!r}."
+        )
+        report.record("06  v3 must analyse ≥1 article", "FAIL", reason, 0.0)
+        report.record("07  Every surfaced rec passes 4-field quality gate",
+                      "FAIL", "Skipped because v3 analysed 0 articles.", 0.0)
+        report.record("08  Email send succeeds + body passes tone scan",
+                      "FAIL", "Skipped because v3 analysed 0 articles.", 0.0)
+        report.record("09  Chat with article context returns ≥50-char reply",
+                      "FAIL", "Skipped because v3 analysed 0 articles.", 0.0)
+    else:
+        # Use the v3 article list directly so we test what v3 just wrote.
+        v3_article_dicts = [
+            {"article_id": a["article_id"], "id": a["article_id"]}
+            for a in v3_non_rejected
+        ]
+        first_article_id = v3_non_rejected[0]["article_id"]
+        test_every_article_has_analysis(
+            report, args.api_base, args.token, v3_article_dicts,
+        )
+        test_quality_gate(
+            report, args.api_base, args.token, v3_article_dicts,
+        )
         if first_article_id:
             test_email_clean(report, args.api_base, args.token, first_article_id, slug)
             test_chat_grounded(report, args.api_base, args.token, first_article_id, slug)

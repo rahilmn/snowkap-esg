@@ -609,10 +609,32 @@ def onboard_v3(
         status = "ready"
         warning = ""
 
+    # Phase 46.L — detailed per-article outcome log. When `analysed == 0`
+    # this is the only signal that tells the operator WHY (cross-entity
+    # gate / low materiality / Stage 10 failure). Pre-fix the DONE line
+    # just said "analysed=0" with no per-article reasons.
     logger.info(
         "[onboard_v3] DONE %s: %.1fs, fetched=%d, analysed=%d, with_recs=%d",
         info.slug, elapsed, len(fresh), analysed, with_recs,
     )
+    if analysed == 0 and len(fresh) > 0:
+        # Surface the rejection reasons explicitly when nothing got through.
+        per_article: list[str] = []
+        for outcome in results:
+            if isinstance(outcome, Exception):
+                per_article.append(f"EXC:{type(outcome).__name__}")
+                continue
+            d = outcome
+            tier = d.get("tier", "?")
+            rejected = d.get("rejected", False)
+            title = (d.get("title") or "")[:50]
+            per_article.append(
+                f"{'REJ' if rejected else tier} '{title}'"
+            )
+        logger.warning(
+            "[onboard_v3] %s analysed=0 from %d fetched. Per-article outcomes: %s",
+            info.slug, len(fresh), " | ".join(per_article),
+        )
 
     return OnboardV3Response(
         status=status,
