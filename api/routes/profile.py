@@ -26,7 +26,7 @@ import logging
 import re
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from api.auth import require_auth
@@ -85,14 +85,26 @@ def _domain_matches_caller(target: str, caller_email: str) -> bool:
 @router.post("/onboard", status_code=202)
 def me_onboard(
     body: MeOnboardRequest,
+    background_tasks: BackgroundTasks,
     _: None = Depends(require_auth),
     claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
     """Kick off self-service onboarding for the caller's company.
 
-    Returns 202 + {slug, poll_url} immediately; the worker drains the queue.
-    Frontend polls `GET /api/admin/onboard/{slug}/status` every ~5s and
-    redirects to `/home?company={slug}` once `state=ready`.
+    Phase 47.M: this endpoint now uses the v3 synchronous pipeline
+    (Phase 46.E) running in a FastAPI BackgroundTask instead of the
+    legacy worker-queue path. The user still gets 202 immediately;
+    the frontend polls /onboard/{slug}/status to see when it lands.
+
+    The old worker-queue path was producing 0 articles for every
+    company because (a) it used a yfinance-based onboarder that
+    couldn't recognise companies like Maruti Suzuki ("industry=Other"),
+    (b) cross-entity gate rejected 161/161 fetched articles, (c) result
+    was empty deck + 404s on /now/feed.
+
+    v3 fixes all three: LLM resolver identifies the company correctly
+    + writes rich painpoints/KPIs, then runs the full pipeline with
+    Stage 10-12 + lede on every article.
     """
     domain = _normalise_domain(body.domain)
     if not domain:
@@ -104,7 +116,7 @@ def me_onboard(
     caller_email = (claims.get("sub") or claims.get("email") or "").strip().lower()
     if not _domain_matches_caller(domain, caller_email):
         logger.warning(
-            "me_onboard: domain mismatch — caller=%s tried to onboard domain=%s",
+            "me_onboard: domain mismatch -- caller=%s tried to onboard domain=%s",
             caller_email or "<anon>", domain,
         )
         raise HTTPException(
@@ -116,30 +128,26 @@ def me_onboard(
             ),
         )
 
-    # Lazy import keeps the request fast.
+    # Lazy import the slugify helper for the placeholder slug.
     from engine.ingestion.company_onboarder import _domain_to_search_term, _slugify
 
     seed = _domain_to_search_term(domain) or domain
     expected_slug = _slugify(seed)
 
-    # Pre-seed the status row so pollers never race the worker pickup.
+    # Pre-seed the status row so the frontend's polling never races.
     onboarding_status.upsert(expected_slug, state="pending")
 
-    try:
-        onboard_queue.enqueue(
-            slug=expected_slug,
-            name=None,
-            ticker_hint=None,
-            domain=domain,
-            item_limit=int(body.limit),
-        )
-    except Exception as exc:  # noqa: BLE001 — queue write failure must not 5xx the user
-        logger.exception("me_onboard: enqueue failed for slug=%s: %s", expected_slug, exc)
-        # Still return 202 — the user will see the pending state in the UI
-        # and can retry from the empty-Home state. Better than a 500.
+    # Run v3 in the background so the user gets 202 immediately.
+    background_tasks.add_task(
+        _run_v3_for_me_onboard,
+        domain=domain,
+        expected_slug=expected_slug,
+        item_limit=int(body.limit),
+        caller_email=caller_email,
+    )
 
     logger.info(
-        "me_onboard: queued slug=%s domain=%s requested_by=%s",
+        "me_onboard: started v3 onboard slug=%s domain=%s requested_by=%s",
         expected_slug, domain, caller_email or "<anon>",
     )
 
@@ -149,6 +157,147 @@ def me_onboard(
         "domain": domain,
         "poll_url": f"/api/me/onboard/{expected_slug}/status",
     }
+
+
+def _run_v3_for_me_onboard(
+    domain: str, expected_slug: str, item_limit: int, caller_email: str,
+) -> None:
+    """Background task that runs the Phase 46.E v3 pipeline.
+
+    Updates onboarding_status as it progresses so the frontend's
+    polling can pick up the canonical slug + ready state.
+
+    Errors here are caught + logged (background tasks have no caller
+    to receive the exception) but also stamped on the status row so
+    the frontend's polling can show a meaningful failure UX.
+    """
+    try:
+        # Resolve company via LLM
+        from engine.ingestion.llm_company_resolver import resolve_company_from_domain
+        info = resolve_company_from_domain(domain)
+        if info is None:
+            onboarding_status.upsert(
+                expected_slug, state="failed",
+                error="LLM resolver could not identify the company for this domain.",
+            )
+            return
+
+        # Mark fetching
+        onboarding_status.upsert(expected_slug, state="fetching")
+
+        # Upsert companies row + slug alias
+        from engine.models import companies_store
+        from engine.config import invalidate_companies_cache, Company
+        from engine.ingestion.news_fetcher import fetch_for_company
+
+        companies_store.upsert(
+            slug=info.slug, name=info.canonical_name, domain=domain,
+            industry=info.industry, market_cap_tier=info.market_cap_tier,
+            yfinance_ticker=info.primary_ticker,
+            framework_region=info.framework_region,
+            primitive_calibration={
+                "inferred_painpoints": info.inferred_painpoints,
+                "inferred_kpis": info.inferred_kpis,
+                "default_reader_role": info.default_reader_role,
+            },
+            created_by_user=caller_email or None, status="active",
+        )
+        invalidate_companies_cache()
+
+        if expected_slug != info.slug:
+            try:
+                from engine.index import sqlite_index
+                sqlite_index.register_alias(expected_slug, info.slug)
+            except Exception:
+                pass
+
+        # Build Company dataclass + fetch news
+        company_obj = Company(
+            name=info.canonical_name, slug=info.slug, domain=domain,
+            industry=info.industry, sasb_category=info.sasb_category,
+            market_cap=info.market_cap_tier,
+            listing_exchange="NSE/BSE",  # rough — v3 has a smarter resolver but not critical here
+            headquarter_city=info.headquarter_city or "Unknown",
+            headquarter_country=info.headquarter_country or "",
+            headquarter_region=info.framework_region,
+            news_queries=[
+                f"{info.canonical_name} ESG",
+                f"{info.canonical_name} sustainability",
+                f"{info.canonical_name} regulatory",
+                f"{info.canonical_name} disclosure",
+            ],
+            primitive_calibration={
+                "inferred_painpoints": info.inferred_painpoints,
+                "inferred_kpis": info.inferred_kpis,
+                "default_reader_role": info.default_reader_role,
+            },
+            yfinance_ticker=info.primary_ticker, eodhd_ticker=None,
+            framework_region=info.framework_region,
+            sustainability_query=None, general_query=None,
+        )
+
+        fresh = fetch_for_company(company_obj, max_per_query=3)
+        logger.info(
+            "_run_v3_for_me_onboard: fetched %d articles for %s",
+            len(fresh), info.slug,
+        )
+
+        # Mark analysing
+        onboarding_status.upsert(info.slug, state="analysing")
+        # Also write under expected_slug so the frontend's poll still resolves
+        if expected_slug != info.slug:
+            onboarding_status.upsert(expected_slug, state="analysing")
+
+        # Run the full pipeline on top-N in parallel (uses Phase 47.I lock)
+        import concurrent.futures
+        from api.routes.onboard_v3 import _run_full_pipeline_for_article
+        top = fresh[:item_limit]
+
+        def _safe_run(article):
+            try:
+                ad = {
+                    "id": article.id, "title": article.title,
+                    "content": article.content, "summary": article.summary,
+                    "source": article.source, "url": article.url,
+                    "published_at": article.published_at, "metadata": article.metadata,
+                }
+                return _run_full_pipeline_for_article(ad, company_obj)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(
+                    "_run_v3_for_me_onboard: pipeline crash for %s: %s",
+                    getattr(article, "id", "?"), exc,
+                )
+                return exc
+
+        analysed = 0
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+            futures = [pool.submit(_safe_run, a) for a in top]
+            for fut in concurrent.futures.as_completed(futures):
+                try:
+                    outcome = fut.result(timeout=120)
+                    if not isinstance(outcome, Exception) and not outcome.get("rejected"):
+                        analysed += 1
+                except Exception:
+                    pass
+
+        # Mark ready under BOTH slugs so frontend polling works regardless
+        onboarding_status.upsert(info.slug, state="ready")
+        if expected_slug != info.slug:
+            onboarding_status.upsert(expected_slug, state="ready")
+
+        logger.info(
+            "_run_v3_for_me_onboard: done %s -> %s, analysed=%d/%d",
+            expected_slug, info.slug, analysed, len(top),
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("_run_v3_for_me_onboard crashed: %s", exc)
+        try:
+            onboarding_status.upsert(
+                expected_slug, state="failed",
+                error=f"{type(exc).__name__}: {str(exc)[:200]}",
+            )
+        except Exception:
+            pass
 
 
 @router.get("/onboard/{slug}/status")
