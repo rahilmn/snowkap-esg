@@ -74,6 +74,10 @@ class ArticleSummary(BaseModel):
     rejected: bool
     recommendation_count: int = 0
     has_lede: bool = False
+    # Phase 47.F — surface exception class + first line of the traceback
+    # when an article worker crashes, so diagnostic isn't blind.
+    error_class: str = ""
+    error_message: str = ""
 
 
 class OnboardV3Response(BaseModel):
@@ -576,12 +580,17 @@ def onboard_v3(
     with_recs = 0
     for outcome in results:
         if isinstance(outcome, Exception):
+            # Phase 47.F — include exception class + first 240 chars of
+            # the message in the article summary so the validator /
+            # operator can diagnose without grepping logs.
             article_summaries.append(ArticleSummary(
                 article_id="(failed)",
                 title="(worker exception)",
                 url="",
                 tier="FAILED",
                 rejected=True,
+                error_class=type(outcome).__name__,
+                error_message=str(outcome)[:240],
             ))
             continue
         # outcome is a dict from _run_full_pipeline_for_article
