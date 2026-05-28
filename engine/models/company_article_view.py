@@ -271,6 +271,7 @@ def deck_for_company(
         rows = conn.execute(sql, params).fetchall()
 
     out: list[dict[str, Any]] = []
+    dropped_incomplete = 0
     for r in rows:
         def _g(name: str, idx: int) -> Any:
             if hasattr(r, "keys"):
@@ -278,6 +279,21 @@ def deck_for_company(
             return r[idx]
         shared = _from_jsonb_value(_g("shared_analysis", 10)) or {}
         personal = _from_jsonb_value(_g("personalised_analysis", 11)) or {}
+
+        # Phase 46.E contract: the deck only shows articles that satisfy
+        # the user-facing analysis contract — a populated
+        # `why_it_matters.criticality_summary`. Rows missing it come
+        # from legacy v2 / admin_onboard runs (pre-Phase-46) where the
+        # tier gate left SECONDARY articles partially analysed. Showing
+        # them in the deck breaks user trust ("why does this card have
+        # no analysis?"). We filter them out at the read path so they
+        # silently disappear from the UI while staying in the DB for
+        # audit. A future cleanup script can prune the dead rows.
+        why = (personal.get("why_it_matters") or {}) if isinstance(personal, dict) else {}
+        if not why.get("criticality_summary"):
+            dropped_incomplete += 1
+            continue
+
         out.append({
             "article_id": _g("id", 0),
             "url": _g("url", 1),
@@ -294,6 +310,13 @@ def deck_for_company(
             "criticality_score": float(_g("criticality_score", 12) or 0.0),
             "criticality_band": _g("criticality_band", 13) or "MEDIUM",
         })
+
+    if dropped_incomplete:
+        logger.info(
+            "deck_for_company: filtered %d row(s) for %s missing "
+            "criticality_summary (legacy pre-Phase-46 data)",
+            dropped_incomplete, company_slug,
+        )
     return out
 
 

@@ -239,32 +239,38 @@ def _run_full_pipeline_for_article(article_dict: dict, company_obj: Any) -> dict
     }
 
     if result.rejected:
-        # Rejected article — still persist stages 1-9 so the index has
-        # a row, but skip the expensive LLM stages.
-        try:
-            write_insight(result, None, {}, None)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning(
-                "[onboard_v3] writer failed for rejected article %s: %s",
-                result.article_id, exc,
-            )
+        # Phase 46 contract: REJECTED articles do NOT enter the deck.
+        # Previously we persisted stages 1-9 with insight=None, which
+        # put rows in company_article_view that had no analysis block
+        # — they then surfaced in /now/feed and failed the deck contract
+        # (lede + criticality_summary present). We now skip persistence
+        # entirely for rejected articles. The article still gets logged
+        # for audit but never appears in any user-facing surface.
+        logger.info(
+            "[onboard_v3] article %s rejected by pipeline gate; not persisting",
+            result.article_id,
+        )
         summary["elapsed_seconds"] = time.perf_counter() - started
         return summary
 
     # Stage 10 — deep insight (Opus 4.6). Always runs in v3.
     insight = generate_deep_insight(result, company_obj)
     if insight is None:
-        # Stage 10 failed (LLM error, JSON parse). Persist stages 1-9
-        # and move on — the article will appear in the index but the
-        # deck card will be sparse. Better than dropping the article.
+        # Phase 46 contract: same as REJECTED above. Stage 10 failed
+        # (LLM error, JSON parse, network timeout) means we cannot
+        # guarantee the deck contract (lede + criticality_summary + recs)
+        # for this article — so we do NOT persist it. The article is
+        # dropped from this onboard batch. The user sees one fewer card
+        # rather than a card with empty fields.
         logger.warning(
-            "[onboard_v3] Stage 10 returned None for %s; persisting stages 1-9 only",
+            "[onboard_v3] Stage 10 returned None for %s; dropping article "
+            "(not persisting to deck)",
             result.article_id,
         )
-        try:
-            write_insight(result, None, {}, None)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("[onboard_v3] writer failed: %s", exc)
+        # Mark rejected in the summary so the v3 response shows it as
+        # FAILED tier rather than HOME.
+        summary["rejected"] = True
+        summary["tier"] = "FAILED"
         summary["elapsed_seconds"] = time.perf_counter() - started
         return summary
 
