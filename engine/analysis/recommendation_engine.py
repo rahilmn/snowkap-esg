@@ -194,19 +194,23 @@ Return a JSON object:
       "payback_months": <months to break even, or null>,
       "peer_benchmark": "<what competitors did in similar situations, or null>",
       "audit_trail": [
-        {"source": "ontology|article|primitive|peer|precedent|benchmark",
-         "ref": "<framework section, primitive edge id, peer name, etc.>",
-         "value": "<the specific evidence anchoring the recommendation, in 1 line>"}
+        {"source": "article", "ref": "para 4",
+         "value": "Article states SEBI penalty of Rs 50 Cr was levied for KYC violations"},
+        {"source": "precedent", "ref": "YES Bank FY23",
+         "value": "YES Bank similar KYC violation led to Rs 20 Cr penalty + 6-mo remediation"}
       ]
     }
   ]
 }
 
-CRITICAL: every recommendation MUST include audit_trail with 1-3 entries
-linking the rec back to: (a) framework citations from the FRAMEWORKS block,
-(b) ₹ figures from the article or primitive cascade, or (c) named precedents
-from the PRECEDENTS block. A recommendation without traceable evidence is
-unverifiable; the verifier will flag it.
+CRITICAL: every recommendation MUST include audit_trail with EXACTLY 2 entries
+(not 1, not 3). Each entry must:
+  • use source from {ontology, article, primitive, peer, precedent, benchmark}
+  • have a ref (the section / edge / peer-id)
+  • have a value of >=20 chars of substantive evidence (not "see article")
+Mix sources across the 2 entries — e.g. one "article" entry + one "precedent",
+or one "primitive" + one "ontology". Same source twice is allowed only when
+unavoidable.
 
 Return ONLY the JSON, no preamble."""
 
@@ -258,9 +262,16 @@ GOOD POSITIVE-EVENT REC SHAPES (pick from these archetypes for ≥80% of the rec
   • Investor communication — IR roadshow, earnings-call narrative refresh, ESG-fund pitch deck update
   • Capacity / order ramp — utilization plan, supply-chain readiness, workforce mobilisation
   • Capital deployment — green bond / SLL issuance timing, refinance optionality
-  • Framework advancement — DJSI inclusion, MSCI ESG upgrade pathway, CDP A-list pursuit
+  • Framework advancement — TCFD scenario-analysis depth, BRSR Principle 6 disclosure tier upgrade, ISSB S2 alignment
   • Premium-pricing capture — ESG / quality differentiation in B2B procurement positioning
   • Co-marketing — case-study publication, partnership amplification
+
+CRITICAL — DO NOT mention external rating-bureau names in any rec field
+(title, description, profitability_link, peer_benchmark, audit_trail):
+  FORBIDDEN: MSCI ESG, DJSI, CRISIL ESG, Sustainalytics, ISS QualityScore,
+             S&P Global ESG, Refinitiv. The user doesn't want bureau-branded
+             recs. Frame outcomes as concrete operational improvements
+             (emissions intensity, capex %, disclosure tier) instead.
 
 Return a JSON object with the same schema as the negative-event prompt:
 {
@@ -278,32 +289,29 @@ Return a JSON object with the same schema as the negative-event prompt:
       "estimated_impact": "<High|Medium|Low>",
       "roi_percentage": <estimated ROI % over 3 years>,
       "payback_months": <months to capture the upside>,
-      "peer_benchmark": "<NAMED peer + specific action — e.g. 'Tata Power FY24 SECI auction win' or 'Maruti Suzuki Q3 EV roadmap announcement'. NEVER 'industry average', 'leading peers', or null.>",
+      "peer_benchmark": "<NAMED peer + specific action — e.g. 'Tata Power FY24 SECI 4 GW auction win'. NEVER 'industry average' or null.>",
       "audit_trail": [
-        {"source": "ontology|article|primitive|peer|precedent|benchmark",
-         "ref": "<framework section, primitive edge id, peer name, etc.>",
-         "value": "<the specific evidence anchoring the recommendation>"}
+        {"source": "article", "ref": "para 2",
+         "value": "Tata Motors announced Rs 2000 Cr EV capex for FY26 in the earnings call"},
+        {"source": "precedent", "ref": "Mahindra FY24",
+         "value": "Mahindra & Mahindra used similar disclosure for SEC climate rule reporting"}
       ]
     }
   ]
 }
 
-QUALITY-GATE REQUIREMENTS (recommendations failing any of these will be DROPPED at write time, not surfaced to the user):
+QUALITY-GATE REQUIREMENTS (recs failing any of these are DROPPED at write time):
   1. peer_benchmark MUST contain a NAMED proper-noun peer (a real company,
-     regulator, or instrument). "industry average" / "best practice" /
-     "leading peers" all fail. The named peer must do something specific
-     in the same domain — e.g. "ICICI Bank FY24 PCAF disclosure",
-     "Tata Power SECI 4 GW auction (2024)", "Vedanta Konkola SCN (2022)".
+     regulator, or instrument doing a specific action in the same domain).
+     "industry average" / "leading peers" / null all fail.
   2. framework_section MUST cite a real framework + section — BRSR:P6,
-     GRI 305-1, TCFD Strategy-c, ISSB S2 — not generic "internal policy".
-  3. estimated_budget MUST be a concrete ₹ range. payback_months MUST be a number.
-     "TBD" / "N/A" / null all fail.
-  4. audit_trail MUST have ≥2 valid entries (not 1). Each entry has a
-     canonical source (ontology|article|primitive|peer|precedent|benchmark),
-     a real ref, and a value of ≥12 chars of substantive evidence.
+     GRI 305-1, TCFD Strategy-c, ISSB S2.
+  3. estimated_budget MUST be a concrete Rs range. payback_months MUST be a number (not null).
+  4. audit_trail MUST have EXACTLY 2 entries. Each entry's value field MUST
+     be >=20 chars of substantive evidence. Mix sources across entries.
 
 The user is a CFO / CEO making real money decisions. A recommendation
-without these four anchors is not actionable and won't ship to the deck.
+without these four anchors won't ship to the deck.
 
 Return ONLY the JSON, no preamble."""
 
@@ -377,19 +385,20 @@ Return a JSON object with the same schema as the negative-event prompt:
       "payback_months": <months>,
       "peer_benchmark": "<NAMED peer + specific disclosure — e.g. 'HDFC Bank FY24 supplementary BRSR P9 filing'. NEVER 'industry average' or null.>",
       "audit_trail": [
-        {"source": "ontology|article|primitive|peer|precedent|benchmark",
-         "ref": "<framework section, primitive edge id, peer name>",
-         "value": "<the specific evidence anchoring the recommendation>"}
+        {"source": "article", "ref": "para 3",
+         "value": "Article reports Tata Motors filed supplementary BRSR Principle 6 disclosure"},
+        {"source": "precedent", "ref": "HDFC Bank FY24",
+         "value": "HDFC Bank filed similar supplementary BRSR Principle 9 disclosure in Q3 FY24"}
       ]
     }
   ]
 }
 
 QUALITY-GATE REQUIREMENTS (recs failing any of these are DROPPED at write time):
-  1. peer_benchmark — NAMED proper-noun peer + specific action (e.g. "HDFC Bank FY24 supplementary BRSR P9"). NEVER "industry average" or null.
+  1. peer_benchmark — NAMED proper-noun peer + specific action. NEVER null.
   2. framework_section — real framework + section (BRSR:P6, GRI 305-1, etc.).
-  3. estimated_budget concrete ₹ range. payback_months a number (never null).
-  4. audit_trail ≥2 valid entries — each with canonical source, real ref, value ≥12 chars.
+  3. estimated_budget concrete Rs range. payback_months a number (never null).
+  4. audit_trail EXACTLY 2 entries — each value field >=20 chars of evidence.
 
 Return ONLY the JSON, no preamble."""
 
@@ -1126,11 +1135,22 @@ def enforce_quality_gate(recs: list[Recommendation]) -> list[Recommendation]:
         if r.payback_months is None:
             problems.append("no payback_months")
 
-        # 4. Audit trail ≥ 2 valid entries (Phase 35 verifier already
-        # filtered the list to only valid entries, so we just count).
-        if not r.audit_trail or len(r.audit_trail) < 2:
+        # 4. Audit trail evidence quality — Phase 47.B:
+        #    - 2+ valid entries is the canonical contract
+        #    - 1 entry is acceptable IF its value is substantive (≥40 chars).
+        #      This catches the case where Opus 4.6 returns one strong
+        #      "article + para + 60-char evidence" entry instead of two
+        #      mediocre entries. Most LLM-grade real recs should still
+        #      have 2; the loosening keeps high-quality 1-entry recs.
+        trail = r.audit_trail or []
+        n_trail = len(trail)
+        strong_single = (
+            n_trail == 1
+            and len(str(trail[0].get("value", "")).strip()) >= 40
+        )
+        if n_trail == 0 or (n_trail < 2 and not strong_single):
             problems.append(
-                f"audit_trail too short ({len(r.audit_trail or [])} entries; need ≥2)"
+                f"audit_trail too thin ({n_trail} entries; need 2 OR 1 with value>=40 chars)"
             )
 
         if problems:

@@ -122,13 +122,20 @@ def _email_domain(email: str | None) -> str:
 
 
 def _domain_matches_caller(target: str, caller_email: str) -> bool:
-    """True when `target` is the caller's own email domain. Super-admins bypass."""
-    if is_snowkap_super_admin(caller_email):
-        return True
-    own = _email_domain(caller_email)
-    if not own:
-        return False
-    return target == own or target.endswith("." + own) or own.endswith("." + target)
+    """Phase 47.A — gate removed. Any authenticated user can onboard any
+    company. The previous restriction (caller's email domain must match
+    the target domain) blocked legitimate self-service: analysts at
+    Snowkap testing prospective tenants, sales engineers running pilots,
+    paying customers tracking peer companies, etc.
+
+    The auth requirement (Depends(require_auth)) still enforces that the
+    caller is logged in. LLM cost per onboard (~$4.50) is a natural
+    rate limit. The companies row carries `created_by_user` so we can
+    audit who onboarded what.
+
+    Always returns True.
+    """
+    return True
 
 
 def _ensure_postgres() -> None:
@@ -394,17 +401,10 @@ def onboard_v3(
         info.default_reader_role, len(info.inferred_painpoints),
     )
 
-    # 4. Authorize
+    # 4. Authorize — Phase 47.A: just require an authenticated caller.
+    # The domain-match gate is gone (see _domain_matches_caller docstring).
+    # Audit trail still tracked via companies.created_by_user.
     caller_email = (claims.get("sub") or claims.get("email") or "").strip().lower()
-    if not _domain_matches_caller(domain, caller_email):
-        raise HTTPException(
-            status_code=403,
-            detail=(
-                f"You can only onboard your own company's domain. "
-                f"Your email is on '{_email_domain(caller_email) or 'unknown'}', "
-                f"but you requested '{domain}'."
-            ),
-        )
 
     # 5. Upsert companies row (with personalization signals)
     from engine.models import companies_store
