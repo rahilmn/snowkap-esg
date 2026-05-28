@@ -118,29 +118,41 @@ def _check_production_env() -> None:
     if jwt_secret and len(jwt_secret) < 32:
         missing.append("  - JWT_SECRET is set but shorter than 32 chars (weak HS256)")
 
-    # Phase post-PoN — Supabase Postgres backend guard. If the deploy declares
-    # SNOWKAP_DB_BACKEND=postgres, SUPABASE_DATABASE_URL must be a real URL
-    # (not empty, not a placeholder). Catches the common deploy-time mistake
-    # of setting the backend without setting the URL.
+    # Phase 47.N — STRICTLY enforce Supabase Postgres in production.
+    # Pre-fix this only validated SUPABASE_DATABASE_URL *if* the user had
+    # already set SNOWKAP_DB_BACKEND=postgres. If they forgot to set the
+    # backend (default = sqlite), it silently fell back to SQLite — which
+    # is what bit you on Replit: writes went to /home/runner/workspace/data/snowkap.db
+    # (a local file that doesn't persist across deploys).
+    #
+    # Now: in production, BOTH must be set:
+    #   SNOWKAP_DB_BACKEND=postgres
+    #   SUPABASE_DATABASE_URL=postgresql://...
+    # Otherwise the API refuses to boot.
     db_backend = (os.environ.get("SNOWKAP_DB_BACKEND") or "").strip().lower()
-    if db_backend == "postgres":
-        sup_url = os.environ.get("SUPABASE_DATABASE_URL", "")
-        if not sup_url.strip() or _looks_like_placeholder(sup_url):
-            missing.append(
-                "  - SUPABASE_DATABASE_URL  (required when SNOWKAP_DB_BACKEND=postgres)"
-            )
-        elif not sup_url.startswith("postgresql://"):
-            missing.append(
-                "  - SUPABASE_DATABASE_URL must start with 'postgresql://' "
-                f"(got: {sup_url[:30]}...)"
-            )
-        # Pool-timeout sanity. Default Supabase pgbouncer is 60s which kills
-        # long ingests; we recommend 300000 (5 min). Warn but don't fail.
-        timeout = os.environ.get("SNOWKAP_PG_STATEMENT_TIMEOUT_MS", "")
-        if timeout and not timeout.isdigit():
-            missing.append(
-                f"  - SNOWKAP_PG_STATEMENT_TIMEOUT_MS must be an integer (got: {timeout!r})"
-            )
+    sup_url = os.environ.get("SUPABASE_DATABASE_URL", "")
+    if db_backend != "postgres":
+        missing.append(
+            f"  - SNOWKAP_DB_BACKEND must be set to 'postgres' in production "
+            f"(got: {db_backend!r}). SQLite is NOT a production database — "
+            f"every deploy loses data."
+        )
+    if not sup_url.strip() or _looks_like_placeholder(sup_url):
+        missing.append(
+            "  - SUPABASE_DATABASE_URL  (required in production — set in Replit Secrets)"
+        )
+    elif not sup_url.startswith("postgresql://"):
+        missing.append(
+            "  - SUPABASE_DATABASE_URL must start with 'postgresql://' "
+            f"(got: {sup_url[:30]}...)"
+        )
+    # Pool-timeout sanity. Default Supabase pgbouncer is 60s which kills
+    # long ingests; we recommend 300000 (5 min). Warn but don't fail.
+    timeout = os.environ.get("SNOWKAP_PG_STATEMENT_TIMEOUT_MS", "")
+    if timeout and not timeout.isdigit():
+        missing.append(
+            f"  - SNOWKAP_PG_STATEMENT_TIMEOUT_MS must be an integer (got: {timeout!r})"
+        )
 
     if missing:
         msg = (
@@ -253,6 +265,28 @@ def _startup() -> None:
     ensure_schema()
     _configure_structlog()
     _check_production_env()  # raises RuntimeError in prod if secrets missing
+
+    # Phase 47.N — log the actual DB backend at boot. Easy to spot in
+    # logs whether the deploy is using Postgres (good) or SQLite (bad).
+    try:
+        from engine.db.connection import get_backend, is_postgres
+        backend = get_backend()
+        env = (os.environ.get("SNOWKAP_ENV") or "").strip().lower()
+        if env == "production" and not is_postgres():
+            raise RuntimeError(
+                f"DB backend is '{backend}' but production requires postgres. "
+                "Set SNOWKAP_DB_BACKEND=postgres + SUPABASE_DATABASE_URL=... "
+                "in Replit Secrets and restart."
+            )
+        logger.warning(
+            "API startup: DB backend = %s (is_postgres=%s)",
+            backend, is_postgres(),
+        )
+    except RuntimeError:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("could not check DB backend at startup: %s", exc)
+
     _init_sentry()
     key_set = bool(os.environ.get("SNOWKAP_API_KEY", "").strip())
     logger.info("api startup: auth=%s", "enabled" if key_set else "disabled (dev mode)")
