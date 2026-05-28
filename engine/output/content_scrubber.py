@@ -107,6 +107,29 @@ logger = logging.getLogger(__name__)
 _EM_DASH_FULL_RE = re.compile(r"\s*(?:—|--)\s*(\S)?")
 
 
+# Phase 46.J — rating-bureau name blocker. User explicitly forbids
+# these names from any user-facing surface (email, deck card, chat).
+# Last line of defence — the resolver + Stage 12 system prompts also
+# forbid them, but Opus 4.6 / gpt-4.1 occasionally echo them from
+# training data. Pattern matches the bureau name AND common modifiers
+# ("MSCI ESG rating", "DJSI Emerging Markets", etc.) so the scrub
+# removes the whole noun-phrase, not just the bureau token.
+_BUREAU_NAMES = re.compile(
+    r"\b("
+    r"MSCI(\s+ESG)?(\s+(rating|index|trajectory|score|upgrade|downgrade))?"
+    r"|DJSI(\s+(World|Emerging\s+Markets|Inclusion|inclusion))?"
+    r"|Sustainalytics(\s+(risk|severity|rating|tier|score))?"
+    r"|CRISIL(\s+ESG)?(\s+(score|rating))?"
+    r"|ISS\s+QualityScore"
+    r"|ISS\s+ESG"
+    r"|S&P\s+Global\s+ESG(\s+(rating|score))?"
+    r"|Refinitiv(\s+ESG)?(\s+(rating|score))?"
+    r"|Moody'?s?\s+ESG"
+    r")\b",
+    re.IGNORECASE,
+)
+
+
 def _replace_em_dash(text: str) -> str:
     """Replace em-dashes with a comma when in mid-sentence position;
     with a full stop + capitalised next letter when the dash sits between
@@ -335,6 +358,13 @@ def _scrub_text(text: str) -> str:
     body = _trim_banned_openers(body)
     body = _substitute_jargon(body)
     body = _strip_banned_words(body)
+    # Phase 46.J — last-line rating-bureau scrub. User memo forbids any
+    # mention of bureau scores (MSCI, DJSI, CRISIL, Sustainalytics, ISS,
+    # S&P Global ESG, Refinitiv). The system prompts forbid them too,
+    # but Opus 4.6 + gpt-4.1 occasionally echo them from training data.
+    # This regex catches whatever slips through before it hits the user's
+    # inbox.
+    body = _BUREAU_NAMES.sub("", body)
     # Collapse multi-space residuals from any of the passes.
     body = re.sub(r"\s{2,}", " ", body)
     # Tidy up sentence-end punctuation that lost its leading word.

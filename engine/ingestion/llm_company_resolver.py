@@ -361,6 +361,18 @@ Painpoint + KPI guidance:
   this company. Banks/financials → CFO. Tech/SaaS → CEO. Heavy industry → Head of ESG.
   Asset management → Head of IR.
 
+CRITICAL — DO NOT MENTION external rating-bureau names in painpoints or KPIs:
+  FORBIDDEN: MSCI ESG rating, DJSI, CRISIL ESG, Sustainalytics rating,
+             ISS QualityScore, S&P Global ESG, Refinitiv ESG, Moody's ESG.
+  REASON: The product user (CFO / CEO) does NOT want their daily brief
+  flavoured by third-party bureau scores. They want concrete operational
+  signals (emissions intensity, capex %, audit-coverage %), not rebadged
+  rating-agency outputs.
+  CORRECT: "Scope 1+2 emissions intensity (tCO2e/MWh)"
+  WRONG:   "MSCI ESG rating trajectory"
+  CORRECT: "Cost of capital + green bond spread vs sovereign"
+  WRONG:   "DJSI inclusion + Sustainalytics severity tier"
+
 Canonical industries (pick exactly one):
 - Financials/Banking
 - Asset Management
@@ -411,9 +423,9 @@ Output: {
   "inferred_kpis": [
     "Scope 1+2+3 emissions intensity (tCO2e per tonne of crude processed)",
     "Cost of capital + green bond spread vs sovereign benchmark",
-    "MSCI ESG rating + DJSI World Index inclusion",
     "Renewable capacity build-out (% of 100 GW target achieved)",
-    "Net debt / EBITDA + capex-to-revenue ratio"
+    "Net debt / EBITDA + capex-to-revenue ratio",
+    "Process safety incident rate (refinery + petrochem combined)"
   ],
   "default_reader_role": "CFO"
 }
@@ -470,7 +482,7 @@ Output: {
     "Process safety incident rate (PSER per 200,000 hours)",
     "Water consumption per tonne of product (m3/tonne)",
     "Scope 1+2 emissions intensity (tCO2e/tonne soda ash)",
-    "ESG rating (CRISIL + MSCI) + DJSI Emerging Markets inclusion",
+    "Green capex as % of total capex (renewable energy + circular)",
     "EBITDA margin + Tata Trust dividend payout ratio"
   ],
   "default_reader_role": "Head of ESG"
@@ -562,13 +574,40 @@ def _validate_response(parsed: dict[str, Any], domain: str) -> CompanyInfo:
     # safety net: if the LLM omitted or malformed them, we fall to a
     # generic industry-flavoured default so the rec engine + scorer
     # always have anchors to work with.
+    #
+    # Phase 46.J — explicitly strip rating-bureau names. User memo
+    # ("I do not want those scorings like MSCI ESG rating, CRISIL score
+    # etc.") forbids these bureau labels from any user-facing surface.
+    # The system prompt forbids them too but Opus 4.6 occasionally
+    # echoes them from training data; this regex catches whatever slips.
+    _BUREAU_RE = re.compile(
+        r"(MSCI(\s+ESG)?(\s+rating)?|DJSI(\s+(World|Emerging\s+Markets|Inclusion))?|"
+        r"Sustainalytics(\s+(risk|severity|rating|tier))?|CRISIL(\s+ESG)?(\s+score)?|"
+        r"ISS\s+QualityScore|S&P\s+Global\s+ESG|Refinitiv(\s+ESG)?|Moody'?s?\s+ESG)",
+        re.IGNORECASE,
+    )
+
+    def _scrub_bureau(text: str) -> str:
+        # Drop the bureau mention + any trailing "+ X" continuation
+        out = _BUREAU_RE.sub("", text)
+        # Tidy double-spaces / dangling separators
+        out = re.sub(r"\s*\+\s*\+\s*", " + ", out)
+        out = re.sub(r"\(\s*\+\s*", "(", out)
+        out = re.sub(r"\s*\+\s*\)", ")", out)
+        out = re.sub(r"\(\s*\)", "", out)
+        out = re.sub(r"\s+", " ", out).strip(" +,-")
+        return out
+
     raw_painpoints = parsed.get("inferred_painpoints") or []
     if not isinstance(raw_painpoints, list):
         raw_painpoints = []
     inferred_painpoints: list[str] = []
     for item in raw_painpoints:
         if isinstance(item, str) and item.strip():
-            inferred_painpoints.append(item.strip()[:240])
+            scrubbed = _scrub_bureau(item.strip())[:240]
+            # If scrubbing left almost nothing, drop the painpoint entirely
+            if scrubbed and len(scrubbed) >= 15:
+                inferred_painpoints.append(scrubbed)
         if len(inferred_painpoints) >= 7:
             break
     if not inferred_painpoints:
@@ -580,7 +619,9 @@ def _validate_response(parsed: dict[str, Any], domain: str) -> CompanyInfo:
     inferred_kpis: list[str] = []
     for item in raw_kpis:
         if isinstance(item, str) and item.strip():
-            inferred_kpis.append(item.strip()[:200])
+            scrubbed = _scrub_bureau(item.strip())[:200]
+            if scrubbed and len(scrubbed) >= 10:
+                inferred_kpis.append(scrubbed)
         if len(inferred_kpis) >= 5:
             break
     if not inferred_kpis:

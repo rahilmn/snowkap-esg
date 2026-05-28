@@ -278,7 +278,7 @@ Return a JSON object with the same schema as the negative-event prompt:
       "estimated_impact": "<High|Medium|Low>",
       "roi_percentage": <estimated ROI % over 3 years>,
       "payback_months": <months to capture the upside>,
-      "peer_benchmark": "<comparable competitor move, or null>",
+      "peer_benchmark": "<NAMED peer + specific action — e.g. 'Tata Power FY24 SECI auction win' or 'Maruti Suzuki Q3 EV roadmap announcement'. NEVER 'industry average', 'leading peers', or null.>",
       "audit_trail": [
         {"source": "ontology|article|primitive|peer|precedent|benchmark",
          "ref": "<framework section, primitive edge id, peer name, etc.>",
@@ -288,8 +288,22 @@ Return a JSON object with the same schema as the negative-event prompt:
   ]
 }
 
-Every recommendation MUST include audit_trail with 1-3 entries linking back
-to ontology / article / primitive / precedent / peer / benchmark sources.
+QUALITY-GATE REQUIREMENTS (recommendations failing any of these will be DROPPED at write time, not surfaced to the user):
+  1. peer_benchmark MUST contain a NAMED proper-noun peer (a real company,
+     regulator, or instrument). "industry average" / "best practice" /
+     "leading peers" all fail. The named peer must do something specific
+     in the same domain — e.g. "ICICI Bank FY24 PCAF disclosure",
+     "Tata Power SECI 4 GW auction (2024)", "Vedanta Konkola SCN (2022)".
+  2. framework_section MUST cite a real framework + section — BRSR:P6,
+     GRI 305-1, TCFD Strategy-c, ISSB S2 — not generic "internal policy".
+  3. estimated_budget MUST be a concrete ₹ range. payback_months MUST be a number.
+     "TBD" / "N/A" / null all fail.
+  4. audit_trail MUST have ≥2 valid entries (not 1). Each entry has a
+     canonical source (ontology|article|primitive|peer|precedent|benchmark),
+     a real ref, and a value of ≥12 chars of substantive evidence.
+
+The user is a CFO / CEO making real money decisions. A recommendation
+without these four anchors is not actionable and won't ship to the deck.
 
 Return ONLY the JSON, no preamble."""
 
@@ -361,7 +375,7 @@ Return a JSON object with the same schema as the negative-event prompt:
       "estimated_impact": "<Low|Medium>",
       "roi_percentage": <ROI %, typically 50-200%>,
       "payback_months": <months>,
-      "peer_benchmark": "<comparable peer disclosure, or null>",
+      "peer_benchmark": "<NAMED peer + specific disclosure — e.g. 'HDFC Bank FY24 supplementary BRSR P9 filing'. NEVER 'industry average' or null.>",
       "audit_trail": [
         {"source": "ontology|article|primitive|peer|precedent|benchmark",
          "ref": "<framework section, primitive edge id, peer name>",
@@ -371,7 +385,13 @@ Return a JSON object with the same schema as the negative-event prompt:
   ]
 }
 
-CRITICAL: every recommendation MUST include audit_trail with ≥1 valid entry per the rules above. Return ONLY the JSON, no preamble."""
+QUALITY-GATE REQUIREMENTS (recs failing any of these are DROPPED at write time):
+  1. peer_benchmark — NAMED proper-noun peer + specific action (e.g. "HDFC Bank FY24 supplementary BRSR P9"). NEVER "industry average" or null.
+  2. framework_section — real framework + section (BRSR:P6, GRI 305-1, etc.).
+  3. estimated_budget concrete ₹ range. payback_months a number (never null).
+  4. audit_trail ≥2 valid entries — each with canonical source, real ref, value ≥12 chars.
+
+Return ONLY the JSON, no preamble."""
 
 
 # ---------------------------------------------------------------------------
