@@ -20,10 +20,13 @@ Two paths:
 Pre-LLM cheap checks reuse the existing verifiers so the expensive Opus call
 only runs on content that already passed the mechanical gates.
 
-Fail-OPEN on LLM/infra error: if the approval LLM itself errors (network,
-parse), the article is approved with a logged warning rather than silently
-dropped — better to show a vetted-by-pipeline article than an empty deck.
-The gate's job is to catch hallucination, not to be a new outage source.
+Phase 49.1 — FAIL-CLOSED for criticals: if the approval LLM errors or returns
+an unparseable verdict, the critical article is REJECTED (→ demoted to the
+light tier, which has no lede/recs/₹ and so nothing to fabricate). A
+rich-but-fabricated card is worse than a thin-but-accurate one; accuracy is
+the product's bar. (Earlier fail-open let a JSW card with a fabricated
+"₹588 Cr quarterly profit" lede through on a parse blip.) The light path
+stays deterministic, so it is unaffected.
 """
 from __future__ import annotations
 
@@ -233,13 +236,21 @@ def approve_analysis_for_display(
         )
         verdict = _extract_json(getattr(resp, "text", "") or "")
         if verdict is None:
+            # Phase 49.1 — FAIL-CLOSED for criticals. A critical article
+            # carries a generated lede + recs + ₹ figures (high fabrication
+            # surface). If we can't parse the reviewer's verdict we must NOT
+            # default to "approved" — that let a JSW card with a fabricated
+            # "₹588 Cr quarterly profit" lede through. Reject → the deck
+            # builder demotes it to the light tier (which has no lede/recs/₹
+            # and so nothing to fabricate). A thin-but-accurate deck beats a
+            # rich-but-fabricated one — accuracy is the product's bar.
             logger.warning(
-                "[approval] could not parse verdict for %s — fail-open",
+                "[approval] could not parse verdict for %s — FAIL-CLOSED (reject)",
                 getattr(result, "article_id", "?"),
             )
             return ApprovalResult(
-                approved=True, confidence=0.5, issues=["unparseable verdict"],
-                reviewer="fail_open",
+                approved=False, confidence=0.0, issues=["unparseable verdict — fail-closed"],
+                reviewer="fail_closed",
             )
         approved = bool(verdict.get("approved", True))
         confidence = float(verdict.get("confidence", 0.0) or 0.0)
@@ -253,11 +264,12 @@ def approve_analysis_for_display(
             approved=approved, confidence=confidence, issues=v_issues, reviewer="opus",
         )
     except Exception as exc:  # noqa: BLE001 — never let the gate be an outage source
+        # Phase 49.1 — also FAIL-CLOSED on LLM/infra error for criticals.
         logger.warning(
-            "[approval] LLM gate errored for %s (%s) — fail-open",
+            "[approval] LLM gate errored for %s (%s) — FAIL-CLOSED (reject)",
             getattr(result, "article_id", "?"), type(exc).__name__,
         )
         return ApprovalResult(
-            approved=True, confidence=0.5, issues=[f"gate error: {type(exc).__name__}"],
-            reviewer="fail_open",
+            approved=False, confidence=0.0, issues=[f"gate error: {type(exc).__name__} — fail-closed"],
+            reviewer="fail_closed",
         )
