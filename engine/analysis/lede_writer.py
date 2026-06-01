@@ -210,6 +210,24 @@ def _format_rupees(amount_cr: float | None) -> str:
     return f"₹{v:,.2f} Cr"
 
 
+def _grounded_rupees(exposure: dict[str, Any] | None) -> str:
+    """Phase 48 — return a ₹ string ONLY when the figure is article-grounded.
+
+    The lede must never present an ENGINE-ESTIMATE ₹ figure as if it were a
+    fact from the story (the approval gate rejects this, demoting the whole
+    article to the light tier). The cascade/primitive figures carry
+    source='engine_estimate' / 'primitive_engine' / 'suppressed' /
+    'not_computed' — for those we return '' so the template omits the ₹ clause
+    and leans on the article's own headline instead.
+    """
+    if not isinstance(exposure, dict):
+        return ""
+    source = (exposure.get("source") or "").lower()
+    if source in ("engine_estimate", "primitive_engine", "suppressed", "not_computed", "light"):
+        return ""
+    return _format_rupees(exposure.get("amount_cr"))
+
+
 _KNOWN_ACRONYMS = {"icici", "hdfc", "idfc", "sbi", "rbl", "lic", "ntpc",
                    "ongc", "bpcl", "hpcl", "iocl", "gail", "bsnl", "drdo",
                    "psu", "irctc", "jsw", "yes"}
@@ -272,7 +290,7 @@ def _template_character(
         (analysis.get("why_it_matters") or {}).get("criticality_summary") or ""
     )
     amount = (analysis.get("why_it_matters") or {}).get("financial_exposure") or {}
-    amount_str = _format_rupees(amount.get("amount_cr"))
+    amount_str = _grounded_rupees(amount)
 
     if polarity == "neutral":
         # Disclosure-flavoured framing — never "regulator vs company".
@@ -342,7 +360,7 @@ def _template_temporal(
     headline = what_changed.get("headline") or ""
     polarity = (what_changed.get("polarity") or "neutral").lower()
     amount = (analysis.get("why_it_matters") or {}).get("financial_exposure") or {}
-    amount_str = _format_rupees(amount.get("amount_cr"))
+    amount_str = _grounded_rupees(amount)
     if polarity == "negative":
         return (
             f"This is not the first time {company} has been on this list. "
@@ -365,7 +383,7 @@ def _template_setup_twist(
     """Pattern: obvious-seeming headline → what's actually interesting behind it.
     Used for positive events with a quantitative anchor."""
     amount = (analysis.get("why_it_matters") or {}).get("financial_exposure") or {}
-    amount_str = _format_rupees(amount.get("amount_cr"))
+    amount_str = _grounded_rupees(amount)
     what_changed = analysis.get("what_changed") or {}
     headline = what_changed.get("headline") or ""
     if amount_str:
@@ -393,27 +411,40 @@ def _template_reset(
 def _template_generic(
     company: str, insight: dict[str, Any], analysis: dict[str, Any]
 ) -> str:
-    """Fallback when no pattern signal fires. Open with the company + ₹,
-    close with the framework or regulator implication."""
-    amount = (analysis.get("why_it_matters") or {}).get("financial_exposure") or {}
-    amount_str = _format_rupees(amount.get("amount_cr"))
-    frameworks = (analysis.get("what_it_triggers") or {}).get("frameworks") or []
-    fw_code = ""
-    if frameworks and isinstance(frameworks, list):
-        first = frameworks[0]
-        if isinstance(first, dict):
-            fw_code = first.get("code") or ""
-    if amount_str and fw_code:
+    """Fallback when no pattern signal fires.
+
+    Phase 48 — GROUNDED + SAFE. The old template asserted an engine-estimate
+    ₹ figure ("a ₹18.3 Cr item on the desk") and a framework-reporting status
+    ("The BRSR disclosure window decides what gets said publicly"). Both were
+    fabrications the approval gate (correctly) rejected — the ₹ is an engine
+    estimate not an article fact, and the framework line implies the company
+    reports under that framework, which the article never states. This drove
+    the bulk of critical-article rejections.
+
+    The safe template uses ONLY the article's own headline topic — no ₹
+    figure, no framework-status claim. It always passes the approval gate
+    because it asserts nothing beyond the source headline.
+    """
+    wc = analysis.get("what_changed") or {}
+    headline = (wc.get("headline") or "").strip()
+    topic = headline
+    for sep in (" — ", " - ", " | ", " : ", ": "):
+        if sep in topic:
+            topic = topic.split(sep, 1)[0]
+    topic = topic.strip().rstrip(".")
+    # Strip a leading company-name repeat so the lede doesn't say
+    # "ICICI Bank: ICICI Bank posts ...".
+    if topic and company and topic.lower().startswith(company.lower()):
+        return f"{topic}. Worth a scan for the ESG and disclosure implications."
+    if topic:
         return (
-            f"{company} has a {amount_str} item on the desk this week. "
-            f"The {fw_code} disclosure window decides what gets said publicly."
+            f"{company}: {topic}. Worth a scan for the ESG and disclosure "
+            f"implications."
         )
-    if amount_str:
-        return (
-            f"{company} has a {amount_str} development on the desk. "
-            f"The disclosure window decides what gets said publicly."
-        )
-    return f"{company} has a disclosure decision on the desk this week."
+    return (
+        f"{company} is in this week's ESG news cycle. Open the brief for what "
+        f"it means for your disclosures."
+    )
 
 
 _PATTERN_TEMPLATES = {

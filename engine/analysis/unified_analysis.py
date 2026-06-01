@@ -220,11 +220,22 @@ def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any
                     "source": "suppressed",
                     "label": "Article does not quote ₹ exposure; engine extrapolation suppressed.",
                 }
+            # Phase 48 — CLEAN label. The old `str(exposure)[:140]` cut the
+            # verbose cascade description mid-word ("...₹3000 Cr cano"),
+            # which the approval gate (correctly) rejected as garbled prose.
+            # Emit a short, complete label instead.
+            if amount is not None and amount > 0:
+                clean_label = (
+                    f"~₹{amount:,.0f} Cr (engine estimate)" if amount >= 1
+                    else f"~₹{amount:.1f} Cr (engine estimate)"
+                )
+            else:
+                clean_label = "Engine-estimated exposure (see methodology)"
             return {
                 "amount_cr": amount,
                 "kind": "exposure",
                 "source": "engine_estimate",
-                "label": str(exposure)[:140],
+                "label": clean_label,
             }
 
     # Fall back to financial_timeline.immediate.inr_cr (deterministic from the
@@ -247,7 +258,11 @@ def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any
                     "amount_cr": float(inr),
                     "kind": "immediate",
                     "source": "primitive_engine",
-                    "label": immediate.get("headline") or f"~₹{inr:.0f} Cr",
+                    # Clean, never-truncated label (Phase 48).
+                    "label": (
+                        f"~₹{inr:,.0f} Cr (engine estimate)" if inr >= 1
+                        else f"~₹{inr:.1f} Cr (engine estimate)"
+                    ),
                 }
 
     return {}
@@ -289,8 +304,20 @@ def _stakes_text(insight: Any) -> str:
     stakes = getattr(insight, "stakes_for_company", None) or {}
     if not isinstance(stakes, dict):
         return ""
-    para = stakes.get("personal_stakes_paragraph") or ""
-    return str(para)[:480]
+    para = str(stakes.get("personal_stakes_paragraph") or "")
+    # Phase 48 — truncate at a SENTENCE boundary, never mid-word. The old
+    # `[:480]` cut produced garbled tails ("...optimize treasury and funding
+    # costs to") that the approval gate rejected. Keep whole sentences up to
+    # ~480 chars; if the first sentence alone exceeds that, cut at the last
+    # space before 480 and add an ellipsis so it reads as deliberate.
+    if len(para) <= 480:
+        return para
+    cut = para[:480]
+    last_stop = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+    if last_stop >= 200:
+        return cut[: last_stop + 1]
+    last_space = cut.rfind(" ")
+    return (cut[:last_space] if last_space > 0 else cut).rstrip() + "…"
 
 
 _GARBLED_PATTERNS = None
