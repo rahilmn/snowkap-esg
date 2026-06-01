@@ -88,7 +88,11 @@ def _caller_company(claims: dict[str, Any], company_param: str | None) -> tuple[
 def now_feed(
     company: str = Query(..., min_length=1, max_length=120),
     limit: int = Query(10, ge=1, le=20),
-    max_age_days: int = Query(30, ge=1, le=365),
+    # Phase 47.Q — hard upper bound: nothing older than 30 days
+    # belongs on the daily deck. Earlier upper bound (365) let UI
+    # callers accidentally pass a year-long window. Daily intelligence
+    # means daily-relevant news, not archived ESG history.
+    max_age_days: int = Query(30, ge=1, le=30),
     claims: dict[str, Any] = Depends(get_bearer_claims),
 ) -> dict[str, Any]:
     """The /now deck for a company.

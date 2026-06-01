@@ -194,18 +194,21 @@ def filter_duplicates(
 
 def is_fresh(
     article: dict,
-    max_age_days: int = 90,
+    max_age_days: int = 30,
     now: datetime | None = None,
 ) -> bool:
     """Returns True if article `published_at` is within max_age_days of `now`.
 
-    Articles with unparseable timestamps are treated as fresh (fail-open) to
-    avoid losing signal from malformed feeds. Use strict=True at the caller
-    if you want fail-closed behaviour.
+    The default is 30 days (the product-wide freshness bar — articles older
+    than a month are stale-by-policy and don't belong in the daily deck).
+    Articles with unparseable timestamps are treated as STALE (fail-closed)
+    so a malformed feed cannot smuggle stale-or-undated content into the
+    deck — earlier behaviour was fail-open which let a curated 47-day-old
+    seed slip through with a parseable but stale date.
     """
     ts = _parse_iso(article.get("published_at"))
     if ts is None:
-        return True
+        return False  # fail-closed — undated articles are out
     now = now or datetime.now(timezone.utc)
     age = now - ts
     return age <= timedelta(days=max_age_days)
