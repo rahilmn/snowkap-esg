@@ -321,6 +321,49 @@ _ESG_KEYWORDS: tuple[str, ...] = (
     "human rights", "circular economy", "energy transition",
 )
 
+# Phase 49.2 — wider ESG net for niche tenants whose names rarely headline an
+# India-ESG story (boutique asset managers, foreign auto-parts suppliers).
+# Adds sector-appropriate sustainability vocabulary (responsible investment /
+# stewardship for AMCs; EV-transition / supply-chain-due-diligence for auto
+# suppliers) plus core governance/compliance terms. Only applied to companies
+# listed in settings `ingestion.broad_query_companies`; the strict set still
+# governs the banks/energy tenants. The downstream company-relevance guard
+# (`_is_article_about_company`) + wrap-up guard + Stage 3-4 ontology relevance
+# ranking remain the precision anchors, so a wider keyword net never lets a
+# roundup or an off-company story onto the deck.
+# NOTE: EventRegistry counts each WORD of a multi-word keyword toward the
+# subscription keyword limit (80 on the current plan). The strict set above is
+# ~47 words; appending the full sector vocabulary pushed the broad query to 93
+# words and the API rejected it ("Too many keywords specified") — returning
+# zero. So the broad set is a LEAN, curated standalone tuple (~46 words),
+# single-word-first, spanning the asset-management + automotive lenses, kept
+# well under the limit. The company-identity clause (a precise conceptUri or
+# alias $or) does most of the scoping; this $or just keeps the focus on
+# sustainability/governance content.
+_ESG_KEYWORDS_BROAD: tuple[str, ...] = (
+    "ESG", "sustainability", "emissions", "carbon", "net zero",
+    "decarbonisation", "renewable energy", "clean energy", "green bond",
+    "CSRD", "ESRS", "BRSR", "TCFD", "CBAM", "Scope 3", "climate risk",
+    "energy transition", "biodiversity", "governance", "human rights",
+    "circular economy", "electric vehicle", "supply chain", "powertrain",
+    "thermal management", "REACH", "PFAS", "responsible investment",
+    "stewardship", "sustainable investing", "disclosure", "compliance",
+)
+
+
+def _broad_query_slugs() -> set[str]:
+    """Slugs whose NewsAPI.ai query should drop the company-in-TITLE lock.
+
+    Read from settings `ingestion.broad_query_companies`. These are niche
+    tenants (boutique AMC, foreign auto-parts supplier) whose names rarely
+    appear in an India-ESG article title — the title-lock starves their deck.
+    """
+    try:
+        cfg = load_settings().get("ingestion", {})
+        return {str(s).strip().lower() for s in (cfg.get("broad_query_companies") or [])}
+    except Exception:  # noqa: BLE001 — config read must never break a fetch
+        return set()
+
 
 def _company_keyword(company: Company) -> str:
     """Short, search-friendly company name (strip legal suffixes)."""
@@ -338,6 +381,7 @@ def fetch_newsapi_ai_for_company(
     company: Company,
     max_results: int = 18,
     freshness_days: int = 30,
+    strict_title: bool | None = None,
 ) -> list[dict]:
     """ONE NewsAPI.ai call per company — company name AND any ESG term,
     within the last `freshness_days`, newest first, full body + image.
@@ -347,6 +391,17 @@ def fetch_newsapi_ai_for_company(
     complex `$query` enforces the ESG focus server-side and `dateStart`
     enforces the 1-month freshness window server-side (so we never pay
     tokens for stale or off-topic content).
+
+    `strict_title` controls whether the company keyword must appear in the
+    article TITLE (precise, kills market-roundup noise — the default for the
+    banks/energy tenants) or merely anywhere in title+body (broader, for
+    niche tenants whose names rarely headline an India-ESG story). When
+    ``None`` it is resolved per-company from settings
+    `ingestion.broad_query_companies`. The broad path also widens the ESG
+    keyword set (`_ESG_KEYWORDS_BROAD`). Precision is still enforced
+    downstream by `_is_article_about_company` (company must appear in the
+    title or first ~800 chars of body) + the wrap-up guard, so dropping the
+    title-lock never admits roundups or off-company stories.
     """
     api_key = (
         os.environ.get("NEWSAPI_AI_KEY")
@@ -366,18 +421,47 @@ def fetch_newsapi_ai_for_company(
                   - timedelta(days=freshness_days)).isoformat()
     date_end = datetime.now(timezone.utc).date().isoformat()
 
-    # Company name must appear in the TITLE (the article is genuinely ABOUT
-    # the company, not a multi-stock roundup that merely lists it), AND an
-    # ESG term must appear anywhere (title or body). This pairing is the
-    # sweet spot: company-in-title kills the market-roundup noise that
-    # plagues financial-sector tenants, while ESG-in-body keeps real
-    # sustainability coverage. The downstream ontology pipeline (Stages
-    # 2-4) does the final ESG-materiality ranking.
+    # Resolve strict-title vs broad per-company. Broad tenants (niche AMC,
+    # foreign auto-parts supplier) drop the title-lock and widen the ESG net
+    # so their decks aren't starved; the banks/energy tenants stay strict.
+    if strict_title is None:
+        strict_title = (company.slug or "").strip().lower() not in _broad_query_slugs()
+    esg_terms = _ESG_KEYWORDS if strict_title else _ESG_KEYWORDS_BROAD
+
+    # STRICT path: company name must appear in the TITLE (the article is
+    # genuinely ABOUT the company, not a multi-stock roundup that merely lists
+    # it), AND an ESG term must appear anywhere. This kills the market-roundup
+    # noise that plagues financial-sector tenants while keeping real
+    # sustainability coverage.
+    # BROAD path: company name anywhere (title OR body) AND a (wider) ESG term
+    # anywhere — for niche tenants whose names rarely headline an India-ESG
+    # story. Precision is recovered downstream by `_is_article_about_company`
+    # (company must be in the title or first ~800 chars) + the wrap-up guard +
+    # the Stage 2-4 ontology ESG-materiality ranking.
+    # Phase 49.2 — data-driven company-identity clause. For ambiguous names
+    # (e.g. "MAHLE" collides with a baseball player + the composer Mahler) the
+    # most precise match is the EventRegistry *concept* (entity URI), seeded
+    # on the company row as `news_concept_uri`. Some tenants also carry
+    # `news_aliases` (e.g. an AMC + its founder) to widen identity matching.
+    # Both live in company data — NOT hardcoded in Python. Falls back to the
+    # suffix-stripped keyword (title-locked when strict).
+    cal = company.primitive_calibration or {}
+    concept_uri = str(cal.get("news_concept_uri") or "").strip()
+    aliases = [a.strip() for a in (cal.get("news_aliases") or [])
+               if isinstance(a, str) and a.strip()]
+    if concept_uri:
+        identity_clause: dict[str, Any] = {"conceptUri": concept_uri}
+    elif aliases and not strict_title:
+        identity_clause = {"$or": [{"keyword": a} for a in aliases]}
+    else:
+        identity_clause = {"keyword": keyword}
+        if strict_title:
+            identity_clause["keywordLoc"] = "title"
     complex_query: dict[str, Any] = {
         "$query": {
             "$and": [
-                {"keyword": keyword, "keywordLoc": "title"},
-                {"$or": [{"keyword": kw} for kw in _ESG_KEYWORDS]},
+                identity_clause,
+                {"$or": [{"keyword": kw} for kw in esg_terms]},
                 {"lang": "eng"},
             ],
             "dateStart": date_start,
@@ -482,6 +566,49 @@ _WRAPUP_TITLE_MARKERS = (
     "this week in", "daily news", "daily update",
 )
 
+# Phase 49.2 — MARKET ROUNDUP markers. Multi-stock market pieces ("5 Adani
+# stocks log 52-week highs", "8 Other Stocks MFs bought", "ICICI Bank Opening
+# Bell Updates", "Motilal Oswal sector of the week ... top bets") name the
+# target company in the TITLE but carry NO single-company ESG signal. They
+# slipped past the company-in-title early-return in `_is_wrapup_article` and
+# were promoted to CRITICAL with a fabricated ESG lede + recs + a generic
+# "developing story" summary (the live Adani + ICICI + JSW cards). These are
+# market noise, not ESG news — drop them regardless of company-in-title.
+_MARKET_ROUNDUP_MARKERS = (
+    "opening bell", "closing bell", "market wrap", "sensex today",
+    "nifty today", "top bets", "top picks", "top buys", "top gainers",
+    "top losers", "sector of the week", "stocks to buy", "stocks to watch",
+    "stocks to sell", "buy or sell", "stock radar", "stocks in focus",
+    "stocks to track", "52-week high", "52 week high", "52-week low",
+    "multibagger", "other stocks", "stocks in which", "f&o ban",
+    "muhurat", "trade setup", "stocks to add",
+    # Phase 49.2 — brokerage price-target / share-price-ticker / stock-pick /
+    # stock-comparison noise (non-ESG market content that cluttered the LIGHT
+    # tier). High-precision: each requires price/rs/stock adjacency so genuine
+    # ESG "target" headlines ("net-zero target by 2050") are NOT caught.
+    "share price target", "price target", "target of rs", "target at rs",
+    "share price today", "share price live", "share price - live",
+    "stock price today", "stock picks", "stocks today", "stock offers better",
+    "bullish view", "bearish view", "retains buy", "reiterates buy",
+    "share price target at", "stock to buy or",
+)
+
+
+def _is_market_roundup(title_lower: str) -> bool:
+    """Return True for multi-stock market roundups / daily-market updates that
+    name the company but carry no single-company ESG signal."""
+    import re
+    if not title_lower:
+        return False
+    if any(m in title_lower for m in _MARKET_ROUNDUP_MARKERS):
+        return True
+    # "<N> [adani] stocks ..." numeric-stock-list pattern
+    if re.search(r"\b\d+\s+(?:[a-z&]+\s+){0,2}stocks?\b", title_lower):
+        return True
+    if re.search(r"\bstocks?\s+(?:that|to|in which|for)\b", title_lower):
+        return True
+    return False
+
 
 def _is_wrapup_article(title: str, body: str, company: Company) -> bool:
     """Return True if the article looks like a daily digest / wrap-up that
@@ -493,6 +620,14 @@ def _is_wrapup_article(title: str, body: str, company: Company) -> bool:
     import re
 
     title_lower = (title or "").lower()
+
+    # Phase 49.2 — MARKET ROUNDUP guard runs FIRST, before the company-in-title
+    # early-return below. A multi-stock roundup ("5 Adani stocks ...", "ICICI
+    # Bank Opening Bell ...", "... top bets") names the company in the title but
+    # is market noise with no single-company ESG signal. These were the live
+    # Adani + ICICI + JSW "criticals" with fabricated ledes/recs. Drop them.
+    if _is_market_roundup(title_lower):
+        return True
 
     # Phase 48.A — the NewsAPI.ai fetch already requires the company keyword
     # in the TITLE, so a fetched article is genuinely ABOUT the company, not

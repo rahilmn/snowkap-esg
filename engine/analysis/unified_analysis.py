@@ -452,7 +452,16 @@ def _build_why_it_matters(
         cleaned = _strip_rupee_clauses(summary)
         # If stripping left only the band prefix (or nothing), rebuild a
         # grounded sentence from the article headline topic — never a stub.
-        if not cleaned or cleaned.strip().lower() in {p.lower() for p in band_prefix.split()}:
+        # Phase 49.2 — the collapse check must catch the FULL band prefix
+        # ("Low priority", "Worth reviewing"), not just a single word of it.
+        # Stripping IDFC/SBI's synthetic cascade ₹ left exactly "Low priority"
+        # (two words), which the single-word check missed — so the card shipped
+        # a bare-band summary instead of rebuilding from the headline.
+        _cleaned_norm = cleaned.strip().lower()
+        _band_words = {p.lower() for p in band_prefix.split()}
+        if (not cleaned
+                or _cleaned_norm == band_prefix.lower()
+                or _cleaned_norm in _band_words):
             topic = ""
             if insight is not None:
                 topic = (getattr(insight, "headline", "") or "").strip()
@@ -488,10 +497,22 @@ def _build_why_it_matters(
                 ds = getattr(insight, "decision_summary", None)
                 if isinstance(ds, dict):
                     decision_for_summary = ds
+            # Phase 49.2 — pass the real article headline so the fallback
+            # anchors on the actual story, never the generic "this story"
+            # stub. The Adani card leaked "Worth reviewing — developing
+            # story: this story." precisely because this dict omitted the
+            # headline, so build_criticality_summary fell to its empty-topic
+            # default.
+            _headline = ""
+            if insight is not None:
+                _headline = (getattr(insight, "headline", "") or "").strip()
+            if not _headline and result is not None:
+                _headline = (getattr(result, "title", "") or "").strip()
             recovered = build_criticality_summary({
                 "criticality": criticality,
                 "decision_summary": decision_for_summary,
                 "event_polarity": getattr(insight, "event_polarity", "") if insight else "",
+                "headline": _headline,
             })
             if recovered:
                 summary = recovered

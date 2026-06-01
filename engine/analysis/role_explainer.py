@@ -115,12 +115,18 @@ def build_criticality_summary(insight: dict[str, Any]) -> str:
         for sep in (" — ", " - ", " | ", " : ", ": "):
             if sep in topic_hint:
                 topic_hint = topic_hint.split(sep, 1)[0]
-        topic_hint = topic_hint.strip().rstrip(".")[:100] or "this story"
+        topic_hint = topic_hint.strip().rstrip(".")[:100]
         polarity_verb = {
             "positive": "positive signal",
             "negative": "risk signal",
         }.get(polarity, "developing story")
-        sentence = f"{band_prefix} — {polarity_verb}: {topic_hint}"
+        # Phase 49.2 — never emit the generic "developing story: this story"
+        # stub. When we have a real headline topic, anchor on it; otherwise
+        # fall to a clean band-only sentence rather than a placeholder.
+        if topic_hint:
+            sentence = f"{band_prefix} — {polarity_verb}: {topic_hint}"
+        else:
+            sentence = f"{band_prefix} — material ESG development for your company"
 
     # Ensure the sentence ends cleanly with a single full stop.
     sentence = sentence.rstrip(" .;,—-") + "."
