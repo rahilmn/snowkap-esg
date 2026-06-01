@@ -242,15 +242,25 @@ def build_company_deck(
     # 3. Rank survivors: critical/negative first.
     processed.sort(key=_rank_composite, reverse=True)
 
-    # 4. Top n_critical → CRITICAL (full pipeline + approval). Backfill from
-    #    the next-ranked survivor when one is rejected by Stage 10 or approval.
+    # 4. Top n_critical → CRITICAL (full pipeline + approval). Bounded
+    #    backfill: cap the number of EXPENSIVE critical pipeline runs at
+    #    n_critical + 3 so a company whose top articles keep failing
+    #    approval can't trigger 16 full Opus pipelines (the JSW pathology:
+    #    16 runs / 44 min for 1 published). A critical that fails the
+    #    approval gate is DEMOTED to the light tier (rebuilt cheaply from
+    #    Stages 1-9, no LLM, deterministic approval) so the article still
+    #    appears as a quick-read card instead of vanishing — and we never
+    #    show its fabricated lede/recs.
     critical_pool = list(processed)
-    light_pool: list[Any] = []
+    max_attempts = n_critical + 3
     published_critical = 0
+    attempts = 0
     idx = 0
-    while published_critical < n_critical and idx < len(critical_pool):
+    demoted: list[Any] = []  # criticals that failed approval → light tier
+    while published_critical < n_critical and idx < len(critical_pool) and attempts < max_attempts:
         result = critical_pool[idx]
         idx += 1
+        attempts += 1
         outcome = _publish_critical(result, company)
         if outcome == "published":
             published_critical += 1
@@ -262,15 +272,16 @@ def build_company_deck(
             })
         elif outcome == "rejected_approval":
             summary.approval_rejected += 1
+            demoted.append(result)  # show it as light, not nothing
         elif outcome == "rejected_stage10":
             summary.rejected += 1
         else:
             summary.errors.append(f"critical {getattr(result,'article_id','?')}: {outcome}")
     summary.critical_published = published_critical
 
-    # The remaining processed articles (after the ones consumed as critical)
-    # become the light tier, capped to fill the deck to n_total.
-    light_pool = critical_pool[idx:]
+    # Light tier = approval-demoted criticals + the untried remainder of the
+    # pool, capped to fill the deck to n_total.
+    light_pool = demoted + critical_pool[idx:]
     light_slots = max(0, n_total - published_critical)
 
     published_light = 0

@@ -293,6 +293,41 @@ def _stakes_text(insight: Any) -> str:
     return str(para)[:480]
 
 
+_GARBLED_PATTERNS = None
+
+
+def _looks_garbled(text: str) -> bool:
+    """Detect truncated / incomplete prose the LLM sometimes emits when it
+    hits a token cap or a malformed template, e.g.:
+        "Your company is exposed to a. The incremental."
+        "...opens a window to issue a."
+        "₹3,000–"   (dangling range)
+        "realize these b"
+    Returns True when the text should be discarded for the deterministic
+    fallback. Conservative — only fires on clear truncation signals.
+    """
+    import re
+    global _GARBLED_PATTERNS
+    if _GARBLED_PATTERNS is None:
+        _GARBLED_PATTERNS = [
+            re.compile(r"\b(?:to|of|a|the|in|on|at|for|with|and|or)\s*\.\s"),  # "exposed to a. "
+            re.compile(r"\b(?:to|of|a|the|in|on|at|for|with|and|or)\s*\.$"),   # "...to a." end
+            re.compile(r"₹\s*[\d,]+(?:\.\d+)?\s*[–-]\s*(?:[^\d]|$)"),           # "₹3,000–" dangling
+            re.compile(r"\b[a-z]\s*$"),                                          # ends "...these b"
+            re.compile(r"\.\s*\."),                                              # ".  ." double-stop gap
+        ]
+    t = (text or "").strip()
+    if not t:
+        return False
+    for pat in _GARBLED_PATTERNS:
+        if pat.search(t):
+            return True
+    # Ends mid-word/clause without terminal punctuation AND is short-ish
+    if not t.endswith((".", "!", "?")) and len(t) < 120:
+        return True
+    return False
+
+
 def _build_why_it_matters(
     result: Any, insight: Any, sasb_warning: str | None = None,
 ) -> dict[str, Any]:
@@ -419,9 +454,12 @@ def _build_why_it_matters(
             }.get(band, "Worth reviewing")
             summary = f"{band_prefix} — multiple signals point to ESG materiality for this article."
     # Fall back to a deterministic stakes sentence when the LLM stamp is
-    # empty. The "For you · " paragraph on the article sheet is one of the
-    # three things the reader actually scans; never leave it blank.
-    if not stakes:
+    # empty OR garbled. The "For you · " paragraph on the article sheet is
+    # one of the three things the reader actually scans; never leave it
+    # blank or broken. Phase 48 — the approval gate caught truncated stakes
+    # like "Your company is exposed to a. The incremental." and
+    # "₹3,000–" (dangling range). Detect those and replace deterministically.
+    if not stakes or _looks_garbled(stakes):
         stakes = _fallback_stakes(insight, exposure, band)
 
     return {

@@ -493,6 +493,19 @@ def _is_wrapup_article(title: str, body: str, company: Company) -> bool:
     import re
 
     title_lower = (title or "").lower()
+
+    # Phase 48.A — the NewsAPI.ai fetch already requires the company keyword
+    # in the TITLE, so a fetched article is genuinely ABOUT the company, not
+    # a passing-mention digest. If the company short-name is in the title,
+    # this is not a wrap-up — return early. This stops the guard from
+    # dropping long single-company pieces (e.g. earnings-call transcripts)
+    # whose bodies happen to name many analysts/banks/orgs, and handles the
+    # name-mismatch case where company.name ("MAHLE GmbH") differs from the
+    # body subject ("Mahle Metal Leve").
+    short = _company_keyword(company).lower()
+    if short and short in title_lower:
+        return False
+
     if any(marker in title_lower for marker in _WRAPUP_TITLE_MARKERS):
         return True
 
