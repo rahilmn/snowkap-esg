@@ -39,17 +39,19 @@ for noisy in ("urllib3", "httpx", "httpcore", "openai", "rdflib"):
     logging.getLogger(noisy).setLevel(logging.WARNING)
 logger = logging.getLogger("reonboard")
 
-# The 9 launch companies (domain order = display priority).
-DOMAINS = [
-    "waaree.com",
-    "icicibank.com",
-    "idfcfirstbank.com",
-    "yesbank.in",
-    "sbi.co.in",          # State Bank of India
-    "mahle.com",
-    "singularityamc.com",
-    "adanipower.com",
-    "jswenergy.com",
+# The 9 launch companies. domain → known canonical name (passed as a hint
+# to the resolver so it can't mis-read the domain — e.g. waaree.com was
+# mis-resolved to "Aaree Technologies Private" without the hint).
+DOMAINS: list[tuple[str, str]] = [
+    ("waaree.com", "Waaree Energies"),
+    ("icicibank.com", "ICICI Bank"),
+    ("idfcfirstbank.com", "IDFC First Bank"),
+    ("yesbank.in", "YES Bank"),
+    ("sbi.co.in", "State Bank of India"),
+    ("mahle.com", "MAHLE GmbH"),
+    ("singularityamc.com", "Singularity AMC"),
+    ("adanipower.com", "Adani Power"),
+    ("jswenergy.com", "JSW Energy"),
 ]
 
 
@@ -66,7 +68,7 @@ def _exchange_from_ticker(ticker: str) -> str:
     return "NASDAQ/NYSE" if "." not in t else "Unknown"
 
 
-def _onboard_one(domain: str) -> dict:
+def _onboard_one(domain: str, name_hint: str | None = None) -> dict:
     from engine.config import Company, invalidate_companies_cache
     from engine.ingestion.llm_company_resolver import resolve_company_from_domain
     from engine.ingestion.news_fetcher import fetch_for_company
@@ -74,7 +76,7 @@ def _onboard_one(domain: str) -> dict:
     from engine.analysis.deck_builder import build_company_deck
 
     t0 = time.monotonic()
-    info = resolve_company_from_domain(domain)
+    info = resolve_company_from_domain(domain, name_hint=name_hint)
     if info is None:
         return {"domain": domain, "status": "resolve_failed"}
 
@@ -158,13 +160,17 @@ def main() -> int:
     ap.add_argument("--only", help="onboard a single domain instead of all 9")
     args = ap.parse_args()
 
-    domains = [args.only] if args.only else DOMAINS
+    _hint = {d: n for d, n in DOMAINS}
+    if args.only:
+        targets = [(args.only, _hint.get(args.only))]
+    else:
+        targets = DOMAINS
     results = []
-    for d in domains:
+    for d, name_hint in targets:
         logger.info("=" * 60)
-        logger.info("Onboarding %s ...", d)
+        logger.info("Onboarding %s (%s) ...", d, name_hint or "?")
         try:
-            results.append(_onboard_one(d))
+            results.append(_onboard_one(d, name_hint=name_hint))
         except Exception as exc:  # noqa: BLE001
             logger.exception("[%s] onboard crashed: %s", d, exc)
             results.append({"domain": d, "status": f"crash: {type(exc).__name__}"})

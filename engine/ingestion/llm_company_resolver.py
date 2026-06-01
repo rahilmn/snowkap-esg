@@ -649,16 +649,22 @@ def _validate_response(parsed: dict[str, Any], domain: str) -> CompanyInfo:
     )
 
 
-def resolve_company_from_domain(domain: str) -> CompanyInfo | None:
+def resolve_company_from_domain(
+    domain: str, name_hint: str | None = None,
+) -> CompanyInfo | None:
     """Resolve a domain to a canonical company via Opus 4.6.
+
+    `name_hint` (Phase 48) — when the caller already knows the company name
+    (e.g. a curated launch list), pass it so the LLM doesn't mis-read the
+    domain. Without it, the resolver mis-resolved `waaree.com` →
+    "Aaree Technologies Private" (dropped the W). The hint is advisory: the
+    LLM still fills industry / ticker / painpoints / KPIs, but anchors the
+    identity to the known name.
 
     Returns CompanyInfo on success. Returns None when:
       - The LLM gateway is not configured (neither OPENROUTER nor OPENAI key set)
       - The LLM call fails / times out
       - The response can't be parsed as the expected JSON shape
-
-    Caller (onboard_v2.py) decides how to surface the failure to the user
-    (typically: HTTP 422 with the domain echoed back).
     """
     if not domain or not domain.strip():
         return None
@@ -671,12 +677,21 @@ def resolve_company_from_domain(domain: str) -> CompanyInfo | None:
         logger.warning("llm_company_resolver: engine.llm not importable")
         return None
 
+    user_msg = f"Domain: {domain}\n\n"
+    if name_hint and name_hint.strip():
+        user_msg += (
+            f"The company at this domain is known to be: {name_hint.strip()}. "
+            "Use this exact identity; resolve its industry, ticker, frameworks, "
+            "painpoints and KPIs accordingly.\n\n"
+        )
+    user_msg += "Return the JSON."
+
     try:
         llm = get_llm_client(task_class="reasoning_heavy")
         resp = llm.complete(
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
-                {"role": "user", "content": f"Domain: {domain}\n\nReturn the JSON."},
+                {"role": "user", "content": user_msg},
             ],
             temperature=0.1,        # low — we want deterministic resolution
             # Phase 46.K: Pre-Phase-46-A the response was ~120 tokens
