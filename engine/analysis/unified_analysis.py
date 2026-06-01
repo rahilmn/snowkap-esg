@@ -406,12 +406,25 @@ def _build_why_it_matters(
     exposure = _financial_exposure_block(insight, result)
     stakes = _stakes_text(insight)
 
-    # Phase 47.R — when exposure is suppressed for a non-financial event,
-    # strip the upstream criticality_summary clean of any ₹ cascade
-    # extrapolations. Otherwise the chip says band=LOW but the sentence
-    # still reads "₹16.9 Cr total potential upside" — exactly the
-    # mismatch the user flagged on the MAHLE distributor article.
-    if (exposure or {}).get("kind") == "non_financial_event":
+    # Phase 47.R + Phase 49 — strip the SYNTHETIC ₹ from the reader-facing
+    # prose (criticality_summary + stakes). Two triggers:
+    #   * non_financial_event — the article has no monetary content at all.
+    #   * engine_estimate / primitive_engine — the ₹ is a cascade model
+    #     artefact, NOT an article-quoted figure. On bank quarterly-results
+    #     articles the cascade ₹ (e.g. "₹146 Cr") contradicted the article's
+    #     real number (e.g. "₹13,700 Cr PAT"), and the approval gate
+    #     (correctly) rejected the mismatch — demoting every bank critical to
+    #     the light tier. Keeping the synthetic ₹ ONLY in the clearly-labelled
+    #     financial_exposure chip (not in the prose) removes the contradiction
+    #     so grounded bank criticals pass. The chip still shows
+    #     "~₹146 Cr (engine estimate)" for the model's view.
+    _exp_kind = (exposure or {}).get("kind")
+    _exp_source = (exposure or {}).get("source", "")
+    _strip_cascade = (
+        _exp_kind == "non_financial_event"
+        or _exp_source in ("engine_estimate", "primitive_engine")
+    )
+    if _strip_cascade:
         import re as _re
 
         def _strip_rupee_clauses(text: str) -> str:
@@ -430,19 +443,32 @@ def _build_why_it_matters(
             text = _re.sub(r"\s{2,}", " ", text).strip(" -—,:;.")
             return text
 
+        band_prefix = {
+            "CRITICAL": "Critical",
+            "HIGH": "High priority",
+            "MEDIUM": "Worth reviewing",
+            "LOW": "Low priority",
+        }.get(band, "Worth reviewing")
         cleaned = _strip_rupee_clauses(summary)
-        if cleaned:
-            band_prefix = {
-                "CRITICAL": "Critical",
-                "HIGH": "High priority",
-                "MEDIUM": "Worth reviewing",
-                "LOW": "Low priority",
-            }.get(band, "Worth reviewing")
-            # If only the band prefix is left after stripping, append a
-            # short editorial reason instead of leaving a two-word stub.
-            if cleaned.strip().lower() in {p.lower() for p in band_prefix.split()}:
-                cleaned = f"{band_prefix} — non-financial event, no direct ₹ exposure quoted in article."
-            summary = cleaned
+        # If stripping left only the band prefix (or nothing), rebuild a
+        # grounded sentence from the article headline topic — never a stub.
+        if not cleaned or cleaned.strip().lower() in {p.lower() for p in band_prefix.split()}:
+            topic = ""
+            if insight is not None:
+                topic = (getattr(insight, "headline", "") or "").strip()
+            if not topic and result is not None:
+                topic = (getattr(result, "title", "") or "").strip()
+            for sep in (" — ", " - ", " | ", " : ", ": "):
+                if sep in topic:
+                    topic = topic.split(sep, 1)[0]
+            topic = topic.strip().rstrip(".")[:100]
+            if _exp_kind == "non_financial_event":
+                cleaned = f"{band_prefix} — non-financial event; no ₹ exposure quoted in the article."
+            elif topic:
+                cleaned = f"{band_prefix} — {topic}."
+            else:
+                cleaned = f"{band_prefix} — material ESG development for your company."
+        summary = cleaned
         if stakes:
             stakes = _strip_rupee_clauses(stakes) or stakes
     # Phase 45.H — defensive fallback when insight_generator's role_explainer
@@ -511,8 +537,14 @@ def _fallback_stakes(insight: Any, exposure: dict[str, Any], band: str) -> str:
         return ""
     polarity = (getattr(insight, "event_polarity", "") or "neutral").lower()
     amount = (exposure or {}).get("amount_cr")
+    # Phase 49 — never inject a SYNTHETIC cascade ₹ into the stakes prose.
+    # Engine-estimate / primitive figures stay only in the labelled exposure
+    # chip; the stakes sentence stays qualitative so it can't contradict the
+    # article's real numbers (the bank-critical rejection driver).
+    _src = (exposure or {}).get("source", "")
     amount_str = ""
-    if isinstance(amount, (int, float)) and amount > 0:
+    if (_src not in ("engine_estimate", "primitive_engine", "suppressed", "not_computed")
+            and isinstance(amount, (int, float)) and amount > 0):
         if amount >= 100:
             amount_str = f"₹{amount:,.0f} Cr"
         else:
