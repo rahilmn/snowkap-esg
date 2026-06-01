@@ -14,6 +14,12 @@
 #        SNOWKAP_API_KEY=<random>
 #        OPENROUTER_API_KEY=<openrouter key>    # Opus 4.6 + Perplexity routing
 #        OPENAI_API_KEY=sk-proj-...             # direct fallback
+#        # --- LLM provider switch (Phase 48) ---
+#        # The engine auto-selects: if OPENROUTER_API_KEY is set -> OpenRouter
+#        # (Opus 4.6 / Perplexity). If it is EMPTY/unset -> direct OpenAI using
+#        # OPENAI_API_KEY (reasoning_heavy -> gpt-4.1, ~4x cheaper). To run on
+#        # direct OpenAI (e.g. OpenRouter out of credits): leave OPENROUTER_API_KEY
+#        # unset and ensure OPENAI_API_KEY has balance. Fully reversible.
 #        RESEND_API_KEY=re_...
 #        SNOWKAP_FROM_ADDRESS=Snowkap ESG <newsletter@snowkap.co.in>
 #        NEWSAPI_AI_KEY=<uuid>                  # sole news source (Phase 48.A)
