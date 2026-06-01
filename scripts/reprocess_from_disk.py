@@ -20,8 +20,13 @@ logging.basicConfig(level=logging.WARNING, format="%(levelname)5s %(message)s")
 logger = logging.getLogger("reprocess")
 
 
-def _load_articles(slug: str):
-    from engine.ingestion.news_fetcher import IngestedArticle
+def _load_articles(slug: str, company=None):
+    # Phase 49.3 — filter the on-disk corpus through the CURRENT roundup guard
+    # (old input files predate it, so a raw rebuild re-admits market noise).
+    from engine.ingestion.news_fetcher import (
+        IngestedArticle, _is_market_roundup, _is_wrapup_article,
+        _is_article_about_company,
+    )
     arts = []
     d = _ROOT / "data/inputs/news" / slug
     if not d.exists():
@@ -31,8 +36,17 @@ def _load_articles(slug: str):
             j = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             continue
+        title = j.get("title", "") or ""
+        body = j.get("content", "") or ""
+        if _is_market_roundup(title.lower()):
+            continue
+        if company is not None and (
+            _is_wrapup_article(title, body, company)
+            or not _is_article_about_company(title, body, company)
+        ):
+            continue
         arts.append(IngestedArticle(
-            id=j["id"], title=j.get("title", ""), content=j.get("content", ""),
+            id=j["id"], title=title, content=body,
             summary=j.get("summary", ""), source=j.get("source", ""), url=j.get("url", ""),
             published_at=j.get("published_at", ""), company_slug=slug,
             source_type=j.get("source_type", "newsapi_ai"), metadata=j.get("metadata", {}),

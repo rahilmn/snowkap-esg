@@ -33,22 +33,44 @@ logging.basicConfig(level=logging.WARNING, format="%(levelname)5s %(message)s")
 logger = logging.getLogger("fatten")
 
 
-def _load_disk_articles(slug: str):
-    from engine.ingestion.news_fetcher import IngestedArticle
+def _load_disk_articles(slug: str, company=None):
+    # Phase 49.3 — filter the on-disk corpus through the CURRENT guards. Old
+    # input files were fetched before the roundup guard existed, so loading
+    # them raw re-admits market-roundup noise that the live fetch path now
+    # drops. Re-apply _is_market_roundup (+ about-company when we have the
+    # company) so a rebuild-from-disk is as clean as a fresh fetch.
+    from engine.ingestion.news_fetcher import (
+        IngestedArticle, _is_market_roundup, _is_wrapup_article,
+        _is_article_about_company,
+    )
     arts, d = [], _ROOT / "data/inputs/news" / slug
     if not d.exists():
         return arts
+    skipped = 0
     for f in sorted(d.glob("*.json")):
         try:
             j = json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             continue
+        title = j.get("title", "") or ""
+        body = j.get("content", "") or ""
+        if _is_market_roundup(title.lower()):
+            skipped += 1
+            continue
+        if company is not None and (
+            _is_wrapup_article(title, body, company)
+            or not _is_article_about_company(title, body, company)
+        ):
+            skipped += 1
+            continue
         arts.append(IngestedArticle(
-            id=j["id"], title=j.get("title", ""), content=j.get("content", ""),
+            id=j["id"], title=title, content=body,
             summary=j.get("summary", ""), source=j.get("source", ""), url=j.get("url", ""),
             published_at=j.get("published_at", ""), company_slug=slug,
             source_type=j.get("source_type", "newsapi_ai"), metadata=j.get("metadata", {}),
         ))
+    if skipped:
+        logger.warning("%s: skipped %d on-disk roundup/off-company articles", slug, skipped)
     return arts
 
 
@@ -77,8 +99,8 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         logger.warning("fetch failed for %s: %s", args.only, exc)
 
-    # 2. rebuild from the FULL on-disk corpus
-    arts = _load_disk_articles(args.only)
+    # 2. rebuild from the FULL on-disk corpus (filtered through current guards)
+    arts = _load_disk_articles(args.only, company=co)
     logger.warning("=== %s: rebuilding from %d on-disk articles ===", args.only, len(arts))
     try:
         with connect() as c:
