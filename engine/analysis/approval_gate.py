@@ -1,0 +1,248 @@
+"""Phase 48.D — final display-approval gate.
+
+A SECOND LLM (Opus 4.6) reviews every CRITICAL article's composed analysis
+against the source article body BEFORE it is shown on the frontend. This is
+the user's "add another LLM to approve and then only display on frontend"
+requirement, and it directly prevents the failure modes that surfaced in
+Phase 47 (fabricated ₹ figures, off-topic recommendations, ungrounded lede
+claims).
+
+Two paths:
+  * CRITICAL articles (full Stage 10-12 + lede): Opus 4.6 reads the article
+    body + the composed lede + 4 bullets + recommendations and returns a
+    JSON verdict {approved, confidence, issues}. Rejected articles are NOT
+    persisted to the deck — the orchestrator backfills from the candidate
+    buffer.
+  * LIGHT articles (Stages 1-9 only): deterministic checks (headline present,
+    event classified, fresh, what_changed populated). No LLM — the light
+    tier has minimal generated content + low fabrication risk.
+
+Pre-LLM cheap checks reuse the existing verifiers so the expensive Opus call
+only runs on content that already passed the mechanical gates.
+
+Fail-OPEN on LLM/infra error: if the approval LLM itself errors (network,
+parse), the article is approved with a logged warning rather than silently
+dropped — better to show a vetted-by-pipeline article than an empty deck.
+The gate's job is to catch hallucination, not to be a new outage source.
+"""
+from __future__ import annotations
+
+import json
+import logging
+import re
+from dataclasses import dataclass, field
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ApprovalResult:
+    approved: bool
+    confidence: float = 0.0
+    issues: list[str] = field(default_factory=list)
+    reviewer: str = ""  # "opus" | "deterministic" | "fail_open"
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "approved": self.approved,
+            "confidence": self.confidence,
+            "issues": self.issues,
+            "reviewer": self.reviewer,
+        }
+
+
+_APPROVAL_SYSTEM = """You are a senior ESG editor doing a final fact-check before \
+an analysis is shown to a CFO. You are given the SOURCE ARTICLE and the \
+ANALYSIS our engine produced (an editorial lede, a 4-bullet brief, and \
+recommendations). Your ONLY job is to decide whether the analysis is \
+GROUNDED in the source article and safe to publish.
+
+REJECT the analysis if ANY of these are true:
+- The lede or bullets state a specific fact (a ₹/$/€ figure, a named person, \
+a date, a percentage, a regulator action) that does NOT appear in or follow \
+from the source article.
+- A recommendation is off-topic — unrelated to what the article is actually about.
+- The analysis claims a financial exposure figure as if it were a fact from \
+the article when the article contains no such figure (engine extrapolations \
+must be clearly hedged, never stated as article facts).
+- The headline/lede misrepresents the article's actual event or polarity.
+
+APPROVE if the analysis is a fair, grounded reading of the article — even if \
+it is brief. Minor stylistic issues are NOT grounds for rejection.
+
+Respond with ONLY a JSON object, no prose:
+{"approved": true|false, "confidence": 0.0-1.0, "issues": ["short reason", ...]}"""
+
+
+def _extract_json(text: str) -> dict[str, Any] | None:
+    """Pull the first JSON object out of an LLM response (handles ``` fences)."""
+    if not text:
+        return None
+    t = text.strip()
+    t = re.sub(r"^```(?:json)?\s*", "", t)
+    t = re.sub(r"\s*```$", "", t)
+    start = t.find("{")
+    if start == -1:
+        return None
+    depth = 0
+    for i in range(start, len(t)):
+        if t[i] == "{":
+            depth += 1
+        elif t[i] == "}":
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(t[start : i + 1])
+                except json.JSONDecodeError:
+                    return None
+    return None
+
+
+def _approve_light(result: Any, analysis: dict[str, Any]) -> ApprovalResult:
+    """Deterministic gate for light-tier articles. No LLM."""
+    issues: list[str] = []
+    wc = (analysis or {}).get("what_changed") or {}
+    if not (wc.get("headline") or "").strip():
+        issues.append("missing headline")
+    if not (result is not None and getattr(result, "event", None) is not None):
+        issues.append("event not classified")
+    wim = (analysis or {}).get("why_it_matters") or {}
+    if not (wim.get("criticality_summary") or "").strip():
+        issues.append("missing criticality_summary")
+    approved = not issues
+    return ApprovalResult(
+        approved=approved,
+        confidence=1.0 if approved else 0.0,
+        issues=issues,
+        reviewer="deterministic",
+    )
+
+
+def _build_review_prompt(
+    result: Any, analysis: dict[str, Any], recommendations: Any,
+) -> str:
+    body = (getattr(result, "article_content", "") or "")[:5000]
+    title = getattr(result, "title", "") or ""
+    a = analysis or {}
+    lede = ((a.get("lede") or {}).get("text") or "").strip()
+    wc = (a.get("what_changed") or {}).get("headline") or ""
+    wim = a.get("why_it_matters") or {}
+    summary = wim.get("criticality_summary") or ""
+    stakes = wim.get("stakes_for_company") or ""
+    exposure = (wim.get("financial_exposure") or {}).get("label") or ""
+
+    rec_lines: list[str] = []
+    recs = []
+    if recommendations is not None and not isinstance(recommendations, dict):
+        recs = getattr(recommendations, "recommendations", None) or []
+    for r in recs[:3]:
+        rec_lines.append(
+            f"- {getattr(r, 'title', '')} "
+            f"(peer: {getattr(r, 'peer_benchmark', '') or 'n/a'}; "
+            f"framework: {getattr(r, 'framework_section', '') or 'n/a'})"
+        )
+
+    parts = [
+        "SOURCE ARTICLE",
+        f"Title: {title}",
+        f"Body:\n{body}",
+        "",
+        "ENGINE ANALYSIS TO REVIEW",
+        f"Lede: {lede or '(none)'}",
+        f"What changed: {wc}",
+        f"Why it matters: {summary}",
+        f"Stakes: {stakes}",
+        f"Financial exposure shown: {exposure or '(none)'}",
+        "Recommendations:",
+        *(rec_lines or ["(none)"]),
+    ]
+    return "\n".join(parts)
+
+
+def approve_analysis_for_display(
+    *,
+    result: Any,
+    insight: Any,
+    unified_analysis: dict[str, Any],
+    recommendations: Any = None,
+    tier: str = "critical",
+) -> ApprovalResult:
+    """Approve (or reject) a composed analysis before it reaches the deck.
+
+    `tier="light"` → deterministic. `tier="critical"` → Opus 4.6 review.
+    Fail-open on infra error.
+    """
+    analysis = unified_analysis or {}
+
+    if tier == "light":
+        return _approve_light(result, analysis)
+
+    # --- Critical path: cheap pre-checks, then Opus review ---------------
+    # Cheap mechanical pre-checks first (reuse existing verifiers). A tone
+    # violation or empty summary is an automatic reject without spending an
+    # Opus call.
+    issues: list[str] = []
+    wim = analysis.get("why_it_matters") or {}
+    if not (wim.get("criticality_summary") or "").strip():
+        issues.append("empty criticality_summary")
+    lede_text = ((analysis.get("lede") or {}).get("text") or "").strip()
+    if lede_text:
+        try:
+            from engine.analysis.tone_guardrails import scan_for_violations
+            hits = [
+                h for h in scan_for_violations(lede_text)
+                if h.get("kind") in {"banned_phrase", "score_leak"}
+            ]
+            if hits:
+                issues.append(f"lede tone violations: {[h.get('kind') for h in hits][:3]}")
+        except Exception:  # noqa: BLE001
+            pass
+    if issues:
+        return ApprovalResult(
+            approved=False, confidence=0.0, issues=issues, reviewer="deterministic",
+        )
+
+    # Opus review
+    try:
+        from engine.llm import get_llm_client
+        client = get_llm_client(task_class="reasoning_heavy")
+        user = _build_review_prompt(result, analysis, recommendations)
+        resp = client.complete(
+            messages=[
+                {"role": "system", "content": _APPROVAL_SYSTEM},
+                {"role": "user", "content": user},
+            ],
+            temperature=0.0,
+            max_tokens=400,
+        )
+        verdict = _extract_json(getattr(resp, "text", "") or "")
+        if verdict is None:
+            logger.warning(
+                "[approval] could not parse verdict for %s — fail-open",
+                getattr(result, "article_id", "?"),
+            )
+            return ApprovalResult(
+                approved=True, confidence=0.5, issues=["unparseable verdict"],
+                reviewer="fail_open",
+            )
+        approved = bool(verdict.get("approved", True))
+        confidence = float(verdict.get("confidence", 0.0) or 0.0)
+        v_issues = [str(x)[:160] for x in (verdict.get("issues") or [])][:5]
+        if not approved:
+            logger.warning(
+                "[approval] REJECTED %s (conf=%.2f): %s",
+                getattr(result, "article_id", "?"), confidence, v_issues,
+            )
+        return ApprovalResult(
+            approved=approved, confidence=confidence, issues=v_issues, reviewer="opus",
+        )
+    except Exception as exc:  # noqa: BLE001 — never let the gate be an outage source
+        logger.warning(
+            "[approval] LLM gate errored for %s (%s) — fail-open",
+            getattr(result, "article_id", "?"), type(exc).__name__,
+        )
+        return ApprovalResult(
+            approved=True, confidence=0.5, issues=[f"gate error: {type(exc).__name__}"],
+            reviewer="fail_open",
+        )

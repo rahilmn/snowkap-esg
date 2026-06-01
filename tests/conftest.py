@@ -24,6 +24,10 @@ os.environ.setdefault("ENVIRONMENT", "test")
 # the default behaviour (force sqlite) is restored for normal runs.
 if os.environ.get("SNOWKAP_TEST_ALLOW_POSTGRES") != "1":
     os.environ["SNOWKAP_DB_BACKEND"] = "sqlite"
+    # Phase 48.0 — SQLite is hard-disabled in engine.db.connect unless this
+    # escape flag is set. The test suite legitimately uses SQLite fixtures,
+    # so opt in here. Production never sets this.
+    os.environ["SNOWKAP_ALLOW_SQLITE"] = "1"
 
 import pytest
 from httpx import ASGITransport, AsyncClient

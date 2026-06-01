@@ -482,6 +482,91 @@ def write_insight(
     return written
 
 
+def write_light_insight(result: PipelineResult) -> WrittenFiles:
+    """Phase 48.C — persist a LIGHT (headline-tier) article.
+
+    The 7 low-priority deck articles run Stages 1-9 only — no Stage 10
+    deep insight, no Stage 11 perspectives, no Stage 12 recs, no lede.
+    This writes a valid deck card (what_changed + banded why_it_matters +
+    frameworks + risks) at LOW band so it sorts below the 3 critical.
+
+    Reuses the same persistence as `write_insight` (disk JSON + sqlite
+    index + article_pool + company_article_view) via `_upsert_pool_and_view`,
+    so chat, /now/feed and the newsletter all read it uniformly. Pure-Python
+    — no LLM calls (the whole point of the light tier).
+    """
+    from engine.analysis.unified_analysis import build_light_analysis
+
+    slug = result.company_slug
+    base = get_output_dir(slug)
+    name = _filename(result)
+    written = WrittenFiles(perspectives={})
+
+    light_analysis = build_light_analysis(result)
+
+    # event_polarity from NLP sentiment (no Stage 10 to compute it properly)
+    polarity = "neutral"
+    sent = getattr(getattr(result, "nlp", None), "sentiment", None)
+    if isinstance(sent, (int, float)):
+        polarity = "positive" if sent > 0 else "negative" if sent < 0 else "neutral"
+
+    insight_payload: dict[str, Any] = {
+        "article": {
+            "id": result.article_id,
+            "title": result.title,
+            "url": result.url,
+            "source": result.source,
+            "published_at": result.published_at,
+            "company_slug": result.company_slug,
+            "image_url": result.image_url,
+        },
+        "pipeline": result.to_dict(),
+        # Synthetic insight: carries the light analysis + a LOW criticality
+        # band so _upsert_pool_and_view sorts it below the critical 3.
+        "insight": {
+            "headline": result.title,
+            "analysis": light_analysis,
+            "event_polarity": polarity,
+            "criticality": {
+                "band": "LOW",
+                "score": float((getattr(result, "criticality", None) or {}).get("score") or 0.0),
+            },
+        },
+        "recommendations": None,
+        "perspectives": {},
+        "evidence_pack": None,
+        "role_payloads": {},
+        "meta": {
+            "written_at": datetime.now(timezone.utc).isoformat(),
+            "schema_version": "3.3-editorial-lede",
+            "tier": "light",
+        },
+    }
+
+    written.insight = _write(base / "insights" / name, insight_payload)
+
+    try:
+        upsert_article(insight_payload, written.insight)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("light: sqlite index upsert failed: %s", exc)
+
+    try:
+        _upsert_pool_and_view(result, insight_payload, light_analysis)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("light: article_pool / company_article_view upsert failed: %s", exc)
+
+    # Split-out framework/risk/causal files for direct UI consumption.
+    if result.risk:
+        written.risk = _write(base / "risk" / name, result.risk.to_dict())
+    if result.frameworks:
+        written.frameworks = _write(
+            base / "frameworks" / name,
+            {"frameworks": [fm.to_dict() for fm in result.frameworks]},
+        )
+
+    return written
+
+
 # ---------------------------------------------------------------------------
 # POW-2 — Dual-write to article_pool + company_article_view.
 # ---------------------------------------------------------------------------
@@ -550,6 +635,20 @@ def _upsert_pool_and_view(
 
     # Industry-shared analysis = what_changed + its methodology block.
     shared, personalised = split_analysis(unified_analysis_dict or {})
+
+    # Phase 48.E — carry the hero image through the deck. article_pool has
+    # no dedicated image column, so the URL rides inside shared_analysis
+    # (which deck_for_company returns and the frontend already reads). This
+    # is what makes SwipeCard's `article.image_url` render — previously the
+    # NowPage adapter hardcoded "" because nothing surfaced the image.
+    img = (
+        (insight_payload.get("article") or {}).get("image_url")
+        or getattr(result, "image_url", "")
+        or ""
+    )
+    if img:
+        shared["image_url"] = img
+        personalised["image_url"] = img
 
     article_pool.upsert(
         article_id=article_id,

@@ -488,10 +488,11 @@ def onboard_v3(
         general_query=None,
     )
 
-    # 8. Fetch news
+    # 8. Fetch news — Phase 48.B: ONE NewsAPI.ai call returns ~18 ESG
+    # candidates (the buffer for 10 keepers + dedup + approval drops).
     try:
         from engine.ingestion.news_fetcher import fetch_for_company
-        fresh = fetch_for_company(company_obj, max_per_query=3)
+        fresh = fetch_for_company(company_obj, max_per_query=18)
     except Exception as exc:
         logger.exception(
             "[onboard_v3] news fetch failed for %s: %s", info.slug, exc,
@@ -526,111 +527,36 @@ def onboard_v3(
             default_reader_role=info.default_reader_role,
         )
 
-    # 9. Run FULL pipeline on top-N articles IN PARALLEL
-    # No tier gate. Every article gets Stage 10/11/12 + lede.
-    top_articles = fresh[: body.limit]
+    # 9. Phase 48.C — tier-gated deck build (3 critical full + 7 light) with
+    # the Opus 4.6 approval gate. This is the SAME path the Sunday refresh
+    # cron uses (engine.analysis.deck_builder.build_company_deck), so
+    # onboard + weekly refresh produce identical decks. The pyparsing race
+    # is handled inside the deck builder via the process-wide SPARQL lock
+    # + max_workers=3.
+    from engine.analysis.deck_builder import build_company_deck
+    deck = build_company_deck(
+        company_obj, fresh, n_critical=3, n_total=body.limit,
+    )
 
-    def _safe_run(article) -> dict | Exception:
-        try:
-            article_dict = {
-                "id": article.id,
-                "title": article.title,
-                "content": article.content,
-                "summary": article.summary,
-                "source": article.source,
-                "url": article.url,
-                "published_at": article.published_at,
-                "metadata": article.metadata,
-            }
-            return _run_full_pipeline_for_article(article_dict, company_obj)
-        except Exception as exc:  # noqa: BLE001
-            logger.exception(
-                "[onboard_v3] full-pipeline worker failed for %s: %s",
-                getattr(article, "id", "?"), exc,
-            )
-            return exc
-
-    results: list[dict | Exception] = []
-    # Phase 47.G — workers REVERTED 5 → 3.
-    #
-    # Reason: Phase 47.C raised max_workers to 5 to fit a 10-article
-    # onboard in 2 batches. Local repro showed this triggers a pyparsing
-    # thread-safety race in rdflib (the ontology library used by Stages
-    # 3-9 SPARQL queries). With 5 simultaneous SPARQL parses, pyparsing's
-    # parser state corrupts and 4 of 5 workers crash with:
-    #   TypeError: Param.postParse2() missing 1 required positional
-    #              argument: 'tokenList'
-    # This was reproducible in <20s locally with synthetic articles +
-    # max_workers=5; same failure pattern observed on Replit (4 of 5
-    # articles in "(worker exception)" state on adidas.com onboard).
-    #
-    # max_workers=3 was the stable setting that produced the 11/11
-    # tatamotors.com validation run. Reverting to 3 closes the race.
-    # 10 articles run in 4 batches × ~30s = ~120s pipeline, still
-    # within the 240s HTTP budget.
-    #
-    # A longer-term fix (Phase 48?) would be a thread lock around the
-    # rdflib graph query functions, but adding the lock changes the
-    # query throughput and needs a careful benchmark.
-    with concurrent.futures.ThreadPoolExecutor(
-        max_workers=3, thread_name_prefix="onboard-v3",
-    ) as pool:
-        futures = [pool.submit(_safe_run, a) for a in top_articles]
-        # Per-future 120s timeout. One hung LLM call can't drag the
-        # entire request past the 240s HTTP read budget.
-        for fut in concurrent.futures.as_completed(futures):
-            try:
-                results.append(fut.result(timeout=120))
-            except concurrent.futures.TimeoutError:
-                logger.warning(
-                    "[onboard_v3] worker future timed out at 120s",
-                )
-                results.append(TimeoutError("worker 120s timeout"))
-            except Exception as exc:  # noqa: BLE001
-                logger.warning(
-                    "[onboard_v3] worker future exception: %s", exc,
-                )
-                results.append(exc)
-
-    # 10. Tally + build response
-    article_summaries: list[ArticleSummary] = []
-    analysed = 0
-    with_recs = 0
-    for outcome in results:
-        if isinstance(outcome, Exception):
-            # Phase 47.F — include exception class + first 240 chars of
-            # the message in the article summary so the validator /
-            # operator can diagnose without grepping logs.
-            article_summaries.append(ArticleSummary(
-                article_id="(failed)",
-                title="(worker exception)",
-                url="",
-                tier="FAILED",
-                rejected=True,
-                error_class=type(outcome).__name__,
-                error_message=str(outcome)[:240],
-            ))
-            continue
-        # outcome is a dict from _run_full_pipeline_for_article
-        d = outcome
-        if not d.get("rejected"):
-            analysed += 1
-            if d.get("recommendation_count", 0) > 0:
-                with_recs += 1
-        article_summaries.append(ArticleSummary(
-            article_id=d.get("article_id", ""),
-            title=d.get("title", "")[:300],
-            url=d.get("url", "") or "",
-            tier=d.get("tier", "UNKNOWN"),
-            rejected=bool(d.get("rejected", False)),
-            recommendation_count=int(d.get("recommendation_count", 0)),
-            has_lede=bool(d.get("has_lede", False)),
-        ))
+    analysed = deck.critical_published + deck.light_published
+    with_recs = deck.critical_published  # only the 3 critical carry recs
+    article_summaries: list[ArticleSummary] = [
+        ArticleSummary(
+            article_id=item.get("article_id", ""),
+            title=item.get("title", ""),
+            url="",
+            tier=item.get("tier", ""),
+            rejected=False,
+            recommendation_count=1 if item.get("has_recs") else 0,
+            has_lede=bool(item.get("tier") == "critical"),
+        )
+        for item in deck.published_items
+    ]
 
     elapsed = time.monotonic() - t0
     if analysed == 0:
         status = "no_articles" if not fresh else "partial"
-        warning = "All articles failed pipeline analysis."
+        warning = "No articles passed analysis + approval."
     elif info.confidence == "low":
         status = "low_confidence"
         warning = (
@@ -641,32 +567,12 @@ def onboard_v3(
         status = "ready"
         warning = ""
 
-    # Phase 46.L — detailed per-article outcome log. When `analysed == 0`
-    # this is the only signal that tells the operator WHY (cross-entity
-    # gate / low materiality / Stage 10 failure). Pre-fix the DONE line
-    # just said "analysed=0" with no per-article reasons.
     logger.info(
-        "[onboard_v3] DONE %s: %.1fs, fetched=%d, analysed=%d, with_recs=%d",
-        info.slug, elapsed, len(fresh), analysed, with_recs,
+        "[onboard_v3] DONE %s: %.1fs, fetched=%d, critical=%d, light=%d, "
+        "approval_rejected=%d, rejected=%d",
+        info.slug, elapsed, len(fresh), deck.critical_published,
+        deck.light_published, deck.approval_rejected, deck.rejected,
     )
-    if analysed == 0 and len(fresh) > 0:
-        # Surface the rejection reasons explicitly when nothing got through.
-        per_article: list[str] = []
-        for outcome in results:
-            if isinstance(outcome, Exception):
-                per_article.append(f"EXC:{type(outcome).__name__}")
-                continue
-            d = outcome
-            tier = d.get("tier", "?")
-            rejected = d.get("rejected", False)
-            title = (d.get("title") or "")[:50]
-            per_article.append(
-                f"{'REJ' if rejected else tier} '{title}'"
-            )
-        logger.warning(
-            "[onboard_v3] %s analysed=0 from %d fetched. Per-article outcomes: %s",
-            info.slug, len(fresh), " | ".join(per_article),
-        )
 
     return OnboardV3Response(
         status=status,

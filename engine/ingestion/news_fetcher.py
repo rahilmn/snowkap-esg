@@ -1,8 +1,9 @@
 """Fetch ESG news for target companies.
 
-Two sources:
-1. Google News RSS via feedparser (no API key needed)
-2. NewsAPI.org (optional, requires ``NEWSAPI_KEY``)
+Phase 48.A — NewsAPI.ai (EventRegistry) is the SOLE source. One complex
+query per company (company name AND any ESG term, last 30 days, newest
+first) returns full article bodies + hero images directly. Google News
+RSS and the publisher-scrape full-text backfill have been removed.
 
 Outputs normalized JSON files to ``data/inputs/news/{company_slug}/``
 with deduplication tracked in ``data/processed/article_hashes.json``.
@@ -18,7 +19,7 @@ import os
 import re
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
@@ -35,44 +36,9 @@ from engine.ingestion.dedup import SemanticDedup, is_fresh
 
 logger = logging.getLogger(__name__)
 
-GOOGLE_NEWS_URL = (
-    "https://news.google.com/rss/search?q={query}&hl={hl}&gl={gl}&ceid={ceid}"
-)
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
 
-# Phase 23A — Google News locale per HQ country. Default to English-US so a
-# newly-onboarded German or American company doesn't get India-filtered news.
-# Add new countries as they come up — keys are exact `headquarter_country`
-# strings from `config/companies.json`.
-_GOOGLE_NEWS_LOCALES: dict[str, tuple[str, str, str]] = {
-    "India": ("en-IN", "IN", "IN:en"),
-    "United States": ("en-US", "US", "US:en"),
-    "United Kingdom": ("en-GB", "GB", "GB:en"),
-    "Germany": ("de", "DE", "DE:de"),
-    "France": ("fr", "FR", "FR:fr"),
-    "Netherlands": ("nl", "NL", "NL:nl"),
-    "Italy": ("it", "IT", "IT:it"),
-    "Spain": ("es", "ES", "ES:es"),
-    "Sweden": ("sv", "SE", "SE:sv"),
-    "Singapore": ("en-SG", "SG", "SG:en"),
-    "Australia": ("en-AU", "AU", "AU:en"),
-    "Canada": ("en-CA", "CA", "CA:en"),
-    "Japan": ("ja", "JP", "JP:ja"),
-    "China": ("zh-CN", "CN", "CN:zh-Hans"),
-}
-_GOOGLE_NEWS_DEFAULT_LOCALE: tuple[str, str, str] = ("en", "US", "US:en")
 
-
-def _locale_for_country(country: str | None) -> tuple[str, str, str]:
-    """Return ``(hl, gl, ceid)`` for the given HQ country.
-
-    Falls back to English-US when the country is unknown — a deliberate
-    departure from the previous India-only default so non-Indian onboarded
-    companies don't silently get India-filtered news.
-    """
-    if not country:
-        return _GOOGLE_NEWS_DEFAULT_LOCALE
-    return _GOOGLE_NEWS_LOCALES.get(country.strip(), _GOOGLE_NEWS_DEFAULT_LOCALE)
 HTML_TAG = re.compile(r"<[^>]+>")
 WHITESPACE = re.compile(r"\s+")
 
@@ -161,102 +127,8 @@ def _write_article(article: IngestedArticle) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def fetch_google_news(
-    query: str,
-    max_results: int = 20,
-    country: str | None = None,
-) -> list[dict]:
-    """Fetch Google News RSS for a search query.
-
-    Phase 36 fix — Snowkap is an India-based product serving Indian ESG
-    analysts who read English. The Phase 23A approach of tying locale to
-    the COMPANY's HQ country (German company → German-language news) was
-    wrong: a Mumbai analyst tracking Siemens wants English coverage of
-    Siemens, not Süddeutsche Zeitung's German front page. With the
-    German locale, the English-tuned ESG classifier + off-topic guard
-    dropped almost every article as unparseable → 2-article decks
-    instead of the designed 10.
-
-    The fix: force ``en-IN`` (English language, India edition) for every
-    fetch by default. The ``country`` arg is preserved for future
-    multi-region deployments but ignored under the default
-    ``SNOWKAP_NEWS_LOCALE=en-IN`` env var. Operators in other regions
-    can override the env var to e.g. ``en-US`` or ``en-GB``.
-    """
-    import os
-    _locale_override = os.environ.get("SNOWKAP_NEWS_LOCALE", "en-IN")
-    if _locale_override == "en-IN":
-        hl, gl, ceid = ("en-IN", "IN", "IN:en")
-    elif _locale_override == "en-US":
-        hl, gl, ceid = ("en-US", "US", "US:en")
-    elif _locale_override == "en-GB":
-        hl, gl, ceid = ("en-GB", "GB", "GB:en")
-    elif _locale_override == "auto":
-        # Back-compat: legacy Phase 23A behaviour — locale follows the
-        # company's HQ country. Off by default; opt-in for operators
-        # serving a single-country tenant where vernacular coverage is
-        # preferred.
-        hl, gl, ceid = _locale_for_country(country)
-    else:
-        # Custom override — assume "<lang>-<country>" format
-        try:
-            lang, cc = _locale_override.split("-", 1)
-            hl, gl, ceid = (_locale_override, cc, f"{cc}:{lang}")
-        except ValueError:
-            hl, gl, ceid = ("en-IN", "IN", "IN:en")
-    feed_url = GOOGLE_NEWS_URL.format(query=quote(query), hl=hl, gl=gl, ceid=ceid)
-    logger.debug("Fetching Google News RSS: %s", feed_url)
-    try:
-        parsed = feedparser.parse(feed_url)
-    except Exception as exc:  # noqa: BLE001 — defensive, network calls
-        logger.error("feedparser failed for '%s': %s", query, exc)
-        return []
-
-    entries = parsed.entries[:max_results] if parsed.entries else []
-    articles: list[dict] = []
-    for entry in entries:
-        url = entry.get("link") or ""
-        if not url:
-            continue
-        title = _strip_html(entry.get("title") or "")
-        summary = _strip_html(entry.get("summary") or "")
-        source = ""
-        if entry.get("source"):
-            try:
-                source = entry.source.get("title", "")
-            except AttributeError:
-                source = str(entry.source)
-        # Best-effort hero image from RSS extensions. Many feeds expose
-        # one of `media_content`, `media_thumbnail`, or an inline
-        # `<img>` tag inside the summary.
-        image_url = ""
-        media_content = entry.get("media_content") or []
-        if isinstance(media_content, list) and media_content:
-            image_url = (media_content[0] or {}).get("url", "")
-        if not image_url:
-            media_thumb = entry.get("media_thumbnail") or []
-            if isinstance(media_thumb, list) and media_thumb:
-                image_url = (media_thumb[0] or {}).get("url", "")
-        if not image_url and "<img" in (entry.get("summary") or ""):
-            import re as _re
-            m = _re.search(r'<img[^>]+src="([^"]+)"', entry.get("summary") or "")
-            if m:
-                image_url = m.group(1)
-        articles.append(
-            {
-                "title": title,
-                "summary": summary,
-                "content": summary,  # RSS-only — no full content yet
-                "source": source or "Google News",
-                "url": url,
-                "published_at": _parse_published(entry.get("published")),
-                "metadata": {
-                    "source_type": "google_news",
-                    "image_url": image_url,
-                },
-            }
-        )
-    return articles
+# Phase 48.A — fetch_google_news() removed. NewsAPI.ai is the sole source.
+# See fetch_newsapi_ai_for_company() below.
 
 
 # ---------------------------------------------------------------------------
@@ -419,6 +291,156 @@ def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
     # ASSUMPTION (per news_router.py): 1 token = 1 article in response.
     # If the verified rule turns out to be different, swap the budget's
     # token_cost_fn — this site does NOT need to change.
+    try:
+        from engine.ingestion.news_router import get_router
+        router = get_router()
+        router.budget.spend(router.token_cost_fn(articles))
+    except Exception:  # noqa: BLE001 — budget tracking must never break ingest
+        pass
+
+    return articles
+
+
+# ---------------------------------------------------------------------------
+# Phase 48.B — token-efficient, ESG-focused, ONE-call-per-company fetch
+# ---------------------------------------------------------------------------
+
+# ESG / sustainability keyword universe. The complex NewsAPI.ai query
+# requires "company name" AND (any one of these). Keep these ESG-PRECISE:
+# bare finance words ("governance", "compliance", "investment") over-match
+# generic market/stock coverage, so we use specific multi-word phrases and
+# framework codes that only appear in genuine ESG/sustainability stories.
+# This keeps the single ~18-token call focused on real ESG signal.
+_ESG_KEYWORDS: tuple[str, ...] = (
+    "ESG", "sustainability", "sustainable finance", "climate change",
+    "climate risk", "emissions", "carbon", "net zero", "decarbonisation",
+    "decarbonization", "renewable energy", "clean energy", "green bond",
+    "green finance", "CSRD", "ESRS", "BRSR", "TCFD", "GRI", "CBAM",
+    "Scope 3", "greenhouse gas", "ESG rating", "sustainability report",
+    "transition plan", "biodiversity", "corporate governance",
+    "human rights", "circular economy", "energy transition",
+)
+
+
+def _company_keyword(company: Company) -> str:
+    """Short, search-friendly company name (strip legal suffixes)."""
+    name = (company.name or company.slug or "").strip()
+    for suffix in (
+        " Limited", ", Inc.", " Inc.", " PLC", " Plc", " SE", " AG",
+        " Ltd", " Ltd.", " GmbH", " Corporation", " Corp.", " Company",
+    ):
+        if name.endswith(suffix):
+            name = name[: -len(suffix)].strip()
+    return name or company.slug
+
+
+def fetch_newsapi_ai_for_company(
+    company: Company,
+    max_results: int = 18,
+    freshness_days: int = 30,
+) -> list[dict]:
+    """ONE NewsAPI.ai call per company — company name AND any ESG term,
+    within the last `freshness_days`, newest first, full body + image.
+
+    Token-frugal: a single getArticles request returning ~`max_results`
+    articles costs ~`max_results` tokens (vs 10-11 keyword calls). The
+    complex `$query` enforces the ESG focus server-side and `dateStart`
+    enforces the 1-month freshness window server-side (so we never pay
+    tokens for stale or off-topic content).
+    """
+    api_key = (
+        os.environ.get("NEWSAPI_AI_KEY")
+        or os.environ.get("NEWSAPI_AI_API_KEY")
+        or os.environ.get("EVENT_REGISTRY_API_KEY")
+        or ""
+    )
+    if not api_key:
+        logger.error(
+            "NewsAPI.ai key missing (NEWSAPI_AI_KEY / NEWSAPI_AI_API_KEY / "
+            "EVENT_REGISTRY_API_KEY) — cannot fetch for %s", company.slug,
+        )
+        return []
+
+    keyword = _company_keyword(company)
+    date_start = (datetime.now(timezone.utc).date()
+                  - timedelta(days=freshness_days)).isoformat()
+    date_end = datetime.now(timezone.utc).date().isoformat()
+
+    # Company name must appear in the TITLE (the article is genuinely ABOUT
+    # the company, not a multi-stock roundup that merely lists it), AND an
+    # ESG term must appear anywhere (title or body). This pairing is the
+    # sweet spot: company-in-title kills the market-roundup noise that
+    # plagues financial-sector tenants, while ESG-in-body keeps real
+    # sustainability coverage. The downstream ontology pipeline (Stages
+    # 2-4) does the final ESG-materiality ranking.
+    complex_query: dict[str, Any] = {
+        "$query": {
+            "$and": [
+                {"keyword": keyword, "keywordLoc": "title"},
+                {"$or": [{"keyword": kw} for kw in _ESG_KEYWORDS]},
+                {"lang": "eng"},
+            ],
+            "dateStart": date_start,
+            "dateEnd": date_end,
+        },
+    }
+    body: dict[str, Any] = {
+        "action": "getArticles",
+        "query": complex_query,
+        "resultType": "articles",
+        "articlesPage": 1,
+        "articlesCount": min(max_results, 50),
+        "articlesSortBy": "date",
+        "includeArticleBody": True,
+        "articleBodyLen": -1,
+        "includeArticleImage": True,
+        "apiKey": api_key,
+    }
+
+    try:
+        resp = requests.post(NEWSAPI_AI_URL, json=body, timeout=25)
+        resp.raise_for_status()
+    except requests.RequestException as exc:
+        logger.error("NewsAPI.ai company fetch failed for %s: %s", company.slug, exc)
+        return []
+
+    payload = resp.json()
+    results = (payload.get("articles") or {}).get("results") or []
+    articles: list[dict] = []
+    for item in results:
+        url = item.get("url") or ""
+        if not url:
+            continue
+        body_text = item.get("body") or ""
+        title = item.get("title") or ""
+        source_name = (item.get("source") or {}).get("title") or "NewsAPI.ai"
+        published = item.get("dateTime") or item.get("date") or ""
+        articles.append({
+            "title": _strip_html(title),
+            "summary": _strip_html(body_text[:500]) if body_text else title,
+            "content": _strip_html(body_text),
+            "source": source_name,
+            "url": url,
+            "published_at": _parse_published(published),
+            "source_type": "newsapi_ai",
+            "metadata": {
+                "sentiment": item.get("sentiment"),
+                "source_type": "newsapi_ai",
+                "image_url": item.get("image") or "",
+                "concepts": [
+                    (c.get("label") or {}).get("eng", "")
+                    for c in (item.get("concepts") or [])[:5]
+                ],
+            },
+        })
+
+    logger.info(
+        "NewsAPI.ai: %d ESG articles for %s (keyword=%r, since=%s, avg %d chars)",
+        len(articles), company.slug, keyword, date_start,
+        sum(len(a["content"]) for a in articles) // max(len(articles), 1),
+    )
+
+    # Record spend in the central budget (1 token ≈ 1 returned article).
     try:
         from engine.ingestion.news_router import get_router
         router = get_router()
@@ -640,7 +662,7 @@ def fetch_for_company(
     limit = max_per_query or ingestion_cfg.get(
         "max_articles_per_company_per_run", 20
     )
-    freshness_days = ingestion_cfg.get("freshness_max_age_days", 14)
+    freshness_days = ingestion_cfg.get("freshness_max_age_days", 30)
     sem_enabled = ingestion_cfg.get("semantic_dedup_enabled", True)
     sem_threshold = ingestion_cfg.get("semantic_dedup_threshold", 0.75)
     sem_window = ingestion_cfg.get("semantic_dedup_window_hours", 48)
@@ -649,96 +671,23 @@ def fetch_for_company(
 
     raw_articles: list[dict] = []
     seen_urls: set[str] = set()
-    hq_country = getattr(company, "headquarter_country", None)
-    # 2026-05-26 — NewsAPI.ai removed from the live path. Quota exhaustion
-    # (every call returned 403) wasted ~5-6s per query × 30 queries =
-    # ~3 min per onboard while waiting for the 403 timeout before
-    # falling back to Google News. Onboarding now runs entirely on
-    # Google News RSS + the Phase-35.5 publisher-scrape body backfill,
-    # which is what actually produces real article body anyway. The
-    # legacy `fetch_newsapi_ai()` helper stays in this module as a
-    # one-off utility if quota ever comes back, but is no longer wired
-    # into the onboarding fetch path.
-    #
-    # Parallel fetch (added 2026-05-26) — Google News RSS queries are
-    # ~1-2s each. Running 30 of them sequentially is 30-60s wasted.
-    # ThreadPoolExecutor with 6 workers drops total fetch to
-    # ceil(N/6) × 1-2s = 5-10s.
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-
-    def _fetch_one(query: str) -> tuple[str, list[dict]]:
-        try:
-            results = fetch_google_news(query, max_results=limit, country=hq_country)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("google_news fetch crashed for %r: %s", query, exc)
-            return query, []
-        return query, list(results)
-
-    with ThreadPoolExecutor(max_workers=6) as ex:
-        future_to_query = {ex.submit(_fetch_one, q): q for q in company.news_queries}
-        for future in as_completed(future_to_query):
-            query, arts = future.result()
-            for art in arts:
-                if art["url"] in seen_urls:
-                    continue
-                seen_urls.add(art["url"])
-                art.setdefault("source_type", "google_news")
-                art["query"] = query
-                raw_articles.append(art)
-
-    # Phase 35.5 — Backfill article bodies via googlenewsdecoder + trafilatura
-    # for any Google News article whose `content` is title-only.
-    #
-    # Google News RSS returns ~140-char duplicate-headline "content" — the
-    # Stage 10 LLM was previously extrapolating ₹ exposure + frameworks +
-    # recs from this. Now: resolve the Google News blob to the real
-    # publisher URL via googlenewsdecoder, scrape via trafilatura, and
-    # replace `content` with the actual article body (typically 2,000-
-    # 5,000+ chars).
-    #
-    # Per-query hard time-limit (45s) so a slow publisher can't blow the
-    # ingest cycle budget. Successful extracts are cached for 7 days in
-    # `data/snowkap.db::article_full_text` so subsequent runs skip the
-    # network call. Failures are also cached — keeps us from re-hitting
-    # known-bad URLs every cycle.
-    try:
-        from engine.ingestion.full_text_extractor import extract_full_text
-        import time as _time
-        budget_deadline = _time.monotonic() + 45.0  # seconds
-        for art in raw_articles:
-            if _time.monotonic() > budget_deadline:
-                logger.info(
-                    "full_text backfill: 45s per-company budget hit, "
-                    "skipping remaining articles for %s",
-                    company.slug,
-                )
-                break
-            existing = (art.get("content") or "").strip()
-            title = (art.get("title") or "").strip()
-            # Skip if body is already substantive (NewsAPI.ai path, etc.)
-            if len(existing) >= 300 and existing != title:
-                continue
-            url = art.get("url") or ""
-            if not url:
-                continue
-            try:
-                result = extract_full_text(url, timeout=10.0)
-            except Exception as exc:  # noqa: BLE001 — never block ingest
-                logger.debug("full_text extract failed for %s: %s", url[:80], exc)
-                result = None
-            if result is None or not result.body:
-                continue
-            art["content"] = result.body
-            art["summary"] = result.body[:500]
-            meta = art.get("metadata") or {}
-            meta["full_text_source"] = "publisher_scrape"
-            meta["full_text_char_count"] = result.char_count
-            meta["publisher_url"] = result.publisher_url
-            art["metadata"] = meta
-    except Exception as exc:  # noqa: BLE001 — full-text is additive, never block
-        logger.warning(
-            "full_text backfill loop failed (non-fatal): %s", exc,
-        )
+    # Phase 48.A — NewsAPI.ai is the SOLE source. Google News RSS and the
+    # publisher-scrape full-text backfill are gone. ONE complex NewsAPI.ai
+    # call per company (company name AND any ESG term, last `freshness_days`,
+    # newest first) returns full bodies + hero images directly — no
+    # scraping, no googlenewsdecoder, no per-query fan-out. Token cost is
+    # ~`limit` tokens per company per fetch.
+    newsapi_articles = fetch_newsapi_ai_for_company(
+        company, max_results=limit, freshness_days=freshness_days,
+    )
+    for art in newsapi_articles:
+        url = art.get("url") or ""
+        if not url or url in seen_urls:
+            continue
+        seen_urls.add(url)
+        art.setdefault("source_type", "newsapi_ai")
+        art["query"] = _company_keyword(company)
+        raw_articles.append(art)
 
     # Phase 1: semantic dedup across all sources/queries for this company
     dedup = SemanticDedup(threshold=sem_threshold, window_hours=sem_window) if sem_enabled else None
@@ -823,7 +772,7 @@ def fetch_for_company(
             url=raw["url"],
             published_at=raw["published_at"],
             company_slug=company.slug,
-            source_type=raw.get("source_type", "google_news"),
+            source_type=raw.get("source_type", "newsapi_ai"),
             metadata=merged_metadata,
         )
         fresh.append(article)

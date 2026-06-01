@@ -945,6 +945,17 @@ def _mint_login_response(
             background=background,
         )
     display_name = name or email.split("@")[0].title()
+
+    # Phase 48.K — auto-subscribe the user to their company's weekly
+    # newsletter on login. Builds the subscriber list organically as the
+    # 9 launch companies' users sign in. Non-fatal; never blocks login.
+    if company_slug:
+        try:
+            from engine.models import newsletter_subscribers
+            newsletter_subscribers.subscribe(email, company_slug)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("newsletter auto-subscribe failed for %s: %s", email, exc)
+
     claims = {
         "sub": email,
         "name": display_name,

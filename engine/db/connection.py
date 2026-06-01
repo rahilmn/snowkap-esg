@@ -279,6 +279,18 @@ def connect(*, sqlite_path: Path | str | None = None) -> Iterator[Connection]:
     backend = get_backend()
     raw: Any
     if backend == "sqlite":
+        # Phase 48.0 — SQLite is hard-disabled. The product is Supabase-only.
+        # The only legitimate SQLite use is the test suite, which sets
+        # SNOWKAP_ALLOW_SQLITE=1 explicitly. Without that flag, refuse to
+        # open (or silently create) a SQLite file — a missing
+        # SUPABASE_DATABASE_URL must crash loudly, never fall back to a
+        # phantom empty local DB.
+        if os.environ.get("SNOWKAP_ALLOW_SQLITE", "").strip() != "1":
+            raise RuntimeError(
+                "SQLite backend is disabled. Snowkap runs strictly on Supabase "
+                "Postgres. Set SUPABASE_DATABASE_URL (and SNOWKAP_DB_BACKEND=postgres), "
+                "or set SNOWKAP_ALLOW_SQLITE=1 only for local test fixtures."
+            )
         from engine.config import get_data_path
 
         path = Path(sqlite_path) if sqlite_path else get_data_path("snowkap.db")

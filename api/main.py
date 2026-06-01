@@ -212,16 +212,19 @@ _cors_origins = [
     "http://127.0.0.1:4173",
 ]
 
-# Add Replit proxy domains dynamically so the app works in all Replit environments
-_replit_domains = os.environ.get("REPLIT_DOMAINS", "")
-for _d in _replit_domains.split(","):
-    _d = _d.strip()
-    if _d:
-        _cors_origins.append(f"https://{_d}")
+# Phase 48.F — Railway hosting. Add the public domain(s) dynamically.
+# `SNOWKAP_CORS_ORIGINS` is a comma-separated allowlist (e.g.
+# "https://app.snowkap.com,https://snowkap.up.railway.app"); Railway also
+# injects `RAILWAY_PUBLIC_DOMAIN` for the service's generated URL. Replit
+# env vars (REPLIT_DOMAINS / REPLIT_DEV_DOMAIN) are no longer read.
+for _origin in os.environ.get("SNOWKAP_CORS_ORIGINS", "").split(","):
+    _origin = _origin.strip()
+    if _origin:
+        _cors_origins.append(_origin if _origin.startswith("http") else f"https://{_origin}")
 
-_replit_dev_domain = os.environ.get("REPLIT_DEV_DOMAIN", "")
-if _replit_dev_domain:
-    _cors_origins.append(f"https://{_replit_dev_domain}")
+_railway_domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "").strip()
+if _railway_domain:
+    _cors_origins.append(f"https://{_railway_domain}")
 
 app.add_middleware(
     CORSMiddleware,
@@ -266,17 +269,20 @@ def _startup() -> None:
     _configure_structlog()
     _check_production_env()  # raises RuntimeError in prod if secrets missing
 
-    # Phase 47.N — log the actual DB backend at boot. Easy to spot in
-    # logs whether the deploy is using Postgres (good) or SQLite (bad).
+    # Phase 48.0 — Postgres is mandatory in EVERY environment (not just
+    # production). Snowkap runs strictly on Supabase. The only escape hatch
+    # is SNOWKAP_ALLOW_SQLITE=1, reserved for the local test suite. Without
+    # it, a non-postgres backend (or a missing SUPABASE_DATABASE_URL) crashes
+    # the boot loudly rather than serving a phantom empty SQLite dashboard.
     try:
         from engine.db.connection import get_backend, is_postgres
         backend = get_backend()
-        env = (os.environ.get("SNOWKAP_ENV") or "").strip().lower()
-        if env == "production" and not is_postgres():
+        allow_sqlite = os.environ.get("SNOWKAP_ALLOW_SQLITE", "").strip() == "1"
+        if not is_postgres() and not allow_sqlite:
             raise RuntimeError(
-                f"DB backend is '{backend}' but production requires postgres. "
+                f"DB backend is '{backend}' but Snowkap requires Supabase Postgres. "
                 "Set SNOWKAP_DB_BACKEND=postgres + SUPABASE_DATABASE_URL=... "
-                "in Replit Secrets and restart."
+                "(SNOWKAP_ALLOW_SQLITE=1 is for local tests only)."
             )
         logger.warning(
             "API startup: DB backend = %s (is_postgres=%s)",
@@ -457,6 +463,33 @@ def _start_inprocess_scheduler() -> None:
                 )
         except Exception as exc:  # noqa: BLE001 — Phase 36 cron is additive
             logger.warning("phase 36 retry cron wiring failed (non-fatal): %s", exc)
+
+        # Phase 48.I — weekly Sunday deck refresh + newsletter. For every
+        # active company: fetch fresh NewsAPI.ai ESG news → tier-gated deck
+        # (3 critical + 7 light, Opus approval) → send the weekly Morning-
+        # Brew newsletter to active subscribers. Cadence override via
+        # SNOWKAP_WEEKLY_REFRESH_CRON="<day>:<hour>" (default sun:6 UTC).
+        try:
+            from apscheduler.triggers.cron import CronTrigger as _CronTrigger
+            from engine.scheduler import run_weekly_deck_refresh_job
+            _wk = (os.environ.get("SNOWKAP_WEEKLY_REFRESH_CRON", "sun:6") or "sun:6").strip()
+            _wk_day, _, _wk_hour = _wk.partition(":")
+            scheduler.add_job(
+                run_weekly_deck_refresh_job,
+                trigger=_CronTrigger(
+                    day_of_week=(_wk_day or "sun"),
+                    hour=int(_wk_hour or "6"),
+                    minute=0,
+                ),
+                id="phase48_weekly_refresh",
+                replace_existing=True,
+            )
+            logger.info(
+                "phase 48 cron wired: weekly_deck_refresh @ %s:%s UTC",
+                _wk_day or "sun", _wk_hour or "6",
+            )
+        except Exception as exc:  # noqa: BLE001 — additive
+            logger.warning("phase 48 weekly cron wiring failed (non-fatal): %s", exc)
 
         scheduler.start()
         # Stash on app.state so we can shut it down cleanly + introspect via /metrics
@@ -846,6 +879,9 @@ app.include_router(_onboard_v2.router)
 # registered for back-compat with any client still hitting it.
 from api.routes import onboard_v3 as _onboard_v3  # noqa: E402
 app.include_router(_onboard_v3.router)
+# Phase 48.K — weekly newsletter (unsubscribe + send-me).
+from api.routes import newsletter as _newsletter  # noqa: E402
+app.include_router(_newsletter.router)
 app.include_router(campaigns.router)  # Phase 10: /api/campaigns/* (manage_drip_campaigns only)
 
 # Phase 28 — SSE onboarding progress stream (companion to profile.me_onboard).

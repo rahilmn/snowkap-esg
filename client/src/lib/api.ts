@@ -654,6 +654,20 @@ export const news = {
       } | null;
     }>(`/news/${articleId}/analysis`),
 
+  // Phase 42b — lightweight pipeline-state poll. Returns the on-demand
+  // enrichment job's state + elapsed seconds + error class so the UI
+  // can surface "Running… 45s elapsed" instead of a generic placeholder.
+  // Hit at ~3s cadence while the article sheet is open.
+  getPipelineState: (articleId: string) =>
+    request<{
+      state: "pending" | "running" | "ready" | "failed" | "unknown";
+      article_id: string;
+      elapsed_seconds: number;
+      error_class: string | null;
+      error: string | null;
+      retry_after_seconds?: number;
+    }>(`/news/${articleId}/analysis-status`),
+
   // Phase 9: one-click share an analyzed article to a recipient's email.
   // Name is auto-extracted for greeting ("ambalika.m@x.com" → "Ambalika").
   // Phase 4 §6.4 — `role` is the sales-tool role toggle. Sent for audit

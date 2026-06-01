@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from engine.ingestion.news_fetcher import fetch_google_news
+from engine.ingestion.news_fetcher import fetch_newsapi_ai
 from engine.models import companies_store
 from engine.index import sqlite_index
 
@@ -153,14 +153,11 @@ def _run_query(
         rows = cached
     else:
         try:
-            rows = fetch_google_news(
-                query=query,
-                max_results=max(limit, 10),
-                country=country,
-            )
+            # Phase 48.A — Google News removed; live search uses NewsAPI.ai.
+            rows = fetch_newsapi_ai(query, max_results=max(limit, 10))
         except Exception as exc:  # noqa: BLE001 — live path must not crash the response
             logger.warning(
-                "live_fetcher: Google News failed for %s/%s: %s",
+                "live_fetcher: NewsAPI.ai failed for %s/%s: %s",
                 company_slug, kind, exc,
             )
             rows = []

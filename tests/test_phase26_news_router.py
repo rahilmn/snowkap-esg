@@ -61,17 +61,16 @@ def stub_fetchers(monkeypatch):
         return _stub_articles(max_results, source="newsapi_ai")
 
     def _stub_tier2(*args, **kwargs) -> list[dict]:
-        # fetch_google_news has positional + kwarg signature; capture loosely
+        # Phase 48.A — Tier 2 now also uses fetch_newsapi_ai (Google removed).
         captured["tier2_calls"].append((args, kwargs))
         # Default to 5 articles
         n = kwargs.get("max_results") or (args[1] if len(args) > 1 else 5)
-        return _stub_articles(n, source="google_rss")
+        return _stub_articles(n, source="newsapi_ai")
 
+    # Tier 1 and Tier 2 both resolve to fetch_newsapi_ai now; route the
+    # router's internal calls through a single stub that records both.
     monkeypatch.setattr(
         "engine.ingestion.news_fetcher.fetch_newsapi_ai", _stub_tier1
-    )
-    monkeypatch.setattr(
-        "engine.ingestion.news_fetcher.fetch_google_news", _stub_tier2
     )
     return captured
 

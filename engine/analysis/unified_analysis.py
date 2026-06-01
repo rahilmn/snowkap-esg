@@ -865,6 +865,64 @@ def build_unified_analysis(
 # ---------------------------------------------------------------------------
 
 
+def build_light_analysis(result: Any) -> dict[str, Any]:
+    """Phase 48.C — light analysis from Stages 1-9 only (no Stage 10 insight).
+
+    Powers the 7 low-priority deck articles. Produces a VALID 4-bullet block
+    — what_changed + a banded why_it_matters + frameworks-only
+    what_it_triggers + risk-only what_to_watch — but NO lede, NO
+    recommendations, NO ₹ exposure. Those are reserved for the 3 critical
+    articles that get the full Opus pipeline. Band is forced LOW so light
+    articles always sort below the critical 3 on the deck.
+
+    Unlike the old (buggy) tier gate that left SECONDARY articles with a
+    blank deep_insight, this guarantees a non-empty analysis block on disk
+    + in the deck — the relaxed light-tier deck contract (what_changed +
+    criticality_summary required; lede + recs optional).
+    """
+    what_changed = _build_what_changed(result, None)
+    crit = getattr(result, "criticality", None) or {}
+    components = crit.get("components") or {}
+    dominant = _dominant_signal(components)
+
+    materiality_weight = None
+    rel = getattr(result, "relevance", None)
+    if rel is not None:
+        raw = getattr(rel, "materiality_weight", None)
+        if isinstance(raw, (int, float)):
+            materiality_weight = max(0.0, min(1.0, float(raw)))
+
+    topic = (what_changed.get("headline") or "this story").strip().rstrip(".")[:90]
+    why_it_matters = {
+        "materiality_band": "LOW",
+        "materiality_weight": (
+            round(materiality_weight, 3) if materiality_weight is not None else None
+        ),
+        "dominant_signal": dominant,
+        "criticality_summary": f"Low priority — {topic}.",
+        "stakes_for_company": (
+            "Quick read for your watchlist. Open one of the day's priority "
+            "articles for the full ₹ impact, recommendations and editorial brief."
+        ),
+        # Light articles never carry a ₹ figure — full cascade only runs on
+        # the 3 critical. Mark explicitly so the UI shows no exposure chip.
+        "financial_exposure": {
+            "kind": "light",
+            "source": "not_computed",
+            "label": "Full ₹ analysis runs on the day's 3 priority articles.",
+        },
+        "warning": None,
+    }
+    return {
+        "what_changed": what_changed,
+        "why_it_matters": why_it_matters,
+        "what_it_triggers": _build_what_it_triggers(result, None),
+        "what_to_watch": _build_what_to_watch(result, None),
+        "methodology": {},
+        "tier": "light",
+    }
+
+
 def split_analysis(unified: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
     """Split the unified 4-bullet payload into industry-shared + per-company.
 

@@ -16,6 +16,7 @@ import os
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
@@ -283,6 +284,63 @@ def run_morning_digest_job() -> None:
         logger.info("scheduler: morning digest -> %s", result)
     except Exception as exc:  # noqa: BLE001
         logger.exception("scheduler: morning digest failed: %s", exc)
+
+
+def run_weekly_deck_refresh_job() -> dict[str, Any]:
+    """Phase 48.I — weekly Sunday deck refresh + newsletter.
+
+    For every active company:
+      1. Fetch fresh ESG news (ONE NewsAPI.ai call, last 30 days).
+      2. build_company_deck → 3 critical (full + Opus approval) + 7 light.
+      3. Send the weekly Morning-Brew newsletter to active subscribers
+         (gated by SNOWKAP_NEWSLETTER_ENABLED=1).
+
+    Idempotent: dedup + the 30-day freshness gate keep NewsAPI.ai token
+    spend low (only net-new articles cost tokens/LLM). Postgres-only.
+
+    Returns a per-company summary dict for the scheduler_state log.
+    """
+    summary: dict[str, Any] = {"companies": 0, "refreshed": 0, "newsletters_sent": 0, "errors": []}
+    try:
+        from engine.db.connection import is_postgres
+        if not is_postgres():
+            logger.error("weekly refresh: not on Postgres — skipping")
+            summary["errors"].append("not_postgres")
+            return summary
+
+        from engine.config import load_companies
+        from engine.ingestion.news_fetcher import fetch_for_company
+        from engine.analysis.deck_builder import build_company_deck
+
+        companies = load_companies()
+        summary["companies"] = len(companies)
+        newsletter_enabled = os.environ.get("SNOWKAP_NEWSLETTER_ENABLED", "").strip() == "1"
+
+        for company in companies:
+            try:
+                fresh = fetch_for_company(company, max_per_query=18)
+                deck = build_company_deck(company, fresh, n_critical=3, n_total=10)
+                if (deck.critical_published + deck.light_published) > 0:
+                    summary["refreshed"] += 1
+                logger.info("weekly refresh: %s -> %s", company.slug, deck.to_dict())
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("weekly refresh failed for %s: %s", company.slug, exc)
+                summary["errors"].append(f"{company.slug}: {type(exc).__name__}")
+                continue
+
+            if newsletter_enabled:
+                try:
+                    from engine.output.weekly_brief import send_weekly_brief_to_subscribers
+                    r = send_weekly_brief_to_subscribers(company.slug)
+                    summary["newsletters_sent"] += int(r.get("sent", 0))
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("weekly newsletter send failed for %s: %s", company.slug, exc)
+
+        logger.info("weekly refresh DONE: %s", summary)
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("weekly refresh job crashed: %s", exc)
+        summary["errors"].append(f"crash: {type(exc).__name__}")
+    return summary
 
 
 def run_promote_job() -> None:

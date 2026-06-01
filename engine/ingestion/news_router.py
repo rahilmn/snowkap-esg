@@ -255,13 +255,16 @@ class NewsRouter:
         *,
         fallback_reason: str | None = None,
     ) -> FetchResult:
-        """Tier 2: Google News RSS — headline only, free."""
-        from engine.ingestion.news_fetcher import fetch_google_news
+        """Tier 2: Phase 48.A — Google News RSS removed. NewsAPI.ai is the
+        sole source now, so the Tier-2 fallback fetches via NewsAPI.ai too.
+        Kept as a separate tier only so the budget/metrics labels stay stable.
+        """
+        from engine.ingestion.news_fetcher import fetch_newsapi_ai
 
         all_articles: list[dict] = []
         for query in queries:
             try:
-                got = fetch_google_news(query, max_results=articles_per_query)
+                got = fetch_newsapi_ai(query, max_results=articles_per_query)
             except Exception as exc:  # noqa: BLE001
                 logger.warning(
                     "tier2 fetch failed for %s / %s: %s", slug, query, exc

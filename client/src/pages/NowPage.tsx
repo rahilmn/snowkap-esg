@@ -163,7 +163,15 @@ export function NowPage() {
         summary: "",
         source: a.source || "",
         url: a.url,
-        image_url: "",
+        // Phase 48.E — hero image. NewsAPI.ai supplies metadata.image_url,
+        // which the writer stamps into shared_analysis/personalised_analysis
+        // (article_pool has no dedicated image column). Read it through here
+        // so SwipeCard's `article.image_url` overlay actually renders —
+        // previously this was hardcoded "" and hero images never showed.
+        image_url:
+          (sharedAnalysis.image_url as string) ||
+          (personalisedAnalysis.image_url as string) ||
+          "",
         published_at: a.published_at,
         company_id: feedQuery.data?.company_slug || "",
         company_slug: feedQuery.data?.company_slug || "",

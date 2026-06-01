@@ -245,7 +245,20 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
           padding: "20px 20px 18px",
           background: categoryTint(category),
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+          {/* Phase 48.E — hero image overlay (NewsAPI.ai supplies it).
+              Mirrors SwipeCard's multiply-blend treatment so the headline
+              stays readable over the photo. */}
+          {article.image_url && (
+            <div
+              style={{
+                position: "absolute", inset: 0,
+                mixBlendMode: "multiply", opacity: 0.5,
+                backgroundImage: `url(${article.image_url})`,
+                backgroundSize: "cover", backgroundPosition: "center",
+              }}
+            />
+          )}
+          <div style={{ position: "relative", display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
             <span style={{
               background: "rgba(255,255,255,0.92)",
               padding: "5px 10px", borderRadius: 999,

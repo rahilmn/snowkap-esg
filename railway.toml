@@ -7,20 +7,29 @@
 #   3. railway up
 #   4. Set env vars via the Railway dashboard:
 #        SNOWKAP_ENV=production
+#        SNOWKAP_DB_BACKEND=postgres            # required (Phase 48.0 — SQLite hard-disabled)
+#        SUPABASE_DATABASE_URL=postgresql://... # required
 #        JWT_SECRET=<32+ chars>
 #        REQUIRE_SIGNED_JWT=1
 #        SNOWKAP_API_KEY=<random>
-#        OPENAI_API_KEY=sk-proj-...
+#        OPENROUTER_API_KEY=<openrouter key>    # Opus 4.6 + Perplexity routing
+#        OPENAI_API_KEY=sk-proj-...             # direct fallback
 #        RESEND_API_KEY=re_...
 #        SNOWKAP_FROM_ADDRESS=Snowkap ESG <newsletter@snowkap.co.in>
-#        NEWSAPI_AI_KEY=<uuid>
+#        NEWSAPI_AI_KEY=<uuid>                  # sole news source (Phase 48.A)
+#        SNOWKAP_INPROCESS_SCHEDULER=1          # Sunday refresh + newsletter cron
+#        SNOWKAP_NEWSLETTER_ENABLED=1           # weekly Morning-Brew email
+#        SNOWKAP_CORS_ORIGINS=https://app.snowkap.com
 
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "./Dockerfile"
 
 [deploy]
-startCommand = "uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 2"
+# Phase 48 — single worker. The in-process APScheduler (Sunday refresh +
+# newsletter) and the rdflib SPARQL lock both assume one process; --workers 2
+# would double-fire the weekly cron (duplicate newsletters).
+startCommand = "uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
