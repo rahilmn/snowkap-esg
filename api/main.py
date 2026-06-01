@@ -266,6 +266,16 @@ async def _global_500_logger(request: Request, exc: Exception) -> JSONResponse:
 @app.on_event("startup")
 def _startup() -> None:
     ensure_schema()
+    # Phase 49.3 — ensure the newsletter_subscribers table exists at boot.
+    # Login auto-subscribe (legacy_adapter._mint_login_response) + the weekly
+    # Morning-Brew cron both depend on it; it was never created on the live
+    # Supabase DB, so auto-subscribe was silently failing. Idempotent
+    # CREATE TABLE IF NOT EXISTS — safe on every boot.
+    try:
+        from engine.models import newsletter_subscribers
+        newsletter_subscribers.ensure_schema()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("newsletter_subscribers.ensure_schema failed: %s", exc)
     _configure_structlog()
     _check_production_env()  # raises RuntimeError in prod if secrets missing
 

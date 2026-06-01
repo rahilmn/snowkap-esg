@@ -123,12 +123,12 @@ export function SwipeDeck({ articles, bookmarked, onBookmarkToggle, onOpen }: Pr
       }}>
         <div style={{ fontSize: 32 }}>🌱</div>
         <div style={{ fontSize: 15, color: "#0F172A", fontWeight: 600 }}>
-          Setting up your Now feed
+          Monitoring ESG news
         </div>
         <div style={{ fontSize: 13, lineHeight: 1.5, maxWidth: 280 }}>
-          Our pipeline is fetching ESG news for your company across 47
-          themes. Your top 3 critical articles will land here in
-          ~5&ndash;7 minutes.
+          We&rsquo;re scanning ESG and sustainability coverage across 47
+          themes for your company. Critical developments will appear here
+          as they break.
         </div>
         <div style={{ fontSize: 11, color: "#94A3B8", marginTop: 4 }}>
           This page auto-refreshes every 90 seconds.

@@ -449,6 +449,12 @@ def fetch_newsapi_ai_for_company(
     concept_uri = str(cal.get("news_concept_uri") or "").strip()
     aliases = [a.strip() for a in (cal.get("news_aliases") or [])
                if isinstance(a, str) and a.strip()]
+    # Phase 49.3 — `news_no_esg_filter` drops the ESG-term AND-clause for a
+    # tenant whose genuine coverage is real but NOT ESG-tagged (a boutique AMC
+    # whose only news is its own fund activity). Identity-only query so the
+    # deck isn't empty; the cards are genuine company news (just light-tier,
+    # low ESG materiality). Off by default — set explicitly per tenant.
+    no_esg_filter = bool(cal.get("news_no_esg_filter"))
     if concept_uri:
         identity_clause: dict[str, Any] = {"conceptUri": concept_uri}
     elif aliases and not strict_title:
@@ -457,13 +463,13 @@ def fetch_newsapi_ai_for_company(
         identity_clause = {"keyword": keyword}
         if strict_title:
             identity_clause["keywordLoc"] = "title"
+    and_clauses: list[dict[str, Any]] = [identity_clause]
+    if not no_esg_filter:
+        and_clauses.append({"$or": [{"keyword": kw} for kw in esg_terms]})
+    and_clauses.append({"lang": "eng"})
     complex_query: dict[str, Any] = {
         "$query": {
-            "$and": [
-                identity_clause,
-                {"$or": [{"keyword": kw} for kw in esg_terms]},
-                {"lang": "eng"},
-            ],
+            "$and": and_clauses,
             "dateStart": date_start,
             "dateEnd": date_end,
         },
@@ -591,6 +597,12 @@ _MARKET_ROUNDUP_MARKERS = (
     "stock price today", "stock picks", "stocks today", "stock offers better",
     "bullish view", "bearish view", "retains buy", "reiterates buy",
     "share price target at", "stock to buy or",
+    # Phase 49.3 — index / m-cap / commodity market recaps that name the company
+    # only as one of many (surfaced when the title-lock is dropped for the banks)
+    "stock market recap", "market recap", "mcap of", "m-cap of",
+    "valued firms", "lakh crore in value", "crore in value", "erodes by",
+    "biggest gainers", "biggest losers", "top-10 firms", "top 10 firms",
+    "top-10 valued", "gold price", "sensex", "nifty", "market cap of",
 )
 
 
@@ -783,6 +795,15 @@ def _is_article_about_company(title: str, body: str, company: Company) -> bool:
     import re
 
     variants = _company_name_variants(company.name or "")
+    # Phase 49.3 — also accept seeded `news_aliases` (e.g. a boutique AMC + its
+    # founder: "Madhusudan Kela" IS Singularity AMC's fund). Lets genuine
+    # founder/fund-activity articles attach to a tenant whose legal name rarely
+    # appears in headlines, without loosening the guard for tenants that have
+    # no aliases. The roundup guard still drops the "N stocks" list articles.
+    cal = getattr(company, "primitive_calibration", None) or {}
+    for alias in (cal.get("news_aliases") or []):
+        if isinstance(alias, str) and alias.strip():
+            variants.extend(_company_name_variants(alias))
     if not variants:
         return True  # no guard possible, let it through
 
