@@ -508,6 +508,22 @@ def _build_user_prompt(
     article = (insight.get("article") if isinstance(insight, dict) else {}) or {}
     body = (article.get("content") or "")[:1500]
 
+    # Phase 50 — extract the ACTUAL ₹/$/€ figures from the article body and
+    # hand them to the LLM as the ONLY monetary figures it may cite. This lets
+    # the lede cite a real number ("Rs 4,000 crore QIP") confidently instead of
+    # defaulting to the no-₹ template, while the post-gen money-grounding
+    # verifier still rejects anything invented.
+    article_money = ""
+    try:
+        from engine.analysis.article_financials import extract_money_phrases
+        phrases = extract_money_phrases(article.get("content") or "")
+        if phrases:
+            article_money = "; ".join(phrases)
+    except Exception:  # noqa: BLE001
+        pass
+    # Prefer the article's own figures; fall back to a grounded exposure label.
+    money_line = article_money or exposure_str or "none in article body"
+
     return f"""\
 PATTERN: {pattern}
 COMPANY: {company}
@@ -516,7 +532,7 @@ POLARITY: {polarity}
 HEADLINE: {headline}
 SOURCE: {source}
 DATE: {published}
-₹ FIGURE (only if quoted in the article): {exposure_str or "none in article body"}
+ARTICLE ₹/$/€ FIGURES (the ONLY monetary figures you may cite): {money_line}
 PEER COMPARABLES: {peers_str or "none"}
 
 ARTICLE BODY EXCERPT:
@@ -806,11 +822,23 @@ def _verify_lede(text: str, article_body: str = "",
         if len(soft) > 2:
             return False, f"too_many_soft_violations_{len(soft)}"
 
-    # Phase 40.A — article-body grounding
+    # Phase 40.A — article-body grounding (proper nouns)
     if article_body:
         grounded, ungrounded = _is_grounded_in_article(text, article_body, company_name)
         if not grounded:
             return False, f"ungrounded_entities:{','.join(ungrounded[:3])}"
+
+    # Phase 50 — ₹-figure grounding. The proper-noun check above does NOT catch
+    # monetary figures, so an LLM-invented or cascade-leaked ₹ ("₹17 Cr earnings
+    # upside") passed verification and got the whole critical rejected by the
+    # approval gate. Reject any lede that cites a ₹ figure absent from the
+    # article body — the deterministic template fallback (which omits engine-
+    # estimate ₹ via _grounded_rupees) then produces a grounded, approvable lede.
+    if article_body:
+        from engine.analysis.article_financials import money_grounded
+        money_ok, ungrounded_money = money_grounded(text, article_body)
+        if not money_ok:
+            return False, f"ungrounded_money:{','.join(ungrounded_money[:3])}"
 
     return True, ""
 

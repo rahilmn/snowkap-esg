@@ -148,7 +148,15 @@ def _build_review_prompt(
     wim = a.get("why_it_matters") or {}
     summary = wim.get("criticality_summary") or ""
     stakes = wim.get("stakes_for_company") or ""
-    exposure = (wim.get("financial_exposure") or {}).get("label") or ""
+    _exp = wim.get("financial_exposure") or {}
+    exposure = _exp.get("label") or ""
+    # Phase 50 — an engine-estimate ₹ chip is a SCENARIO model output, not a
+    # claim that the article quoted the figure. Label it as such so the reviewer
+    # judges the editorial PROSE (lede / what-changed / why) for grounding and
+    # does NOT reject the analysis merely because this clearly-tagged estimate
+    # isn't in the article body.
+    _exp_src = (_exp.get("source") or "").lower()
+    _exp_is_estimate = _exp_src in ("engine_estimate", "primitive_engine", "suppressed", "not_computed")
 
     rec_lines: list[str] = []
     recs = []
@@ -171,7 +179,15 @@ def _build_review_prompt(
         f"What changed: {wc}",
         f"Why it matters: {summary}",
         f"Stakes: {stakes}",
-        f"Financial exposure shown: {exposure or '(none)'}",
+        (
+            f"Financial exposure shown: {exposure} "
+            "[ENGINE SCENARIO ESTIMATE — a model projection, NOT a claim the "
+            "article quoted this figure. Do NOT reject the analysis solely "
+            "because this estimate is absent from the article; judge the lede / "
+            "what-changed / why-it-matters PROSE for grounding instead.]"
+            if (exposure and _exp_is_estimate)
+            else f"Financial exposure shown: {exposure or '(none)'}"
+        ),
         "Recommendations:",
         *(rec_lines or ["(none)"]),
     ]

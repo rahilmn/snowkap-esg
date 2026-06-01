@@ -52,6 +52,26 @@ def _build_what_changed(result: Any, insight: Any) -> dict[str, Any]:
     if not headline and result is not None:
         headline = (getattr(result, "title", "") or "")[:240]
 
+    # Phase 50 — ₹-ground the headline. The Stage-10 LLM sometimes injects a
+    # synthetic cascade ₹ ("ICICI Bank: ₹17 Cr earnings upside") into the
+    # headline that the article never quotes — the approval gate then rejects
+    # the whole critical citing "the what-changed section attributes a ₹ figure
+    # not present in the article". When the LLM headline carries an ungrounded ₹,
+    # fall back to the genuine article TITLE (grounded by definition); if the
+    # title itself is unavailable, strip the ₹ clause.
+    if headline and result is not None:
+        body = (getattr(result, "article_content", "") or getattr(result, "content", "") or "")
+        if body:
+            try:
+                from engine.analysis.article_financials import money_grounded, strip_money_clauses
+                ok, _ung = money_grounded(headline, body)
+                if not ok:
+                    title = (getattr(result, "title", "") or "").strip()
+                    title_ok = money_grounded(title, body)[0] if title else False
+                    headline = title[:240] if (title and title_ok) else (strip_money_clauses(headline)[:240] or title[:240])
+            except Exception:  # noqa: BLE001 — grounding must never break the composer
+                pass
+
     return {
         "headline": headline,
         "event_type": event_type,
