@@ -22,7 +22,7 @@ interface UnifiedAnalysis {
   why_it_matters?: {
     materiality_band?: string;
     criticality_summary?: string;
-    financial_exposure?: { amount_cr?: number; label?: string };
+    financial_exposure?: { amount_cr?: number; label?: string; kind?: string; source?: string };
   };
   headline_only?: boolean;
   body_char_count?: number;
@@ -104,11 +104,15 @@ function _metric(article: Article): { label: string; value: string } | null {
   const di = article.deep_insight as { analysis?: UnifiedAnalysis } | undefined;
   const exposure = di?.analysis?.why_it_matters?.financial_exposure;
   if (!exposure) return null;
+  // Phase 47.R — non-financial event: hide the exposure chip entirely
+  // on the deck card. Earlier we showed "₹16.9 Cr (engine estimate)"
+  // on articles whose body had no monetary content — misleading at
+  // the deck-card glance density. Better to show no chip than a
+  // fabricated figure.
+  if (exposure.kind === "non_financial_event") {
+    return null;
+  }
   const label = "Exposure";
-  // Prefer the clean numeric form — backend labels can be verbose
-  // ("₹194.1 Cr total community impact exposure (engine estimate)")
-  // and overflow the SwipeCard footer. The deck shows just the figure;
-  // the full descriptive label lives in ArticleSheet.
   let value = "";
   if (exposure.amount_cr != null) {
     value = `~₹${Number(exposure.amount_cr).toLocaleString("en-IN")} Cr`;

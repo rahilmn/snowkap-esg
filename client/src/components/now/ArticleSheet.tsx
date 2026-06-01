@@ -33,7 +33,7 @@ interface UnifiedAnalysis {
     materiality_band?: string;
     criticality_summary?: string;
     stakes_for_company?: string;
-    financial_exposure?: { amount_cr?: number; label?: string };
+    financial_exposure?: { amount_cr?: number; label?: string; kind?: string; source?: string };
   };
   what_it_triggers?: {
     recommended_actions?: Array<{
@@ -154,8 +154,17 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   const wim = analysis?.why_it_matters;
   const band = (wim?.materiality_band || article.criticality_band || "MEDIUM").toString().toUpperCase() as "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
   const pill = pillTokens(band);
-  const exposureLabel = wim?.financial_exposure?.label
-    || (wim?.financial_exposure?.amount_cr ? `~₹${wim.financial_exposure.amount_cr.toLocaleString("en-IN")} Cr` : "");
+  // Phase 47.R — non-financial event: render a low-key honest note,
+  // not a fabricated ₹ figure. The backend suppresses engine_estimate
+  // amounts when the article body has no monetary content; the UI
+  // shouldn't try to backfill a number from elsewhere either.
+  const exposureKind = wim?.financial_exposure?.kind;
+  const exposureLabel = exposureKind === "non_financial_event"
+    ? "No direct ₹ exposure in article"
+    : (wim?.financial_exposure?.label
+      || (wim?.financial_exposure?.amount_cr
+        ? `~₹${wim.financial_exposure.amount_cr.toLocaleString("en-IN")} Cr`
+        : ""));
 
   // Narrative paragraphs — deterministic from Phase 32's analysis fields.
   const stakes = (wim?.stakes_for_company || "").trim();

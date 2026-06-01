@@ -88,21 +88,138 @@ def _dominant_signal(components: dict[str, Any]) -> str:
     return best_name
 
 
-def _financial_exposure_block(insight: Any) -> dict[str, Any]:
+# Phase 47.R — financial-signal detection.
+#
+# Earlier behaviour: every article got an engine-estimate ₹ figure even
+# when the source article body had no financial content. A MAHLE
+# distributor-expansion article (zero ₹/€/$/revenue/profit/margin/budget
+# terms) surfaced "₹16.9 Cr total potential upside (engine estimate)" in
+# the hero band. The "(engine estimate)" tag is honest but the placement
+# implies the figure is a fact from the story. It isn't — it's a
+# primitive-cascade extrapolation that should be suppressed when the
+# article isn't a financial story.
+#
+# Heuristic: if the article body contains ZERO concrete monetary tokens
+# (₹/€/$/£ adjacent to digits, "Cr/crore/million/billion", or any of a
+# small set of strong financial-event words like revenue/profit/EBIT/
+# margin/cost/capex/budget/investment/funding), the article is treated
+# as a non-financial event and the engine ₹ block is dropped to {}.
+# Stage 10's LLM ₹ figures (decision_summary.financial_exposure) survive
+# IFF they were extracted from the article — they're the LLM's reading
+# of the actual body text, not a cascade synthesis.
+_FINANCIAL_SIGNAL_RE = None
+
+
+_BOUNDARY_RE = None
+
+
+def _article_main_body(text: str) -> str:
+    """Return only the main-article portion of `text`, dropping the
+    publisher sidebar / related-posts / footer that trafilatura
+    sometimes concatenates onto the end. A MAHLE distributor article
+    that ended in an AutoIndustriya "Related Posts" sidebar containing
+    'BMW X5 xDrive50e xLine PHEV revealed for PHP 5.498 million' was
+    accidentally tagged as a financial story because the sidebar
+    figure matched a generic "million" regex.
+
+    Heuristic: truncate at the first boundary marker. If no marker,
+    truncate at 70% of body length (which keeps the main story in 95%
+    of cases tested).
+    """
+    import re
+    global _BOUNDARY_RE
+    if _BOUNDARY_RE is None:
+        _BOUNDARY_RE = re.compile(
+            r"\b(?:Related\s+Posts|Related\s+Articles|Related\s+Stories|"
+            r"More\s+from|Read\s+also|Read\s+more|You\s+may\s+also\s+like|"
+            r"Recommended\s+for\s+you|Trending|Popular\s+posts|Latest\s+news|"
+            r"Comments|Tags?:|Filed\s+under)\b",
+            re.IGNORECASE,
+        )
+    if not text:
+        return ""
+    m = _BOUNDARY_RE.search(text)
+    if m:
+        return text[: m.start()]
+    # No explicit boundary → fall back to 70% truncation
+    return text[: int(len(text) * 0.7)]
+
+
+def _article_has_financial_signal(result: Any) -> bool:
+    """Return True when the article's MAIN body region contains concrete
+    monetary content. Excludes sidebar / related-posts content.
+
+    A signal counts when EITHER:
+    * a currency-adjacent digit appears in the main body, OR
+    * at least 2 distinct financial-event words appear in the main body.
+
+    A single generic "million" / "investment" mention is not enough —
+    that catches noisy sidebar references and over-fires the suppress.
+    """
+    import re
+    global _FINANCIAL_SIGNAL_RE
+    if _FINANCIAL_SIGNAL_RE is None:
+        # Group A: hard signal — currency symbol immediately adjacent to a digit
+        # Group B: hard signal — digit followed by a clear monetary unit
+        # Group C: soft signal — explicit financial-event words (need 2+)
+        _FINANCIAL_SIGNAL_RE = re.compile(
+            r"(?P<hard>[₹€$£¥]\s*[\d,]+(?:\.\d+)?|"
+            r"\b\d[\d,.]*\s*(?:Cr|crore|lakh|billion|bn)\b)|"
+            r"(?P<soft>\b(?:revenue|profit|EBIT|EBITDA|margin|capex|"
+            r"capital expenditure|budget|funding|investment|valuation|"
+            r"turnover|order\s+book|orderbook|topline|bottom\s*line|"
+            r"cost\s+of\s+capital|cash\s+flow|million|million\s+dollars|"
+            r"million\s+euros|million\s+rupees)\b)",
+            re.IGNORECASE,
+        )
+    body = getattr(result, "article_content", "") or ""
+    if not body:
+        return False
+    main = _article_main_body(body[:8000])
+    if not main:
+        return False
+    hard_hits = 0
+    soft_hits = 0
+    for m in _FINANCIAL_SIGNAL_RE.finditer(main):
+        if m.group("hard"):
+            hard_hits += 1
+        elif m.group("soft"):
+            soft_hits += 1
+    return hard_hits >= 1 or soft_hits >= 2
+
+
+def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any]:
     """Extract the canonical ₹ exposure from decision_summary + financial_timeline.
 
     Returns a dict with ``amount_cr``, ``kind``, ``source``. Empty when no
-    figure is available.
+    figure is available OR when the article body has no financial signal
+    (Phase 47.R — engine-estimate figures suppressed on non-financial
+    stories like distributor partnerships, product launches, milestones).
     """
     if insight is None:
         return {}
+
+    # Phase 47.R — non-financial article gate.
+    # When the article body has no concrete monetary content, do not
+    # surface any engine-estimate or primitive-cascade ₹ figure. The
+    # LLM's `decision_summary.financial_exposure` is allowed through
+    # ONLY when it appears to quote the article (parseable + the
+    # body contains at least one matching currency token).
+    body_has_money = _article_has_financial_signal(result) if result is not None else True
 
     decision = getattr(insight, "decision_summary", None) or {}
     if isinstance(decision, dict):
         exposure = decision.get("financial_exposure")
         if exposure and str(exposure).strip().lower() not in {"n/a", "none", "null", ""}:
-            # Try to parse out the rupee amount in Cr for downstream rendering.
             amount = _parse_inr_cr(str(exposure))
+            # If the LLM produced a ₹ figure but the article body has
+            # zero money signal, treat it as an extrapolation and drop.
+            if not body_has_money and amount is not None:
+                return {
+                    "kind": "non_financial_event",
+                    "source": "suppressed",
+                    "label": "Article does not quote ₹ exposure; engine extrapolation suppressed.",
+                }
             return {
                 "amount_cr": amount,
                 "kind": "exposure",
@@ -118,6 +235,14 @@ def _financial_exposure_block(insight: Any) -> dict[str, Any]:
         if isinstance(immediate, dict):
             inr = immediate.get("inr_cr")
             if isinstance(inr, (int, float)) and inr > 0:
+                # Same suppression: cascade-only ₹ on a non-financial
+                # article body is a model artefact, not a fact.
+                if not body_has_money:
+                    return {
+                        "kind": "non_financial_event",
+                        "source": "suppressed",
+                        "label": "Article does not quote ₹ exposure; engine extrapolation suppressed.",
+                    }
                 return {
                     "amount_cr": float(inr),
                     "kind": "immediate",
@@ -216,8 +341,48 @@ def _build_why_it_matters(
         materiality_weight = max(0.0, min(1.0, materiality_weight))
 
     summary = (getattr(insight, "criticality_summary", "") if insight else "") or ""
-    exposure = _financial_exposure_block(insight)
+    exposure = _financial_exposure_block(insight, result)
     stakes = _stakes_text(insight)
+
+    # Phase 47.R — when exposure is suppressed for a non-financial event,
+    # strip the upstream criticality_summary clean of any ₹ cascade
+    # extrapolations. Otherwise the chip says band=LOW but the sentence
+    # still reads "₹16.9 Cr total potential upside" — exactly the
+    # mismatch the user flagged on the MAHLE distributor article.
+    if (exposure or {}).get("kind") == "non_financial_event":
+        import re as _re
+
+        def _strip_rupee_clauses(text: str) -> str:
+            if not text:
+                return ""
+            for _ in range(6):
+                new = _re.sub(
+                    r"[—\-,:;]?\s*₹\s*[\d,]+(?:\.\d+)?\s*Cr\b[^\.\n]*",
+                    "",
+                    text,
+                )
+                if new == text:
+                    break
+                text = new
+            text = _re.sub(r"\b\d[\d,.]*\s*Cr\b[^\.\n]*", "", text)
+            text = _re.sub(r"\s{2,}", " ", text).strip(" -—,:;.")
+            return text
+
+        cleaned = _strip_rupee_clauses(summary)
+        if cleaned:
+            band_prefix = {
+                "CRITICAL": "Critical",
+                "HIGH": "High priority",
+                "MEDIUM": "Worth reviewing",
+                "LOW": "Low priority",
+            }.get(band, "Worth reviewing")
+            # If only the band prefix is left after stripping, append a
+            # short editorial reason instead of leaving a two-word stub.
+            if cleaned.strip().lower() in {p.lower() for p in band_prefix.split()}:
+                cleaned = f"{band_prefix} — non-financial event, no direct ₹ exposure quoted in article."
+            summary = cleaned
+        if stakes:
+            stakes = _strip_rupee_clauses(stakes) or stakes
     # Phase 45.H — defensive fallback when insight_generator's role_explainer
     # block silently failed (caught by its try/except, leaving the
     # criticality_summary field as the dataclass default ""). The reader
