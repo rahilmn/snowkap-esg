@@ -481,13 +481,14 @@ def _build_user_prompt(
     source = what_changed.get("source") or ""
     published = what_changed.get("published_at") or ""
     exposure = why.get("financial_exposure") or {}
-    amount_cr = exposure.get("amount_cr")
-    exposure_str = _format_rupees(amount_cr) or ""
-    frameworks = triggers.get("frameworks") or []
-    fw_codes = ", ".join(
-        str((f or {}).get("code") or "") for f in frameworks[:3]
-        if isinstance(f, dict) and (f or {}).get("code")
-    )
+    # Phase 48 — only pass an ARTICLE-GROUNDED ₹ to the LLM. Passing the
+    # engine-estimate cascade figure (mislabelled "article-grounded") made
+    # the LLM cite it as a fact → approval rejection.
+    exposure_str = _grounded_rupees(exposure)
+    # Phase 48 — do NOT feed engine-derived framework TRIGGERS to the lede.
+    # The LLM wove them into "the company already reports under BRSR/TCFD",
+    # a reporting-status claim the article never makes → approval rejection.
+    # Frameworks live in the WHAT IT TRIGGERS bullet, not the editorial hook.
 
     # EvidencePack peer comparables (when contrast pattern fired)
     peers_str = ""
@@ -515,8 +516,7 @@ POLARITY: {polarity}
 HEADLINE: {headline}
 SOURCE: {source}
 DATE: {published}
-₹ FIGURE (article-grounded): {exposure_str or "none in article body"}
-FRAMEWORK CITATIONS: {fw_codes or "none"}
+₹ FIGURE (only if quoted in the article): {exposure_str or "none in article body"}
 PEER COMPARABLES: {peers_str or "none"}
 
 ARTICLE BODY EXCERPT:
@@ -524,8 +524,17 @@ ARTICLE BODY EXCERPT:
 
 Write the editorial lede now. Return ONLY the lede prose — no prefixes,
 no "Here is the lede:", no markdown. 2-3 sentences, ≤60 words. Open with
-a named entity (regulator / peer / ₹ / date). End with implication. No
-engine scores. Mint editorial register."""
+a named entity from the article (company / regulator / peer / date). End
+with implication.
+
+HARD GROUNDING RULES (violating any = the lede gets rejected):
+- Use ONLY facts present in the ARTICLE BODY EXCERPT above.
+- Do NOT claim the company "reports under", "is scrutinized by", or "has
+  commitments to" any framework (BRSR, GRI, TCFD, CDP, ESRS, SBTi, EU
+  Taxonomy) unless the article body explicitly says so.
+- Do NOT cite any ₹/$/€ figure unless it appears in the article body.
+- Do NOT invent peer deals, prior events, or engine scores.
+Mint editorial register."""
 
 
 _LEDE_SYSTEM_PROMPT_BASE = """\
