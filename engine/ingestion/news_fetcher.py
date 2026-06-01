@@ -619,6 +619,18 @@ def _is_market_roundup(title_lower: str) -> bool:
         return True
     if re.search(r"\bstocks?\s+(?:that|to|in which|for)\b", title_lower):
         return True
+    # Phase 50 — "X vs Y: Which Renewable Energy Stock Can ..." stock-comparison
+    # roundups (the "Suzlon vs JSW" card) + "should you buy/sell" investment-
+    # advice framings. The earlier "stock offers better" marker missed the
+    # "which ... stock can" variant.
+    if re.search(r"\bwhich\b[^.]{0,40}\bstock", title_lower):
+        return True
+    if (" vs " in title_lower or " vs. " in title_lower) and (
+        "stock" in title_lower or "share" in title_lower
+    ):
+        return True
+    if re.search(r"\bshould\s+(?:you|i|investors?)\b.*\b(buy|sell|invest|book)\b", title_lower):
+        return True
     return False
 
 
