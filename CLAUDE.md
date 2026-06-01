@@ -5,6 +5,32 @@
 > [`docs/CHANGELOG.md`](docs/CHANGELOG.md). Read that file for the chronology;
 > read this one for what's true today.
 
+> **Phase 48 update — 2026-06-01 (NewsAPI.ai-only relaunch on Railway).**
+> Material changes since the Phase 46 rebuild below:
+> - **News source: NewsAPI.ai ONLY.** Google News RSS + `googlenewsdecoder`
+>   + `trafilatura` full-text backfill are removed. One complex EventRegistry
+>   query per company (company-in-title AND any ESG term, `dateStart`=30d)
+>   returns full bodies + hero images. `engine/ingestion/news_fetcher.py::
+>   fetch_newsapi_ai_for_company`. ~18 tokens/company.
+> - **Tier gate is BACK (clean).** The deck is **3 critical** (full Stage
+>   10-12 + lede + Opus approval) + **7 light** (Stages 1-9 only — a valid
+>   `build_light_analysis` card, no lede/recs/₹). Orchestrated by
+>   `engine/analysis/deck_builder.py::build_company_deck` (shared by onboard
+>   v3 AND the Sunday cron). This REVERSES old rule #5 — see §12.
+> - **Approval LLM (Opus 4.6).** `engine/analysis/approval_gate.py` reviews
+>   every critical article's analysis against the source body before display.
+>   Rejected criticals are DEMOTED to the light tier (never shown with their
+>   fabricated lede/recs). Backfill capped at `n_critical+3` pipeline runs.
+> - **Hero images** flow via `shared_analysis.image_url` (no migration).
+> - **Postgres ONLY, hard.** SQLite raises unless `SNOWKAP_ALLOW_SQLITE=1`
+>   (tests only). Enforced at boot in every env.
+> - **Hosting: Railway** (`Dockerfile` + `railway.toml`, 1 worker). Replit
+>   artifacts removed.
+> - **Weekly Sunday cron** (`run_weekly_deck_refresh_job`) + **Morning-Brew
+>   newsletter** to auto-subscribed users (`SNOWKAP_NEWSLETTER_ENABLED=1`).
+> - Relaunch scripts: `scripts/relaunch_clean_slate.py`,
+>   `scripts/reonboard_nine.py`.
+
 ---
 
 ## 1. What Snowkap is
@@ -314,15 +340,20 @@ Hard rules. Violating any of these is a P0:
 4. **No new code paths in onboarding without removing an old one.** v3 is the
    one onboarding flow. v2 stays for back-compat reads but no new feature lands
    there.
-5. **No tier gates.** Every analysed article gets Stage 10/11/12 + lede.
-   Selective Stage 10 (tier=HOME) is the root cause of the Phase 45 validation
-   loop and is GONE from the v3 path.
-6. **No empty `criticality_summary` or zero-rec article on disk.** The unified
-   analysis contract requires both. The quality gate + deterministic monitor
-   fallback enforce it.
-7. **Postgres only.** SQLite paths exist in the codebase as test fixtures.
-   Production reads/writes go through `engine.db.connection.connect()` which
-   hard-fails if neither backend is configured.
+5. **~~No tier gates.~~ REVERSED in Phase 48.** The deck is now a CLEAN tier
+   gate: 3 critical (full Stage 10-12 + lede + approval) + 7 light (Stages 1-9
+   only). The Phase 45 loop bug was a BLANK `deep_insight` on SECONDARY
+   articles; the Phase 48 light tier instead writes a COMPLETE
+   `build_light_analysis` block (what_changed + banded why_it_matters +
+   frameworks + risks, LOW band, no lede/recs). Tiering lives in
+   `engine/analysis/deck_builder.py`, NOT inside `engine.main._run_article`.
+6. **No empty `criticality_summary` on disk.** Critical articles also need
+   recs (quality gate + monitor fallback). Light articles legitimately have
+   NO recs/lede — that's the tier contract, not a gap.
+7. **Postgres ONLY — hard (Phase 48.0).** `engine.db.connection.connect()`
+   RAISES on the SQLite branch unless `SNOWKAP_ALLOW_SQLITE=1` (tests only).
+   `api/main.py` refuses to boot on a non-postgres backend in every env. No
+   silent SQLite file creation, ever.
 8. **No "Bearer" prefix in `mint_bearer` output.** Caller prepends `Bearer `
    when constructing the `Authorization` header.
 
