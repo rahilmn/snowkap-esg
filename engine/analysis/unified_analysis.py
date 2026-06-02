@@ -556,6 +556,41 @@ def _build_why_it_matters(
     if not stakes or _looks_garbled(stakes):
         stakes = _fallback_stakes(insight, exposure, band)
 
+    # Phase 50.1 — FINAL summary guards, applied regardless of how `summary`
+    # was composed above:
+    #   Fix A: drop any ₹ figure NOT in the article body — kills absurd engine
+    #          estimates like "~₹16 Cr" surfaced for "15.59% of turnover".
+    #   Fix C: if the summary is empty or a bare band prefix (incl. a STALE
+    #          "Low priority" left on a now-MEDIUM card), rebuild a grounded
+    #          one-liner from the article headline using the CURRENT band.
+    _band_prefix_final = {
+        "CRITICAL": "Critical", "HIGH": "High priority",
+        "MEDIUM": "Worth reviewing", "LOW": "Low priority",
+    }.get(band, "Worth reviewing")
+    _body_final = ""
+    if result is not None:
+        _body_final = (getattr(result, "article_content", "")
+                       or getattr(result, "content", "") or "")
+    if summary and _body_final:
+        try:
+            from engine.analysis.article_financials import money_grounded
+            if not money_grounded(summary, _body_final)[0]:
+                summary = ""  # ungrounded ₹ → rebuild cleanly from headline below
+        except Exception:  # noqa: BLE001
+            pass
+    _norm = (summary or "").strip().lower().rstrip(".")
+    _ALL_BAND = {"critical", "high priority", "worth reviewing", "low priority"}
+    if (not _norm) or (_norm in _ALL_BAND) or (_norm in {w for p in _ALL_BAND for w in p.split()}):
+        _topic = (getattr(insight, "headline", "") or "").strip() if insight else ""
+        if not _topic and result is not None:
+            _topic = (getattr(result, "title", "") or "").strip()
+        for _sep in (" — ", " - ", " | ", " : ", ": "):
+            if _sep in _topic:
+                _topic = _topic.split(_sep, 1)[0]
+        _topic = _topic.strip().rstrip(".")[:110]
+        summary = (f"{_band_prefix_final} — {_topic}." if _topic
+                   else f"{_band_prefix_final} — material ESG development for your company.")
+
     return {
         "materiality_band": band,
         "materiality_weight": (

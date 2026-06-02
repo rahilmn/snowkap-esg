@@ -22,7 +22,12 @@ import re
 # number (with thousands separators / decimals) immediately followed by a
 # money unit, optionally prefixed by a currency marker. The unit is REQUIRED so
 # we don't treat "48% in 2026" or "503 employees" as money.
-_UNIT = r"(?:lakh\s+crore|lakh|crore|crores|cr|billion|bn|million|mn|trillion|tn)"
+# Phase 50.1 — order matters: the "lakh crore"/"lakh cr" COMPOUND units must be
+# tried before bare "lakh", else "₹6.5 Lakh Cr" matches only "lakh" (dropping
+# the "Cr") and normalises to a different token than "₹6.5 lakh crore" — a false
+# mismatch that made grounding fail and the strip mangle "₹6.5 Lakh Cr" into
+# "Cr". "lakh crore" == "lakh cr" == one unit (= 100,000 crore).
+_UNIT = r"(?:lakh\s+crores?|lakh\s+cr|lakh|crores?|cr|billion|bn|million|mn|trillion|tn)"
 _MONEY_RE = re.compile(
     rf"(?:₹|rs\.?|inr|\$|usd|us\$|€|eur)?\s*"
     rf"(\d[\d,]*(?:\.\d+)?)\s*({_UNIT})\b",
@@ -30,8 +35,9 @@ _MONEY_RE = re.compile(
 )
 
 _UNIT_CANON = {
-    "lakh crore": "lakhcr", "lakh": "lakh", "crore": "cr", "crores": "cr",
-    "cr": "cr", "billion": "billion", "bn": "billion", "million": "million",
+    "lakh crore": "lakhcr", "lakh crores": "lakhcr", "lakh cr": "lakhcr",
+    "lakh": "lakh", "crore": "cr", "crores": "cr", "cr": "cr",
+    "billion": "billion", "bn": "billion", "million": "million",
     "mn": "million", "trillion": "trillion", "tn": "trillion",
 }
 
