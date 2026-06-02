@@ -37,6 +37,9 @@ dockerfilePath = "./Dockerfile"
 # would double-fire the weekly cron (duplicate newsletters).
 startCommand = "uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+# Cold boot ensures the Supabase schema AND eager-loads the ~8,200-triple
+# rdflib ontology before /health answers; 30s was too tight and tripped the
+# Railway healthcheck. Railway's own default is 300s — match it.
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
