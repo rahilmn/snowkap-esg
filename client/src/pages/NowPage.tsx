@@ -123,7 +123,10 @@ export function NowPage() {
   const feedQuery = useQuery({
     queryKey: ["now-feed", companyId],
     queryFn: () => companyId
-      ? now.feed(companyId, 10, 90)
+      // Phase 50 — max_age_days MUST be <= 30; the endpoint (Phase 47.Q) caps
+      // it at 30 and 422s on anything larger. This hardcoded 90 made EVERY
+      // feed request fail with "Couldn't load the feed" regardless of tenant.
+      ? now.feed(companyId, 10, 30)
       : Promise.resolve({ company_slug: "", industry: "", count: 0, limit: 0, max_age_days: 0, articles: [] }),
     enabled: !!companyId,
     refetchInterval: 90_000,
