@@ -32,10 +32,12 @@ builder = "DOCKERFILE"
 dockerfilePath = "./Dockerfile"
 
 [deploy]
-# Phase 48 — single worker. The in-process APScheduler (Sunday refresh +
-# newsletter) and the rdflib SPARQL lock both assume one process; --workers 2
-# would double-fire the weekly cron (duplicate newsletters).
-startCommand = "uvicorn api.main:app --host 0.0.0.0 --port $PORT --workers 1"
+# Start command lives in the Dockerfile CMD (shell form), NOT here. Railway
+# exec-splits a railway.toml startCommand into argv WITHOUT a shell, so "$PORT"
+# reached uvicorn as a literal string ("'$PORT' is not a valid integer") and the
+# container crash-looped. The Dockerfile shell-form CMD runs via /bin/sh -c,
+# which expands ${PORT:-8000}. It also pins --workers 1 (the in-process
+# APScheduler assumes one process; --workers 2 double-fires the weekly cron).
 healthcheckPath = "/health"
 # Cold boot ensures the Supabase schema AND eager-loads the ~8,200-triple
 # rdflib ontology before /health answers; 30s was too tight and tripped the

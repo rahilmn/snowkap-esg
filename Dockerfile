@@ -71,11 +71,16 @@ EXPOSE 8000
 
 # Healthcheck for the platform
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -fsS http://localhost:8000/health || exit 1
+    CMD curl -fsS http://localhost:${PORT:-8000}/health || exit 1
 
 # Boot:
 #   - Phase 11A signed JWT verification (REQUIRE_SIGNED_JWT=1 in prod)
 #   - Phase 11D structlog + Sentry init at startup
 #   - Phase 13 S3 eager ontology load at startup (fail-fast on bad TTL)
 #   - Phase 13 production env guard (fails-fast on missing secrets)
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--log-level", "info"]
+# Shell-form CMD (NOT JSON exec array) so /bin/sh -c expands ${PORT}. Railway
+# injects PORT at runtime; a railway.toml startCommand can't expand it because
+# Railway exec-splits that into argv without a shell ("'$PORT' is not a valid
+# integer"). Single worker — the in-process APScheduler (Sunday refresh +
+# newsletter) assumes ONE process; --workers 2 double-fires the weekly cron.
+CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --log-level info
