@@ -18,9 +18,13 @@ FROM node:20-alpine AS frontend
 
 WORKDIR /app/client
 
-# Cache npm install layer
+# Cache npm install layer. NOTE: install ALL deps (incl devDependencies) —
+# the build needs `tsc` + `vite`, which live in devDependencies. `--omit=dev`
+# here breaks the build with "tsc: not found". This is the throwaway builder
+# stage; only the compiled `dist/` is copied into the runtime image, so dev
+# deps never reach production.
 COPY client/package.json client/package-lock.json* ./
-RUN npm ci --omit=dev || npm install --omit=dev
+RUN npm ci || npm install
 
 COPY client/ ./
 RUN npm run build
