@@ -83,6 +83,34 @@ def extract_money_phrases(text: str, limit: int = 8) -> list[str]:
     return out
 
 
+# Rough ₹-Crore magnitude per canonical unit (Indian numbering): 1 crore = 100
+# lakh; 1 lakh crore = 100,000 crore; 1 billion ≈ 100 crore; 1 million ≈ 0.1
+# crore. Used only for an order-of-magnitude sanity check (cascade estimate vs
+# the article's own figures), never as a displayed number — so currency
+# approximations are acceptable.
+_TOKEN_CR = {"cr": 1.0, "lakh": 0.01, "lakhcr": 100000.0,
+             "billion": 100.0, "million": 0.1, "trillion": 100000.0}
+
+
+def max_article_cr(text: str) -> float:
+    """Largest ₹-figure in ``text`` expressed in Crore (rough). 0.0 if none.
+
+    Lets a caller detect when a tiny cascade estimate (e.g. ₹2 Cr) is being
+    shown next to an article that quotes a vastly larger figure (₹1.5 lakh
+    crore) — a gross magnitude error worth suppressing.
+    """
+    best = 0.0
+    for m in _MONEY_RE.finditer(text or ""):
+        try:
+            num = float(m.group(1).replace(",", "").rstrip(".") or 0)
+        except ValueError:
+            continue
+        mult = _TOKEN_CR.get(_canon_unit(m.group(2)))
+        if mult:
+            best = max(best, num * mult)
+    return best
+
+
 def money_grounded(claim_text: str, article_body: str) -> tuple[bool, list[str]]:
     """Is every ₹ figure in ``claim_text`` present in ``article_body``?
 

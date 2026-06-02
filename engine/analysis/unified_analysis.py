@@ -208,6 +208,36 @@ def _article_has_financial_signal(result: Any) -> bool:
     return hard_hits >= 1 or soft_hits >= 2
 
 
+def _cascade_dwarfed_by_article(amount_cr: float, result: Any) -> bool:
+    """Phase 50.1 (Fix D) — True when the engine's cascade ₹ estimate is at
+    least 50x SMALLER than the largest ₹ figure the article itself quotes
+    (e.g. ~₹2 Cr cascade vs a ₹1.5 lakh crore article = a gross magnitude
+    error). Such a chip is misleading next to the grounded summary figure, so
+    the caller suppresses it. Conservative: only the gross-mismatch case fires;
+    a comparable cascade (IDFC ₹503 Cr vs an article ₹503 cr) is untouched."""
+    if result is None or not amount_cr or amount_cr <= 0:
+        return False
+    # Grounding source = TITLE + body (a headline figure is the article's own).
+    _t = getattr(result, "title", "") or ""
+    body = (_t + "\n" + (getattr(result, "article_content", "")
+            or getattr(result, "content", "") or "")).strip()
+    if not body:
+        return False
+    try:
+        from engine.analysis.article_financials import max_article_cr, money_grounded
+        # If the chip's OWN figure IS quoted in the article (e.g. IDFC's ₹503 Cr
+        # PAT), it is accurate — keep it, even if the article also mentions a
+        # bigger unrelated number. Only suppress an UNGROUNDED cascade figure
+        # (e.g. ₹2 Cr) that the article never quotes AND that is dwarfed by the
+        # article's real figure.
+        chip = f"₹{float(amount_cr):.0f} Cr"
+        if money_grounded(chip, body)[0]:
+            return False  # chip figure is in the article → accurate, keep
+        return max_article_cr(body) >= 50.0 * float(amount_cr)
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any]:
     """Extract the canonical ₹ exposure from decision_summary + financial_timeline.
 
@@ -239,6 +269,16 @@ def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any
                     "kind": "non_financial_event",
                     "source": "suppressed",
                     "label": "Article does not quote ₹ exposure; engine extrapolation suppressed.",
+                }
+            # Phase 50.1 (Fix D) — suppress a cascade chip that is grossly
+            # smaller than the article's OWN quoted figure (e.g. ~₹2 Cr beside a
+            # ₹1.5 lakh crore nuclear story). The grounded figure is already in
+            # the summary; a tiny estimate next to it reads as an error.
+            if amount is not None and amount > 0 and _cascade_dwarfed_by_article(amount, result):
+                return {
+                    "kind": "exposure_uncomputed",
+                    "source": "suppressed",
+                    "label": "Engine estimate not shown — the article quotes a much larger figure (see summary).",
                 }
             # Phase 48 — CLEAN label. The old `str(exposure)[:140]` cut the
             # verbose cascade description mid-word ("...₹3000 Cr cano"),
@@ -273,6 +313,13 @@ def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any
                         "kind": "non_financial_event",
                         "source": "suppressed",
                         "label": "Article does not quote ₹ exposure; engine extrapolation suppressed.",
+                    }
+                # Phase 50.1 (Fix D) — same magnitude-mismatch suppression.
+                if _cascade_dwarfed_by_article(float(inr), result):
+                    return {
+                        "kind": "exposure_uncomputed",
+                        "source": "suppressed",
+                        "label": "Engine estimate not shown — the article quotes a much larger figure (see summary).",
                     }
                 return {
                     "amount_cr": float(inr),
@@ -569,8 +616,12 @@ def _build_why_it_matters(
     }.get(band, "Worth reviewing")
     _body_final = ""
     if result is not None:
-        _body_final = (getattr(result, "article_content", "")
-                       or getattr(result, "content", "") or "")
+        # Grounding source = TITLE + body. Bank PAT/penalty figures (e.g. IDFC's
+        # "₹503 crore") often live in the headline, not the body — the title is
+        # the article's own words, so a title figure is grounded.
+        _t = getattr(result, "title", "") or ""
+        _body_final = (_t + "\n" + (getattr(result, "article_content", "")
+                       or getattr(result, "content", "") or "")).strip()
     if summary and _body_final:
         try:
             from engine.analysis.article_financials import money_grounded
@@ -584,7 +635,11 @@ def _build_why_it_matters(
         _topic = (getattr(insight, "headline", "") or "").strip() if insight else ""
         if not _topic and result is not None:
             _topic = (getattr(result, "title", "") or "").strip()
-        for _sep in (" — ", " - ", " | ", " : ", ": "):
+        # Pipe delimits a source/section ("Business News | IDFC ...") — take the
+        # LONGEST segment (the headline), not the short source prefix.
+        if " | " in _topic:
+            _topic = max((s.strip() for s in _topic.split(" | ")), key=len)
+        for _sep in (" — ", " - ", " : ", ": "):
             if _sep in _topic:
                 _topic = _topic.split(_sep, 1)[0]
         _topic = _topic.strip().rstrip(".")[:110]

@@ -62,7 +62,12 @@ def _has_orphan_unit(text: str) -> bool:
 
 def _headline_topic(title: str) -> str:
     topic = (title or "").strip()
-    for sep in (" — ", " - ", " | ", " : ", ": "):
+    # Pipe usually delimits a source/section ("Business News | IDFC ..." or
+    # "... | India Infoline") — take the LONGEST segment (the real headline),
+    # not a short source prefix/suffix.
+    if " | " in topic:
+        topic = max((s.strip() for s in topic.split(" | ")), key=len)
+    for sep in (" — ", " - ", " : ", ": "):
         if sep in topic:
             topic = topic.split(sep, 1)[0]
     return topic.strip().rstrip(".")[:110]
@@ -116,7 +121,9 @@ def main() -> int:
             band = (r["band"] or wim.get("materiality_band") or "LOW").upper()
             prefix = _BAND_PREFIX.get(band, "Worth reviewing")
             title = r["title"] or ""
-            body = body_by_id.get(r["aid"], "")
+            # Grounding source = TITLE + body (bank PAT/penalty ₹ often lives in
+            # the headline, not the body — the title is the article's own words).
+            body = (title + "\n" + body_by_id.get(r["aid"], "")).strip()
             summary = wim.get("criticality_summary") or ""
             headline = wc.get("headline") or ""
             touched = []
@@ -147,6 +154,24 @@ def main() -> int:
                 if new_summary != summary:
                     wim["criticality_summary"] = new_summary[:280]
                     touched.append(f"summary[{reason}]")
+
+            # Fix D — suppress a cascade exposure chip dwarfed >=50x by the
+            # article's own quoted figure (e.g. ~₹2 Cr beside a ₹1.5 lakh crore
+            # story). The grounded figure stays in the summary.
+            fe = wim.get("financial_exposure") or {}
+            fe_src = (fe.get("source") or "").lower()
+            fe_amt = fe.get("amount_cr")
+            if (fe_src in ("engine_estimate", "primitive_engine")
+                    and isinstance(fe_amt, (int, float)) and fe_amt > 0 and body):
+                from engine.analysis.article_financials import max_article_cr, money_grounded
+                _chip = "₹%.0f Cr" % float(fe_amt)
+                _chip_grounded = money_grounded(_chip, body)[0]
+                if (not _chip_grounded) and max_article_cr(body) >= 50.0 * float(fe_amt):
+                    wim["financial_exposure"] = {
+                        "kind": "exposure_uncomputed", "source": "suppressed",
+                        "label": "Engine estimate not shown — the article quotes a much larger figure (see summary).",
+                    }
+                    touched.append("exposure(D)")
 
             if touched:
                 pa["why_it_matters"] = wim

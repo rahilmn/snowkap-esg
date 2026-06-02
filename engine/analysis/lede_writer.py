@@ -904,6 +904,13 @@ def write_lede(
     article = insight.get("article") if isinstance(insight, dict) else {}
     article_body = (article or {}).get("content") if isinstance(article, dict) else ""
     article_body = article_body or ""
+    # Phase 50.1 — grounding source includes the article TITLE: a headline ₹/name
+    # (e.g. a bank's "₹503 crore" PAT) is the article's own words and is grounded
+    # even when the body doesn't repeat it.
+    _atitle = ((article or {}).get("title") if isinstance(article, dict) else "") or \
+              ((analysis.get("what_changed") or {}).get("headline") or "")
+    if _atitle:
+        article_body = (_atitle + "\n" + article_body).strip()
 
     # 2. Try LLM
     text, model_used = _call_llm(pattern, company, insight, analysis, evidence_pack)
