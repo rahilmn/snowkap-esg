@@ -192,6 +192,20 @@ def _load_companies_uncached() -> list[Company]:
     for row in db_rows:
         by_slug[row.slug] = _company_from_db_row(row, fallback=by_slug.get(row.slug))
 
+    # Phase 50.1 — the DB 'held' status is AUTHORITATIVE: a company explicitly
+    # held in the DB is dropped from the active roster even if it is a
+    # companies.json baseline tenant. This lets us soft-launch (park MAHLE /
+    # Singularity AMC until they have real ESG coverage) without deleting their
+    # rows — flip status back to 'active' to relaunch. Without this, a held
+    # json-baseline tenant would leak back into load_companies via Step 1.
+    try:
+        from engine.models.companies_store import list_all as _list_all
+        held = {r.slug for r in _list_all(status="held")}
+        for _slug in held:
+            by_slug.pop(_slug, None)
+    except Exception:  # noqa: BLE001 — never break boot on the held overlay
+        pass
+
     return list(by_slug.values())
 
 
