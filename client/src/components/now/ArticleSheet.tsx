@@ -255,6 +255,11 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
                 mixBlendMode: "multiply", opacity: 0.5,
                 backgroundImage: `url(${article.image_url})`,
                 backgroundSize: "cover", backgroundPosition: "center",
+                // Decorative overlay only — must NOT capture clicks. Without
+                // this, the absolutely-positioned overlay paints above the
+                // (statically-positioned) headline link + "Read original"
+                // pill and silently eats every tap on them.
+                pointerEvents: "none",
               }}
             />
           )}
