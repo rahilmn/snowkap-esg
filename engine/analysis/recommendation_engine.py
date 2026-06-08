@@ -10,6 +10,8 @@
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import json
 import logging
 import re
@@ -938,6 +940,10 @@ def _generate_recommendations(
             response_format={"type": "json_object"},
         )
         raw_content = resp.choices[0].message.content or "{}"
+        # Phase 51 — Stage 12 calls the SDK directly (not the gateway), so log
+        # its usage/cost explicitly. Non-blocking.
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, article_id=getattr(result, "article_id", None), stage="recommendations")
         # Phase 47.H — strip markdown fences + preamble Opus 4.6 sometimes
         # emits despite response_format=json_object.
         raw_content = raw_content.strip()
@@ -1346,7 +1352,7 @@ def verify_recommendation_accuracy(
         # the article TITLE (strong signal) AND with the article BODY.
         # A single overlap with title is enough; two with body alone is
         # enough; zero with both is fatal.
-        article_body = (getattr(result, "article_content", "") or "")[:4000].lower()
+        article_body = clamp_article_text(getattr(result, "article_content", "")).lower()
         article_title = (getattr(result, "title", "") or "").lower()
         # Pull the event-classifier matched keywords too — these are
         # the topical anchors the pipeline already trusts.

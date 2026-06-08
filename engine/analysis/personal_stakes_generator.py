@@ -290,6 +290,8 @@ def _call_llm(
             response_format={"type": "json_object"},
         )
         raw = resp.choices[0].message.content or "{}"
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, stage="personal_stakes")
         parsed = json.loads(raw)
         if not isinstance(parsed, dict):
             return {}

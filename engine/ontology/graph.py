@@ -133,6 +133,9 @@ class OntologyGraph:
             # (confidence/severity/stance/priority numeric values lifted
             # out of hardcoded engine constants into tunable ontology triples)
             "quantitative_mappings.ttl",
+            # Phase 51: criticality scoring weights + bands (Rule #1 — lifted
+            # out of engine/analysis/criticality_scorer.py).
+            "criticality_weights.ttl",
         ):
             p = ontology_dir / opt
             if p.exists():

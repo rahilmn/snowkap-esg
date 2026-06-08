@@ -233,9 +233,25 @@ export function SwipeCard({ article, bookmarked }: Props) {
             </span>
           )}
         </div>
-        <span className={`pon-pill ${band.toLowerCase()}`} style={{ background: pill.bg, color: pill.fg }}>
-          {band}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {/* Phase 51 — light-tier chip so the 7 watchlist cards read distinctly
+              from the 3 priority criticals at a glance. */}
+          {(article as { now_tier?: string }).now_tier === "light" && (
+            <span
+              title="A Stage 1-9 watchlist read; full ₹ analysis runs on the 3 priority briefs"
+              style={{
+                padding: "2px 8px", borderRadius: 999,
+                background: "rgba(14,58,95,0.08)", color: "#5b6b7b",
+                fontSize: 9.5, fontWeight: 700, letterSpacing: "0.04em",
+                textTransform: "uppercase", whiteSpace: "nowrap",
+              }}>
+              Quick read
+            </span>
+          )}
+          <span className={`pon-pill ${band.toLowerCase()}`} style={{ background: pill.bg, color: pill.fg }}>
+            {band}
+          </span>
+        </div>
       </div>
 
       {/* Headline — prefers the LLM-generated clean headline; falls back

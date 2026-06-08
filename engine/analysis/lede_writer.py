@@ -48,6 +48,8 @@ gate via `_SCORE_LEAK_PATTERNS` in `tone_guardrails`.
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import logging
 import os
 import re
@@ -506,7 +508,7 @@ def _build_user_prompt(
 
     # Article-body excerpt for the LLM to ground in (Phase 35.5 ensures body present)
     article = (insight.get("article") if isinstance(insight, dict) else {}) or {}
-    body = (article.get("content") or "")[:1500]
+    body = clamp_article_text(article.get("content"))
 
     # Phase 50 — extract the ACTUAL ₹/$/€ figures from the article body and
     # hand them to the LLM as the ONLY monetary figures it may cite. This lets
@@ -536,7 +538,7 @@ ARTICLE ₹/$/€ FIGURES (the ONLY monetary figures you may cite): {money_line}
 PEER COMPARABLES: {peers_str or "none"}
 
 ARTICLE BODY EXCERPT:
-{body[:1200]}
+{body}
 
 Write the editorial lede now. Return ONLY the lede prose — no prefixes,
 no "Here is the lede:", no markdown. 2-3 sentences, ≤60 words. Open with

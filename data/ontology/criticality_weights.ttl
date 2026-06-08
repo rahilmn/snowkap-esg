@@ -1,0 +1,61 @@
+@prefix snowkap: <http://snowkap.com/ontology/esg#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+
+# =============================================================================
+# Criticality scoring weights + bands (Phase 51)
+#
+# Lifted out of engine/analysis/criticality_scorer.py (WEIGHTS_DEFAULT,
+# WEIGHTS_BY_ROLE, BAND_THRESHOLDS) per CLAUDE.md Rule #1 — weights/thresholds
+# are domain knowledge and belong in the ontology, queried via SPARQL, not
+# hardcoded in Python. The scorer keeps the same literals as a logged fallback
+# so a missing/edited TTL degrades safely.
+#
+# One snowkap:CriticalityWeight node per (role, component). Per-role components
+# sum to 1.0. Queried by engine.ontology.intelligence.query_criticality_weights.
+# =============================================================================
+
+# --- default (no role context) ---
+snowkap:cw_default_materiality          a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "materiality"          ; snowkap:cwValue 0.20  .
+snowkap:cw_default_financial_magnitude  a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "financial_magnitude"  ; snowkap:cwValue 0.30  .
+snowkap:cw_default_actionability        a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "actionability"        ; snowkap:cwValue 0.15  .
+snowkap:cw_default_painpoint_match      a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "painpoint_match"      ; snowkap:cwValue 0.20  .
+snowkap:cw_default_recency              a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "recency"              ; snowkap:cwValue 0.075 .
+snowkap:cw_default_source_authority     a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "source_authority"     ; snowkap:cwValue 0.025 .
+snowkap:cw_default_sentiment_trajectory a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "sentiment_trajectory" ; snowkap:cwValue 0.05  .
+
+# --- cfo (financial magnitude leads) ---
+snowkap:cw_cfo_financial_magnitude      a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "financial_magnitude"  ; snowkap:cwValue 0.40  .
+snowkap:cw_cfo_actionability            a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "actionability"        ; snowkap:cwValue 0.20  .
+snowkap:cw_cfo_materiality              a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "materiality"          ; snowkap:cwValue 0.15  .
+snowkap:cw_cfo_painpoint_match          a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "painpoint_match"      ; snowkap:cwValue 0.10  .
+snowkap:cw_cfo_recency                  a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "recency"              ; snowkap:cwValue 0.075 .
+snowkap:cw_cfo_source_authority         a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "source_authority"     ; snowkap:cwValue 0.025 .
+snowkap:cw_cfo_sentiment_trajectory     a snowkap:CriticalityWeight ; snowkap:cwRole "cfo" ; snowkap:cwComponent "sentiment_trajectory" ; snowkap:cwValue 0.05  .
+
+# --- ceo (materiality + painpoint lead) ---
+snowkap:cw_ceo_materiality              a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "materiality"          ; snowkap:cwValue 0.25  .
+snowkap:cw_ceo_painpoint_match          a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "painpoint_match"      ; snowkap:cwValue 0.25  .
+snowkap:cw_ceo_financial_magnitude      a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "financial_magnitude"  ; snowkap:cwValue 0.20  .
+snowkap:cw_ceo_actionability            a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "actionability"        ; snowkap:cwValue 0.10  .
+snowkap:cw_ceo_recency                  a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "recency"              ; snowkap:cwValue 0.125 .
+snowkap:cw_ceo_source_authority         a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "source_authority"     ; snowkap:cwValue 0.025 .
+snowkap:cw_ceo_sentiment_trajectory     a snowkap:CriticalityWeight ; snowkap:cwRole "ceo" ; snowkap:cwComponent "sentiment_trajectory" ; snowkap:cwValue 0.05  .
+
+# --- analyst (materiality + painpoint lead, balanced) ---
+snowkap:cw_analyst_materiality          a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "materiality"          ; snowkap:cwValue 0.30  .
+snowkap:cw_analyst_painpoint_match      a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "painpoint_match"      ; snowkap:cwValue 0.25  .
+snowkap:cw_analyst_actionability        a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "actionability"        ; snowkap:cwValue 0.15  .
+snowkap:cw_analyst_financial_magnitude  a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "financial_magnitude"  ; snowkap:cwValue 0.15  .
+snowkap:cw_analyst_recency              a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "recency"              ; snowkap:cwValue 0.075 .
+snowkap:cw_analyst_source_authority     a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "source_authority"     ; snowkap:cwValue 0.025 .
+snowkap:cw_analyst_sentiment_trajectory a snowkap:CriticalityWeight ; snowkap:cwRole "analyst" ; snowkap:cwComponent "sentiment_trajectory" ; snowkap:cwValue 0.05  .
+
+# =============================================================================
+# Criticality bands — score >= minScore (evaluated high to low).
+# Queried by engine.ontology.intelligence.query_criticality_bands.
+# =============================================================================
+snowkap:cb_critical a snowkap:CriticalityBand ; snowkap:cbLevel "CRITICAL" ; snowkap:cbMinScore 0.75 .
+snowkap:cb_high     a snowkap:CriticalityBand ; snowkap:cbLevel "HIGH"     ; snowkap:cbMinScore 0.55 .
+snowkap:cb_medium   a snowkap:CriticalityBand ; snowkap:cbLevel "MEDIUM"   ; snowkap:cbMinScore 0.35 .
+snowkap:cb_low      a snowkap:CriticalityBand ; snowkap:cbLevel "LOW"      ; snowkap:cbMinScore 0.0  .

@@ -165,15 +165,29 @@ def query_materiality_weight(
 
     Returns 0.5 as a neutral default if no explicit weight triple exists.
     """
+    # Phase 51 — normalize free-text topic/industry to canonical ontology
+    # labels so an LLM near-miss ("Banking" vs "Financials/Banking", "GHG" vs
+    # "Emissions") doesn't silently collapse to the 0.5 neutral default.
+    from engine.ontology.materiality_aliases import canonical_industry, canonical_topic
+    topic = canonical_topic(topic)
+    industry = canonical_industry(industry)
+
     # Phase 32 — SASB overlay first.
     if sasb_sector:
         try:
             from engine.ontology.sasb_loader import query_sasb_materiality
             sasb_weight, _kind = query_sasb_materiality(sasb_sector, topic)
             if sasb_weight is not None:
+                logger.debug(
+                    "materiality: SASB hit sector=%s topic=%s weight=%s",
+                    sasb_sector, topic, sasb_weight,
+                )
                 return float(sasb_weight)
         except Exception:  # noqa: BLE001 — never block the legacy path
-            pass
+            logger.warning(
+                "materiality: SASB lookup failed sector=%s topic=%s",
+                sasb_sector, topic, exc_info=True,
+            )
 
     g = _graph(graph)
     topic_n = _lower(topic)
@@ -202,7 +216,17 @@ def query_materiality_weight(
         try:
             return float(rows[0]["weight"])
         except (TypeError, ValueError):
-            pass
+            logger.warning(
+                "materiality: unparseable weight %r for topic=%r industry=%r",
+                rows[0].get("weight"), topic, industry,
+            )
+    # Phase 51 — surface the silent default. A 0.5 here means the (topic,
+    # industry) pair has no materiality triple after normalization — a genuine
+    # ontology gap or a label the alias map should cover.
+    logger.warning(
+        "materiality: no triple for topic=%r industry=%r sasb=%r -> 0.5 default",
+        topic, industry, sasb_sector,
+    )
     return 0.5
 
 
@@ -939,6 +963,61 @@ def query_risk_level_thresholds(
         RiskLevelThreshold(level=row["level"], min_score=float(row["min_score"]))
         for row in rows
     ]
+
+
+@lru_cache(maxsize=1)
+def query_criticality_weights(
+    graph: OntologyGraph | None = None,
+) -> dict[str, dict[str, float]]:
+    """Phase 51 — criticality scoring weights from ``criticality_weights.ttl``.
+
+    Returns ``{role: {component: weight}}`` (roles lowercased: default/cfo/
+    ceo/analyst). Empty dict when the TTL is absent, so the scorer can fall
+    back to its built-in literals.
+    """
+    g = _graph(graph) if graph else get_graph()
+    rows = g.select_rows(
+        """
+        SELECT ?role ?component ?value WHERE {
+            ?w a snowkap:CriticalityWeight ;
+               snowkap:cwRole ?role ;
+               snowkap:cwComponent ?component ;
+               snowkap:cwValue ?value .
+        }
+        """
+    )
+    out: dict[str, dict[str, float]] = {}
+    for row in rows:
+        try:
+            out.setdefault(row["role"].strip().lower(), {})[row["component"]] = float(row["value"])
+        except (TypeError, ValueError, KeyError):
+            continue
+    return out
+
+
+@lru_cache(maxsize=1)
+def query_criticality_bands(
+    graph: OntologyGraph | None = None,
+) -> list[tuple[str, float]]:
+    """Phase 51 — criticality bands as ``[(level, min_score)]`` sorted DESC."""
+    g = _graph(graph) if graph else get_graph()
+    rows = g.select_rows(
+        """
+        SELECT ?level ?minscore WHERE {
+            ?b a snowkap:CriticalityBand ;
+               snowkap:cbLevel ?level ;
+               snowkap:cbMinScore ?minscore .
+        }
+        ORDER BY DESC(?minscore)
+        """
+    )
+    out: list[tuple[str, float]] = []
+    for row in rows:
+        try:
+            out.append((row["level"], float(row["minscore"])))
+        except (TypeError, ValueError, KeyError):
+            continue
+    return out
 
 
 @dataclass

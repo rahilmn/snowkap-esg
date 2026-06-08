@@ -199,6 +199,8 @@ export function NowPage() {
         relevance_score: null,
         relevance_breakdown: null,
         criticality_band: a.criticality_band,
+        // Phase 51 — explicit tier from the backend, with a lede-presence fallback.
+        now_tier: a.tier ?? (((personalisedAnalysis.lede as { text?: string } | undefined)?.text) ? "critical" : "light"),
         // Stamp the merged unified-analysis block on deep_insight so the
         // existing ArticleSheet WHY THIS MATTERS / Tech Report / Comments
         // rendering reads it without a second fetch.
@@ -232,6 +234,9 @@ export function NowPage() {
   useEffect(() => {
     if (!articles.length) return;
     const stubs = articles.filter((a) => {
+      // Phase 51 — never pre-warm a light card: it is a deliberate Stage 1-9
+      // watchlist entry and must not kick a full Stage 10-12 (Opus) run.
+      if ((a as { now_tier?: string }).now_tier === "light") return false;
       const di = a.deep_insight as { analysis?: { what_changed?: { headline?: string } } } | undefined;
       const hasHeadline = !!di?.analysis?.what_changed?.headline;
       return !hasHeadline && !prewarmedRef.current.has(a.id);
@@ -440,12 +445,36 @@ export function NowPage() {
               );
             })()
           ) : (
-            <SwipeDeck
-              articles={articles}
-              bookmarked={bookmarkedSet}
-              onBookmarkToggle={toggleBookmark}
-              onOpen={setOpenArticle}
-            />
+            <>
+              {/* Phase 51 — completeness ribbon: surface a short deck instead of
+                  silently showing <10 cards or <3 criticals. pointer-events:none
+                  so it never intercepts a swipe. */}
+              {(() => {
+                const d = feedQuery.data;
+                const crit = d?.critical_count ?? 0;
+                const total = d?.total_count ?? d?.count ?? articles.length;
+                if (articles.length > 0 && (crit < 3 || total < 10)) {
+                  return (
+                    <div style={{
+                      position: "absolute", top: 6, left: 0, right: 0, zIndex: 5,
+                      margin: "0 auto", width: "fit-content", maxWidth: "90%",
+                      padding: "4px 12px", pointerEvents: "none",
+                      background: "rgba(14,58,95,0.07)", color: TOKENS.ink3,
+                      borderRadius: 999, fontSize: 11, fontWeight: 600, textAlign: "center",
+                    }}>
+                      {crit} of 3 priority briefs · {total} of 10 cards ready
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              <SwipeDeck
+                articles={articles}
+                bookmarked={bookmarkedSet}
+                onBookmarkToggle={toggleBookmark}
+                onOpen={setOpenArticle}
+              />
+            </>
           )}
         </div>
 

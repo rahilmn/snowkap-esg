@@ -30,6 +30,8 @@ stays deterministic, so it is unaffected.
 """
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import json
 import logging
 import re
@@ -140,7 +142,7 @@ def _approve_light(result: Any, analysis: dict[str, Any]) -> ApprovalResult:
 def _build_review_prompt(
     result: Any, analysis: dict[str, Any], recommendations: Any,
 ) -> str:
-    body = (getattr(result, "article_content", "") or "")[:5000]
+    body = clamp_article_text(getattr(result, "article_content", ""))
     title = getattr(result, "title", "") or ""
     a = analysis or {}
     lede = ((a.get("lede") or {}).get("text") or "").strip()

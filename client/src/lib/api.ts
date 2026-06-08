@@ -313,6 +313,11 @@ export interface NowArticleDto {
   personalised_analysis: Record<string, unknown>;
   criticality_score: number;
   criticality_band: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
+  // Phase 51 — explicit tier so the UI never infers critical-vs-light from
+  // lede presence. Optional so FE/BE can deploy in either order.
+  tier?: "critical" | "light";
+  has_lede?: boolean;
+  has_recs?: boolean;
 }
 
 export interface NowFeedResponse {
@@ -321,6 +326,10 @@ export interface NowFeedResponse {
   count: number;
   limit: number;
   max_age_days: number;
+  // Phase 51 — completeness signals (e.g. "2 of 3 priority briefs ready").
+  critical_count?: number;
+  total_count?: number;
+  dropped_incomplete?: number;
   articles: NowArticleDto[];
 }
 

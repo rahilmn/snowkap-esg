@@ -304,6 +304,16 @@ def _startup() -> None:
         logger.warning("could not check DB backend at startup: %s", exc)
 
     _init_sentry()
+
+    # Phase 51 — log the resolved reasoning model so a silent Opus→gpt-4.1
+    # fallback (missing OPENROUTER_API_KEY) is visible at boot instead of being
+    # discovered later via gpt-4.1-stamped insights.
+    try:
+        from engine.llm.health import report_routing
+        report_routing()
+    except Exception as exc:  # noqa: BLE001 — never block boot on the routing log
+        logger.warning("LLM routing report failed: %s", exc)
+
     key_set = bool(os.environ.get("SNOWKAP_API_KEY", "").strip())
     logger.info("api startup: auth=%s", "enabled" if key_set else "disabled (dev mode)")
 

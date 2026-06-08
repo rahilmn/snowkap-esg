@@ -115,6 +115,10 @@ export interface Article {
   criticality_score?: number | null;
   criticality_band?: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | null;
 
+  // Phase 51 — explicit /now deck tier. Namespaced `now_` to avoid colliding
+  // with the unrelated `tier` string in news.liveAnalyze.
+  now_tier?: "critical" | "light" | null;
+
   // Phase 6 — persona modulation (only present when ?personalise=true was sent)
   personalised_score?: number | null;
   /** True iff the article's topics have zero overlap with the caller's

@@ -161,7 +161,9 @@ class OpenRouterClient:
         completion = self.sync.chat.completions.create(**kwargs)
         latency_ms = (time.perf_counter() - t0) * 1000
 
-        return self._build_response(completion, kwargs["model"], latency_ms)
+        resp = self._build_response(completion, kwargs["model"], latency_ms)
+        self._log_usage(resp)
+        return resp
 
     async def acomplete(
         self,
@@ -189,7 +191,9 @@ class OpenRouterClient:
         t0 = time.perf_counter()
         completion = await self.async_client.chat.completions.create(**kwargs)
         latency_ms = (time.perf_counter() - t0) * 1000
-        return self._build_response(completion, kwargs["model"], latency_ms)
+        resp = self._build_response(completion, kwargs["model"], latency_ms)
+        self._log_usage(resp)
+        return resp
 
     def stream(
         self,
@@ -293,6 +297,22 @@ class OpenRouterClient:
             if v is not None:
                 out[key] = v
         return out
+
+    def _log_usage(self, resp: "LLMResponse") -> None:
+        """Phase 51 — record token usage + cost for this call to llm_calls.
+        Non-blocking: telemetry must never break the LLM path. Covers every
+        gateway caller (lede, approval, chat, …)."""
+        try:
+            from engine.models.llm_calls import log_call
+            u = resp.usage or {}
+            log_call(
+                model=resp.model_used,
+                prompt_tokens=int(u.get("prompt_tokens", 0) or 0),
+                completion_tokens=int(u.get("completion_tokens", 0) or 0),
+                stage=self.task_class,
+            )
+        except Exception:  # noqa: BLE001
+            pass
 
 
 def get_llm_client(

@@ -20,6 +20,8 @@ Extracts:
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import json
 import logging
 from dataclasses import asdict, dataclass, field
@@ -197,7 +199,7 @@ def run_nlp_pipeline(
     user_prompt = (
         f"TITLE: {title}\n\n"
         f"SOURCE: {source}\n\n"
-        f"CONTENT: {content[:4000]}"  # cap content to control tokens
+        f"CONTENT: {clamp_article_text(content)}"  # Phase 51 — full-article budget
     )
 
     try:
@@ -212,6 +214,8 @@ def run_nlp_pipeline(
             response_format={"type": "json_object"},
         )
         raw = resp.choices[0].message.content or "{}"
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, stage="nlp")
         parsed = json.loads(raw)
     except (APIError, APITimeoutError, json.JSONDecodeError, IndexError) as exc:
         logger.warning("NLP extraction failed (%s) — using fallback", type(exc).__name__)

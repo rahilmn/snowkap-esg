@@ -211,8 +211,13 @@ def deck_for_company(
     industry: str,
     max_age_days: int = 30,
     limit: int = 10,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
     """The /now deck SQL — joins article_pool ⋈ company_article_view.
+
+    Phase 51 — returns ``(rows, meta)`` where ``meta`` carries completeness
+    counts ``{critical_count, light_count, dropped_incomplete}``. Each row also
+    carries an explicit ``tier`` ("critical"|"light"), ``has_lede`` and
+    ``has_recs`` so the frontend never has to infer the tier.
 
     Sort: criticality_band rank ASC (CRITICAL first), criticality_score DESC,
     published_at DESC. Limit 10 by default (per O5 spec).
@@ -231,7 +236,7 @@ def deck_for_company(
     See: docs/POWER_OF_NOW_ARCHITECTURE.md §4.4.
     """
     if not company_slug or not industry:
-        return []
+        return [], {"critical_count": 0, "light_count": 0, "dropped_incomplete": 0}
     with _db_connect() as conn:
         if is_postgres():
             sql = (
@@ -272,6 +277,7 @@ def deck_for_company(
 
     out: list[dict[str, Any]] = []
     dropped_incomplete = 0
+    critical_count = 0
     for r in rows:
         def _g(name: str, idx: int) -> Any:
             if hasattr(r, "keys"):
@@ -302,6 +308,16 @@ def deck_for_company(
         # article-specific fallback in role_explainer.build_criticality_summary
         # (uses headline + theme) so each card reads uniquely.
 
+        # Phase 51 — derive an explicit tier so the frontend never has to infer
+        # critical-vs-light from lede presence. A critical card carries an
+        # editorial lede (+ recs); a light card is a Stage 1-9 watchlist entry.
+        lede_txt = ((personal.get("lede") or {}).get("text") or "").strip() if isinstance(personal, dict) else ""
+        recs = ((personal.get("what_it_triggers") or {}).get("recommended_actions") or []) if isinstance(personal, dict) else []
+        explicit = (personal.get("tier") or "").strip().lower() if isinstance(personal, dict) else ""
+        tier = explicit if explicit in ("critical", "light") else ("critical" if lede_txt else "light")
+        if tier == "critical":
+            critical_count += 1
+
         out.append({
             "article_id": _g("id", 0),
             "url": _g("url", 1),
@@ -317,6 +333,9 @@ def deck_for_company(
             "personalised_analysis": personal,
             "criticality_score": float(_g("criticality_score", 12) or 0.0),
             "criticality_band": _g("criticality_band", 13) or "MEDIUM",
+            "tier": tier,
+            "has_lede": bool(lede_txt),
+            "has_recs": bool(recs),
         })
 
     if dropped_incomplete:
@@ -325,7 +344,12 @@ def deck_for_company(
             "criticality_summary (legacy pre-Phase-46 data)",
             dropped_incomplete, company_slug,
         )
-    return out
+    meta = {
+        "critical_count": critical_count,
+        "light_count": len(out) - critical_count,
+        "dropped_incomplete": dropped_incomplete,
+    }
+    return out, meta
 
 
 def invalidate_for_company(company_slug: str) -> int:

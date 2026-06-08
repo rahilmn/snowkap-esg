@@ -32,7 +32,7 @@ def top_article_for_company(company_slug: str) -> tuple[str, str] | None:
         from engine.models import company_article_view
         company = get_company(company_slug)
         industry = getattr(company, "industry", None) if company else None
-        rows = company_article_view.deck_for_company(
+        rows, _meta = company_article_view.deck_for_company(
             company_slug, industry, max_age_days=30, limit=10,
         )
     except Exception as exc:  # noqa: BLE001

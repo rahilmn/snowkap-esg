@@ -11,6 +11,8 @@ time for the authoritative list.
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import json
 import logging
 from dataclasses import asdict, dataclass, field
@@ -180,13 +182,15 @@ def tag_esg_themes(
                 {"role": "system", "content": _build_system_prompt()},
                 {
                     "role": "user",
-                    "content": f"TITLE: {title}\n\nCONTENT: {content[:3000]}",
+                    "content": f"TITLE: {title}\n\nCONTENT: {clamp_article_text(content)}",
                 },
             ],
             temperature=temperature,
             max_tokens=500,
             response_format={"type": "json_object"},
         )
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, stage="theme_tagging")
         parsed = json.loads(resp.choices[0].message.content or "{}")
     except (APIError, APITimeoutError, json.JSONDecodeError, IndexError) as exc:
         logger.warning("theme_tagger LLM failed (%s) — using keyword fallback", type(exc).__name__)
