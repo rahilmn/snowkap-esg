@@ -370,6 +370,8 @@ def forecast_sentiment_trajectory(
                     ],
                     response_format={"type": "json_object"},
                 )
+                from engine.models.llm_calls import log_openai_usage
+                log_openai_usage(completion, model=model, stage="forecaster")
                 raw = completion.choices[0].message.content or ""
                 parsed = _parse_horizons(raw)
                 if parsed is not None:

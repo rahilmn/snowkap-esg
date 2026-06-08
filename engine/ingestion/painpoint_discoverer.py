@@ -222,6 +222,8 @@ def discover_painpoints(
             max_tokens=900,
             response_format={"type": "json_object"},
         )
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, stage="painpoint_discoverer")
         raw = resp.choices[0].message.content or "{}"
         parsed = json.loads(raw)
         if not isinstance(parsed, dict):

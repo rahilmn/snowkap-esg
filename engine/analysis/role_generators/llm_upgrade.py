@@ -127,6 +127,8 @@ def _call_llm(
             temperature=0.3,
             response_format={"type": "json_object"},
         )
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=_MODEL, stage="role_upgrade")
         raw = resp.choices[0].message.content or ""
         return json.loads(raw)
     except Exception as exc:  # noqa: BLE001 — never block on LLM failure

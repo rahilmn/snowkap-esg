@@ -122,6 +122,8 @@ def generate_queries(
             max_tokens=180,
             response_format={"type": "json_object"},
         )
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, stage="query_generator")
         raw = resp.choices[0].message.content or "{}"
         parsed: dict[str, Any] = json.loads(raw)
     except Exception as exc:  # noqa: BLE001 — fail-soft per docstring

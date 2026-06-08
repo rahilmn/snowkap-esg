@@ -479,6 +479,8 @@ def _run_intelligence_layers(
                 max_tokens=400,
                 temperature=0.3,
             )
+            from engine.models.llm_calls import log_openai_usage
+            log_openai_usage(resp, model=model, article_id=getattr(result, "article_id", None), stage="on_demand")
             intelligence["competitive_brief"] = resp.choices[0].message.content or ""
     except Exception as exc:
         logger.warning("competitive_brief failed: %s", exc)
@@ -508,6 +510,8 @@ def _run_intelligence_layers(
                 max_tokens=300,
                 temperature=0.3,
             )
+            from engine.models.llm_calls import log_openai_usage
+            log_openai_usage(resp, model=model, article_id=getattr(result, "article_id", None), stage="on_demand")
             intelligence["causal_narrative"] = resp.choices[0].message.content or ""
     except Exception as exc:
         logger.warning("causal_narrative failed: %s", exc)
@@ -531,6 +535,8 @@ def _run_intelligence_layers(
             temperature=0.3,
             response_format={"type": "json_object"},
         )
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, article_id=getattr(result, "article_id", None), stage="on_demand")
         qa_data = json.loads(resp.choices[0].message.content or "{}")
         intelligence["anticipated_qa"] = qa_data.get("qa", [])
     except Exception as exc:
@@ -608,6 +614,8 @@ def _run_intelligence_layers(
                         temperature=0.2,
                         response_format={"type": "json_object"},
                     )
+                    from engine.models.llm_calls import log_openai_usage
+                    log_openai_usage(resp, model=model, article_id=getattr(result, "article_id", None), stage="on_demand")
                     trajectory = json.loads(resp.choices[0].message.content or "{}")
                     intelligence["sentiment_trajectory"] = trajectory
     except Exception as exc:

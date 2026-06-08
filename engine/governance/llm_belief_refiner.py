@@ -241,6 +241,8 @@ def openai_belief_refiner(
         return proposals
 
     try:
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(completion, model=model, stage="belief_refiner")
         raw = completion.choices[0].message.content or ""
     except (AttributeError, IndexError):
         return proposals

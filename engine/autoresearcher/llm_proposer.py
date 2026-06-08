@@ -149,6 +149,8 @@ def llm_propose(
         return None
 
     try:
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(completion, model=model, stage="autoresearch")
         raw = completion.choices[0].message.content or ""
     except (AttributeError, IndexError):
         return None
