@@ -131,6 +131,21 @@ def log_call(
         logger.debug("llm_calls.log_call failed (non-blocking): %s", exc)
 
 
+def log_openai_usage(resp, *, model: str, article_id: str | None = None, stage: str | None = None) -> None:
+    """Phase 51 — log token usage from a raw OpenAI/OpenRouter chat-completion
+    response object (the stages that call the SDK directly instead of the
+    gateway's ``complete()``). Non-raising — telemetry never blocks the pipeline.
+    """
+    try:
+        u = getattr(resp, "usage", None)
+        pt = int(getattr(u, "prompt_tokens", 0) or 0) if u is not None else 0
+        ct = int(getattr(u, "completion_tokens", 0) or 0) if u is not None else 0
+        used_model = getattr(resp, "model", "") or model
+        log_call(model=used_model, prompt_tokens=pt, completion_tokens=ct, article_id=article_id, stage=stage)
+    except Exception as exc:  # noqa: BLE001
+        logger.debug("llm_calls.log_openai_usage failed (non-blocking): %s", exc)
+
+
 def spend_last_24h_usd() -> float:
     """Sum of `cost_usd` for calls in the last 24h. Used by /metrics."""
     try:

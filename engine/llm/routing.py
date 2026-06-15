@@ -64,3 +64,20 @@ def resolve_model(
     if is_using_legacy_openai():
         return _LEGACY_OPENAI_FALLBACK.get(tc, "gpt-4.1")
     return TASK_CLASS_TO_MODEL.get(tc, TASK_CLASS_TO_MODEL["reasoning_default"])
+
+
+def resolve_openai_fallback_model(
+    task_class: str | None = None,
+    override: str | None = None,
+) -> str:
+    """The DIRECT-OpenAI (bare) model for a task class.
+
+    Used when OpenRouter is the active provider but fails (e.g. a 402
+    out-of-credits) and the gateway falls back to OpenAI. A vendor-prefixed
+    override (e.g. ``anthropic/claude-opus-4.6``) can't run on OpenAI, so it
+    falls to the task-class default (reasoning_heavy → gpt-4.1).
+    """
+    if override and "/" not in override:
+        return override
+    tc = task_class or "reasoning_default"
+    return _LEGACY_OPENAI_FALLBACK.get(tc, "gpt-4.1")

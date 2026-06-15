@@ -124,6 +124,9 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   const hasRealAnalysis = !!(effectiveAnalysis?.what_changed?.headline);
   useEffect(() => {
     if (!open) return;
+    // Phase 51 — a light card is a deliberate Stage 1-9 watchlist entry; never
+    // auto-trigger a full Stage 10-12 (Opus) run for it (CLAUDE.md §12 rule 5).
+    if ((article as { now_tier?: string }).now_tier === "light") return;
     if (analysisQuery.isLoading) return;
     if (triggeredRef.current.has(article.id)) return;
     if (hasRealAnalysis) return;  // already have a populated analysis block
@@ -159,8 +162,12 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   // amounts when the article body has no monetary content; the UI
   // shouldn't try to backfill a number from elsewhere either.
   const exposureKind = wim?.financial_exposure?.kind;
+  // Phase 51 — explicit light tier (backend), with a band fallback.
+  const isLight = (article as { now_tier?: string }).now_tier === "light" || band === "LOW";
   const exposureLabel = exposureKind === "non_financial_event"
     ? "No direct ₹ exposure in article"
+    : (exposureKind === "light" || isLight)
+    ? "Full ₹ analysis runs on the day's 3 priority briefs"
     : (wim?.financial_exposure?.label
       || (wim?.financial_exposure?.amount_cr
         ? `~₹${wim.financial_exposure.amount_cr.toLocaleString("en-IN")} Cr`
@@ -274,6 +281,21 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
               {band}
             </span>
           </div>
+          {/* Phase 51 — light-tier explainer so the absent lede / ₹ / recs read
+              as a deliberate watchlist choice, not a silent gap. position:relative
+              keeps it above the decorative (pointer-events:none) hero overlay. */}
+          {isLight && (
+            <div style={{
+              position: "relative",
+              margin: "0 0 12px", padding: "8px 12px",
+              background: "rgba(14,58,95,0.05)", color: TOKENS.ink3,
+              borderRadius: 10, fontSize: 12, lineHeight: 1.45,
+            }}>
+              <strong style={{ color: TOKENS.ink2 }}>Quick read — on your watchlist.</strong>{" "}
+              The editorial lede, ₹ exposure and recommendations are reserved for the
+              day's 3 priority briefs. The what-changed and framework hits below are complete.
+            </div>
+          )}
           {/* Phase 40.C — headline is clickable to the source article
               when article.url is present (most articles ingested via
               Google News + NewsAPI.ai carry the canonical publisher URL).

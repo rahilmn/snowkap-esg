@@ -19,6 +19,8 @@ recommendations live in Phase 5+ orchestration outside this module.
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import logging
 import re
 import time
@@ -312,7 +314,7 @@ def process_article(
             stages_executed=stages + ["cross_entity_gate"],
             ontology_query_count=ontology_queries,
             elapsed_seconds=round(time.perf_counter() - started, 3),
-            article_content=(content or "")[:6000],
+            article_content=clamp_article_text(content),
             image_url=image_url,
         )
         logger.info(
@@ -333,7 +335,7 @@ def process_article(
 
     # Stage 4: Relevance scoring (ontology materiality)
     stages.append("relevance_scoring")
-    relevance = score_relevance(nlp, themes, company.industry)
+    relevance = score_relevance(nlp, themes, company.industry, sasb_sector=getattr(company, "sasb_category", None))
     ontology_queries += relevance.ontology_queries
 
     result = PipelineResult(
@@ -349,7 +351,7 @@ def process_article(
         relevance=relevance,
         tier=relevance.tier,
         stages_executed=stages,
-        article_content=(content or "")[:6000],
+        article_content=clamp_article_text(content),
         image_url=image_url,
     )
 

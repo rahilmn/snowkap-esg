@@ -25,6 +25,8 @@ from urllib.parse import quote
 
 import feedparser
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Allow `python -m engine.ingestion.news_fetcher` without PYTHONPATH.
 _ROOT = Path(__file__).resolve().parent.parent.parent
@@ -37,6 +39,32 @@ from engine.ingestion.dedup import SemanticDedup, is_fresh
 logger = logging.getLogger(__name__)
 
 NEWSAPI_URL = "https://newsapi.org/v2/everything"
+
+# Phase 51.C — shared HTTP session with bounded retries + backoff so a
+# transient NewsAPI.ai 429 / 5xx / connection blip doesn't silently lose a
+# company's weekly fetch. Retries fire ONLY on no-data failures
+# (429/5xx/connection), so they never re-spend NewsAPI tokens — tokens are
+# charged per article returned on a 200. Honors Retry-After on 429. The
+# NewsAPI.ai query POST is read-only (a search), so retrying it is safe.
+_HTTP_RETRY = Retry(
+    total=int(os.environ.get("SNOWKAP_HTTP_MAX_RETRIES", "2")),
+    backoff_factor=0.6,
+    status_forcelist=(429, 500, 502, 503, 504),
+    allowed_methods=frozenset(["GET", "POST"]),
+    respect_retry_after_header=True,
+    raise_on_status=False,
+)
+
+
+def _build_http_session() -> requests.Session:
+    s = requests.Session()
+    adapter = HTTPAdapter(max_retries=_HTTP_RETRY)
+    s.mount("https://", adapter)
+    s.mount("http://", adapter)
+    return s
+
+
+_SESSION = _build_http_session()
 
 
 HTML_TAG = re.compile(r"<[^>]+>")
@@ -244,7 +272,7 @@ def fetch_newsapi_ai(query: str, max_results: int = 5) -> list[dict]:
         }
         if keyword_oper:
             body["keywordOper"] = keyword_oper
-        resp = requests.post(NEWSAPI_AI_URL, json=body, timeout=20)
+        resp = _SESSION.post(NEWSAPI_AI_URL, json=body, timeout=20)
         resp.raise_for_status()
     except requests.RequestException as exc:
         logger.error("NewsAPI.ai fetch failed for '%s': %s", query, exc)
@@ -488,7 +516,7 @@ def fetch_newsapi_ai_for_company(
     }
 
     try:
-        resp = requests.post(NEWSAPI_AI_URL, json=body, timeout=25)
+        resp = _SESSION.post(NEWSAPI_AI_URL, json=body, timeout=25)
         resp.raise_for_status()
     except requests.RequestException as exc:
         logger.error("NewsAPI.ai company fetch failed for %s: %s", company.slug, exc)

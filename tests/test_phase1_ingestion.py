@@ -41,9 +41,11 @@ def test_is_fresh_boundary_exactly_90_days():
     assert is_fresh(article, max_age_days=90, now=now) is True
 
 
-def test_is_fresh_fails_open_on_bad_timestamp():
+def test_is_fresh_fails_closed_on_bad_timestamp():
+    # is_fresh was hardened to fail CLOSED — an unparseable timestamp is
+    # treated as NOT fresh (drop the article) rather than letting it through.
     article = {"published_at": "not-a-date"}
-    assert is_fresh(article, max_age_days=90) is True
+    assert is_fresh(article, max_age_days=90) is False
 
 
 def test_is_fresh_handles_z_suffix():

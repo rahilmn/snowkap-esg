@@ -22,6 +22,8 @@ files re-enrich on next view via the on_demand path.
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import ARTICLE_CEILING
+
 import logging
 from typing import Any
 
@@ -195,7 +197,7 @@ def _article_has_financial_signal(result: Any) -> bool:
     body = getattr(result, "article_content", "") or ""
     if not body:
         return False
-    main = _article_main_body(body[:8000])
+    main = _article_main_body(body[:ARTICLE_CEILING])
     if not main:
         return False
     hard_hits = 0

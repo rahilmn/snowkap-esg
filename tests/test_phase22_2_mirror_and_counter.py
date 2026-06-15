@@ -24,8 +24,14 @@ import sqlite3
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
+from datetime import datetime as _dt, timedelta as _td, timezone as _tz
+
 from engine.index import sqlite_index
 from engine.index.sqlite_index import DB_PATH
+
+# Seed articles inside the feed freshness window (14d) so count/mirror
+# assertions stay evergreen instead of rotting as a hardcoded date ages out.
+_FRESH_ISO = (_dt.now(_tz.utc) - _td(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 # ---------------------------------------------------------------------------
@@ -68,10 +74,10 @@ def _seed_article(article_id: str, slug: str, title: str = "Seed", json_path: st
             """,
             (
                 article_id, slug, title,
-                "test", "https://example.test/x", "2026-04-30T00:00:00Z",
+                "test", "https://example.test/x", _FRESH_ISO,
                 "HOME", "HIGH", "monitor", 8.0, 7.0,
                 "Environment", "Climate", "news", 0,
-                0, 0, json_path, "2026-04-30T00:00:00Z",
+                0, 0, json_path, _FRESH_ISO,
                 0,
             ),
         )

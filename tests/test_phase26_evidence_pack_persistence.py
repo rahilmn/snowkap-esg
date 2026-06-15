@@ -23,6 +23,7 @@ def _stub_pipeline_result():
         published_at="2026-05-10T00:00:00Z",
         company_slug="test-co",
         image_url="",
+        rejected=False,
         to_dict=lambda: {
             "article_id": "art-1", "title": "Test article",
             "frameworks": [], "causal_chains": [],

@@ -444,6 +444,18 @@ def write_insight(
     except Exception as exc:  # noqa: BLE001
         logger.warning("article_pool / company_article_view upsert failed (non-fatal): %s", exc)
 
+    # Phase 51.B — mirror the full insight payload into Postgres so the
+    # detail view survives Railway restarts (the on-disk JSON is ephemeral)
+    # and data/outputs can eventually leave the image. Non-fatal: the disk
+    # write above remains the immediate source of truth.
+    try:
+        from engine.models import insight_payload as insight_payload_store
+        insight_payload_store.upsert(
+            result.article_id, result.company_slug, insight_payload,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("insight_payload DB upsert failed (non-fatal): %s", exc)
+
     # Split-out files for direct consumption by the UI API later
     if result.risk:
         written.risk = _write(base / "risk" / name, result.risk.to_dict())

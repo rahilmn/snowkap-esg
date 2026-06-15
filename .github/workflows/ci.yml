@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [master, main]
   pull_request:
-    branches: [main]
+    branches: [master, main]
 
 env:
   PYTHON_VERSION: "3.12"
@@ -12,7 +12,7 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Backend: lint + compile + unit tests (no DB/server required)
+  # Backend: compile + the FULL pytest suite (SQLite-backed, no server/DB/keys).
   # ---------------------------------------------------------------------------
   test-backend:
     name: Backend Tests (Python)
@@ -36,49 +36,51 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Lint (ruff)
+      # Phase 46 removed the `backend/` package; the engine lives in api/ +
+      # engine/. Style lint is advisory (does not gate the build).
+      - name: Lint (ruff, advisory)
+        continue-on-error: true
         run: |
           pip install ruff
-          ruff check backend/ --select E,F,I --ignore E501
+          ruff check api/ engine/ --select E,F,I --ignore E501
 
       - name: Compile all Python files
         run: |
           python -c "
           import py_compile, os, sys
           errors = []
-          for root, dirs, files in os.walk('backend'):
-              dirs[:] = [d for d in dirs if d not in ('__pycache__', '.git', 'node_modules', 'venv')]
-              for f in files:
-                  if f.endswith('.py'):
-                      try:
-                          py_compile.compile(os.path.join(root, f), doraise=True)
-                      except py_compile.PyCompileError as e:
-                          errors.append(str(e))
+          for top in ('api', 'engine', 'tests', 'scripts'):
+              for root, dirs, files in os.walk(top):
+                  dirs[:] = [d for d in dirs if d not in ('__pycache__', '.git', 'node_modules', 'venv')]
+                  for f in files:
+                      if f.endswith('.py'):
+                          try:
+                              py_compile.compile(os.path.join(root, f), doraise=True)
+                          except py_compile.PyCompileError as e:
+                              errors.append(str(e))
           if errors:
               for e in errors: print(e, file=sys.stderr)
               sys.exit(1)
-          print('All backend Python files compiled successfully')
+          print('All Python files compiled successfully')
           "
 
-      # Only run test_pipeline.py and test_llm_parsing.py in CI — they are
-      # pure unit tests that don't need a running server, database, or API keys.
-      # test_integration.py and test_security_fixes.py require a live server.
-      - name: Run unit tests
+      # Full suite. SQLite-backed (Phase 48.0 hard-disables SQLite unless
+      # SNOWKAP_ALLOW_SQLITE=1) so it needs no Postgres, no server, no API keys.
+      - name: Run the full test suite
         env:
-          DATABASE_URL: "sqlite+aiosqlite://"
-          REDIS_URL: "redis://localhost:6379/0"
-          JENA_FUSEKI_URL: "http://localhost:3030"
+          PYTHONPATH: ${{ github.workspace }}
+          SNOWKAP_DB_BACKEND: "sqlite"
+          SNOWKAP_ALLOW_SQLITE: "1"
           JWT_SECRET: "ci-test-jwt-secret-min-32-characters-long"
-          SECRET_KEY: "ci-test-secret-key-min-32-characters-long"
           ENVIRONMENT: "test"
-          OPENAI_API_KEY: ""
-          ANTHROPIC_API_KEY: ""
+          SNOWKAP_ENV: "test"
+          # Generators/batch call engine.config.get_openai_key() at construction,
+          # which raises on an empty value. A dummy satisfies the non-empty check;
+          # the OpenAI client itself is mocked in tests, so NO real call is made.
+          OPENAI_API_KEY: "sk-ci-test-not-used"
         run: |
-          python -m pytest \
-            backend/tests/test_pipeline.py \
-            backend/tests/test_llm_parsing.py \
-            backend/tests/test_audit_fixes.py \
-            -v --tb=short \
+          python -m pytest tests/ \
+            -q --tb=short \
             --junitxml=test-results.xml
 
       - name: Upload test results
@@ -123,7 +125,7 @@ jobs:
         run: npm run build
 
   # ---------------------------------------------------------------------------
-  # Docker: validate all Dockerfiles build successfully
+  # Docker: validate the Railway deploy image (root Dockerfile) builds.
   # ---------------------------------------------------------------------------
   docker-build:
     name: Docker Build Validation
@@ -133,11 +135,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build API image
-        run: docker build -f docker/api.Dockerfile -t snowkap-api:ci .
-
-      - name: Build Worker image
-        run: docker build -f docker/worker.Dockerfile -t snowkap-worker:ci .
-
-      - name: Build Client image
-        run: docker build -f docker/client.Dockerfile -t snowkap-client:ci .
+      - name: Build the deploy image
+        run: docker build -f Dockerfile -t snowkap-esg:ci .

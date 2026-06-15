@@ -32,7 +32,7 @@ def top_article_for_company(company_slug: str) -> tuple[str, str] | None:
         from engine.models import company_article_view
         company = get_company(company_slug)
         industry = getattr(company, "industry", None) if company else None
-        rows = company_article_view.deck_for_company(
+        rows, _meta = company_article_view.deck_for_company(
             company_slug, industry, max_age_days=30, limit=10,
         )
     except Exception as exc:  # noqa: BLE001
@@ -82,7 +82,7 @@ def send_weekly_brief_to_subscribers(company_slug: str, *, dry_run: bool = False
     Reuses share_article_by_email (Morning-Brew layout + logo + Resend).
     Returns counts {subscribers, sent, failed, skipped}.
     """
-    result = {"company_slug": company_slug, "subscribers": 0, "sent": 0, "failed": 0, "skipped": 0}
+    result = {"company_slug": company_slug, "subscribers": 0, "sent": 0, "preview": 0, "failed": 0, "skipped": 0}
 
     top = top_article_for_company(company_slug)
     if not top or not top[0]:
@@ -113,8 +113,13 @@ def send_weekly_brief_to_subscribers(company_slug: str, *, dry_run: bool = False
                 dry_run=dry_run,
             )
             status = getattr(r, "status", "")
-            if status in ("sent", "preview"):
+            if status == "sent":
                 result["sent"] += 1
+            elif status == "preview":
+                # "preview" means the email was NOT transmitted (dry-run, or —
+                # in a real send — RESEND_API_KEY missing). Counting it as
+                # "sent" hid newsletter outages; surface it separately.
+                result["preview"] += 1
             else:
                 result["failed"] += 1
         except Exception as exc:  # noqa: BLE001
@@ -122,7 +127,7 @@ def send_weekly_brief_to_subscribers(company_slug: str, *, dry_run: bool = False
             result["failed"] += 1
 
     logger.info(
-        "weekly_brief: %s → %d subscribers, %d sent, %d failed",
-        company_slug, result["subscribers"], result["sent"], result["failed"],
+        "weekly_brief: %s → %d subscribers, %d sent, %d preview(not-sent), %d failed",
+        company_slug, result["subscribers"], result["sent"], result["preview"], result["failed"],
     )
     return result

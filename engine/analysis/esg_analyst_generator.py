@@ -310,6 +310,8 @@ def generate_esg_analyst_perspective(
             response_format={"type": "json_object"},
         )
         raw = resp.choices[0].message.content or "{}"
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, article_id=getattr(result, "article_id", None), stage="perspective_esg")
         parsed = json.loads(raw)
     except (APIError, APITimeoutError, json.JSONDecodeError, IndexError) as exc:
         logger.warning(

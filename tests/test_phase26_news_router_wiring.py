@@ -59,7 +59,7 @@ def test_fetch_newsapi_ai_records_spend_into_router_budget():
     before = router.budget.spent_this_month
 
     with patch(
-        "engine.ingestion.news_fetcher.requests.post",
+        "engine.ingestion.news_fetcher._SESSION.post",
         return_value=_stub_response(article_count=3),
     ):
         out = fetch_newsapi_ai("ESG climate", max_results=5)
@@ -79,7 +79,7 @@ def test_fetch_newsapi_ai_records_zero_spend_when_no_articles():
     before = router.budget.spent_this_month
 
     with patch(
-        "engine.ingestion.news_fetcher.requests.post",
+        "engine.ingestion.news_fetcher._SESSION.post",
         return_value=_stub_response(article_count=0),
     ):
         out = fetch_newsapi_ai("ESG climate", max_results=5)
@@ -102,7 +102,7 @@ def test_fetch_newsapi_ai_does_not_record_spend_on_http_error(monkeypatch):
         raise requests.RequestException("simulated 500")
 
     monkeypatch.setattr(
-        "engine.ingestion.news_fetcher.requests.post", _raise,
+        "engine.ingestion.news_fetcher._SESSION.post", _raise,
     )
     out = fetch_newsapi_ai("ESG climate", max_results=5)
     assert out == []

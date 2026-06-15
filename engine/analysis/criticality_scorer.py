@@ -545,10 +545,43 @@ def _weighted_score(
     return _clip01(pos - pen)
 
 
+def _ontology_weight_sets() -> dict[str, dict[str, float]]:
+    """Phase 51 — criticality weight sets from the ontology, or {} if unavailable."""
+    try:
+        from engine.ontology.intelligence import query_criticality_weights
+        return query_criticality_weights() or {}
+    except Exception:  # noqa: BLE001 — degrade to the built-in literals
+        logger.warning("criticality: ontology weights unavailable; using built-in fallback", exc_info=True)
+        return {}
+
+
+def _weights_for(role: str) -> dict[str, float]:
+    """Weight dict for a role: ontology first (Phase 51), then built-in literals."""
+    key = (role or "").strip().lower()
+    sets = _ontology_weight_sets()
+    if sets.get(key):
+        return sets[key]
+    if sets.get("default"):
+        return sets["default"]
+    return WEIGHTS_BY_ROLE.get(key, WEIGHTS_DEFAULT)
+
+
+def _active_bands() -> list[tuple[Band, float]]:
+    """Criticality bands (level, min_score) DESC: ontology first, then literals."""
+    try:
+        from engine.ontology.intelligence import query_criticality_bands
+        bands = query_criticality_bands()
+        if bands:
+            return bands  # already sorted DESC by min score
+    except Exception:  # noqa: BLE001 — degrade to the built-in literals
+        logger.warning("criticality: ontology bands unavailable; using built-in fallback", exc_info=True)
+    return BAND_THRESHOLDS
+
+
 def _band_for(score: float) -> Band:
-    for band, threshold in BAND_THRESHOLDS:
+    for band, threshold in _active_bands():
         if score >= threshold:
-            return band
+            return band  # type: ignore[return-value]
     return "LOW"
 
 
@@ -602,10 +635,12 @@ def score(
         article_text=article_text,
     )
 
-    final = _weighted_score(components, WEIGHTS_DEFAULT)
+    final = _weighted_score(components, _weights_for("default"))
+    _role_sets = _ontology_weight_sets() or WEIGHTS_BY_ROLE
     role_scores = {
-        role: _weighted_score(components, role_weights)
-        for role, role_weights in WEIGHTS_BY_ROLE.items()
+        role: _weighted_score(components, _weights_for(role))
+        for role in _role_sets
+        if role != "default"
     }
 
     return CriticalityResult(

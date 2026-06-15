@@ -105,7 +105,7 @@ def now_feed(
     fetch on swipe-up.
     """
     canonical, industry = _caller_company(claims, company)
-    rows = company_article_view.deck_for_company(
+    rows, meta = company_article_view.deck_for_company(
         canonical, industry, max_age_days=max_age_days, limit=limit,
     )
     return {
@@ -114,6 +114,11 @@ def now_feed(
         "count": len(rows),
         "limit": limit,
         "max_age_days": max_age_days,
+        # Phase 51 — completeness signals so the UI can show "2 of 3 priority
+        # briefs ready" instead of a silently short deck.
+        "critical_count": meta.get("critical_count", 0),
+        "total_count": len(rows),
+        "dropped_incomplete": meta.get("dropped_incomplete", 0),
         "articles": rows,
     }
 

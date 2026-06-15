@@ -132,7 +132,7 @@ def _stub_pipeline_result():
     return SimpleNamespace(
         article_id="art-1", title="Test", url="https://e.com/a",
         source="Reuters", published_at="2026-05-10T00:00:00Z",
-        company_slug="test-co", image_url="",
+        company_slug="test-co", image_url="", rejected=False,
         to_dict=lambda: {"frameworks": [], "causal_chains": []},
         risk=None, frameworks=[], causal_chains=[],
     )

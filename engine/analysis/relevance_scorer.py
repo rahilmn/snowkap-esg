@@ -177,12 +177,18 @@ def score_relevance(
     extraction: NLPExtraction,
     tags: ESGThemeTags,
     company_industry: str,
+    sasb_sector: str | None = None,
 ) -> RelevanceScore:
     """Score an article's relevance to a company on a 5-dimension rubric.
 
     The total score is adjusted by the ontology-queried materiality weight for
     the (primary_theme × company_industry) pair. If materiality is < 0.4,
     the final score is dampened by 40 %; if ≥ 0.8, no dampening.
+
+    Phase 51 — when ``sasb_sector`` is supplied, the SASB sector-materiality
+    weight wins over the industry baseline for (sector, topic) pairs that the
+    SASB overlay defines (e.g. banks treat financed emissions far higher than
+    a generic industry baseline).
     """
     esg = _score_esg_correlation(extraction, tags)
     fin = _score_financial_impact(extraction)
@@ -194,7 +200,7 @@ def score_relevance(
 
     # Query ontology for materiality weight. This is the ontology-driven
     # replacement for the legacy `MATERIALITY_MAP` Python dict.
-    weight = query_materiality_weight(tags.primary_theme, company_industry)
+    weight = query_materiality_weight(tags.primary_theme, company_industry, sasb_sector=sasb_sector)
     ontology_queries = 1
 
     if weight >= 0.8:

@@ -122,9 +122,14 @@ export function ShareArticleButton({
         role,
       });
       setLastResult(res as SendResult);
-      if (res.status === "sent" || res.status === "preview") {
+      if (res.status === "sent") {
         setStep("success");
         onSent?.(res as SendResult);
+      } else if (res.status === "preview") {
+        // Rendered but NOT delivered (RESEND_API_KEY missing / sender domain
+        // unverified). Show the honest "not sent" panel; do NOT fire onSent —
+        // nothing was actually emailed.
+        setStep("success");
       } else {
         setError(res.error || "Send failed");
         setStep("error");
@@ -271,9 +276,17 @@ export function ShareArticleButton({
 
           {step === "success" && (
             <div className="mt-5 space-y-3">
-              <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900">
+              <div
+                className={
+                  "rounded-md border p-4 text-sm " +
+                  (lastResult?.status === "sent"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                    : "border-amber-300 bg-amber-50 text-amber-900")
+                }
+              >
                 <div className="flex items-center gap-2 font-semibold">
-                  <CheckIcon /> {lastResult?.status === "sent" ? "Sent" : "Queued (preview mode)"}
+                  {lastResult?.status === "sent" ? <CheckIcon /> : <WarnIcon />}{" "}
+                  {lastResult?.status === "sent" ? "Sent" : "Not sent — preview only"}
                 </div>
                 <div className="mt-2 text-xs space-y-0.5">
                   <div>To: {lastResult?.recipient}</div>
@@ -286,9 +299,11 @@ export function ShareArticleButton({
                       id: {lastResult.provider_id}
                     </div>
                   )}
-                  {lastResult?.status === "preview" && !lastResult.provider_id && (
-                    <div className="text-[11px] text-amber-700 mt-1">
-                      RESEND_API_KEY not configured — brief was rendered but not sent. Add the key to go live.
+                  {lastResult?.status === "preview" && (
+                    <div className="text-[11px] text-amber-800 mt-1">
+                      The brief was rendered but <strong>not delivered</strong> — server
+                      email sending isn&apos;t configured (RESEND_API_KEY missing or sender
+                      domain unverified). No email reached {lastResult?.recipient}.
                     </div>
                   )}
                 </div>
@@ -341,6 +356,16 @@ function CheckIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function WarnIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   );
 }

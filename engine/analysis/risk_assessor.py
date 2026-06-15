@@ -14,6 +14,8 @@ A light LLM call produces per-category probability × exposure scores
 
 from __future__ import annotations
 
+from engine.analysis.text_budget import clamp_article_text
+
 import json
 import logging
 from dataclasses import asdict, dataclass, field
@@ -106,7 +108,7 @@ TEMPLES ENTERPRISE RISK CATEGORIES:
 {temples_list}
 
 ARTICLE TITLE: {article_title}
-ARTICLE CONTENT: {article_content[:2500]}
+ARTICLE CONTENT: {clamp_article_text(article_content)}
 
 Respond with a JSON object:
 {{
@@ -145,6 +147,8 @@ def _llm_score(
             max_tokens=800,
             response_format={"type": "json_object"},
         )
+        from engine.models.llm_calls import log_openai_usage
+        log_openai_usage(resp, model=model, stage="risk")
         return json.loads(resp.choices[0].message.content or "{}")
     except (APIError, APITimeoutError, json.JSONDecodeError, IndexError) as exc:
         logger.warning("risk_assessor LLM failed (%s)", type(exc).__name__)

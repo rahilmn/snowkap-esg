@@ -359,6 +359,8 @@ def _llm_subject(
                 temperature=0.3,
                 max_tokens=60,
             )
+            from engine.models.llm_calls import log_openai_usage
+            log_openai_usage(resp, model="gpt-4.1-mini", stage="subject_line")
             text = (resp.choices[0].message.content or "").strip().strip('"').strip("'")
     except Exception as exc:
         logger.warning("subject_line LLM failed: %s", exc)

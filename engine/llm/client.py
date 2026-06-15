@@ -21,6 +21,8 @@ estimate (unchanged from Phase 26).
 """
 from __future__ import annotations
 
+import logging
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator, Iterator
@@ -34,6 +36,24 @@ from engine.llm.keys import (
     resolve_x_title,
 )
 from engine.llm.routing import resolve_model
+
+logger = logging.getLogger(__name__)
+
+
+def _is_openrouter_out_of_credits(exc: Exception) -> bool:
+    """True when `exc` looks like OpenRouter rejecting a call for lack of
+    credits (HTTP 402 / 'insufficient credits') — the signal to fall back to
+    direct OpenAI. Conservative: only matches 402 or explicit credit wording,
+    so genuine errors (429, 5xx, auth) still propagate / retry normally."""
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+    if status == 402:
+        return True
+    msg = str(exc).lower()
+    if "402" in msg or "payment required" in msg:
+        return True
+    return "credit" in msg and ("insufficient" in msg or "negative" in msg or "exhaust" in msg)
 
 
 @dataclass
@@ -99,11 +119,58 @@ class OpenRouterClient:
         kwargs: dict[str, Any] = {
             "api_key": resolve_openrouter_key(),
             "timeout": self.timeout,
+            # Phase 51.C — explicit SDK retries (exponential backoff + jitter on
+            # 429 / 5xx / connection errors). Default 3; SNOWKAP_LLM_MAX_RETRIES
+            # tunes it. The OpenAI SDK applies this to both sync + async clients.
+            "max_retries": int(os.environ.get("SNOWKAP_LLM_MAX_RETRIES", "3")),
         }
         base = resolve_base_url()
         if base:
             kwargs["base_url"] = base
         return kwargs
+
+    # ------------------------------------------------------------------
+    # Phase 51.C — transparent fallback to direct OpenAI when OpenRouter
+    # runs out of credits (402). Fires ONLY when OpenRouter is the active
+    # provider AND an OPENAI_API_KEY is available; otherwise the original
+    # error propagates. Uses the task class's bare OpenAI model
+    # (reasoning_heavy → gpt-4.1) so a credit-out degrades gracefully.
+    # ------------------------------------------------------------------
+
+    def _maybe_fallback_kwargs(
+        self, exc: Exception, orig_kwargs: dict[str, Any], override: str | None
+    ) -> dict[str, Any] | None:
+        if is_using_legacy_openai():
+            return None  # already on direct OpenAI — nowhere to fall back to
+        if not _is_openrouter_out_of_credits(exc):
+            return None
+        if not os.environ.get("OPENAI_API_KEY", "").strip():
+            return None
+        from engine.llm.routing import resolve_openai_fallback_model
+        fb = dict(orig_kwargs)
+        fb.pop("extra_headers", None)  # OpenRouter routing headers — not for OpenAI
+        fb["model"] = resolve_openai_fallback_model(self.task_class, override)
+        logger.warning(
+            "OpenRouter out of credits (%s) — falling back to direct OpenAI model %s",
+            type(exc).__name__, fb["model"],
+        )
+        return fb
+
+    def _direct_openai_sync(self) -> Any:
+        from openai import OpenAI
+        return OpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY", "").strip(),
+            timeout=self.timeout,
+            max_retries=int(os.environ.get("SNOWKAP_LLM_MAX_RETRIES", "3")),
+        )
+
+    def _direct_openai_async(self) -> Any:
+        from openai import AsyncOpenAI
+        return AsyncOpenAI(
+            api_key=os.environ.get("OPENAI_API_KEY", "").strip(),
+            timeout=self.timeout,
+            max_retries=int(os.environ.get("SNOWKAP_LLM_MAX_RETRIES", "3")),
+        )
 
     @property
     def sync(self) -> Any:
@@ -158,10 +225,19 @@ class OpenRouterClient:
         kwargs.update(extra)
 
         t0 = time.perf_counter()
-        completion = self.sync.chat.completions.create(**kwargs)
+        try:
+            completion = self.sync.chat.completions.create(**kwargs)
+        except Exception as exc:  # noqa: BLE001 — inspected; non-credits errors re-raise
+            fb_kwargs = self._maybe_fallback_kwargs(exc, kwargs, model)
+            if fb_kwargs is None:
+                raise
+            kwargs = fb_kwargs
+            completion = self._direct_openai_sync().chat.completions.create(**kwargs)
         latency_ms = (time.perf_counter() - t0) * 1000
 
-        return self._build_response(completion, kwargs["model"], latency_ms)
+        resp = self._build_response(completion, kwargs["model"], latency_ms)
+        self._log_usage(resp)
+        return resp
 
     async def acomplete(
         self,
@@ -187,9 +263,18 @@ class OpenRouterClient:
         kwargs.update(extra)
 
         t0 = time.perf_counter()
-        completion = await self.async_client.chat.completions.create(**kwargs)
+        try:
+            completion = await self.async_client.chat.completions.create(**kwargs)
+        except Exception as exc:  # noqa: BLE001 — inspected; non-credits errors re-raise
+            fb_kwargs = self._maybe_fallback_kwargs(exc, kwargs, model)
+            if fb_kwargs is None:
+                raise
+            kwargs = fb_kwargs
+            completion = await self._direct_openai_async().chat.completions.create(**kwargs)
         latency_ms = (time.perf_counter() - t0) * 1000
-        return self._build_response(completion, kwargs["model"], latency_ms)
+        resp = self._build_response(completion, kwargs["model"], latency_ms)
+        self._log_usage(resp)
+        return resp
 
     def stream(
         self,
@@ -293,6 +378,24 @@ class OpenRouterClient:
             if v is not None:
                 out[key] = v
         return out
+
+    def _log_usage(self, resp: "LLMResponse") -> None:
+        """Phase 51 — record token usage + cost for this call to llm_calls.
+        Non-blocking: telemetry must never break the LLM path. Covers every
+        gateway caller (lede, approval, chat, …)."""
+        try:
+            from engine.models.llm_calls import log_call
+            u = resp.usage or {}
+            log_call(
+                model=resp.model_used,
+                prompt_tokens=int(u.get("prompt_tokens", 0) or 0),
+                completion_tokens=int(u.get("completion_tokens", 0) or 0),
+                stage=self.task_class,
+            )
+        except Exception:  # noqa: BLE001
+            # Telemetry must never break the LLM path, but must not be
+            # swallowed silently either (CLAUDE.md §12.2 — no silent except).
+            logger.warning("llm_calls usage logging failed", exc_info=True)
 
 
 def get_llm_client(
