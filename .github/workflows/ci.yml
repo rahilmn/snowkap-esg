@@ -74,6 +74,10 @@ jobs:
           JWT_SECRET: "ci-test-jwt-secret-min-32-characters-long"
           ENVIRONMENT: "test"
           SNOWKAP_ENV: "test"
+          # Generators/batch call engine.config.get_openai_key() at construction,
+          # which raises on an empty value. A dummy satisfies the non-empty check;
+          # the OpenAI client itself is mocked in tests, so NO real call is made.
+          OPENAI_API_KEY: "sk-ci-test-not-used"
         run: |
           python -m pytest tests/ \
             -q --tb=short \
