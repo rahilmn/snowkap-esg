@@ -168,9 +168,10 @@ def test_hourly_feed_always_uses_tier2(stub_fetchers):
     assert isinstance(res, FetchResult)
     assert res.tier == "tier2_google_rss"
     assert res.tokens_spent == 0
-    # Tier 2 stub was called per query
-    assert len(stub_fetchers["tier2_calls"]) == 2
-    assert len(stub_fetchers["tier1_calls"]) == 0
+    # Phase 48.A merged Tier-2 onto fetch_newsapi_ai, so the single stub
+    # records both tiers' calls in tier1_calls.
+    assert len(stub_fetchers["tier1_calls"]) == 2
+    assert len(stub_fetchers["tier2_calls"]) == 0
 
 
 def test_weekly_critical_uses_tier1_when_budget_allows(stub_fetchers):
@@ -201,8 +202,9 @@ def test_weekly_critical_falls_back_when_budget_exhausted(stub_fetchers):
     assert res.tier == "tier2_google_rss"
     assert res.tokens_spent == 0
     assert "tier1 budget exhausted" in (res.fallback_reason or "")
-    assert len(stub_fetchers["tier1_calls"]) == 0
-    assert len(stub_fetchers["tier2_calls"]) == 2
+    # Phase 48.A — the Tier-2 fallback also routes through fetch_newsapi_ai.
+    assert len(stub_fetchers["tier2_calls"]) == 0
+    assert len(stub_fetchers["tier1_calls"]) == 2
 
 
 def test_burst_uses_burst_reserve_not_main(stub_fetchers):

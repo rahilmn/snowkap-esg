@@ -186,26 +186,44 @@ def insight_detail(
             headers={"Retry-After": "30"},
         )
 
-    if not json_path.exists():
-        return _regen_response("file_missing_on_disk")
+    # Phase 51.B — disk stays PRIMARY (the on-demand re-enrichment +
+    # full-text-retry paths mutate the JSON in place). But that filesystem
+    # is EPHEMERAL on Railway, so when the file is gone we fall back to the
+    # durable Postgres mirror instead of returning 202 + paying for a fresh
+    # LLM regeneration. (Once a backfill populates every row and disk leaves
+    # the image, the DB becomes primary.)
+    payload: dict | None = None
+    if json_path.exists():
+        try:
+            raw = json_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            logger.error("insight_detail: read failed for %s: %s", json_path, exc)
+            return _regen_response(f"read_failed:{type(exc).__name__}")
+        except UnicodeDecodeError as exc:
+            logger.error("insight_detail: encoding error for %s: %s", json_path, exc)
+            return _regen_response("encoding_error")
 
-    try:
-        raw = json_path.read_text(encoding="utf-8")
-    except OSError as exc:
-        logger.error("insight_detail: read failed for %s: %s", json_path, exc)
-        return _regen_response(f"read_failed:{type(exc).__name__}")
-    except UnicodeDecodeError as exc:
-        logger.error("insight_detail: encoding error for %s: %s", json_path, exc)
-        return _regen_response("encoding_error")
-
-    try:
-        payload = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        logger.error(
-            "insight_detail: malformed JSON for %s at line %d col %d: %s",
-            json_path, exc.lineno, exc.colno, exc.msg,
-        )
-        return _regen_response("malformed_json")
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            logger.error(
+                "insight_detail: malformed JSON for %s at line %d col %d: %s",
+                json_path, exc.lineno, exc.colno, exc.msg,
+            )
+            return _regen_response("malformed_json")
+    else:
+        # File gone (ephemeral FS wiped on restart) — serve the durable copy.
+        try:
+            from engine.models import insight_payload as insight_payload_store
+            payload = insight_payload_store.get(article_id)
+        except Exception as exc:  # noqa: BLE001 — fall through to regen on error
+            logger.warning(
+                "insight_detail: DB payload read failed for %s: %s", article_id, exc
+            )
+            payload = None
+        if payload is None:
+            return _regen_response("file_missing_on_disk")
+        logger.info("insight_detail: served %s from Postgres mirror (disk absent)", article_id)
 
     if perspective:
         # Return only the requested perspective view + article metadata

@@ -205,6 +205,7 @@ class TestSessionRouter:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.skip(reason="snowkap/hooks/session_start.py (dev session-banner hook) was removed; module no longer importable")
 class TestSessionStartHook:
     def test_compose_banner_returns_string(self):
         from snowkap.hooks.session_start import compose_banner

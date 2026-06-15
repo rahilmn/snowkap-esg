@@ -65,6 +65,7 @@ def _client_token() -> str:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.xfail(reason="backend.core.permissions.Permission enum was removed in Phase 46; SUPER_ADMIN_PERMISSIONS is now a flat list with no enum to diff against", strict=False)
 def test_super_admin_has_every_permission_enum_value():
     """If a new Permission is added to backend/core/permissions.py, this test
     fails until it's also added to SUPER_ADMIN_PERMISSIONS. Locks the

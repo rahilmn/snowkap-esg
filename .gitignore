@@ -72,6 +72,15 @@ setup_db.py
 # Local SQLite DB (transient runtime state — keeps re-conflicting on every rebase)
 data/snowkap.db
 
+# Phase 51.B — generated insight payloads are now durably mirrored in Postgres
+# (engine.models.insight_payload); the on-disk JSON is a write-through cache and
+# insight_detail falls back to the DB mirror when a file is absent. Stop tracking
+# them so the repo + image stop carrying ~hundreds of generated files. Runbook:
+# deploy the mirror code -> run scripts/backfill_insight_payload.py against prod
+# -> `git rm -r --cached data/outputs` -> redeploy. See
+# docs/INSIGHT_PAYLOAD_BACKFILL.md.
+data/outputs/
+
 # Phase 28 cleanup — build artifacts that should never have been
 # tracked but slipped through pre-Phase-28.
 client/tsconfig.tsbuildinfo
@@ -84,3 +93,6 @@ stuck.paint
 # Phase 28 — Office lockfiles + Replit attachments
 attached_assets/
 .replit.cache/
+
+# Local Netlify folder
+.netlify

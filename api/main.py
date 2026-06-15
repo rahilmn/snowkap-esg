@@ -403,7 +403,15 @@ def _start_inprocess_scheduler() -> None:
         # the user reported on 2026-05-19.
         from datetime import datetime, timedelta, timezone
         boot_offset = datetime.now(timezone.utc) + timedelta(seconds=30)
-        scheduler = BackgroundScheduler(daemon=True)
+        # Phase 51.C — idempotency defaults for every job: coalesce collapses
+        # missed runs into one, max_instances=1 prevents an overlapping second
+        # run if one overruns its interval, misfire_grace_time lets a run that
+        # was missed during a restart still fire (the weekly job's own
+        # already-ran-this-week guard prevents a duplicate newsletter).
+        scheduler = BackgroundScheduler(
+            daemon=True,
+            job_defaults={"coalesce": True, "max_instances": 1, "misfire_grace_time": 3600},
+        )
         scheduler.add_job(
             run_ingest_job,
             trigger="interval",
@@ -673,7 +681,42 @@ async def _request_context_middleware(request: Request, call_next):
 
 @app.get("/health")
 def health() -> dict:
+    # Liveness only — intentionally cheap and dependency-free so a transient
+    # DB blip never trips Railway's healthcheck (healthcheckPath=/health,
+    # restartPolicyType=ON_FAILURE) into a restart loop. DB reachability is
+    # reported separately by /health/ready, polled by monitors / load balancers.
     return {"status": "ok", "service": "snowkap-esg-api", "version": "0.2.0"}
+
+
+@app.get("/health/ready")
+def health_ready(response: Response) -> dict:
+    """Readiness probe — verifies the process can actually reach the database.
+
+    Deliberately separate from /health (liveness). Monitors / load balancers
+    poll this to know whether the app can serve DB-backed traffic; 503 on DB
+    loss → alert + drain, NOT a container restart. Reuses
+    ``engine.db.connection.connect()`` so it honours the same backend selection
+    and connect timeout as the rest of the app.
+    """
+    db_ok = False
+    detail = "ok"
+    try:
+        from engine.db.connection import connect
+
+        with connect() as conn:
+            conn.execute("SELECT 1").fetchone()
+        db_ok = True
+    except Exception as exc:  # noqa: BLE001
+        detail = type(exc).__name__
+        logger.warning("readiness DB ping failed", exc_info=True)
+    if not db_ok:
+        response.status_code = 503
+    return {
+        "status": "ready" if db_ok else "degraded",
+        "service": "snowkap-esg-api",
+        "db": "ok" if db_ok else "error",
+        "detail": detail,
+    }
 
 
 @app.get("/metrics", response_class=Response)
@@ -867,6 +910,33 @@ def metrics() -> Response:
             logger.debug("metrics: article_full_text aggregate failed: %s", exc)
     except Exception as exc:  # noqa: BLE001 — body-coverage metrics are additive
         logger.debug("metrics: body-coverage block failed: %s", exc)
+
+    # Phase 51.C — scheduler job health. Emits each cron job's last-run epoch +
+    # an ok/error gauge so a MISSED run ("now - last_run_seconds > threshold",
+    # e.g. >8d for weekly_deck_refresh) or a FAILING job ("last_status == 0")
+    # can be alerted on. Source: engine.models.scheduler_state.list_all_runs.
+    try:
+        from engine.models.scheduler_state import list_all_runs
+        runs = list_all_runs()
+        if runs:
+            lines.append("# HELP snowkap_scheduler_last_run_seconds UNIX timestamp of each cron job's last run (Phase 51)")
+            lines.append("# TYPE snowkap_scheduler_last_run_seconds gauge")
+            for r in runs:
+                lines.append(
+                    f'snowkap_scheduler_last_run_seconds{{job="{r.get("job_id", "")}"}} '
+                    f'{float(r.get("last_run_at") or 0):.0f}'
+                )
+            lines.append("")
+            lines.append("# HELP snowkap_scheduler_last_status 1 when the job's last run was ok, 0 otherwise (Phase 51)")
+            lines.append("# TYPE snowkap_scheduler_last_status gauge")
+            for r in runs:
+                lines.append(
+                    f'snowkap_scheduler_last_status{{job="{r.get("job_id", "")}"}} '
+                    f'{1 if r.get("last_status") == "ok" else 0}'
+                )
+            lines.append("")
+    except Exception as exc:  # noqa: BLE001 — scheduler metrics are additive
+        logger.debug("metrics: scheduler_state block failed: %s", exc)
 
     return Response(content="\n".join(lines), media_type="text/plain; version=0.0.4")
 

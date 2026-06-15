@@ -13,6 +13,7 @@ Covers:
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime as _dt, timedelta as _td, timezone as _tz
 from unittest.mock import patch
 
 import pytest
@@ -20,6 +21,10 @@ from fastapi.testclient import TestClient
 
 from api.auth_context import SUPER_ADMIN_PERMISSIONS, mint_bearer
 from api.main import app
+
+# Seed fixtures inside the feed freshness window (14d) so alias/count
+# assertions stay evergreen instead of rotting as a hardcoded date ages out.
+_FRESH_ISO = (_dt.now(_tz.utc) - _td(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
 from engine.index import tenant_registry
 from engine.index.sqlite_index import DB_PATH
 
@@ -463,10 +468,10 @@ def test_count_and_query_feed_use_alias_resolution():
                 """,
                 (
                     article_id, canonical, "Canonical-only article",
-                    "test", "https://example.test/x", "2026-04-30T00:00:00Z",
+                    "test", "https://example.test/x", _FRESH_ISO,
                     "HOME", "HIGH", "monitor", 8.0, 7.0,
                     "Environment", "Climate", "news", 0,
-                    0, 0, "data/outputs/dummy.json", "2026-04-30T00:00:00Z",
+                    0, 0, "data/outputs/dummy.json", _FRESH_ISO,
                     0,
                 ),
             )
@@ -572,10 +577,10 @@ def _seed_article(article_id: str, company_slug: str) -> None:
             """,
             (
                 article_id, company_slug, "Task3 fixture article",
-                "test", "https://example.test/task3", "2026-04-30T00:00:00Z",
+                "test", "https://example.test/task3", _FRESH_ISO,
                 "HOME", "HIGH", "monitor", 8.0, 7.0,
                 "Environment", "Climate", "news", 0,
-                0, 0, "data/outputs/dummy.json", "2026-04-30T00:00:00Z",
+                0, 0, "data/outputs/dummy.json", _FRESH_ISO,
                 0,
             ),
         )

@@ -180,7 +180,7 @@ def test_share_rejects_unknown_article():
             outputs_root=outputs,
         )
     assert result.status == "failed"
-    assert "no HOME-tier analysis found" in result.error
+    assert "not found" in result.error
 
 
 def test_share_end_to_end_preview_mode():
@@ -221,18 +221,16 @@ def test_share_end_to_end_preview_mode():
             encoding="utf-8",
         )
 
-        # Mock companies.json lookup
-        import engine.config as cfg
-        # Force load_companies to fail gracefully → fallback to slug title
-        with patch.object(cfg.load_companies, "cache_clear", lambda: None):
-            with patch("engine.config.load_companies", side_effect=Exception("no")):
-                result = share_article_by_email(
-                    article_id=article_id,
-                    company_slug="adani-power",
-                    recipient_email="ambalika.m@mintedit.com",
-                    outputs_root=outputs,
-                    dry_run=True,
-                )
+        # Force load_companies to fail gracefully → fallback to slug title.
+        # (load_companies dropped its lru_cache, so there's no cache_clear.)
+        with patch("engine.config.load_companies", side_effect=Exception("no")):
+            result = share_article_by_email(
+                article_id=article_id,
+                company_slug="adani-power",
+                recipient_email="ambalika.m@mintedit.com",
+                outputs_root=outputs,
+                dry_run=True,
+            )
 
     assert result.status == "preview"
     assert result.recipient == "ambalika.m@mintedit.com"

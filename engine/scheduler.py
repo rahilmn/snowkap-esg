@@ -300,7 +300,34 @@ def run_weekly_deck_refresh_job() -> dict[str, Any]:
 
     Returns a per-company summary dict for the scheduler_state log.
     """
-    summary: dict[str, Any] = {"companies": 0, "refreshed": 0, "newsletters_sent": 0, "errors": []}
+    summary: dict[str, Any] = {
+        "companies": 0, "refreshed": 0,
+        "newsletters_sent": 0, "newsletters_preview": 0, "newsletters_failed": 0,
+        "newsletter_enabled": False, "errors": [],
+    }
+
+    # Phase 51.C — idempotency guard. A container restart re-registers the
+    # cron; if the Sunday boundary passes during/after a restart the job could
+    # fire again and re-send newsletters. Skip if a SUCCESSFUL run completed
+    # within SNOWKAP_WEEKLY_MIN_GAP_HOURS (default 120h = 5 days). Checked
+    # BEFORE the try so a skip never resets the last-run clock (record_run runs
+    # in the finally below).
+    try:
+        from engine.models.scheduler_state import get_last_run
+        _last = get_last_run("weekly_deck_refresh")
+        if _last and _last.get("last_status") == "ok":
+            _hours_since = (time.time() - float(_last.get("last_run_at") or 0)) / 3600.0
+            _min_gap = float(os.environ.get("SNOWKAP_WEEKLY_MIN_GAP_HOURS", "120"))
+            if _hours_since < _min_gap:
+                logger.info(
+                    "weekly refresh: skipping — last successful run %.1fh ago "
+                    "(< %.0fh idempotency gap)", _hours_since, _min_gap,
+                )
+                summary["skipped_recent_run"] = True
+                return summary
+    except Exception as exc:  # noqa: BLE001 — guard must never block the job
+        logger.warning("weekly refresh: idempotency check failed (continuing): %s", exc)
+
     try:
         from engine.db.connection import is_postgres
         if not is_postgres():
@@ -315,6 +342,12 @@ def run_weekly_deck_refresh_job() -> dict[str, Any]:
         companies = load_companies()
         summary["companies"] = len(companies)
         newsletter_enabled = os.environ.get("SNOWKAP_NEWSLETTER_ENABLED", "").strip() == "1"
+        summary["newsletter_enabled"] = newsletter_enabled
+        if not newsletter_enabled:
+            logger.info(
+                "weekly refresh: newsletter disabled "
+                "(set SNOWKAP_NEWSLETTER_ENABLED=1 to send)"
+            )
 
         for company in companies:
             try:
@@ -332,14 +365,47 @@ def run_weekly_deck_refresh_job() -> dict[str, Any]:
                 try:
                     from engine.output.weekly_brief import send_weekly_brief_to_subscribers
                     r = send_weekly_brief_to_subscribers(company.slug)
-                    summary["newsletters_sent"] += int(r.get("sent", 0))
+                    sent = int(r.get("sent", 0))
+                    preview = int(r.get("preview", 0))
+                    failed = int(r.get("failed", 0))
+                    summary["newsletters_sent"] += sent
+                    summary["newsletters_preview"] += preview
+                    summary["newsletters_failed"] += failed
+                    # A "preview" in a real send means RESEND_API_KEY is missing
+                    # → the email was NOT transmitted. Record it as an error so
+                    # the run summary never reports a phantom send.
+                    if preview:
+                        summary["errors"].append(
+                            f"{company.slug}: newsletter NOT sent "
+                            f"(preview/RESEND_API_KEY missing) x{preview}"
+                        )
+                    if failed:
+                        summary["errors"].append(
+                            f"{company.slug}: newsletter send failed x{failed}"
+                        )
                 except Exception as exc:  # noqa: BLE001
                     logger.warning("weekly newsletter send failed for %s: %s", company.slug, exc)
+                    summary["errors"].append(
+                        f"{company.slug}: newsletter exception {type(exc).__name__}"
+                    )
 
         logger.info("weekly refresh DONE: %s", summary)
     except Exception as exc:  # noqa: BLE001
         logger.exception("weekly refresh job crashed: %s", exc)
         summary["errors"].append(f"crash: {type(exc).__name__}")
+    finally:
+        # Durable "did it run?" record — the weekly job previously left no
+        # scheduler_state trail, only logs. Runs even on the early
+        # not_postgres return so a misconfig is visible via /metrics.
+        try:
+            from engine.models.scheduler_state import record_run
+            record_run(
+                "weekly_deck_refresh",
+                result=summary,
+                status="error" if summary["errors"] else "ok",
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("weekly refresh: scheduler_state.record_run failed: %s", exc)
     return summary
 
 

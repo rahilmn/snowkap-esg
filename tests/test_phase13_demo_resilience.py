@@ -320,6 +320,10 @@ def test_email_config_status_returns_disabled_when_key_missing() -> None:
     with patch.dict(os.environ, {
         "JWT_SECRET": "test-secret-xxxxxxxxxxxxxxxxxxxxxx",
         "SNOWKAP_API_KEY": "test-api-key",
+        # clear=True wipes the test DB backend too — re-set it so the app
+        # startup doesn't try (and fail) to reach Postgres without a URL.
+        "SNOWKAP_DB_BACKEND": "sqlite",
+        "SNOWKAP_ALLOW_SQLITE": "1",
     }, clear=True):
         with TestClient(app) as client:
             r = client.get("/api/admin/email-config-status", headers=_api_headers())

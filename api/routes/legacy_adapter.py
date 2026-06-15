@@ -2257,6 +2257,10 @@ def agent_chat(
     # If the caller pins the chat to a specific article, that article must
     # belong to their tenant — otherwise the agent's ontology context would
     # leak details about another tenant's analysed insight.
+    # Reject blank questions before any work — an empty/whitespace question is
+    # a client error (and would otherwise burn an LLM call for nothing).
+    if not body.question or not body.question.strip():
+        raise HTTPException(status_code=400, detail="question must not be empty")
     if body.article_id:
         _require_article_in_scope(body.article_id, claims)
     answer = _run_agent_chat(body.question, body.agent_id, body.article_id)

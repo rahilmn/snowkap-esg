@@ -19,11 +19,13 @@ sqlalchemy[asyncio]==2.0.36
 asyncpg==0.30.0
 psycopg2-binary==2.9.11
 alembic==1.14.1
-pgvector==0.3.6
 
-# --- Redis + Celery ---
+# --- Redis (optional analysis-cache flush in purge_old_analysis.py) ---
+# celery[redis] + pgvector removed: zero Python imports anywhere in the tree
+# (celery only referenced by the vestigial docker/worker.Dockerfile; pgvector
+# retrieval explicitly deferred per engine/memory/retrieval.py). redis stays —
+# purge_old_analysis.py imports it for an optional cache flush.
 redis==5.2.1
-celery[redis]==5.4.0
 
 # --- AI / LLM ---
 # Phase 24.7 — pinned langchain stack removed. Per CLAUDE.md "OpenAI only.
