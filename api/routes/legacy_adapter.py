@@ -674,6 +674,7 @@ def _ensure_tenant_for_login(
     body_domain: str,
     body_company_name: str | None,
     background: BackgroundTasks | None,
+    resolved_slug: str | None = None,
 ) -> str | None:
     """Resolve the company_id any non-super-admin login should land on.
 
@@ -702,6 +703,21 @@ def _ensure_tenant_for_login(
     `background` is the request's FastAPI BackgroundTasks — passed
     through so we don't block the login response on the pipeline.
     """
+    # Case 1a: the client echoed back the canonical slug that
+    # /auth/resolve-domain already matched for this domain. Trust it — but
+    # only after validating it's a real seeded company — so a returning user
+    # deterministically lands on their existing deck instead of being
+    # re-onboarded by a fuzzy name/domain miss. This is the reliable path
+    # that closes the "existing company re-onboarded on login" bug.
+    if resolved_slug:
+        if resolved_slug in {c.slug for c in load_companies()}:
+            return resolved_slug
+        logger.info(
+            "login: ignoring unknown resolved_slug %r (not a seeded company); "
+            "falling back to name/domain match",
+            resolved_slug,
+        )
+
     # Case 1: known target company
     target_slug = _slug_for_company(body_company_name, body_domain)
     if target_slug:
@@ -852,6 +868,12 @@ class LoginIn(BaseModel):
     designation: str
     company_name: str
     name: str
+    # Phase 51.C — the canonical slug returned by /auth/resolve-domain when the
+    # domain matched an existing company. When the LoginPage echoes it back, the
+    # login lands the user on that exact deck instead of re-deriving it via the
+    # fuzzy name/domain matcher (which could miss and trigger a duplicate
+    # onboard). Optional + server-validated, so it's safe + back-compatible.
+    slug: str | None = None
 
 
 def _slug_for_company(name: str | None, domain: str | None = None) -> str | None:
@@ -923,6 +945,7 @@ def _mint_login_response(
     designation: str | None,
     domain: str | None,
     background: BackgroundTasks,
+    resolved_slug: str | None = None,
 ) -> dict[str, Any]:
     """Shared JWT-mint path used by both legacy direct-login and OTP verify.
 
@@ -943,6 +966,7 @@ def _mint_login_response(
             body_domain=domain or (email.split("@")[-1] if "@" in email else ""),
             body_company_name=company_name,
             background=background,
+            resolved_slug=resolved_slug,
         )
     display_name = name or email.split("@")[0].title()
 
@@ -1031,6 +1055,7 @@ def auth_login(
         designation=body.designation,
         domain=body.domain,
         background=background,
+        resolved_slug=body.slug,
     )
 
 

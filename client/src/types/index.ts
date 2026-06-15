@@ -5,6 +5,10 @@ export interface ResolveDomainResponse {
   industry: string | null;
   is_existing: boolean;
   tenant_id: string | null;
+  // Canonical company slug, present when an existing company matched. The
+  // LoginPage echoes it back on /auth/login so the user lands on that exact
+  // deck instead of being re-onboarded by a fuzzy match.
+  slug?: string | null;
 }
 
 export interface LoginResponse {

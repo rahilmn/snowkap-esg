@@ -69,6 +69,9 @@ export function LoginPage() {
   const [domain, setDomain] = useState("");
   const [designation, setDesignation] = useState("ESG Analyst");
   const [companyName, setCompanyName] = useState("");
+  // Canonical slug from resolveDomain when the domain matched an existing
+  // company — echoed back on login so the user lands on their real deck.
+  const [resolvedSlug, setResolvedSlug] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [returningEmail, setReturningEmail] = useState("");
@@ -87,6 +90,10 @@ export function LoginPage() {
     try {
       const result = await auth.resolveDomain(domain);
       if (result.company_name) setCompanyName(result.company_name);
+      // Phase 51.C — capture the canonical slug for existing companies so the
+      // login lands on the real deck instead of re-deriving (and possibly
+      // re-onboarding) it. Cleared for brand-new domains.
+      setResolvedSlug(result.is_existing ? result.slug ?? null : null);
       // Designation step removed — default everyone to ESG Analyst and skip
       // straight to the confirm step. Users switch cognitive lens in-app via
       // the PerspectiveSwitcher, not via a static role at login.
@@ -103,7 +110,7 @@ export function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const result = await auth.login({ email, domain, designation, company_name: companyName, name });
+      const result = await auth.login({ email, domain, designation, company_name: companyName, name, slug: resolvedSlug ?? undefined });
       // Phase 22.4 — server returns LoginResponse directly (OTP path
       // disabled). Defensive guard kept: if the server is reconfigured
       // to issue a verify challenge, we treat that as an error rather

@@ -8,6 +8,8 @@ mirror when the disk file is gone.
 """
 from __future__ import annotations
 
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from starlette.testclient import TestClient
@@ -80,3 +82,85 @@ def test_insight_detail_202_when_disk_and_db_both_missing() -> None:
             r = client.get("/api/insights/p51-nowhere", headers=_api_headers())
     assert r.status_code == 202, r.text
     assert r.json()["reason"] == "file_missing_on_disk"
+
+
+# ---------------------------------------------------------------------------
+# Phase 51.B (cont.) — WRITE-side resilience. A read-only / non-writable data
+# dir (Railway without a mounted volume) raised PermissionError mid-onboard and
+# mid-weekly-refresh, because the on-disk JSON write was fatal and ran BEFORE
+# the Postgres mirror. Disk writes are now best-effort; Postgres is the durable
+# source of truth, so onboarding + the weekly deck refresh survive a read-only
+# filesystem.
+# ---------------------------------------------------------------------------
+def _readonly_mkdir(self, *a, **k):  # noqa: ANN001, ARG001
+    raise PermissionError(13, "Permission denied", str(self))
+
+
+def _stub_result(article_id: str = "art-ro", slug: str = "test-co"):
+    return SimpleNamespace(
+        article_id=article_id, title="Read-only test",
+        url="https://example.com/ro", source="Reuters",
+        published_at="2026-05-10T00:00:00Z", company_slug=slug, image_url="",
+        rejected=False,
+        to_dict=lambda: {"article_id": article_id, "frameworks": [], "causal_chains": []},
+        risk=None, frameworks=[], causal_chains=[],
+    )
+
+
+def _stub_insight():
+    return SimpleNamespace(to_dict=lambda: {
+        "headline": "H", "decision_summary": {"materiality": "HIGH"},
+        "event_polarity": "negative", "criticality": {"score": 0.7},
+    })
+
+
+def test_write_helper_survives_readonly_disk(tmp_path) -> None:
+    """The shared _write helper logs + returns the *intended* path (file absent)
+    instead of raising when the data dir can't be written — covers write_insight
+    AND write_light_insight."""
+    from engine.output.writer import _write
+    target = tmp_path / "insights" / "x.json"
+    with patch.object(Path, "mkdir", _readonly_mkdir):
+        out = _write(target, {"a": 1})
+    assert out == target     # intended path recorded …
+    assert not out.exists()  # … but nothing was written to disk
+
+
+def test_write_insight_survives_readonly_disk_and_mirrors_to_db(tmp_path) -> None:
+    """End-to-end: a read-only data dir → write_insight does NOT raise and the
+    full payload still lands in Postgres, so the deck + detail view work.
+
+    Patches Path.write_text (the JSON file write) rather than Path.mkdir, because
+    the SQLite mirror itself needs mkdir to create its data dir."""
+    from engine.output import writer as writer_mod
+    aid = "art-ro-mirror"
+
+    def _readonly_write_text(self, *a, **k):  # noqa: ANN001, ARG001
+        raise PermissionError(13, "Permission denied", str(self))
+
+    with patch.object(writer_mod, "get_output_dir", return_value=tmp_path / "test-co"), \
+         patch.object(Path, "write_text", _readonly_write_text):
+        written = writer_mod.write_insight(
+            result=_stub_result(aid), insight=_stub_insight(),
+            perspectives={}, recommendations=None,
+        )
+    # Path recorded (json_path is NOT NULL) but the file was never written …
+    assert written.insight is not None and not written.insight.exists()
+    # … and the full payload is durable in the Postgres mirror.
+    got = ip.get(aid)
+    assert got is not None and got["article"]["id"] == aid
+
+
+def test_news_fetcher_disk_writes_are_best_effort() -> None:
+    """A read-only data dir must not break the news fetch: _write_article and
+    _save_processed log + continue (the articles still flow to the pipeline +
+    Postgres), so onboarding + the weekly refresh keep working."""
+    from engine.ingestion import news_fetcher as nf
+    art = nf.IngestedArticle(
+        id="ro-1", title="T", content="c", summary="s", source="Reuters",
+        url="https://e.com/ro1", published_at="2026-05-10T00:00:00Z",
+        company_slug="test-co", source_type="newsapi_ai",
+    )
+    with patch.object(Path, "mkdir", _readonly_mkdir):
+        assert nf._write_article(art) is None  # logged + skipped
+        nf._save_processed({"deadbeef"})       # must not raise
