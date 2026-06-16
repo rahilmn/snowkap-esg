@@ -65,6 +65,20 @@ RUN python -c "from engine.ontology.graph import OntologyGraph; OntologyGraph().
 # Non-root user for security
 RUN useradd --system --user-group --create-home snowkap && \
     chown -R snowkap:snowkap /opt/snowkap
+
+# Phase 51 — make the runtime-writable data subdirs writable by WHATEVER uid the
+# platform runs as. Railway (and some managed hosts) can launch the container
+# under a uid other than `snowkap`, which is why onboarding + the weekly refresh
+# hit `PermissionError: '/opt/snowkap/data/inputs'`. The app is now resilient to
+# a read-only data dir (it persists to Postgres — see engine/output/writer.py +
+# engine/ingestion/news_fetcher.py), so this is a best-effort cache-and-
+# reprocessing optimisation, NOT a correctness requirement. We deliberately do
+# NOT mount a Railway volume at /opt/snowkap/data: that would shadow the bundled
+# read-only data/ontology TTLs and break boot. World-writable dirs (sticky, like
+# /tmp) cover the foreign-uid case with no volume.
+RUN mkdir -p data/inputs data/outputs data/processed && \
+    find data/inputs data/outputs data/processed -type d -exec chmod 1777 {} +
+
 USER snowkap
 
 EXPOSE 8000

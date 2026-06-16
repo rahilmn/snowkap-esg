@@ -362,7 +362,10 @@ def upsert_article(insight_payload: dict[str, Any], json_path: Path | str) -> No
         logger.warning("sqlite_index: skipping row with missing id/company_slug")
         return
 
-    # Store a repo-relative path so the index is portable across machines
+    # Store a repo-relative path so the index is portable across machines. On a
+    # read-only data dir the on-disk write is skipped but `_write` still returns
+    # the *intended* path, so the row records a location and the API falls back
+    # to the DB mirror when the file is absent (json_path is NOT NULL).
     rel_path = str(Path(json_path).resolve().relative_to(get_data_path().parent.resolve())) if Path(json_path).is_absolute() else str(json_path)
     fields["json_path"] = rel_path.replace("\\", "/")
 

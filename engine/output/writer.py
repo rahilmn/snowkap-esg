@@ -93,11 +93,27 @@ def _filename(result: PipelineResult) -> str:
 
 
 def _write(path: Path, data: dict[str, Any]) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(data, indent=2, ensure_ascii=False, sort_keys=False),
-        encoding="utf-8",
-    )
+    """Persist `data` as pretty JSON. Best-effort: on a read-only / non-writable
+    data dir (e.g. Railway without a mounted volume) log and continue instead of
+    raising. Postgres (article_pool / company_article_view / insight_payload) is
+    the durable source of truth; the on-disk JSON is only a fast-path cache that
+    `insight_detail` falls back from when it is absent.
+
+    Returns the *intended* path even when the write is skipped, so the index
+    still records a location (json_path is NOT NULL) and the API serves the row
+    from the DB mirror via its existing `.exists()` guard. See
+    docs/INSIGHT_PAYLOAD_BACKFILL.md."""
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False, sort_keys=False),
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        logger.warning(
+            "writer: disk write skipped for %s (non-fatal, Postgres is authoritative): %s",
+            path, exc,
+        )
     return path
 
 
@@ -566,6 +582,16 @@ def write_light_insight(result: PipelineResult) -> WrittenFiles:
         _upsert_pool_and_view(result, insight_payload, light_analysis)
     except Exception as exc:  # noqa: BLE001
         logger.warning("light: article_pool / company_article_view upsert failed: %s", exc)
+
+    # Phase 51.B — mirror the light payload into Postgres too, so the detail
+    # view survives restarts / a read-only data dir (parity with write_insight).
+    try:
+        from engine.models import insight_payload as insight_payload_store
+        insight_payload_store.upsert(
+            result.article_id, result.company_slug, insight_payload,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("light: insight_payload DB upsert failed (non-fatal): %s", exc)
 
     # Split-out framework/risk/causal files for direct UI consumption.
     if result.risk:

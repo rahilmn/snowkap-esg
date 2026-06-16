@@ -112,6 +112,9 @@ export const auth = {
     designation: string;
     company_name: string;
     name: string;
+    // Canonical slug from resolveDomain for existing companies — lets the
+    // server skip re-onboarding and land the user on their real deck.
+    slug?: string;
   }) =>
     // First-time onboarding kicks off a background pipeline write; the
     // synchronous handler still returns in <1s, but we give it a generous

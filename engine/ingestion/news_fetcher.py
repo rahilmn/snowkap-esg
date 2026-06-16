@@ -116,9 +116,14 @@ def _load_processed() -> set[str]:
 
 def _save_processed(hashes: set[str]) -> None:
     path = get_data_path("processed", "article_hashes.json")
-    path.parent.mkdir(parents=True, exist_ok=True)
     payload = {"updated_at": datetime.now(timezone.utc).isoformat(), "hashes": sorted(hashes)}
-    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    except OSError as exc:
+        # Dedup cache is best-effort; on a read-only data dir we skip persisting
+        # it (Postgres article_pool de-dupes by URL anyway). Non-fatal.
+        logger.warning("news_fetcher: could not persist dedup cache (non-fatal): %s", exc)
 
 
 def _parse_published(raw: str | None) -> str:
@@ -140,13 +145,21 @@ def _parse_published(raw: str | None) -> str:
         return datetime.now(timezone.utc).isoformat()
 
 
-def _write_article(article: IngestedArticle) -> Path:
+def _write_article(article: IngestedArticle) -> Path | None:
     date_prefix = article.published_at[:10]  # YYYY-MM-DD
     folder = get_data_path("inputs", "news", article.company_slug)
-    folder.mkdir(parents=True, exist_ok=True)
     filename = f"{date_prefix}_{article.id}.json"
     path = folder / filename
-    path.write_text(json.dumps(asdict(article), indent=2, ensure_ascii=False), encoding="utf-8")
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(asdict(article), indent=2, ensure_ascii=False), encoding="utf-8")
+    except OSError as exc:
+        # Read-only / non-writable data dir (e.g. Railway without a mounted
+        # volume): the article already flows to the pipeline (and Postgres via
+        # article_pool), so the on-disk reprocessing copy is optional. Logging
+        # and continuing keeps onboarding + the weekly refresh working.
+        logger.warning("news_fetcher: could not persist %s to disk (non-fatal): %s", path, exc)
+        return None
     return path
 
 
