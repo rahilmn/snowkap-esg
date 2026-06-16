@@ -16,8 +16,14 @@
 # =============================================================================
 
 # --- default (no role context) ---
-snowkap:cw_default_materiality          a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "materiality"          ; snowkap:cwValue 0.20  .
-snowkap:cw_default_financial_magnitude  a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "financial_magnitude"  ; snowkap:cwValue 0.30  .
+# Phase 51.E — materiality-led, NOT financial-cascade-led. The deck scores every
+# article with this default role, and the old 0.30 financial_magnitude weight
+# systematically buried genuine ESG-governance events (fraud, regulatory,
+# emissions) that have no clean cascade ₹ (financial_magnitude=0) beneath
+# financial/business news (results, turnover, fundraises) that does. For an ESG
+# product, ESG materiality must dominate; the ₹ cascade is a secondary signal.
+snowkap:cw_default_materiality          a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "materiality"          ; snowkap:cwValue 0.40  .
+snowkap:cw_default_financial_magnitude  a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "financial_magnitude"  ; snowkap:cwValue 0.10  .
 snowkap:cw_default_actionability        a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "actionability"        ; snowkap:cwValue 0.15  .
 snowkap:cw_default_painpoint_match      a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "painpoint_match"      ; snowkap:cwValue 0.20  .
 snowkap:cw_default_recency              a snowkap:CriticalityWeight ; snowkap:cwRole "default" ; snowkap:cwComponent "recency"              ; snowkap:cwValue 0.075 .
