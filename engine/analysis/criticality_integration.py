@@ -184,6 +184,19 @@ def score_at_pipeline_end(
         sentiment = getattr(nlp, "sentiment", None) if nlp else None
         narrative_polarity = _narrative_polarity(None, sentiment)
 
+        # Phase 51.G — floor materiality by the EVENT TYPE's ontology severity
+        # (EventRule.score_floor / 10): enforces the intrinsic per-event
+        # significance that the gpt-4.1-mini 5D relevance can under-score (a
+        # ₹200cr criminal indictment scored relevance 6 → materiality 0.6). NOT
+        # the RiskAssessment aggregate — its non-ESG "Market & Uncertainty"
+        # category is rated HIGH on routine earnings and would re-promote the
+        # market noise PR #8 was reverted to avoid.
+        event_floor = getattr(event, "score_floor", None) if event is not None else None
+        try:
+            event_severity = float(event_floor) / 10.0 if event_floor is not None else None
+        except (TypeError, ValueError):
+            event_severity = None
+
         company_revenue = getattr(company, "revenue_cr", None)
 
         # Article embedding for painpoint match (only if embeddings cached)
@@ -199,6 +212,7 @@ def score_at_pipeline_end(
 
         return score_criticality(
             relevance_total=relevance_total,
+            event_severity=event_severity,
             cascade_total_cr=0.0,                 # not yet computed at pipeline-end
             company_revenue_cr=company_revenue,
             event_id=event_id,
@@ -250,6 +264,15 @@ def score_at_insight_time(
         sentiment = getattr(nlp, "sentiment", None) if nlp else None
         narrative_polarity = _narrative_polarity(insight_dict, sentiment)
 
+        # Phase 51.G — see score_at_pipeline_end: floor materiality by the event
+        # type's ontology score_floor. Re-read here because the full-score pass
+        # overwrites the baseline criticality.
+        event_floor = getattr(event, "score_floor", None) if event is not None else None
+        try:
+            event_severity = float(event_floor) / 10.0 if event_floor is not None else None
+        except (TypeError, ValueError):
+            event_severity = None
+
         company_revenue = getattr(company, "revenue_cr", None)
 
         if cascade_total_cr is None:
@@ -267,6 +290,7 @@ def score_at_insight_time(
 
         return score_criticality(
             relevance_total=relevance_total,
+            event_severity=event_severity,
             cascade_total_cr=cascade_total_cr,
             company_revenue_cr=company_revenue,
             event_id=event_id,
