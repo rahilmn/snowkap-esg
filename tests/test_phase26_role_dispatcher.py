@@ -196,20 +196,11 @@ def test_writer_stamps_role_payloads_dict_on_payload():
         )
 
     payload = captured.get("payload") or {}
-    assert "role_payloads" in payload
-    rps = payload["role_payloads"]
-    assert set(rps.keys()) == {"cfo", "ceo", "esg-analyst"}
-    # CFO got the financial rec; CEO got the strategic rec; Analyst got framework
-    cfo_rec_types = {r["type"] for r in rps["cfo"]["recommendations"]}
-    ceo_rec_types = {r["type"] for r in rps["ceo"]["recommendations"]}
-    analyst_rec_types = {r["type"] for r in rps["esg-analyst"]["recommendations"]}
-    assert "financial" in cfo_rec_types
-    assert "strategic" in ceo_rec_types
-    assert "framework" in analyst_rec_types
-    # Cross-role distinctness still holds end-to-end
-    assert "esg_positioning" not in cfo_rec_types
-    assert "compliance" not in ceo_rec_types
-    assert "financial" not in analyst_rec_types
+    # Phase 51.F — role-based analysis dropped: the writer no longer stamps
+    # per-role role_payloads or perspectives. They stay present but EMPTY for
+    # back-compat; the product reads the single insight.analysis.
+    assert payload.get("role_payloads") == {}
+    assert payload.get("perspectives") == {}
 
 
 def test_writer_role_payloads_carry_parsed_budget():
@@ -233,17 +224,12 @@ def test_writer_role_payloads_carry_parsed_budget():
             recommendations=_stub_recommendations(),
         )
 
+    # Phase 51.F — role-based analysis dropped: role_payloads is no longer
+    # built, so there are no per-role budgets to parse. (Budget parsing of
+    # `₹X Cr` strings is still covered by test_phase26_role_dispatcher's
+    # _parse_budget_cr unit tests + test_phase26_role_distinctness.)
     rps = (captured.get("payload") or {}).get("role_payloads") or {}
-    # The financial rec carried "₹10 Cr" → budget_cr should be 10.0
-    cfo_recs = rps["cfo"]["recommendations"]
-    hedge = next((r for r in cfo_recs if "Hedge" in r["title"]), None)
-    assert hedge is not None
-    assert hedge["budget_cr"] == 10.0
-    # The strategic rec carried "₹100-150 Cr" → upper bound = 150.0
-    ceo_recs = rps["ceo"]["recommendations"]
-    pivot = next((r for r in ceo_recs if "Strategic" in r["title"]), None)
-    assert pivot is not None
-    assert pivot["budget_cr"] == 150.0
+    assert rps == {}
 
 
 def test_writer_role_payloads_empty_when_dispatcher_fails():

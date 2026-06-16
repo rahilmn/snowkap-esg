@@ -349,7 +349,10 @@ class TestBandThresholds:
 
 
 class TestRoleScores:
-    def test_role_scores_present_for_all_3_roles(self):
+    def test_role_scores_dropped(self):
+        # Phase 51.F — role-based analysis dropped: per-role criticality
+        # (role_scores) is no longer computed. The deck + product use the single
+        # default (materiality-led) score. Guards against re-introducing roles.
         result = score(
             relevance_total=7,
             cascade_total_cr=500.0,
@@ -359,35 +362,8 @@ class TestRoleScores:
             source="reuters",
             now=NOW,
         )
-        assert set(result.role_scores.keys()) == {"cfo", "ceo", "analyst"}
-
-    def test_cfo_score_weights_financial_magnitude_heavier(self):
-        """CFO role weights put 0.40 on financial_magnitude vs 0.30 default.
-        Two articles identical except cascade size — the bigger one should
-        widen its lead more under CFO weights than under default weights.
-        """
-        common = dict(
-            relevance_total=5,
-            company_revenue_cr=10_000.0,
-            event_id="event_quarterly_results",
-            article_embedding=None,
-            painpoint_embeddings=None,
-            published_at=NOW.isoformat(),
-            source="reuters",
-            cascade_confidence="medium",
-            now=NOW,
-        )
-        small = score(cascade_total_cr=100.0, **common)
-        big = score(cascade_total_cr=2_000.0, **common)
-
-        # CFO gap should be bigger than default gap (because financial_magnitude
-        # has more weight for CFO).
-        default_gap = big.score - small.score
-        cfo_gap = big.role_scores["cfo"] - small.role_scores["cfo"]
-        assert cfo_gap > default_gap, (
-            f"CFO weights should widen the financial-magnitude lead, "
-            f"got cfo_gap={cfo_gap:.3f} vs default_gap={default_gap:.3f}"
-        )
+        assert result.role_scores == {}
+        assert 0.0 <= result.score <= 1.0
 
 
 class TestWeightSums:

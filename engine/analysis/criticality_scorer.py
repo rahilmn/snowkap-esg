@@ -641,18 +641,14 @@ def score(
     )
 
     final = _weighted_score(components, _weights_for("default"))
-    _role_sets = _ontology_weight_sets() or WEIGHTS_BY_ROLE
-    role_scores = {
-        role: _weighted_score(components, _weights_for(role))
-        for role in _role_sets
-        if role != "default"
-    }
-
+    # Phase 51.F — role-based analysis DROPPED. The deck + product consume the
+    # single default (materiality-led) score; per-role criticality (role_scores)
+    # is no longer computed. The field stays present (empty) for back-compat.
     return CriticalityResult(
         score=final,
         band=_band_for(final),
         components=components,
-        role_scores=role_scores,
+        role_scores={},
     )
 
 
