@@ -58,20 +58,65 @@ class ShareResult:
 def _load_insight_payload(
     article_id: str, company_slug: str, outputs_root: Path | None
 ) -> dict | None:
-    """Return the full pipeline payload for an article, or None."""
+    """Return the full pipeline payload for an article, or None.
+
+    Disk-first, then the durable Postgres mirror (``insight_payload``) — so
+    share works even when the on-disk JSON is absent (read-only data dir on
+    Railway, or an article that only ever reached Postgres). Mirrors the
+    disk-first / DB-fallback contract of ``insight_detail``.
+    """
     if outputs_root is None:
         from engine.config import get_data_path
         outputs_root = get_data_path("outputs")
     import json
     insights_dir = Path(outputs_root) / company_slug / "insights"
-    if not insights_dir.exists():
-        return None
-    for path in sorted(insights_dir.glob(f"*{article_id}*.json"), reverse=True):
-        try:
-            return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
+    if insights_dir.exists():
+        for path in sorted(insights_dir.glob(f"*{article_id}*.json"), reverse=True):
+            try:
+                return json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+    # Disk had nothing — fall back to the durable Postgres mirror.
+    try:
+        from engine.models import insight_payload as insight_payload_store
+        payload = insight_payload_store.get(article_id)
+        if payload:
+            return payload
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "share: insight_payload mirror lookup failed for %s: %s", article_id, exc
+        )
     return None
+
+
+def _article_from_payload(
+    payload: dict, company_slug: str, read_more_base: str | None
+):
+    """Build a minimal NewsletterArticle from a raw insight payload — used when
+    the on-disk scan finds nothing but the Postgres mirror has the article, so
+    share still renders without forcing a re-onboard."""
+    from engine.output.newsletter_renderer import NewsletterArticle
+    article = (payload or {}).get("article") or {}
+    aid = article.get("id", "") or ""
+    url = article.get("url", "") or ""
+    read_more_url = f"{read_more_base.rstrip('/')}/{aid}" if read_more_base else url
+    try:
+        from engine.config import get_company
+        company_name = get_company(company_slug).name
+    except Exception:  # noqa: BLE001
+        company_name = company_slug
+    return NewsletterArticle(
+        title=article.get("title", "") or "",
+        company_name=company_name,
+        industry=_company_industry(company_slug),
+        bottom_line="",
+        why_matters="",
+        read_more_url=read_more_url,
+        image_url=article.get("image_url", "") or "",
+        published_at=article.get("published_at", "") or "",
+        source_name=article.get("source", "") or "",
+        article_id=aid,
+    )
 
 
 def _company_industry(company_slug: str) -> str:
@@ -204,27 +249,28 @@ def share_article_by_email(
         read_more_base=read_more_base,
     )
     match = [a for a in all_articles if a.article_id == article_id or article_id in a.read_more_url]
-    if not match:
-        # Phase 47.E: more diagnostic + user-friendly error message.
-        # Pre-fix we said "no HOME-tier analysis found" which was both
-        # incorrect (the gate is now broader than HOME) and unhelpful
-        # to the user. The most likely causes here are: (a) on-disk
-        # JSON missing for the article (write_insight didn't run /
-        # failed), (b) article only in Postgres (article_pool) not
-        # disk, (c) genuinely empty payload that even the relaxed
-        # Phase 47.E include-check rejected.
-        return ShareResult(
-            status="failed", recipient=recipient_email, recipient_name=None,
-            subject="", html_length=0, article_id=article_id,
-            company_slug=company_slug, company_name="",
-            error=(
-                f"article {article_id} not found in {company_slug} outputs "
-                f"(scanned {len(all_articles)} candidates). Try re-onboarding "
-                f"the company so the article re-writes to disk."
-            ),
-        )
-
-    target_article = match[0]
+    fallback_payload: dict | None = None
+    if match:
+        target_article = match[0]
+    else:
+        # Phase 51.C — the on-disk JSON is gone (read-only data dir on Railway,
+        # or an article that only ever reached Postgres). Fall back to the
+        # durable insight_payload mirror so share works WITHOUT a re-onboard.
+        # See engine/output/writer.py (Postgres-first writes) + insight_detail.
+        fallback_payload = _load_insight_payload(article_id, company_slug, outputs_root)
+        if not fallback_payload:
+            return ShareResult(
+                status="failed", recipient=recipient_email, recipient_name=None,
+                subject="", html_length=0, article_id=article_id,
+                company_slug=company_slug, company_name="",
+                error=(
+                    f"article {article_id} not found for {company_slug} "
+                    f"(scanned {len(all_articles)} on-disk candidates + the "
+                    f"Postgres mirror). Re-onboard or refresh the company so "
+                    f"the article is re-analysed."
+                ),
+            )
+        target_article = _article_from_payload(fallback_payload, company_slug, read_more_base)
     company_name = target_article.company_name
 
     recipient_name = name_from_email(recipient_email)
@@ -232,7 +278,7 @@ def share_article_by_email(
     # Phase 10 — Rich dark card template. Load the full insight payload so we
     # can surface Executive Summary / Key Insights / Framework chips / Impacted
     # metrics — not just a headline + bottom line.
-    full_payload = _load_insight_payload(article_id, company_slug, outputs_root)
+    full_payload = fallback_payload or _load_insight_payload(article_id, company_slug, outputs_root)
 
     # Phase 11C: editorial subject line when we have the payload.
     subject = _build_subject_for_payload(company_name, full_payload or {}, target_article.title)
