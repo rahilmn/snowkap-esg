@@ -498,8 +498,15 @@ def fetch_newsapi_ai_for_company(
     no_esg_filter = bool(cal.get("news_no_esg_filter"))
     if concept_uri:
         identity_clause: dict[str, Any] = {"conceptUri": concept_uri}
-    elif aliases and not strict_title:
-        identity_clause = {"$or": [{"keyword": a} for a in aliases]}
+    elif aliases:
+        # Phase 51.D — title-match ANY alias (e.g. "State Bank of India" OR the
+        # common acronym "SBI") so acronym headlines aren't missed. Stays
+        # title-locked under strict_title, so precision (no market-roundup
+        # noise) is preserved. Previously aliases were honoured ONLY when
+        # non-strict, so strict banks/energy tenants never benefited from an
+        # acronym alias — that's why SBI ("State Bank of India") under-fetched.
+        _loc = {"keywordLoc": "title"} if strict_title else {}
+        identity_clause = {"$or": [{"keyword": a, **_loc} for a in aliases]}
     else:
         identity_clause = {"keyword": keyword}
         if strict_title:
