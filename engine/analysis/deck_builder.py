@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import logging
+import os
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -253,13 +254,27 @@ def build_company_deck(
     #    show its fabricated lede/recs.
     critical_pool = list(processed)
     max_attempts = n_critical + 3
+    # Phase 51.D — ESG-materiality floor for the CRITICAL tier. Market/financial
+    # noise (stock moves, analyst targets, quarterly results) scores LOW
+    # criticality; without a floor the top-N ranking still forces the 3
+    # least-unimportant of a weak batch into "critical". Below the floor →
+    # demote to a light card (the deck may honestly show <3 critical). Tunable
+    # via SNOWKAP_CRITICAL_FLOOR (default 0.30, just above the market-noise band).
+    critical_floor = float(os.environ.get("SNOWKAP_CRITICAL_FLOOR", "0.30"))
     published_critical = 0
     attempts = 0
     idx = 0
-    demoted: list[Any] = []  # criticals that failed approval → light tier
+    demoted: list[Any] = []  # criticals failing approval / below floor → light tier
     while published_critical < n_critical and idx < len(critical_pool) and attempts < max_attempts:
         result = critical_pool[idx]
         idx += 1
+        crit_score = float((getattr(result, "criticality", None) or {}).get("score") or 0.0)
+        if crit_score < critical_floor:
+            # Not material enough for the critical tier — show it as a light card
+            # rather than force market noise into "critical". Ranked by a
+            # band+negativity+score composite (not pure score), so keep scanning.
+            demoted.append(result)
+            continue
         attempts += 1
         outcome = _publish_critical(result, company)
         if outcome == "published":
