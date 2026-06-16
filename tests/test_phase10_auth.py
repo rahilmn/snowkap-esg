@@ -284,7 +284,7 @@ def test_new_company_login_auto_registers_and_appears_in_switcher():
     assert match["source"] == "onboarded"
 
 
-def test_switcher_includes_all_seven_target_companies():
+def test_switcher_includes_all_baseline_target_companies():
     client = TestClient(app)
     from api.routes import admin as _admin_route
     _admin_route._reset_tenant_cache()
@@ -295,13 +295,14 @@ def test_switcher_includes_all_seven_target_companies():
     entries = body["companies"] if isinstance(body, dict) else body  # W1 shape
 
     target_slugs = {e["slug"] for e in entries if e.get("source") == "target"}
-    # All 7 target companies must appear
+    # All baseline (JSON-native) target companies must appear. The 7th real
+    # company, state-bank-of-india, is DB-sourced (not in config/companies.json),
+    # so it's absent in this SQLite test env.
     expected = {
         "icici-bank",
         "yes-bank",
         "idfc-first-bank",
         "waaree-energies",
-        "singularity-amc",
         "adani-power",
         "jsw-energy",
     }
