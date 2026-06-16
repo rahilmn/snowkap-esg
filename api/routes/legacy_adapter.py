@@ -1735,6 +1735,46 @@ def news_refresh(background: BackgroundTasks, _: None = Depends(require_auth)) -
     }
 
 
+class RefreshDeckIn(BaseModel):
+    slug: str
+
+
+@router.post("/admin/refresh-deck")
+def admin_refresh_deck(
+    body: RefreshDeckIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 51.C — super-admin on-demand deck refresh for ONE company, by
+    canonical slug.
+
+    Runs the SAME in-process path as the weekly Sunday cron
+    (``fetch_for_company`` -> ``build_company_deck``), synchronously, so an
+    admin can pull fresh news for a single company without waiting for the
+    weekly run — and WITHOUT the onboard paths' pitfalls: the
+    ``enqueue_onboarding`` worker queue isn't drained on Railway's single web
+    service, and ``onboard/v3`` derives the slug from the LLM resolver (which
+    can fork a duplicate tenant). Here the slug is the canonical one, validated
+    against the seeded companies, so the refresh lands on the existing deck.
+    """
+    email = (claims.get("sub") or claims.get("email") or "").strip().lower()
+    if not is_snowkap_super_admin(email):
+        raise HTTPException(status_code=403, detail="super-admin only")
+
+    slug = (body.slug or "").strip()
+    company = next((c for c in load_companies() if c.slug == slug), None)
+    if company is None:
+        raise HTTPException(status_code=404, detail=f"unknown company slug: {slug}")
+
+    from engine.analysis.deck_builder import build_company_deck
+    from engine.ingestion.news_fetcher import fetch_for_company
+
+    fresh = fetch_for_company(company, max_per_query=18)
+    deck = build_company_deck(company, fresh, n_critical=3, n_total=10)
+    logger.info("admin_refresh_deck: %s -> %s", slug, deck.to_dict())
+    return {"slug": slug, "deck": deck.to_dict()}
+
+
 @router.post("/news/{article_id}/trigger-analysis")
 def news_trigger_analysis(
     article_id: str,
