@@ -77,6 +77,27 @@ def _lower(value: str) -> str:
     return (value or "").strip().lower()
 
 
+def _topic_needle(value: str) -> str:
+    """Lowercased CANONICAL topic label for SPARQL label/slug matching.
+
+    Phase 51.G — the topic→framework and theme→risk-map queries below match
+    a topic by exact ``rdfs:label`` / ``snowkap:slug``. The Stage-2 LLM theme
+    tagger emits free-text that near-misses the canonical label ("GHG
+    Emissions" vs "Emissions", "Climate" vs "Climate Change"), silently
+    yielding ``[]``. ``query_materiality_weight`` already normalizes via
+    ``canonical_topic`` (see below) — these queries did not, the single
+    biggest "ontology fires but returns nothing" gap. Mirror that here so the
+    real ``triggersFramework`` / ``triggersRiskCategory`` triples actually
+    fire. Falls back to the raw lowercase string if the alias layer hiccups,
+    so a genuine miss still surfaces (never breaks a query).
+    """
+    try:
+        from engine.ontology.materiality_aliases import canonical_topic
+        return _lower(canonical_topic(value))
+    except Exception:  # noqa: BLE001 — alias layer is best-effort, never fatal
+        return _lower(value)
+
+
 # ---------------------------------------------------------------------------
 # Topic ↔ Framework (replaces _TOPIC_FRAMEWORK_MAP)
 # ---------------------------------------------------------------------------
@@ -93,7 +114,7 @@ def query_frameworks_for_topic(
     Replaces ``_TOPIC_FRAMEWORK_MAP`` in ``backend/services/ontology_service.py``.
     """
     g = _graph(graph)
-    needle = _lower(topic)
+    needle = _topic_needle(topic)
     sparql = """
     SELECT DISTINCT ?fw_label WHERE {
         ?topic a/rdfs:subClassOf* snowkap:ESGTopic .
@@ -118,7 +139,7 @@ def query_frameworks_detail(
 ) -> list[FrameworkRef]:
     """Return full framework refs (with profitability link) for a topic."""
     g = _graph(graph)
-    needle = _lower(topic)
+    needle = _topic_needle(topic)
     sparql = """
     SELECT DISTINCT ?fw ?fw_label ?profitability WHERE {
         ?topic snowkap:triggersFramework ?fw .
@@ -462,7 +483,7 @@ def query_default_event_for_theme(
     Uses ``snowkap:defaultEventForTheme`` triples added in Phase 14.
     """
     g = _graph(graph)
-    needle = theme_label.strip().lower()
+    needle = _topic_needle(theme_label)
     sparql = """
     SELECT ?event ?label ?floor ?ceiling ?keywords ?transmission WHERE {
         ?topic snowkap:defaultEventForTheme ?event .
@@ -632,7 +653,7 @@ def query_sdgs_for_topic(
     topic: str, graph: OntologyGraph | None = None
 ) -> list[str]:
     g = _graph(graph)
-    needle = _lower(topic)
+    needle = _topic_needle(topic)
     sparql = """
     SELECT DISTINCT ?sdg_label WHERE {
         ?topic snowkap:contributesToSDG ?sdg .
@@ -660,7 +681,7 @@ def query_stakeholders_for_topic(
     topic: str, graph: OntologyGraph | None = None
 ) -> list[str]:
     g = _graph(graph)
-    needle = _lower(topic)
+    needle = _topic_needle(topic)
     sparql = """
     SELECT DISTINCT ?stakeholder_label WHERE {
         ?stakeholder a snowkap:Stakeholder .
@@ -895,7 +916,7 @@ def query_theme_risk_map(
 ) -> list[str]:
     """Return risk category labels triggered by an ESG theme."""
     g = _graph(graph)
-    needle = _lower(theme)
+    needle = _topic_needle(theme)
     sparql = """
     SELECT DISTINCT ?risk_label WHERE {
         ?topic snowkap:triggersRiskCategory ?risk .
@@ -919,7 +940,7 @@ def query_theme_temples_map(
 ) -> list[str]:
     """Return TEMPLES category labels triggered by an ESG theme."""
     g = _graph(graph)
-    needle = _lower(theme)
+    needle = _topic_needle(theme)
     sparql = """
     SELECT DISTINCT ?temples_label WHERE {
         ?topic snowkap:triggersTEMPLES ?temples .
