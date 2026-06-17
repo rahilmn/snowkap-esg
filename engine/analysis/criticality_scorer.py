@@ -96,9 +96,14 @@ class CriticalityResult:
 # ---------------------------------------------------------------------------
 
 
+# Phase 51.E — materiality-led default (mirrors criticality_weights.ttl). The
+# deck scores every article with the "default" role; the old financial-cascade-
+# led weights (financial_magnitude 0.30 > materiality 0.20) buried genuine
+# ESG-governance events (no cascade ₹ → financial_magnitude=0) under financial
+# news. For an ESG product, ESG materiality must lead.
 WEIGHTS_DEFAULT: dict[str, float] = {
-    "materiality": 0.20,
-    "financial_magnitude": 0.30,
+    "materiality": 0.40,
+    "financial_magnitude": 0.10,
     "actionability": 0.15,
     "painpoint_match": 0.20,
     "recency": 0.075,

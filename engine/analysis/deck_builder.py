@@ -254,13 +254,15 @@ def build_company_deck(
     #    show its fabricated lede/recs.
     critical_pool = list(processed)
     max_attempts = n_critical + 3
-    # Phase 51.D — ESG-materiality floor for the CRITICAL tier. Market/financial
-    # noise (stock moves, analyst targets, quarterly results) scores LOW
-    # criticality; without a floor the top-N ranking still forces the 3
-    # least-unimportant of a weak batch into "critical". Below the floor →
-    # demote to a light card (the deck may honestly show <3 critical). Tunable
-    # via SNOWKAP_CRITICAL_FLOOR (default 0.30, just above the market-noise band).
-    critical_floor = float(os.environ.get("SNOWKAP_CRITICAL_FLOOR", "0.30"))
+    # Phase 51.D — optional ESG-materiality floor for the CRITICAL tier.
+    # DISABLED BY DEFAULT (0.0): an absolute floor can only work once the
+    # criticality SCORE cleanly separates genuine ESG events from market noise.
+    # The Phase-51.E weight rebalance (materiality-led, not financial-cascade-led)
+    # does that separation at the source; the floor is a secondary trim that can
+    # be re-enabled via SNOWKAP_CRITICAL_FLOOR once scores are confirmed to
+    # spread (e.g. 0.35 under Opus). At 0.30 with the old CFO-financial weights it
+    # demoted EVERYTHING — including a ₹600cr fraud — so it ships off.
+    critical_floor = float(os.environ.get("SNOWKAP_CRITICAL_FLOOR", "0.0"))
     published_critical = 0
     attempts = 0
     idx = 0
