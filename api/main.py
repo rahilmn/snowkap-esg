@@ -23,6 +23,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -662,6 +663,37 @@ def _shutdown() -> None:
         logger.warning("scheduler shutdown raised: %s", exc)
 
 
+# C#4 — in-process HTTP request metrics (no prometheus_client dependency).
+# A latency histogram + a request/error counter, keyed by route TEMPLATE
+# (e.g. "/api/forum/threads/{thread_id}") so article-id paths don't blow up
+# cardinality. Lets /metrics expose p50/p95/p99 + 5xx rate, which the
+# middleware's elapsed_ms otherwise computed and threw away.
+_HTTP_BUCKETS_S = (0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
+_http_lock = threading.Lock()
+_http_stats: dict[str, dict] = {}  # route -> {count, sum_s, buckets{le:n}, status{class:n}}
+
+
+def _record_http(route: str, status: int, elapsed_s: float) -> None:
+    cls = f"{status // 100}xx"
+    with _http_lock:
+        st = _http_stats.get(route)
+        if st is None:
+            st = {"count": 0, "sum_s": 0.0,
+                  "buckets": {b: 0 for b in _HTTP_BUCKETS_S}, "status": {}}
+            _http_stats[route] = st
+        st["count"] += 1
+        st["sum_s"] += elapsed_s
+        for b in _HTTP_BUCKETS_S:  # cumulative: a 0.03s req increments every le >= 0.03
+            if elapsed_s <= b:
+                st["buckets"][b] += 1
+        st["status"][cls] = st["status"].get(cls, 0) + 1
+
+
+def _route_template(request: Request) -> str:
+    route = request.scope.get("route")
+    return getattr(route, "path", None) or "other"
+
+
 # Phase 11D + Phase 24 W5: request-timing middleware + request_id contextvar
 # binding + per-request active tenant binding.
 @app.middleware("http")
@@ -694,6 +726,7 @@ async def _request_context_middleware(request: Request, call_next):
     except Exception:
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.exception("request failed after %.0fms path=%s", elapsed_ms, request.url.path)
+        _record_http(_route_template(request), 500, elapsed_ms / 1000.0)
         raise
     finally:
         # Always reset the tenant ContextVar — leaking across requests
@@ -701,6 +734,7 @@ async def _request_context_middleware(request: Request, call_next):
         # graph if the next worker reuses the asyncio task.
         _ACTIVE_TENANT.reset(tenant_token)
     elapsed_ms = (time.perf_counter() - start) * 1000
+    _record_http(_route_template(request), response.status_code, elapsed_ms / 1000.0)
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Response-Time-Ms"] = f"{elapsed_ms:.0f}"
     response.headers["X-Tenant-Id"] = tenant_id
@@ -973,6 +1007,43 @@ def metrics() -> Response:
             lines.append("")
     except Exception as exc:  # noqa: BLE001 — scheduler metrics are additive
         logger.debug("metrics: scheduler_state block failed: %s", exc)
+
+    # C#4 — HTTP request latency histogram + status counter, route-templated.
+    try:
+        with _http_lock:
+            snapshot = {
+                r: {"count": s["count"], "sum_s": s["sum_s"],
+                    "buckets": dict(s["buckets"]), "status": dict(s["status"])}
+                for r, s in _http_stats.items()
+            }
+
+        def _lbl(v: str) -> str:
+            return v.replace("\\", "\\\\").replace('"', '\\"')
+
+        if snapshot:
+            lines.append("# HELP snowkap_http_request_duration_seconds Request latency by route template (C#4)")
+            lines.append("# TYPE snowkap_http_request_duration_seconds histogram")
+            for route, s in snapshot.items():
+                rl = _lbl(route)
+                for b in _HTTP_BUCKETS_S:
+                    lines.append(
+                        f'snowkap_http_request_duration_seconds_bucket{{route="{rl}",le="{b}"}} {s["buckets"][b]}'
+                    )
+                lines.append(
+                    f'snowkap_http_request_duration_seconds_bucket{{route="{rl}",le="+Inf"}} {s["count"]}'
+                )
+                lines.append(f'snowkap_http_request_duration_seconds_sum{{route="{rl}"}} {s["sum_s"]:.4f}')
+                lines.append(f'snowkap_http_request_duration_seconds_count{{route="{rl}"}} {s["count"]}')
+            lines.append("")
+            lines.append("# HELP snowkap_http_requests_total Requests by route template + status class (C#4)")
+            lines.append("# TYPE snowkap_http_requests_total counter")
+            for route, s in snapshot.items():
+                rl = _lbl(route)
+                for cls, n in s["status"].items():
+                    lines.append(f'snowkap_http_requests_total{{route="{rl}",status="{cls}"}} {n}')
+            lines.append("")
+    except Exception as exc:  # noqa: BLE001 — request metrics are additive
+        logger.debug("metrics: http request block failed: %s", exc)
 
     # C#6 — LLM routing health gauge. reasoning_heavy silently falls back from
     # Opus to gpt-4.1 when OPENROUTER_API_KEY is unset/out-of-credit; it only
