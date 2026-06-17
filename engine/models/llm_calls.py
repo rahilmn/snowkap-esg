@@ -63,12 +63,28 @@ _PRICING_USD_PER_1K = {
     "gpt-4o-mini":    (0.00015, 0.0006),
     "o4-mini":        (0.00015, 0.0006),
     "text-embedding-3-small": (0.00002, 0.0),
+    # Anthropic + Perplexity — the gateway/OpenRouter usually returns a billed
+    # cost_usd we prefer; these are the order-of-magnitude FALLBACK when it's
+    # absent. Without them every Opus call logged cost_usd=0, blinding the
+    # spend metric + the per-tenant budget cap.
+    "claude-opus-4.6":     (0.015, 0.075),
+    "claude-sonnet-4.6":   (0.003, 0.015),
+    "claude-haiku-4.5":    (0.0008, 0.004),
+    "sonar-pro":           (0.003, 0.015),
 }
 
 
 def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
     """Rough USD cost. Unknown models → 0 (better than overcharging the log)."""
-    prices = _PRICING_USD_PER_1K.get(model) or _PRICING_USD_PER_1K.get(model.split("-2")[0])
+    # Strip the provider prefix ("openai/gpt-4.1", "anthropic/claude-opus-4.6")
+    # — otherwise even gpt-4.1 priced to $0 whenever routing used the prefixed
+    # model id, silently under-counting real spend.
+    bare = (model or "").split("/")[-1]
+    prices = (
+        _PRICING_USD_PER_1K.get(model)
+        or _PRICING_USD_PER_1K.get(bare)
+        or _PRICING_USD_PER_1K.get(bare.split("-2")[0])
+    )
     if not prices:
         return 0.0
     p, c = prices
@@ -101,12 +117,22 @@ def log_call(
     article_id: str | None = None,
     stage: str | None = None,
     error: str | None = None,
+    cost_usd: float | None = None,
 ) -> None:
-    """Non-raising. Never let a tracking failure block the pipeline."""
+    """Non-raising. Never let a tracking failure block the pipeline.
+
+    `cost_usd` — the gateway-BILLED cost when the provider returns it
+    (OpenRouter does). It wins over the local estimate so the spend metric
+    and the per-tenant budget cap reflect actual money rather than an
+    incomplete price table.
+    """
     try:
         ensure_schema()
         total = prompt_tokens + completion_tokens
-        cost = _estimate_cost(model, prompt_tokens, completion_tokens)
+        cost = (
+            float(cost_usd) if cost_usd is not None
+            else _estimate_cost(model, prompt_tokens, completion_tokens)
+        )
         with _connect() as conn:
             conn.execute(
                 """

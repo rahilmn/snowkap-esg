@@ -391,6 +391,7 @@ class OpenRouterClient:
                 prompt_tokens=int(u.get("prompt_tokens", 0) or 0),
                 completion_tokens=int(u.get("completion_tokens", 0) or 0),
                 stage=self.task_class,
+                cost_usd=getattr(resp, "cost_usd", None),
             )
         except Exception:  # noqa: BLE001
             # Telemetry must never break the LLM path, but must not be
