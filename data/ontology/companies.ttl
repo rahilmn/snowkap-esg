@@ -162,3 +162,45 @@ snowkap:company_yes_bank snowkap:competessWith snowkap:company_icici_bank, snowk
 snowkap:company_idfc_first_bank snowkap:competessWith snowkap:company_icici_bank, snowkap:company_yes_bank .
 snowkap:company_waaree_energies snowkap:competessWith snowkap:company_adani_power, snowkap:company_jsw_energy .
 
+
+# =============================================================================
+# Phase F3 — News-entity -> company causal INSTANCE edges
+# Resolves macro/sector news entities (regulators, commodities) to companies via
+# causal_engine's bidirectional BFS instead of returning an empty chain. Regulator
+# nodes are typed snowkap:Regulation (the range of regulatedBy) with labels that
+# embed the full name + acronym so _resolve_entity's CONTAINS(label, news_text)
+# fires on either form. Commodities reuse knowledge_base.ttl; only crude oil is new.
+# =============================================================================
+
+# Regulator nodes (snowkap:Regulation instances; NEW)
+snowkap:regulator_rbi a snowkap:Regulation ; rdfs:label "Reserve Bank of India (RBI)" .
+snowkap:regulator_sebi a snowkap:Regulation ; rdfs:label "Securities and Exchange Board of India (SEBI)" .
+snowkap:regulator_mca a snowkap:Regulation ; rdfs:label "Ministry of Corporate Affairs (MCA)" .
+snowkap:regulator_cea a snowkap:Regulation ; rdfs:label "Central Electricity Authority (CEA)" .
+snowkap:regulator_mnre a snowkap:Regulation ; rdfs:label "Ministry of New and Renewable Energy (MNRE)" .
+snowkap:regulator_moefcc a snowkap:Regulation ; rdfs:label "Ministry of Environment, Forest and Climate Change (MoEFCC)" .
+
+# Commodity node (NEW; coal/natural_gas/polysilicon/solar_panels/steel already exist)
+snowkap:commodity_crude_oil a snowkap:Commodity ; rdfs:label "Crude Oil" .
+
+# Banks: regulatedBy RBI + SEBI + MCA
+snowkap:company_icici_bank snowkap:regulatedBy snowkap:regulator_rbi, snowkap:regulator_sebi, snowkap:regulator_mca .
+snowkap:company_yes_bank snowkap:regulatedBy snowkap:regulator_rbi, snowkap:regulator_sebi, snowkap:regulator_mca .
+snowkap:company_idfc_first_bank snowkap:regulatedBy snowkap:regulator_rbi, snowkap:regulator_sebi, snowkap:regulator_mca .
+# SBI is DB-seeded (its Company node is not in this static file); this edge resolves
+# in the runtime union graph (companies.ttl + DB tenants). Harmless orphan subject
+# if companies.ttl is ever loaded in isolation.
+snowkap:company_state_bank_of_india snowkap:regulatedBy snowkap:regulator_rbi, snowkap:regulator_sebi, snowkap:regulator_mca .
+
+# Thermal gencos: regulatedBy CEA + MoEFCC + SEBI + MCA
+snowkap:company_adani_power snowkap:regulatedBy snowkap:regulator_cea, snowkap:regulator_moefcc, snowkap:regulator_sebi, snowkap:regulator_mca .
+snowkap:company_jsw_energy snowkap:regulatedBy snowkap:regulator_cea, snowkap:regulator_moefcc, snowkap:regulator_sebi, snowkap:regulator_mca .
+
+# Solar manufacturer/developer: regulatedBy MNRE + SEBI + MCA
+snowkap:company_waaree_energies snowkap:regulatedBy snowkap:regulator_mnre, snowkap:regulator_sebi, snowkap:regulator_mca .
+
+# Commodity dependencies (dependsOnCommodity; range snowkap:Commodity)
+snowkap:company_adani_power snowkap:dependsOnCommodity snowkap:commodity_coal, snowkap:commodity_natural_gas .
+snowkap:company_jsw_energy snowkap:dependsOnCommodity snowkap:commodity_coal, snowkap:commodity_natural_gas .
+snowkap:company_waaree_energies snowkap:dependsOnCommodity snowkap:commodity_polysilicon, snowkap:commodity_solar_panels, snowkap:commodity_steel .
+
