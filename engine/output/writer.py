@@ -148,34 +148,12 @@ def write_insight(
         pack = build_evidence_pack(result, insight_dict_for_pack)
         evidence_pack_dict = pack.to_dict()
 
-        # Phase 3 §5.2 — Stage 11 dispatcher. Build all 3 role payloads
-        # from the same EvidencePack and stamp them onto the persisted
-        # insight. Future LLM-prompt versions of the generators replace
-        # the body without changing this call site. Any single-role
-        # failure surfaces as a placeholder payload — never raises.
-        try:
-            from engine.analysis.role_generators import (
-                RecommendationStub,
-                dispatch_role_payloads_as_dict,
-            )
-            # Convert recommendation_engine.Recommendation → RecommendationStub
-            # so the role generators can apply per-role whitelists. Empty
-            # list when recs are absent or do_nothing-only.
-            rec_stubs: list[RecommendationStub] = []
-            if recommendations and getattr(recommendations, "recommendations", None):
-                for r in recommendations.recommendations:
-                    rec_stubs.append(RecommendationStub(
-                        title=getattr(r, "title", "") or "",
-                        type=getattr(r, "type", "") or "",
-                        budget_cr=_parse_budget_cr(getattr(r, "estimated_budget", None)),
-                        payback_months=getattr(r, "payback_months", None),
-                        framework_section=getattr(r, "framework_section", "") or "",
-                    ))
-            role_payloads_dict = dispatch_role_payloads_as_dict(
-                pack, recommendations=rec_stubs,
-            )
-        except Exception as exc:  # noqa: BLE001 — dispatcher must never block writes
-            logger.debug("role-payload dispatch failed (non-fatal): %s", exc)
+        # Phase 51.F — role-based analysis DROPPED. The Stage-11 per-role
+        # dispatcher (CFO/CEO/ESG-analyst role_payloads) is no longer built —
+        # the product consumes the single role-agnostic `insight.analysis`.
+        # role_payloads_dict stays {} (kept as an empty back-compat field so
+        # old readers don't KeyError). The EvidencePack above is still built
+        # because the editorial lede reads it.
     except Exception as exc:  # noqa: BLE001 — never block writes on the scaffold
         logger.debug("evidence_pack build failed (non-fatal): %s", exc)
 
@@ -255,11 +233,11 @@ def write_insight(
         "pipeline": result.to_dict(),
         "insight": insight_dict_with_analysis,
         "recommendations": recommendations.to_dict() if recommendations else None,
-        # Phase 32 — legacy `perspectives` + `role_payloads` blocks stay on
-        # disk for 1 release (DECISION 5.2) so existing frontends + tests
-        # don't break. Drop in Phase 30. Frontend reads `insight.analysis`
-        # first; falls back to these only when `analysis` is absent.
-        "perspectives": {k: v.to_dict() for k, v in perspectives.items()},
+        # Phase 51.F — role-based analysis DROPPED. `perspectives` (the
+        # CFO/CEO/ESG-analyst lenses) and `role_payloads` are no longer
+        # persisted; the product reads the single `insight.analysis`. Kept as
+        # empty fields for back-compat with old readers.
+        "perspectives": {},
         # Phase 3 §5.1 — structured EvidencePack stamped at write time so
         # consumers (future role generators, debugging tools) read it
         # directly without rebuilding from pipeline + insight.

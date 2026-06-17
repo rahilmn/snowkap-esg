@@ -997,12 +997,11 @@ def generate_deep_insight(
     role_explainer_block: dict[str, dict[str, str]] = {}
     criticality_summary_text: str = ""
     try:
-        from engine.analysis.role_explainer import (
-            build_criticality_summary,
-            build_role_explainer,
-        )
-        # Merge parsed (LLM payload) + computed blocks so the explainer
-        # sees the same shape the methodology API surface sees.
+        # Phase 51.F — role-based analysis DROPPED: the per-role role_explainer
+        # (why_important_for_me per CFO/CEO/analyst) is no longer built
+        # (role_explainer_block stays {}). The role-AGNOSTIC criticality_summary
+        # IS kept — unified_analysis.why_it_matters depends on it.
+        from engine.analysis.role_explainer import build_criticality_summary
         merged_for_explainer = {
             **parsed,
             "criticality": criticality_block,
@@ -1010,7 +1009,6 @@ def generate_deep_insight(
             "event_polarity": polarity,
             "stakes_for_company": stakes_for_company,
         }
-        role_explainer_block = build_role_explainer(merged_for_explainer)
         criticality_summary_text = build_criticality_summary(merged_for_explainer)
     except Exception as exc:  # noqa: BLE001 — additive, never break the write
         # Phase 45.H — full traceback so we can see WHAT failed instead of
