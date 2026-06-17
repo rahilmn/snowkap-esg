@@ -90,7 +90,10 @@ def get_thread(
     claims: dict[str, Any] = Depends(get_bearer_claims),  # noqa: ARG001
 ) -> dict[str, Any]:
     thread = _ft.get_thread(thread_id)
-    if thread is None:
+    # FORUM-5 — a soft-deleted thread must 404, not return masked title/body
+    # with all the real reply bodies still attached (list_threads already
+    # filters deleted_at; get_thread did not).
+    if thread is None or getattr(thread, "deleted_at", None):
         raise HTTPException(status_code=404, detail=f"thread not found: {thread_id}")
     replies = _ft.list_replies(thread_id)
     return {

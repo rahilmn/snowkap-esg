@@ -747,14 +747,24 @@ def query_framework_sections(
 def query_competitors(
     company_slug: str, graph: OntologyGraph | None = None
 ) -> list[str]:
-    """Return labels of companies linked via ``competessWith``."""
+    """Return labels of companies linked via ``competessWith``.
+
+    Competition is mutual, but the ontology edges are hand-authored and not
+    always symmetric (e.g. ``waaree competessWith adani`` exists but the
+    reverse edge was never added). Match BOTH directions so an asymmetric
+    edge still surfaces the peer — otherwise ``query_competitors('adani-power')``
+    returns only JSW and the chat/insight layer invents the rest.
+    """
     g = _graph(graph)
     sparql = """
-    SELECT ?peer_label WHERE {
+    SELECT DISTINCT ?peer_label WHERE {
         ?company snowkap:slug ?slug .
-        ?company snowkap:competessWith ?peer .
+        { ?company snowkap:competessWith ?peer }
+        UNION
+        { ?peer snowkap:competessWith ?company }
         ?peer rdfs:label ?peer_label .
     }
+    ORDER BY ?peer_label
     """
     rows = g.select_rows(sparql, init_bindings={"slug": Literal(company_slug)})
     return [row["peer_label"] for row in rows]
