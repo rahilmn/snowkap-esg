@@ -55,7 +55,7 @@ export default function OnboardingPage() {
   const handleSkip = () => {
     localStorage.setItem("onboarding_complete", "true");
     sessionStorage.removeItem("pending_login");
-    navigate("/home", { replace: true });
+    navigate("/now", { replace: true });  // /home is a dead redirect -> /now (avoid the double hop)
   };
 
   return (
