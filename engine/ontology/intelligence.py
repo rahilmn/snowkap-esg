@@ -400,31 +400,6 @@ def get_perspective_config(
 
 
 # ---------------------------------------------------------------------------
-# Climate zones for a location
-# ---------------------------------------------------------------------------
-
-
-def query_climate_zones(
-    location: str, graph: OntologyGraph | None = None
-) -> list[str]:
-    """Return climate-zone labels that affect a geographic region (by label)."""
-    g = _graph(graph)
-    needle = _lower(location)
-    sparql = """
-    SELECT DISTINCT ?zone_label WHERE {
-        ?region a snowkap:GeographicRegion .
-        ?region rdfs:label ?region_label .
-        ?region snowkap:inClimateZone ?zone .
-        ?zone rdfs:label ?zone_label .
-        FILTER(CONTAINS(LCASE(STR(?region_label)), ?needle))
-    }
-    ORDER BY ?zone_label
-    """
-    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
-    return [row["zone_label"] for row in rows]
-
-
-# ---------------------------------------------------------------------------
 # Event type classification (replaces event_classifier.py rule list)
 # ---------------------------------------------------------------------------
 

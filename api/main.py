@@ -202,6 +202,15 @@ def _check_production_env() -> None:
         logger.error(msg)
         raise RuntimeError(msg)
 
+    # Sentry is optional, but silent-off in production means errors + cron
+    # failures (engine/scheduler.py _capture) never page. Warn loudly rather
+    # than fail — the app runs fine without it.
+    if not os.environ.get("SENTRY_DSN", "").strip():
+        logger.warning(
+            "production: SENTRY_DSN is unset — error + cron-failure reporting "
+            "is OFF. Set it in Railway to page on failures."
+        )
+
     logger.info("production env audit: all required secrets present")
 
 
