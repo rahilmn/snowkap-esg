@@ -162,6 +162,15 @@ ACTIONABLE_EVENT_TYPES: frozenset[str] = frozenset({
     "event_green_finance_milestone",
     "event_sebi_action",
     "event_rbi_action",
+    # Phase 51.G — enforcement / harm events that DEMAND a concrete company
+    # response (internal investigation, statutory disclosure, remediation,
+    # incident response) but were missing here, so genuine ESG-governance
+    # events scored actionability 0.2 instead of 0.8. event_criminal_indictment
+    # is the class of the IDFC ₹200cr fraud that this fix is calibrated against.
+    "event_criminal_indictment",
+    "event_heavy_penalty",
+    "event_social_violation",
+    "event_cyber_incident",
 })
 
 
@@ -170,18 +179,47 @@ ACTIONABLE_EVENT_TYPES: frozenset[str] = frozenset({
 # ---------------------------------------------------------------------------
 
 
-def _materiality_component(relevance_total: float | int | None) -> float:
+def _materiality_component(
+    relevance_total: float | int | None,
+    event_severity: float | None = None,
+) -> float:
     """Plan §3.2: existing relevance_score / 10, clipped [0, 1].
 
     `relevance.total` is the 0-10 RelevanceScore.total field from Stage 4.
+
+    Phase 51.G — floored by the EVENT TYPE's ontology severity
+    (``EventRule.score_floor`` / 10 — the ontology's per-event-type minimum
+    significance). The deck score previously took the gpt-4.1-mini 5D relevance
+    at face value, so a genuinely severe ESG-governance event the LLM
+    under-scored (a ₹200cr criminal indictment landed relevance 6 → materiality
+    0.6) got a weak materiality and was buried. The event taxonomy already
+    encodes intrinsic severity (criminal_indictment / license_revocation floor
+    8, heavy_penalty / social_violation / systemic_regulatory 7, vs
+    quarterly_results 3, dividend_policy / analyst_outlook 2), so
+    ``max(relevance/10, score_floor/10)`` enforces that ontology floor.
+
+    This deliberately does NOT use ``RiskAssessment.aggregate_score``: that
+    blend is dominated by a non-ESG "Market & Uncertainty" risk category the
+    assessor rates HIGH/CRITICAL on routine earnings articles, so flooring on
+    it would re-promote the market noise PR #8 was reverted to avoid. The event
+    floor is self-calibrating instead — routine events have intrinsically low
+    floors and can never be lifted, so business noise is not over-promoted
+    (verified: across 47 live insights only governance + genuine mid-severity
+    ESG events are lifted, zero quarterly/dividend/analyst articles).
     """
-    if relevance_total is None:
-        return 0.0
-    try:
-        v = float(relevance_total) / 10.0
-    except (TypeError, ValueError):
-        return 0.0
-    return _clip01(v)
+    base = 0.0
+    if relevance_total is not None:
+        try:
+            base = float(relevance_total) / 10.0
+        except (TypeError, ValueError):
+            base = 0.0
+    floor = 0.0
+    if event_severity is not None:
+        try:
+            floor = float(event_severity)
+        except (TypeError, ValueError):
+            floor = 0.0
+    return _clip01(max(base, floor))
 
 
 def _financial_magnitude_component(
@@ -477,6 +515,7 @@ def _polarity_drift_penalty(
 def score_components(
     *,
     relevance_total: float | None,
+    event_severity: float | None = None,
     cascade_total_cr: float | None,
     company_revenue_cr: float | None,
     event_id: str | None,
@@ -506,7 +545,7 @@ def score_components(
     floats which are stable per article+model).
     """
     return CriticalityComponents(
-        materiality=_materiality_component(relevance_total),
+        materiality=_materiality_component(relevance_total, event_severity),
         financial_magnitude=_financial_magnitude_component(
             cascade_total_cr, company_revenue_cr,
         ),
@@ -593,6 +632,7 @@ def _band_for(score: float) -> Band:
 def score(
     *,
     relevance_total: float | None,
+    event_severity: float | None = None,
     cascade_total_cr: float | None,
     company_revenue_cr: float | None,
     event_id: str | None,
@@ -621,6 +661,7 @@ def score(
     """
     components = score_components(
         relevance_total=relevance_total,
+        event_severity=event_severity,
         cascade_total_cr=cascade_total_cr,
         company_revenue_cr=company_revenue_cr,
         event_id=event_id,
