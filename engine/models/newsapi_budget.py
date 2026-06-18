@@ -16,13 +16,16 @@ from datetime import datetime, timezone
 from engine.db import connect as _db_connect, is_postgres
 
 logger = logging.getLogger(__name__)
-_SCHEMA_READY = False
 
 
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
-        return
+    # NOTE: deliberately NOT process-cached. A module-global "_SCHEMA_READY"
+    # flag latches True after the first call, but the test suite (and any
+    # multi-DB process) can point `_db_connect()` at different databases
+    # across calls — a cached flag then skips the CREATE against a DB that
+    # never got the table, so every save/load silently no-ops. CREATE TABLE
+    # IF NOT EXISTS is idempotent + cheap (a metadata check), so just always
+    # run it, mirroring engine/models/insight_payload.py.
     with _db_connect() as conn:
         conn.execute(
             "CREATE TABLE IF NOT EXISTS newsapi_budget ("
@@ -32,7 +35,6 @@ def ensure_schema() -> None:
             "  updated_at TEXT"
             ")"
         )
-    _SCHEMA_READY = True
 
 
 def load(month_anchor: str) -> dict | None:
