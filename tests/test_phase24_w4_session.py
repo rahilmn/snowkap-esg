@@ -37,7 +37,9 @@ def tmp_db(tmp_path, monkeypatch):
     from engine.models import analyst_session
     monkeypatch.setattr(sqlite_index, "DB_PATH", db_path)
     monkeypatch.setattr(analyst_session, "DB_PATH", db_path)
-    monkeypatch.setattr(analyst_session, "_SCHEMA_READY", False)
+    # analyst_session's CREATE-TABLE DDL is guarded by the central DB-identity
+    # schema guard, which the autouse _reset_schema_guard fixture clears before
+    # every test — so the fresh DB gets its table created on first use.
     # The engine.db module reads the path at connect time; force its cache
     # to also reset by clearing the engine.db.connection module-level state.
     try:

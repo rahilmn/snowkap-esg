@@ -4,6 +4,8 @@ from __future__ import annotations
 from contextlib import contextmanager
 from typing import Any, Iterator
 
+from engine.db import schema_ready, mark_schema_ready
+
 MEMORY_SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS tenant_memory (
     memory_id              TEXT PRIMARY KEY,
@@ -31,9 +33,6 @@ CREATE INDEX IF NOT EXISTS idx_mem_tenant_recent
 """
 
 
-_SCHEMA_READY = False
-
-
 @contextmanager
 def _connect() -> Iterator[Any]:
     from engine.db import connect as _db_connect
@@ -42,9 +41,8 @@ def _connect() -> Iterator[Any]:
 
 
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("tenant_memory"):
         return
     with _connect() as conn:
         conn.executescript(MEMORY_SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("tenant_memory")

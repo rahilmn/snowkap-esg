@@ -83,9 +83,6 @@ END;
 """
 
 
-_SCHEMA_READY = False
-
-
 @contextmanager
 def _connect() -> Iterator[Any]:
     """SQLite connection via the project's backend-aware helper."""
@@ -125,8 +122,8 @@ def ensure_schema() -> None:
     build supports them. Skipped gracefully otherwise — search falls
     back to LIKE.
     """
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    from engine.db import schema_ready, mark_schema_ready
+    if schema_ready("chat_conversations"):
         return
     try:
         from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode
@@ -154,10 +151,10 @@ def ensure_schema() -> None:
                 conn.commit()
         except Exception as exc:
             logger.warning("chat.schema: FTS5 setup failed (falling back to LIKE): %s", exc)
-    _SCHEMA_READY = True
+    mark_schema_ready("chat_conversations")
 
 
 def _reset_schema_flag() -> None:
     """Test-only — forces a re-creation check on the next ensure_schema."""
-    global _SCHEMA_READY
-    _SCHEMA_READY = False
+    from engine.db import reset_schema_guard
+    reset_schema_guard("chat_conversations")

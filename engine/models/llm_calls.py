@@ -28,7 +28,7 @@ from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from typing import Any, Iterator
 
-from engine.db import connect as _db_connect
+from engine.db import connect as _db_connect, schema_ready, mark_schema_ready
 from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode  # noqa: F401
 
 logger = logging.getLogger(__name__)
@@ -50,9 +50,6 @@ CREATE TABLE IF NOT EXISTS llm_calls (
 CREATE INDEX IF NOT EXISTS idx_llm_calls_ts ON llm_calls(ts DESC);
 CREATE INDEX IF NOT EXISTS idx_llm_calls_article ON llm_calls(article_id);
 """
-
-_SCHEMA_READY = False
-
 
 # Rough per-1K-token pricing in USD (as of 2026-04). Updated periodically;
 # ops only cares about order-of-magnitude for daily spend alerts.
@@ -99,14 +96,13 @@ def _connect() -> Iterator[Any]:
 
 
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("llm_calls"):
         return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     _ensure_wal_mode()
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("llm_calls")
 
 
 def log_call(

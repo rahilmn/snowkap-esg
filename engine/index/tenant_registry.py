@@ -35,7 +35,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from engine.db import connect as _db_connect
+from engine.db import connect as _db_connect, schema_ready, mark_schema_ready
 from engine.index.sqlite_index import DB_PATH  # noqa: F401  (re-exported for back-compat)
 
 logger = logging.getLogger(__name__)
@@ -55,9 +55,6 @@ CREATE INDEX IF NOT EXISTS idx_tenant_source ON tenant_registry(source);
 CREATE INDEX IF NOT EXISTS idx_tenant_last_seen ON tenant_registry(last_seen_at DESC);
 """
 
-_SCHEMA_READY = False
-
-
 @contextmanager
 def _connect() -> Iterator[Any]:
     """Backend-aware connection (Phase 24)."""
@@ -67,8 +64,7 @@ def _connect() -> Iterator[Any]:
 
 def ensure_schema() -> None:
     """Create the table on first use. Idempotent."""
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("tenant_registry"):
         return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     # Phase 11A: ensure WAL mode via the shared setter in sqlite_index.
@@ -78,7 +74,7 @@ def ensure_schema() -> None:
     _ensure_wal_mode()
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("tenant_registry")
 
 
 def _slug_from_domain(domain: str) -> str:

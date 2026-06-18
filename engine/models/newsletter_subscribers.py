@@ -18,6 +18,7 @@ import logging
 from datetime import datetime, timezone
 
 from engine.db import connect as _db_connect
+from engine.db import schema_ready, mark_schema_ready
 
 logger = logging.getLogger(__name__)
 
@@ -33,16 +34,12 @@ CREATE INDEX IF NOT EXISTS idx_newsletter_subs_company
     ON newsletter_subscribers(company_slug, active);
 """
 
-_SCHEMA_READY = False
-
-
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("newsletter_subscribers"):
         return
     with _db_connect() as conn:
         conn.executescript(_SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("newsletter_subscribers")
 
 
 def _now() -> str:

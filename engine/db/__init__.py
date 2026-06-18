@@ -42,6 +42,11 @@ from engine.db.connection import (
     is_postgres,
     is_sqlite,
 )
+from engine.db.schema_guard import (
+    mark_schema_ready,
+    reset_schema_guard,
+    schema_ready,
+)
 from engine.db.upsert import upsert
 
 __all__ = [
@@ -52,5 +57,8 @@ __all__ = [
     "get_backend",
     "is_postgres",
     "is_sqlite",
+    "mark_schema_ready",
+    "reset_schema_guard",
+    "schema_ready",
     "upsert",
 ]

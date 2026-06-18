@@ -55,16 +55,15 @@ def _isolated_queue_db(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     first use.
     """
     import engine.config as engine_config
-    import engine.models.onboarding_status as onboarding_status_mod
 
     monkeypatch.setattr(engine_config, "DATA_DIR", tmp_path)
     monkeypatch.setattr(onboard_queue, "DB_PATH", tmp_path / "snowkap.db")
     monkeypatch.setattr(onboard_queue, "_ensure_wal_mode", lambda: None)
-    monkeypatch.setattr(onboard_queue, "_SCHEMA_READY", False)
-    # The admin/onboard endpoint also writes to onboarding_status, which
-    # has its own per-module schema-ready memo. Reset it too so the
-    # fresh tmp DB gets the table created on first use.
-    monkeypatch.setattr(onboarding_status_mod, "_SCHEMA_READY", False)
+    # onboard_queue + onboarding_status guard their DDL via the DB-identity
+    # schema guard (engine.db.schema_guard). DATA_DIR is monkeypatched above,
+    # so clearing the guard makes the fresh tmp DB create every table on first use.
+    from engine.db import reset_schema_guard
+    reset_schema_guard()
     yield tmp_path / "snowkap.db"
 
 
