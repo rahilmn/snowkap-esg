@@ -65,3 +65,29 @@ snowkap:cb_critical a snowkap:CriticalityBand ; snowkap:cbLevel "CRITICAL" ; sno
 snowkap:cb_high     a snowkap:CriticalityBand ; snowkap:cbLevel "HIGH"     ; snowkap:cbMinScore 0.55 .
 snowkap:cb_medium   a snowkap:CriticalityBand ; snowkap:cbLevel "MEDIUM"   ; snowkap:cbMinScore 0.35 .
 snowkap:cb_low      a snowkap:CriticalityBand ; snowkap:cbLevel "LOW"      ; snowkap:cbMinScore 0.0  .
+
+# =============================================================================
+# Market-commentary comparison markers (Phase 51) — headline phrases that flag
+# investor/stock-comparison listicles ("Adani Power vs NTPC — which is a better
+# bet? 7 factors investors should watch"). A NON-actionable article whose title
+# matches one of these is market commentary: it must not force a compliance
+# action or outrank genuine ESG signals in the feed. Queried by
+# engine.ontology.intelligence.query_comparison_markers; engine.analysis.
+# signal_classifiers keeps an in-code default so a missing TTL degrades safely.
+# (Leading/trailing spaces are significant — they enforce word boundaries.)
+# =============================================================================
+snowkap:cm_vs              a snowkap:ComparisonMarker ; snowkap:cmPhrase " vs "                  .
+snowkap:cm_vs_dot          a snowkap:ComparisonMarker ; snowkap:cmPhrase " vs. "                 .
+snowkap:cm_versus          a snowkap:ComparisonMarker ; snowkap:cmPhrase " versus "              .
+snowkap:cm_better_bet      a snowkap:ComparisonMarker ; snowkap:cmPhrase "better bet"            .
+snowkap:cm_better_buy      a snowkap:ComparisonMarker ; snowkap:cmPhrase "better buy"            .
+snowkap:cm_which_stock     a snowkap:ComparisonMarker ; snowkap:cmPhrase "which stock"           .
+snowkap:cm_which_better    a snowkap:ComparisonMarker ; snowkap:cmPhrase "which is better"       .
+snowkap:cm_should_buy      a snowkap:ComparisonMarker ; snowkap:cmPhrase "should you buy"        .
+snowkap:cm_buy_or_sell     a snowkap:ComparisonMarker ; snowkap:cmPhrase "buy or sell"           .
+snowkap:cm_stocks_watch    a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks to watch"       .
+snowkap:cm_stock_watch     a snowkap:ComparisonMarker ; snowkap:cmPhrase "stock to watch"        .
+snowkap:cm_multibagger     a snowkap:ComparisonMarker ; snowkap:cmPhrase "multibagger"           .
+snowkap:cm_factors_inv     a snowkap:ComparisonMarker ; snowkap:cmPhrase "factors investors"     .
+snowkap:cm_factors_that    a snowkap:ComparisonMarker ; snowkap:cmPhrase "factors that investors" .
+snowkap:cm_is_it_a_buy     a snowkap:ComparisonMarker ; snowkap:cmPhrase "is it a buy"           .

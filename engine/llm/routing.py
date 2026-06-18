@@ -7,10 +7,13 @@ task class to a concrete OpenRouter (or OpenAI) model name.
 
 Override precedence:
   1. explicit `override` arg to `resolve_model()`
-  2. `task_class` lookup in TASK_CLASS_TO_MODEL
-  3. default fallback (`reasoning_default`)
+  2. env override: SNOWKAP_REASONING_MODEL (reasoning_heavy only) / SNOWKAP_LLM_MODEL (all)
+  3. `task_class` lookup in TASK_CLASS_TO_MODEL
+  4. default fallback (`reasoning_default`)
 """
 from __future__ import annotations
+
+import os
 
 from engine.llm.keys import is_using_legacy_openai
 
@@ -61,6 +64,22 @@ def resolve_model(
         return override
 
     tc = task_class or "reasoning_default"
+
+    # Env overrides — flip the model without a code change. Useful while
+    # OpenRouter is out of credit (reasoning_heavy silently degrades to
+    # gpt-4.1): pin SNOWKAP_REASONING_MODEL=gpt-4.1 to test on a capable model
+    # now, then set it to anthropic/claude-opus-4.6 (+ OPENROUTER_API_KEY) once
+    # credit returns — no redeploy. The caller must give a string that matches
+    # the active provider (bare for OpenAI-direct, vendor/-prefixed for
+    # OpenRouter), exactly as the explicit `override` arg already requires.
+    if tc == "reasoning_heavy":
+        env_reasoning = os.environ.get("SNOWKAP_REASONING_MODEL", "").strip()
+        if env_reasoning:
+            return env_reasoning
+    env_all = os.environ.get("SNOWKAP_LLM_MODEL", "").strip()
+    if env_all:
+        return env_all
+
     if is_using_legacy_openai():
         return _LEGACY_OPENAI_FALLBACK.get(tc, "gpt-4.1")
     return TASK_CLASS_TO_MODEL.get(tc, TASK_CLASS_TO_MODEL["reasoning_default"])

@@ -489,9 +489,15 @@ def _build_why_it_matters(
     #     "~₹146 Cr (engine estimate)" for the model's view.
     _exp_kind = (exposure or {}).get("kind")
     _exp_source = (exposure or {}).get("source", "")
+    # Phase 51.K — widened so EVERY synthetic / non-article exposure strips its
+    # ₹ from the reader-facing prose (engine estimate, suppressed extrapolation,
+    # uncomputed). The labelled chip still shows the engine's figure, but the
+    # prose must never state an engine number as a fact ("secures ~₹13,000 Cr").
+    # Article-quoted exposures (source not in this set) keep their ₹ — that
+    # figure IS grounded in the article.
     _strip_cascade = (
-        _exp_kind == "non_financial_event"
-        or _exp_source in ("engine_estimate", "primitive_engine")
+        _exp_kind in ("non_financial_event", "exposure_uncomputed")
+        or _exp_source in ("engine_estimate", "primitive_engine", "suppressed")
     )
     if _strip_cascade:
         import re as _re
@@ -602,8 +608,10 @@ def _build_why_it_matters(
     # blank or broken. Phase 48 — the approval gate caught truncated stakes
     # like "Your company is exposed to a. The incremental." and
     # "₹3,000–" (dangling range). Detect those and replace deterministically.
+    _stakes_is_fallback = False
     if not stakes or _looks_garbled(stakes):
         stakes = _fallback_stakes(insight, exposure, band)
+        _stakes_is_fallback = True
 
     # Phase 50.1 — FINAL summary guards, applied regardless of how `summary`
     # was composed above:
@@ -654,11 +662,36 @@ def _build_why_it_matters(
             round(float(materiality_weight), 3) if materiality_weight is not None else None
         ),
         "dominant_signal": dominant,
-        "criticality_summary": summary[:280],
+        "criticality_summary": _truncate_prose(summary, 280),
         "stakes_for_company": stakes,
+        # Phase 51.K — lets the UI badge a degraded panel: "deterministic_fallback"
+        # means the LLM personal-stakes call returned empty and this is the
+        # measured fallback sentence, not a model-generated take.
+        "stakes_source": "deterministic_fallback" if _stakes_is_fallback else "llm",
         "financial_exposure": exposure,
         "warning": sasb_warning,  # Phase 3 sets "sasb_unmapped" when applicable
     }
+
+
+def _truncate_prose(text: str, cap: int = 280) -> str:
+    """Truncate prose at a sentence (or word) boundary — never mid-word.
+
+    Keeps whole sentences up to ``cap`` chars; if the first sentence alone
+    exceeds ``cap``, cut at the last space before ``cap`` and append an ellipsis
+    so the cut reads as deliberate. Replaces the ad-hoc ``summary[:280]`` slice
+    that produced garbled tails like "…long-term PPAs and capacity expan".
+    (Mirrors the boundary logic already used in ``_stakes_text``.)
+    """
+    if not text:
+        return ""
+    if len(text) <= cap:
+        return text
+    cut = text[:cap]
+    last_stop = max(cut.rfind(". "), cut.rfind("! "), cut.rfind("? "))
+    if last_stop >= int(cap * 0.6):
+        return cut[: last_stop + 1].rstrip()
+    last_space = cut.rfind(" ")
+    return (cut[:last_space] if last_space > 0 else cut).rstrip(" -—,:;") + "…"
 
 
 def _fallback_stakes(insight: Any, exposure: dict[str, Any], band: str) -> str:
@@ -683,31 +716,36 @@ def _fallback_stakes(insight: Any, exposure: dict[str, Any], band: str) -> str:
         else:
             amount_str = f"₹{amount:.1f} Cr"
 
+    # Phase 51.K — this is a DETERMINISTIC fallback (the LLM personal-stakes
+    # call returned empty/garbled). It must read as honest and measured, NOT
+    # manufacture a confident board-narrative mandate — the old positive literal
+    # ("…surface it in the next investor touchpoint and the board narrative")
+    # was boilerplate presented as a grounded take.
     if polarity == "positive":
         if amount_str:
             return (
-                f"This is a tailwind worth roughly {amount_str} for your company — "
-                f"surface it in the next investor touchpoint and the board narrative."
+                f"Likely a tailwind worth roughly {amount_str} for your company — "
+                f"worth noting in your next investor update."
             )
         return (
-            "This is a tailwind for your company — surface it in the next "
-            "investor touchpoint and the board narrative."
+            "Likely a tailwind for your company — worth noting, though not yet a "
+            "disclosure-grade action item."
         )
     if polarity == "negative":
         if amount_str:
             return (
-                f"This puts roughly {amount_str} at risk for your company — "
-                f"plan a response narrative and brief the board within the next cycle."
+                f"Potential downside of roughly {amount_str} for your company — "
+                f"worth reviewing before the next reporting cycle."
             )
         return (
-            "This carries downside risk for your company — plan a response "
-            "narrative and brief the board within the next cycle."
+            "Carries potential downside for your company — worth reviewing "
+            "before the next reporting cycle."
         )
     # neutral / disclosure event
     if band in ("CRITICAL", "HIGH"):
         return (
-            "This is a disclosure-grade event you'll need to address in the next "
-            "reporting cycle — verify your framework mapping and assign an owner."
+            "This is a disclosure-grade event to address in your next reporting "
+            "cycle — verify your framework mapping and assign an owner."
         )
     return (
         "Worth tracking for your watchlist — no immediate action required, "

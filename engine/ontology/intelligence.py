@@ -1026,6 +1026,36 @@ def query_criticality_bands(
     return out
 
 
+def query_comparison_markers(
+    graph: OntologyGraph | None = None,
+) -> list[str]:
+    """Phase 51 — market-commentary headline markers ("vs", "better bet", …).
+
+    Used to flag investor/stock-comparison listicles whose title reads as
+    market opinion rather than a material event. Seeded in the ontology so the
+    marker set is editable without code (CLAUDE.md Rule #1); callers keep an
+    in-code default so a missing/edited TTL degrades safely.
+    """
+    g = _graph(graph) if graph else get_graph()
+    rows = g.select_rows(
+        """
+        SELECT ?phrase WHERE {
+            ?m a snowkap:ComparisonMarker ;
+               snowkap:cmPhrase ?phrase .
+        }
+        """
+    )
+    out: list[str] = []
+    for row in rows:
+        try:
+            phrase = str(row["phrase"])
+            if phrase:
+                out.append(phrase)
+        except (TypeError, KeyError):
+            continue
+    return out
+
+
 @dataclass
 class RegionalBoost:
     framework_id: str
