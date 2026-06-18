@@ -157,7 +157,7 @@ INPUT (Article + Company)
     ↓
 [4] Relevance scoring (5D, ontology materiality)       — financial / regulatory / compliance / supply-chain / people
 [5] Causal chain BFS (0-4 hops, 17 relationship types) — engine/ontology/causal_engine
-[6] Geographic + climate matching                      — engine/ontology
+[6] Geographic matching                                — engine/ontology (climate-zone query retired)
 [7] Framework alignment (21 frameworks)                — regional boosts, mandatory rules, section codes
 [8] Risk assessment (10 ESG + 7 TEMPLES)              — engine/analysis/risk_assessor
 [9] Stakeholder + SDG mapping                         — ontology-driven
