@@ -253,25 +253,40 @@ def _resolve_image_url_from_input(art: dict[str, Any], row: dict[str, Any]) -> s
     return (data.get("metadata") or {}).get("image_url") or ""
 
 
-def _load_payload(json_path: str | None) -> dict[str, Any] | None:
-    if not json_path:
-        return None
-    # SQLite index stores paths relative to the project root
-    p = Path(json_path)
-    if not p.is_absolute():
-        p = Path.cwd() / json_path
-    if not p.exists():
-        # Fall back to trying it relative to the data folder parent
-        alt = get_data_path().parent / json_path
-        if alt.exists():
-            p = alt
-        else:
-            return None
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        logger.warning("legacy_adapter: bad json %s: %s", json_path, exc)
-        return None
+def _load_payload(json_path: str | None, article_id: str | None = None) -> dict[str, Any] | None:
+    # Disk first — index paths are repo-relative; resolve against CWD then the
+    # data-dir parent.
+    if json_path:
+        p = Path(json_path)
+        if not p.is_absolute():
+            p = Path.cwd() / json_path
+        if not p.exists():
+            alt = get_data_path().parent / json_path
+            if alt.exists():
+                p = alt
+        if p.exists():
+            try:
+                return json.loads(p.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                logger.warning("legacy_adapter: bad json %s: %s", json_path, exc)
+    # ASK-3 — disk miss -> Postgres insight_payload mirror. In prod the data
+    # volume was removed, so insights are Postgres-only; without this fallback
+    # every legacy /api/news detail collapsed to bare row metadata. The
+    # article_id is the {date}_{id}.json filename stem after the first "_"
+    # (verified: article.id == stem.split("_", 1)[1]).
+    aid = article_id
+    if not aid and json_path:
+        stem = Path(json_path).stem
+        aid = stem.split("_", 1)[1] if "_" in stem else stem
+    if aid:
+        try:
+            from engine.models.insight_payload import get as _ip_get
+            payload = _ip_get(aid)
+            if payload:
+                return payload
+        except Exception as exc:  # noqa: BLE001 — best-effort mirror read
+            logger.debug("legacy_adapter: insight_payload mirror miss for %s: %s", aid, exc)
+    return None
 
 
 @functools.lru_cache(maxsize=1)
