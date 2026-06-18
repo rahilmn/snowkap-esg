@@ -1,13 +1,7 @@
 import type {
   Article,
-  ChatResponse,
-  AgentInfo,
   Company,
   LoginResponse,
-  OntologyStats,
-  PredictionDetail,
-  PredictionReport,
-  PredictionStats,
   ResolveDomainResponse,
   UsageStats,
   UserSummary,
@@ -178,13 +172,6 @@ export interface CriticalThreeResponse {
   items: Array<Record<string, unknown>>;
   hint: string | null;
 }
-
-export const insights = {
-  criticalThree: (companySlug: string) =>
-    request<CriticalThreeResponse>(
-      `/insights/critical-three?company=${encodeURIComponent(companySlug)}`,
-    ),
-};
 
 /** Phase 28 / Feature 2 — Methodology + role-explainer payload returned
  * by GET /api/insights/{id}/methodology. Powers the info-icon drawer. */
@@ -897,115 +884,7 @@ export const preferences = {
     }),
 };
 
-// ---- Predictions ----
-export const predictions = {
-  list: (params?: { company_id?: string; limit?: number }) => {
-    const q = new URLSearchParams();
-    if (params?.company_id) q.set("company_id", params.company_id);
-    if (params?.limit) q.set("limit", String(params.limit));
-    return request<PredictionReport[]>(`/predictions/?${q}`);
-  },
-
-  get: (id: string) =>
-    request<PredictionDetail>(`/predictions/${id}`),
-
-  stats: () =>
-    request<PredictionStats>("/predictions/stats"),
-
-  trigger: (data: {
-    article_id: string;
-    company_id: string;
-    causal_chain_id?: string;
-  }) =>
-    request<{ status: string; message: string }>("/predictions/trigger", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-};
-
-// ---- Ontology ----
-export const ontology = {
-  stats: () =>
-    request<OntologyStats>("/ontology/stats"),
-
-  sparql: (query: string) =>
-    request<Record<string, unknown>>("/ontology/sparql", {
-      method: "POST",
-      body: JSON.stringify({ query }),
-    }),
-
-  causalExplorer: (entity: string) =>
-    request<Record<string, unknown>>("/ontology/explore", {
-      method: "POST",
-      body: JSON.stringify({ entity_text: entity }),
-    }),
-};
-
 // (Legacy CampaignItem + campaigns export removed — Phase 10 replaces them.)
-
-// ---- Agent Chat ----
-export const agent = {
-  chat: (question: string, agent_id?: string, conversation_id?: string, article_id?: string) =>
-    request<ChatResponse>("/agent/chat", {
-      method: "POST",
-      body: JSON.stringify({ question, agent_id, conversation_id, article_id }),
-    }),
-
-  askAboutNews: (article_id: string, question?: string) =>
-    request<{
-      response: string;
-      agent: { id: string; name: string };
-      causal_chains: Array<{
-        id: string;
-        source_entity: string;
-        target_entity: string;
-        relationship_type: string;
-        hops: number;
-        impact_score: number;
-        explanation: string;
-      }>;
-      prediction_available: boolean;
-      article_summary: Record<string, unknown>;
-    }>("/agent/ask-about-news", {
-      method: "POST",
-      body: JSON.stringify({ article_id, question }),
-    }),
-
-  askAboutInsights: (
-    article_id: string,
-    company_id: string,
-    message: string,
-    conversation_history: Array<{ role: string; content: string }> = [],
-    context_sections: string[] = ["recommendations", "framework_alignment", "financial_impact", "risk_matrix"],
-  ) =>
-    request<{ response: string; article_id: string }>(`/news/${article_id}/chat`, {
-      method: "POST",
-      body: JSON.stringify({ company_id, message, conversation_history, context_sections }),
-    }),
-
-  confirmAction: (action_id: string, conversation_id: string) =>
-    request<{ status: string; result: Record<string, unknown> }>("/agent/confirm-action", {
-      method: "POST",
-      body: JSON.stringify({ action_id, conversation_id }),
-    }),
-
-  rejectAction: (action_id: string, conversation_id: string) =>
-    request<{ status: string; action_id: string }>("/agent/reject-action", {
-      method: "POST",
-      body: JSON.stringify({ action_id, conversation_id }),
-    }),
-
-  listAgents: () =>
-    request<AgentInfo[]>("/agent/agents"),
-
-  history: (last_n = 20) =>
-    request<{ messages: Record<string, unknown>[]; context_summary: string | null }>(
-      `/agent/history?last_n=${last_n}`,
-    ),
-
-  clearHistory: () =>
-    request<{ status: string }>("/agent/history", { method: "DELETE" }),
-};
 
 // ---------------------------------------------------------------------------
 // Phase C — Stateful chat (persistent conversations + memory + MCP admin)
@@ -1082,57 +961,6 @@ export const conversations = {
     request<{ hits: Record<string, unknown>[]; q: string; count: number }>(
       `/conversations/search?q=${encodeURIComponent(q)}`,
     ),
-};
-
-export const memory = {
-  list: (limit = 50) =>
-    request<{ memories: MemoryRecord[]; count: number }>(
-      `/memory?limit=${limit}`,
-    ),
-  insert: (req: {
-    content: string;
-    scope?: "personal" | "shared";
-    fact_kind?: "fact" | "preference" | "decision" | "open_thread";
-    confidence?: number;
-    source_conversation_id: string;
-  }) =>
-    request<{ memory: MemoryRecord }>("/memory", {
-      method: "POST",
-      body: JSON.stringify({
-        scope: req.scope ?? "personal",
-        fact_kind: req.fact_kind ?? "fact",
-        confidence: req.confidence ?? 0.7,
-        ...req,
-      }),
-    }),
-  delete: (mid: string) =>
-    request<void>(`/memory/${mid}`, { method: "DELETE" }),
-  extract: (conversation_id: string) =>
-    request<{
-      conversation_id: string;
-      extracted_count: number;
-      memories: MemoryRecord[];
-    }>(`/memory/extract/${conversation_id}`, { method: "POST" }),
-};
-
-export const mcp = {
-  manifest: () => request<Record<string, unknown>>("/mcp/manifest"),
-  tools: () => request<{ tools: Record<string, unknown>[]; smoke: Record<string, unknown> }>(
-    "/mcp/tools",
-  ),
-  resources: () => request<{ resources: Record<string, unknown>[] }>("/mcp/resources"),
-  invoke: (body: { tool: string; payload: Record<string, unknown>; signoff?: string }) =>
-    request<{
-      tool: string;
-      state: "ok" | "signoff_required" | "error";
-      result?: Record<string, unknown> | null;
-      error?: Record<string, unknown> | null;
-      signoff_phrase?: string | null;
-      annotations?: Record<string, unknown> | null;
-    }>("/mcp/invoke", {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
 };
 
 /** Phase 28 — SSE onboarding progress stream.
@@ -1580,47 +1408,6 @@ export interface ForecasterResult {
   trajectory: ForecasterTrajectoryPoint[];
   llm_used?: boolean;
 }
-
-export const intelligence = {
-  competitors: (slug: string) =>
-    request<{ tenant_slug: string; competitors: CompetitorEntry[]; error?: string }>(
-      `/intelligence/${encodeURIComponent(slug)}/competitors`,
-    ),
-
-  forecast: (slug: string) =>
-    request<ForecasterResult>(
-      `/intelligence/${encodeURIComponent(slug)}/forecast`,
-    ),
-};
-
-export const wiki = {
-  search: (params: {
-    q: string;
-    tier?: "system" | "tenant" | "user";
-    tenant?: string;
-    user?: string;
-    top_k?: number;
-  }) => {
-    const qs = new URLSearchParams({ q: params.q });
-    if (params.tier) qs.set("tier", params.tier);
-    if (params.tenant) qs.set("tenant", params.tenant);
-    if (params.user) qs.set("user", params.user);
-    if (params.top_k) qs.set("top_k", String(params.top_k));
-    return request<{ count: number; hits: WikiSearchHit[]; wiki_root_missing?: boolean }>(
-      `/wiki/search?${qs.toString()}`,
-    );
-  },
-
-  related: (path: string) =>
-    request<{ path: string; backlinks: string[]; wiki_root_missing?: boolean }>(
-      `/wiki/related?path=${encodeURIComponent(path)}`,
-    ),
-
-  page: (path: string) =>
-    request<{ path: string; content: string }>(
-      `/wiki/page?path=${encodeURIComponent(path)}`,
-    ),
-};
 
 // ---------------------------------------------------------------------------
 // Autoresearcher Phase B — calibration ledger + leaderboard + run

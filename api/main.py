@@ -23,6 +23,7 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import threading
 import time
 import uuid
 from pathlib import Path
@@ -48,24 +49,60 @@ logger = logging.getLogger(__name__)
 
 
 def _configure_structlog() -> None:
-    """JSON logging bound with contextvars (request_id, tenant_id). Safe to
-    call multiple times (structlog is idempotent)."""
+    """Unified JSON logging bound with contextvars (request_id, tenant_id).
+
+    C#1 — the ~150 engine modules log via stdlib ``logging.getLogger()``, NOT
+    ``structlog.get_logger()``. The old config only formatted structlog
+    loggers, so engine logs were plain-text to stderr and the request_id /
+    tenant_id contextvars never reached them — request correlation did not
+    work end-to-end. We install a ``ProcessorFormatter`` on the stdlib ROOT
+    handler with a ``foreign_pre_chain`` that merges the same contextvars, so
+    BOTH structlog and the 150 stdlib call-sites render as one JSON stream
+    with correlation ids. Degrades gracefully (keeps stdlib) if structlog or
+    its stdlib bridge is unavailable. Idempotent."""
     try:
         import structlog
-        structlog.configure(
-            processors=[
-                structlog.contextvars.merge_contextvars,
-                structlog.processors.TimeStamper(fmt="iso", utc=True),
-                structlog.processors.add_log_level,
-                structlog.processors.StackInfoRenderer(),
-                structlog.dev.set_exc_info,
-                structlog.processors.JSONRenderer(),
-            ],
-            wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
-            cache_logger_on_first_use=True,
-        )
+        from structlog.stdlib import ProcessorFormatter
     except ImportError:
         logger.warning("structlog not installed; using stdlib logging fallback")
+        return
+
+    timestamper = structlog.processors.TimeStamper(fmt="iso", utc=True)
+    # Shared by BOTH structlog-native records and foreign (stdlib) records.
+    pre_chain = [
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.add_log_level,
+        structlog.processors.StackInfoRenderer(),
+        structlog.dev.set_exc_info,
+        timestamper,
+    ]
+    try:
+        structlog.configure(
+            processors=pre_chain + [ProcessorFormatter.wrap_for_formatter],
+            logger_factory=structlog.stdlib.LoggerFactory(),
+            wrapper_class=structlog.stdlib.BoundLogger,
+            cache_logger_on_first_use=True,
+        )
+        formatter = ProcessorFormatter(
+            foreign_pre_chain=pre_chain,
+            processors=[
+                ProcessorFormatter.remove_processors_meta,
+                structlog.processors.format_exc_info,  # readable traceback string
+                structlog.processors.JSONRenderer(),
+            ],
+        )
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        handler._snowkap_bridge = True  # type: ignore[attr-defined]
+        root = logging.getLogger()
+        # Idempotent: drop a previously-installed bridge handler, keep ours single.
+        root.handlers = [
+            h for h in root.handlers if not getattr(h, "_snowkap_bridge", False)
+        ]
+        root.handlers = [handler]
+        root.setLevel(logging.INFO)
+    except Exception:  # noqa: BLE001 — never let logging setup crash boot
+        logger.warning("structlog stdlib bridge setup failed; stdlib logging stays", exc_info=True)
 
 
 # Substrings that strongly indicate a .env placeholder that was never
@@ -164,6 +201,15 @@ def _check_production_env() -> None:
         )
         logger.error(msg)
         raise RuntimeError(msg)
+
+    # Sentry is optional, but silent-off in production means errors + cron
+    # failures (engine/scheduler.py _capture) never page. Warn loudly rather
+    # than fail — the app runs fine without it.
+    if not os.environ.get("SENTRY_DSN", "").strip():
+        logger.warning(
+            "production: SENTRY_DSN is unset — error + cron-failure reporting "
+            "is OFF. Set it in Railway to page on failures."
+        )
 
     logger.info("production env audit: all required secrets present")
 
@@ -626,6 +672,37 @@ def _shutdown() -> None:
         logger.warning("scheduler shutdown raised: %s", exc)
 
 
+# C#4 — in-process HTTP request metrics (no prometheus_client dependency).
+# A latency histogram + a request/error counter, keyed by route TEMPLATE
+# (e.g. "/api/forum/threads/{thread_id}") so article-id paths don't blow up
+# cardinality. Lets /metrics expose p50/p95/p99 + 5xx rate, which the
+# middleware's elapsed_ms otherwise computed and threw away.
+_HTTP_BUCKETS_S = (0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
+_http_lock = threading.Lock()
+_http_stats: dict[str, dict] = {}  # route -> {count, sum_s, buckets{le:n}, status{class:n}}
+
+
+def _record_http(route: str, status: int, elapsed_s: float) -> None:
+    cls = f"{status // 100}xx"
+    with _http_lock:
+        st = _http_stats.get(route)
+        if st is None:
+            st = {"count": 0, "sum_s": 0.0,
+                  "buckets": {b: 0 for b in _HTTP_BUCKETS_S}, "status": {}}
+            _http_stats[route] = st
+        st["count"] += 1
+        st["sum_s"] += elapsed_s
+        for b in _HTTP_BUCKETS_S:  # cumulative: a 0.03s req increments every le >= 0.03
+            if elapsed_s <= b:
+                st["buckets"][b] += 1
+        st["status"][cls] = st["status"].get(cls, 0) + 1
+
+
+def _route_template(request: Request) -> str:
+    route = request.scope.get("route")
+    return getattr(route, "path", None) or "other"
+
+
 # Phase 11D + Phase 24 W5: request-timing middleware + request_id contextvar
 # binding + per-request active tenant binding.
 @app.middleware("http")
@@ -658,6 +735,7 @@ async def _request_context_middleware(request: Request, call_next):
     except Exception:
         elapsed_ms = (time.perf_counter() - start) * 1000
         logger.exception("request failed after %.0fms path=%s", elapsed_ms, request.url.path)
+        _record_http(_route_template(request), 500, elapsed_ms / 1000.0)
         raise
     finally:
         # Always reset the tenant ContextVar — leaking across requests
@@ -665,6 +743,7 @@ async def _request_context_middleware(request: Request, call_next):
         # graph if the next worker reuses the asyncio task.
         _ACTIVE_TENANT.reset(tenant_token)
     elapsed_ms = (time.perf_counter() - start) * 1000
+    _record_http(_route_template(request), response.status_code, elapsed_ms / 1000.0)
     response.headers["X-Request-ID"] = request_id
     response.headers["X-Response-Time-Ms"] = f"{elapsed_ms:.0f}"
     response.headers["X-Tenant-Id"] = tenant_id
@@ -937,6 +1016,60 @@ def metrics() -> Response:
             lines.append("")
     except Exception as exc:  # noqa: BLE001 — scheduler metrics are additive
         logger.debug("metrics: scheduler_state block failed: %s", exc)
+
+    # C#4 — HTTP request latency histogram + status counter, route-templated.
+    try:
+        with _http_lock:
+            snapshot = {
+                r: {"count": s["count"], "sum_s": s["sum_s"],
+                    "buckets": dict(s["buckets"]), "status": dict(s["status"])}
+                for r, s in _http_stats.items()
+            }
+
+        def _lbl(v: str) -> str:
+            return v.replace("\\", "\\\\").replace('"', '\\"')
+
+        if snapshot:
+            lines.append("# HELP snowkap_http_request_duration_seconds Request latency by route template (C#4)")
+            lines.append("# TYPE snowkap_http_request_duration_seconds histogram")
+            for route, s in snapshot.items():
+                rl = _lbl(route)
+                for b in _HTTP_BUCKETS_S:
+                    lines.append(
+                        f'snowkap_http_request_duration_seconds_bucket{{route="{rl}",le="{b}"}} {s["buckets"][b]}'
+                    )
+                lines.append(
+                    f'snowkap_http_request_duration_seconds_bucket{{route="{rl}",le="+Inf"}} {s["count"]}'
+                )
+                lines.append(f'snowkap_http_request_duration_seconds_sum{{route="{rl}"}} {s["sum_s"]:.4f}')
+                lines.append(f'snowkap_http_request_duration_seconds_count{{route="{rl}"}} {s["count"]}')
+            lines.append("")
+            lines.append("# HELP snowkap_http_requests_total Requests by route template + status class (C#4)")
+            lines.append("# TYPE snowkap_http_requests_total counter")
+            for route, s in snapshot.items():
+                rl = _lbl(route)
+                for cls, n in s["status"].items():
+                    lines.append(f'snowkap_http_requests_total{{route="{rl}",status="{cls}"}} {n}')
+            lines.append("")
+    except Exception as exc:  # noqa: BLE001 — request metrics are additive
+        logger.debug("metrics: http request block failed: %s", exc)
+
+    # C#6 — LLM routing health gauge. reasoning_heavy silently falls back from
+    # Opus to gpt-4.1 when OPENROUTER_API_KEY is unset/out-of-credit; it only
+    # logs once at boot, so without a metric ops can't alert on the recurring
+    # downgrade. Alert: snowkap_llm_opus_active == 0.
+    try:
+        from engine.llm.health import routing_report
+        rep = routing_report()
+        model = str(rep.get("reasoning_heavy_model") or "unknown")
+        provider = str(rep.get("provider") or "unknown")
+        active = 1 if rep.get("opus_active") else 0
+        lines.append("# HELP snowkap_llm_opus_active 1 when reasoning_heavy resolves to Opus, 0 on the gpt-4.1 fallback (Phase 51)")
+        lines.append("# TYPE snowkap_llm_opus_active gauge")
+        lines.append(f'snowkap_llm_opus_active{{model="{model}",provider="{provider}"}} {active}')
+        lines.append("")
+    except Exception as exc:  # noqa: BLE001 — routing metrics are additive
+        logger.debug("metrics: llm routing block failed: %s", exc)
 
     return Response(content="\n".join(lines), media_type="text/plain; version=0.0.4")
 

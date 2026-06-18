@@ -238,41 +238,8 @@ class TestSchedulerWiring:
 # ---------------------------------------------------------------------------
 
 
-class TestFrontendCompiles:
-    """Static checks against the Vite-served TS files. Full visual is
-    in the manual QA walkthrough."""
-
-    def test_personal_stakes_card_file_exists(self):
-        from pathlib import Path
-        path = Path(__file__).resolve().parent.parent / "client" / "src" / "components" / "panels" / "PersonalStakesCard.tsx"
-        assert path.exists()
-        content = path.read_text(encoding="utf-8")
-        # Renders nothing when stakes_for_company is empty
-        assert "return null" in content
-        # Has revenue % badge
-        assert "revenue_pct_at_stake" in content
-        # Polarity-aware accent
-        assert 'polarity === "positive"' in content
-        assert 'polarity === "negative"' in content
-
-    def test_news_card_has_critical_visual_hierarchy(self):
-        from pathlib import Path
-        path = Path(__file__).resolve().parent.parent / "client" / "src" / "components" / "cards" / "NewsCard.tsx"
-        assert path.exists()
-        content = path.read_text(encoding="utf-8")
-        # CRITICAL gets red border + larger headline
-        assert "isCritical" in content
-        assert "border-l-red-600" in content
-        assert "text-lg font-bold" in content
-
-    def test_article_detail_sheet_renders_personal_stakes_card(self):
-        from pathlib import Path
-        path = Path(__file__).resolve().parent.parent / "client" / "src" / "components" / "panels" / "ArticleDetailSheet.tsx"
-        content = path.read_text(encoding="utf-8")
-        assert "PersonalStakesCard" in content
-        # Inserted BEFORE ESG Theme Bar
-        idx_card = content.find("<PersonalStakesCard")
-        idx_theme = content.find("EsgThemeBar esgThemes")
-        assert idx_card < idx_theme, (
-            "PersonalStakesCard must render before EsgThemeBar"
-        )
+# TestFrontendCompiles removed (Phase 51 W4): it asserted on the legacy
+# ArticleDetailSheet / NewsCard / PersonalStakesCard components, which were
+# deleted as dead code (import-count 0, replaced by now/ArticleSheet). The
+# frontend is now verified by the real Vite build (`tsc -b && vite build`),
+# which catches every broken import — not by file-content string asserts.

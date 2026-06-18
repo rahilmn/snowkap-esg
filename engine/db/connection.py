@@ -22,6 +22,7 @@ from __future__ import annotations
 import logging
 import os
 import sqlite3
+import time
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterator, Sequence
@@ -29,6 +30,11 @@ from typing import Any, Iterator, Sequence
 from engine.db.dialect import rewrite_placeholders, translate_to_postgres
 
 logger = logging.getLogger(__name__)
+
+# C#5 — queries slower than this (ms) get a WARNING so a degraded Supabase
+# pooler is visible BEFORE the 300s statement_timeout wall (it was invisible
+# until then). Tune/disable via SNOWKAP_SLOW_QUERY_MS (0 = off).
+_SLOW_QUERY_MS = float(os.environ.get("SNOWKAP_SLOW_QUERY_MS", "1000") or 0)
 
 
 # ---------------------------------------------------------------------------
@@ -143,10 +149,18 @@ class Cursor:
         if self._backend == "postgres":
             sql = translate_to_postgres(sql)
             sql, params = rewrite_placeholders(sql, params)
+        _t0 = time.perf_counter()
         if params is None:
             self._cur.execute(sql)
         else:
             self._cur.execute(sql, params)
+        if _SLOW_QUERY_MS:
+            _elapsed_ms = (time.perf_counter() - _t0) * 1000.0
+            if _elapsed_ms >= _SLOW_QUERY_MS:
+                logger.warning(
+                    "slow_query elapsed_ms=%.0f sql_head=%s",
+                    _elapsed_ms, " ".join(sql.split())[:120],
+                )
         # Capture column names for Row materialisation. psycopg2's
         # description is None for non-SELECT statements; that's fine.
         if self._cur.description:

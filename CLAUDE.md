@@ -73,7 +73,7 @@ computation tagged `(engine estimate)`.
 | API | FastAPI | ~40 routes |
 | Auth | HS256 JWT via `JWT_SECRET` | `api/auth_context.py::mint_bearer` / `decode_bearer` |
 | Frontend | React 19 + Vite + Radix UI + Tailwind + Zustand | `client/` |
-| News fetch | Google News RSS + NewsAPI.ai | with `googlenewsdecoder` + `trafilatura` for full body |
+| News fetch | NewsAPI.ai (EventRegistry) | one query/company (company-in-title AND ESG term, 30d) → full body + hero image. Phase 48: Google RSS + `googlenewsdecoder` + `trafilatura` removed |
 | Email | Resend | CID-attached SNOWKAP logo + Morning-Brew layout |
 | Scheduling | APScheduler in-process | gated by `SNOWKAP_INPROCESS_SCHEDULER=1` |
 | Logging | structlog (JSON) | request-ID middleware + slow-query warnings |
@@ -100,7 +100,7 @@ POST /api/onboard/v3 {domain}
     ↓ primitive_calibration_json carries the painpoints + KPIs + role
     ↓
 [News fetch] ≤3 articles via fetch_for_company (~30-60s)
-    ↓ Google News RSS → googlenewsdecoder → trafilatura body extraction
+    ↓ NewsAPI.ai (EventRegistry): company-in-title AND ESG term, 30d, full body + image
     ↓
 [Per-article, parallel max=3, NO tier gate]
     Stage 1-9  →  Stage 10  →  Stage 11  →  Stage 12  →  lede  →  write
@@ -157,7 +157,7 @@ INPUT (Article + Company)
     ↓
 [4] Relevance scoring (5D, ontology materiality)       — financial / regulatory / compliance / supply-chain / people
 [5] Causal chain BFS (0-4 hops, 17 relationship types) — engine/ontology/causal_engine
-[6] Geographic + climate matching                      — engine/ontology
+[6] Geographic matching                                — engine/ontology (climate-zone query retired)
 [7] Framework alignment (21 frameworks)                — regional boosts, mandatory rules, section codes
 [8] Risk assessment (10 ESG + 7 TEMPLES)              — engine/analysis/risk_assessor
 [9] Stakeholder + SDG mapping                         — ontology-driven

@@ -235,6 +235,14 @@ class NewsRouter:
 
         cost = self.token_cost_fn(all_articles)
         self.budget.spend(cost, from_burst=from_burst)
+        # C#3 — write-through so the monthly counter survives a restart (it was
+        # in-memory only, so a restart loop could blow the real NewsAPI quota).
+        try:
+            from engine.models import newsapi_budget as _nb
+            _nb.save(self.budget.month_anchor,
+                     self.budget.spent_this_month, self.budget.burst_spent)
+        except Exception as exc:  # noqa: BLE001 — never block ingestion
+            logger.debug("budget persist failed (non-fatal): %s", exc)
         logger.info(
             "tier1 fetch: slug=%s queries=%d articles=%d tokens=%d "
             "(remaining_monthly=%d, burst=%s)",
@@ -300,9 +308,18 @@ def get_router() -> NewsRouter:
     if _DEFAULT_ROUTER is None:
         cap = int(os.environ.get("SNOWKAP_NEWSAPI_MONTHLY_CAP", "2000"))
         burst = int(os.environ.get("SNOWKAP_NEWSAPI_BURST_RESERVE", "500"))
-        _DEFAULT_ROUTER = NewsRouter(
-            budget=BudgetState(monthly_cap=cap, burst_reserve=burst),
-        )
+        budget = BudgetState(monthly_cap=cap, burst_reserve=burst)
+        # C#3 — restore this month's spend from Postgres so a restart doesn't
+        # reset the counter (which would let the monthly cap be silently blown).
+        try:
+            from engine.models import newsapi_budget as _nb
+            persisted = _nb.load(budget.month_anchor)
+            if persisted:
+                budget.spent_this_month = persisted["spent_this_month"]
+                budget.burst_spent = persisted["burst_spent"]
+        except Exception as exc:  # noqa: BLE001 — best-effort restore
+            logger.debug("budget restore failed (non-fatal): %s", exc)
+        _DEFAULT_ROUTER = NewsRouter(budget=budget)
     return _DEFAULT_ROUTER
 
 

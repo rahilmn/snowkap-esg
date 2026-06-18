@@ -14,7 +14,7 @@ underlying article is archived. Identity = JWT sub claim email.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
@@ -31,10 +31,18 @@ router = APIRouter(
 )
 
 
+# WIKI-3 — constrain section to the canonical set (mirrors ALLOWED_SECTIONS in
+# engine/models/user_bookmarks.py) so a typo ("climte") returns 422 instead of
+# being silently filed under "custom" and vanishing from filtered retrieval.
+# None stays valid (server-side _normalise_section still applies) so existing
+# callers don't break.
+_Section = Literal["pinned", "climate", "capital", "social", "custom"]
+
+
 class BookmarkCreate(BaseModel):
     article_id: str = Field(..., min_length=1, max_length=128)
     note: str | None = Field(default=None, max_length=4000)
-    section: str | None = Field(
+    section: _Section | None = Field(
         default="pinned",
         description="Wiki section. One of pinned|climate|capital|social|custom (defaults to pinned).",
     )
@@ -42,7 +50,7 @@ class BookmarkCreate(BaseModel):
 
 class BookmarkPatch(BaseModel):
     note: str | None = Field(default=None, max_length=4000)
-    section: str | None = Field(default=None)
+    section: _Section | None = Field(default=None)
 
 
 class BulkBookmarkRequest(BaseModel):

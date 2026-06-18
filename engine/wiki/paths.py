@@ -247,12 +247,16 @@ def relative_link(src: Path, dst: Path) -> str:
     Always returns POSIX separators ('/') so the resulting link works
     when rendered on Windows + Linux + macOS + GitHub.
     """
-    # `relpath` walks up to a common ancestor, then down to dst
-    rel = Path(*dst.parts).resolve() if False else dst
+    from os.path import relpath
     try:
-        from os.path import relpath
-        rel_str = relpath(str(dst), start=str(src.parent))
+        # WIKI-4 — resolve both operands so relpath walks a real common
+        # ancestor (the prior `Path(*dst.parts).resolve() if False else dst`
+        # was dead code, and relpath on unresolved relative paths can
+        # mis-compute the link).
+        rel_str = relpath(str(dst.resolve()), start=str(src.resolve().parent))
     except ValueError:
-        # Different drives on Windows — fall back to absolute
-        rel_str = str(dst)
+        # Cross-drive (Windows dev only; prod renders on single-drive Linux).
+        # An absolute path would break a cross-platform render, so keep it
+        # best-effort relative to dst rather than emitting a host-absolute path.
+        rel_str = dst.name
     return rel_str.replace("\\", "/")

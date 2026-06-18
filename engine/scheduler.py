@@ -37,6 +37,18 @@ class _IngestArgs:
         self.limit = limit
 
 
+def _capture(exc: BaseException) -> None:
+    """C#8 — surface a swallowed cron-job exception to Sentry. No-op when
+    SENTRY_DSN is unset (sentry_sdk.capture_exception is inert without init),
+    so a nightly cron that fails silently every night actually pages instead
+    of only writing a log line nobody is watching."""
+    try:
+        import sentry_sdk
+        sentry_sdk.capture_exception(exc)
+    except Exception:  # noqa: BLE001 — Sentry must never break the job
+        pass
+
+
 def run_ingest_job(max_per_query: int | None, limit: int | None) -> None:
     logger.info("scheduler: starting scheduled ingestion")
     cmd_ingest(_IngestArgs(max_per_query=max_per_query, limit=limit))
@@ -284,6 +296,7 @@ def run_morning_digest_job() -> None:
         logger.info("scheduler: morning digest -> %s", result)
     except Exception as exc:  # noqa: BLE001
         logger.exception("scheduler: morning digest failed: %s", exc)
+        _capture(exc)
 
 
 def run_weekly_deck_refresh_job() -> dict[str, Any]:
@@ -392,6 +405,7 @@ def run_weekly_deck_refresh_job() -> dict[str, Any]:
         logger.info("weekly refresh DONE: %s", summary)
     except Exception as exc:  # noqa: BLE001
         logger.exception("weekly refresh job crashed: %s", exc)
+        _capture(exc)
         summary["errors"].append(f"crash: {type(exc).__name__}")
     finally:
         # Durable "did it run?" record — the weekly job previously left no
@@ -431,6 +445,7 @@ def run_promote_job() -> None:
         logger.info("scheduler: discovery promoter ran -> %s", result)
     except Exception as exc:  # noqa: BLE001
         logger.exception("scheduler: discovery promoter failed: %s", exc)
+        _capture(exc)
 
 
 def run_full_text_retry_job(
