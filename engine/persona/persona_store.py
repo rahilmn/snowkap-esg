@@ -34,7 +34,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from engine.db import connect as _db_connect
+from engine.db import connect as _db_connect, schema_ready, mark_schema_ready
 from engine.persona.persona_model import (
     Persona,
     deserialise_persona,
@@ -63,8 +63,6 @@ CREATE TABLE IF NOT EXISTS persona (
 );
 """
 
-_SCHEMA_READY = False
-
 
 @contextmanager
 def _connect() -> Iterator[Any]:
@@ -73,8 +71,7 @@ def _connect() -> Iterator[Any]:
 
 
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("persona"):
         return
     try:
         from engine.index.sqlite_index import _ensure_wal_mode
@@ -87,7 +84,7 @@ def ensure_schema() -> None:
         else:
             for stmt in [s.strip() for s in SCHEMA_SQL.split(";") if s.strip()]:
                 conn.execute(stmt)
-    _SCHEMA_READY = True
+    mark_schema_ready("persona")
 
 
 def _now() -> str:

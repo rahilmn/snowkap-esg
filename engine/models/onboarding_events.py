@@ -30,7 +30,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from engine.db import connect as _db_connect
+from engine.db import connect as _db_connect, schema_ready, mark_schema_ready
 from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode  # noqa: F401
 
 logger = logging.getLogger(__name__)
@@ -66,9 +66,6 @@ CREATE INDEX IF NOT EXISTS idx_onboarding_events_slug_seq
     ON onboarding_events(slug, seq);
 """
 
-_SCHEMA_READY = False
-
-
 @contextmanager
 def _connect() -> Iterator[Any]:
     with _db_connect() as conn:
@@ -76,14 +73,13 @@ def _connect() -> Iterator[Any]:
 
 
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("onboarding_events"):
         return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     _ensure_wal_mode()
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("onboarding_events")
 
 
 @dataclass

@@ -54,9 +54,13 @@ def test_billed_cost_overrides_estimate():
     def _fake_connect():
         yield _FakeConn()
 
-    monkey_ready = m._SCHEMA_READY
+    from engine.db import mark_schema_ready
     try:
-        m._SCHEMA_READY = True  # skip ensure_schema DDL
+        # llm_calls guards its DDL via the central schema guard; mark it ready
+        # so ensure_schema() skips the CREATE (the fake conn only models the
+        # INSERT in log_call, not paramless DDL). The autouse _reset_schema_guard
+        # fixture clears this again before the next test.
+        mark_schema_ready("llm_calls")
         orig = m._connect
         m._connect = _fake_connect
         # billed value (0.123) must win over the gpt-4.1 estimate (0.02)
@@ -68,4 +72,3 @@ def test_billed_cost_overrides_estimate():
         assert captured["cost"] == pytest.approx(0.02)
     finally:
         m._connect = orig
-        m._SCHEMA_READY = monkey_ready

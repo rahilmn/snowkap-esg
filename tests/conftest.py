@@ -200,6 +200,25 @@ def _reset_login_rate_limiter():
     yield
 
 
+# Phase 51 — modules guard their `CREATE TABLE` DDL via the central
+# DB-identity schema guard (engine.db.schema_guard) instead of a per-module
+# `_SCHEMA_READY` boolean. Tests point `connect()` at different SQLite files
+# (tmp dirs via `isolated_db`, the dev `data/snowkap.db`, etc.). Clear the
+# guard before every test so each test's first `ensure_schema()` always
+# re-runs its DDL against whatever database that test actually uses — a stale
+# "already created" memo from one test must never silently skip table creation
+# in another test's DB (the test_phase51j regression). Production never calls
+# this, so the per-process fast path is preserved there.
+@pytest.fixture(autouse=True)
+def _reset_schema_guard():
+    try:
+        from engine.db import reset_schema_guard
+        reset_schema_guard()
+    except Exception:
+        pass  # guard unavailable in some legacy-only test runs
+    yield
+
+
 # Pre-built token fixtures for common roles
 
 @pytest.fixture

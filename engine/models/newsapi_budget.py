@@ -13,19 +13,24 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timezone
 
-from engine.db import connect as _db_connect, is_postgres
+from engine.db import (
+    connect as _db_connect,
+    is_postgres,
+    mark_schema_ready,
+    schema_ready,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def ensure_schema() -> None:
-    # NOTE: deliberately NOT process-cached. A module-global "_SCHEMA_READY"
-    # flag latches True after the first call, but the test suite (and any
-    # multi-DB process) can point `_db_connect()` at different databases
-    # across calls — a cached flag then skips the CREATE against a DB that
-    # never got the table, so every save/load silently no-ops. CREATE TABLE
-    # IF NOT EXISTS is idempotent + cheap (a metadata check), so just always
-    # run it, mirroring engine/models/insight_payload.py.
+    # DB-identity-keyed guard (engine.db.schema_guard): in production the
+    # CREATE runs once per process (no per-call DDL); under tests that point
+    # connect() at different SQLite files, each DB gets its own CREATE, so the
+    # table always exists where the caller reads it. A plain module-global
+    # boolean latched True against the wrong DB and silently no-op'd save/load.
+    if schema_ready("newsapi_budget"):
+        return
     with _db_connect() as conn:
         conn.execute(
             "CREATE TABLE IF NOT EXISTS newsapi_budget ("
@@ -35,6 +40,7 @@ def ensure_schema() -> None:
             "  updated_at TEXT"
             ")"
         )
+    mark_schema_ready("newsapi_budget")
 
 
 def load(month_anchor: str) -> dict | None:

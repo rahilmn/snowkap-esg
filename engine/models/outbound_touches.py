@@ -47,6 +47,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterator
 
 from engine.db import connect as _db_connect
+from engine.db import schema_ready, mark_schema_ready
 
 logger = logging.getLogger(__name__)
 
@@ -71,9 +72,6 @@ CREATE INDEX IF NOT EXISTS idx_outbound_touches_pair
     ON outbound_touches(recipient_email, company_slug);
 """
 
-_SCHEMA_READY = False
-
-
 @contextmanager
 def _connect() -> Iterator[Any]:
     with _db_connect() as conn:
@@ -82,8 +80,7 @@ def _connect() -> Iterator[Any]:
 
 def ensure_schema() -> None:
     """Lazy schema init — safe to call at every entry point."""
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("outbound_touches"):
         return
     # Lazy import so this module stays importable in test contexts that
     # don't need WAL mode (e.g. in-memory sqlite for unit tests).
@@ -100,7 +97,7 @@ def ensure_schema() -> None:
         else:
             for stmt in [s.strip() for s in SCHEMA_SQL.split(";") if s.strip()]:
                 conn.execute(stmt)
-    _SCHEMA_READY = True
+    mark_schema_ready("outbound_touches")
 
 
 def _now() -> str:

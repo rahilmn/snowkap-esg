@@ -20,6 +20,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from engine.db import connect as _db_connect
+from engine.db import schema_ready, mark_schema_ready
 
 logger = logging.getLogger(__name__)
 
@@ -52,16 +53,12 @@ CREATE INDEX IF NOT EXISTS idx_article_comment_votes_comment
     ON article_comment_votes(comment_id);
 """
 
-_SCHEMA_READY = False
-
-
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("article_comments"):
         return
     with _db_connect() as conn:
         conn.executescript(_SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("article_comments")
 
 
 # ─── Row shape ──────────────────────────────────────────────────────────────

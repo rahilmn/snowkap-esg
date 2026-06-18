@@ -44,7 +44,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
-from engine.db import connect as _db_connect
+from engine.db import connect as _db_connect, mark_schema_ready, schema_ready
 from engine.index.sqlite_index import DB_PATH, _ensure_wal_mode  # noqa: F401
 
 logger = logging.getLogger(__name__)
@@ -69,9 +69,6 @@ CREATE TABLE IF NOT EXISTS analyst_session_state (
 );
 """
 
-_SCHEMA_READY = False
-
-
 @contextmanager
 def _connect() -> Iterator[Any]:
     """Backend-aware connection (SQLite default, Postgres if configured)."""
@@ -80,14 +77,13 @@ def _connect() -> Iterator[Any]:
 
 
 def ensure_schema() -> None:
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("analyst_session_state"):
         return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     _ensure_wal_mode()
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("analyst_session_state")
 
 
 # ---------------------------------------------------------------------------

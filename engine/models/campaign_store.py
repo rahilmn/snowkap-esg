@@ -33,7 +33,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Iterator, Literal
 
-from engine.db import connect as _db_connect, is_postgres
+from engine.db import connect as _db_connect, is_postgres, schema_ready, mark_schema_ready
 from engine.index.sqlite_index import DB_PATH  # noqa: F401
 
 logger = logging.getLogger(__name__)
@@ -102,8 +102,6 @@ CREATE INDEX IF NOT EXISTS idx_sendlog_dedup
     ON campaign_send_log(campaign_id, recipient_email, article_id, sent_at);
 """
 
-_SCHEMA_READY = False
-
 
 @contextmanager
 def _connect() -> Iterator[Any]:
@@ -121,8 +119,7 @@ def _connect() -> Iterator[Any]:
 
 def ensure_schema() -> None:
     """Create the 3 tables + indexes on first use. Idempotent."""
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("campaigns"):
         return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     # Phase 11A: WAL via shared bootstrap so campaign writes don't lock
@@ -131,7 +128,7 @@ def ensure_schema() -> None:
     _ensure_wal_mode()
     with _connect() as conn:
         conn.executescript(SCHEMA_SQL)
-    _SCHEMA_READY = True
+    mark_schema_ready("campaigns")
 
 
 def _now() -> str:

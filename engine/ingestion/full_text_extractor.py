@@ -38,6 +38,8 @@ from typing import Optional
 
 import requests
 
+from engine.db import schema_ready, mark_schema_ready
+
 logger = logging.getLogger(__name__)
 
 # Browser-like UA so publishers don't 403 us as a bot. A real Chrome string;
@@ -123,18 +125,16 @@ CREATE INDEX IF NOT EXISTS idx_article_full_text_status
 
 _CACHE_TTL_SECONDS = 7 * 24 * 3600          # 7 days for successful extractions
 _CACHE_FAILURE_TTL_SECONDS = 6 * 3600       # 6 hours for failures (let the cron retry quickly)
-_SCHEMA_READY = False
 
 
 def _ensure_cache_schema() -> None:
     """Bootstrap the cache table on the active backend (SQLite or Supabase)."""
-    global _SCHEMA_READY
-    if _SCHEMA_READY:
+    if schema_ready("article_full_text"):
         return
     from engine.db import connect as _db_connect
     with _db_connect() as conn:
         conn.executescript(_CACHE_SCHEMA)
-    _SCHEMA_READY = True
+    mark_schema_ready("article_full_text")
 
 
 def _normalize_url_for_hash(url: str) -> str:
