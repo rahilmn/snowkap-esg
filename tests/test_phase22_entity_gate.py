@@ -244,12 +244,7 @@ class TestPolarityFlag:
         d = di.to_dict()
         assert d["event_polarity"] == "positive"
 
-    def test_frontend_uses_event_polarity_for_label_flip(self):
-        # Static check: the frontend ArticleDetailSheet.tsx must read
-        # event_polarity AND switch the metricLabels for positive events.
-        repo_root = Path(__file__).resolve().parent.parent
-        sheet = repo_root / "client" / "src" / "components" / "panels" / "ArticleDetailSheet.tsx"
-        text = sheet.read_text(encoding="utf-8")
-        assert "event_polarity" in text, "Frontend must read event_polarity"
-        assert "Margin Benefit" in text, "Frontend must use 'Margin Benefit' for positive"
-        assert "Revenue Opportunity" in text, "Frontend must use 'Revenue Opportunity' for positive"
+    # test_frontend_uses_event_polarity_for_label_flip removed (Phase 51 W4):
+    # it read the legacy ArticleDetailSheet.tsx, deleted as dead code. The
+    # engine-side event_polarity contract is still covered by the to_dict test
+    # above; the live article view is verified by the Vite build.
