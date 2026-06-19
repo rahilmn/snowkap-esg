@@ -391,6 +391,28 @@ _ESG_KEYWORDS_BROAD: tuple[str, ...] = (
     "stewardship", "sustainable investing", "disclosure", "compliance",
 )
 
+# Phase 52 — ESG-MATERIAL / harm vocabulary for the SECOND, body-matched fetch.
+# The strict sets above are dominated by generic ESG framing ("ESG",
+# "sustainability", "net zero") that market PR sprinkles into stock coverage, so
+# for market-heavy names (power/renewable) the title-locked primary query
+# returns 0 critical ESG events. This tuple is HARM/ENFORCEMENT-weighted and
+# India-regulator-aware — penalty/violation/spill/coal/displacement/NGT/CPCB —
+# so the 2nd query surfaces SUBSTANTIVE ESG/negative stories (where the company
+# sits in the body), not green-PR noise. Lean + single-word-first: EventRegistry
+# counts every WORD against the 80-word plan limit; this set is ~40 words.
+_ESG_KEYWORDS_MATERIAL: tuple[str, ...] = (
+    # Environmental harm
+    "emissions", "pollution", "coal", "effluent", "spill", "contamination",
+    "groundwater", "deforestation", "hazardous waste", "emission norms",
+    "environmental clearance", "oil spill",
+    # Enforcement / governance
+    "penalty", "fine", "violation", "show cause", "non-compliance",
+    "regulatory action", "tribunal", "NGT", "CPCB",
+    # Social harm
+    "displacement", "eviction", "land acquisition", "protest", "human rights",
+    "child labour", "labour", "safety", "fatality", "rehabilitation",
+)
+
 
 def _broad_query_slugs() -> set[str]:
     """Slugs whose NewsAPI.ai query should drop the company-in-TITLE lock.
@@ -404,6 +426,31 @@ def _broad_query_slugs() -> set[str]:
         return {str(s).strip().lower() for s in (cfg.get("broad_query_companies") or [])}
     except Exception:  # noqa: BLE001 — config read must never break a fetch
         return set()
+
+
+def _esg_second_fetch_enabled(company: Company) -> bool:
+    """Phase 52 — whether to fire the SECOND, body-matched ESG-material query.
+
+    Per-company override via ``primitive_calibration.esg_second_fetch`` (mirrors
+    the existing ``news_no_esg_filter`` pattern):
+      * ``"off"``  → never (e.g. a bank whose strict path already fills its deck);
+      * ``"on"``   → always (force for a chronically ESG-starved company);
+      * ``"auto"`` (default) → only when the NewsAPI budget has comfortable
+        headroom, so the extra query can never silently blow the monthly cap.
+    """
+    cal = getattr(company, "primitive_calibration", None) or {}
+    mode = str(cal.get("esg_second_fetch", "auto")).strip().lower()
+    if mode in ("off", "false", "0", "no"):
+        return False
+    if mode in ("on", "true", "1", "yes"):
+        return True
+    # auto — budget-floor gate
+    try:
+        from engine.ingestion.news_router import get_router
+        floor = int(os.environ.get("SNOWKAP_ESG_FETCH_MIN_REMAINING", "600"))
+        return get_router().budget.remaining() > floor
+    except Exception:  # noqa: BLE001 — fail-open: an ESG-starved deck is worse
+        return True
 
 
 def _company_keyword(company: Company) -> str:
@@ -423,6 +470,7 @@ def fetch_newsapi_ai_for_company(
     max_results: int = 18,
     freshness_days: int = 30,
     strict_title: bool | None = None,
+    esg_keywords: tuple[str, ...] | None = None,
 ) -> list[dict]:
     """ONE NewsAPI.ai call per company — company name AND any ESG term,
     within the last `freshness_days`, newest first, full body + image.
@@ -467,7 +515,11 @@ def fetch_newsapi_ai_for_company(
     # so their decks aren't starved; the banks/energy tenants stay strict.
     if strict_title is None:
         strict_title = (company.slug or "").strip().lower() not in _broad_query_slugs()
-    esg_terms = _ESG_KEYWORDS if strict_title else _ESG_KEYWORDS_BROAD
+    # Phase 52 — an explicit `esg_keywords` override (the ESG-material vocab on
+    # the second, body-matched fetch) wins; otherwise pick by strict/broad.
+    esg_terms = esg_keywords if esg_keywords is not None else (
+        _ESG_KEYWORDS if strict_title else _ESG_KEYWORDS_BROAD
+    )
 
     # STRICT path: company name must appear in the TITLE (the article is
     # genuinely ABOUT the company, not a multi-stock roundup that merely lists
@@ -917,6 +969,35 @@ def fetch_for_company(
         art.setdefault("source_type", "newsapi_ai")
         art["query"] = _company_keyword(company)
         raw_articles.append(art)
+
+    # Phase 52 — ESG-aware SECOND fetch. The primary query title-locks on the
+    # company name, so market-dominated names (power/renewable) get only
+    # stock/growth coverage and zero ESG-substantive events. This second query
+    # drops the title-lock (company in title OR body) and swaps in the curated
+    # ESG-MATERIAL / harm vocab, so substantive ESG/negative stories that mention
+    # the company in the body (e.g. "new emission norms ... incl. Adani's Mundra")
+    # enter the feed and can score critical. Budget-gated; the merged results run
+    # through the SAME dedup + relevance gauntlet below (no double processing),
+    # and each fetch records its own spend (no double-charge). A per-tenant
+    # `esg_material_keywords` calibration list can override the vocab.
+    if _esg_second_fetch_enabled(company):
+        _cal = getattr(company, "primitive_calibration", None) or {}
+        _override = _cal.get("esg_material_keywords")
+        esg_vocab = _ESG_KEYWORDS_MATERIAL
+        if isinstance(_override, (list, tuple)) and _override:
+            esg_vocab = tuple(str(k).strip() for k in _override if str(k).strip())
+        esg_material_articles = fetch_newsapi_ai_for_company(
+            company, max_results=limit, freshness_days=freshness_days,
+            strict_title=False, esg_keywords=esg_vocab,
+        )
+        for art in esg_material_articles:
+            url = art.get("url") or ""
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+            art.setdefault("source_type", "newsapi_ai")
+            art["query"] = _company_keyword(company)
+            raw_articles.append(art)
 
     # Phase 1: semantic dedup across all sources/queries for this company
     dedup = SemanticDedup(threshold=sem_threshold, window_hours=sem_window) if sem_enabled else None
