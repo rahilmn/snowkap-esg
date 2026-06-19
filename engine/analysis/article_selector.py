@@ -27,6 +27,7 @@ Works as a standalone helper — does NOT mutate the input list.
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Iterable
@@ -47,6 +48,7 @@ class ScoredArticle:
     materiality_weight: float
     source_credibility_tier: int
     relevance_total: float
+    criticality_boost: float  # Phase 51.L — severity/negativity lift [0,1]
     rank_reason: str  # human-readable why this rank
 
 
@@ -145,11 +147,24 @@ def _score_article(article: object, primary_industry: str | None) -> ScoredArtic
     # Falls back to neutral 0.5 when no theme detected.
     materiality_weight = _resolve_materiality_weight(title, summary, primary_industry)
 
-    score = materiality_weight * (source_credibility_tier / 5.0) * (relevance_total / 10.0)
+    base = materiality_weight * (source_credibility_tier / 5.0) * (relevance_total / 10.0)
+    # Phase 51.L — severity/negativity-aware selection. A critical NEGATIVE ESG
+    # event (penalty, violation, spill, fraud, community harm) must win a
+    # priority-brief slot over generic green-growth keyword density, which the
+    # flat keyword count alone (every keyword 0.5) could otherwise let happen.
+    # Both signals are deterministic + FREE (no LLM): the ontology event
+    # score_floor (severity) and a curated negative/harm keyword density.
+    # Additive so a genuinely critical-negative story surfaces even when its
+    # overall ESG keyword density is modest.
+    severity = _event_severity_excess(title, content)
+    negativity = _negativity_density(title, summary, content)
+    criticality_boost = max(severity, negativity)
+    score = base + _CRITICALITY_BOOST_WEIGHT * criticality_boost
     rank_reason = (
-        f"materiality={materiality_weight:.2f} × "
-        f"src_tier={source_credibility_tier}/5 × "
-        f"relevance={relevance_total:.1f}/10"
+        f"base(materiality={materiality_weight:.2f}×src_tier={source_credibility_tier}/5"
+        f"×relevance={relevance_total:.1f}/10)={base:.3f} + "
+        f"crit_boost={criticality_boost:.2f}(sev={severity:.2f},neg={negativity:.2f})"
+        f"×{_CRITICALITY_BOOST_WEIGHT}"
     )
     return ScoredArticle(
         article=article,
@@ -157,6 +172,7 @@ def _score_article(article: object, primary_industry: str | None) -> ScoredArtic
         materiality_weight=materiality_weight,
         source_credibility_tier=source_credibility_tier,
         relevance_total=relevance_total,
+        criticality_boost=criticality_boost,
         rank_reason=rank_reason,
     )
 
@@ -192,6 +208,36 @@ _ESG_KEYWORDS: tuple[str, ...] = (
 )
 
 
+# Phase 51.L — NEGATIVE / harm / enforcement signals. These mark a critical
+# negative ESG event (regulatory action, environmental harm, governance failure,
+# social harm) that should win a priority-brief slot over generic green-growth
+# coverage. Curated subset — deliberately NOT positive terms (solar, renewable,
+# capacity) so the boost biases toward business-impacting downside.
+_NEGATIVE_KEYWORDS: tuple[str, ...] = (
+    # Governance / enforcement
+    "fraud", "corruption", "bribery", "penalty", "fine", "fined", "show cause",
+    "violation", "breach", "lawsuit", "litigation", "indictment", "indicted",
+    "probe", "investigation", "ban", "banned", "revoked", "revocation",
+    "non-compliance", "noncompliance", "sebi action", "rbi action", "default",
+    "downgrade", "recall", "scam", "embezzle", "insider trading",
+    # Environmental harm
+    "spill", "leak", "contamination", "contaminated", "pollution", "hazardous",
+    "toxic", "emission breach", "effluent", "encroachment", "deforestation",
+    # Social harm
+    "child labor", "child labour", "forced labour", "forced labor",
+    "modern slavery", "wage theft", "displacement", "eviction", "protest",
+    "human rights", "harassment", "discrimination", "accident", "fatality",
+    "injury", "death", "casualt", "strike", "layoff", "cyber", "data breach",
+)
+
+# How hard the criticality (severity/negativity) signal lifts an article's
+# ranking score. Additive: a max-critical negative event adds this much. Env-
+# tunable for ops without a code change (set at boot, e.g. on Railway).
+_CRITICALITY_BOOST_WEIGHT: float = float(
+    os.environ.get("SNOWKAP_SELECTOR_CRITICALITY_BOOST", "0.6")
+)
+
+
 def _approximate_relevance(title: str, summary: str, content: str) -> float:
     """Free heuristic — count distinct ESG keywords in the article text.
     The real Stage 4 scorer is more nuanced (5D), but this is just for
@@ -202,6 +248,39 @@ def _approximate_relevance(title: str, summary: str, content: str) -> float:
     distinct_hits = sum(1 for kw in _ESG_KEYWORDS if kw in haystack)
     # 0.5 per keyword, capped at 10.0
     return min(10.0, distinct_hits * 0.5)
+
+
+def _negativity_density(title: str, summary: str, content: str) -> float:
+    """Free [0,1] signal — density of NEGATIVE / harm / enforcement terms.
+    4+ distinct negative signals → 1.0. Biases priority-brief selection toward
+    business-impacting downside (penalty, violation, spill, fraud, community
+    harm) rather than generic green-growth keyword density."""
+    haystack = " ".join((title, summary, content)).lower()
+    if not haystack.strip():
+        return 0.0
+    hits = sum(1 for kw in _NEGATIVE_KEYWORDS if kw in haystack)
+    return min(1.0, hits / 4.0)
+
+
+def _event_severity_excess(title: str, content: str) -> float:
+    """Above-routine event severity in [0,1] from the DETERMINISTIC (no-LLM)
+    ontology event classifier's ``score_floor``.
+
+    Routine events (floor ≤3 — quarterly results, dividends, analyst outlook)
+    → 0; enforcement / harm events (heavy_penalty / violation floor 7, criminal
+    indictment / license_revocation floor 8) → high. Free + safe-degrades to 0
+    (so selection never crashes the batch and the no-LLM contract holds —
+    ``classify_event`` is pure keyword matching against cached ontology rules).
+    """
+    try:
+        from engine.nlp.event_classifier import classify_event
+        ev = classify_event(title or "", content or "")
+        floor = float(getattr(ev, "score_floor", 0) or 0)
+    except Exception as exc:  # noqa: BLE001 — selection must never crash the batch
+        logger.debug("event severity lookup failed (non-fatal): %s", exc)
+        return 0.0
+    # Normalise "above routine": floor 3 → 0, floor 10 → 1.0
+    return max(0.0, min(1.0, (floor - 3.0) / 7.0))
 
 
 def _resolve_source_credibility(source: str, url: str) -> int:
