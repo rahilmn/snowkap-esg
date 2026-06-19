@@ -652,6 +652,11 @@ def score(
     # fallback when no curated embeddings exist for the tenant.
     inferred_painpoints: list[str] | None = None,
     article_text: str | None = None,
+    # Phase 51.K — when the caller has classified the article as market
+    # commentary (a non-actionable investor/stock-comparison listicle), the
+    # final band is hard-capped at LOW so it can't outrank a genuine ESG
+    # signal. Set by criticality_integration via signal_classifiers.
+    market_commentary: bool = False,
 ) -> CriticalityResult:
     """Score an article for criticality. Returns a `CriticalityResult` with
     the final score, band, all components, and per-role scores.
@@ -682,12 +687,23 @@ def score(
     )
 
     final = _weighted_score(components, _weights_for("default"))
+    band = _band_for(final)
+    # Phase 51.K — market-commentary demotion. A non-actionable investor/stock-
+    # comparison listicle ("X vs Y, which is a better bet?") must never outrank a
+    # genuine ESG signal in the feed: hard-cap it at LOW (and drop the numeric
+    # score below the MEDIUM floor so feed sorts agree). Genuine events carry an
+    # actionable event_id, so signal_classifiers.is_market_commentary returns
+    # False for them and this branch never fires — their score is untouched.
+    if market_commentary and band != "LOW":
+        medium_floor = next((t for b, t in _active_bands() if b == "MEDIUM"), 0.35)
+        final = min(final, max(0.0, medium_floor - 0.01))
+        band = "LOW"
     # Phase 51.F — role-based analysis DROPPED. The deck + product consume the
     # single default (materiality-led) score; per-role criticality (role_scores)
     # is no longer computed. The field stays present (empty) for back-compat.
     return CriticalityResult(
         score=final,
-        band=_band_for(final),
+        band=band,
         components=components,
         role_scores={},
     )

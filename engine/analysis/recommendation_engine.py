@@ -98,6 +98,28 @@ def _should_skip(insight: DeepInsight, result: PipelineResult) -> tuple[bool, st
         return True, "Non-material + ignore — no action required"
     if insight.impact_score <= 1.5 and action == "IGNORE":
         return True, f"Very low impact score {insight.impact_score} + ignore"
+
+    # Phase 51.K — two gaps this closes (both route to the existing monitor-only
+    # / do_nothing path, never a fabricated owner/deadline):
+    #   1. The module docstring's "MONITOR → empty list" rule was never actually
+    #      enforced — the code only acted on IGNORE, so a MONITOR verdict fell
+    #      through to full action generation.
+    #   2. No gate caught market-commentary listicles ("X vs Y, which is a better
+    #      bet?"), which the product rule says must NOT force a compliance action.
+    # The discriminator is event actionability: a genuine event (penalty, tender
+    # win, rating action, …) carries an event_id in ACTIONABLE_EVENT_TYPES, so it
+    # is never suppressed here.
+    from engine.analysis.criticality_scorer import ACTIONABLE_EVENT_TYPES
+    from engine.analysis.signal_classifiers import is_market_commentary
+
+    event = getattr(result, "event", None)
+    event_id = getattr(event, "event_id", None) if event is not None else None
+    is_actionable = bool(event_id) and event_id in ACTIONABLE_EVENT_TYPES
+
+    if action == "MONITOR" and not is_actionable:
+        return True, "MONITOR verdict on a non-actionable event — monitor-only"
+    if is_market_commentary(result) and materiality not in ("CRITICAL", "HIGH"):
+        return True, "Market commentary / comparison listicle — monitor-only, no compliance action"
     return False, ""
 
 

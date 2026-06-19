@@ -32,6 +32,7 @@ from engine.analysis.criticality_scorer import (
     CriticalityResult,
     score as score_criticality,
 )
+from engine.analysis.signal_classifiers import is_market_commentary
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +229,9 @@ def score_at_pipeline_end(
             cascade_confidence=None,
             event_polarity=event_polarity,
             narrative_polarity=narrative_polarity,
+            # Phase 51.K — demote non-actionable market-commentary listicles
+            # so they can't outrank genuine ESG signals in the feed.
+            market_commentary=is_market_commentary(result),
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("score_at_pipeline_end failed (non-fatal): %s", exc)
@@ -307,6 +311,8 @@ def score_at_insight_time(
             event_polarity=event_polarity,
             narrative_polarity=narrative_polarity,
             forecaster_output=forecaster_output,
+            # Phase 51.K — demote non-actionable market-commentary listicles.
+            market_commentary=is_market_commentary(result),
         )
     except Exception as exc:  # noqa: BLE001
         logger.warning("score_at_insight_time failed (non-fatal): %s", exc)
