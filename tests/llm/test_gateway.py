@@ -62,8 +62,12 @@ def test_task_class_to_model_covers_core_classes():
 
 def test_resolve_model_returns_openrouter_vendor_prefix(monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
+    # Clear any reasoning override so we test the TASK_CLASS_TO_MODEL default.
+    monkeypatch.delenv("SNOWKAP_REASONING_MODEL", raising=False)
+    monkeypatch.delenv("SNOWKAP_LLM_MODEL", raising=False)
     assert resolve_model("extraction") == "openai/gpt-4.1-mini"
-    assert resolve_model("reasoning_heavy") == "anthropic/claude-opus-4.6"
+    # Phase 52 — reasoning_heavy moved to the cost-effective Sonnet 4.6 (was Opus).
+    assert resolve_model("reasoning_heavy") == "anthropic/claude-sonnet-4.6"
 
 
 def test_resolve_model_strips_prefix_in_legacy_mode(monkeypatch):
