@@ -810,6 +810,28 @@ def health_ready(response: Response) -> dict:
     }
 
 
+@app.get("/api/health/routing")
+def health_routing() -> dict:
+    """LLM routing health — is reasoning_heavy actually on Opus, or silently
+    on the gpt-4.1 fallback (missing/invalid OPENROUTER_API_KEY)?
+
+    Lives under /api/* (not root like /health) so it is reachable through the
+    public reverse proxy. No secrets — only the resolved model name + provider
+    + an opus_active boolean + the chat model. Lets ops curl
+    ``/api/health/routing`` to confirm Opus instead of digging through boot logs.
+    """
+    out: dict[str, object] = {"opus_active": False, "reasoning_heavy_model": "unknown"}
+    try:
+        from engine.llm.health import routing_report
+        from engine.llm.routing import resolve_model
+        rep = routing_report()
+        out.update(rep)
+        out["chat_model"] = resolve_model("chat")
+    except Exception as exc:  # noqa: BLE001
+        out["error"] = type(exc).__name__
+    return out
+
+
 @app.get("/metrics", response_class=Response)
 def metrics() -> Response:
     """Prometheus-format metrics. Surfaces live counts for ops dashboards.
