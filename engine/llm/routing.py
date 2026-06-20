@@ -26,7 +26,10 @@ TASK_CLASS_TO_MODEL: dict[str, str] = {
     "extraction":        "openai/gpt-4.1-mini",
     "composition":       "openai/gpt-4.1",
     "classification":    "openai/gpt-4o-mini",
-    "chat":              "openai/gpt-4.1",
+    # Phase 52 — Ask/chat on Claude Sonnet 4.6 via OpenRouter: stronger
+    # conversational grounding than gpt-4.1 at ~1/3 the output cost. Falls back
+    # to gpt-4.1 (legacy map below) when OpenRouter is unavailable.
+    "chat":              "anthropic/claude-sonnet-4.6",
     "search_aided":      "perplexity/sonar-pro",
     "embeddings":        "openai/text-embedding-3-small",
 }
