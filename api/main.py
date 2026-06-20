@@ -407,6 +407,18 @@ def _startup() -> None:
     except Exception as exc:  # noqa: BLE001 — auto-bootstrap is additive
         logger.warning("phase 25 auto-bootstrap failed (non-fatal): %s", exc)
 
+    # Phase 52 — build the on-disk wiki from the DB. Prod persists insights to
+    # Postgres and runs on Railway's ephemeral filesystem, so wiki_root is empty
+    # after every deploy → /api/wiki/* returned wiki_root_missing. This rebuilds
+    # it from article_pool ⋈ company_article_view in a non-fatal daemon thread
+    # (never blocks boot, never crashes the app). Gated by
+    # SNOWKAP_WIKI_BUILD_ON_STARTUP (default on).
+    try:
+        from engine.wiki.startup_build import maybe_build_wiki_on_startup
+        maybe_build_wiki_on_startup()
+    except Exception as exc:  # noqa: BLE001 — wiki is non-critical
+        logger.warning("wiki startup build wiring failed (non-fatal): %s", exc)
+
 
 def _start_inprocess_scheduler() -> None:
     """Boot the BackgroundScheduler if SNOWKAP_INPROCESS_SCHEDULER is on.
