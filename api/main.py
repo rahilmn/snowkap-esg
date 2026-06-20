@@ -812,15 +812,16 @@ def health_ready(response: Response) -> dict:
 
 @app.get("/api/health/routing")
 def health_routing() -> dict:
-    """LLM routing health — is reasoning_heavy actually on Opus, or silently
-    on the gpt-4.1 fallback (missing/invalid OPENROUTER_API_KEY)?
+    """LLM routing health — is reasoning_heavy on the intended OpenRouter model
+    (Sonnet 4.6), or silently on the gpt-4.1 fallback (missing/invalid
+    OPENROUTER_API_KEY)?
 
     Lives under /api/* (not root like /health) so it is reachable through the
-    public reverse proxy. No secrets — only the resolved model name + provider
-    + an opus_active boolean + the chat model. Lets ops curl
-    ``/api/health/routing`` to confirm Opus instead of digging through boot logs.
+    public reverse proxy. No secrets — only the resolved model names + provider
+    + a reasoning_on_openrouter boolean. Lets ops curl ``/api/health/routing``
+    to confirm the cost-effective routing instead of digging through boot logs.
     """
-    out: dict[str, object] = {"opus_active": False, "reasoning_heavy_model": "unknown"}
+    out: dict[str, object] = {"reasoning_on_openrouter": False, "reasoning_heavy_model": "unknown"}
     try:
         from engine.llm.health import routing_report
         from engine.llm.routing import resolve_model
@@ -1088,19 +1089,21 @@ def metrics() -> Response:
     except Exception as exc:  # noqa: BLE001 — request metrics are additive
         logger.debug("metrics: http request block failed: %s", exc)
 
-    # C#6 — LLM routing health gauge. reasoning_heavy silently falls back from
-    # Opus to gpt-4.1 when OPENROUTER_API_KEY is unset/out-of-credit; it only
-    # logs once at boot, so without a metric ops can't alert on the recurring
-    # downgrade. Alert: snowkap_llm_opus_active == 0.
+    # C#6 — LLM routing health gauge. reasoning_heavy silently falls back to the
+    # gpt-4.1 direct fallback when OPENROUTER_API_KEY is unset/out-of-credit; it
+    # only logs once at boot, so without a metric ops can't alert on the
+    # recurring downgrade. The intended model is Sonnet 4.6 via OpenRouter
+    # (Phase 52 cost-effective default, not Opus).
+    # Alert: snowkap_llm_reasoning_on_openrouter == 0.
     try:
         from engine.llm.health import routing_report
         rep = routing_report()
         model = str(rep.get("reasoning_heavy_model") or "unknown")
         provider = str(rep.get("provider") or "unknown")
-        active = 1 if rep.get("opus_active") else 0
-        lines.append("# HELP snowkap_llm_opus_active 1 when reasoning_heavy resolves to Opus, 0 on the gpt-4.1 fallback (Phase 51)")
-        lines.append("# TYPE snowkap_llm_opus_active gauge")
-        lines.append(f'snowkap_llm_opus_active{{model="{model}",provider="{provider}"}} {active}')
+        active = 1 if rep.get("reasoning_on_openrouter") else 0
+        lines.append("# HELP snowkap_llm_reasoning_on_openrouter 1 when reasoning_heavy resolves to the intended OpenRouter model (Sonnet), 0 on the gpt-4.1 fallback (Phase 52)")
+        lines.append("# TYPE snowkap_llm_reasoning_on_openrouter gauge")
+        lines.append(f'snowkap_llm_reasoning_on_openrouter{{model="{model}",provider="{provider}"}} {active}')
         lines.append("")
     except Exception as exc:  # noqa: BLE001 — routing metrics are additive
         logger.debug("metrics: llm routing block failed: %s", exc)
