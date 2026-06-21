@@ -116,7 +116,16 @@ def is_market_commentary(result: Any) -> bool:
     """
     from engine.analysis.criticality_scorer import ACTIONABLE_EVENT_TYPES
 
+    # Phase 53.L — a THEME-FALLBACK event (guessed from the theme, no keyword
+    # match) must NOT shield a market-framed headline: the rule-based classifier
+    # routinely theme-falls-back a stock-ticker blip to event_board_change or a
+    # macro note to event_credit_rating, which ARE in ACTIONABLE_EVENT_TYPES, so
+    # the hard-event short-circuit below wrongly protected "Shares Gain 0.94% in
+    # Morning Trade" from the cap. Only a genuine KEYWORD-matched hard event
+    # protects.
+    event = getattr(result, "event", None)
+    is_fallback = list(getattr(event, "matched_keywords", None) or []) == ["[theme_fallback]"]
     eid = _event_id(result)
-    if eid in ACTIONABLE_EVENT_TYPES and eid not in _SOFT_MARKET_EVENTS:
+    if eid in ACTIONABLE_EVENT_TYPES and eid not in _SOFT_MARKET_EVENTS and not is_fallback:
         return False
     return comparison_framing(getattr(result, "title", "") or "")
