@@ -98,11 +98,31 @@ def main() -> int:
         companies = [c for c in companies if c.slug in only]
     print(f"== rebuilding {len(companies)} companies on {rep['reasoning_heavy_model']} ==\n", flush=True)
 
+    # Phase 53.K — optional purge of a company's prior deck rows before rebuild.
+    # The rebuild is non-lossy (upsert), so deck_for_company keeps STALE criticals
+    # the fresh run didn't re-promote (0.0 floor-promoted dups, pre-fix backdated
+    # recs, 0-rec fraud cards). DEMO_PURGE=1 deletes the company's company_article_
+    # view + insight_payload rows first, so the deck shows ONLY the fresh rebuild.
+    _purge = os.environ.get("DEMO_PURGE") == "1"
+
+    def _purge_company(slug: str) -> None:
+        with connect() as c:
+            try:
+                c.execute("DELETE FROM company_article_view WHERE company_slug = ?", (slug,))
+            except Exception as exc:  # noqa: BLE001
+                print(f"  [{slug}] purge view warn: {exc}", flush=True)
+            try:
+                c.execute("DELETE FROM insight_payload WHERE company_slug = ?", (slug,))
+            except Exception as exc:  # noqa: BLE001
+                print(f"  [{slug}] purge payload warn: {exc}", flush=True)
+
     summary = []
     for company in companies:
         slug = company.slug
         before = _crit_count(slug)
         try:
+            if _purge:
+                _purge_company(slug)
             fresh = fetch_for_company(company, max_per_query=18)
             deck = build_company_deck(company, fresh, n_critical=3, n_total=10)
             after = _crit_count(slug)
