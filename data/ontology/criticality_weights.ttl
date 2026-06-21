@@ -91,3 +91,43 @@ snowkap:cm_multibagger     a snowkap:ComparisonMarker ; snowkap:cmPhrase "multib
 snowkap:cm_factors_inv     a snowkap:ComparisonMarker ; snowkap:cmPhrase "factors investors"     .
 snowkap:cm_factors_that    a snowkap:ComparisonMarker ; snowkap:cmPhrase "factors that investors" .
 snowkap:cm_is_it_a_buy     a snowkap:ComparisonMarker ; snowkap:cmPhrase "is it a buy"           .
+# Phase 53.G — broker/price-target/stock-listicle market-speak. The Power/Energy
+# decks were dominated by these ("Five power grid stocks riding…", "Macquarie's
+# top power picks", "Bernstein raises target price", "turns bullish", "shares
+# gain… losing streak") which the original comparison set missed, so they scored
+# HIGH and crowded out genuine sector-ESG. These are title-context market signals;
+# a GENUINE hard ESG event (penalty/violation/contract) is protected by the
+# actionable-event short-circuit even if its title mentions shares.
+snowkap:cm_target_price    a snowkap:ComparisonMarker ; snowkap:cmPhrase "target price"          .
+snowkap:cm_price_target    a snowkap:ComparisonMarker ; snowkap:cmPhrase "price target"          .
+snowkap:cm_raises_target   a snowkap:ComparisonMarker ; snowkap:cmPhrase "raises target"         .
+snowkap:cm_cuts_target     a snowkap:ComparisonMarker ; snowkap:cmPhrase "cuts target"           .
+snowkap:cm_hikes_target    a snowkap:ComparisonMarker ; snowkap:cmPhrase "hikes target"          .
+snowkap:cm_top_picks       a snowkap:ComparisonMarker ; snowkap:cmPhrase "top picks"             .
+snowkap:cm_power_picks     a snowkap:ComparisonMarker ; snowkap:cmPhrase "power picks"            .
+snowkap:cm_stock_picks     a snowkap:ComparisonMarker ; snowkap:cmPhrase "stock picks"           .
+snowkap:cm_top_stock       a snowkap:ComparisonMarker ; snowkap:cmPhrase "top stock"             .
+snowkap:cm_turns_bullish   a snowkap:ComparisonMarker ; snowkap:cmPhrase "turns bullish"         .
+snowkap:cm_turns_bearish   a snowkap:ComparisonMarker ; snowkap:cmPhrase "turns bearish"         .
+snowkap:cm_bullish_on      a snowkap:ComparisonMarker ; snowkap:cmPhrase "bullish on"            .
+snowkap:cm_bearish_on      a snowkap:ComparisonMarker ; snowkap:cmPhrase "bearish on"            .
+snowkap:cm_stays_bullish   a snowkap:ComparisonMarker ; snowkap:cmPhrase "stays bullish"         .
+snowkap:cm_shares_gain     a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares gain"           .
+snowkap:cm_shares_fall     a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares fall"           .
+snowkap:cm_shares_jump     a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares jump"           .
+snowkap:cm_shares_slump    a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares slump"          .
+snowkap:cm_shares_surge    a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares surge"          .
+snowkap:cm_shares_rise     a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares rise"           .
+snowkap:cm_shares_decline  a snowkap:ComparisonMarker ; snowkap:cmPhrase "shares decline"        .
+snowkap:cm_stock_mkt_news  a snowkap:ComparisonMarker ; snowkap:cmPhrase "stock market news"     .
+snowkap:cm_stocks_riding   a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks riding"         .
+snowkap:cm_stocks_to_buy   a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks to buy"         .
+snowkap:cm_stocks_in_news  a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks in news"        .
+snowkap:cm_losing_streak   a snowkap:ComparisonMarker ; snowkap:cmPhrase "losing streak"         .
+snowkap:cm_winning_streak  a snowkap:ComparisonMarker ; snowkap:cmPhrase "winning streak"        .
+snowkap:cm_buy_rating      a snowkap:ComparisonMarker ; snowkap:cmPhrase "buy rating"            .
+snowkap:cm_sell_rating     a snowkap:ComparisonMarker ; snowkap:cmPhrase "sell rating"           .
+snowkap:cm_outperform      a snowkap:ComparisonMarker ; snowkap:cmPhrase "outperform"            .
+snowkap:cm_underperform    a snowkap:ComparisonMarker ; snowkap:cmPhrase "underperform"          .
+snowkap:cm_brokerage       a snowkap:ComparisonMarker ; snowkap:cmPhrase "brokerage"             .
+snowkap:cm_stocks_to_watch2 a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks riding india"  .

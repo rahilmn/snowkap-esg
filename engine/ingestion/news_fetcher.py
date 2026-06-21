@@ -648,10 +648,14 @@ _INDUSTRY_SECTOR_TERMS: dict[str, tuple[str, ...]] = {
 _TOPIC_SEARCH_TERMS: dict[str, tuple[str, ...]] = {
     "climate": ("climate risk", "climate disclosure"),
     "climate_adaptation": ("climate adaptation", "physical climate risk"),
-    "emissions": ("carbon emissions", "net zero", "decarbonisation"),
+    # Phase 53.G — add India hard-ESG event vocabulary so the thematic lane
+    # surfaces SUBSTANTIVE heavy-industry ESG news (NGT/CPCB orders, coal/fly-ash,
+    # emission-norm enforcement) instead of soft "net zero / renewable" PR. These
+    # are the headlines that actually generate critical-grade power/metals events.
+    "emissions": ("carbon emissions", "emission norms", "coal", "fly ash"),
     "energy": ("energy transition", "renewable energy"),
     "water": ("water pollution", "water scarcity"),
-    "pollution": ("pollution", "emission norms", "effluent"),
+    "pollution": ("air pollution", "NGT", "CPCB", "environmental clearance"),
     "waste": ("hazardous waste", "plastic waste"),
     "biodiversity": ("deforestation", "biodiversity"),
     "health_safety": ("workplace safety", "industrial accident"),

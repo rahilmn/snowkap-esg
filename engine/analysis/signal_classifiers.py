@@ -27,12 +27,33 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # In-code default — overridden by the ontology when the TTL provides markers.
+# Keep in sync with data/ontology/criticality_weights.ttl ComparisonMarkers; this
+# is the volume-shadow fallback when the bundled TTL is masked in prod.
 _DEFAULT_COMPARISON_MARKERS: tuple[str, ...] = (
     " vs ", " vs. ", " versus ", "better bet", "better buy", "which stock",
     "which is better", "should you buy", "buy or sell", "stocks to watch",
     "stock to watch", "multibagger", "factors investors",
     "factors that investors", "is it a buy",
+    # Phase 53.G — broker/price-target/stock-listicle market-speak.
+    "target price", "price target", "raises target", "cuts target", "hikes target",
+    "top picks", "power picks", "stock picks", "top stock",
+    "turns bullish", "turns bearish", "bullish on", "bearish on", "stays bullish",
+    "shares gain", "shares fall", "shares jump", "shares slump", "shares surge",
+    "shares rise", "shares decline", "stock market news", "stocks riding",
+    "stocks to buy", "stocks in news", "losing streak", "winning streak",
+    "buy rating", "sell rating", "outperform", "underperform", "brokerage",
 )
+
+# Phase 53.G — "soft" market events that listicles/analyst pieces routinely
+# mis-classify as. These ARE in ACTIONABLE_EVENT_TYPES (a genuine quarterly /
+# dividend disclosure can trigger a real BRSR action), but they must NOT shield
+# a market-framed headline from the commentary cap — otherwise "Five power grid
+# stocks riding…" classified event_quarterly_results scores HIGH and crowds out
+# genuine sector-ESG. A GENUINE quarterly/dividend article (no market framing)
+# still returns False below and keeps its actionability.
+_SOFT_MARKET_EVENTS: frozenset[str] = frozenset({
+    "event_quarterly_results", "event_dividend_policy",
+})
 
 _markers_cache: tuple[str, ...] | None = None
 
@@ -73,12 +94,19 @@ def is_market_commentary(result: Any) -> bool:
     action or outrank genuine ESG signals.
 
     Tight + safe: requires BOTH a comparison-framing headline AND the absence
-    of a real (actionable) event. A genuine multi-company event carries an
-    ``event_id`` in ``ACTIONABLE_EVENT_TYPES`` → returns False → never
-    suppressed/demoted.
+    of a real (HARD) actionable event. A genuine hard event (penalty, violation,
+    contract, rating action, criminal/regulatory) carries an ``event_id`` in
+    ``ACTIONABLE_EVENT_TYPES`` → returns False → never suppressed/demoted.
+
+    Phase 53.G — the SOFT market events (quarterly_results / dividend_policy) are
+    actionable too, but listicles routinely mis-classify as them, so they do NOT
+    short-circuit: a market-framed headline on a soft event is still commentary,
+    while a genuine quarterly/dividend article (no market framing) falls through
+    comparison_framing → False and keeps its actionability.
     """
     from engine.analysis.criticality_scorer import ACTIONABLE_EVENT_TYPES
 
-    if _event_id(result) in ACTIONABLE_EVENT_TYPES:
+    eid = _event_id(result)
+    if eid in ACTIONABLE_EVENT_TYPES and eid not in _SOFT_MARKET_EVENTS:
         return False
     return comparison_framing(getattr(result, "title", "") or "")
