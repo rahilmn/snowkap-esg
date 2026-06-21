@@ -42,6 +42,16 @@ _DEFAULT_COMPARISON_MARKERS: tuple[str, ...] = (
     "shares rise", "shares decline", "stock market news", "stocks riding",
     "stocks to buy", "stocks in news", "losing streak", "winning streak",
     "buy rating", "sell rating", "outperform", "underperform", "brokerage",
+    # Phase 53.J — stock-update / broker / commodity / macro / IR-calendar noise
+    # the live gpt-5 audit found in critical ("Brent Crude", "Shares Gain 0.94%
+    # in Morning Trade", "Stock Target From Jefferies", "Chief backs RBI rate
+    # pause", "CFO macro impact", "to participate in JM Financial Forum").
+    "stock update", "morning trade", "stock target", "check the upside",
+    "sees upside", "fair value", "initiates coverage", "initiate coverage",
+    "maintains buy", "maintain buy", "stocks have declined", "stock declines",
+    "brent crude", "crude oil", "crude prices", "rate pause", "rate hike",
+    "rate cut", "repo rate", "mpc minutes", "monetary policy", "macro impact",
+    "to participate in", "finance forum", "investor conference", "analyst day",
 )
 
 # Phase 53.G — "soft" market events that listicles/analyst pieces routinely

@@ -91,8 +91,23 @@ REJECT (approved=false) only if ANY of these are true:
 - The text is GARBLED, truncated, or has incomplete sentences (e.g. "exposed to a.",
   "₹3,000–", "realize these b") — never publish broken prose.
 - The analysis is internally CONTRADICTORY (e.g. band says "Low priority" while the
-  text frames it as strategically significant).
+  text frames it as strategically significant). This does NOT include the ₹ figures:
+  the why-it-matters / criticality line leads with the engine's MODELED TOTAL
+  exposure (legal + reputational + cost-of-capital) while a separate "financial
+  exposure shown" chip or the article quotes a SMALLER stated transaction amount —
+  these two measure DIFFERENT things (modeled total vs stated amount) and their
+  disagreement is EXPECTED, not a contradiction. Never reject solely because a
+  modeled ₹ total differs from, or exceeds, the article's stated figure.
 - A recommendation is plainly OFF-TOPIC (unrelated to the article's subject).
+
+CALIBRATION — bias toward APPROVE for a genuine, source-grounded event: if the
+EVENT itself (a CBI/ED fraud probe, a regulator penalty, a court order naming or
+clearly concerning the company) is real and grounded in the source, APPROVE it
+even if a ₹ figure is a modeled estimate or the peer benchmark draws on outside
+knowledge. Reserve rejection for genuine defects: a FABRICATED event the article
+never describes, a ₹ tagged "(from article)" that the article never states,
+GARBLED/truncated prose, or an off-topic recommendation. A grounded ₹661cr CBI
+fraud must not be rejected over modeling nuance.
 
 APPROVE (approved=true) if the company/event claims are grounded, the prose is
 clean and consistent, and the recommendations are on-topic. Peer benchmarks

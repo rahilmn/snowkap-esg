@@ -131,3 +131,27 @@ snowkap:cm_outperform      a snowkap:ComparisonMarker ; snowkap:cmPhrase "outper
 snowkap:cm_underperform    a snowkap:ComparisonMarker ; snowkap:cmPhrase "underperform"          .
 snowkap:cm_brokerage       a snowkap:ComparisonMarker ; snowkap:cmPhrase "brokerage"             .
 snowkap:cm_stocks_to_watch2 a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks riding india"  .
+# Phase 53.J — stock-update / broker / commodity / macro / IR-calendar noise the
+# live gpt-5 audit found mis-tiered as critical (Brent Crude, Shares Gain in
+# Morning Trade, Stock Target, RBI rate pause, CFO macro impact, finance forum).
+snowkap:cm_stock_update    a snowkap:ComparisonMarker ; snowkap:cmPhrase "stock update"          .
+snowkap:cm_morning_trade   a snowkap:ComparisonMarker ; snowkap:cmPhrase "morning trade"         .
+snowkap:cm_stock_target    a snowkap:ComparisonMarker ; snowkap:cmPhrase "stock target"          .
+snowkap:cm_check_upside    a snowkap:ComparisonMarker ; snowkap:cmPhrase "check the upside"       .
+snowkap:cm_sees_upside     a snowkap:ComparisonMarker ; snowkap:cmPhrase "sees upside"            .
+snowkap:cm_fair_value      a snowkap:ComparisonMarker ; snowkap:cmPhrase "fair value"             .
+snowkap:cm_initiates_cov   a snowkap:ComparisonMarker ; snowkap:cmPhrase "initiates coverage"     .
+snowkap:cm_maintains_buy   a snowkap:ComparisonMarker ; snowkap:cmPhrase "maintains buy"          .
+snowkap:cm_stocks_declined a snowkap:ComparisonMarker ; snowkap:cmPhrase "stocks have declined"   .
+snowkap:cm_brent_crude     a snowkap:ComparisonMarker ; snowkap:cmPhrase "brent crude"            .
+snowkap:cm_crude_oil       a snowkap:ComparisonMarker ; snowkap:cmPhrase "crude oil"              .
+snowkap:cm_rate_pause      a snowkap:ComparisonMarker ; snowkap:cmPhrase "rate pause"             .
+snowkap:cm_rate_hike       a snowkap:ComparisonMarker ; snowkap:cmPhrase "rate hike"              .
+snowkap:cm_rate_cut        a snowkap:ComparisonMarker ; snowkap:cmPhrase "rate cut"               .
+snowkap:cm_repo_rate       a snowkap:ComparisonMarker ; snowkap:cmPhrase "repo rate"              .
+snowkap:cm_mpc_minutes     a snowkap:ComparisonMarker ; snowkap:cmPhrase "mpc minutes"            .
+snowkap:cm_monetary_policy a snowkap:ComparisonMarker ; snowkap:cmPhrase "monetary policy"        .
+snowkap:cm_macro_impact    a snowkap:ComparisonMarker ; snowkap:cmPhrase "macro impact"           .
+snowkap:cm_participate_in  a snowkap:ComparisonMarker ; snowkap:cmPhrase "to participate in"      .
+snowkap:cm_finance_forum   a snowkap:ComparisonMarker ; snowkap:cmPhrase "finance forum"          .
+snowkap:cm_investor_conf   a snowkap:ComparisonMarker ; snowkap:cmPhrase "investor conference"    .

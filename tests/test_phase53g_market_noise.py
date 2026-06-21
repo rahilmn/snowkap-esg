@@ -77,3 +77,28 @@ def test_new_markers_present():
     for m in ("target price", "top picks", "turns bullish", "shares gain",
               "stock market news", "stocks riding", "brokerage"):
         assert comparison_framing(f"Something {m} something")
+
+
+# Phase 53.J — stock-update / commodity / macro / IR-calendar noise the live
+# gpt-5 audit found mis-tiered as critical.
+@pytest.mark.parametrize("title", [
+    "Brent Crude: Sticky Near-Term, Softening in 2027",
+    "State Bank of India Stock Update: Shares Gain 0.94% in Morning Trade",
+    "JSW Energy Receives New Stock Target From Jefferies; Check the Upside",
+    "SBI Chief Setty backs RBI rate pause, urges focus on long-term growth",
+    "CFOs should take into account macro impact on costs: Yes Bank CFO",
+    "ICICI Bank to participate in JM Financial India Finance Forum on June 23",
+    "From Adani Ports To Adani Power: Why Adani Stocks Have Declined Upto 4%",
+])
+def test_phase53j_macro_stock_noise_flagged(title):
+    assert comparison_framing(title) is True, title
+
+
+@pytest.mark.parametrize("title", [
+    "CBI conducts searches in Rs 661 crore IDFC First Bank fraud case",
+    "SBI sets out digital, green growth path; Govt to earn Rs 8,800 crore dividend",
+    "JSW Energy commissions wind blade manufacturing facility in Gujarat",
+    "Why Karnataka cancelled 386 small hydro projects despite renewable push",
+])
+def test_phase53j_genuine_esg_not_flagged(title):
+    assert comparison_framing(title) is False, title

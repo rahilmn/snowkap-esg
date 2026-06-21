@@ -36,6 +36,11 @@ if _demo_model:
     os.environ["SNOWKAP_REASONING_MODEL"] = _demo_model
 else:
     os.environ.pop("SNOWKAP_REASONING_MODEL", None)
+# Phase 53.J — critical-tier floor so capped market/macro noise (score ~0.34) and
+# floor-promoted 0.0 duplicates are NOT promoted into the 3 critical slots on a
+# thin-news company. Genuine company events score 0.55+ (HIGH); 0.45 demotes the
+# noise while keeping them. Override via DEMO_CRITICAL_FLOOR.
+os.environ.setdefault("SNOWKAP_CRITICAL_FLOOR", (os.environ.get("DEMO_CRITICAL_FLOOR") or "0.45").strip())
 # OpenRouter org budget cap (403) is blocking Sonnet — force direct OpenAI so
 # reasoning_heavy resolves to gpt-5-mini (legacy map). Set KEEP_OPENROUTER=1 to
 # override once the org cap is lifted.
