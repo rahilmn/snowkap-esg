@@ -196,8 +196,13 @@ def query_materiality_weight(
     # Phase 32 — SASB overlay first.
     if sasb_sector:
         try:
+            from engine.ontology.materiality_aliases import canonical_sasb_topic
             from engine.ontology.sasb_loader import query_sasb_materiality
-            sasb_weight, _kind = query_sasb_materiality(sasb_sector, topic)
+            # Phase 53 (A1) — pass the SASB topic-URI SUFFIX, not the human label.
+            # The label ("Climate Change") normalises to "climate_change" which
+            # never STRENDS-matches snowkap:topic_climate; the suffix ("climate")
+            # does. This is the fix that revives the SASB sector overlay.
+            sasb_weight, _kind = query_sasb_materiality(sasb_sector, canonical_sasb_topic(topic))
             if sasb_weight is not None:
                 logger.debug(
                     "materiality: SASB hit sector=%s topic=%s weight=%s",

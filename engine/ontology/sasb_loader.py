@@ -148,11 +148,83 @@ def query_sasb_materiality(
             kind = str(row.kind)
             return weight, kind
     except Exception as exc:  # noqa: BLE001
+        # Phase 53 (A4) — log loudly with traceback. A silent 0.5 default here
+        # hides a prod pyparsing/rdflib SPARQL-parser break (the
+        # "Param.postParse2() missing tokenList" error) — pyparsing is pinned in
+        # requirements.txt so the deployed image cannot regress the parser.
         logger.warning(
             "sasb_loader: SPARQL failed for %s / %s (%s)",
-            sasb_sector, topic, exc,
+            sasb_sector, topic, exc, exc_info=True,
         )
     return None, None
+
+
+@lru_cache(maxsize=64)
+def query_material_topics_for_sector(
+    sasb_sector: str | None,
+) -> tuple[tuple[str, float, str], ...]:
+    """Phase 53 (A2) — the per-industry MATERIAL ESG TOPIC SET for a SASB sector.
+
+    Returns ``((topic_suffix, weight, kind), ...)`` ordered by weight DESC, where
+    ``topic_suffix`` is the snake_case id of ``snowkap:topic_<suffix>`` minus the
+    ``topic_`` prefix (e.g. ``"climate"``, ``"data_privacy"``) and ``kind`` ∈
+    {"direct","asset_based"}. Empty tuple when the sector isn't mapped.
+
+    This is the building block the industry/thematic news lane needs: the top
+    topics become the ESG search terms for the company's INDUSTRY, and the weight
+    scores sector/thematic news as material to the company — both keyed by SASB
+    SECTOR, so it works for any onboarded company without per-company seeding.
+    """
+    if not sasb_sector:
+        return ()
+    g = _load_graph()
+    if g is None:
+        return ()
+    sector_uri_suffix = sasb_sector if sasb_sector.startswith("sasb_") else "__NEVER_MATCH__"
+    sparql = """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX snowkap: <http://snowkap.com/ontology/esg#>
+    SELECT ?topic ?weight ?kind WHERE {
+        ?sector a snowkap:SASBSector .
+        ?sector ?edge ?link .
+        ?link snowkap:topic ?topic .
+        ?link snowkap:materialityWeight ?weight .
+        ?link snowkap:materialityKind ?kind .
+        OPTIONAL { ?sector rdfs:label ?label }
+        FILTER(
+            (BOUND(?label) && LCASE(STR(?label)) = LCASE(?label_in))
+            || (STRENDS(STR(?sector), ?uri_suffix))
+        )
+    }
+    ORDER BY DESC(?weight)
+    """
+    best: dict[str, tuple[str, float, str]] = {}
+    try:
+        from rdflib import Literal  # type: ignore
+        for row in g.query(
+            sparql,
+            initBindings={
+                "label_in": Literal(sasb_sector.strip()),
+                "uri_suffix": Literal(sector_uri_suffix),
+            },
+        ):
+            uri = str(row.topic)
+            suffix = uri.rsplit("#", 1)[-1].rsplit("/", 1)[-1]
+            if suffix.startswith("topic_"):
+                suffix = suffix[len("topic_"):]
+            w = float(row.weight)
+            kind = str(row.kind)
+            # keep the highest-weight occurrence per topic (a topic can be both
+            # direct + asset_based across the same sector — take the stronger).
+            if suffix not in best or w > best[suffix][1]:
+                best[suffix] = (suffix, w, kind)
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "sasb_loader: material-topics SPARQL failed for %s (%s)",
+            sasb_sector, exc, exc_info=True,
+        )
+        return ()
+    return tuple(sorted(best.values(), key=lambda x: -x[1]))
 
 
 def is_sector_mapped(sasb_sector: str | None) -> bool:
@@ -192,4 +264,4 @@ def is_sector_mapped(sasb_sector: str | None) -> bool:
         return False
 
 
-__all__ = ["query_sasb_materiality", "is_sector_mapped"]
+__all__ = ["query_sasb_materiality", "query_material_topics_for_sector", "is_sector_mapped"]
