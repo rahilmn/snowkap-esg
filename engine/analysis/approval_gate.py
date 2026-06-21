@@ -80,7 +80,14 @@ REJECT (approved=false) only if ANY of these are true:
   BRSR/TCFD" when the article never says so; a capacity/figure that misreads the
   article; a regulator action the article doesn't mention).
 - A ₹/$/€ figure is presented as THE COMPANY's actual figure-from-the-article when
-  the article contains no such figure and it isn't clearly marked an estimate.
+  the article contains no such figure, it isn't marked an estimate, AND it does not
+  match the engine's modeled exposure shown in the FINANCIAL EXPOSURE context below.
+  (The engine deliberately models a TOTAL exposure — legal + reputational +
+  cost-of-capital — that is legitimately LARGER than the single amount the article
+  states. A why-it-matters / criticality line that leads with that modeled total is
+  EXPECTED analytical output, not a fabrication. Reject only a figure that matches
+  NEITHER the article's stated amount NOR the engine's modeled exposure, or one
+  falsely tagged "(from article)".)
 - The text is GARBLED, truncated, or has incomplete sentences (e.g. "exposed to a.",
   "₹3,000–", "realize these b") — never publish broken prose.
 - The analysis is internally CONTRADICTORY (e.g. band says "Low priority" while the

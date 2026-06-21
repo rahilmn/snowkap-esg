@@ -234,6 +234,16 @@ SOURCE TAGGING RULES — EVERY ₹ FIGURE MUST CARRY ITS ORIGIN:
 - "(engine estimate)": the figure is derived from the COMPUTED CASCADE block, company calibration, or precedent. Always honest. E.g., "₹180 Cr margin compression (engine estimate)".
 - Example combined: "₹50 Cr GST demand (from article) + ~₹120 Cr indirect contingent exposure (engine estimate)".
 - Mandatory for every top-level financial field.
+- CRITICALITY GROUNDING (HARD): decision_summary.financial_exposure is the figure
+  that LEADS the criticality_summary the CFO reads first. If that figure is the
+  engine's modeled total (i.e. LARGER than the exact amount the === ARTICLE === Body
+  states), it MUST end with "(engine estimate)". The cleanest pattern: lead with the
+  article's stated event amount as the headline figure, and carry the larger modeled
+  total in financial_exposure tagged "(engine estimate)". NEVER present an untagged
+  modeled figure as the event's exposure — a fact-checker will read it as fabricated
+  and reject the whole card. Example: article says "₹83 crore" → financial_exposure
+  = "₹83 Cr alleged misappropriation (from article); ~₹140 Cr total modeled exposure
+  (engine estimate)".
 
 CROSS-SECTION CONSISTENCY — ONE PRIMARY FIGURE, REUSED EVERYWHERE:
 - Pick ONE primary ₹ exposure / opportunity figure for the event (the headline number).
