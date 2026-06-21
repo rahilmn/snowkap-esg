@@ -31,6 +31,19 @@
 > - Relaunch scripts: `scripts/relaunch_clean_slate.py`,
 >   `scripts/reonboard_nine.py`.
 
+> **Phase 52 update — 2026-06-21 (cost-effective model).**
+> - **`reasoning_heavy` is now `anthropic/claude-sonnet-4.6`, NOT Opus 4.6.**
+>   Every "Opus 4.6" reference below (Stage 10 deep insight, Stage 12 recs, the
+>   editorial lede, the approval gate, and the company resolver) now runs on
+>   **Sonnet 4.6 via OpenRouter** — ~5× cheaper ($3/$15 vs $15/$75 per M),
+>   output still protected by the approval + quality gates. Onboard/rebuild cost
+>   drops from ~$4.50 to ~$0.90. Opus is restorable for a one-off high-value
+>   rebuild via `SNOWKAP_REASONING_MODEL=anthropic/claude-opus-4.6` (no redeploy).
+> - **`chat` → `anthropic/claude-sonnet-4.6`** (the in-app Ask).
+> - Routing health is provider-based now (`reasoning_on_openrouter` /
+>   `/api/health/routing` / `snowkap_llm_reasoning_on_openrouter` gauge), not
+>   "opus_active" — the alert is "degraded to gpt-4.1 fallback", not "not Opus".
+
 ---
 
 ## 1. What Snowkap is

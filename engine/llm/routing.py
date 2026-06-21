@@ -21,12 +21,21 @@ from engine.llm.keys import is_using_legacy_openai
 # active, these strings go straight to the API. When legacy OpenAI is
 # active, we strip the `vendor/` prefix and use the model bare.
 TASK_CLASS_TO_MODEL: dict[str, str] = {
-    "reasoning_heavy":   "anthropic/claude-opus-4.6",
+    # Phase 52 — cost-effective default. reasoning_heavy (Stage 10 deep insight,
+    # Stage 12 recs, lede, approval gate) runs on Claude Sonnet 4.6 instead of
+    # Opus 4.6: ~5x cheaper ($3/$15 vs $15/$75 per M) while still strong enough
+    # for the gated output. Opus can be restored without a code change via
+    # SNOWKAP_REASONING_MODEL=anthropic/claude-opus-4.6 for a one-off high-value
+    # rebuild. (Overrides the legacy CLAUDE.md "Opus for Stage 10/12/lede" rule.)
+    "reasoning_heavy":   "anthropic/claude-sonnet-4.6",
     "reasoning_default": "openai/gpt-4.1",
     "extraction":        "openai/gpt-4.1-mini",
     "composition":       "openai/gpt-4.1",
     "classification":    "openai/gpt-4o-mini",
-    "chat":              "openai/gpt-4.1",
+    # Phase 52 — Ask/chat on Claude Sonnet 4.6 via OpenRouter: stronger
+    # conversational grounding than gpt-4.1 at ~1/3 the output cost. Falls back
+    # to gpt-4.1 (legacy map below) when OpenRouter is unavailable.
+    "chat":              "anthropic/claude-sonnet-4.6",
     "search_aided":      "perplexity/sonar-pro",
     "embeddings":        "openai/text-embedding-3-small",
 }

@@ -1,10 +1,12 @@
-"""Phase 51 — LLM routing health / "is Opus actually working?" check.
+"""Phase 51/52 — LLM routing health / "is the intended model actually live?".
 
-It is easy to miss that ``reasoning_heavy`` has SILENTLY fallen back from
-Opus 4.6 to gpt-4.1 because ``OPENROUTER_API_KEY`` is unset or out of credit
-(``engine/llm/keys.py``). This module logs the resolved reasoning model +
-provider at startup so ops can see it at a glance, and offers an optional
-1-token live ping behind ``SNOWKAP_VERIFY_OPUS=1``.
+It is easy to miss that ``reasoning_heavy`` has SILENTLY fallen back to the
+direct-OpenAI gpt-4.1 fallback because ``OPENROUTER_API_KEY`` is unset or out
+of credit (``engine/llm/keys.py``). The intended reasoning model is Claude
+Sonnet 4.6 via OpenRouter (Phase 52 cost-effective default — NOT Opus). This
+module logs the resolved reasoning model + provider at startup so ops can see
+it at a glance, and offers an optional 1-token live ping behind
+``SNOWKAP_VERIFY_REASONING=1``.
 """
 from __future__ import annotations
 
@@ -24,6 +26,11 @@ def routing_report() -> dict[str, object]:
     return {
         "provider": "openai-direct" if legacy else "openrouter",
         "reasoning_heavy_model": reasoning,
+        # True when reasoning runs on the intended OpenRouter model (Sonnet),
+        # False when it has silently degraded to the gpt-4.1 direct fallback.
+        "reasoning_on_openrouter": not legacy,
+        # Back-compat alias for the old /metrics gauge name. We no longer use
+        # Opus by default, so this is informational only.
         "opus_active": (not legacy) and "opus" in reasoning.lower(),
     }
 
@@ -36,20 +43,21 @@ def report_routing(verify: bool | None = None) -> dict[str, object]:
     Off by default so normal boots spend nothing.
     """
     rep = routing_report()
-    if rep["opus_active"]:
+    if rep["reasoning_on_openrouter"]:
         logger.info(
-            "LLM routing: reasoning_heavy=%s via %s — Opus ACTIVE",
+            "LLM routing: reasoning_heavy=%s via %s — OpenRouter ACTIVE",
             rep["reasoning_heavy_model"], rep["provider"],
         )
     else:
         logger.warning(
-            "LLM routing: reasoning_heavy=%s via %s — OPUS NOT ACTIVE; set "
-            "OPENROUTER_API_KEY (with credit) to enable claude-opus-4.6",
+            "LLM routing: reasoning_heavy=%s via %s — DEGRADED to gpt-4.1 "
+            "fallback; set OPENROUTER_API_KEY (with credit) to restore "
+            "claude-sonnet-4.6",
             rep["reasoning_heavy_model"], rep["provider"],
         )
 
     if verify is None:
-        verify = os.environ.get("SNOWKAP_VERIFY_OPUS", "").strip().lower() in {"1", "true", "yes", "on"}
+        verify = os.environ.get("SNOWKAP_VERIFY_REASONING", "").strip().lower() in {"1", "true", "yes", "on"}
     if verify:
         try:
             from engine.llm import get_llm_client
