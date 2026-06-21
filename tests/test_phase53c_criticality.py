@@ -137,12 +137,15 @@ def _result(source_type, weight):
     )
 
 
-def test_industry_materiality_only_for_thematic():
+def test_industry_materiality_applies_to_all_articles():
+    # Phase 53.I — the SASB materiality floor applies regardless of whether the
+    # company is named (materiality is intrinsic to theme × industry). Thematic
+    # AND company-named both return the weight; the actionability/market guards
+    # prevent over-promotion of non-events.
     rel = _result("industry_thematic", 0.95).relevance
     assert _industry_materiality_for(_result("industry_thematic", 0.95), rel) == pytest.approx(0.95)
-    # company-named (default source_type) → None, scorer keeps existing behaviour
-    assert _industry_materiality_for(_result("", 0.95), rel) is None
-    assert _industry_materiality_for(_result("newsapi_ai", 0.95), rel) is None
+    assert _industry_materiality_for(_result("", 0.85), SimpleNamespace(materiality_weight=0.85)) == pytest.approx(0.85)
+    assert _industry_materiality_for(_result("newsapi_ai", 0.85), SimpleNamespace(materiality_weight=0.85)) == pytest.approx(0.85)
     # missing weight → None (never crashes the additive path)
     assert _industry_materiality_for(_result("industry_thematic", None),
                                      SimpleNamespace(materiality_weight=None)) is None
