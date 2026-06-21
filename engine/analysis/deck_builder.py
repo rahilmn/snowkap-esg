@@ -164,7 +164,7 @@ def _publish_critical(result: Any, company: Any) -> str:
 
     approval = approve_analysis_for_display(
         result=result, insight=insight, unified_analysis=analysis,
-        recommendations=recs, tier="critical",
+        recommendations=recs, tier="critical", company=company,
     )
     if not approval.approved:
         return "rejected_approval"

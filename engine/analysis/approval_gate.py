@@ -146,8 +146,36 @@ def _approve_light(result: Any, analysis: dict[str, Any]) -> ApprovalResult:
     )
 
 
+def _is_thematic(result: Any) -> bool:
+    """True when the article came in via the industry-thematic lane (Phase 53.B/C)
+    — a SECTOR ESG story where the company is deliberately NOT named."""
+    return (getattr(result, "source_type", "") or "") == "industry_thematic"
+
+
+def _thematic_review_note(company: Any) -> str:
+    """Phase 53.D — reframe the grounding bar for a SECTOR/INDUSTRY article so the
+    reviewer does not reject it merely because the company is (by design) absent.
+
+    The event/sector facts MUST still be grounded; only the APPLICATION of the
+    sector event to the company's exposure is treated as legitimate inference.
+    """
+    name = (getattr(company, "name", None) or "this company").strip() or "this company"
+    return (
+        f"[SECTOR / INDUSTRY ARTICLE — READ FIRST] This story was surfaced because it is "
+        f"material to {name}'s SECTOR, and {name} is DELIBERATELY NOT named in it. The "
+        f"analysis legitimately applies a sector-wide development (a regulation, an industry "
+        f"trend, a peer/sector event) to {name}'s own exposure and obligations — this is "
+        f"EXPECTED analytical inference, NOT fabrication. Do NOT reject merely because {name} "
+        f"is absent from the source; that is by design. You MUST still require that the "
+        f"SECTOR/EVENT facts themselves (the regulation, the trend, any figure attributed to "
+        f"the sector or a named third party) are grounded in the article, that the prose is "
+        f"clean and not garbled, and that the recommendations are on-topic for the sector event."
+    )
+
+
 def _build_review_prompt(
     result: Any, analysis: dict[str, Any], recommendations: Any,
+    company: Any = None,
 ) -> str:
     body = clamp_article_text(getattr(result, "article_content", ""))
     title = getattr(result, "title", "") or ""
@@ -179,6 +207,7 @@ def _build_review_prompt(
         )
 
     parts = [
+        *([_thematic_review_note(company)] if _is_thematic(result) else []),
         "SOURCE ARTICLE",
         f"Title: {title}",
         f"Body:\n{body}",
@@ -210,11 +239,15 @@ def approve_analysis_for_display(
     unified_analysis: dict[str, Any],
     recommendations: Any = None,
     tier: str = "critical",
+    company: Any = None,
 ) -> ApprovalResult:
     """Approve (or reject) a composed analysis before it reaches the deck.
 
     `tier="light"` → deterministic. `tier="critical"` → Opus 4.6 review.
     Fail-open on infra error.
+
+    Phase 53.D — `company` lets the reviewer reframe an industry-thematic article
+    (company deliberately not named) so it isn't rejected for that absence.
     """
     analysis = unified_analysis or {}
 
@@ -250,7 +283,7 @@ def approve_analysis_for_display(
     try:
         from engine.llm import get_llm_client
         client = get_llm_client(task_class="reasoning_heavy")
-        user = _build_review_prompt(result, analysis, recommendations)
+        user = _build_review_prompt(result, analysis, recommendations, company)
         resp = client.complete(
             messages=[
                 {"role": "system", "content": _APPROVAL_SYSTEM},
