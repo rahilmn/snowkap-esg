@@ -137,6 +137,31 @@ def _get_article_text_for_match(result: Any, insight_dict: dict[str, Any] | None
     return f"{title} {headline} {body}".strip()
 
 
+def _industry_materiality_for(result: Any, relevance: Any) -> float | None:
+    """Phase 53.C — the SASB sector × theme materiality weight to FLOOR the
+    criticality materiality component with, but ONLY for industry-thematic
+    articles (sector/regulatory ESG news where the company is not named).
+
+    For a company-NAMED article we return None so the scorer keeps its existing
+    event-floor + painpoint behaviour (the 7 tuned baseline decks are untouched).
+    For a thematic article we return ``relevance.materiality_weight`` (computed in
+    Stage 4 from theme × industry × SASB, e.g. 0.95 for Climate at a bank) — the
+    single signal that lets genuinely-material sector news reach the deck for a
+    company whose only material ESG news is sector-wide. Returns None on any
+    missing field so scoring never crashes on the additive path.
+    """
+    source_type = (getattr(result, "source_type", "") or "")
+    if source_type != "industry_thematic":
+        return None
+    weight = getattr(relevance, "materiality_weight", None) if relevance else None
+    if weight is None:
+        return None
+    try:
+        return float(weight)
+    except (TypeError, ValueError):
+        return None
+
+
 def _event_polarity_from_event(event: Any) -> str | None:
     """Pull polarity from EventClassification if available."""
     if event is None:
@@ -176,6 +201,7 @@ def score_at_pipeline_end(
     try:
         relevance = getattr(result, "relevance", None)
         relevance_total = getattr(relevance, "total", None) if relevance else None
+        industry_materiality_weight = _industry_materiality_for(result, relevance)
 
         event = getattr(result, "event", None)
         event_id = getattr(event, "event_id", None) if event else None
@@ -214,6 +240,7 @@ def score_at_pipeline_end(
         return score_criticality(
             relevance_total=relevance_total,
             event_severity=event_severity,
+            industry_materiality_weight=industry_materiality_weight,
             cascade_total_cr=0.0,                 # not yet computed at pipeline-end
             company_revenue_cr=company_revenue,
             event_id=event_id,
@@ -259,6 +286,7 @@ def score_at_insight_time(
     try:
         relevance = getattr(result, "relevance", None)
         relevance_total = getattr(relevance, "total", None) if relevance else None
+        industry_materiality_weight = _industry_materiality_for(result, relevance)
 
         event = getattr(result, "event", None)
         event_id = getattr(event, "event_id", None) if event else None
@@ -295,6 +323,7 @@ def score_at_insight_time(
         return score_criticality(
             relevance_total=relevance_total,
             event_severity=event_severity,
+            industry_materiality_weight=industry_materiality_weight,
             cascade_total_cr=cascade_total_cr,
             company_revenue_cr=company_revenue,
             event_id=event_id,

@@ -90,6 +90,9 @@ def _to_article_dict(article: Any) -> dict[str, Any]:
         "source": getattr(article, "source", ""),
         "url": getattr(article, "url", ""),
         "published_at": getattr(article, "published_at", ""),
+        # Phase 53 (C) — carry the fetch lane so the pipeline can route an
+        # industry/thematic article (company not named) past the cross-entity gate.
+        "source_type": getattr(article, "source_type", "") or "",
         "metadata": getattr(article, "metadata", {}) or {},
     }
 

@@ -94,6 +94,12 @@ class PipelineResult:
     # string when the source feed didn't expose one.
     image_url: str = ""
 
+    # Phase 53 (C) — the fetch lane this article came from. "industry_thematic"
+    # means the company is NOT named in the article; Stage 10 + criticality treat
+    # it as INDUSTRY-attributed (sector exposure → company impact), not a company
+    # event. Empty / "newsapi_ai" means the standard company-named lane.
+    source_type: str = ""
+
     # Phase 1.5 — Criticality block (Stage 9.5). Stamped at the end of
     # process_article with cascade_total=0 (baseline), then overwritten
     # by insight_generator with the cascade-aware full score. Empty dict
@@ -291,11 +297,24 @@ def process_article(
     stages.append("nlp_extraction")
     nlp = run_nlp_pipeline(title, content, source)
 
+    # Phase 53 (C) — the industry/thematic lane (Phase B) legitimately does NOT
+    # name the company: the article is about a sector/regulatory ESG development
+    # material to the company's INDUSTRY, attributed to the company by the
+    # intelligence layer (Stage 10) via exposure, not by name. Skip the
+    # company-name cross-entity reject for it — the sibling-confusion case it
+    # guards against can't arise when no specific company is being claimed.
+    # Stage-4 industry materiality + the market-commentary cap remain the
+    # precision anchors for this lane.
+    is_thematic = (
+        article.get("source_type") == "industry_thematic"
+        or (article.get("metadata") or {}).get("source_type") == "industry_thematic"
+    )
+
     # Phase 22.1 — Cross-entity attribution gate. When the article is
     # actually about a sibling group company (e.g. Adani Energy Solutions
     # filed under Adani Power's feed), reject before running stages 2-12.
     # Saves LLM dollars and prevents confident-wrong CFO/CEO output.
-    is_cross, cross_reason = _detect_cross_entity(nlp, title, content, company)
+    is_cross, cross_reason = (False, "") if is_thematic else _detect_cross_entity(nlp, title, content, company)
     if is_cross:
         result = PipelineResult(
             article_id=article.get("id", ""),
@@ -353,6 +372,7 @@ def process_article(
         stages_executed=stages,
         article_content=clamp_article_text(content),
         image_url=image_url,
+        source_type="industry_thematic" if is_thematic else (article.get("source_type") or ""),
     )
 
     # Gate: reject early

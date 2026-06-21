@@ -534,6 +534,44 @@ snowkap:event_routine_capex rdfs:comment "Default urgency: low. Reversibility: e
 snowkap:event_award_recognition rdfs:comment "Default urgency: low. Reversibility: easy. Time horizon: months." .
 
 # =============================================================================
+# ACTIONABLE EVENT TYPES (Phase 53.C)
+# =============================================================================
+# An event is `snowkap:actionable true` when it DEMANDS a concrete company
+# response — compliance, statutory disclosure, remediation, board action, or
+# physical-risk resilience — as opposed to passive market/analyst noise. The
+# criticality scorer (engine/analysis/criticality_scorer.py::_actionability_
+# component) scores these 0.8 instead of 0.2. This is the ontology source of
+# truth for query_actionable_event_types(); the scorer keeps a complete
+# frozenset fallback (UNIONed, never replaced) so a missing/volume-shadowed TTL
+# degrades safely. Sector/regulatory ESG events are included because they arrive
+# via the industry-thematic lane (company not headlined) yet still force action.
+snowkap:event_criminal_indictment snowkap:actionable true .
+snowkap:event_heavy_penalty snowkap:actionable true .
+snowkap:event_license_revocation snowkap:actionable true .
+snowkap:event_social_violation snowkap:actionable true .
+snowkap:event_cyber_incident snowkap:actionable true .
+snowkap:event_regulatory_filing snowkap:actionable true .
+snowkap:event_litigation_initiated snowkap:actionable true .
+snowkap:event_violation_notice snowkap:actionable true .
+snowkap:event_rbi_action snowkap:actionable true .
+snowkap:event_sebi_action snowkap:actionable true .
+snowkap:event_regulatory_policy snowkap:actionable true .
+snowkap:event_regulatory_announcement snowkap:actionable true .
+snowkap:event_regulatory_penalty snowkap:actionable true .
+snowkap:event_systemic_regulatory snowkap:actionable true .
+snowkap:event_systemic_regulatory_change snowkap:actionable true .
+snowkap:event_disclosure_announcement snowkap:actionable true .
+snowkap:event_framework_update snowkap:actionable true .
+snowkap:event_environmental_violation snowkap:actionable true .
+snowkap:event_governance_failure snowkap:actionable true .
+snowkap:event_fraud_disclosure snowkap:actionable true .
+snowkap:event_show_cause_notice snowkap:actionable true .
+snowkap:event_labour_strike snowkap:actionable true .
+snowkap:event_community_conflict snowkap:actionable true .
+snowkap:event_community_protest snowkap:actionable true .
+snowkap:event_climate_event snowkap:actionable true .
+
+# =============================================================================
 # ADDITIONAL MATERIALITY WEIGHTS (target-company industries)
 # =============================================================================
 
