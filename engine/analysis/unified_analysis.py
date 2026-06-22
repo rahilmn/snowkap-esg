@@ -263,6 +263,25 @@ def _is_alleged(exposure_text: Any, result: Any) -> bool:
     return any(m in blob for m in _ALLEGED_MARKERS)
 
 
+def _amount_in_article(amount: float | None, result: Any) -> bool:
+    """DETERMINISTIC grounding: True when the ₹ figure is actually quoted in the
+    article title/body. This does NOT depend on the LLM remembering to tag the
+    figure '(from article)' — the model is unreliable about that — so a headline
+    number (e.g. '₹83 crore' in the title) is always recognised as reported."""
+    if result is None or not amount or amount <= 0:
+        return False
+    body = ((str(getattr(result, "title", "") or "")) + "\n"
+            + (str(getattr(result, "article_content", "")
+                   or getattr(result, "content", "") or ""))).strip()
+    if not body:
+        return False
+    try:
+        from engine.analysis.article_financials import money_grounded
+        return bool(money_grounded(f"₹{float(amount):.0f} Cr", body)[0])
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any]:
     """Extract the canonical ₹ exposure from decision_summary + financial_timeline.
 
@@ -317,7 +336,8 @@ def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any
             # literally in the headline. (The modelled cascade total stays an
             # engine estimate, but it is NOT what this chip shows.)
             exp_l = str(exposure).lower()
-            if amount is not None and amount > 0 and any(m in exp_l for m in _REPORTED_MARKERS):
+            tagged = any(m in exp_l for m in _REPORTED_MARKERS)
+            if amount is not None and amount > 0 and (tagged or _amount_in_article(amount, result)):
                 q = "alleged" if _is_alleged(exposure, result) else "reported"
                 return {
                     "amount_cr": amount,
