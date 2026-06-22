@@ -41,6 +41,10 @@ else:
 # thin-news company. Genuine company events score 0.55+ (HIGH); 0.45 demotes the
 # noise while keeping them. Override via DEMO_CRITICAL_FLOOR.
 os.environ.setdefault("SNOWKAP_CRITICAL_FLOOR", (os.environ.get("DEMO_CRITICAL_FLOOR") or "0.45").strip())
+# Phase 53.M — LLM event classification on the theme-fallback path so a stock
+# blip / macro note / scam advisory is classified event_default (non-actionable)
+# instead of a spurious actionable event that inflated noise into critical.
+os.environ.setdefault("SNOWKAP_LLM_EVENT_FALLBACK", "1")
 # OpenRouter org budget cap (403) is blocking Sonnet — force direct OpenAI so
 # reasoning_heavy resolves to gpt-5-mini (legacy map). Set KEEP_OPENROUTER=1 to
 # override once the org cap is lifted.
