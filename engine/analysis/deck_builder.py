@@ -68,14 +68,28 @@ class DeckSummary:
 
 
 def _rank_composite(result: Any) -> float:
-    """Higher = more deck-worthy. Band dominates, negativity boosts,
-    score fine-tunes. This is what surfaces 'critical/negative first'."""
+    """Higher = more deck-worthy. Band dominates, then severity/negativity,
+    then score. This is what surfaces 'critical/negative first'."""
     crit = getattr(result, "criticality", None) or {}
     band = (crit.get("band") or "LOW").upper()
     score = float(crit.get("score") or 0.0)
     sent = getattr(getattr(result, "nlp", None), "sentiment", None)
     negativity = 2.0 if (isinstance(sent, (int, float)) and sent < 0) else 0.0
-    return _BAND_RANK.get(band, 0) * 10.0 + negativity + score
+    # Phase 51.L — event severity is a more reliable "serious/negative ESG event"
+    # signal than NLP sentiment alone: an enforcement/harm event (heavy_penalty /
+    # violation floor 7, criminal indictment / license_revocation floor 8) lifts
+    # the rank even when the sentiment classifier read neutral. Kept below the
+    # 10-point band gap (max ~3) so it breaks ties WITHIN a band, never overrides
+    # the band itself (the band already reflects severity via the event floor).
+    event = getattr(result, "event", None)
+    floor = 0.0
+    if event is not None:
+        try:
+            floor = float(getattr(event, "score_floor", 0) or 0)
+        except (TypeError, ValueError):
+            floor = 0.0
+    severity = max(0.0, min(1.0, (floor - 3.0) / 7.0)) * 3.0
+    return _BAND_RANK.get(band, 0) * 10.0 + severity + negativity + score
 
 
 def _to_article_dict(article: Any) -> dict[str, Any]:
