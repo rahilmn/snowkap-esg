@@ -292,6 +292,49 @@ def get_data_path(*parts: str) -> Path:
     return DATA_DIR.joinpath(*parts)
 
 
+def get_ontology_dir() -> Path:
+    """Resolve the ontology TTL directory — IMMUNE to a data-dir volume shadow.
+
+    The ~10.7k-triple ontology normally lives at ``DATA_DIR/ontology``. On Railway
+    a persistent volume mounted at the data dir (``/opt/snowkap/data``) overlays
+    that path with an empty dir, so the ontology loads with ZERO triples and every
+    event / materiality / cascade lookup silently defaults (the P0). This resolver
+    falls back to a copy bundled OUTSIDE the data dir (``PROJECT_ROOT/ontology_
+    bundle``, baked by the Dockerfile) so no volume mount can ever hide it.
+
+    Precedence:
+      1. ``SNOWKAP_ONTOLOGY_DIR`` env — explicit override.
+      2. ``DATA_DIR/ontology`` when it actually contains ``*.ttl`` (local dev +
+         a non-shadowed prod — unchanged behaviour).
+      3. ``PROJECT_ROOT/ontology_bundle`` when (2) is empty/shadowed (the recovery
+         path; bundled by the Dockerfile).
+      4. ``DATA_DIR/ontology`` as the last resort (preserve original behaviour).
+    """
+    env = os.environ.get("SNOWKAP_ONTOLOGY_DIR", "").strip()
+    if env:
+        return Path(env)
+    primary = DATA_DIR / "ontology"
+    try:
+        if any(primary.glob("*.ttl")):
+            return primary
+    except OSError:
+        pass
+    bundle = PROJECT_ROOT / "ontology_bundle"
+    try:
+        if any(bundle.glob("*.ttl")):
+            return bundle
+    except OSError:
+        pass
+    return primary
+
+
+def get_ontology_path(*parts: str) -> Path:
+    """Resolve a path inside the shadow-proof ontology directory (see
+    ``get_ontology_dir``). Use this instead of ``get_data_path('ontology', ...)``
+    for any BASE ontology file so a volume mount can never blank the graph."""
+    return get_ontology_dir().joinpath(*parts)
+
+
 def get_output_dir(company_slug: str) -> Path:
     """Return data/outputs/<company_slug>/."""
     return get_data_path("outputs", company_slug)
