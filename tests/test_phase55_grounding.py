@@ -54,14 +54,28 @@ def test_reported_non_subjudice_figure_labelled_reported():
 
 
 def test_modeled_only_figure_is_not_falsely_grounded():
+    # the ₹ figure is the engine's cascade total and is NOT quoted in the
+    # article body → it must stay an estimate, never grounded as reported.
     b = _financial_exposure_block(
         _insight("~₹50 Cr total modeled exposure (engine estimate)"),
         _result("Sector climate norms tighten",
-                "New emission norms; analysts model ₹50 crore compliance capex for the sector."),
+                "New emission norms could raise compliance costs across the banking sector."),
     )
     assert b.get("source") != "from_article"
     label = (b.get("label") or "").lower()
     assert "(reported)" not in label and "(alleged)" not in label
+
+
+def test_body_grounding_works_without_the_from_article_tag():
+    # gpt-5 does not always emit "(from article)". A headline figure that IS in
+    # the body must still be grounded — this is the deterministic backstop.
+    b = _financial_exposure_block(
+        _insight("₹83 crore fraud diversion"),  # NO "(from article)" tag
+        _result("Court denies bail in ₹83 crore alleged CREST fraud at IDFC branch",
+                "The ₹83 crore alleged fraud at the IDFC First Bank branch is sub-judice."),
+    )
+    assert b["source"] == "from_article"
+    assert b["label"] == "₹83 Cr (alleged)"
 
 
 # --------------------------------------------------------------------------- #
@@ -101,3 +115,16 @@ def test_non_disclosure_action_left_untouched():
     r = _rec("Run a forensic branch-control review")
     _soften_presumed_disclosure(r)
     assert r.title == "Run a forensic branch-control review"
+
+
+def test_issue_lodr_disclosure_softened():
+    # the variant that slipped the first guard ("issue … LODR disclosure")
+    r = _rec("Issue sector-risk LODR disclosure")
+    _soften_presumed_disclosure(r)
+    assert r.title == "Assess SEBI LODR Reg 30 materiality; disclose only if material"
+
+
+def test_already_assessment_not_reprocessed():
+    r = _rec("Assess SEBI LODR Reg 30 materiality; disclose only if material")
+    _soften_presumed_disclosure(r)
+    assert r.title == "Assess SEBI LODR Reg 30 materiality; disclose only if material"

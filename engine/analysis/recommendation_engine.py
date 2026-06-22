@@ -1587,12 +1587,12 @@ def _scrub_backdated_prose_dates(rec: Recommendation) -> None:
 
 
 _DISCLOSE_VERBS = (
-    "file ", "disclose", "submit a disclosure", "make a disclosure",
-    "publish a disclosure", "issue a disclosure", "report under",
+    "file", "issue", "submit", "make", "publish", "lodge", "release",
+    "disclose", "report",
 )
 _REG30_MARKERS = (
-    "reg 30", "reg. 30", "regulation 30", "lodr 30", "lodr reg",
-    "material event disclosure", "materiality disclosure", "schedule iii",
+    "reg 30", "reg. 30", "regulation 30", "lodr", "material event disclosure",
+    "materiality disclosure", "schedule iii",
 )
 
 
@@ -1605,7 +1605,9 @@ def _soften_presumed_disclosure(rec: Recommendation) -> None:
     (assess materiality, disclose only if material). Non-Reg-30 disclosures (a
     routine BRSR supplementary filing, a CDP submission) are left untouched."""
     t = (rec.title or "").lower()
-    if not any(v in t for v in _DISCLOSE_VERBS):
+    if "assess" in t and ("materiality" in t or "only if material" in t):
+        return  # already framed as an assessment — leave it
+    if not any(re.search(r"\b" + v, t) for v in _DISCLOSE_VERBS):
         return
     if not any(m in t for m in _REG30_MARKERS):
         return
