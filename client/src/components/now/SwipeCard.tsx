@@ -92,12 +92,21 @@ function _band(article: Article): "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" {
   return "MEDIUM";
 }
 
+function _norm(s: string): string {
+  return (s || "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 function _deck(article: Article): string {
-  const di = article.deep_insight as { analysis?: UnifiedAnalysis } | undefined;
-  const fromAnalysis = di?.analysis?.what_changed?.headline;
-  // 160 chars covers ~3 lines at fontSize 14 / lineHeight 1.45 inside the
-  // card's content column — CSS line-clamp picks up the remainder.
-  return (fromAnalysis || article.summary || "").slice(0, 160);
+  // The subtitle must ADD information, not echo the headline. `_headline`
+  // already prefers what_changed.headline, so the deck must NOT fall back to
+  // the same field (that produced the duplicated headline + the clipped
+  // "…Bank / branch" overlap on mobile). Use the article summary only when it
+  // is meaningfully different from the headline; otherwise show nothing.
+  const head = _norm(_headline(article));
+  const summary = (article.summary || "").trim();
+  const sNorm = _norm(summary);
+  if (!sNorm || sNorm === head || head.startsWith(sNorm) || sNorm.startsWith(head)) return "";
+  return summary.slice(0, 160);
 }
 
 function _metric(article: Article): { label: string; value: string } | null {
@@ -254,25 +263,27 @@ export function SwipeCard({ article, bookmarked }: Props) {
         </div>
       </div>
 
-      {/* Headline — prefers the LLM-generated clean headline; falls back
-          to a publisher-suffix-stripped raw title. Clamped to 3 lines so
-          the footer never falls below the card's overflow:hidden bound. */}
+      {/* Headline — prefers the LLM-generated clean headline; falls back to a
+          publisher-suffix-stripped raw title. Clamped to 4 lines with a hard
+          maxHeight so a long headline can't leak a sliver of the next line
+          ("…Bank / branch") or push the footer past the card's bound. */}
       <div className="serif" style={{
-        padding: "8px 18px 12px",
+        padding: "8px 18px 0",
         fontSize: 20, lineHeight: 1.22,
         fontWeight: 600, color: "#0f1115",
         display: "-webkit-box",
         WebkitBoxOrient: "vertical",
-        WebkitLineClamp: 3,
+        WebkitLineClamp: 4,
         overflow: "hidden",
+        maxHeight: "98px",
       }}>
         {headline}
       </div>
 
-      {/* Deck — clamped to 3 lines for the same reason. */}
+      {/* Deck — a DISTINCT summary (never the headline). Clamped to 3 lines. */}
       {deck && (
         <div style={{
-          padding: "0 18px",
+          padding: "6px 18px 0",
           fontSize: 14, lineHeight: 1.45,
           color: "#5a5f68",
           display: "-webkit-box",
