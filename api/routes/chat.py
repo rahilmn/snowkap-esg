@@ -222,6 +222,21 @@ async def _stream_chat(
                 request.company_slug, exc,
             )
 
+    # Company-deck grounding — fires on the COLD path (company known, no article
+    # pinned) so a general "what's this company's ESG situation?" question is
+    # answered from the company's actual current deck instead of being deflected
+    # with "I don't have that in the current context". When an article IS pinned,
+    # the richer ARTICLE CONTEXT is the focus, so skip the deck to avoid bloat.
+    deck_context_text: str | None = None
+    if request.company_slug and not request.article_id:
+        try:
+            deck_context_text = _load_company_deck_context(request.company_slug)
+        except Exception as exc:  # noqa: BLE001 — context is best-effort
+            logger.warning(
+                "chat: deck-context load failed for %s: %s",
+                request.company_slug, exc,
+            )
+
     # 4. attempt to stream from OpenRouter; fall back to deterministic echo
     response_text = ""
     model_used = "deterministic-echo"
@@ -235,7 +250,7 @@ async def _stream_chat(
             "content": _build_system_prompt(
                 memories, tenant, user,
                 article_context_text, forum_context_text, wiki_context_text,
-                comments_context_text, competitor_context_text,
+                comments_context_text, competitor_context_text, deck_context_text,
             ),
         }
         for token_event in client.stream(
@@ -687,6 +702,61 @@ def _load_competitor_context(company_slug: str) -> str | None:
     )
 
 
+def _load_company_deck_context(company_slug: str, limit: int = 6) -> str | None:
+    """Company-level ESG-deck grounding for the COLD chat path (no article pinned).
+
+    The previous cold path injected only the peer set, so a general question
+    ("what's IDFC's ESG situation?", "any compliance risks this week?") hit the
+    grounding-discipline wall and got "I don't have that in the current context".
+    This pulls the company's current deck — the critical ESG/governance items
+    with their why-it-matters summary, ₹ exposure, and lead recommendation — so
+    the LLM can answer about the company's actual situation, grounded, without an
+    article pinned. Returns None when the company has no deck rows.
+    """
+    try:
+        from engine.config import load_companies
+        from engine.models.company_article_view import deck_for_company
+        co = next((c for c in load_companies() if c.slug == company_slug), None)
+        if co is None:
+            return None
+        rows, _ = deck_for_company(co.slug, co.industry, max_age_days=45, limit=10)
+    except Exception as exc:  # noqa: BLE001 — best-effort, never break chat
+        logger.debug("chat: deck-context load failed for %s: %s", company_slug, exc)
+        return None
+    crit = [r for r in rows if r.get("tier") == "critical"]
+    items = crit or rows[:limit]
+    if not items:
+        return None
+    lines: list[str] = []
+    for r in items[:limit]:
+        pa = r.get("personalised_analysis") or {}
+        why = (pa.get("why_it_matters") or {}) if isinstance(pa, dict) else {}
+        wit = (pa.get("what_it_triggers") or {}) if isinstance(pa, dict) else {}
+        summary = (why.get("criticality_summary") or "").strip()
+        actions = wit.get("recommended_actions") or []
+        lead = ""
+        if actions and isinstance(actions[0], dict):
+            lead = (actions[0].get("title") or actions[0].get("action") or "").strip()
+        elif actions and isinstance(actions[0], str):
+            lead = actions[0].strip()
+        tier = r.get("tier", "")
+        title = (r.get("title") or "").strip()
+        bit = f"  - [{tier}] {title}"
+        if summary:
+            bit += f"\n      Why: {summary[:240]}"
+        if lead:
+            bit += f"\n      Lead action: {lead[:160]}"
+        lines.append(bit)
+    return (
+        f"COMPANY DECK CONTEXT ({company_slug} — this is the company's CURRENT "
+        "Snowkap ESG deck: the material ESG/governance items being tracked right "
+        "now, each with its why-it-matters summary, ₹ exposure, and lead "
+        "recommended action. Ground answers to general questions about the "
+        "company's ESG situation in THESE items; do NOT invent events, ₹ "
+        "figures, or recommendations not listed here):\n" + "\n".join(lines)
+    )
+
+
 def _build_system_prompt(
     memories,
     tenant: str,
@@ -696,6 +766,7 @@ def _build_system_prompt(
     wiki_context: str | None = None,
     comments_context: str | None = None,
     competitor_context: str | None = None,
+    deck_context: str | None = None,
 ) -> str:
     # Tightened so the LLM stops announcing tool calls it can't actually
     # execute. Function-calling integration ships separately; today the
@@ -731,8 +802,8 @@ def _build_system_prompt(
         "`intelligence-forecast`, `memory-recall`), do NOT announce, "
         "promise, or pretend to call it.",
         "GROUNDING DISCIPLINE (strict, non-negotiable): Answer ONLY from "
-        "the context blocks provided below (ARTICLE / PEER SET / FORUM / "
-        "WIKI / COMMENT / memory). If the data needed to answer is NOT in "
+        "the context blocks provided below (ARTICLE / COMPANY DECK / PEER SET / "
+        "FORUM / WIKI / COMMENT / memory). If the data needed to answer is NOT in "
         "your context, say so plainly in one short sentence (e.g. 'I don't "
         "have that in the current context') and stop — do NOT fill the gap "
         "with training-data guesses. NEVER fabricate any of: a specific ₹ "
@@ -786,6 +857,8 @@ def _build_system_prompt(
             "paste the article):\n"
             + article_context
         )
+    if deck_context:
+        parts.append(deck_context)
     if competitor_context:
         parts.append(competitor_context)
     if forum_context:
