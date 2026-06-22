@@ -27,6 +27,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Any
 
+from engine.analysis.story_dedup import (
+    StorySignature,
+    is_story_dedup_enabled,
+    merge_signatures,
+    same_story,
+    story_signature,
+)
+
 logger = logging.getLogger(__name__)
 
 # Parallelism cap. 3 is the value proven safe against the rdflib/pyparsing
@@ -284,6 +292,19 @@ def build_company_deck(
     attempts = 0
     idx = 0
     demoted: list[Any] = []  # criticals failing approval / below floor → light tier
+    # Phase 54 — story-level de-dup for the critical tier. Track the story
+    # signatures of PUBLISHED criticals; a later candidate that retells the same
+    # case (shared ₹ amount / heavy title overlap) is demoted to the light tier
+    # so the N headline slots show N DISTINCT events, not one event N times.
+    # Dedup against PUBLISHED (not merely attempted) criticals so a story whose
+    # first article fails approval can still be told by a sibling article. A
+    # demoted duplicate costs no LLM — it's filtered before the Stage 10-12 run.
+    story_dedup_on = is_story_dedup_enabled()
+    name_sources = (getattr(company, "name", None), getattr(company, "slug", None))
+    # One cluster fingerprint per PUBLISHED critical; demoted duplicates are
+    # merged into the cluster they matched (single-linkage) so the cluster
+    # grows to cover all its members' identifying features.
+    published_clusters: list[StorySignature] = []
     while published_critical < n_critical and idx < len(critical_pool) and attempts < max_attempts:
         result = critical_pool[idx]
         idx += 1
@@ -294,10 +315,33 @@ def build_company_deck(
             # band+negativity+score composite (not pure score), so keep scanning.
             demoted.append(result)
             continue
+        sig: StorySignature | None = None
+        if story_dedup_on:
+            sig = story_signature(getattr(result, "title", "") or "", *name_sources)
+            match_idx = next(
+                (i for i, cl in enumerate(published_clusters) if same_story(sig, cl)),
+                None,
+            )
+            if match_idx is not None:
+                published_clusters[match_idx] = merge_signatures(
+                    published_clusters[match_idx], sig)
+                logger.info(
+                    "[deck] %s: story-dedup demoted critical candidate '%s' "
+                    "(same case as an already-published critical)",
+                    summary.company_slug, (getattr(result, "title", "") or "")[:70],
+                )
+                demoted.append(result)
+                continue
         attempts += 1
         outcome = _publish_critical(result, company)
         if outcome == "published":
             published_critical += 1
+            # Only anchor a cluster on a MEANINGFUL signature — an empty sig (a
+            # title that strips to nothing) would match nothing later (same_story
+            # short-circuits on empties), letting a true dup of this article slip
+            # through as a second same-story critical.
+            if sig is not None and not sig.is_empty():
+                published_clusters.append(sig)
             summary.published_items.append({
                 "article_id": getattr(result, "article_id", ""),
                 "title": (getattr(result, "title", "") or "")[:200],
