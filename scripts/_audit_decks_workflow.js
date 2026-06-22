@@ -9,7 +9,7 @@ export const meta = {
 
 // args = [{slug, file}] — each `file` is an absolute path to that company's
 // deck JSON (produced by scripts/_dump_deck.py <slug> --json).
-const companies = args
+const companies = typeof args === 'string' ? JSON.parse(args) : args
 
 const VERDICT = {
   type: 'object',
