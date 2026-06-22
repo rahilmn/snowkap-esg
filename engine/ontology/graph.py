@@ -45,7 +45,7 @@ from rdflib.query import Result
 #   https://github.com/RDFLib/rdflib/issues/2204
 _SPARQL_LOCK = threading.Lock()
 
-from engine.config import get_data_path
+from engine.config import get_data_path, get_ontology_path
 from engine.ontology.tenant_resolver import (
     DEFAULT_TENANT,
     get_active_tenant,
@@ -77,19 +77,15 @@ class OntologyGraph:
         depth_path: Path | None = None,
         tenant_id: str | None = None,
     ) -> None:
-        self.schema_path = schema_path or get_data_path("ontology", "schema.ttl")
-        self.knowledge_path = knowledge_path or get_data_path(
-            "ontology", "knowledge_base.ttl"
-        )
-        self.expansion_path = expansion_path or get_data_path(
-            "ontology", "knowledge_expansion.ttl"
-        )
-        self.depth_path = depth_path or get_data_path(
-            "ontology", "knowledge_depth.ttl"
-        )
-        self.companies_path = companies_path or get_data_path(
-            "ontology", "companies.ttl"
-        )
+        # Shadow-proof ontology resolution (get_ontology_path): on Railway a
+        # volume at the data dir would blank DATA_DIR/ontology, so the BASE files
+        # fall back to the bundled copy outside the data dir. ontology_dir below
+        # is derived from schema_path.parent, so every other TTL follows suit.
+        self.schema_path = schema_path or get_ontology_path("schema.ttl")
+        self.knowledge_path = knowledge_path or get_ontology_path("knowledge_base.ttl")
+        self.expansion_path = expansion_path or get_ontology_path("knowledge_expansion.ttl")
+        self.depth_path = depth_path or get_ontology_path("knowledge_depth.ttl")
+        self.companies_path = companies_path or get_ontology_path("companies.ttl")
         # Phase 24 W5 — every OntologyGraph is bound to a tenant. Default
         # is the implicit ``_global`` tenant (matches pre-W5 behaviour).
         # The tenant's Layer 3 extension.ttl (if present) is loaded on top

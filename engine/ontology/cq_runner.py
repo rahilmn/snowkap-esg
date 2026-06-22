@@ -73,8 +73,8 @@ def _split_file(text: str) -> list[tuple[str, str]]:
 
 
 def _default_cq_dir() -> Path:
-    from engine.config import get_data_path
-    return get_data_path("ontology", "competency_questions")
+    from engine.config import get_ontology_path
+    return get_ontology_path("competency_questions")
 
 
 def run_all(graph=None, cq_dir: Path | None = None) -> CQReport:

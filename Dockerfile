@@ -56,6 +56,14 @@ COPY config/     ./config/
 COPY data/       ./data/
 COPY scripts/    ./scripts/
 
+# Shadow-proof ontology copy. The ontology lives at data/ontology, but if a
+# Railway volume is ever mounted at /opt/snowkap/data it would overlay (blank)
+# that path and the ~10.7k-triple graph would load EMPTY — every event /
+# materiality / cascade lookup then silently defaults. This second copy sits
+# OUTSIDE the data dir (so no data-dir volume can hide it); engine.config.
+# get_ontology_dir() falls back to it when data/ontology is empty/shadowed.
+COPY data/ontology /opt/snowkap/ontology_bundle
+
 # Copy the built frontend from the previous stage
 COPY --from=frontend /app/client/dist /opt/snowkap/client/dist
 
@@ -72,10 +80,11 @@ RUN useradd --system --user-group --create-home snowkap && \
 # hit `PermissionError: '/opt/snowkap/data/inputs'`. The app is now resilient to
 # a read-only data dir (it persists to Postgres — see engine/output/writer.py +
 # engine/ingestion/news_fetcher.py), so this is a best-effort cache-and-
-# reprocessing optimisation, NOT a correctness requirement. We deliberately do
-# NOT mount a Railway volume at /opt/snowkap/data: that would shadow the bundled
-# read-only data/ontology TTLs and break boot. World-writable dirs (sticky, like
-# /tmp) cover the foreign-uid case with no volume.
+# reprocessing optimisation, NOT a correctness requirement. Mounting a Railway
+# volume at /opt/snowkap/data is still NOT recommended (it shadows the bundled
+# data/ontology TTLs), but it is no longer catastrophic: get_ontology_dir() falls
+# back to the /opt/snowkap/ontology_bundle copy above when data/ontology is
+# blanked. World-writable dirs (sticky, like /tmp) cover the foreign-uid case.
 RUN mkdir -p data/inputs data/outputs data/processed && \
     find data/inputs data/outputs data/processed -type d -exec chmod 1777 {} +
 
