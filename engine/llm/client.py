@@ -133,6 +133,25 @@ def _is_openrouter_out_of_credits(exc: Exception) -> bool:
     return "credit" in msg and ("insufficient" in msg or "negative" in msg or "exhaust" in msg)
 
 
+def _is_openrouter_billing_block(exc: Exception) -> bool:
+    """True when OpenRouter refuses a call for BILLING/QUOTA reasons — HTTP 402
+    (out of credits) OR 403 (org monthly budget cap / key spend limit, raised by
+    the OpenAI SDK as PermissionDeniedError). Both mean "OpenRouter won't serve
+    this request; use the direct-OpenAI fallback." 401 (bad key), 429 (rate
+    limit) and 5xx are NOT billing blocks — they propagate / retry normally."""
+    if _is_openrouter_out_of_credits(exc):
+        return True
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+    if status == 403:
+        return True
+    msg = str(exc).lower()
+    return "permissiondeniederror" in msg or (
+        "403" in msg and ("budget" in msg or "limit" in msg or "permission" in msg)
+    )
+
+
 @dataclass
 class LLMResponse:
     """Result of a single non-streaming completion."""
@@ -219,7 +238,7 @@ class OpenRouterClient:
     ) -> dict[str, Any] | None:
         if is_using_legacy_openai():
             return None  # already on direct OpenAI — nowhere to fall back to
-        if not _is_openrouter_out_of_credits(exc):
+        if not _is_openrouter_billing_block(exc):
             return None
         if not os.environ.get("OPENAI_API_KEY", "").strip():
             return None
@@ -231,8 +250,8 @@ class OpenRouterClient:
         # rejects max_tokens/temperature — translate before the fallback call.
         fb = _normalize_params_for_model(fb)
         logger.warning(
-            "OpenRouter out of credits (%s) — falling back to direct OpenAI model %s",
-            type(exc).__name__, fb["model"],
+            "OpenRouter unavailable for billing/quota (%s) — falling back to "
+            "direct OpenAI model %s", type(exc).__name__, fb["model"],
         )
         return fb
 
@@ -382,9 +401,23 @@ class OpenRouterClient:
         kwargs.update(extra)
         kwargs = _normalize_params_for_model(kwargs)
 
-        stream = self.sync.chat.completions.create(**kwargs)
-        for chunk in stream:
-            yield self._build_token_event(chunk, kwargs["model"])
+        # Same billing/quota fallback as complete(): if OpenRouter rejects the
+        # stream OPEN (402 credits / 403 budget cap) BEFORE any chunk arrives,
+        # retry against direct OpenAI. The cap fires at create() time, so no
+        # partial output is emitted before we switch — the user sees one clean
+        # answer on the fallback model instead of the canned echo.
+        used_model = kwargs["model"]
+        try:
+            raw_stream = self.sync.chat.completions.create(**kwargs)
+        except Exception as exc:  # noqa: BLE001 — inspected; non-billing errors re-raise
+            fb_kwargs = self._maybe_fallback_kwargs(exc, kwargs, model)
+            if fb_kwargs is None:
+                raise
+            fb_kwargs["stream"] = True
+            used_model = fb_kwargs["model"]
+            raw_stream = self._direct_openai_sync().chat.completions.create(**fb_kwargs)
+        for chunk in raw_stream:
+            yield self._build_token_event(chunk, used_model)
 
     async def astream(
         self,
@@ -408,9 +441,18 @@ class OpenRouterClient:
         kwargs.update(extra)
         kwargs = _normalize_params_for_model(kwargs)
 
-        stream = await self.async_client.chat.completions.create(**kwargs)
-        async for chunk in stream:
-            yield self._build_token_event(chunk, kwargs["model"])
+        used_model = kwargs["model"]
+        try:
+            raw_stream = await self.async_client.chat.completions.create(**kwargs)
+        except Exception as exc:  # noqa: BLE001 — inspected; non-billing errors re-raise
+            fb_kwargs = self._maybe_fallback_kwargs(exc, kwargs, model)
+            if fb_kwargs is None:
+                raise
+            fb_kwargs["stream"] = True
+            used_model = fb_kwargs["model"]
+            raw_stream = await self._direct_openai_async().chat.completions.create(**fb_kwargs)
+        async for chunk in raw_stream:
+            yield self._build_token_event(chunk, used_model)
 
     # ------------------------------------------------------------------
     # Internal helpers

@@ -12,10 +12,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from engine.llm.client import OpenRouterClient, _is_openrouter_out_of_credits
+from engine.llm.client import (
+    OpenRouterClient,
+    _is_openrouter_billing_block,
+    _is_openrouter_out_of_credits,
+)
 
-# An exception that carries an HTTP status_code, like the OpenAI SDK's errors.
+# Exceptions that carry an HTTP status_code, like the OpenAI SDK's errors.
 _E402 = type("_E402", (Exception,), {"status_code": 402})
+_E403 = type("_E403", (Exception,), {"status_code": 403})  # org budget cap
 
 
 def test_detector_matches_only_credit_errors():
@@ -99,4 +104,60 @@ def test_complete_reraises_non_credit_errors_without_fallback(monkeypatch):
 
     with pytest.raises(RuntimeError):
         cl.complete([{"role": "user", "content": "hi"}])
+    sentinel.chat.completions.create.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Phase 53.X — the org BUDGET CAP is a 403 (PermissionDeniedError), not 402,
+# and the Ask uses stream() (which previously had NO fallback). Both gaps closed.
+# ---------------------------------------------------------------------------
+def test_billing_block_matches_402_and_403_not_429_or_401():
+    assert _is_openrouter_billing_block(_E402("x")) is True
+    assert _is_openrouter_billing_block(_E403("monthly budget cap")) is True
+    assert _is_openrouter_billing_block(Exception("Insufficient credits")) is True
+    assert _is_openrouter_billing_block(Exception("PermissionDeniedError: 403 budget")) is True
+    assert _is_openrouter_billing_block(Exception("429 rate limit")) is False
+    assert _is_openrouter_billing_block(Exception("401 unauthorized")) is False
+
+
+def _chunk(text, finish=None):
+    return SimpleNamespace(
+        choices=[SimpleNamespace(delta=SimpleNamespace(content=text), finish_reason=finish)],
+        usage=None,
+    )
+
+
+def test_stream_falls_back_to_openai_direct_on_403(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-test")
+    monkeypatch.setenv("OPENAI_API_KEY", "oa-test")
+    cl = OpenRouterClient(task_class="chat")
+
+    orc = MagicMock()
+    orc.chat.completions.create.side_effect = _E403("org monthly budget cap")
+    cl._sync = orc  # OpenRouter stream-open raises 403 before any chunk
+
+    oac = MagicMock()
+    oac.chat.completions.create.return_value = iter([_chunk("Hel"), _chunk("lo", finish="stop")])
+    cl._direct_openai_sync = lambda: oac
+
+    out = "".join(ev.delta for ev in cl.stream([{"role": "user", "content": "hi"}]))
+    assert out == "Hello"  # streamed from the fallback, not the canned echo
+    fb = oac.chat.completions.create.call_args.kwargs
+    assert fb["model"] == "gpt-5-mini"   # chat's OpenAI-direct model
+    assert fb.get("stream") is True
+    assert "extra_headers" not in fb     # OpenRouter routing headers dropped
+
+
+def test_stream_reraises_non_billing_errors(monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "or-test")
+    monkeypatch.setenv("OPENAI_API_KEY", "oa-test")
+    cl = OpenRouterClient(task_class="chat")
+    orc = MagicMock()
+    orc.chat.completions.create.side_effect = RuntimeError("429 rate limited")
+    cl._sync = orc
+    sentinel = MagicMock()
+    cl._direct_openai_sync = lambda: sentinel
+
+    with pytest.raises(RuntimeError):
+        list(cl.stream([{"role": "user", "content": "hi"}]))
     sentinel.chat.completions.create.assert_not_called()
