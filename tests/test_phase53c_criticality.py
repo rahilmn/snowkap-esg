@@ -130,22 +130,28 @@ def test_market_commentary_capped_low_even_with_material_floor():
 # 4. Integration gate — weight passed only for thematic source_type
 # ---------------------------------------------------------------------------
 
-def _result(source_type, weight):
+def _result(source_type, weight, event_id="event_criminal_indictment", kws=("cbi",)):
     return SimpleNamespace(
         source_type=source_type,
         relevance=SimpleNamespace(materiality_weight=weight),
+        event=SimpleNamespace(event_id=event_id, matched_keywords=list(kws)),
     )
 
 
 def test_industry_materiality_applies_to_all_articles():
     # Phase 53.I — the SASB materiality floor applies regardless of whether the
     # company is named (materiality is intrinsic to theme × industry). Thematic
-    # AND company-named both return the weight; the actionability/market guards
-    # prevent over-promotion of non-events.
+    # AND company-named both return the weight — BUT only for a genuine event
+    # (Phase 53.N: event_default / theme-fallback non-events get no floor).
     rel = _result("industry_thematic", 0.95).relevance
     assert _industry_materiality_for(_result("industry_thematic", 0.95), rel) == pytest.approx(0.95)
-    assert _industry_materiality_for(_result("", 0.85), SimpleNamespace(materiality_weight=0.85)) == pytest.approx(0.85)
-    assert _industry_materiality_for(_result("newsapi_ai", 0.85), SimpleNamespace(materiality_weight=0.85)) == pytest.approx(0.85)
+    assert _industry_materiality_for(_result("", 0.85), _result("", 0.85).relevance) == pytest.approx(0.85)
+    assert _industry_materiality_for(_result("newsapi_ai", 0.85), _result("newsapi_ai", 0.85).relevance) == pytest.approx(0.85)
     # missing weight → None (never crashes the additive path)
     assert _industry_materiality_for(_result("industry_thematic", None),
                                      SimpleNamespace(materiality_weight=None)) is None
+    # Phase 53.N — a non-event (event_default) or theme-fallback earns NO floor.
+    assert _industry_materiality_for(_result("", 0.85, event_id="event_default"),
+                                     _result("", 0.85).relevance) is None
+    assert _industry_materiality_for(_result("", 0.85, kws=("[theme_fallback]",)),
+                                     _result("", 0.85).relevance) is None

@@ -153,7 +153,19 @@ def _industry_materiality_for(result: Any, relevance: Any) -> float | None:
     earns the actionability that lifts a high-materiality article into critical,
     and market-commentary is hard-capped LOW (Phase 53.G). Returns None on any
     missing field so scoring never crashes on the additive path.
+
+    Phase 53.N — a NON-EVENT must not receive the floor. The SASB weight says
+    "this THEME is material to the sector"; without a real event there is nothing
+    material happening, so flooring an event_default / theme-fallback article (an
+    ESOP allotment, a sector thought-piece) lifted noise into critical even after
+    Phase 53.M correctly classified it a non-event. Only a genuine, classified
+    event (keyword- or LLM-matched, not event_default, not a theme-fallback)
+    earns the floor.
     """
+    event = getattr(result, "event", None)
+    event_id = getattr(event, "event_id", None) if event is not None else None
+    if not event_id or event_id == "event_default" or _is_theme_fallback(event):
+        return None
     weight = getattr(relevance, "materiality_weight", None) if relevance else None
     if weight is None:
         return None
