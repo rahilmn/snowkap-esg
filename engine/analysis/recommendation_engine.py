@@ -1586,10 +1586,45 @@ def _scrub_backdated_prose_dates(rec: Recommendation) -> None:
     rec.profitability_link = _fix(rec.profitability_link)
 
 
+_DISCLOSE_VERBS = (
+    "file ", "disclose", "submit a disclosure", "make a disclosure",
+    "publish a disclosure", "issue a disclosure", "report under",
+)
+_REG30_MARKERS = (
+    "reg 30", "reg. 30", "regulation 30", "lodr 30", "lodr reg",
+    "material event disclosure", "materiality disclosure", "schedule iii",
+)
+
+
+def _soften_presumed_disclosure(rec: Recommendation) -> None:
+    """Phase 55 — a recommendation must not PRESUME a SEBI LODR Reg 30 (material-
+    event) disclosure is owed. Whether a fraud / governance matter is material —
+    and therefore disclosable — is a determination the company makes against the
+    quantitative + qualitative limbs, not something the engine can assert. A
+    presumptuous "File/Disclose a Reg 30 update" is rewritten to an ASSESSMENT
+    (assess materiality, disclose only if material). Non-Reg-30 disclosures (a
+    routine BRSR supplementary filing, a CDP submission) are left untouched."""
+    t = (rec.title or "").lower()
+    if not any(v in t for v in _DISCLOSE_VERBS):
+        return
+    if not any(m in t for m in _REG30_MARKERS):
+        return
+    rec.title = "Assess SEBI LODR Reg 30 materiality; disclose only if material"
+    note = (
+        "Run a documented materiality assessment against SEBI LODR Reg 30 "
+        "(quantitative limbs — the lower of 2% of turnover, 2% of net worth, or "
+        "5% of the three-year average profit — plus qualitative materiality). "
+        "Disclose only if the matter is established as material to the company; "
+        "otherwise record the no-disclosure determination."
+    )
+    rec.description = (note + (" " + rec.description if rec.description else ""))[:700]
+
+
 def _post_process(recs: list[Recommendation]) -> list[Recommendation]:
     for rec in recs:
         rec.deadline = _fix_deadline(rec.deadline)
         _scrub_backdated_prose_dates(rec)
+        _soften_presumed_disclosure(rec)
         rec.priority = _derive_priority(rec)
         rec.risk_of_inaction = _compute_risk_of_inaction(rec)
     # Sort by priority + risk of inaction

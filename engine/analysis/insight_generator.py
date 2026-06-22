@@ -244,6 +244,25 @@ SOURCE TAGGING RULES — EVERY ₹ FIGURE MUST CARRY ITS ORIGIN:
   and reject the whole card. Example: article says "₹83 crore" → financial_exposure
   = "₹83 Cr alleged misappropriation (from article); ~₹140 Cr total modeled exposure
   (engine estimate)".
+- CONTINGENT EXPOSURE (HARD): when the company is NOT the direct bearer of the loss —
+  a fraud committed by a THIRD PARTY merely linked to / routed through the company,
+  an alleged (sub-judice, not proven) matter, or an event whose liability to the
+  company depends on a finding not yet established — do NOT lead with a large modeled
+  total as the company's exposure. Lead with the article's stated amount as the
+  CASE SIZE, state plainly that the company's own exposure is CONTINGENT and
+  unquantified (depends on whether its controls/staff are implicated, or a loss is
+  established), and either omit the modeled total or label it a worst-case ceiling
+  that applies ONLY if the company is found liable. Never imply a confirmed or likely
+  loss the facts do not support.
+- ALLEGED vs PROVEN: if the === ARTICLE === describes an alleged / unproven /
+  sub-judice matter (bail, FIR, chargesheet, "alleged", a CBI/ED probe), write
+  "alleged" throughout, never as established fact — "bail is not a verdict".
+- DISCLOSURE IS A DETERMINATION, NOT A PRESUMPTION: do not assert that a SEBI LODR
+  Reg 30 (material-event) disclosure is owed. Whether a fraud/governance matter is
+  material is a determination against the quantitative limbs (the lower of 2% of
+  turnover, 2% of net worth, or 5% of the 3-yr-avg profit) plus qualitative
+  materiality. Recommend "assess Reg 30 materiality; disclose only if material",
+  never a presumed "file a disclosure".
 
 CROSS-SECTION CONSISTENCY — ONE PRIMARY FIGURE, REUSED EVERYWHERE:
 - Pick ONE primary ₹ exposure / opportunity figure for the event (the headline number).
