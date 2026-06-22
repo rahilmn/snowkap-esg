@@ -240,6 +240,29 @@ def _cascade_dwarfed_by_article(amount_cr: float, result: Any) -> bool:
         return False
 
 
+# Phase 55 — markers that a money figure is REPORTED in the source (the LLM is
+# prompted to tag article figures "(from article)") and that the matter is
+# sub-judice / unproven (so the qualifier is "alleged", not "reported").
+_REPORTED_MARKERS = (
+    "from article", "from the article", "reported", "as reported",
+    "per the article", "article states", "quoted in", "stated amount",
+)
+_ALLEGED_MARKERS = (
+    "alleged", "allegation", "denied bail", "bail plea", "granted bail",
+    "secured bail", "fir", "chargesheet", "charge sheet", "sub judice",
+    "accused", "probe", "scam fund", "siphon",
+)
+
+
+def _is_alleged(exposure_text: Any, result: Any) -> bool:
+    """True when the matter is sub-judice / unproven, so a sourced ₹ figure
+    should be labelled '(alleged)' rather than '(reported)'."""
+    blob = (str(exposure_text or "")).lower()
+    if result is not None:
+        blob += " " + (str(getattr(result, "title", "") or "")).lower()
+    return any(m in blob for m in _ALLEGED_MARKERS)
+
+
 def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any]:
     """Extract the canonical ₹ exposure from decision_summary + financial_timeline.
 
@@ -286,6 +309,23 @@ def _financial_exposure_block(insight: Any, result: Any = None) -> dict[str, Any
             # verbose cascade description mid-word ("...₹3000 Cr cano"),
             # which the approval gate (correctly) rejected as garbled prose.
             # Emit a short, complete label instead.
+            # Phase 55 — GROUND the chip. When the LLM tagged the figure as
+            # coming from the source ("(from article)" / "reported"), it is a
+            # SOURCED number, not an engine estimate. Label it reported — or
+            # "alleged" for a sub-judice matter — and mark source=from_article,
+            # so the card never stamps "(engine estimate)" on a figure that is
+            # literally in the headline. (The modelled cascade total stays an
+            # engine estimate, but it is NOT what this chip shows.)
+            exp_l = str(exposure).lower()
+            if amount is not None and amount > 0 and any(m in exp_l for m in _REPORTED_MARKERS):
+                q = "alleged" if _is_alleged(exposure, result) else "reported"
+                return {
+                    "amount_cr": amount,
+                    "kind": "exposure",
+                    "source": "from_article",
+                    "label": (f"₹{amount:,.0f} Cr ({q})" if amount >= 1
+                              else f"₹{amount:.1f} Cr ({q})"),
+                }
             if amount is not None and amount > 0:
                 clean_label = (
                     f"~₹{amount:,.0f} Cr (engine estimate)" if amount >= 1
