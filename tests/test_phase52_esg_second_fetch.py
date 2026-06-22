@@ -117,6 +117,10 @@ class TestFetchForCompany:
         reset_router()
         monkeypatch.setenv("NEWSAPI_AI_KEY", "k")
         monkeypatch.setenv("SNOWKAP_ESG_FETCH_MIN_REMAINING", "0")  # auto-gate passes
+        # Isolate the ESG-second-fetch lane under test from the Phase 53 thematic
+        # lane (a separate 3rd fetch) — push its auto budget-gate out of reach so
+        # only the primary + ESG-second queries fire and the POST counts hold.
+        monkeypatch.setenv("SNOWKAP_THEMATIC_FETCH_MIN_REMAINING", "99999999")
         monkeypatch.setattr(nf, "_load_processed", lambda: set())
         monkeypatch.setattr(nf, "_save_processed", lambda *a, **k: None, raising=False)
         yield

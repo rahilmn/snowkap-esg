@@ -137,6 +137,80 @@ def _get_article_text_for_match(result: Any, insight_dict: dict[str, Any] | None
     return f"{title} {headline} {body}".strip()
 
 
+def _industry_materiality_for(result: Any, relevance: Any) -> float | None:
+    """The SASB sector × theme materiality weight (Stage 4
+    ``relevance.materiality_weight``, e.g. 0.85 for Ethics&Compliance at a bank)
+    used to FLOOR the criticality materiality component.
+
+    Phase 53.C introduced this for industry-THEMATIC articles only (company not
+    named). Phase 53.I removes that gate: materiality is intrinsic to
+    theme × industry and does NOT depend on whether the company is named. Gating
+    it to thematic let a foreign SECTOR story (a UK-banks fraud thematic, cyber
+    materiality 0.90) outrank a company's OWN ₹1,000cr fraud (Ethics 0.85, no
+    floor) — the live audit caught exactly this. Applying the floor to every
+    article fixes it; over-promotion is prevented by the other guards: only a
+    genuine keyword-matched ACTIONABLE event (not a theme-fallback, Phase 53.H)
+    earns the actionability that lifts a high-materiality article into critical,
+    and market-commentary is hard-capped LOW (Phase 53.G). Returns None on any
+    missing field so scoring never crashes on the additive path.
+
+    Phase 53.N — a NON-EVENT must not receive the floor. The SASB weight says
+    "this THEME is material to the sector"; without a real event there is nothing
+    material happening, so flooring an event_default / theme-fallback article (an
+    ESOP allotment, a sector thought-piece) lifted noise into critical even after
+    Phase 53.M correctly classified it a non-event. Only a genuine, classified
+    event (keyword- or LLM-matched, not event_default, not a theme-fallback)
+    earns the floor.
+    """
+    event = getattr(result, "event", None)
+    event_id = getattr(event, "event_id", None) if event is not None else None
+    if not event_id or event_id == "event_default" or _is_theme_fallback(event):
+        return None
+    weight = getattr(relevance, "materiality_weight", None) if relevance else None
+    if weight is None:
+        return None
+    try:
+        return float(weight)
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_theme_fallback(event: Any) -> bool:
+    """True when the event was NOT detected from the article text but guessed from
+    the article's theme (classify_event's last-resort fallback, tagged
+    matched_keywords == ['[theme_fallback]']).
+
+    Phase 53.H — such an event must NOT lend the article actionability or an event
+    severity floor: it is a thematic guess, not a detected event. Otherwise a
+    routine corporate filing (an ESOP allotment themed 'Human Capital' → default
+    event_labour_strike; RBI policy minutes themed 'Risk Management' → default
+    event_credit_rating) gets actionability 0.8 + a severity floor and outranks a
+    genuine, keyword-matched fraud/penalty event — the tier inversion the live
+    audit caught. Genuine events now keyword-match (the criminal_indictment
+    keyword set was enriched with fraud/bail/loan-fraud/raids in the same change)
+    so they keep their actionability.
+    """
+    if event is None:
+        return False
+    kws = getattr(event, "matched_keywords", None) or []
+    return list(kws) == ["[theme_fallback]"]
+
+
+def _scoring_event(event: Any) -> tuple[str | None, float | None]:
+    """Return (event_id, event_severity) for the criticality scorer, neutralised
+    to (None, None) for a theme-fallback event so it earns neither actionability
+    nor a severity floor (Phase 53.H)."""
+    if event is None or _is_theme_fallback(event):
+        return None, None
+    event_id = getattr(event, "event_id", None)
+    floor = getattr(event, "score_floor", None)
+    try:
+        severity = float(floor) / 10.0 if floor is not None else None
+    except (TypeError, ValueError):
+        severity = None
+    return event_id, severity
+
+
 def _event_polarity_from_event(event: Any) -> str | None:
     """Pull polarity from EventClassification if available."""
     if event is None:
@@ -176,9 +250,9 @@ def score_at_pipeline_end(
     try:
         relevance = getattr(result, "relevance", None)
         relevance_total = getattr(relevance, "total", None) if relevance else None
+        industry_materiality_weight = _industry_materiality_for(result, relevance)
 
         event = getattr(result, "event", None)
-        event_id = getattr(event, "event_id", None) if event else None
         event_polarity = _event_polarity_from_event(event)
 
         nlp = getattr(result, "nlp", None)
@@ -192,11 +266,10 @@ def score_at_pipeline_end(
         # the RiskAssessment aggregate — its non-ESG "Market & Uncertainty"
         # category is rated HIGH on routine earnings and would re-promote the
         # market noise PR #8 was reverted to avoid.
-        event_floor = getattr(event, "score_floor", None) if event is not None else None
-        try:
-            event_severity = float(event_floor) / 10.0 if event_floor is not None else None
-        except (TypeError, ValueError):
-            event_severity = None
+        # Phase 53.H — a theme-FALLBACK event (no keyword match, guessed from the
+        # theme) earns neither actionability nor a severity floor, so a routine
+        # filing can't outrank a genuine keyword-matched event.
+        event_id, event_severity = _scoring_event(event)
 
         company_revenue = getattr(company, "revenue_cr", None)
 
@@ -214,6 +287,7 @@ def score_at_pipeline_end(
         return score_criticality(
             relevance_total=relevance_total,
             event_severity=event_severity,
+            industry_materiality_weight=industry_materiality_weight,
             cascade_total_cr=0.0,                 # not yet computed at pipeline-end
             company_revenue_cr=company_revenue,
             event_id=event_id,
@@ -259,9 +333,9 @@ def score_at_insight_time(
     try:
         relevance = getattr(result, "relevance", None)
         relevance_total = getattr(relevance, "total", None) if relevance else None
+        industry_materiality_weight = _industry_materiality_for(result, relevance)
 
         event = getattr(result, "event", None)
-        event_id = getattr(event, "event_id", None) if event else None
         event_polarity = _event_polarity_from_event(event)
 
         nlp = getattr(result, "nlp", None)
@@ -271,11 +345,8 @@ def score_at_insight_time(
         # Phase 51.G — see score_at_pipeline_end: floor materiality by the event
         # type's ontology score_floor. Re-read here because the full-score pass
         # overwrites the baseline criticality.
-        event_floor = getattr(event, "score_floor", None) if event is not None else None
-        try:
-            event_severity = float(event_floor) / 10.0 if event_floor is not None else None
-        except (TypeError, ValueError):
-            event_severity = None
+        # Phase 53.H — theme-fallback events earn no actionability / severity floor.
+        event_id, event_severity = _scoring_event(event)
 
         company_revenue = getattr(company, "revenue_cr", None)
 
@@ -295,6 +366,7 @@ def score_at_insight_time(
         return score_criticality(
             relevance_total=relevance_total,
             event_severity=event_severity,
+            industry_materiality_weight=industry_materiality_weight,
             cascade_total_cr=cascade_total_cr,
             company_revenue_cr=company_revenue,
             event_id=event_id,

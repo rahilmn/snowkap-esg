@@ -42,13 +42,18 @@ TASK_CLASS_TO_MODEL: dict[str, str] = {
 
 # When falling back to direct OpenAI, we strip the vendor prefix
 # (OpenAI's API takes bare model names).
+# Phase 52 — when OpenRouter is unavailable (e.g. org budget cap) the app runs
+# direct on OpenAI. reasoning_heavy + chat use gpt-5-mini (OpenAI's mid-tier
+# reasoning model — stronger recs/insight than gpt-4.1, handled by the
+# reasoning-param normalisation in client.py). composition/extraction stay on
+# the cheaper gpt-4.1 family.
 _LEGACY_OPENAI_FALLBACK: dict[str, str] = {
-    "reasoning_heavy":   "gpt-4.1",
+    "reasoning_heavy":   "gpt-5-mini",
     "reasoning_default": "gpt-4.1",
     "extraction":        "gpt-4.1-mini",
     "composition":       "gpt-4.1",
     "classification":    "gpt-4o-mini",
-    "chat":              "gpt-4.1",
+    "chat":              "gpt-5-mini",
     "search_aided":      "gpt-4.1",
     "embeddings":        "text-embedding-3-small",
 }

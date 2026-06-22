@@ -72,11 +72,13 @@ def test_resolve_model_returns_openrouter_vendor_prefix(monkeypatch):
 
 def test_resolve_model_strips_prefix_in_legacy_mode(monkeypatch):
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.delenv("SNOWKAP_REASONING_MODEL", raising=False)
+    monkeypatch.delenv("SNOWKAP_LLM_MODEL", raising=False)
     monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
     assert resolve_model("extraction") == "gpt-4.1-mini"
     assert resolve_model("classification") == "gpt-4o-mini"
-    # An anthropic model in legacy mode falls back to gpt-4.1
-    assert resolve_model("reasoning_heavy") == "gpt-4.1"
+    # Phase 52 — in direct-OpenAI mode reasoning_heavy runs on gpt-5-mini.
+    assert resolve_model("reasoning_heavy") == "gpt-5-mini"
 
 
 def test_resolve_model_override_wins(monkeypatch):

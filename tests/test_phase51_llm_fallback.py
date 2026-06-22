@@ -34,8 +34,12 @@ def test_fallback_kwargs_gated_correctly(monkeypatch):
 
     fb = cl._maybe_fallback_kwargs(_E402("insufficient credits"), orig, None)
     assert fb is not None
-    assert fb["model"] == "gpt-4.1"        # vendor-prefixed model → bare OpenAI model
+    # Phase 52 — reasoning_heavy's OpenAI fallback is the gpt-5-mini reasoning
+    # model; the gateway translates its params (max_completion_tokens, no temp).
+    assert fb["model"] == "gpt-5-mini"
     assert "extra_headers" not in fb        # OpenRouter routing headers dropped
+    assert "max_tokens" not in fb           # translated for the reasoning model
+    assert fb.get("max_completion_tokens", 0) > 0
 
     # non-credits error → no fallback
     assert cl._maybe_fallback_kwargs(Exception("429"), orig, None) is None
@@ -63,7 +67,7 @@ def test_complete_falls_back_to_gpt41_on_402(monkeypatch):
 
     fake = SimpleNamespace(
         choices=[SimpleNamespace(message=SimpleNamespace(content="ok"), finish_reason="stop")],
-        model="gpt-4.1",
+        model="gpt-5-mini",
         usage=SimpleNamespace(model_dump=lambda: {"prompt_tokens": 5, "completion_tokens": 3}),
     )
     oac = MagicMock()
@@ -71,10 +75,15 @@ def test_complete_falls_back_to_gpt41_on_402(monkeypatch):
     cl._direct_openai_sync = lambda: oac  # the direct-OpenAI fallback client
 
     resp = cl.complete([{"role": "user", "content": "hi"}])
-    assert resp.model_used == "gpt-4.1"
+    # Phase 52 — reasoning_heavy falls back to the gpt-5-mini reasoning model,
+    # with its params translated (max_completion_tokens, no max_tokens/temperature).
+    assert resp.model_used == "gpt-5-mini"
     call_kwargs = oac.chat.completions.create.call_args.kwargs
-    assert call_kwargs["model"] == "gpt-4.1"
+    assert call_kwargs["model"] == "gpt-5-mini"
     assert "extra_headers" not in call_kwargs
+    assert "max_tokens" not in call_kwargs
+    assert call_kwargs.get("max_completion_tokens", 0) > 0
+    assert "temperature" not in call_kwargs
 
 
 def test_complete_reraises_non_credit_errors_without_fallback(monkeypatch):

@@ -587,11 +587,23 @@ def fetch_newsapi_ai_for_company(
         "apiKey": api_key,
     }
 
+    return _post_and_parse_newsapi(body, company, log_keyword=keyword, since=date_start)
+
+
+def _post_and_parse_newsapi(
+    body: dict, company: Company, *, log_keyword: str, since: str,
+    source_type: str = "newsapi_ai",
+) -> list[dict]:
+    """POST a NewsAPI.ai getArticles body, parse results into article dicts,
+    record the budget spend, and log. Shared by the company-named query
+    (fetch_newsapi_ai_for_company) and the industry/thematic query
+    (fetch_industry_thematic_for_company). ``source_type`` tags each article's
+    lane so the orchestrator can apply lane-conditional relevance guards."""
     try:
         resp = _SESSION.post(NEWSAPI_AI_URL, json=body, timeout=25)
         resp.raise_for_status()
     except requests.RequestException as exc:
-        logger.error("NewsAPI.ai company fetch failed for %s: %s", company.slug, exc)
+        logger.error("NewsAPI.ai fetch failed for %s (%s): %s", company.slug, log_keyword, exc)
         return []
 
     payload = resp.json()
@@ -612,10 +624,10 @@ def fetch_newsapi_ai_for_company(
             "source": source_name,
             "url": url,
             "published_at": _parse_published(published),
-            "source_type": "newsapi_ai",
+            "source_type": source_type,
             "metadata": {
                 "sentiment": item.get("sentiment"),
-                "source_type": "newsapi_ai",
+                "source_type": source_type,
                 "image_url": item.get("image") or "",
                 "concepts": [
                     (c.get("label") or {}).get("eng", "")
@@ -625,8 +637,8 @@ def fetch_newsapi_ai_for_company(
         })
 
     logger.info(
-        "NewsAPI.ai: %d ESG articles for %s (keyword=%r, since=%s, avg %d chars)",
-        len(articles), company.slug, keyword, date_start,
+        "NewsAPI.ai [%s]: %d articles for %s (query=%r, since=%s, avg %d chars)",
+        source_type, len(articles), company.slug, log_keyword, since,
         sum(len(a["content"]) for a in articles) // max(len(articles), 1),
     )
 
@@ -639,6 +651,207 @@ def fetch_newsapi_ai_for_company(
         pass
 
     return articles
+
+
+# ---------------------------------------------------------------------------
+# Phase 53 (B) — INDUSTRY / THEMATIC ESG lane
+# ---------------------------------------------------------------------------
+# Most companies have no company-NAMED ESG event in a 30-day window (proven: a
+# bank's only company-headlined news is macro/market). Their material ESG news
+# is SECTOR / REGULATORY / THEMATIC — where the company is NOT named but the news
+# is material via its industry + ESG exposures. This lane fetches that, keyed on
+# the company's INDUSTRY + its SASB material topics (Phase A2), with NO
+# company-identity clause. Search-hint vocab (kept lean for EventRegistry's
+# 80-word/plan keyword limit); the SASB material weights + the Stage-4 relevance
+# scorer do the precision downstream.
+
+# Industry (resolver canonical label) → lean SECTOR scoping terms. Keeps the
+# thematic query inside the company's sector (regulator names are the sharpest
+# India scoping anchors).
+# Headline-friendly so the title-locked thematic query matches genuine
+# sector-ESG headlines (e.g. "RBI tightens climate norms for banks").
+_INDUSTRY_SECTOR_TERMS: dict[str, tuple[str, ...]] = {
+    "Financials/Banking": ("banks", "lenders", "RBI", "NBFC"),
+    "Asset Management": ("mutual funds", "AMCs", "SEBI"),
+    "Insurance": ("insurers", "IRDAI"),
+    "Power/Energy": ("power", "thermal", "discoms", "utilities"),
+    "Renewable Energy": ("solar", "renewable", "wind"),
+    "Oil & Gas": ("refiners", "oil", "gas"),
+    "Steel": ("steel",),
+    "Metals & Mining": ("mining", "metals", "smelter"),
+    "Automotive": ("automakers", "carmakers", "EVs"),
+    "Information Technology": ("IT firms", "software", "tech"),
+    "Pharmaceuticals": ("pharma", "drugmakers"),
+    "Chemicals": ("chemicals", "petrochemical"),
+    "Consumer/Beverage": ("beverages", "FMCG"),
+    "FMCG": ("FMCG", "packaged foods"),
+    "Footwear & Accessories": ("footwear", "apparel"),
+    "Apparel Manufacturing": ("apparel", "textile"),
+    "Luxury Goods": ("luxury", "apparel"),
+    "Household & Personal Products": ("consumer goods", "personal care"),
+    "Industrials/Conglomerate": ("industrials", "conglomerate"),
+    "Telecommunications": ("telecom", "telcos", "TRAI"),
+    "Real Estate": ("real estate", "realty", "developers"),
+    "Aerospace & Defense": ("defence", "aerospace"),
+}
+
+# SASB topic suffix (Phase A2) → lean ESG-EVENT search phrases. Harm/enforcement
+# weighted so the lane catches substantive ESG developments, not generic PR.
+_TOPIC_SEARCH_TERMS: dict[str, tuple[str, ...]] = {
+    "climate": ("climate risk", "climate disclosure"),
+    "climate_adaptation": ("climate adaptation", "physical climate risk"),
+    # Phase 53.G — add India hard-ESG event vocabulary so the thematic lane
+    # surfaces SUBSTANTIVE heavy-industry ESG news (NGT/CPCB orders, coal/fly-ash,
+    # emission-norm enforcement) instead of soft "net zero / renewable" PR. These
+    # are the headlines that actually generate critical-grade power/metals events.
+    "emissions": ("carbon emissions", "emission norms", "coal", "fly ash"),
+    "energy": ("energy transition", "renewable energy"),
+    "water": ("water pollution", "water scarcity"),
+    "pollution": ("air pollution", "NGT", "CPCB", "environmental clearance"),
+    "waste": ("hazardous waste", "plastic waste"),
+    "biodiversity": ("deforestation", "biodiversity"),
+    "health_safety": ("workplace safety", "industrial accident"),
+    "supply_chain_labor": ("human rights", "forced labour"),
+    "human_capital": ("layoffs", "labour dispute"),
+    "dei": ("workplace diversity",),
+    "community": ("land acquisition", "displacement"),
+    "data_privacy": ("data breach", "data privacy"),
+    "product_safety": ("product recall", "product safety"),
+    "stakeholder_governance": ("corporate governance", "shareholder dispute"),
+    "board_leadership": ("board shakeup", "executive resignation"),
+    "ethics_compliance": ("regulatory penalty", "fraud", "show cause"),
+    "transparency": ("ESG disclosure", "BRSR"),
+    "tax_transparency": ("tax evasion",),
+    "risk_management": ("risk management failure",),
+}
+
+_THEMATIC_LANE_CAP = 8  # max thematic candidates so company-named events dominate
+
+# Region → EventRegistry source-location URI. Scopes the thematic lane to the
+# company's home market (an India bank wants Indian banking-ESG news, not a
+# Missouri coal-plant story). Multi-country regions (EU/APAC/GLOBAL) are left
+# unscoped — the sector terms + materiality scorer carry it there.
+_REGION_LOCATION_URI: dict[str, str] = {
+    "INDIA": "http://en.wikipedia.org/wiki/India",
+    "UK": "http://en.wikipedia.org/wiki/United_Kingdom",
+    "US": "http://en.wikipedia.org/wiki/United_States",
+}
+
+
+def _sasb_sector_for(company: Company) -> str:
+    """Resolve the company's SASB sector label (for the material-topic lookup).
+
+    Falls back to the industry→SASB map whenever the stored sasb_category is
+    missing/placeholder (e.g. SBI carries the literal "Unknown" in the DB) so the
+    thematic lane never silently degrades to the generic-ESG fallback vocab."""
+    cat = (getattr(company, "sasb_category", "") or "").strip()
+    if cat and cat.lower() not in ("other / general", "other", "unknown", "n/a", "none", ""):
+        return cat
+    try:
+        from engine.ingestion.llm_company_resolver import INDUSTRY_TO_SASB_DEFAULT
+        return INDUSTRY_TO_SASB_DEFAULT.get((getattr(company, "industry", "") or "").strip(), "")
+    except Exception:  # noqa: BLE001
+        return ""
+
+
+def _build_thematic_terms(company: Company) -> tuple[list[str], list[str]]:
+    """(sector_terms, esg_terms) for the industry/thematic query. ESG terms come
+    from the company's top SASB material topics (Phase A2) → search phrases."""
+    import re as _re
+    industry = (getattr(company, "industry", "") or "").strip()
+    sector_terms = list(_INDUSTRY_SECTOR_TERMS.get(industry, ()))
+    if not sector_terms:
+        sector_terms = [t for t in _re.split(r"[/\s&,-]+", industry) if len(t) > 3][:3]
+    esg_terms: list[str] = []
+    seen: set[str] = set()
+    try:
+        from engine.ontology.sasb_loader import query_material_topics_for_sector
+        for suffix, _w, _kind in query_material_topics_for_sector(_sasb_sector_for(company))[:6]:
+            for term in _TOPIC_SEARCH_TERMS.get(suffix, ()):
+                if term not in seen:
+                    seen.add(term)
+                    esg_terms.append(term)
+    except Exception:  # noqa: BLE001
+        pass
+    if not esg_terms:
+        esg_terms = ["ESG", "sustainability", "regulatory penalty", "emissions"]
+    # Cap well under EventRegistry's 80-word/plan keyword limit.
+    return sector_terms[:6], esg_terms[:14]
+
+
+def _thematic_fetch_enabled(company: Company) -> bool:
+    """Per-tenant primitive_calibration.industry_thematic_fetch ∈ {on|off|auto};
+    auto is budget-gated (fail-open)."""
+    cal = getattr(company, "primitive_calibration", None) or {}
+    mode = str(cal.get("industry_thematic_fetch", "auto")).strip().lower()
+    if mode == "off":
+        return False
+    if mode == "on":
+        return True
+    try:
+        from engine.ingestion.news_router import get_router
+        floor = int(os.environ.get("SNOWKAP_THEMATIC_FETCH_MIN_REMAINING", "400"))
+        return get_router().budget.remaining() > floor
+    except Exception:  # noqa: BLE001
+        return True
+
+
+def fetch_industry_thematic_for_company(
+    company: Company, max_results: int = _THEMATIC_LANE_CAP, freshness_days: int = 30,
+) -> list[dict]:
+    """ONE NewsAPI.ai call for INDUSTRY/THEMATIC ESG news — (sector terms) AND
+    (the company's SASB material-topic ESG terms), NO company-identity clause,
+    last `freshness_days`. Returns articles tagged source_type='industry_thematic'
+    so the orchestrator bypasses the company-name guard for them."""
+    api_key = (
+        os.environ.get("NEWSAPI_AI_KEY")
+        or os.environ.get("NEWSAPI_AI_API_KEY")
+        or os.environ.get("EVENT_REGISTRY_API_KEY")
+        or ""
+    )
+    if not api_key:
+        return []
+    sector_terms, esg_terms = _build_thematic_terms(company)
+    if not sector_terms or not esg_terms:
+        return []
+    date_start = (datetime.now(timezone.utc).date() - timedelta(days=freshness_days)).isoformat()
+    date_end = datetime.now(timezone.utc).date().isoformat()
+    # Both a SECTOR term AND an ESG term must be in the TITLE — a genuine
+    # sector-ESG headline ("RBI tightens climate norms for banks"), not an
+    # article incidentally mentioning a lender + a fraud somewhere in the body
+    # (the noise that sank the earlier title-lock-dropped approach).
+    and_clauses: list[dict[str, Any]] = [
+        {"$or": [{"keyword": t, "keywordLoc": "title"} for t in sector_terms]},
+        {"$or": [{"keyword": t, "keywordLoc": "title"} for t in esg_terms]},
+        {"lang": "eng"},
+    ]
+    region = (getattr(company, "framework_region", "") or "").strip().upper()
+    loc_uri = _REGION_LOCATION_URI.get(region)
+    if loc_uri:
+        and_clauses.append({"sourceLocationUri": loc_uri})
+    body = {
+        "action": "getArticles",
+        "query": {
+            "$query": {
+                "$and": and_clauses,
+                "dateStart": date_start,
+                "dateEnd": date_end,
+            },
+        },
+        "resultType": "articles",
+        "articlesPage": 1,
+        "articlesCount": min(max_results, 50),
+        "articlesSortBy": "date",
+        "includeArticleBody": True,
+        "articleBodyLen": -1,
+        "includeArticleImage": True,
+        "apiKey": api_key,
+    }
+    return _post_and_parse_newsapi(
+        body, company,
+        log_keyword=f"thematic:{(getattr(company, 'industry', '') or '').strip()}",
+        since=date_start, source_type="industry_thematic",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -970,27 +1183,44 @@ def fetch_for_company(
         art["query"] = _company_keyword(company)
         raw_articles.append(art)
 
-    # Phase 52 — ESG-aware SECOND fetch. The primary query title-locks on the
-    # company name, so market-dominated names (power/renewable) get only
-    # stock/growth coverage and zero ESG-substantive events. This second query
-    # drops the title-lock (company in title OR body) and swaps in the curated
-    # ESG-MATERIAL / harm vocab, so substantive ESG/negative stories that mention
-    # the company in the body (e.g. "new emission norms ... incl. Adani's Mundra")
-    # enter the feed and can score critical. Budget-gated; the merged results run
-    # through the SAME dedup + relevance gauntlet below (no double processing),
-    # and each fetch records its own spend (no double-charge). A per-tenant
-    # `esg_material_keywords` calibration list can override the vocab.
+    # Phase 53 (B) — INDUSTRY/THEMATIC ESG lane. Company-named ESG events are
+    # scarce; sector/regulatory/thematic ESG news (company NOT named) is the
+    # always-available baseline. Fetched on the company's industry + SASB
+    # material topics, tagged source_type='industry_thematic', capped + budget-
+    # gated, and exempted from the company-name guard below (the whole point is
+    # the company is not named — relevance is via INDUSTRY materiality downstream).
+    if _thematic_fetch_enabled(company):
+        for art in fetch_industry_thematic_for_company(
+            company, max_results=_THEMATIC_LANE_CAP, freshness_days=freshness_days,
+        ):
+            url = art.get("url") or ""
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+            art["query"] = f"thematic:{(getattr(company, 'industry', '') or '').strip()}"
+            raw_articles.append(art)
+
+    # Phase 52 — ESG-aware SECOND fetch (complements the Phase 53 thematic lane).
+    # The primary query title-locks on the company name, so market-dominated names
+    # (power/renewable) get only stock/growth coverage. This second query drops
+    # the title-lock (company in title OR BODY) and swaps in the curated
+    # ESG-MATERIAL / harm vocab, so a substantive ESG/negative story that mentions
+    # the company in the BODY (e.g. "new emission norms ... incl. Adani's Mundra")
+    # enters the feed and can score critical. Where the thematic lane catches
+    # company-NOT-named sector news, this catches company-in-body news. Budget-
+    # gated; both run through the SAME dedup + relevance gauntlet below (no double
+    # processing), each fetch records its own spend (no double-charge). A
+    # per-tenant `esg_material_keywords` calibration list can override the vocab.
     if _esg_second_fetch_enabled(company):
         _cal = getattr(company, "primitive_calibration", None) or {}
         _override = _cal.get("esg_material_keywords")
         esg_vocab = _ESG_KEYWORDS_MATERIAL
         if isinstance(_override, (list, tuple)) and _override:
             esg_vocab = tuple(str(k).strip() for k in _override if str(k).strip())
-        esg_material_articles = fetch_newsapi_ai_for_company(
+        for art in fetch_newsapi_ai_for_company(
             company, max_results=limit, freshness_days=freshness_days,
             strict_title=False, esg_keywords=esg_vocab,
-        )
-        for art in esg_material_articles:
+        ):
             url = art.get("url") or ""
             if not url or url in seen_urls:
                 continue
@@ -1014,7 +1244,14 @@ def fetch_for_company(
         # bundle multiple unrelated stories. These fool the event classifier
         # into picking events from sibling stories, causing hallucinated
         # crisis narratives.
-        if _is_wrapup_article(raw.get("title") or "", raw.get("content") or "", company):
+        # Phase 53 (B) — the thematic lane's articles are ABOUT the sector and
+        # legitimately name many peers + a regulator, so the company-name guard
+        # and the multi-org wrap-up guard would (correctly, for the company lane)
+        # drop them. Exempt the thematic lane from BOTH; keep calendar + freshness
+        # + semantic-dedup on both lanes, and rely on the Stage-4 industry
+        # materiality scorer + the Phase-C cross-entity gate for precision.
+        is_thematic = raw.get("source_type") == "industry_thematic"
+        if not is_thematic and _is_wrapup_article(raw.get("title") or "", raw.get("content") or "", company):
             stats["wrap_up"] += 1
             logger.debug(
                 "wrap-up article skipped: %r for %s",
@@ -1041,7 +1278,7 @@ def fetch_for_company(
         # enough that "JSW Energy" query returns JSW Steel articles. The
         # phrase-match check below catches those before they waste LLM budget
         # on mis-attributed analyses.
-        if not _is_article_about_company(raw.get("title") or "", raw.get("content") or "", company):
+        if not is_thematic and not _is_article_about_company(raw.get("title") or "", raw.get("content") or "", company):
             stats["off_topic"] += 1
             logger.debug(
                 "off-topic article skipped: %r not in title/head for %s",

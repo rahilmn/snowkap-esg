@@ -234,6 +234,16 @@ SOURCE TAGGING RULES — EVERY ₹ FIGURE MUST CARRY ITS ORIGIN:
 - "(engine estimate)": the figure is derived from the COMPUTED CASCADE block, company calibration, or precedent. Always honest. E.g., "₹180 Cr margin compression (engine estimate)".
 - Example combined: "₹50 Cr GST demand (from article) + ~₹120 Cr indirect contingent exposure (engine estimate)".
 - Mandatory for every top-level financial field.
+- CRITICALITY GROUNDING (HARD): decision_summary.financial_exposure is the figure
+  that LEADS the criticality_summary the CFO reads first. If that figure is the
+  engine's modeled total (i.e. LARGER than the exact amount the === ARTICLE === Body
+  states), it MUST end with "(engine estimate)". The cleanest pattern: lead with the
+  article's stated event amount as the headline figure, and carry the larger modeled
+  total in financial_exposure tagged "(engine estimate)". NEVER present an untagged
+  modeled figure as the event's exposure — a fact-checker will read it as fabricated
+  and reject the whole card. Example: article says "₹83 crore" → financial_exposure
+  = "₹83 Cr alleged misappropriation (from article); ~₹140 Cr total modeled exposure
+  (engine estimate)".
 
 CROSS-SECTION CONSISTENCY — ONE PRIMARY FIGURE, REUSED EVERYWHERE:
 - Pick ONE primary ₹ exposure / opportunity figure for the event (the headline number).
@@ -410,6 +420,26 @@ def _build_user_prompt(result: PipelineResult, company: Company) -> str:
             "article body unavailable. Numbers below are scenario projections.'"
         )
     lines.append("")
+
+    # Phase 53.D — SECTOR-EXPOSURE framing for industry-thematic articles.
+    # This story arrived via the thematic lane (Phase 53.B): it is material to
+    # the company's SECTOR and the company is DELIBERATELY NOT named. Tell the
+    # model to analyse the company's EXPOSURE to a sector-wide development, NOT
+    # to assert the company itself took the action — so the insight stays
+    # grounded (and survives the approval gate's thematic reframe).
+    if (getattr(result, "source_type", "") or "") == "industry_thematic":
+        lines.append("=== SECTOR-EXPOSURE FRAMING (READ FIRST) ===")
+        lines.append(
+            f"This article is a SECTOR / INDUSTRY story — {company.name} is NOT named in it. "
+            f"It was surfaced because the development is material to {company.name}'s sector "
+            f"({company.industry}). Analyse {company.name}'s EXPOSURE, obligations, and required "
+            f"response to this sector-wide development. Do NOT state or imply that {company.name} "
+            f"itself announced, did, was fined for, or is the subject of the event — attribute the "
+            f"event to whoever the article actually names (a regulator, the sector, a named peer), "
+            f"then reason about what it means for {company.name}. Every fact about the EVENT must "
+            f"come from the article body; the APPLICATION to {company.name} is your analysis."
+        )
+        lines.append("")
 
     lines.append("=== COMPANY PROFILE ===")
     lines.append(f"Name: {company.name}")

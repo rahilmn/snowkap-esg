@@ -8,7 +8,9 @@ bounds used by the deep insight generator to clamp LLM scores.
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 import re
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
@@ -139,6 +141,74 @@ def _is_confident_match(keywords: list[str]) -> bool:
     return False
 
 
+_LLM_NON_EVENT = "__non_event__"
+
+
+def _llm_classify_event(title: str, content: str, rules: list[EventRule]) -> "EventRule | str | None":
+    """Phase 53.M — intelligent event classification for the theme-fallback path.
+
+    When keyword matching is inconclusive the rule-based classifier used to GUESS
+    the event from the article's theme (event_default-for-theme), which mislabeled
+    NOISE as an actionable event — a stock-price blip themed "Board & Leadership"
+    became event_board_change, a macro note became event_credit_rating, a scam
+    advisory became event_cyber_incident — and those actionable classes then
+    inflated the noise into the critical tier (the live demo audit's #1 failure).
+
+    Instead, ask an LLM to pick the real event type OR declare it a NON-EVENT.
+    Gated by SNOWKAP_LLM_EVENT_FALLBACK=1 (so the test suite and any LLM-less env
+    keep the old deterministic behaviour); degrades to None on any error.
+
+    Returns: an EventRule (a real, LLM-confirmed event) · ``_LLM_NON_EVENT`` (the
+    article is not a discrete material event → caller uses event_default) · None
+    (LLM unavailable → caller keeps the theme-default).
+    """
+    if os.environ.get("SNOWKAP_LLM_EVENT_FALLBACK", "0").strip() != "1":
+        return None
+    try:
+        from engine.llm import get_llm_client
+        from engine.analysis.text_budget import clamp_article_text
+    except Exception:  # noqa: BLE001
+        return None
+    by_id = {r.event_id: r for r in rules}
+    catalog = "\n".join(f"- {r.event_id}: {r.label}" for r in rules)
+    system = (
+        "You classify a financial-news article into ONE ESG/business EVENT TYPE id "
+        "from the catalog, or 'event_default' when it is NOT a discrete material "
+        "event.\n\n"
+        "Return event_default for: a share-price move / stock update / 'shares "
+        "gain'/'in morning trade', an analyst rating or price target, broker "
+        "coverage/initiation, macro / commodity / interest-rate / monetary-policy "
+        "commentary, a routine corporate-calendar item (forum or conference "
+        "attendance, ESOP/RSU allotment), or a general public advisory that does "
+        "not describe a specific action BY a named company.\n"
+        "Pick a real event id ONLY when the article reports that discrete event "
+        "(a fraud / CBI / ED case, a regulator penalty or show-cause, a contract "
+        "win, a plant commissioning, a rating action, a violation, a disclosure).\n\n"
+        f"CATALOG:\n{catalog}\n\n"
+        'Respond ONLY with JSON: {"event_id": "<id or event_default>", "confidence": 0.0-1.0}'
+    )
+    try:
+        client = get_llm_client(task_class="classification").sync
+        resp = client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": f"TITLE: {title}\n\nBODY: {clamp_article_text(content)[:2000]}"},
+            ],
+            temperature=0.0,
+            max_tokens=60,
+            response_format={"type": "json_object"},
+        )
+        parsed = json.loads(resp.choices[0].message.content or "{}")
+    except Exception as exc:  # noqa: BLE001 — never let classification be an outage source
+        logger.warning("event_classifier: LLM fallback failed (%s)", type(exc).__name__)
+        return None
+    eid = str(parsed.get("event_id", "") or "").strip()
+    if eid in by_id and eid != "event_default":
+        return by_id[eid]
+    return _LLM_NON_EVENT
+
+
 def classify_event(
     title: str, content: str, theme: str = ""
 ) -> EventClassification:
@@ -182,7 +252,25 @@ def classify_event(
                 len(all_matches),
                 [(r.event_id, kws) for r, kws in all_matches[:3]],
             )
-        # Theme-based fallback (unchanged behaviour — Phase 14)
+        # Phase 53.M — intelligent classification BEFORE the dumb theme-default.
+        # Catches the noise the theme-default mislabeled as actionable.
+        llm = _llm_classify_event(title, content, rules)
+        if isinstance(llm, EventRule):
+            return EventClassification(
+                event_id=llm.event_id,
+                label=llm.label,
+                score_floor=llm.score_floor,
+                score_ceiling=llm.score_ceiling,
+                financial_transmission=llm.financial_transmission,
+                matched_keywords=["[llm]"],  # NOT a theme-fallback: keeps actionability
+                has_financial_quantum=has_quantum,
+                financial_amount_cr=amount_cr,
+            )
+        if llm == _LLM_NON_EVENT:
+            return _default  # LLM judged this a non-event → non-actionable
+
+        # Theme-based fallback (unchanged behaviour — Phase 14; used when the LLM
+        # fallback is disabled or unavailable).
         if theme:
             from engine.ontology.intelligence import query_default_event_for_theme
 

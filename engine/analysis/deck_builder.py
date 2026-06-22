@@ -104,6 +104,9 @@ def _to_article_dict(article: Any) -> dict[str, Any]:
         "source": getattr(article, "source", ""),
         "url": getattr(article, "url", ""),
         "published_at": getattr(article, "published_at", ""),
+        # Phase 53 (C) — carry the fetch lane so the pipeline can route an
+        # industry/thematic article (company not named) past the cross-entity gate.
+        "source_type": getattr(article, "source_type", "") or "",
         "metadata": getattr(article, "metadata", {}) or {},
     }
 
@@ -175,7 +178,7 @@ def _publish_critical(result: Any, company: Any) -> str:
 
     approval = approve_analysis_for_display(
         result=result, insight=insight, unified_analysis=analysis,
-        recommendations=recs, tier="critical",
+        recommendations=recs, tier="critical", company=company,
     )
     if not approval.approved:
         return "rejected_approval"

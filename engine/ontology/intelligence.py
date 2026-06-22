@@ -196,8 +196,13 @@ def query_materiality_weight(
     # Phase 32 — SASB overlay first.
     if sasb_sector:
         try:
+            from engine.ontology.materiality_aliases import canonical_sasb_topic
             from engine.ontology.sasb_loader import query_sasb_materiality
-            sasb_weight, _kind = query_sasb_materiality(sasb_sector, topic)
+            # Phase 53 (A1) — pass the SASB topic-URI SUFFIX, not the human label.
+            # The label ("Climate Change") normalises to "climate_change" which
+            # never STRENDS-matches snowkap:topic_climate; the suffix ("climate")
+            # does. This is the fix that revives the SASB sector overlay.
+            sasb_weight, _kind = query_sasb_materiality(sasb_sector, canonical_sasb_topic(topic))
             if sasb_weight is not None:
                 logger.debug(
                     "materiality: SASB hit sector=%s topic=%s weight=%s",
@@ -1024,6 +1029,39 @@ def query_criticality_bands(
         except (TypeError, ValueError, KeyError):
             continue
     return out
+
+
+@lru_cache(maxsize=1)
+def query_actionable_event_types(
+    graph: OntologyGraph | None = None,
+) -> tuple[str, ...]:
+    """Phase 53.C — event_ids the ontology marks ``snowkap:actionable true``.
+
+    An actionable event is one that DEMANDS a concrete company response
+    (compliance, disclosure, remediation, board action, resilience). The
+    criticality scorer scores these actionability 0.8 instead of 0.2. Seeded in
+    the ontology so the actionable set is editable without code (CLAUDE.md Rule
+    #1); the scorer keeps a complete in-code frozenset fallback so a missing or
+    volume-shadowed TTL degrades safely (and the two are UNIONed, never
+    replaced). Returns event_id local names (e.g. ``event_climate_event``).
+    """
+    g = _graph(graph) if graph else get_graph()
+    rows = g.select_rows(
+        """
+        SELECT ?event WHERE {
+            ?event snowkap:actionable true .
+        }
+        """
+    )
+    out: list[str] = []
+    for row in rows:
+        try:
+            ev = str(row["event"]).split("#", 1)[-1]
+        except (TypeError, KeyError):
+            continue
+        if ev:
+            out.append(ev)
+    return tuple(out)
 
 
 def query_comparison_markers(

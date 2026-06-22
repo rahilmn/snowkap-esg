@@ -200,6 +200,12 @@ PERSPECTIVE-AWARE RECOMMENDATIONS:
 - Include a mix of types so each perspective has relevant recommendations.
 - CRITICAL: Every recommendation must be SPECIFIC to THIS article's event. Do NOT generate generic ESG recommendations (like "enhance CDP disclosure" or "file BRSR") unless the article specifically triggers those frameworks. For positive events (analyst upgrades, ESG awards), recommend LEVERAGING the momentum (green bond timing, investor communication, competitive positioning). For negative events (penalties, violations), recommend REMEDIATION and PREVENTION.
 
+GROUNDING & HONESTY (Phase 53.K — a CFO clicks into every card; one fabrication kills trust):
+- Recommend ONLY actions that fit THIS article's ACTUAL event. If the article is a SECTOR / peer / foreign story where the company is NOT the subject (e.g. "Britain's banks see fraud spike"), frame recs as the company's PREPAREDNESS / exposure response — NEVER assert the company suffered the event, and NEVER prescribe an incident-response playbook (DFIR retainer, breach containment) for an article that describes no incident at this company.
+- Peer benchmarks: name a REAL peer, but state the precedent QUALITATIVELY ("Tata Power issued a green bond to fund renewables"). Do NOT invent quantified peer outcomes ("peers cut fraud run-length in half", "investor queries fell 40%", "loss of ₹85 Cr over 10 months") — a fabricated statistic is worse than none.
+- NEVER reference a place, branch, facility, sector code, or amount the article does not contain (no invented "Sector 32" branch).
+- All deadlines must be AFTER the article's publication date shown in the context; prefer the structured deadline field over embedding calendar dates in the title.
+
 Return a JSON object:
 {
   "recommendations": [
@@ -615,6 +621,11 @@ def _build_generator_prompt(
     lines: list[str] = []
     lines.append(f"COMPANY: {company.name} ({company.industry}, {company.market_cap})")
     lines.append(f"ARTICLE: {result.title}")
+    # Phase 53.K — publication date so every deadline the model writes is AFTER it
+    # (the live audit found deliverables dated before the article was published).
+    _pub = (getattr(result, "published_at", "") or "")[:10]
+    if _pub:
+        lines.append(f"ARTICLE PUBLISHED: {_pub} — every recommendation deadline MUST be after this date.")
     lines.append(f"HEADLINE: {insight.headline}")
     lines.append(f"IMPACT SCORE: {insight.impact_score}")
     lines.append(f"MATERIALITY: {insight.decision_summary.get('materiality', '')}")
@@ -1540,9 +1551,45 @@ def _compute_risk_of_inaction(rec: Recommendation) -> int:
     return max(1, min(10, base))
 
 
+_PROSE_DATE_RE = re.compile(r"\b(20\d{2})-(\d{2})-(\d{2})\b")
+
+
+def _scrub_backdated_prose_dates(rec: Recommendation) -> None:
+    """Phase 53.K — align any backdated calendar date embedded in the rec TITLE /
+    description prose to the (already future-fixed) structured deadline.
+
+    _fix_deadline only repairs the structured ``deadline`` field; the gpt-5 model
+    also writes specific dates INTO the title ("File supplementary BRSR P6 by
+    2026-06-15") — and the live audit caught several that fell BEFORE the article's
+    publish date (a deliverable due in the past). A past deadline in a CFO-facing
+    card is a credibility-killer, so any YYYY-MM-DD in the prose that is earlier
+    than today is rewritten to the rec's fixed (future) deadline.
+    """
+    today = date.today()
+
+    def _fix(text: str) -> str:
+        if not text:
+            return text
+
+        def _repl(m: "re.Match[str]") -> str:
+            try:
+                if date(int(m.group(1)), int(m.group(2)), int(m.group(3))) < today:
+                    return rec.deadline
+            except (ValueError, TypeError):
+                return m.group(0)
+            return m.group(0)
+
+        return _PROSE_DATE_RE.sub(_repl, text)
+
+    rec.title = _fix(rec.title)
+    rec.description = _fix(rec.description)
+    rec.profitability_link = _fix(rec.profitability_link)
+
+
 def _post_process(recs: list[Recommendation]) -> list[Recommendation]:
     for rec in recs:
         rec.deadline = _fix_deadline(rec.deadline)
+        _scrub_backdated_prose_dates(rec)
         rec.priority = _derive_priority(rec)
         rec.risk_of_inaction = _compute_risk_of_inaction(rec)
     # Sort by priority + risk of inaction

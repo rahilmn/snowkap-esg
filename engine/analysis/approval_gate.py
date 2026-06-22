@@ -80,12 +80,34 @@ REJECT (approved=false) only if ANY of these are true:
   BRSR/TCFD" when the article never says so; a capacity/figure that misreads the
   article; a regulator action the article doesn't mention).
 - A ₹/$/€ figure is presented as THE COMPANY's actual figure-from-the-article when
-  the article contains no such figure and it isn't clearly marked an estimate.
+  the article contains no such figure, it isn't marked an estimate, AND it does not
+  match the engine's modeled exposure shown in the FINANCIAL EXPOSURE context below.
+  (The engine deliberately models a TOTAL exposure — legal + reputational +
+  cost-of-capital — that is legitimately LARGER than the single amount the article
+  states. A why-it-matters / criticality line that leads with that modeled total is
+  EXPECTED analytical output, not a fabrication. Reject only a figure that matches
+  NEITHER the article's stated amount NOR the engine's modeled exposure, or one
+  falsely tagged "(from article)".)
 - The text is GARBLED, truncated, or has incomplete sentences (e.g. "exposed to a.",
   "₹3,000–", "realize these b") — never publish broken prose.
 - The analysis is internally CONTRADICTORY (e.g. band says "Low priority" while the
-  text frames it as strategically significant).
+  text frames it as strategically significant). This does NOT include the ₹ figures:
+  the why-it-matters / criticality line leads with the engine's MODELED TOTAL
+  exposure (legal + reputational + cost-of-capital) while a separate "financial
+  exposure shown" chip or the article quotes a SMALLER stated transaction amount —
+  these two measure DIFFERENT things (modeled total vs stated amount) and their
+  disagreement is EXPECTED, not a contradiction. Never reject solely because a
+  modeled ₹ total differs from, or exceeds, the article's stated figure.
 - A recommendation is plainly OFF-TOPIC (unrelated to the article's subject).
+
+CALIBRATION — bias toward APPROVE for a genuine, source-grounded event: if the
+EVENT itself (a CBI/ED fraud probe, a regulator penalty, a court order naming or
+clearly concerning the company) is real and grounded in the source, APPROVE it
+even if a ₹ figure is a modeled estimate or the peer benchmark draws on outside
+knowledge. Reserve rejection for genuine defects: a FABRICATED event the article
+never describes, a ₹ tagged "(from article)" that the article never states,
+GARBLED/truncated prose, or an off-topic recommendation. A grounded ₹661cr CBI
+fraud must not be rejected over modeling nuance.
 
 APPROVE (approved=true) if the company/event claims are grounded, the prose is
 clean and consistent, and the recommendations are on-topic. Peer benchmarks
@@ -139,8 +161,36 @@ def _approve_light(result: Any, analysis: dict[str, Any]) -> ApprovalResult:
     )
 
 
+def _is_thematic(result: Any) -> bool:
+    """True when the article came in via the industry-thematic lane (Phase 53.B/C)
+    — a SECTOR ESG story where the company is deliberately NOT named."""
+    return (getattr(result, "source_type", "") or "") == "industry_thematic"
+
+
+def _thematic_review_note(company: Any) -> str:
+    """Phase 53.D — reframe the grounding bar for a SECTOR/INDUSTRY article so the
+    reviewer does not reject it merely because the company is (by design) absent.
+
+    The event/sector facts MUST still be grounded; only the APPLICATION of the
+    sector event to the company's exposure is treated as legitimate inference.
+    """
+    name = (getattr(company, "name", None) or "this company").strip() or "this company"
+    return (
+        f"[SECTOR / INDUSTRY ARTICLE — READ FIRST] This story was surfaced because it is "
+        f"material to {name}'s SECTOR, and {name} is DELIBERATELY NOT named in it. The "
+        f"analysis legitimately applies a sector-wide development (a regulation, an industry "
+        f"trend, a peer/sector event) to {name}'s own exposure and obligations — this is "
+        f"EXPECTED analytical inference, NOT fabrication. Do NOT reject merely because {name} "
+        f"is absent from the source; that is by design. You MUST still require that the "
+        f"SECTOR/EVENT facts themselves (the regulation, the trend, any figure attributed to "
+        f"the sector or a named third party) are grounded in the article, that the prose is "
+        f"clean and not garbled, and that the recommendations are on-topic for the sector event."
+    )
+
+
 def _build_review_prompt(
     result: Any, analysis: dict[str, Any], recommendations: Any,
+    company: Any = None,
 ) -> str:
     body = clamp_article_text(getattr(result, "article_content", ""))
     title = getattr(result, "title", "") or ""
@@ -172,6 +222,7 @@ def _build_review_prompt(
         )
 
     parts = [
+        *([_thematic_review_note(company)] if _is_thematic(result) else []),
         "SOURCE ARTICLE",
         f"Title: {title}",
         f"Body:\n{body}",
@@ -203,11 +254,15 @@ def approve_analysis_for_display(
     unified_analysis: dict[str, Any],
     recommendations: Any = None,
     tier: str = "critical",
+    company: Any = None,
 ) -> ApprovalResult:
     """Approve (or reject) a composed analysis before it reaches the deck.
 
     `tier="light"` → deterministic. `tier="critical"` → Opus 4.6 review.
     Fail-open on infra error.
+
+    Phase 53.D — `company` lets the reviewer reframe an industry-thematic article
+    (company deliberately not named) so it isn't rejected for that absence.
     """
     analysis = unified_analysis or {}
 
@@ -243,7 +298,7 @@ def approve_analysis_for_display(
     try:
         from engine.llm import get_llm_client
         client = get_llm_client(task_class="reasoning_heavy")
-        user = _build_review_prompt(result, analysis, recommendations)
+        user = _build_review_prompt(result, analysis, recommendations, company)
         resp = client.complete(
             messages=[
                 {"role": "system", "content": _APPROVAL_SYSTEM},

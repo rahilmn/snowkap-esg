@@ -41,6 +41,11 @@ python-dotenv==1.0.1
 
 # --- Knowledge Graph (rdflib in-process, replaces Apache Jena Fuseki) ---
 rdflib==7.1.1
+# Phase 53 (A4) — pin pyparsing: rdflib's SPARQL parser breaks on pyparsing
+# 3.0.x ("Param.postParse2() missing 1 required positional argument: 'tokenList'"),
+# which silently collapsed every SASB/materiality SPARQL lookup to the 0.5
+# neutral default in prod. 3.1.1+ is the compatible line for rdflib 7.1.x.
+pyparsing>=3.1.1,<4
 
 # --- Ontology validation (Phase A drop-in from Power of Now adoption) ---
 # owlrl: OWL-RL deductive closure for engine/ontology/reasoner.py.

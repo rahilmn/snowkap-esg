@@ -171,7 +171,69 @@ ACTIONABLE_EVENT_TYPES: frozenset[str] = frozenset({
     "event_heavy_penalty",
     "event_social_violation",
     "event_cyber_incident",
+    # Phase 53.C — sector/regulatory ESG events that demand a company response
+    # but are usually NOT company-headlined (so they arrive via the industry-
+    # thematic lane). A new RBI climate-disclosure norm, a sector emission
+    # standard, an environmental show-cause, a community/labour dispute, or a
+    # physical climate event all force a concrete compliance / disclosure /
+    # remediation / resilience action — yet they classified as actionability 0.2
+    # and could never rank into the deck for a company whose only material ESG
+    # news is sector-wide. These mirror the EventTypes marked
+    # ``snowkap:actionable true`` in the ontology (see _actionable_event_types).
+    "event_regulatory_policy",
+    "event_regulatory_announcement",
+    "event_regulatory_penalty",
+    "event_systemic_regulatory",
+    "event_systemic_regulatory_change",
+    "event_disclosure_announcement",
+    "event_framework_update",
+    "event_environmental_violation",
+    "event_governance_failure",
+    "event_fraud_disclosure",
+    "event_show_cause_notice",
+    "event_labour_strike",
+    "event_community_conflict",
+    "event_community_protest",
+    "event_climate_event",
 })
+
+
+# Module cache for the ontology-resolved actionable set (frozenset above is the
+# fallback). Mirrors the _AUTHORITY_CACHE pattern — populated lazily, reset via
+# set_actionable_event_overrides() in tests.
+_ACTIONABLE_CACHE: frozenset[str] | None = None
+
+
+def set_actionable_event_overrides(events: frozenset[str] | set[str] | None) -> None:
+    """Test hook — pin the actionable-event set without touching the ontology."""
+    global _ACTIONABLE_CACHE
+    _ACTIONABLE_CACHE = frozenset(events) if events is not None else None
+
+
+def _actionable_event_types() -> frozenset[str]:
+    """Actionable event_ids: ontology first (``snowkap:actionable true``), then
+    the built-in ACTIONABLE_EVENT_TYPES literal as the fallback.
+
+    The ontology is the source of truth (CLAUDE.md rule #1), but in prod a
+    Railway volume can shadow the bundled TTLs, so the literal MUST stay a
+    complete, self-sufficient fallback. The ontology set is UNIONed onto the
+    literal (never replaces it) so a partial/empty ontology can only ADD, never
+    silently drop a known-actionable event.
+    """
+    global _ACTIONABLE_CACHE
+    if _ACTIONABLE_CACHE is not None:
+        return _ACTIONABLE_CACHE
+    onto: set[str] = set()
+    try:
+        from engine.ontology.intelligence import query_actionable_event_types
+        onto = set(query_actionable_event_types() or ())
+    except Exception:  # noqa: BLE001 — degrade to the literal fallback
+        logger.warning(
+            "criticality: ontology actionable-events unavailable; using built-in fallback",
+            exc_info=True,
+        )
+    _ACTIONABLE_CACHE = ACTIONABLE_EVENT_TYPES | frozenset(onto)
+    return _ACTIONABLE_CACHE
 
 
 # ---------------------------------------------------------------------------
@@ -182,6 +244,7 @@ ACTIONABLE_EVENT_TYPES: frozenset[str] = frozenset({
 def _materiality_component(
     relevance_total: float | int | None,
     event_severity: float | None = None,
+    industry_materiality_weight: float | None = None,
 ) -> float:
     """Plan §3.2: existing relevance_score / 10, clipped [0, 1].
 
@@ -206,6 +269,21 @@ def _materiality_component(
     floors and can never be lifted, so business noise is not over-promoted
     (verified: across 47 live insights only governance + genuine mid-severity
     ESG events are lifted, zero quarterly/dividend/analyst articles).
+
+    Phase 53.C — ``industry_materiality_weight`` is the ontology SASB sector ×
+    theme materiality (relevance.materiality_weight from Stage 4, e.g. 0.95 for
+    Climate at a Commercial Bank). It is passed ONLY for industry-thematic
+    articles — sector/regulatory ESG news where the company is not named, so it
+    has no painpoint match and a weak event classification, yet is genuinely
+    material to the company's sector. Flooring materiality at the SASB weight is
+    what lets such an article reach the deck for a company whose ONLY material
+    ESG news is sector-wide. It is self-gating: the SASB neutral default is 0.5,
+    so a non-material theme (weight ≤ 0.5) can never lift a relevance-based
+    materiality, and the upstream market-commentary LOW-cap remains the guardrail
+    against a noise listicle that happens to tag a material theme. Company-NAMED
+    articles do NOT receive this floor (weight is None) — they already score via
+    the event floor + painpoint + name-in-text paths, so the 7 tuned baseline
+    decks are unaffected.
     """
     base = 0.0
     if relevance_total is not None:
@@ -219,7 +297,13 @@ def _materiality_component(
             floor = float(event_severity)
         except (TypeError, ValueError):
             floor = 0.0
-    return _clip01(max(base, floor))
+    industry_floor = 0.0
+    if industry_materiality_weight is not None:
+        try:
+            industry_floor = float(industry_materiality_weight)
+        except (TypeError, ValueError):
+            industry_floor = 0.0
+    return _clip01(max(base, floor, industry_floor))
 
 
 def _financial_magnitude_component(
@@ -250,11 +334,11 @@ def _actionability_component(
 ) -> float:
     """Plan §3.2 — three branches:
 
-    1. event_id ∈ ACTIONABLE_EVENT_TYPES → 0.8
+    1. event_id ∈ actionable set (ontology + literal) → 0.8
     2. has_deadline → 1.0 - days_to_decision/180 (clipped)
     3. else → 0.2
     """
-    if event_id and event_id in ACTIONABLE_EVENT_TYPES:
+    if event_id and event_id in _actionable_event_types():
         return 0.8
     if has_deadline and days_to_decision is not None:
         try:
@@ -516,6 +600,7 @@ def score_components(
     *,
     relevance_total: float | None,
     event_severity: float | None = None,
+    industry_materiality_weight: float | None = None,
     cascade_total_cr: float | None,
     company_revenue_cr: float | None,
     event_id: str | None,
@@ -545,7 +630,9 @@ def score_components(
     floats which are stable per article+model).
     """
     return CriticalityComponents(
-        materiality=_materiality_component(relevance_total, event_severity),
+        materiality=_materiality_component(
+            relevance_total, event_severity, industry_materiality_weight,
+        ),
         financial_magnitude=_financial_magnitude_component(
             cascade_total_cr, company_revenue_cr,
         ),
@@ -633,6 +720,7 @@ def score(
     *,
     relevance_total: float | None,
     event_severity: float | None = None,
+    industry_materiality_weight: float | None = None,
     cascade_total_cr: float | None,
     company_revenue_cr: float | None,
     event_id: str | None,
@@ -667,6 +755,7 @@ def score(
     components = score_components(
         relevance_total=relevance_total,
         event_severity=event_severity,
+        industry_materiality_weight=industry_materiality_weight,
         cascade_total_cr=cascade_total_cr,
         company_revenue_cr=company_revenue_cr,
         event_id=event_id,

@@ -168,4 +168,55 @@ def canonical_industry(label: str) -> str:
     return _normalize(label, _canonical_industries(), _INDUSTRY_ALIASES)
 
 
-__all__ = ["canonical_topic", "canonical_industry"]
+# Phase 53 (A1) — canonical ESG topic LABEL → SASB TTL topic-URI suffix.
+# THE BUG: query_materiality_weight canonicalises a topic to its human rdfs:label
+# ("Climate Change") and passed THAT to query_sasb_materiality, whose
+# STRENDS(STR(?topic), <normalised label>) matched against snowkap:topic_<suffix>
+# ("topic_climate"). "climate_change" never ends "...topic_climate" → 17/21 bank
+# topics silently missed (incl. the two most material: Climate 0.95, Data Privacy
+# 0.90), collapsing the SASB sector overlay to the 0.5/base default. The 4 that
+# accidentally worked are those whose label==suffix (Emissions, Human Capital,
+# Supply Chain Labor, Stakeholder Governance). This map converts the canonical
+# LABEL to the snake_case SASB topic suffix so the STRENDS match fires.
+# Keys are the canonical rdfs:labels (the alias targets above); values are the
+# topic-URI suffixes in data/ontology/sasb_materiality.ttl.
+_SASB_TOPIC_SUFFIX: dict[str, str] = {
+    "Climate Change": "climate",
+    "Climate Adaptation": "climate_adaptation",
+    "Emissions": "emissions",
+    "Energy": "energy",
+    "Water": "water",
+    "Pollution": "pollution",
+    "Waste & Circularity": "waste",
+    "Biodiversity": "biodiversity",
+    "Health & Safety": "health_safety",
+    "Supply Chain Labor": "supply_chain_labor",
+    "Human Capital": "human_capital",
+    "Diversity, Equity & Inclusion": "dei",
+    "Community Impact": "community",
+    "Data Privacy & Security": "data_privacy",
+    "Product Safety": "product_safety",
+    "Stakeholder Governance": "stakeholder_governance",
+    "Board & Leadership": "board_leadership",
+    "Ethics & Compliance": "ethics_compliance",
+    "Transparency & Disclosure": "transparency",
+    "Tax Transparency": "tax_transparency",
+    "Risk Management": "risk_management",
+}
+
+
+def canonical_sasb_topic(label: str) -> str:
+    """Map a free-text/canonical ESG topic to its SASB TTL topic-URI suffix
+    (e.g. "Climate Change" -> "climate"), so query_sasb_materiality's
+    STRENDS(STR(?topic), <suffix>) match against snowkap:topic_<suffix> fires.
+
+    Canonicalises first (idempotent on an already-canonical label), then maps to
+    the suffix. Falls back to the canonical label when the topic has no SASB
+    counterpart — the loader then normalises it and (correctly) misses, landing
+    on the base/neutral weight, exactly as before.
+    """
+    canon = canonical_topic(label)
+    return _SASB_TOPIC_SUFFIX.get(canon, canon)
+
+
+__all__ = ["canonical_topic", "canonical_industry", "canonical_sasb_topic"]

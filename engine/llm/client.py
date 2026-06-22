@@ -40,6 +40,83 @@ from engine.llm.routing import resolve_model
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Reasoning-model parameter normalisation (OpenAI gpt-5*, o-series)
+# ---------------------------------------------------------------------------
+# OpenAI reasoning models reject `max_tokens` (require `max_completion_tokens`)
+# and reject a non-default `temperature`; they also spend hidden reasoning tokens
+# before emitting output, so the completion budget needs headroom or the visible
+# answer comes back empty/truncated. Non-reasoning models (gpt-4.1, gpt-4o, the
+# OpenRouter Claude models) are left byte-identical to before.
+_REASONING_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+
+
+def _is_reasoning_model(model: str | None) -> bool:
+    m = (model or "").lower().split("/")[-1]
+    return m.startswith(_REASONING_PREFIXES)
+
+
+def _normalize_params_for_model(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Translate chat-completion params for OpenAI reasoning models. No-op for
+    every other model, so existing gpt-4.1 / Claude calls are unchanged."""
+    if not _is_reasoning_model(kwargs.get("model")):
+        return kwargs
+    kwargs.pop("temperature", None)  # reasoning models only allow the default (1)
+    mt = kwargs.pop("max_tokens", None)
+    if "max_completion_tokens" not in kwargs:  # idempotent — don't recompute
+        try:
+            buf = int(os.environ.get("SNOWKAP_REASONING_TOKEN_BUFFER", "") or 8000)
+        except ValueError:
+            buf = 8000
+        # max_completion_tokens is a CEILING (billed on actual usage), so a generous
+        # buffer just prevents reasoning from starving the visible output.
+        kwargs["max_completion_tokens"] = (int(mt) if mt else 0) + buf
+    kwargs.setdefault("reasoning_effort", os.environ.get("SNOWKAP_REASONING_EFFORT", "").strip() or "low")
+    return kwargs
+
+
+class _NormalizingCompletions:
+    """Proxy that normalises reasoning-model params on .create()."""
+    def __init__(self, inner: Any) -> None:
+        self._inner = inner
+
+    def create(self, **kwargs: Any) -> Any:
+        return self._inner.create(**_normalize_params_for_model(kwargs))
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.__dict__["_inner"], name)
+
+
+class _NormalizingChat:
+    def __init__(self, inner: Any) -> None:
+        self._inner = inner
+
+    @property
+    def completions(self) -> "_NormalizingCompletions":
+        return _NormalizingCompletions(self._inner.completions)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.__dict__["_inner"], name)
+
+
+class _NormalizingClientProxy:
+    """Wraps an OpenAI/AsyncOpenAI client so ``.chat.completions.create()``
+    translates params for OpenAI reasoning models (gpt-5*, o-series). This is
+    the single choke point that covers the ~19 stages which call the raw SDK
+    directly (``client = llm.sync``) instead of the gateway's complete(). A
+    no-op for gpt-4.1 / Claude, so existing behaviour is unchanged. Streaming,
+    embeddings, .beta etc. pass straight through ``__getattr__``."""
+    def __init__(self, inner: Any) -> None:
+        self._inner = inner
+
+    @property
+    def chat(self) -> "_NormalizingChat":
+        return _NormalizingChat(self._inner.chat)
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.__dict__["_inner"], name)
+
+
 def _is_openrouter_out_of_credits(exc: Exception) -> bool:
     """True when `exc` looks like OpenRouter rejecting a call for lack of
     credits (HTTP 402 / 'insufficient credits') — the signal to fall back to
@@ -150,6 +227,9 @@ class OpenRouterClient:
         fb = dict(orig_kwargs)
         fb.pop("extra_headers", None)  # OpenRouter routing headers — not for OpenAI
         fb["model"] = resolve_openai_fallback_model(self.task_class, override)
+        # The OpenAI fallback model may be a reasoning model (gpt-5-mini) which
+        # rejects max_tokens/temperature — translate before the fallback call.
+        fb = _normalize_params_for_model(fb)
         logger.warning(
             "OpenRouter out of credits (%s) — falling back to direct OpenAI model %s",
             type(exc).__name__, fb["model"],
@@ -177,14 +257,16 @@ class OpenRouterClient:
         if self._sync is None:
             from openai import OpenAI
             self._sync = OpenAI(**self._build_kwargs())
-        return self._sync
+        # Wrap so the ~19 stages that call the raw SDK directly (client = llm.sync)
+        # get reasoning-model param translation. No-op for gpt-4.1 / Claude.
+        return _NormalizingClientProxy(self._sync)
 
     @property
     def async_client(self) -> Any:
         if self._async is None:
             from openai import AsyncOpenAI
             self._async = AsyncOpenAI(**self._build_kwargs())
-        return self._async
+        return _NormalizingClientProxy(self._async)
 
     def model_for(self, override: str | None = None) -> str:
         return resolve_model(
@@ -223,6 +305,7 @@ class OpenRouterClient:
         # OpenRouter requires the routing headers
         kwargs["extra_headers"] = {**self._extra_headers, **extra.pop("extra_headers", {})}
         kwargs.update(extra)
+        kwargs = _normalize_params_for_model(kwargs)
 
         t0 = time.perf_counter()
         try:
@@ -261,6 +344,7 @@ class OpenRouterClient:
             kwargs["response_format"] = response_format
         kwargs["extra_headers"] = {**self._extra_headers, **extra.pop("extra_headers", {})}
         kwargs.update(extra)
+        kwargs = _normalize_params_for_model(kwargs)
 
         t0 = time.perf_counter()
         try:
@@ -296,6 +380,7 @@ class OpenRouterClient:
             kwargs["max_tokens"] = max_tokens
         kwargs["extra_headers"] = {**self._extra_headers, **extra.pop("extra_headers", {})}
         kwargs.update(extra)
+        kwargs = _normalize_params_for_model(kwargs)
 
         stream = self.sync.chat.completions.create(**kwargs)
         for chunk in stream:
@@ -321,6 +406,7 @@ class OpenRouterClient:
             kwargs["max_tokens"] = max_tokens
         kwargs["extra_headers"] = {**self._extra_headers, **extra.pop("extra_headers", {})}
         kwargs.update(extra)
+        kwargs = _normalize_params_for_model(kwargs)
 
         stream = await self.async_client.chat.completions.create(**kwargs)
         async for chunk in stream:
