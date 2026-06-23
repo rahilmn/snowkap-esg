@@ -49,6 +49,13 @@ logger = logging.getLogger(__name__)
 # answer comes back empty/truncated. Non-reasoning models (gpt-4.1, gpt-4o, the
 # OpenRouter Claude models) are left byte-identical to before.
 _REASONING_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+# OpenRouter reasoning models (vendor/-prefixed) keep the standard `max_tokens`
+# param and accept `temperature`, but they spend hidden reasoning tokens
+# (returned in a SEPARATE `reasoning` field, not inline in content) that count
+# against the budget — so a too-small `max_tokens` starves the visible JSON
+# answer to empty/truncated, which then fails JSON extraction (e.g. the approval
+# gate fail-closes). Matched by substring on the full slug.
+_OPENROUTER_REASONING_SUBSTR = ("deepseek-v4", "deepseek-r1", "minimax-m")
 
 
 def _is_reasoning_model(model: str | None) -> bool:
@@ -56,22 +63,39 @@ def _is_reasoning_model(model: str | None) -> bool:
     return m.startswith(_REASONING_PREFIXES)
 
 
+def _is_openrouter_reasoning_model(model: str | None) -> bool:
+    m = (model or "").lower()
+    return "/" in m and any(s in m for s in _OPENROUTER_REASONING_SUBSTR)
+
+
 def _normalize_params_for_model(kwargs: dict[str, Any]) -> dict[str, Any]:
-    """Translate chat-completion params for OpenAI reasoning models. No-op for
-    every other model, so existing gpt-4.1 / Claude calls are unchanged."""
-    if not _is_reasoning_model(kwargs.get("model")):
+    """Translate chat-completion params for reasoning models. No-op for
+    non-reasoning models, so existing gpt-4.1 / Claude calls are unchanged."""
+    model = kwargs.get("model")
+    if _is_reasoning_model(model):  # OpenAI gpt-5*/o-series — need max_completion_tokens
+        kwargs.pop("temperature", None)  # these only allow the default (1)
+        mt = kwargs.pop("max_tokens", None)
+        if "max_completion_tokens" not in kwargs:  # idempotent — don't recompute
+            try:
+                buf = int(os.environ.get("SNOWKAP_REASONING_TOKEN_BUFFER", "") or 8000)
+            except ValueError:
+                buf = 8000
+            # max_completion_tokens is a CEILING (billed on actual usage), so a generous
+            # buffer just prevents reasoning from starving the visible output.
+            kwargs["max_completion_tokens"] = (int(mt) if mt else 0) + buf
+        kwargs.setdefault("reasoning_effort", os.environ.get("SNOWKAP_REASONING_EFFORT", "").strip() or "low")
         return kwargs
-    kwargs.pop("temperature", None)  # reasoning models only allow the default (1)
-    mt = kwargs.pop("max_tokens", None)
-    if "max_completion_tokens" not in kwargs:  # idempotent — don't recompute
+    if _is_openrouter_reasoning_model(model):  # DeepSeek V4 / R1, MiniMax M-series
+        # Standard `max_tokens` (a ceiling billed on usage) — just guarantee
+        # enough budget that hidden reasoning can't starve the visible answer.
+        # max() against a floor keeps this idempotent.
         try:
-            buf = int(os.environ.get("SNOWKAP_REASONING_TOKEN_BUFFER", "") or 8000)
+            floor = int(os.environ.get("SNOWKAP_OR_REASONING_MIN_TOKENS", "") or 12000)
         except ValueError:
-            buf = 8000
-        # max_completion_tokens is a CEILING (billed on actual usage), so a generous
-        # buffer just prevents reasoning from starving the visible output.
-        kwargs["max_completion_tokens"] = (int(mt) if mt else 0) + buf
-    kwargs.setdefault("reasoning_effort", os.environ.get("SNOWKAP_REASONING_EFFORT", "").strip() or "low")
+            floor = 12000
+        mt = kwargs.get("max_tokens")
+        kwargs["max_tokens"] = max(int(mt), floor) if mt else floor
+        return kwargs
     return kwargs
 
 
