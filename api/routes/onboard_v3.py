@@ -460,6 +460,25 @@ def onboard_v3(
         except Exception as exc:
             logger.warning("[onboard_v3] alias register failed (non-fatal): %s", exc)
 
+    # 6b. Phase 56 — day-one feature completeness for a fresh tenant. Runs here
+    # (before any return) so an empty-deck `no_articles` tenant is covered too:
+    #   - seed the global welcome Forum threads so /forum isn't empty on first
+    #     open (idempotent; previously only seeded on the background admin path);
+    #   - auto-subscribe the onboarding user to the weekly brief so they get the
+    #     email day-one (idempotent; previously only legacy login subscribed).
+    # Best-effort — onboarding must never fail because of these.
+    try:
+        from engine.models.forum_threads import seed_welcome_threads
+        seed_welcome_threads()
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[onboard_v3] forum welcome-seed failed for %s: %s", info.slug, exc)
+    if caller_email:
+        try:
+            from engine.models.newsletter_subscribers import subscribe
+            subscribe(caller_email, info.slug)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("[onboard_v3] newsletter auto-subscribe failed for %s: %s", info.slug, exc)
+
     # 7. Construct Company dataclass for the pipeline
     from engine.config import Company
     company_obj = Company(
