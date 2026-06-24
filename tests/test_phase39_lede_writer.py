@@ -520,6 +520,144 @@ def test_grounding_skips_when_article_body_empty():
 
 
 # ---------------------------------------------------------------------------
+# Phase 54 — empty/thin-body lede must not store the model's refusal text
+# ---------------------------------------------------------------------------
+# Live bug: on an adani-power deck card (a Tripura 11 MW solar article with an
+# empty body) the reasoning model returned its own fallback REASONING instead of
+# a lede — "The article body excerpt is empty. … A deterministic fallback is the
+# correct output here: …" — and it got stored verbatim as the lede. Two guards
+# now prevent this: (a) skip the LLM when the body is too thin to ground; and
+# (b) reject refusal/meta-commentary in `_verify_lede` as a backstop.
+
+
+# The exact shape of the broken lede observed in production.
+_REFUSAL_LEDE = (
+    "The article body excerpt is empty. With no facts to ground a lede, "
+    "fabricating context would violate the hard grounding rules. A "
+    "deterministic fallback is the correct output here: Tripura announced "
+    "an 11 MW solar push on 22 June 2026."
+)
+
+
+def test_looks_like_refusal_detects_meta_commentary():
+    from engine.analysis.lede_writer import _looks_like_refusal
+
+    assert _looks_like_refusal(_REFUSAL_LEDE)
+    assert _looks_like_refusal("I cannot write a lede without article facts.")
+    # A clean editorial lede must NOT trip the detector.
+    assert not _looks_like_refusal(
+        "Adani Power switched on 11 MW of Tripura solar this week. "
+        "The capacity is small. The signal on the transition is not."
+    )
+
+
+def test_verify_lede_rejects_refusal_meta_commentary():
+    """The refusal text is the right length and cites only grounded
+    entities (Tripura), so the proper-noun + length checks pass — the
+    dedicated refusal guard is what must reject it."""
+    from engine.analysis.lede_writer import _verify_lede
+
+    passed, reason = _verify_lede(
+        _REFUSAL_LEDE, article_body="", company_name="Adani Power",
+    )
+    assert not passed
+    assert reason == "refusal_meta_commentary"
+
+
+def test_empty_body_skips_llm_and_uses_template(monkeypatch):
+    """Guard (a): an empty article body must short-circuit to the
+    deterministic template — the LLM is never called, so its refusal text
+    can never reach the stored lede."""
+    from engine.analysis import lede_writer
+
+    called = {"llm": False}
+
+    def _fake_call_llm(*_a, **_k):
+        called["llm"] = True
+        return _REFUSAL_LEDE, "anthropic/claude-sonnet-4.6"
+
+    monkeypatch.setattr(lede_writer, "_call_llm", _fake_call_llm)
+    # Key present so a missing key is NOT what skips the LLM — proving it is
+    # the body-thinness guard doing the work.
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+
+    insight = _build_synthetic_insight(
+        polarity="positive",
+        headline="Tripura announces 11 MW solar capacity addition",
+        event_type="event_capacity_addition",
+    )
+    insight["article"]["content"] = ""  # the failure-mode trigger
+
+    out = lede_writer.write_lede(article_id="empty-body", insight=insight)
+    assert called["llm"] is False, "LLM should be skipped for an empty body"
+    assert out["model_used"] == "fallback_template"
+    assert "article body excerpt is empty" not in out["text"].lower()
+    assert "deterministic fallback" not in out["text"].lower()
+    # The template still produces a real, headline-grounded lede.
+    assert "Tripura" in out["text"]
+
+
+def test_llm_refusal_text_is_rejected_when_body_present(monkeypatch):
+    """Guard (b): even with a long body (so the thinness guard does NOT
+    fire), if the LLM still returns refusal text the verification gate
+    rejects it and the template fires instead."""
+    from engine.analysis import lede_writer
+
+    monkeypatch.setattr(
+        lede_writer, "_call_llm",
+        lambda *_a, **_k: (_REFUSAL_LEDE, "anthropic/claude-sonnet-4.6"),
+    )
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+
+    insight = _build_synthetic_insight(
+        polarity="positive",
+        headline="Tripura announces 11 MW solar capacity addition",
+        event_type="event_capacity_addition",
+    )
+    # Long, present body — clears MIN_BODY_CHARS so this isolates the
+    # refusal-pattern check inside _verify_lede.
+    insight["article"]["content"] = (
+        "Tripura announced an 11 MW solar capacity addition on 22 June 2026. " * 6
+    )
+
+    out = lede_writer.write_lede(article_id="refusal-present-body", insight=insight)
+    assert out["model_used"] == "fallback_template"
+    assert "deterministic fallback" not in out["text"].lower()
+    assert "article body excerpt is empty" not in out["text"].lower()
+
+
+def test_present_body_lede_is_kept(monkeypatch):
+    """Regression guard: a clean LLM lede on a present body is NOT rejected
+    by the new guards — they only fire on thin bodies / refusal text."""
+    from engine.analysis import lede_writer
+
+    clean = (
+        "Adani Power energised 11 MW of solar in Tripura on 22 June 2026. "
+        "The addition is modest. The cadence of these prints is the signal."
+    )
+    monkeypatch.setattr(
+        lede_writer, "_call_llm",
+        lambda *_a, **_k: (clean, "anthropic/claude-sonnet-4.6"),
+    )
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+
+    insight = _build_synthetic_insight(
+        polarity="positive",
+        headline="Adani Power adds 11 MW Tripura solar",
+        event_type="event_capacity_addition",
+    )
+    insight["article"]["content"] = (
+        "Adani Power energised 11 MW of solar capacity in Tripura on 22 June "
+        "2026, the company said in a statement. The plant feeds the state grid "
+        "and is part of a broader renewable build-out across the north-east."
+    )
+
+    out = lede_writer.write_lede(article_id="clean-present-body", insight=insight)
+    assert out["model_used"] == "anthropic/claude-sonnet-4.6"
+    assert out["text"] == clean
+
+
+# ---------------------------------------------------------------------------
 # Phase 40.B — recommendation topic-drift verifier
 # ---------------------------------------------------------------------------
 
