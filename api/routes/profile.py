@@ -24,6 +24,7 @@ Security model:
 from __future__ import annotations
 
 import logging
+import os
 import re
 from typing import Any
 
@@ -38,6 +39,13 @@ from engine.models import onboarding_status
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/me", tags=["profile"])
+
+# Phase 56 — onboarding resilience knobs. A flaky/slow company-resolution LLM
+# call used to wedge the whole onboard in 'pending' with no recourse; these
+# bound it (fail-fast + retry) and back it with a stuck-job watchdog.
+_RESOLVE_ATTEMPTS = max(1, int(os.environ.get("SNOWKAP_ONBOARD_RESOLVE_ATTEMPTS", "3") or 3))
+_RESOLVE_TIMEOUT_S = float(os.environ.get("SNOWKAP_ONBOARD_RESOLVE_TIMEOUT_S", "45") or 45)
+_ONBOARD_MAX_MINUTES = float(os.environ.get("SNOWKAP_ONBOARD_MAX_MINUTES", "15") or 15)
 
 
 class MeOnboardRequest(BaseModel):
@@ -135,8 +143,9 @@ def me_onboard(
     seed = _domain_to_search_term(domain) or domain
     expected_slug = _slugify(seed)
 
-    # Pre-seed the status row so the frontend's polling never races.
-    onboarding_status.upsert(expected_slug, state="pending")
+    # Pre-seed the status row so the frontend's polling never races. mark_kickoff
+    # (not upsert) RESETS started_at so the watchdog clock measures THIS attempt.
+    onboarding_status.mark_kickoff(expected_slug)
 
     # Run v3 in the background so the user gets 202 immediately.
     background_tasks.add_task(
@@ -160,6 +169,65 @@ def me_onboard(
     }
 
 
+def _resolve_company_with_retry(domain: str, expected_slug: str):
+    """Phase 56 — resolve the company with a hard per-attempt wall-clock cap +
+    retries, so a flaky/slow resolver call self-heals instead of wedging the
+    onboard in 'pending' (observed live: an onboard stuck pending ~20 min).
+
+    Each attempt runs in a worker thread capped at ``_RESOLVE_TIMEOUT_S`` (a
+    wall-clock bound that holds even if the LLM SDK ignores its own timeout);
+    we retry up to ``_RESOLVE_ATTEMPTS`` times. On exhaustion we stamp
+    ``state='failed'`` with a clear, retryable error and return ``None``.
+    """
+    import concurrent.futures
+
+    from engine.ingestion.llm_company_resolver import resolve_company_from_domain
+
+    last_err = "unknown error"
+    for attempt in range(1, _RESOLVE_ATTEMPTS + 1):
+        pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        try:
+            fut = pool.submit(
+                resolve_company_from_domain, domain, timeout=_RESOLVE_TIMEOUT_S,
+            )
+            info = fut.result(timeout=_RESOLVE_TIMEOUT_S + 15)
+            if info is not None:
+                if attempt > 1:
+                    logger.info(
+                        "_run_v3_for_me_onboard: resolve OK on attempt %d for %s",
+                        attempt, domain,
+                    )
+                return info
+            last_err = "resolver could not identify the company"
+        except concurrent.futures.TimeoutError:
+            last_err = f"resolve timed out (>{int(_RESOLVE_TIMEOUT_S)}s)"
+            logger.warning(
+                "_run_v3_for_me_onboard: resolve attempt %d/%d timed out for %s",
+                attempt, _RESOLVE_ATTEMPTS, domain,
+            )
+        except Exception as exc:  # noqa: BLE001
+            last_err = f"{type(exc).__name__}: {str(exc)[:150]}"
+            logger.warning(
+                "_run_v3_for_me_onboard: resolve attempt %d/%d failed for %s: %s",
+                attempt, _RESOLVE_ATTEMPTS, domain, last_err,
+            )
+        finally:
+            # Don't block on a hung worker thread — the resolver's own timeout
+            # frees it shortly; waiting here would re-introduce the hang.
+            pool.shutdown(wait=False)
+
+    onboarding_status.upsert(
+        expected_slug, state="failed",
+        error=(f"Couldn't identify your company after {_RESOLVE_ATTEMPTS} tries "
+               f"({last_err}). Please retry.")[:480],
+    )
+    logger.warning(
+        "_run_v3_for_me_onboard: resolve exhausted for %s -> failed (%s)",
+        domain, last_err,
+    )
+    return None
+
+
 def _run_v3_for_me_onboard(
     domain: str, expected_slug: str, item_limit: int, caller_email: str,
 ) -> None:
@@ -173,15 +241,12 @@ def _run_v3_for_me_onboard(
     the frontend's polling can show a meaningful failure UX.
     """
     try:
-        # Resolve company via LLM
-        from engine.ingestion.llm_company_resolver import resolve_company_from_domain
-        info = resolve_company_from_domain(domain)
+        # Resolve company via LLM — fail-fast + auto-retry (Phase 56) so a
+        # flaky/slow resolver call self-heals instead of wedging the onboard
+        # in 'pending' forever.
+        info = _resolve_company_with_retry(domain, expected_slug)
         if info is None:
-            onboarding_status.upsert(
-                expected_slug, state="failed",
-                error="LLM resolver could not identify the company for this domain.",
-            )
-            return
+            return  # already stamped state='failed' with a retryable error
 
         # Mark fetching
         onboarding_status.upsert(expected_slug, state="fetching")
@@ -347,7 +412,13 @@ def me_onboard_status(
     # Try the requested slug first; fall back to canonical if alias has
     # no row of its own yet (worker writes status against the canonical
     # slug, mirrors to alias at mark_ready time).
-    status = onboarding_status.get(slug) or onboarding_status.get(target_canonical)
+    # Phase 56 — stuck-job watchdog: flip any onboard wedged in a non-terminal
+    # state past the budget to 'failed' on read, so the UI shows an error +
+    # retry instead of an indefinite spinner.
+    status = (
+        onboarding_status.expire_if_stale(slug, max_minutes=_ONBOARD_MAX_MINUTES)
+        or onboarding_status.expire_if_stale(target_canonical, max_minutes=_ONBOARD_MAX_MINUTES)
+    )
     if status is None:
         raise HTTPException(
             status_code=404,
