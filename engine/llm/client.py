@@ -96,6 +96,12 @@ def _normalize_params_for_model(kwargs: dict[str, Any]) -> dict[str, Any]:
         mt = kwargs.get("max_tokens")
         kwargs["max_tokens"] = max(int(mt), floor) if mt else floor
         return kwargs
+    if "perplexity" in (model or "").lower():
+        # Perplexity (sonar) rejects response_format={"type":"json_object"} with a 400 —
+        # it only accepts text/json_schema/regex, and returns JSON-in-text that the caller
+        # parses. Drop the field so the search_aided / forecaster call doesn't 400.
+        kwargs.pop("response_format", None)
+        return kwargs
     return kwargs
 
 

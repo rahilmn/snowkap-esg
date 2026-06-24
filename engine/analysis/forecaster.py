@@ -255,10 +255,30 @@ def _build_user_prompt(company_slug: str, series: list[dict[str, Any]]) -> str:
     )
 
 
+def _extract_json_object(raw: str) -> str:
+    """Pull the first balanced {...} object out of a possibly fenced / prose-
+    wrapped response. Perplexity (sonar) can't use json_object response_format
+    (it 400s — see client.py), so it returns JSON-in-text we must dig out."""
+    import re
+    t = re.sub(r"^```(?:json)?\s*", "", (raw or "").strip()).rstrip("`").strip()
+    start = t.find("{")
+    if start < 0:
+        return t
+    depth = 0
+    for i in range(start, len(t)):
+        if t[i] == "{":
+            depth += 1
+        elif t[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return t[start:i + 1]
+    return t[start:]
+
+
 def _parse_horizons(raw: str) -> dict[str, dict[str, Any]] | None:
     """Validate the LLM response. Returns None on any schema violation."""
     try:
-        parsed = json.loads(raw)
+        parsed = json.loads(_extract_json_object(raw))
     except json.JSONDecodeError:
         return None
     horizons = parsed.get("horizons") if isinstance(parsed, dict) else None
