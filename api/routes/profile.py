@@ -9,9 +9,10 @@ Security model:
     needed. The endpoint runs in the user's session.
   * Domain-match guard: the requested onboarding domain must match the
     caller's email domain (so `pilot@acme.com` can only onboard `acme.com`,
-    not `bigcorp.com`). Snowkap super-admins (sales@snowkap.co.in etc.)
-    bypass this check so they can still onboard prospects on a customer's
-    behalf.
+    not `bigcorp.com`). This is the ONLY gate — there is NO super-admin
+    bypass (removed 2026-06-23): self-service onboarding is purely
+    domain-driven. Snowkap onboards a prospect's own domain via
+    `/api/admin/onboard` or `/api/onboard/v3` instead.
   * Reuses the existing `engine.jobs.onboard_queue.enqueue()` so the work
     runs in the same separate worker process the admin endpoint uses; the
     API event loop is never blocked.
@@ -30,7 +31,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from api.auth import require_auth
-from api.auth_context import get_bearer_claims, is_snowkap_super_admin
+from api.auth_context import get_bearer_claims
 from engine.jobs import onboard_queue
 from engine.models import onboarding_status
 
@@ -72,10 +73,10 @@ def _email_domain(email: str | None) -> str:
 def _domain_matches_caller(target: str, caller_email: str) -> bool:
     """True when `target` is the caller's own email domain (or a subdomain).
 
-    Snowkap super-admins bypass this check (they can onboard any prospect).
+    Onboarding is purely domain-driven: a caller may onboard only their own
+    company's domain. The super-admin bypass was removed 2026-06-23 — Snowkap
+    onboards a prospect's domain via `/api/admin/onboard` or `/api/onboard/v3`.
     """
-    if is_snowkap_super_admin(caller_email):
-        return True
     own = _email_domain(caller_email)
     if not own:
         return False

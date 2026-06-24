@@ -10,6 +10,8 @@ from engine.llm.client import (
     LLMResponse,
     OpenRouterClient,
     TokenEvent,
+    _is_openrouter_reasoning_model,
+    _normalize_params_for_model,
     get_llm_client,
 )
 from engine.llm.cost import estimate_cost, parse_cost
@@ -66,8 +68,27 @@ def test_resolve_model_returns_openrouter_vendor_prefix(monkeypatch):
     monkeypatch.delenv("SNOWKAP_REASONING_MODEL", raising=False)
     monkeypatch.delenv("SNOWKAP_LLM_MODEL", raising=False)
     assert resolve_model("extraction") == "openai/gpt-4.1-mini"
-    # Phase 52 — reasoning_heavy moved to the cost-effective Sonnet 4.6 (was Opus).
+    # Phase 52 — reasoning_heavy on the cost-effective Sonnet 4.6 (was Opus).
     assert resolve_model("reasoning_heavy") == "anthropic/claude-sonnet-4.6"
+
+
+def test_openrouter_reasoning_models_get_token_headroom():
+    # DeepSeek V4 / MiniMax M-series reason in a SEPARATE field that eats the
+    # token budget; a too-small max_tokens starves the visible JSON answer.
+    assert _is_openrouter_reasoning_model("deepseek/deepseek-v4-pro")
+    assert _is_openrouter_reasoning_model("minimax/minimax-m3")
+    assert not _is_openrouter_reasoning_model("anthropic/claude-sonnet-4.6")
+    assert not _is_openrouter_reasoning_model("openai/gpt-4.1-mini")
+    # small request floored up; generous one preserved; idempotent via max()
+    assert _normalize_params_for_model(
+        {"model": "deepseek/deepseek-v4-pro", "max_tokens": 512})["max_tokens"] == 12000
+    assert _normalize_params_for_model(
+        {"model": "minimax/minimax-m3"})["max_tokens"] == 12000
+    assert _normalize_params_for_model(
+        {"model": "deepseek/deepseek-v4-pro", "max_tokens": 20000})["max_tokens"] == 20000
+    # non-reasoning models untouched (no floor, no max_completion_tokens rename)
+    out = _normalize_params_for_model({"model": "anthropic/claude-sonnet-4.6", "max_tokens": 512})
+    assert out["max_tokens"] == 512 and "max_completion_tokens" not in out
 
 
 def test_resolve_model_strips_prefix_in_legacy_mode(monkeypatch):

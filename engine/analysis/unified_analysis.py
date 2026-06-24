@@ -469,6 +469,14 @@ def _looks_garbled(text: str) -> bool:
             re.compile(r"\b(?:to|of|a|the|in|on|at|for|with|and|or)\s*\.\s"),  # "exposed to a. "
             re.compile(r"\b(?:to|of|a|the|in|on|at|for|with|and|or)\s*\.$"),   # "...to a." end
             re.compile(r"₹\s*[\d,]+(?:\.\d+)?\s*[–-]\s*(?:[^\d]|$)"),           # "₹3,000–" dangling
+            # "~₹180." — a rupee figure cut off with a bare period, no unit
+            # (Cr/crore/lakh). The number is directly followed by "." so this
+            # never matches a complete "₹180 Cr." (the unit sits between).
+            re.compile(r"₹\s*[\d,]+\s*\.(?:\s|$)"),
+            # "...a modeled." / "...sector-wide." — a hanging adjective from the
+            # exposure cascade with its noun cut off (these words never end a
+            # real sentence, so this is safe).
+            re.compile(r"\b(?:modeled|sector-wide|combined|estimated|incremental)\s*\.\s*$", re.I),
             re.compile(r"\b[a-z]\s*$"),                                          # ends "...these b"
             re.compile(r"\.\s*\."),                                              # ".  ." double-stop gap
         ]
@@ -692,6 +700,11 @@ def _build_why_it_matters(
         _t = getattr(result, "title", "") or ""
         _body_final = (_t + "\n" + (getattr(result, "article_content", "")
                        or getattr(result, "content", "") or "")).strip()
+    # Phase 54.1 — a truncated/garbled summary ("~₹180." cut mid-figure,
+    # "exposed to a modeled.") must not ship; blank it so the headline-grounded
+    # rebuild below fires. why_it_matters wasn't covered by the stakes guard.
+    if summary and _looks_garbled(summary):
+        summary = ""
     if summary and _body_final:
         try:
             from engine.analysis.article_financials import money_grounded
@@ -1283,6 +1296,20 @@ def split_analysis(unified: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
         },
     }
 
+    # Phase 54 backstop — never store a model refusal / meta-commentary as the
+    # lede. The verified lede_writer path already guards this, but a refusal can
+    # leak in via a different upstream setter (seen live: an empty-body article
+    # whose lede was "The article body excerpt is empty. … A deterministic
+    # fallback is the correct output here: …"). Replace it with a clean
+    # headline-grounded opener so the card never ships the model's reasoning.
+    _safe_lede = unified.get("lede") or {}
+    if isinstance(_safe_lede, dict) and _safe_lede.get("text"):
+        from engine.analysis.lede_writer import _looks_like_refusal
+        if _looks_like_refusal(_safe_lede["text"]):
+            _hl = ((unified.get("what_changed") or {}).get("headline")) or ""
+            _safe_lede = ({"text": _hl, "pattern": "generic",
+                           "model_used": "fallback_headline"} if _hl else {})
+
     personalised: dict[str, Any] = {
         "why_it_matters": unified.get("why_it_matters") or {},
         "what_it_triggers": unified.get("what_it_triggers") or {},
@@ -1294,7 +1321,7 @@ def split_analysis(unified: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
         # Prior to this fix, lede was dropped on the floor at split
         # time even though the writer stamped it on disk — `/now/feed`
         # then served decks with no lede text.
-        "lede": unified.get("lede") or {},
+        "lede": _safe_lede,
         "methodology": {
             "why_it_matters": methodology.get("why_it_matters") or {},
             "what_it_triggers": methodology.get("what_it_triggers") or {},

@@ -27,6 +27,12 @@ TASK_CLASS_TO_MODEL: dict[str, str] = {
     # for the gated output. Opus can be restored without a code change via
     # SNOWKAP_REASONING_MODEL=anthropic/claude-opus-4.6 for a one-off high-value
     # rebuild. (Overrides the legacy CLAUDE.md "Opus for Stage 10/12/lede" rule.)
+    #
+    # 2026-06-23 — DeepSeek V4 Pro / MiniMax M3 were trialled here (much cheaper)
+    # but produced garbled/ungrounded analysis that the approval gate rejected
+    # (fallback-filled decks) at ~10x latency, so Sonnet stays for quality. The
+    # reasoning-token fix in client.py remains for when these are revisited at
+    # scale — flip reasoning_heavy via SNOWKAP_REASONING_MODEL with no code change.
     "reasoning_heavy":   "anthropic/claude-sonnet-4.6",
     "reasoning_default": "openai/gpt-4.1",
     "extraction":        "openai/gpt-4.1-mini",

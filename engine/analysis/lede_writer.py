@@ -80,6 +80,20 @@ MAX_WORDS = 60
 MIN_SENTENCES = 2
 MAX_SENTENCES = 3
 
+# Phase 54 — minimum article-body length before we attempt an LLM lede.
+# Below this floor the ARTICLE BODY EXCERPT handed to the model is empty or
+# too thin to ground a lede, and a reasoning model responds with
+# meta-commentary explaining WHY it is falling back ("The article body
+# excerpt is empty. … A deterministic fallback is the correct output here: …")
+# instead of prose. That refusal text is the right length and cites only
+# grounded entities, so it slips past the verification gate and gets stored
+# verbatim as the lede (observed on a live adani-power card — a Tripura 11 MW
+# solar article with an empty body). When the body is below this floor we skip
+# the LLM entirely and emit the deterministic, headline-grounded template.
+# Mirrors the < 200-char "can't ground" threshold the proper-noun grounding
+# check already uses (see `_is_grounded_in_article`).
+MIN_BODY_CHARS = 200
+
 
 # ---------------------------------------------------------------------------
 # Known regulator / framework / index names — used by pattern dispatcher
@@ -777,6 +791,51 @@ def _is_grounded_in_article(lede: str, article_body: str,
     return (len(ungrounded) == 0), ungrounded
 
 
+# Phase 54 — refusal / meta-commentary detector. When the article body is empty
+# or too thin to ground a lede, a reasoning model sometimes returns an
+# EXPLANATION of why it is falling back rather than an actual lede:
+#   "The article body excerpt is empty. With no facts to ground a lede,
+#    fabricating context would violate the hard grounding rules. A deterministic
+#    fallback is the correct output here: …"
+# That text is the right length and cites only grounded entities, so it cleared
+# the verification gate and got stored verbatim as the lede on live cards. These
+# substrings are tells of model meta-reasoning that never appear in a real Mint
+# editorial lede — any hit forces the deterministic template instead.
+_REFUSAL_PATTERNS = (
+    "article body excerpt is empty",
+    "article body is empty",
+    "the body excerpt is empty",
+    "article body is too short",
+    "no article body",
+    "no facts to ground",
+    "nothing to ground",
+    "fabricating context would violate",
+    "deterministic fallback is the correct output",
+    "a deterministic fallback",
+    "the correct output here",
+    "cannot write a lede",
+    "can't write a lede",
+    "cannot write a grounded lede",
+    "unable to write a lede",
+    "insufficient context to write",
+    "i cannot",
+    "i can't",
+    "i'm sorry",
+    "i am sorry",
+    "as an ai",
+)
+
+
+def _looks_like_refusal(text: str) -> bool:
+    """True when `text` reads as the model's meta-reasoning / refusal rather
+    than an actual editorial lede (see `_REFUSAL_PATTERNS`). Used to reject
+    the empty-body meta-commentary that was slipping past the gate."""
+    if not text:
+        return False
+    low = text.lower()
+    return any(p in low for p in _REFUSAL_PATTERNS)
+
+
 def _verify_lede(text: str, article_body: str = "",
                   company_name: str = "") -> tuple[bool, str]:
     """Return (passed, reason). Reason is non-empty when verification fails.
@@ -785,9 +844,20 @@ def _verify_lede(text: str, article_body: str = "",
     the article body. Without this check the LLM invents biographical
     claims (e.g. "Mark Langer steered Hugo Boss through ESRS reporting"
     on a PUMA CFO-appointment article that contains no such fact).
+
+    Phase 54 — also rejects model meta-commentary / refusals (emitted when
+    the body is empty/thin) so the deterministic template fires instead of
+    storing the model's explanation of why it fell back.
     """
     if not text or not text.strip():
         return False, "empty"
+
+    # Phase 54 — reject the model's own fallback reasoning before any other
+    # check. On an empty/thin body the model returns prose that explains why it
+    # is falling back; that text is the right length and cites only grounded
+    # entities, so it would otherwise pass and get stored as the lede.
+    if _looks_like_refusal(text):
+        return False, "refusal_meta_commentary"
 
     word_count = _count_words(text)
     if word_count > MAX_WORDS:
@@ -904,8 +974,9 @@ def write_lede(
     # steered Hugo Boss through ESRS reporting" on a CFO appointment
     # article that contains no such fact).
     article = insight.get("article") if isinstance(insight, dict) else {}
-    article_body = (article or {}).get("content") if isinstance(article, dict) else ""
-    article_body = article_body or ""
+    raw_body = (article or {}).get("content") if isinstance(article, dict) else ""
+    raw_body = (raw_body or "").strip()
+    article_body = raw_body
     # Phase 50.1 — grounding source includes the article TITLE: a headline ₹/name
     # (e.g. a bank's "₹503 crore" PAT) is the article's own words and is grounded
     # even when the body doesn't repeat it.
@@ -914,17 +985,33 @@ def write_lede(
     if _atitle:
         article_body = (_atitle + "\n" + article_body).strip()
 
-    # 2. Try LLM
-    text, model_used = _call_llm(pattern, company, insight, analysis, evidence_pack)
-    if text:
-        passed, reason = _verify_lede(text, article_body=article_body, company_name=company)
-        if not passed:
-            logger.info(
-                "lede_writer: LLM candidate rejected (reason=%s) "
-                "for article_id=%s; falling back to template",
-                reason, article_id,
-            )
-            text = ""  # Trigger template fallback
+    # Phase 54 — when the article body is empty/too thin to ground a lede the
+    # reasoning model returns meta-commentary ("The article body excerpt is
+    # empty…") instead of prose, and that refusal text was slipping past the
+    # verification gate and getting stored as the lede. Skip the LLM entirely and
+    # emit the deterministic, headline-grounded template directly. (`_verify_lede`
+    # carries a refusal-pattern backstop for the body-present-but-still-refused
+    # case — e.g. a long body that is all navigation boilerplate.)
+    body_too_thin = len(raw_body) < MIN_BODY_CHARS
+
+    # 2. Try LLM (only when there's enough body to ground a real lede)
+    text, model_used = "", ""
+    if body_too_thin:
+        logger.info(
+            "lede_writer: article body too thin (%d < %d chars) for article_id=%s; "
+            "using deterministic template", len(raw_body), MIN_BODY_CHARS, article_id,
+        )
+    else:
+        text, model_used = _call_llm(pattern, company, insight, analysis, evidence_pack)
+        if text:
+            passed, reason = _verify_lede(text, article_body=article_body, company_name=company)
+            if not passed:
+                logger.info(
+                    "lede_writer: LLM candidate rejected (reason=%s) "
+                    "for article_id=%s; falling back to template",
+                    reason, article_id,
+                )
+                text = ""  # Trigger template fallback
 
     # 3. Fallback template
     if not text:
