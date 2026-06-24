@@ -192,6 +192,73 @@ def mark_failed(slug: str, error: str) -> None:
     upsert(slug, state="failed", error=error[:500], finished_at=_now())
 
 
+def mark_kickoff(slug: str) -> OnboardingStatus:
+    """Phase 56 — (re)start an onboarding attempt with a FRESH clock.
+
+    Sets ``state='pending'``, ``started_at=now``, and clears
+    ``finished_at`` / ``error``. Unlike ``upsert(state='pending')`` — which
+    preserves the original ``started_at`` (the UPDATE path never touches it) —
+    this RESETS ``started_at`` so the stuck-job watchdog (``expire_if_stale``)
+    measures age from THIS attempt, not a stale earlier one. Call at the top of
+    every (re-)onboard kick-off.
+    """
+    ensure_schema()
+    now = _now()
+    with _connect() as conn:
+        existing = conn.execute(
+            "SELECT slug FROM onboarding_status WHERE slug = ?", (slug,)
+        ).fetchone()
+        if existing is None:
+            conn.execute(
+                "INSERT INTO onboarding_status "
+                "(slug, state, fetched, analysed, home_count, started_at, finished_at, error) "
+                "VALUES (?, 'pending', 0, 0, 0, ?, NULL, NULL)",
+                (slug, now),
+            )
+        else:
+            conn.execute(
+                "UPDATE onboarding_status "
+                "SET state = 'pending', started_at = ?, finished_at = NULL, error = NULL "
+                "WHERE slug = ?",
+                (now, slug),
+            )
+    return get(slug)  # type: ignore[return-value]
+
+
+def expire_if_stale(slug: str, *, max_minutes: float) -> OnboardingStatus | None:
+    """Phase 56 — stuck-job watchdog.
+
+    If ``slug`` is still in a non-terminal state (pending/fetching/analysing)
+    and its current attempt has been running longer than ``max_minutes``, flip
+    it to ``failed`` so the UI shows a clear error + retry instead of an
+    indefinite spinner. Lazy + idempotent: meant to be called on each status
+    poll. No-op for terminal (ready/failed) rows, rows younger than the
+    threshold, or unparseable timestamps. Returns the (possibly updated) row,
+    or ``None`` when ``slug`` has no row.
+    """
+    row = get(slug)
+    if row is None or row.state in ("ready", "failed"):
+        return row
+    try:
+        started = datetime.fromisoformat(row.started_at)
+        if started.tzinfo is None:
+            started = started.replace(tzinfo=timezone.utc)
+    except Exception:  # noqa: BLE001
+        return row
+    age_min = (datetime.now(timezone.utc) - started).total_seconds() / 60.0
+    if age_min <= max_minutes:
+        return row
+    logger.warning(
+        "onboarding watchdog: slug=%s stuck in '%s' for %.1f min (> %s) -> failed",
+        slug, row.state, age_min, max_minutes,
+    )
+    mark_failed(
+        slug,
+        f"Onboarding timed out after {int(age_min)} min in '{row.state}'. Please retry.",
+    )
+    return get(slug)
+
+
 def mark_ready(slug: str, *, fetched: int | None = None, analysed: int | None = None,
                home_count: int | None = None, created_by_user: str | None = None) -> None:
     """Mark a slug as ready. Phase 21 — accept stats so an alias slug can

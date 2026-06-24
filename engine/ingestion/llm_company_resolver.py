@@ -650,7 +650,7 @@ def _validate_response(parsed: dict[str, Any], domain: str) -> CompanyInfo:
 
 
 def resolve_company_from_domain(
-    domain: str, name_hint: str | None = None,
+    domain: str, name_hint: str | None = None, *, timeout: float | None = None,
 ) -> CompanyInfo | None:
     """Resolve a domain to a canonical company via Opus 4.6.
 
@@ -687,7 +687,14 @@ def resolve_company_from_domain(
     user_msg += "Return the JSON."
 
     try:
-        llm = get_llm_client(task_class="reasoning_heavy")
+        # `timeout` (Phase 56) — onboarding passes a tight per-call timeout so a
+        # flaky/slow OpenRouter response fails fast and the caller can retry,
+        # instead of the default 120s x SDK-retries wedging the onboard in
+        # 'pending'. Defaults to 120s for every other caller (unchanged).
+        llm = get_llm_client(
+            task_class="reasoning_heavy",
+            timeout=timeout if timeout is not None else 120.0,
+        )
         resp = llm.complete(
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
