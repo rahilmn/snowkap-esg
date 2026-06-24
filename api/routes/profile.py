@@ -256,16 +256,25 @@ def _run_v3_for_me_onboard(
         from engine.config import invalidate_companies_cache, Company
         from engine.ingestion.news_fetcher import fetch_for_company
 
+        # Phase 56.B — opt every onboard into the FULL multi-lane ESG fetch.
+        # Force the ESG-material body-fetch + the industry-thematic (sector ESG)
+        # lane ON (they otherwise run only on the budget-gated "auto" default),
+        # so a fresh tenant gets the same rich coverage as the 7 canonical
+        # companies instead of a thin, market-news-only deck.
+        _calibration = {
+            "inferred_painpoints": info.inferred_painpoints,
+            "inferred_kpis": info.inferred_kpis,
+            "default_reader_role": info.default_reader_role,
+            "esg_second_fetch": "on",
+            "industry_thematic_fetch": "on",
+        }
+
         companies_store.upsert(
             slug=info.slug, name=info.canonical_name, domain=domain,
             industry=info.industry, market_cap_tier=info.market_cap_tier,
             yfinance_ticker=info.primary_ticker,
             framework_region=info.framework_region,
-            primitive_calibration={
-                "inferred_painpoints": info.inferred_painpoints,
-                "inferred_kpis": info.inferred_kpis,
-                "default_reader_role": info.default_reader_role,
-            },
+            primitive_calibration=_calibration,
             created_by_user=caller_email or None, status="active",
         )
         invalidate_companies_cache()
@@ -292,17 +301,16 @@ def _run_v3_for_me_onboard(
                 f"{info.canonical_name} regulatory",
                 f"{info.canonical_name} disclosure",
             ],
-            primitive_calibration={
-                "inferred_painpoints": info.inferred_painpoints,
-                "inferred_kpis": info.inferred_kpis,
-                "default_reader_role": info.default_reader_role,
-            },
+            primitive_calibration=_calibration,
             yfinance_ticker=info.primary_ticker, eodhd_ticker=None,
             framework_region=info.framework_region,
             sustainability_query=None, general_query=None,
         )
 
-        fresh = fetch_for_company(company_obj, max_per_query=3)
+        # Phase 56.B — inherit the default fetch depth (settings
+        # `max_articles_per_company_per_run` = 18) instead of the old 3-cap, so
+        # onboards pull ~6x more articles per lane (matching canonical companies).
+        fresh = fetch_for_company(company_obj)
         logger.info(
             "_run_v3_for_me_onboard: fetched %d articles for %s",
             len(fresh), info.slug,
@@ -317,7 +325,25 @@ def _run_v3_for_me_onboard(
         # Run the full pipeline on top-N in parallel (uses Phase 47.I lock)
         import concurrent.futures
         from api.routes.onboard_v3 import _run_full_pipeline_for_article
-        top = fresh[:item_limit]
+
+        # Phase 56.B — RANK the (now larger, multi-lane) fetched set by
+        # materiality x relevance x criticality and analyse the best `item_limit`.
+        # Without this, fresh[:item_limit] takes the first articles in FETCH order
+        # (company-named market news, fetched first), crowding out the valuable
+        # ESG-material + thematic (sector) articles that arrive later — defeating
+        # the depth/lane win. Free Stage-4 scoring only (no LLM). Falls back to
+        # fetch order if the selector ever chokes, so ranking can't break onboard.
+        try:
+            from engine.analysis.article_selector import select_top_n_for_pipeline
+            top = select_top_n_for_pipeline(
+                fresh, n=item_limit,
+                company_slug=info.slug, primary_industry=info.industry,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "_run_v3_for_me_onboard: selector fell back to fetch order: %s", exc,
+            )
+            top = fresh[:item_limit]
 
         def _safe_run(article):
             try:
