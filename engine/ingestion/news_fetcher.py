@@ -414,6 +414,84 @@ _ESG_KEYWORDS_MATERIAL: tuple[str, ...] = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Phase 56.C — COMPOSED ESG-material vocabulary (retrieval; content authored
+# separately). The single static _ESG_KEYWORDS_MATERIAL above is a heavy-
+# industry / pollution lexicon (coal, effluent, NGT, deforestation) — for an
+# EV/auto or services name it searches the wrong words, the ESG-material lane
+# returns ~nothing, and the deck falls back to company-name market news. The
+# 2nd-fetch vocab is now COMPOSED per company as a UNION of layers, keyed off the
+# resolved SASB sector + the jurisdiction, so the right ESG-event terms fall out
+# automatically. The two overlay dicts ship EMPTY on purpose; until seeded, every
+# company composes to base-only and fires the loud-miss warning.
+# ---------------------------------------------------------------------------
+
+# Universal harm terms — apply to EVERY sector/jurisdiction. Never dropped: the
+# sector/jurisdiction overlays and any per-tenant override ADD to this base.
+_ESG_HARM_BASE: tuple[str, ...] = (
+    "penalty", "fine", "recall", "lawsuit", "settlement", "sanction",
+    "strike", "layoff", "injury", "pollution", "emission", "contamination",
+    "data breach", "governance failure",
+)
+
+# Sector overlay — keyed by the SASB sector label from _sasb_sector_for() (NOT
+# company.sasb_category, which is the literal "Unknown" in prod and would silently
+# miss). EMPTY by design; content authored separately. Real key space = the
+# values of INDUSTRY_TO_SASB_DEFAULT (e.g. "Automobiles", "Commercial Banks").
+_SECTOR_ESG_VOCAB: dict[str, tuple[str, ...]] = {}
+
+# Jurisdiction overlay — keyed by framework_region upper-cased (INDIA / EU / UK /
+# US / APAC / GLOBAL). EMPTY by design; content authored separately.
+_JURISDICTION_REGULATORS: dict[str, tuple[str, ...]] = {}
+
+
+def _compose_esg_material(company: Company, override=None) -> tuple[str, ...]:
+    """Compose the ESG-material 2nd-fetch vocab as a UNION of layers:
+
+        _ESG_HARM_BASE
+        ∪ _SECTOR_ESG_VOCAB.get(_sasb_sector_for(company), ())
+        ∪ _JURISDICTION_REGULATORS.get((framework_region or "GLOBAL").upper(), ())
+        ∪ (override or ())
+
+    The override ADDS to the base — it never replaces it; a tenant adding one
+    term keeps penalty/fine/recall/lawsuit. The sector lookup keys off
+    ``_sasb_sector_for(company)`` (the fallback-aware helper) because the stored
+    ``company.sasb_category`` is the literal "Unknown" in prod and would silently
+    miss. A missing sector OR jurisdiction overlay is logged LOUDLY and routed to
+    the coverage-assertion stream — an unseeded overlay must be observable, never
+    a silent empty .get() (that is the original starvation bug rebuilt a layer
+    down).
+    """
+    sector = _sasb_sector_for(company)
+    region = (getattr(company, "framework_region", "") or "GLOBAL").upper()
+    sector_overlay = _SECTOR_ESG_VOCAB.get(sector, ())
+    region_overlay = _JURISDICTION_REGULATORS.get(region, ())
+
+    if not sector_overlay or not region_overlay:
+        # Coverage-assertion signal — consumed by the per-company coverage probe
+        # (probe > 0 ESG hits but deck ESG = 0 => retrieval miss). NOT swallowed.
+        logger.warning(
+            "coverage_assertion.esg_overlay_miss sector=%s region=%s company=%s "
+            "sector_seeded=%s region_seeded=%s -> base-only vocab",
+            sector or "?", region, getattr(company, "slug", "?"),
+            bool(sector_overlay), bool(region_overlay),
+        )
+
+    override_terms = tuple(
+        str(k).strip() for k in (override or ()) if str(k).strip()
+    )
+    # Union, de-duped case-insensitively, base-first so the universal harm terms
+    # always lead the query.
+    out: list[str] = []
+    seen: set[str] = set()
+    for term in (*_ESG_HARM_BASE, *sector_overlay, *region_overlay, *override_terms):
+        key = term.lower()
+        if key not in seen:
+            seen.add(key)
+            out.append(term)
+    return tuple(out)
+
+
 def _broad_query_slugs() -> set[str]:
     """Slugs whose NewsAPI.ai query should drop the company-in-TITLE lock.
 
@@ -1214,9 +1292,10 @@ def fetch_for_company(
     if _esg_second_fetch_enabled(company):
         _cal = getattr(company, "primitive_calibration", None) or {}
         _override = _cal.get("esg_material_keywords")
-        esg_vocab = _ESG_KEYWORDS_MATERIAL
-        if isinstance(_override, (list, tuple)) and _override:
-            esg_vocab = tuple(str(k).strip() for k in _override if str(k).strip())
+        # Phase 56.C — compose base ∪ sector ∪ jurisdiction ∪ override (the
+        # override ADDS to the base, never replaces). Keyed off _sasb_sector_for
+        # so an "Unknown" sasb_category still resolves to the real sector overlay.
+        esg_vocab = _compose_esg_material(company, _override)
         for art in fetch_newsapi_ai_for_company(
             company, max_results=limit, freshness_days=freshness_days,
             strict_title=False, esg_keywords=esg_vocab,
