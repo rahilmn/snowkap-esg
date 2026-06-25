@@ -18,7 +18,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 import engine.ingestion.news_fetcher as nf
-from engine.ingestion.news_fetcher import _ESG_KEYWORDS_MATERIAL
+from engine.ingestion.news_fetcher import _ESG_HARM_BASE
 
 _RECENT = (datetime.now(timezone.utc) - timedelta(days=2)).isoformat()
 
@@ -61,10 +61,10 @@ class TestSecondQueryShape:
         with patch.dict(os.environ, {"NEWSAPI_AI_KEY": "k"}), \
              patch.object(nf._SESSION, "post", side_effect=fake_post):
             nf.fetch_newsapi_ai_for_company(
-                _company(), strict_title=False, esg_keywords=_ESG_KEYWORDS_MATERIAL,
+                _company(), strict_title=False, esg_keywords=_ESG_HARM_BASE,
             )
         body = json.dumps(captured["body"])
-        assert "emission norms" in body and "penalty" in body   # material vocab reached
+        assert "penalty" in body and "recall" in body            # material vocab reached
         assert "sustainability" not in body                      # NOT the generic ESG net
         assert "keywordLoc" not in body                          # body-matched, no title-lock
 

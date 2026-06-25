@@ -391,58 +391,76 @@ _ESG_KEYWORDS_BROAD: tuple[str, ...] = (
     "stewardship", "sustainable investing", "disclosure", "compliance",
 )
 
-# Phase 52 — ESG-MATERIAL / harm vocabulary for the SECOND, body-matched fetch.
-# The strict sets above are dominated by generic ESG framing ("ESG",
-# "sustainability", "net zero") that market PR sprinkles into stock coverage, so
-# for market-heavy names (power/renewable) the title-locked primary query
-# returns 0 critical ESG events. This tuple is HARM/ENFORCEMENT-weighted and
-# India-regulator-aware — penalty/violation/spill/coal/displacement/NGT/CPCB —
-# so the 2nd query surfaces SUBSTANTIVE ESG/negative stories (where the company
-# sits in the body), not green-PR noise. Lean + single-word-first: EventRegistry
-# counts every WORD against the 80-word plan limit; this set is ~40 words.
-_ESG_KEYWORDS_MATERIAL: tuple[str, ...] = (
-    # Environmental harm
-    "emissions", "pollution", "coal", "effluent", "spill", "contamination",
-    "groundwater", "deforestation", "hazardous waste", "emission norms",
-    "environmental clearance", "oil spill",
-    # Enforcement / governance
-    "penalty", "fine", "violation", "show cause", "non-compliance",
-    "regulatory action", "tribunal", "NGT", "CPCB",
-    # Social harm
-    "displacement", "eviction", "land acquisition", "protest", "human rights",
-    "child labour", "labour", "safety", "fatality", "rehabilitation",
-)
-
-
 # ---------------------------------------------------------------------------
-# Phase 56.C — COMPOSED ESG-material vocabulary (retrieval; content authored
-# separately). The single static _ESG_KEYWORDS_MATERIAL above is a heavy-
-# industry / pollution lexicon (coal, effluent, NGT, deforestation) — for an
-# EV/auto or services name it searches the wrong words, the ESG-material lane
-# returns ~nothing, and the deck falls back to company-name market news. The
-# 2nd-fetch vocab is now COMPOSED per company as a UNION of layers, keyed off the
-# resolved SASB sector + the jurisdiction, so the right ESG-event terms fall out
-# automatically. The two overlay dicts ship EMPTY on purpose; until seeded, every
-# company composes to base-only and fires the loud-miss warning.
+# Phase 56.C — COMPOSED ESG-material vocabulary for the SECOND, body-matched
+# fetch. The strict primary sets above are dominated by generic ESG framing
+# ("ESG", "sustainability", "net zero") that market PR sprinkles into stock
+# coverage, so the title-locked primary query returns ~0 substantive ESG events.
+# The 2nd-fetch vocab is COMPOSED per company as a UNION of layers (universal
+# harm base ∪ per-SASB-sector overlay ∪ per-jurisdiction overlay ∪ tenant
+# override), keyed off the resolved SASB sector + the jurisdiction, so the right
+# ESG-event terms fall out automatically — a heavy-industry name gets coal/
+# effluent/NGT, an EV maker gets FAME/PM E-DRIVE/rare earth. Lean: EventRegistry
+# counts every WORD against the 80-word plan cap, so keep overlays tight.
 # ---------------------------------------------------------------------------
 
-# Universal harm terms — apply to EVERY sector/jurisdiction. Never dropped: the
-# sector/jurisdiction overlays and any per-tenant override ADD to this base.
+# Universal harm / enforcement terms — apply to EVERY sector and jurisdiction.
+# Never dropped: the sector/jurisdiction overlays and any per-tenant override ADD
+# to this base. Deliberately NO emissions/pollution/coal here — those are noise
+# for non-industrial names and live in the heavy-sector overlays only.
 _ESG_HARM_BASE: tuple[str, ...] = (
-    "penalty", "fine", "recall", "lawsuit", "settlement", "sanction",
-    "strike", "layoff", "injury", "pollution", "emission", "contamination",
+    # Enforcement / governance — cross-sector
+    "penalty", "fine", "violation", "show cause", "non-compliance",
+    "regulatory action", "recall", "lawsuit", "settlement", "sanction",
+    # Social harm — cross-sector
+    "strike", "layoff", "protest", "human rights", "child labour", "labour",
+    "safety", "fatality", "injury",
+    # Governance
     "data breach", "governance failure",
 )
 
 # Sector overlay — keyed by the SASB sector label from _sasb_sector_for() (NOT
 # company.sasb_category, which is the literal "Unknown" in prod and would silently
-# miss). EMPTY by design; content authored separately. Real key space = the
-# values of INDUSTRY_TO_SASB_DEFAULT (e.g. "Automobiles", "Commercial Banks").
-_SECTOR_ESG_VOCAB: dict[str, tuple[str, ...]] = {}
+# miss). Key space = the values of INDUSTRY_TO_SASB_DEFAULT. An unseeded sector
+# fires the loud-miss in _compose_esg_material (observable, never silent).
+_SECTOR_ESG_VOCAB: dict[str, tuple[str, ...]] = {
+    "Metals & Mining": (
+        "coal", "effluent", "spill", "contamination", "groundwater",
+        "deforestation", "hazardous waste", "tailings", "displacement",
+        "eviction", "land acquisition", "rehabilitation",
+    ),
+    "Electric Utilities & Power Generators": (
+        "coal", "emissions", "emission norms", "effluent", "fly ash",
+        "thermal", "displacement", "land acquisition", "rehabilitation",
+    ),
+    "Iron & Steel Producers": (
+        "emissions", "emission norms", "effluent", "hazardous waste",
+        "contamination", "coal",
+    ),
+    "Oil & Gas — Exploration & Production": (
+        "oil spill", "spill", "contamination", "groundwater",
+        "environmental clearance", "emissions", "flaring",
+    ),
+    "Automobiles": (
+        "FAME-II", "PM E-DRIVE", "localisation norms", "rare earth",
+        "subsidy", "incentive", "recall", "battery fire", "thermal runaway",
+        "e-waste", "EPR", "ARAI", "homologation",
+    ),
+}
 
 # Jurisdiction overlay — keyed by framework_region upper-cased (INDIA / EU / UK /
-# US / APAC / GLOBAL). EMPTY by design; content authored separately.
-_JURISDICTION_REGULATORS: dict[str, tuple[str, ...]] = {}
+# US / APAC / GLOBAL). An unseeded region fires the loud-miss too.
+_JURISDICTION_REGULATORS: dict[str, tuple[str, ...]] = {
+    "INDIA": (
+        # "SEBI" deliberately OMITTED. A live sample of what "SEBI" matches on
+        # Ather's feed was ~all stock/IPO/"stocks-to-watch" noise (SEBI mentioned
+        # in market context), not enforcement actions. Genuine SEBI actions are
+        # caught by the base enforcement terms (penalty / show cause /
+        # regulatory action / fine) without dragging in the filing/market noise.
+        "NGT", "CPCB", "tribunal", "environmental clearance",
+        "MHI", "ARAI", "SPCB", "MoEF",
+    ),
+}
 
 
 def _compose_esg_material(company: Company, override=None) -> tuple[str, ...]:
