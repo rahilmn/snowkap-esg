@@ -391,27 +391,123 @@ _ESG_KEYWORDS_BROAD: tuple[str, ...] = (
     "stewardship", "sustainable investing", "disclosure", "compliance",
 )
 
-# Phase 52 — ESG-MATERIAL / harm vocabulary for the SECOND, body-matched fetch.
-# The strict sets above are dominated by generic ESG framing ("ESG",
-# "sustainability", "net zero") that market PR sprinkles into stock coverage, so
-# for market-heavy names (power/renewable) the title-locked primary query
-# returns 0 critical ESG events. This tuple is HARM/ENFORCEMENT-weighted and
-# India-regulator-aware — penalty/violation/spill/coal/displacement/NGT/CPCB —
-# so the 2nd query surfaces SUBSTANTIVE ESG/negative stories (where the company
-# sits in the body), not green-PR noise. Lean + single-word-first: EventRegistry
-# counts every WORD against the 80-word plan limit; this set is ~40 words.
-_ESG_KEYWORDS_MATERIAL: tuple[str, ...] = (
-    # Environmental harm
-    "emissions", "pollution", "coal", "effluent", "spill", "contamination",
-    "groundwater", "deforestation", "hazardous waste", "emission norms",
-    "environmental clearance", "oil spill",
-    # Enforcement / governance
+# ---------------------------------------------------------------------------
+# Phase 56.C — COMPOSED ESG-material vocabulary for the SECOND, body-matched
+# fetch. The strict primary sets above are dominated by generic ESG framing
+# ("ESG", "sustainability", "net zero") that market PR sprinkles into stock
+# coverage, so the title-locked primary query returns ~0 substantive ESG events.
+# The 2nd-fetch vocab is COMPOSED per company as a UNION of layers (universal
+# harm base ∪ per-SASB-sector overlay ∪ per-jurisdiction overlay ∪ tenant
+# override), keyed off the resolved SASB sector + the jurisdiction, so the right
+# ESG-event terms fall out automatically — a heavy-industry name gets coal/
+# effluent/NGT, an EV maker gets FAME/PM E-DRIVE/rare earth. Lean: EventRegistry
+# counts every WORD against the 80-word plan cap, so keep overlays tight.
+# ---------------------------------------------------------------------------
+
+# Universal harm / enforcement terms — apply to EVERY sector and jurisdiction.
+# Never dropped: the sector/jurisdiction overlays and any per-tenant override ADD
+# to this base. Deliberately NO emissions/pollution/coal here — those are noise
+# for non-industrial names and live in the heavy-sector overlays only.
+_ESG_HARM_BASE: tuple[str, ...] = (
+    # Enforcement / governance — cross-sector
     "penalty", "fine", "violation", "show cause", "non-compliance",
-    "regulatory action", "tribunal", "NGT", "CPCB",
-    # Social harm
-    "displacement", "eviction", "land acquisition", "protest", "human rights",
-    "child labour", "labour", "safety", "fatality", "rehabilitation",
+    "regulatory action", "recall", "lawsuit", "settlement", "sanction",
+    # Social harm — cross-sector
+    "strike", "layoff", "protest", "human rights", "child labour", "labour",
+    "safety", "fatality", "injury",
+    # Governance
+    "data breach", "governance failure",
 )
+
+# Sector overlay — keyed by the SASB sector label from _sasb_sector_for() (NOT
+# company.sasb_category, which is the literal "Unknown" in prod and would silently
+# miss). Key space = the values of INDUSTRY_TO_SASB_DEFAULT. An unseeded sector
+# fires the loud-miss in _compose_esg_material (observable, never silent).
+_SECTOR_ESG_VOCAB: dict[str, tuple[str, ...]] = {
+    "Metals & Mining": (
+        "coal", "effluent", "spill", "contamination", "groundwater",
+        "deforestation", "hazardous waste", "tailings", "displacement",
+        "eviction", "land acquisition", "rehabilitation",
+    ),
+    "Electric Utilities & Power Generators": (
+        "coal", "emissions", "emission norms", "effluent", "fly ash",
+        "thermal", "displacement", "land acquisition", "rehabilitation",
+    ),
+    "Iron & Steel Producers": (
+        "emissions", "emission norms", "effluent", "hazardous waste",
+        "contamination", "coal",
+    ),
+    "Oil & Gas — Exploration & Production": (
+        "oil spill", "spill", "contamination", "groundwater",
+        "environmental clearance", "emissions", "flaring",
+    ),
+    "Automobiles": (
+        "FAME-II", "PM E-DRIVE", "localisation norms", "rare earth",
+        "subsidy", "incentive", "recall", "battery fire", "thermal runaway",
+        "e-waste", "EPR", "ARAI", "homologation",
+    ),
+}
+
+# Jurisdiction overlay — keyed by framework_region upper-cased (INDIA / EU / UK /
+# US / APAC / GLOBAL). An unseeded region fires the loud-miss too.
+_JURISDICTION_REGULATORS: dict[str, tuple[str, ...]] = {
+    "INDIA": (
+        # "SEBI" deliberately OMITTED. A live sample of what "SEBI" matches on
+        # Ather's feed was ~all stock/IPO/"stocks-to-watch" noise (SEBI mentioned
+        # in market context), not enforcement actions. Genuine SEBI actions are
+        # caught by the base enforcement terms (penalty / show cause /
+        # regulatory action / fine) without dragging in the filing/market noise.
+        "NGT", "CPCB", "tribunal", "environmental clearance",
+        "MHI", "ARAI", "SPCB", "MoEF",
+    ),
+}
+
+
+def _compose_esg_material(company: Company, override=None) -> tuple[str, ...]:
+    """Compose the ESG-material 2nd-fetch vocab as a UNION of layers:
+
+        _ESG_HARM_BASE
+        ∪ _SECTOR_ESG_VOCAB.get(_sasb_sector_for(company), ())
+        ∪ _JURISDICTION_REGULATORS.get((framework_region or "GLOBAL").upper(), ())
+        ∪ (override or ())
+
+    The override ADDS to the base — it never replaces it; a tenant adding one
+    term keeps penalty/fine/recall/lawsuit. The sector lookup keys off
+    ``_sasb_sector_for(company)`` (the fallback-aware helper) because the stored
+    ``company.sasb_category`` is the literal "Unknown" in prod and would silently
+    miss. A missing sector OR jurisdiction overlay is logged LOUDLY and routed to
+    the coverage-assertion stream — an unseeded overlay must be observable, never
+    a silent empty .get() (that is the original starvation bug rebuilt a layer
+    down).
+    """
+    sector = _sasb_sector_for(company)
+    region = (getattr(company, "framework_region", "") or "GLOBAL").upper()
+    sector_overlay = _SECTOR_ESG_VOCAB.get(sector, ())
+    region_overlay = _JURISDICTION_REGULATORS.get(region, ())
+
+    if not sector_overlay or not region_overlay:
+        # Coverage-assertion signal — consumed by the per-company coverage probe
+        # (probe > 0 ESG hits but deck ESG = 0 => retrieval miss). NOT swallowed.
+        logger.warning(
+            "coverage_assertion.esg_overlay_miss sector=%s region=%s company=%s "
+            "sector_seeded=%s region_seeded=%s -> base-only vocab",
+            sector or "?", region, getattr(company, "slug", "?"),
+            bool(sector_overlay), bool(region_overlay),
+        )
+
+    override_terms = tuple(
+        str(k).strip() for k in (override or ()) if str(k).strip()
+    )
+    # Union, de-duped case-insensitively, base-first so the universal harm terms
+    # always lead the query.
+    out: list[str] = []
+    seen: set[str] = set()
+    for term in (*_ESG_HARM_BASE, *sector_overlay, *region_overlay, *override_terms):
+        key = term.lower()
+        if key not in seen:
+            seen.add(key)
+            out.append(term)
+    return tuple(out)
 
 
 def _broad_query_slugs() -> set[str]:
@@ -1214,9 +1310,10 @@ def fetch_for_company(
     if _esg_second_fetch_enabled(company):
         _cal = getattr(company, "primitive_calibration", None) or {}
         _override = _cal.get("esg_material_keywords")
-        esg_vocab = _ESG_KEYWORDS_MATERIAL
-        if isinstance(_override, (list, tuple)) and _override:
-            esg_vocab = tuple(str(k).strip() for k in _override if str(k).strip())
+        # Phase 56.C — compose base ∪ sector ∪ jurisdiction ∪ override (the
+        # override ADDS to the base, never replaces). Keyed off _sasb_sector_for
+        # so an "Unknown" sasb_category still resolves to the real sector overlay.
+        esg_vocab = _compose_esg_material(company, _override)
         for art in fetch_newsapi_ai_for_company(
             company, max_results=limit, freshness_days=freshness_days,
             strict_title=False, esg_keywords=esg_vocab,
