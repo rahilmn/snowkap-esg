@@ -40,6 +40,16 @@ interface UnifiedAnalysis {
       title?: string;
       deadline?: string;
       owner?: string;
+      // Phase 56.D — anchored framework-hit. Facts are ontology-derived;
+      // only `interpretation` is LLM-written. null when no principle applies.
+      framework_hit?: {
+        framework?: string;
+        principle_code?: string;
+        principle_title?: string;
+        mandatory?: boolean;
+        region?: string;
+        interpretation?: string;
+      } | null;
     }>;
   };
   what_to_watch?: {
@@ -457,6 +467,60 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
                 <span style={{ color: TOKENS.ink3 }}> · owner: {topAction.owner}</span>
               )}
             </p>
+          )}
+          {/* Phase 56.D — "How this hits your framework". The framework /
+              principle / mandatory facts are DETERMINISTIC (ontology); only the
+              interpretation prose is LLM-written. Shown only for body-grounded
+              actions (headline-only recs carry no real framework hit) that
+              resolved a principle. Chip style mirrors the desktop
+              UnifiedAnalysisCard mandatory chip. */}
+          {!headlineOnly && topAction?.framework_hit?.framework && (
+            <div style={{
+              margin: "12px 0 0",
+              padding: "11px 13px",
+              background: "rgba(223,89,0,0.04)",
+              border: `1px solid ${TOKENS.line}`,
+              borderRadius: 12,
+            }}>
+              <div style={{
+                fontSize: 11.5, fontWeight: 700, letterSpacing: 0.2,
+                color: TOKENS.brand, marginBottom: 8,
+              }}>
+                How this hits your framework
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  padding: "4px 9px", borderRadius: 6,
+                  background: topAction.framework_hit.mandatory ? "#FEE2E2" : "#F1F5F9",
+                  border: topAction.framework_hit.mandatory ? "1px solid #FCA5A5" : `1px solid ${TOKENS.line}`,
+                  fontSize: 11, fontWeight: 600,
+                  color: topAction.framework_hit.mandatory ? "#991B1B" : TOKENS.ink2,
+                }}>
+                  <span>
+                    {topAction.framework_hit.framework}
+                    {topAction.framework_hit.principle_code
+                      ? ` · ${topAction.framework_hit.principle_code}`
+                      : ""}
+                  </span>
+                  {topAction.framework_hit.mandatory && (
+                    <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5 }}>MANDATORY</span>
+                  )}
+                </span>
+                {topAction.framework_hit.principle_title && (
+                  <span style={{ fontSize: 11, color: TOKENS.ink3 }}>
+                    {topAction.framework_hit.principle_title}
+                  </span>
+                )}
+              </div>
+              {topAction.framework_hit.interpretation && (
+                <p style={{
+                  margin: "8px 0 0", fontSize: 13, lineHeight: 1.55, color: TOKENS.ink2,
+                }}>
+                  {topAction.framework_hit.interpretation}
+                </p>
+              )}
+            </div>
           )}
           {!stakes && !critSummary && !topAction && (
             <p style={{

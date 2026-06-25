@@ -166,6 +166,40 @@ def query_frameworks_detail(
     ]
 
 
+def query_brsr_principles_for_theme(
+    theme: str, graph: OntologyGraph | None = None
+) -> list[tuple[str, str]]:
+    """Phase 56.D — Return ``(BRSR principle code, title)`` for an ESG theme via
+    the DETERMINISTIC ontology edge ``topic snowkap:mapsToBRSRPrinciple brsr_pN``.
+
+    Replaces the brittle title-keyword overlap that ``query_framework_sections``
+    used for BRSR (a "Water"/"Emissions" theme never matched the *title*
+    "Principle 6 — Environmental Protection"). Matches the topic by canonical
+    ``rdfs:label`` / ``snowkap:slug`` via ``_topic_needle`` so the Stage-2 theme
+    tagger's free-text ("GHG Emissions" → "Emissions") still fires. Returns ``[]``
+    for a theme with no authored principle — the caller must NOT fabricate one.
+    """
+    g = _graph(graph)
+    needle = _topic_needle(theme)
+    sparql = """
+    SELECT DISTINCT ?code ?title WHERE {
+        ?topic snowkap:mapsToBRSRPrinciple ?principle .
+        ?principle snowkap:sectionCode ?code .
+        OPTIONAL { ?principle snowkap:sectionTitle ?title }
+        {
+            ?topic rdfs:label ?label .
+            FILTER(LCASE(STR(?label)) = ?needle)
+        } UNION {
+            ?topic snowkap:slug ?slug .
+            FILTER(LCASE(STR(?slug)) = ?needle)
+        }
+    }
+    ORDER BY ?code
+    """
+    rows = g.select_rows(sparql, init_bindings={"needle": Literal(needle)})
+    return [(row["code"], (row.get("title") or "")) for row in rows]
+
+
 # ---------------------------------------------------------------------------
 # Materiality weight (replaces MATERIALITY_MAP)
 # ---------------------------------------------------------------------------

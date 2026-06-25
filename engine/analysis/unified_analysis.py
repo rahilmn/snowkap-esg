@@ -831,6 +831,30 @@ def _fallback_stakes(insight: Any, exposure: dict[str, Any], band: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+def _sanitize_framework_hit(raw: Any) -> dict[str, Any] | None:
+    """Phase 56.D — normalize a rec's ``framework_hit`` for the API payload.
+
+    Returns a trimmed dict (string fields capped, ``mandatory`` coerced bool)
+    or ``None`` when absent/malformed. The facts (framework/principle/mandatory)
+    are ontology-anchored upstream; this only shapes them for transport.
+    """
+    if not isinstance(raw, dict):
+        return None
+    code = str(raw.get("principle_code", "") or "")[:24]
+    framework = str(raw.get("framework", "") or "")[:24]
+    # Need at least a framework to render anything meaningful.
+    if not framework and not code:
+        return None
+    return {
+        "framework": framework,
+        "principle_code": code,
+        "principle_title": str(raw.get("principle_title", "") or "")[:80],
+        "mandatory": bool(raw.get("mandatory", False)),
+        "region": str(raw.get("region", "") or "")[:16],
+        "interpretation": str(raw.get("interpretation", "") or "")[:600],
+    }
+
+
 def _build_what_it_triggers(
     result: Any, recommendations: Any,
 ) -> dict[str, Any]:
@@ -885,6 +909,12 @@ def _build_what_it_triggers(
                 "payback_months": getattr(r, "payback_months", None),
                 "roi_pct": getattr(r, "roi_percentage", None),
                 "estimated_impact": (getattr(r, "estimated_impact", "") or "")[:24],
+                # Phase 56.D — anchored framework-hit interpretation for the
+                # swipe-up "how this hits your framework" block. Ontology facts
+                # (framework/principle/mandatory) + one LLM interpretation line.
+                "framework_hit": _sanitize_framework_hit(
+                    getattr(r, "framework_hit", None)
+                ),
             })
 
     return {

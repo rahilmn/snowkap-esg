@@ -31,7 +31,11 @@ logger = logging.getLogger(__name__)
 # opener that sits above WHAT CHANGED in the email + /now article
 # sheet + chat seed). Files at 3.0/3.1/3.2/2.x remain readable; the
 # schema gate just triggers a fresh pipeline run.
-CURRENT_SCHEMA_VERSION = "3.3-editorial-lede"
+# Phase 56.D — bumped 3.3-editorial-lede -> 3.4-framework-interpretation so
+# persisted insights re-enrich and pick up the anchored framework_hit on each
+# recommended action (deterministic BRSR principle + mandatory flag + the
+# news-specific interpretation prose rendered on the swipe-up).
+CURRENT_SCHEMA_VERSION = "3.4-framework-interpretation"
 
 
 def enrich_on_demand(

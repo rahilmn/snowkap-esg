@@ -195,6 +195,20 @@ export interface UnifiedFrameworkObligation {
   deadline_days?: number;
 }
 
+/** Phase 56.D — anchored framework-hit interpretation surfaced on the mobile
+ * swipe-up. `framework`/`principle_code`/`principle_title`/`mandatory` are
+ * DETERMINISTIC ontology facts; only `interpretation` is LLM-written (what
+ * THIS news means for that principle's disclosure). null when no principle
+ * applies. */
+export interface UnifiedFrameworkHit {
+  framework: string;
+  principle_code: string;
+  principle_title: string;
+  mandatory: boolean;
+  region: string;
+  interpretation: string;
+}
+
 export interface UnifiedRecommendedAction {
   title: string;
   deadline: string;
@@ -202,6 +216,8 @@ export interface UnifiedRecommendedAction {
   budget?: string | number | null;
   framework_section: string;
   type: string;
+  /** Phase 56.D — "How this hits your framework" block on the swipe-up. */
+  framework_hit?: UnifiedFrameworkHit | null;
 }
 
 export interface UnifiedAnalysisWhatItTriggers {
