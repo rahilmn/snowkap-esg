@@ -137,3 +137,62 @@ def test_article_framework_hit_surfaces_principle_without_recs(monkeypatch):
     assert fh["framework"] == "BRSR" and fh["principle_code"] == "BRSR:P6"
     assert fh["mandatory"] is True
     assert len(fh["interpretation"]) >= 25 and "BRSR BRSR" not in fh["interpretation"]
+
+
+# ---------------------------------------------------------------------------
+# Phase 56.F — hero image (metadata) + admin-curated recommendations
+# ---------------------------------------------------------------------------
+
+
+def test_publish_quick_read_reads_image_from_metadata(monkeypatch):
+    """The NewsAPI hero image lives in IngestedArticle.metadata['image_url'];
+    publish_quick_read must surface it (not the missing .image_url attr)."""
+    captured = {}
+    monkeypatch.setattr("engine.models.article_pool.upsert",
+                        lambda **kw: captured.update(pool=kw))
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(view=kw))
+    art = SimpleNamespace(
+        id="qr1", url="http://x/1", title="Maruti price hike", source="CarDekho",
+        published_at="2026-06-20T00:00:00+00:00", content="body text",
+        summary="s", metadata={"image_url": "https://img/hero.jpg"},
+    )
+    out = db.publish_quick_read(SimpleNamespace(slug="maruti-suzuki-india", industry="Automotive"), art)
+    assert out == "published"
+    assert captured["pool"]["shared_analysis"].get("image_url") == "https://img/hero.jpg"
+    assert captured["view"]["personalised_analysis"].get("image_url") == "https://img/hero.jpg"
+
+
+def test_stamp_curated_card_overlays_recommendations(monkeypatch):
+    """Admin-supplied recommendations overlay the degraded engine's monitor rec,
+    keeping the article-level framework_hit and re-pinning band=CRITICAL."""
+    existing = SimpleNamespace(
+        personalised_analysis={
+            "what_it_triggers": {
+                "framework_hit": {"framework": "BRSR", "principle_code": "BRSR:P6"},
+                "recommended_actions": [{"title": "Monitor — Energy (no action required yet)"}],
+            },
+            "why_it_matters": {"criticality_summary": "x"},
+        },
+        criticality_score=0.9, criticality_band="CRITICAL",
+    )
+    captured = {}
+    monkeypatch.setattr("engine.models.company_article_view.get",
+                        lambda aid, slug: existing)
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(kw))
+    ok = db.stamp_curated_card(
+        SimpleNamespace(slug="maruti-suzuki-india"), "aid1",
+        recommendations=[
+            {"title": "Model CAFE-3 compliance gap + penalty exposure", "owner": "ESG", "type": "compliance"},
+            {"title": "Accelerate flex-fuel mix to bank super-credits", "type": "strategic"},
+        ],
+        key_risk="Hundreds of crores of CAFE-3 penalty exposure",
+    )
+    assert ok is True
+    actions = captured["personalised_analysis"]["what_it_triggers"]["recommended_actions"]
+    assert len(actions) == 2
+    assert actions[0]["title"].startswith("Model CAFE-3")
+    assert actions[0]["framework_hit"]["principle_code"] == "BRSR:P6"  # kept
+    assert captured["criticality_band"] == "CRITICAL"  # re-pinned
+    assert "penalty exposure" in captured["personalised_analysis"]["why_it_matters"]["stakes_for_company"]

@@ -1809,6 +1809,14 @@ class CuratedArticleIn(BaseModel):
     body: str
     published_at: str | None = None  # ISO; defaults to now (keeps it in the 30d feed window)
     source: str | None = None
+    # Phase 56.F — optional admin-supplied hero image + real recommendations.
+    # The force_accept'd pipeline gives these a degraded insight (→ a generic
+    # "Monitor" rec); supplying recommendations here overlays real, distinct,
+    # article-specific actions on the card. Each rec: {title, description?,
+    # owner?, deadline?, type?}.
+    image_url: str | None = None
+    recommendations: list[dict] | None = None
+    key_risk: str | None = None  # one-line "stakes for company" override
 
 
 class IngestArticlesIn(BaseModel):
@@ -1870,7 +1878,9 @@ def _run_curated_ingest(
                 published_at=(a.get("published_at") or now_iso),
                 company_slug=slug,
                 source_type="curated",
-                metadata={"kind": "curated"},
+                # image_url under the same metadata key the pipeline reads
+                # (process_article → result.image_url → article_pool).
+                metadata={"kind": "curated", "image_url": (a.get("image_url") or "").strip()},
             ))
 
         quick: list[IngestedArticle] = []
@@ -1892,6 +1902,20 @@ def _run_curated_ingest(
 
         summary = build_curated_deck(company, criticals, quick, n_total=3 + fill_quick_reads)
         logger.info("curated-ingest: %s -> %s", slug, summary.to_dict())
+
+        # Phase 56.F — overlay any admin-supplied recommendations / key-risk onto
+        # the published criticals (the force_accept'd pipeline yields a degraded
+        # insight → generic monitor rec; this gives them real, distinct actions).
+        from engine.analysis.deck_builder import stamp_curated_card
+        published_ids = {p.get("article_id") for p in summary.published_items if p.get("tier") == "critical"}
+        for a in articles:
+            recs = a.get("recommendations")
+            key_risk = (a.get("key_risk") or "").strip()
+            if not recs and not key_risk:
+                continue
+            aid = _url_hash((a.get("url") or "").strip())
+            if aid in published_ids:
+                stamp_curated_card(company, aid, recommendations=recs or [], key_risk=key_risk)
     except Exception as exc:  # noqa: BLE001
         logger.exception("curated-ingest failed for %s: %s", slug, exc)
 

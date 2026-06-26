@@ -543,7 +543,11 @@ def publish_quick_read(company: Any, article: Any) -> str:
         # A non-empty one-line note — the /now feed drops rows whose
         # criticality_summary is blank, so never leave it empty.
         note = body[:220].strip() or f"{title} — quick read."
-        img = getattr(article, "image_url", "") or ""
+        # Phase 56.F — the hero image lives in IngestedArticle.metadata["image_url"]
+        # (the NewsAPI fetchers key it there), NOT on a dataclass field — so a
+        # plain getattr always returned "" and every quick read rendered blank.
+        _meta = getattr(article, "metadata", None) or {}
+        img = (getattr(article, "image_url", "") or _meta.get("image_url") or "").strip()
 
         shared: dict[str, Any] = {"what_changed": {"headline": title}}
         if img:
@@ -575,3 +579,62 @@ def publish_quick_read(company: Any, article: Any) -> str:
             getattr(article, "id", "?"), exc,
         )
         return "error"
+
+
+def stamp_curated_card(
+    company: Any, article_id: str, *,
+    recommendations: list[dict] | None = None,
+    key_risk: str = "",
+) -> bool:
+    """Phase 56.F — overlay admin-curated recommendations (and an optional
+    key-risk line) onto a published critical's per-company card.
+
+    The force_accept'd curated criticals get a DEGRADED Stage-10 insight (the
+    relevance scorer rejected them, so the insight/rec LLM runs on a near-empty
+    prompt → 0 recs → a single generic "Monitor — <theme>" fallback). Rather than
+    fight that LLM degradation, let the admin who pinned the article also supply
+    the real, article-specific actions; this overlays them on the card's
+    `what_it_triggers.recommended_actions` (keeping the deterministic
+    article-level framework_hit). Re-stamps band=CRITICAL/0.9 so the pin holds.
+    Returns True if a row was updated.
+    """
+    if not article_id or not recommendations:
+        return False
+    try:
+        from engine.models import company_article_view as cav
+        slug = getattr(company, "slug", "")
+        row = cav.get(article_id, slug)
+        if row is None:
+            logger.warning("[deck] stamp_curated_card: no row for %s/%s", article_id, slug)
+            return False
+        pa = dict(row.personalised_analysis or {})
+        wit = dict(pa.get("what_it_triggers") or {})
+        fh = wit.get("framework_hit")  # article-level hit, already deterministic
+        actions: list[dict] = []
+        for r in recommendations[:4]:
+            a: dict[str, Any] = {
+                "title": str(r.get("title", "") or "")[:160],
+                "deadline": str(r.get("deadline", "") or "")[:60],
+                "owner": str(r.get("owner", "") or "")[:60],
+                "type": str(r.get("type", "") or ""),
+            }
+            if r.get("description"):
+                a["description"] = str(r["description"])[:400]
+            if fh:
+                a["framework_hit"] = fh  # so the swipe-up framework block stays
+            actions.append(a)
+        wit["recommended_actions"] = actions
+        pa["what_it_triggers"] = wit
+        if key_risk:
+            wim = dict(pa.get("why_it_matters") or {})
+            wim["stakes_for_company"] = str(key_risk)[:600]
+            pa["why_it_matters"] = wim
+        cav.upsert(
+            article_id=article_id, company_slug=slug,
+            personalised_analysis=pa,
+            criticality_score=0.9, criticality_band="CRITICAL",
+        )
+        return True
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[deck] stamp_curated_card failed for %s: %s", article_id, exc)
+        return False
