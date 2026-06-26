@@ -448,33 +448,40 @@ def build_curated_deck(
             summary.errors.append(f"critical {getattr(result, 'article_id', '?')}: {outcome}")
     summary.critical_published = published_critical
 
-    # Light tier — approval-demoted criticals + the curated light picks.
-    light_results: list[Any] = list(demoted)
-    for art in light_candidates:
-        result = _run_stages_1_to_9(art, company)
-        if result is None:
-            summary.rejected += 1
-            continue
-        summary.processed += 1
-        light_results.append(result)
-
+    # Light tier — quick reads. The curated light picks are published as
+    # LIGHTWEIGHT headline cards (publish_quick_read) that BYPASS the
+    # ESG-materiality pipeline: routine product/market news ("Dzire price hike",
+    # "Brezza facelift") is exactly what gets rejected by process_article's
+    # relevance/market-noise gates, so running it through _publish_light yields
+    # ZERO quick reads. A "quick read" is a watchlist headline, not a graded ESG
+    # event — so it skips the gate. Approval-demoted CRITICALS (which already
+    # have full Stage 1-9 analysis) still go through _publish_light.
     light_slots = max(0, n_total - published_critical)
     published_light = 0
-    for result in light_results:
+    for result in demoted:
         if published_light >= light_slots:
             break
-        outcome = _publish_light(result)
-        if outcome == "published":
+        if _publish_light(result) == "published":
             published_light += 1
             summary.published_items.append({
                 "article_id": getattr(result, "article_id", ""),
                 "title": (getattr(result, "title", "") or "")[:200],
                 "tier": "light", "has_recs": False,
             })
-        elif outcome == "rejected_approval":
-            summary.approval_rejected += 1
-        else:
-            summary.errors.append(f"light {getattr(result, 'article_id', '?')}: {outcome}")
+    for art in light_candidates:
+        if published_light >= light_slots:
+            break
+        outcome = publish_quick_read(company, art)
+        if outcome == "published":
+            published_light += 1
+            summary.processed += 1
+            summary.published_items.append({
+                "article_id": getattr(art, "id", ""),
+                "title": (getattr(art, "title", "") or "")[:200],
+                "tier": "light", "has_recs": False,
+            })
+        elif outcome == "error":
+            summary.errors.append(f"quick-read {getattr(art, 'id', '?')}: error")
     summary.light_published = published_light
 
     summary.elapsed_seconds = time.monotonic() - t0
@@ -506,3 +513,64 @@ def _force_critical_band(company: Any, article_id: str) -> None:
         )
     except Exception as exc:  # noqa: BLE001 — cosmetic sort hint, never fatal
         logger.warning("[deck] force_critical_band failed for %s: %s", article_id, exc)
+
+
+def publish_quick_read(company: Any, article: Any) -> str:
+    """Phase 56.F — publish a LIGHTWEIGHT quick-read card, bypassing the ESG
+    pipeline.
+
+    A "quick read" is a watchlist headline (title + source + a one-line note) in
+    the LIGHT tier — NOT a graded ESG event. Routine product/market news is what
+    ``process_article`` legitimately rejects as non-material, so the normal light
+    path (_run_stages_1_to_9 → _publish_light) yields zero quick reads. This
+    writes the article_pool + company_article_view rows directly so the card
+    shows on the deck. Returns "published" | "skipped" | "error".
+    """
+    from engine.models import article_pool, company_article_view
+
+    try:
+        aid = (getattr(article, "id", "") or "").strip()
+        url = (getattr(article, "url", "") or "").strip()
+        title = (getattr(article, "title", "") or "").strip()
+        if not aid or not url or not title:
+            return "skipped"
+        slug = getattr(company, "slug", "")
+        industry = (getattr(company, "industry", "") or "").strip() or "Unknown"
+        source = getattr(article, "source", "") or ""
+        published_at = getattr(article, "published_at", "") or ""
+        body = (getattr(article, "content", "") or getattr(article, "summary", "") or "").strip()
+        # A non-empty one-line note — the /now feed drops rows whose
+        # criticality_summary is blank, so never leave it empty.
+        note = body[:220].strip() or f"{title} — quick read."
+        img = getattr(article, "image_url", "") or ""
+
+        shared: dict[str, Any] = {"what_changed": {"headline": title}}
+        if img:
+            shared["image_url"] = img
+        personalised: dict[str, Any] = {
+            "tier": "light",
+            "what_changed": {"headline": title, "polarity": "neutral", "source": source},
+            "why_it_matters": {"materiality_band": "LOW", "criticality_summary": note},
+        }
+        if img:
+            personalised["image_url"] = img
+
+        article_pool.upsert(
+            article_id=aid, url=url, title=title, source=source,
+            published_at=published_at, primary_industry=industry,
+            material_industries=[industry], primary_pillar=None,
+            primary_theme=None, event_id=None, event_polarity="neutral",
+            shared_analysis=shared,
+        )
+        company_article_view.upsert(
+            article_id=aid, company_slug=slug,
+            personalised_analysis=personalised,
+            criticality_score=0.1, criticality_band="LOW",
+        )
+        return "published"
+    except Exception as exc:  # noqa: BLE001
+        logger.warning(
+            "[deck] publish_quick_read failed for %s: %s",
+            getattr(article, "id", "?"), exc,
+        )
+        return "error"

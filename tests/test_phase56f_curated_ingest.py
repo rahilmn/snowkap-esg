@@ -46,7 +46,8 @@ def _result(i):
     return SimpleNamespace(article_id=f"a{i}", title=f"Article {i}", rejected=False)
 
 
-def _patch(monkeypatch, *, critical_outcomes, light_outcome="published"):
+def _patch(monkeypatch, *, critical_outcomes, light_outcome="published",
+           quick_read_outcome="published"):
     """Stub the heavy pipeline so we test the tier orchestration only."""
     monkeypatch.setattr(db, "_run_stages_1_to_9",
                         lambda art, company: _result(art.id.lstrip("a")))
@@ -54,7 +55,10 @@ def _patch(monkeypatch, *, critical_outcomes, light_outcome="published"):
     outcomes = iter(critical_outcomes)
     monkeypatch.setattr(db, "_publish_critical",
                         lambda result, company: next(outcomes))
+    # demoted criticals → _publish_light; curated quick reads → publish_quick_read
     monkeypatch.setattr(db, "_publish_light", lambda result: light_outcome)
+    monkeypatch.setattr(db, "publish_quick_read",
+                        lambda company, art: quick_read_outcome)
 
 
 def test_curated_pins_criticals_and_fills_quick_reads(monkeypatch):
