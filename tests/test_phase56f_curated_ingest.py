@@ -50,7 +50,7 @@ def _patch(monkeypatch, *, critical_outcomes, light_outcome="published",
            quick_read_outcome="published"):
     """Stub the heavy pipeline so we test the tier orchestration only."""
     monkeypatch.setattr(db, "_run_stages_1_to_9",
-                        lambda art, company: _result(art.id.lstrip("a")))
+                        lambda art, company, **kw: _result(art.id.lstrip("a")))
     monkeypatch.setattr(db, "_force_critical_band", lambda company, aid: None)
     outcomes = iter(critical_outcomes)
     monkeypatch.setattr(db, "_publish_critical",

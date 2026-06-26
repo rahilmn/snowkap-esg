@@ -119,12 +119,13 @@ def _to_article_dict(article: Any) -> dict[str, Any]:
     }
 
 
-def _run_stages_1_to_9(article: Any, company: Any) -> Any | None:
+def _run_stages_1_to_9(article: Any, company: Any, *, force_accept: bool = False) -> Any | None:
     """Stages 1-9 for one article. Returns the PipelineResult, or None when
-    the pipeline gate REJECTED it (not an ESG event)."""
+    the pipeline gate REJECTED it (not an ESG event). ``force_accept`` bypasses
+    the reject gates for an admin-pinned curated article."""
     from engine.analysis.pipeline import process_article
     try:
-        result = process_article(_to_article_dict(article), company)
+        result = process_article(_to_article_dict(article), company, force_accept=force_accept)
     except Exception as exc:  # noqa: BLE001
         logger.warning("[deck] Stages 1-9 crashed for %s: %s",
                        getattr(article, "id", "?"), exc)
@@ -424,7 +425,9 @@ def build_curated_deck(
     demoted: list[Any] = []
     published_critical = 0
     for art in critical_candidates:
-        result = _run_stages_1_to_9(art, company)
+        # Pinned curated criticals bypass the relevance/cross-entity reject
+        # gates — the admin explicitly chose them.
+        result = _run_stages_1_to_9(art, company, force_accept=True)
         if result is None:
             summary.rejected += 1
             continue
