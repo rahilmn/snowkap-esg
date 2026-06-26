@@ -249,7 +249,14 @@ def deck_for_company(
                 "  ON v.article_id = a.id "
                 "  AND v.company_slug = ? "
                 "WHERE a.material_industries @> ?::jsonb "
-                "  AND a.published_at >= (NOW() - (? || ' days')::interval) "
+                # Phase 56.F — freshness gate, with a carve-out for PINNED
+                # curated criticals (band=CRITICAL + the forced score 0.9): they
+                # bypass the 30-day window so an admin-curated material/negative
+                # story (e.g. a product recall published 35 days ago) still shows.
+                # Auto-fetched criticals score well under 0.85, so this never
+                # resurfaces stale organic articles.
+                "  AND (a.published_at >= (NOW() - (? || ' days')::interval) "
+                "       OR (v.criticality_band = 'CRITICAL' AND v.criticality_score >= 0.85)) "
                 "ORDER BY "
                 "  CASE v.criticality_band "
                 "    WHEN 'CRITICAL' THEN 0 WHEN 'HIGH' THEN 1 "
