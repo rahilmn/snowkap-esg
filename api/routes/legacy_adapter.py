@@ -1998,6 +1998,76 @@ def admin_ingest_articles(
     }
 
 
+class DeckFreezeIn(BaseModel):
+    slug: str
+    frozen: bool = True
+    reason: str | None = None
+
+
+@router.post("/admin/deck-freeze")
+def admin_deck_freeze(
+    body: DeckFreezeIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 56.J — super-admin: freeze (or un-freeze) a tenant's deck.
+
+    A frozen tenant is skipped by the weekly Sunday refresh + the overnight
+    batch (both via build_company_deck), so a hand-curated/pinned deck survives
+    untouched. Built to protect the Maruti demo deck. Un-freeze with
+    ``{frozen:false}`` after the demo.
+    """
+    email = (claims.get("sub") or claims.get("email") or "").strip().lower()
+    if not is_snowkap_super_admin(email):
+        raise HTTPException(status_code=403, detail="super-admin only")
+    slug = (body.slug or "").strip()
+    if not slug:
+        raise HTTPException(status_code=422, detail="slug is required")
+    from engine.models import deck_freeze
+    deck_freeze.set_frozen(slug, bool(body.frozen), (body.reason or "").strip())
+    return {
+        "status": "ok",
+        "slug": slug,
+        "frozen": bool(body.frozen),
+        "frozen_tenants": deck_freeze.list_frozen(),
+    }
+
+
+class _ArticleImageItem(BaseModel):
+    article_id: str
+    image_url: str
+
+
+class SetArticleImagesIn(BaseModel):
+    slug: str
+    items: list[_ArticleImageItem]
+
+
+@router.post("/admin/set-article-image")
+def admin_set_article_image(
+    body: SetArticleImagesIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 56.J — super-admin: replace the hero image for one or more articles
+    (e.g. a dead/404 source image). Updates article_pool.shared_analysis (the
+    field the feed reads first) + the per-company view."""
+    email = (claims.get("sub") or claims.get("email") or "").strip().lower()
+    if not is_snowkap_super_admin(email):
+        raise HTTPException(status_code=403, detail="super-admin only")
+    slug = (body.slug or "").strip()
+    if not slug or not body.items:
+        raise HTTPException(status_code=422, detail="slug + items are required")
+    from engine.analysis.deck_builder import set_article_image
+    results = [
+        {"article_id": it.article_id,
+         "updated": set_article_image(slug, (it.article_id or "").strip(),
+                                      (it.image_url or "").strip())}
+        for it in body.items
+    ]
+    return {"status": "ok", "slug": slug, "results": results}
+
+
 @router.post("/news/{article_id}/trigger-analysis")
 def news_trigger_analysis(
     article_id: str,
