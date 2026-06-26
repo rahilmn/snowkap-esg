@@ -106,3 +106,40 @@ def test_full_vocab_under_eventregistry_word_cap() -> None:
 def test_full_vocab_deduped() -> None:
     terms = [t.lower() for t in nf._ESG_KEYWORDS_FULL]
     assert len(terms) == len(set(terms)), "no duplicate terms (human rights is in both bases)"
+
+
+# ---------------------------------------------------------------------------
+# Force refresh — bypass the processed-URL dedup
+# ---------------------------------------------------------------------------
+
+
+def test_force_refresh_bypasses_processed_dedup(monkeypatch) -> None:
+    """An already-"processed" URL is normally hidden forever; force mode
+    re-admits it so an orphaned/thin deck can be rebuilt from scratch."""
+    from datetime import datetime, timezone
+
+    url = "https://example.com/maruti-ignis-recall"
+    body = "Maruti Suzuki has issued a recall for the Ignis. " * 30
+    art = {
+        "title": "Maruti Suzuki Ignis Recalled",
+        "url": url, "body": body, "content": body,
+        "summary": "Maruti Suzuki recalls the Ignis.",
+        "published_at": datetime.now(timezone.utc).isoformat(),
+        "source": "TestWire",
+    }
+    monkeypatch.setattr(nf, "fetch_newsapi_ai_for_company", lambda *a, **k: [dict(art)])
+    monkeypatch.setattr(nf, "_load_processed", lambda: {nf._url_hash(url)})
+
+    c = Company(
+        name="Maruti Suzuki India Limited", slug="maruti-suzuki-india", domain="x.com",
+        industry="Automotive", sasb_category="Unknown", market_cap="Large Cap",
+        listing_exchange="NSE", headquarter_city="", headquarter_country="India",
+        headquarter_region="Asia", news_queries=[], framework_region="INDIA",
+        primitive_calibration={"esg_second_fetch": "off", "industry_thematic_fetch": "off"},
+    )
+
+    urls = lambda lst: [getattr(x, "url", "") for x in lst]
+    # default: the processed URL stays hidden
+    assert url not in urls(nf.fetch_for_company(c, persist=False, ignore_processed=False))
+    # force: it is re-admitted
+    assert url in urls(nf.fetch_for_company(c, persist=False, ignore_processed=True))

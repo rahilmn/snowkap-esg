@@ -1293,6 +1293,7 @@ def fetch_for_company(
     company: Company,
     max_per_query: int | None = None,
     persist: bool = True,
+    ignore_processed: bool = False,
 ) -> list[IngestedArticle]:
     """Fetch news for one company across all configured queries.
 
@@ -1301,6 +1302,14 @@ def fetch_for_company(
       2. Company-relevance guard (phrase match in title or first 800 chars)
       3. Freshness gate (published_at within configured age window)
       4. Semantic dedup (near-duplicate title+summary within rolling window)
+
+    Phase 56.E — ``ignore_processed`` bypasses gate (1) for an explicit admin
+    FORCE refresh. The processed-URL set (``article_hashes.json``) otherwise
+    permanently hides any URL already fetched, even when its article was never
+    decked — e.g. a short-circuited re-onboard that fetched + marked URLs but
+    never analysed them ORPHANS them, so a later refresh re-fetches 0 and the
+    deck can never be rebuilt. Force mode re-admits them so a stale/thin deck
+    can be regenerated from scratch.
     """
     settings = load_settings()
     ingestion_cfg = settings.get("ingestion", {})
@@ -1388,7 +1397,7 @@ def fetch_for_company(
     stats = {"stale": 0, "semantic_dup": 0, "url_dup": 0, "off_topic": 0, "wrap_up": 0, "calendar_preview": 0}
     for raw in raw_articles:
         h = _url_hash(raw["url"])
-        if h in processed:
+        if h in processed and not ignore_processed:
             stats["url_dup"] += 1
             continue
 
