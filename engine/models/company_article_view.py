@@ -377,6 +377,31 @@ def invalidate_for_company(company_slug: str) -> int:
         return cur.rowcount or 0
 
 
+def set_band(article_id: str, company_slug: str, *, band: str, score: float) -> int:
+    """Phase 56.F — directly UPDATE just the criticality band + score of an
+    existing row.
+
+    Used by the curated-deck pin (force band=CRITICAL so the article leads the
+    feed sort + bypasses the age window). Unlike re-``upsert``-ing the whole row,
+    this never re-writes ``personalised_analysis`` — so a large/edge-case payload
+    can't make the band stamp fail (the bug that left a pinned recall age-hidden).
+    Returns the row count updated (0 if the row doesn't exist yet).
+    """
+    if not article_id or not company_slug:
+        return 0
+    band = (band or "MEDIUM").upper()
+    if band not in _BAND_RANK:
+        band = "MEDIUM"
+    with _db_connect() as conn:
+        cur = conn.execute(
+            "UPDATE company_article_view "
+            "SET criticality_band = ?, criticality_score = ? "
+            "WHERE article_id = ? AND company_slug = ?",
+            (band, float(score or 0.0), article_id, company_slug),
+        )
+        return cur.rowcount or 0
+
+
 def delete_for_company(company_slug: str) -> int:
     """Phase 56.F — hard-delete every per-company view row for a slug.
 
