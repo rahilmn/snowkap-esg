@@ -419,3 +419,19 @@ def delete_for_company(company_slug: str) -> int:
             (company_slug,),
         )
         return cur.rowcount or 0
+
+
+def delete_one(article_id: str, company_slug: str) -> bool:
+    """Hard-delete a SINGLE per-company view row (removes one card from one
+    tenant's deck; the shared article_pool row is untouched). Returns True if a
+    row existed and was removed. Used to surgically curate the quick-read tier
+    (e.g. drop a UGC/forum post)."""
+    if not article_id or not company_slug:
+        return False
+    existed = get(article_id, company_slug) is not None
+    with _db_connect() as conn:
+        conn.execute(
+            "DELETE FROM company_article_view WHERE article_id = ? AND company_slug = ?",
+            (article_id, company_slug),
+        )
+    return existed

@@ -98,3 +98,48 @@ def test_set_article_image_updates_shared_and_view(monkeypatch):
 def test_set_article_image_rejects_empty():
     assert db.set_article_image("slug", "", "http://x") is False
     assert db.set_article_image("slug", "aid", "") is False
+
+
+# ---------------------------------------------------------------------------
+# company_article_view.delete_one — surgical single-card removal
+# ---------------------------------------------------------------------------
+
+
+class _FakeConn:
+    def __init__(self):
+        self.executed = []
+
+    def execute(self, sql, params=None):
+        self.executed.append((sql, params))
+        return self
+
+
+class _FakeCM:
+    def __init__(self, conn):
+        self.conn = conn
+
+    def __enter__(self):
+        return self.conn
+
+    def __exit__(self, *a):
+        return False
+
+
+def test_delete_one_removes_existing_returns_true(monkeypatch):
+    from engine.models import company_article_view as cav
+    conn = _FakeConn()
+    monkeypatch.setattr(cav, "_db_connect", lambda: _FakeCM(conn))
+    monkeypatch.setattr(cav, "get", lambda aid, slug: object())   # row exists
+    assert cav.delete_one("ugc1", "maruti-suzuki-india") is True
+    sql, params = conn.executed[0]
+    assert "DELETE FROM company_article_view" in sql
+    assert params == ("ugc1", "maruti-suzuki-india")             # both keys bound
+
+
+def test_delete_one_missing_returns_false(monkeypatch):
+    from engine.models import company_article_view as cav
+    conn = _FakeConn()
+    monkeypatch.setattr(cav, "_db_connect", lambda: _FakeCM(conn))
+    monkeypatch.setattr(cav, "get", lambda aid, slug: None)       # row absent
+    assert cav.delete_one("nope", "maruti-suzuki-india") is False
+    assert cav.delete_one("", "maruti-suzuki-india") is False     # guard, no DB call

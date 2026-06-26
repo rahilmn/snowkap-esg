@@ -2068,6 +2068,72 @@ def admin_set_article_image(
     return {"status": "ok", "slug": slug, "results": results}
 
 
+class _QuickReadIn(BaseModel):
+    url: str
+    title: str
+    source: str | None = None
+    image_url: str | None = None
+    published_at: str | None = None
+    summary: str | None = None
+
+
+class DeckEditIn(BaseModel):
+    slug: str
+    remove_article_ids: list[str] = []
+    add_quick_reads: list[_QuickReadIn] = []
+
+
+@router.post("/admin/deck-edit")
+def admin_deck_edit(
+    body: DeckEditIn,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 56.J — super-admin: surgically edit a deck's quick-read tier.
+
+    Removes specific cards (e.g. a UGC/forum post) and/or publishes specific
+    curated quick reads (with a working image). Works while the deck is FROZEN —
+    it does NOT call build_company_deck. Per-company only (shared article_pool
+    untouched on removal)."""
+    email = (claims.get("sub") or claims.get("email") or "").strip().lower()
+    if not is_snowkap_super_admin(email):
+        raise HTTPException(status_code=403, detail="super-admin only")
+    slug = (body.slug or "").strip()
+    company = next((c for c in load_companies() if c.slug == slug), None)
+    if company is None:
+        raise HTTPException(status_code=404, detail=f"unknown company slug: {slug}")
+
+    from datetime import datetime, timezone
+    from engine.models import company_article_view as cav
+    from engine.ingestion.news_fetcher import IngestedArticle, _url_hash
+    from engine.analysis.deck_builder import publish_quick_read
+
+    removed = [{"article_id": aid, "removed": cav.delete_one(aid, slug)}
+               for aid in body.remove_article_ids]
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    added = []
+    for qr in body.add_quick_reads:
+        url = (qr.url or "").strip()
+        title = (qr.title or "").strip()
+        if not url or not title:
+            added.append({"url": url, "published": "skipped_missing_url_or_title"})
+            continue
+        body_text = qr.summary or title
+        art = IngestedArticle(
+            id=_url_hash(url), title=title[:300], content=body_text,
+            summary=body_text[:400], source=(qr.source or "Curated").strip(),
+            url=url, published_at=(qr.published_at or now_iso),
+            company_slug=slug, source_type="curated",
+            metadata={"kind": "curated", "image_url": (qr.image_url or "").strip()},
+        )
+        out = publish_quick_read(company, art)
+        added.append({"url": url, "article_id": art.id, "published": out})
+
+    return {"status": "ok", "slug": slug, "removed": removed, "added": added,
+            "poll_url": f"/api/now/feed?company={slug}"}
+
+
 @router.post("/news/{article_id}/trigger-analysis")
 def news_trigger_analysis(
     article_id: str,
