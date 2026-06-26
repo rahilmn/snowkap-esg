@@ -92,3 +92,48 @@ def test_curated_light_capped_to_remaining_slots(monkeypatch):
     summary = db.build_curated_deck(company, criticals, lights, n_total=10)
     assert summary.critical_published == 3
     assert summary.light_published == 7  # capped at n_total - criticals
+
+
+# ---------------------------------------------------------------------------
+# Article-level framework hit (Phase 56.F) — shown even with no recs
+# ---------------------------------------------------------------------------
+
+
+def test_clean_framework_prose_no_redundant_code():
+    from engine.analysis.unified_analysis import _clean_framework_prose
+    anchor = {
+        "framework": "BRSR", "principle_code": "BRSR:P6",
+        "principle_title": "Principle 6 — Environmental Protection", "mandatory": True,
+    }
+    p = _clean_framework_prose(anchor, "Energy", "Maruti Suzuki India Limited")
+    assert "Principle 6" in p and "mandatory" in p
+    assert "BRSR BRSR" not in p            # no redundant "BRSR BRSR:P6"
+    assert "Energy development" in p
+
+
+def test_article_framework_hit_surfaces_principle_without_recs(monkeypatch):
+    from engine.analysis import unified_analysis as ua
+    monkeypatch.setattr(
+        "engine.config.get_company",
+        lambda slug: SimpleNamespace(
+            name="Maruti Suzuki India Limited", framework_region="INDIA",
+            slug=slug, market_cap="Large Cap",
+        ),
+    )
+    monkeypatch.setattr(
+        "engine.analysis.recommendation_engine._framework_hit_anchor",
+        lambda result, company: {
+            "framework": "BRSR", "principle_code": "BRSR:P6",
+            "principle_title": "Principle 6 — Environmental Protection",
+            "mandatory": True, "region": "INDIA",
+        },
+    )
+    result = SimpleNamespace(
+        company_slug="maruti-suzuki-india",
+        themes=SimpleNamespace(primary_theme="Energy"),
+    )
+    fh = ua._article_framework_hit(result, [])  # NO recs
+    assert fh is not None
+    assert fh["framework"] == "BRSR" and fh["principle_code"] == "BRSR:P6"
+    assert fh["mandatory"] is True
+    assert len(fh["interpretation"]) >= 25 and "BRSR BRSR" not in fh["interpretation"]

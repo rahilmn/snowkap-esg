@@ -1884,12 +1884,12 @@ def _generate_framework_interpretation(
     def _fallback() -> str:
         """Deterministic interpretation when the LLM is empty/unavailable, so
         the swipe-up's framework chip is never shown with blank prose."""
-        topic = (theme or "this development").lower()
+        title = pt or pc
+        topic = (theme or "this development").strip()
         return (
-            f"This {topic} is reportable under {fw} {pc} "
-            f"({pt}) — {mand} for {company.name}. Reflect it in the next annual "
-            f"{fw} disclosure cycle: update the Principle's metrics, targets and "
-            f"narrative to capture this event."
+            f"This {topic} development is reportable under {fw} {title} "
+            f"({mand} for {company.name}). Capture it in the next annual {fw} "
+            f"disclosure cycle — update the principle's metrics, targets and narrative."
         )
     system = (
         "You are an ESG disclosure analyst writing for a CFO. You are given a "
