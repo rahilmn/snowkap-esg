@@ -27,6 +27,17 @@ import { TOKENS, categoryTint, pillTokens } from "@/lib/designTokensV2";
 import { articleEmail, news } from "@/lib/api";
 import { CommentThread } from "@/components/now/CommentThread";
 
+// Phase 56.D/F — ontology-anchored framework hit (BRSR principle + mandatory
+// flag + interpretation). Carried per-recommendation AND at the article level.
+type FrameworkHit = {
+  framework?: string;
+  principle_code?: string;
+  principle_title?: string;
+  mandatory?: boolean;
+  region?: string;
+  interpretation?: string;
+};
+
 interface UnifiedAnalysis {
   what_changed?: { headline?: string; polarity?: string; source?: string };
   why_it_matters?: {
@@ -42,15 +53,10 @@ interface UnifiedAnalysis {
       owner?: string;
       // Phase 56.D — anchored framework-hit. Facts are ontology-derived;
       // only `interpretation` is LLM-written. null when no principle applies.
-      framework_hit?: {
-        framework?: string;
-        principle_code?: string;
-        principle_title?: string;
-        mandatory?: boolean;
-        region?: string;
-        interpretation?: string;
-      } | null;
+      framework_hit?: FrameworkHit | null;
     }>;
+    // Phase 56.F — article-level framework hit (shown even with no recs).
+    framework_hit?: FrameworkHit | null;
   };
   what_to_watch?: {
     top_risk_categories?: string[];
@@ -189,6 +195,10 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   const topAction = analysis?.what_it_triggers?.recommended_actions?.[0];
   const topRisks = (analysis?.what_to_watch?.top_risk_categories || []).slice(0, 3);
   const headlineOnly = !!analysis?.headline_only;
+  // Phase 56.F — the framework hit on a recommendation, else the article-level
+  // one (so every critical shows its BRSR principle even with no actionable rec).
+  const fhit: FrameworkHit | null | undefined =
+    topAction?.framework_hit || analysis?.what_it_triggers?.framework_hit;
 
   const parsedExtras = recipientsInput
     .split(/[,;\s]+/)
@@ -468,13 +478,13 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
               )}
             </p>
           )}
-          {/* Phase 56.D — "How this hits your framework". The framework /
+          {/* Phase 56.D/F — "How this hits your framework". The framework /
               principle / mandatory facts are DETERMINISTIC (ontology); only the
-              interpretation prose is LLM-written. Shown only for body-grounded
-              actions (headline-only recs carry no real framework hit) that
-              resolved a principle. Chip style mirrors the desktop
-              UnifiedAnalysisCard mandatory chip. */}
-          {!headlineOnly && topAction?.framework_hit?.framework && (
+              interpretation prose is LLM-written. Uses the recommendation's hit
+              when present, else the ARTICLE-LEVEL hit (so a critical with no
+              actionable rec — e.g. positive ESG news — still shows its BRSR
+              principle). Chip style mirrors the desktop UnifiedAnalysisCard. */}
+          {!headlineOnly && fhit?.framework && (
             <div style={{
               margin: "12px 0 0",
               padding: "11px 13px",
@@ -492,32 +502,30 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
                 <span style={{
                   display: "inline-flex", alignItems: "center", gap: 5,
                   padding: "4px 9px", borderRadius: 6,
-                  background: topAction.framework_hit.mandatory ? "#FEE2E2" : "#F1F5F9",
-                  border: topAction.framework_hit.mandatory ? "1px solid #FCA5A5" : `1px solid ${TOKENS.line}`,
+                  background: fhit.mandatory ? "#FEE2E2" : "#F1F5F9",
+                  border: fhit.mandatory ? "1px solid #FCA5A5" : `1px solid ${TOKENS.line}`,
                   fontSize: 11, fontWeight: 600,
-                  color: topAction.framework_hit.mandatory ? "#991B1B" : TOKENS.ink2,
+                  color: fhit.mandatory ? "#991B1B" : TOKENS.ink2,
                 }}>
                   <span>
-                    {topAction.framework_hit.framework}
-                    {topAction.framework_hit.principle_code
-                      ? ` · ${topAction.framework_hit.principle_code}`
-                      : ""}
+                    {fhit.framework}
+                    {fhit.principle_code ? ` · ${fhit.principle_code}` : ""}
                   </span>
-                  {topAction.framework_hit.mandatory && (
+                  {fhit.mandatory && (
                     <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: 0.5 }}>MANDATORY</span>
                   )}
                 </span>
-                {topAction.framework_hit.principle_title && (
+                {fhit.principle_title && (
                   <span style={{ fontSize: 11, color: TOKENS.ink3 }}>
-                    {topAction.framework_hit.principle_title}
+                    {fhit.principle_title}
                   </span>
                 )}
               </div>
-              {topAction.framework_hit.interpretation && (
+              {fhit.interpretation && (
                 <p style={{
                   margin: "8px 0 0", fontSize: 13, lineHeight: 1.55, color: TOKENS.ink2,
                 }}>
-                  {topAction.framework_hit.interpretation}
+                  {fhit.interpretation}
                 </p>
               )}
             </div>

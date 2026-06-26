@@ -208,4 +208,5 @@ def test_interpretation_falls_back_when_llm_empty() -> None:
         anchor, _insight(), _result(frameworks=[_brsr_match()]), _company(), llm,
     )
     assert len(prose) >= 25
-    assert "BRSR:P6" in prose and "BRSR" in prose
+    assert "BRSR" in prose and "Principle 6" in prose
+    assert "BRSR BRSR" not in prose  # no redundant framework+code

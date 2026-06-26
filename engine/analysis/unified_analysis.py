@@ -920,7 +920,71 @@ def _build_what_it_triggers(
     return {
         "frameworks": frameworks_out,
         "recommended_actions": actions_out,
+        # Phase 56.F — ARTICLE-LEVEL framework hit, shown on the swipe-up even
+        # when there are NO actionable recommendations (positive ESG news →
+        # "monitor"). The rec-level framework_hit rides on a recommendation; this
+        # guarantees every critical surfaces its BRSR principle.
+        "framework_hit": _article_framework_hit(result, actions_out),
     }
+
+
+def _clean_framework_prose(
+    anchor: dict[str, Any], theme: str, company_name: str,
+) -> str:
+    """Phase 56.F — clean, deterministic interpretation for the article-level
+    framework hit (the LLM rec-level line is preferred when present)."""
+    fw = anchor.get("framework", "BRSR")
+    title = anchor.get("principle_title") or anchor.get("principle_code", "")
+    obligation = "mandatory" if anchor.get("mandatory") else "voluntary"
+    topic = (theme or "").strip() or "this development"
+    cname = company_name or "the company"
+    return (
+        f"This {topic} development is reportable under {fw} {title} "
+        f"({obligation} for {cname}). Capture it in the next annual {fw} "
+        f"disclosure cycle — update the principle's metrics, targets and narrative."
+    )
+
+
+def _article_framework_hit(
+    result: Any, actions_out: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """Phase 56.F — the article's BRSR principle hit, independent of recs.
+
+    Derives the deterministic principle from the article theme (same anchor the
+    recommendation engine uses) so EVERY critical shows its
+    ``BRSR · Principle · MANDATORY`` chip. Interpretation prefers a rec's
+    (LLM-written) line for the same principle; otherwise a clean deterministic
+    line. Returns ``None`` when no principle applies (non-India / unmapped theme).
+    """
+    try:
+        from engine.analysis.recommendation_engine import _framework_hit_anchor
+        from engine.config import get_company
+
+        company = get_company(getattr(result, "company_slug", ""))
+        anchor = _framework_hit_anchor(result, company)
+        if not anchor:
+            return None
+        # Reuse a substantive rec-level interpretation for the same principle.
+        interp = ""
+        for a in actions_out or []:
+            fh = a.get("framework_hit") or {}
+            if (fh.get("principle_code") == anchor.get("principle_code")
+                    and len((fh.get("interpretation") or "").strip()) >= 25):
+                interp = fh["interpretation"]
+                break
+        if not interp:
+            theme = (getattr(getattr(result, "themes", None), "primary_theme", "") or "").strip()
+            interp = _clean_framework_prose(anchor, theme, getattr(company, "name", ""))
+        return {
+            "framework": anchor.get("framework", ""),
+            "principle_code": anchor.get("principle_code", ""),
+            "principle_title": anchor.get("principle_title", ""),
+            "mandatory": bool(anchor.get("mandatory")),
+            "region": anchor.get("region", ""),
+            "interpretation": interp[:600],
+        }
+    except Exception:  # noqa: BLE001 — additive, never break the composer
+        return None
 
 
 _INLINE_DEADLINE_PATTERN = None

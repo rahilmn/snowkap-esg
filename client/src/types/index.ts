@@ -223,6 +223,9 @@ export interface UnifiedRecommendedAction {
 export interface UnifiedAnalysisWhatItTriggers {
   frameworks: UnifiedFrameworkObligation[];
   recommended_actions: UnifiedRecommendedAction[];
+  /** Phase 56.F — article-level framework hit, shown even when there are no
+   * recommendations (positive ESG news → "monitor"). */
+  framework_hit?: UnifiedFrameworkHit | null;
 }
 
 export interface UnifiedSentimentTrajectory {
