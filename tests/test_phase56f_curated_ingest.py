@@ -198,6 +198,68 @@ def test_stamp_curated_card_overlays_recommendations(monkeypatch):
     assert "penalty exposure" in captured["personalised_analysis"]["why_it_matters"]["stakes_for_company"]
 
 
+def test_stamp_curated_card_overrides_fabricated_interpretation(monkeypatch):
+    """Phase 56.G — an admin framework_interpretation replaces the engine's
+    (sometimes hallucinated) prose on BOTH the article-level hit and each rec's
+    hit, so no invented ₹ figure (e.g. CAFE-3's '~₹55 crore') survives."""
+    existing = SimpleNamespace(
+        personalised_analysis={
+            "what_it_triggers": {
+                "framework_hit": {
+                    "framework": "BRSR", "principle_code": "BRSR:P6",
+                    "interpretation": "…modeled penalty exposure ~₹55 crore at the engine level…",
+                },
+                "recommended_actions": [{"title": "Monitor — Energy (no action required yet)"}],
+            },
+        },
+        criticality_score=0.9, criticality_band="CRITICAL",
+    )
+    captured = {}
+    monkeypatch.setattr("engine.models.company_article_view.get",
+                        lambda aid, slug: existing)
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(kw))
+    clean = ("Under BRSR Principle 6, the draft CAFE-3 norms are a material "
+             "regulatory-transition risk; no specific penalty figure should be "
+             "stated while the norms remain in draft.")
+    ok = db.stamp_curated_card(
+        SimpleNamespace(slug="maruti-suzuki-india"), "aid1",
+        recommendations=[{"title": "Model CAFE-3 fleet-CO2 gap", "type": "compliance"}],
+        framework_interpretation=clean,
+    )
+    assert ok is True
+    wit = captured["personalised_analysis"]["what_it_triggers"]
+    assert wit["framework_hit"]["interpretation"] == clean          # article-level overridden
+    assert "55 crore" not in wit["framework_hit"]["interpretation"]  # fabrication gone
+    assert wit["recommended_actions"][0]["framework_hit"]["interpretation"] == clean  # per-rec too
+
+
+def test_publish_curated_critical_direct_uses_supplied_interpretation(monkeypatch):
+    """The direct-write fallback prefers the admin's fact-checked interpretation
+    over its number-free template."""
+    captured = {}
+    monkeypatch.setattr("engine.models.article_pool.upsert",
+                        lambda **kw: captured.update(pool=kw))
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(view=kw))
+    art = SimpleNamespace(
+        id="d1", url="http://x/d", title="Maruti recall", source="X",
+        published_at="2026-06-20T00:00:00+00:00", content="recall body",
+        metadata={},
+    )
+    company = SimpleNamespace(slug="maruti-suzuki-india", industry="Automotive",
+                             name="Maruti Suzuki India Limited", framework_region="INDIA")
+    clean = "Under BRSR Principle 9, Maruti must disclose this recall in its product-safety metrics."
+    ok = db.publish_curated_critical_direct(
+        company, art, recommendations=[{"title": "Complete the replacement"}],
+        principle_code="BRSR:P9", principle_title="Principle 9 — Consumer Responsibility",
+        framework_interpretation=clean,
+    )
+    assert ok is True
+    fh = captured["view"]["personalised_analysis"]["what_it_triggers"]["framework_hit"]
+    assert fh["interpretation"] == clean
+
+
 def test_publish_curated_critical_direct_writes_full_card(monkeypatch):
     """Fallback when the pipeline fails to write a curated critical: builds the
     article_pool + company_article_view rows directly (critical tier, lede, recs,
