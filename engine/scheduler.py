@@ -362,7 +362,16 @@ def run_weekly_deck_refresh_job() -> dict[str, Any]:
                 "(set SNOWKAP_NEWSLETTER_ENABLED=1 to send)"
             )
 
+        from engine.models import deck_freeze
         for company in companies:
+            # Frozen tenant (e.g. a pinned demo deck) → skip BEFORE the fetch so
+            # no NewsAPI token is spent and the curated deck is never touched.
+            # build_company_deck also guards this, but skipping here is explicit
+            # + cheaper. Reversible via the admin deck-freeze endpoint.
+            if deck_freeze.is_frozen(company.slug):
+                logger.info("weekly refresh: %s is FROZEN — skipped", company.slug)
+                summary.setdefault("frozen", []).append(company.slug)
+                continue
             try:
                 fresh = fetch_for_company(company, max_per_query=18)
                 deck = build_company_deck(company, fresh, n_critical=3, n_total=10)

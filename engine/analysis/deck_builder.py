@@ -232,6 +232,21 @@ def build_company_deck(
     """Build the tier-gated deck for one company. See module docstring."""
     t0 = time.monotonic()
     summary = DeckSummary(company_slug=getattr(company, "slug", "?"))
+    # Demo / pinned-deck FREEZE — the single chokepoint. Every automated rebuild
+    # (weekly Sunday refresh, overnight batch) flows through here, so a frozen
+    # tenant's hand-curated deck is never wiped. No-op summary; reversible via
+    # the admin deck-freeze endpoint. (The admin curated-ingest path uses
+    # build_curated_deck, NOT this, so manual re-stamps still work when frozen.)
+    try:
+        from engine.models import deck_freeze
+        if deck_freeze.is_frozen(summary.company_slug):
+            logger.info("[deck] %s is FROZEN — skipping automated rebuild", summary.company_slug)
+            summary.errors.append("frozen")
+            summary.elapsed_seconds = time.monotonic() - t0
+            return summary
+    except Exception as exc:  # noqa: BLE001 — never let the freeze guard block a build
+        logger.warning("[deck] freeze check failed for %s (continuing): %s",
+                       summary.company_slug, exc)
     summary.fetched = len(candidates)
     if not candidates:
         summary.elapsed_seconds = time.monotonic() - t0
@@ -686,6 +701,50 @@ def publish_curated_critical_direct(
         logger.warning("[deck] publish_curated_critical_direct failed for %s: %s",
                        getattr(article, "id", "?"), exc)
         return False
+
+
+def set_article_image(company_slug: str, article_id: str, image_url: str) -> bool:
+    """Overwrite the hero image for one article (e.g. a dead/404 source image).
+
+    The feed maps ``shared_analysis.image_url || personalised_analysis.image_url``
+    (NowPage.tsx) — shared wins — so this updates the ``article_pool``
+    shared_analysis FIRST and the per-company view second. Returns True if any
+    row was updated.
+    """
+    if not article_id or not image_url:
+        return False
+    from engine.models import article_pool, company_article_view as cav
+    updated = False
+    try:
+        ap = article_pool.get(article_id)
+        if ap is not None:
+            sh = dict(getattr(ap, "shared_analysis", None) or {})
+            sh["image_url"] = image_url
+            article_pool.upsert(
+                article_id=ap.id, url=ap.url, title=ap.title, source=ap.source,
+                published_at=ap.published_at, primary_industry=ap.primary_industry,
+                material_industries=ap.material_industries, primary_pillar=ap.primary_pillar,
+                primary_theme=ap.primary_theme, event_id=ap.event_id,
+                event_polarity=ap.event_polarity, shared_analysis=sh,
+            )
+            updated = True
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[deck] set_article_image pool update failed for %s: %s", article_id, exc)
+    try:
+        row = cav.get(article_id, company_slug)
+        if row is not None:
+            pa = dict(row.personalised_analysis or {})
+            pa["image_url"] = image_url
+            cav.upsert(
+                article_id=article_id, company_slug=company_slug,
+                personalised_analysis=pa,
+                criticality_score=row.criticality_score,
+                criticality_band=row.criticality_band,
+            )
+            updated = True
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[deck] set_article_image view update failed for %s: %s", article_id, exc)
+    return updated
 
 
 def stamp_curated_card(
