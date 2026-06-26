@@ -7,6 +7,7 @@ filter that keeps "I am planning to buy a car…" forum posts out of the deck.
 """
 from __future__ import annotations
 
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -304,6 +305,40 @@ def test_stamp_curated_insight_patches_detail_payload(monkeypatch):
     assert wit["recommended_actions"][0]["framework_hit"]["interpretation"] == clean  # per-rec clean
     wim = captured["payload"]["insight"]["analysis"]["why_it_matters"]
     assert "CAFE-3 penalties" in wim["stakes_for_company"]                       # key-risk overlaid
+
+
+def test_scrub_engine_exposure_strips_fabricated_rupee_figures():
+    """Phase 56.H — remove the engine's '~₹55 Cr modeled exposure (engine
+    estimate)' from every engine field, KEEP the '(engine estimate)' disclosure
+    and the article-sourced 'hundreds of crores' qualitative framing, and NEVER
+    touch the source article body."""
+    payload = {
+        "article": {"body": "Penalties could reach ~₹55 Cr per the filing."},  # source — untouched
+        "insight": {
+            "decision_summary": {
+                "financial_exposure": "~₹55 Cr modeled direct transition exposure (engine estimate); "
+                                      "article states penalties could reach hundreds of crores at fleet scale",
+                "key_risk": "~₹55 Cr modeled direct exposure (engine estimate) rising to hundreds of crores",
+            },
+            "financial_timeline": {"immediate": {
+                "headline": "~₹55 Cr modeled regulatory transition exposure (engine estimate) as CAFE-3 advances"}},
+            "impact_analysis": {"valuation_cashflow":
+                "Penalty exposure of hundreds of crores (engine estimate: ~₹50–60 Cr modeled direct exposure)"},
+        },
+        "recommendations": {"validated_recommendations": [
+            {"profitability_link": "compresses margin by approximately 0.4-1 bps per ₹55 Cr of direct exposure"}]},
+    }
+    out = db._scrub_engine_exposure(payload)
+    # Engine-generated subtrees must be free of the fabricated figure …
+    engine_blob = json.dumps({"insight": out["insight"], "recommendations": out["recommendations"]},
+                             ensure_ascii=False)
+    assert "55 Cr" not in engine_blob and "₹55" not in engine_blob and "50–60 Cr" not in engine_blob
+    assert "engine estimate" in out["insight"]["decision_summary"]["financial_exposure"]  # disclosure kept
+    assert "hundreds of crores" in out["insight"]["decision_summary"]["financial_exposure"]  # sourced framing kept
+    assert "modeled regulatory transition exposure" in out["insight"]["financial_timeline"]["immediate"]["headline"]
+    assert out["article"]["body"] == "Penalties could reach ~₹55 Cr per the filing."  # SOURCE untouched
+    # no dangling double-spaces / orphaned punctuation
+    assert "  " not in out["insight"]["decision_summary"]["financial_exposure"]
 
 
 def test_stamp_curated_insight_noop_when_no_payload(monkeypatch):
