@@ -1817,6 +1817,10 @@ class CuratedArticleIn(BaseModel):
     image_url: str | None = None
     recommendations: list[dict] | None = None
     key_risk: str | None = None  # one-line "stakes for company" override
+    # BRSR principle for the framework chip on the direct-write fallback path
+    # (used only when the pipeline fails to write the card). e.g. "BRSR:P6".
+    framework_principle: str | None = None
+    framework_title: str | None = None
 
 
 class IngestArticlesIn(BaseModel):
@@ -1903,19 +1907,31 @@ def _run_curated_ingest(
         summary = build_curated_deck(company, criticals, quick, n_total=3 + fill_quick_reads)
         logger.info("curated-ingest: %s -> %s", slug, summary.to_dict())
 
-        # Phase 56.F — overlay any admin-supplied recommendations / key-risk onto
-        # the published criticals (the force_accept'd pipeline yields a degraded
-        # insight → generic monitor rec; this gives them real, distinct actions).
-        from engine.analysis.deck_builder import stamp_curated_card
-        published_ids = {p.get("article_id") for p in summary.published_items if p.get("tier") == "critical"}
+        # Phase 56.F — finalize the curated criticals. The force_accept'd pipeline
+        # gives them a degraded insight (generic monitor rec) and SOMETIMES fails
+        # its per-company write entirely (the card vanishes — recall / Q4-revenue).
+        # So: (1) if the row exists, overlay the admin's real recommendations /
+        # key-risk; (2) if the pipeline left NO row, direct-write the card from the
+        # curated content so it reliably shows.
+        from engine.analysis.deck_builder import (
+            stamp_curated_card, publish_curated_critical_direct,
+        )
+        crit_by_id = {c.id: c for c in criticals}
         for a in articles:
-            recs = a.get("recommendations")
-            key_risk = (a.get("key_risk") or "").strip()
-            if not recs and not key_risk:
-                continue
             aid = _url_hash((a.get("url") or "").strip())
-            if aid in published_ids:
-                stamp_curated_card(company, aid, recommendations=recs or [], key_risk=key_risk)
+            recs = a.get("recommendations") or []
+            key_risk = (a.get("key_risk") or "").strip()
+            row = cav.get(aid, slug)
+            if row is None:
+                art = crit_by_id.get(aid)
+                if art is not None:
+                    publish_curated_critical_direct(
+                        company, art, recommendations=recs, key_risk=key_risk,
+                        principle_code=(a.get("framework_principle") or ""),
+                        principle_title=(a.get("framework_title") or ""),
+                    )
+            elif recs or key_risk:
+                stamp_curated_card(company, aid, recommendations=recs, key_risk=key_risk)
     except Exception as exc:  # noqa: BLE001
         logger.exception("curated-ingest failed for %s: %s", slug, exc)
 

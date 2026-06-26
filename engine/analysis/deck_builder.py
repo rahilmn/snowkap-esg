@@ -581,6 +581,109 @@ def publish_quick_read(company: Any, article: Any) -> str:
         return "error"
 
 
+def publish_curated_critical_direct(
+    company: Any, article: Any, *,
+    recommendations: list[dict] | None = None,
+    key_risk: str = "",
+    principle_code: str = "",
+    principle_title: str = "",
+) -> bool:
+    """Phase 56.F — write a CRITICAL card DIRECTLY (no LLM pipeline).
+
+    Fallback for the recurring failure where a force_accept'd curated critical
+    runs a degraded Stage-10 analysis whose per-company write
+    (``_upsert_pool_and_view``) silently fails → no row → the card vanishes
+    (seen on the recall + the Q4-revenue articles, both mis-themed "Climate
+    Change"). When the pipeline leaves no row, this builds article_pool +
+    company_article_view from the admin's curated content (title, body, image,
+    recommendations, key-risk, BRSR principle) so the card reliably shows —
+    LLM-independent. Returns True on success.
+    """
+    from engine.models import article_pool, company_article_view
+    try:
+        aid = (getattr(article, "id", "") or "").strip()
+        url = (getattr(article, "url", "") or "").strip()
+        title = (getattr(article, "title", "") or "").strip()
+        if not aid or not url or not title:
+            return False
+        slug = getattr(company, "slug", "")
+        industry = (getattr(company, "industry", "") or "").strip() or "Unknown"
+        source = getattr(article, "source", "") or ""
+        published_at = getattr(article, "published_at", "") or ""
+        body = (getattr(article, "content", "") or getattr(article, "summary", "") or "").strip()
+        _meta = getattr(article, "metadata", None) or {}
+        img = (_meta.get("image_url") or "").strip()
+        summary_line = (key_risk or body[:220]).strip() or title
+
+        fh: dict[str, Any] | None = None
+        if principle_code:
+            obligation = "mandatory" if getattr(company, "framework_region", "") == "INDIA" else "voluntary"
+            fh = {
+                "framework": "BRSR", "principle_code": principle_code,
+                "principle_title": principle_title or principle_code,
+                "mandatory": getattr(company, "framework_region", "") == "INDIA",
+                "region": getattr(company, "framework_region", "") or "INDIA",
+                "interpretation": (
+                    f"This development is reportable under BRSR "
+                    f"{principle_title or principle_code} ({obligation} for "
+                    f"{getattr(company, 'name', 'the company')}). Reflect it in "
+                    f"the next annual BRSR disclosure cycle."
+                ),
+            }
+
+        actions: list[dict] = []
+        for r in (recommendations or [])[:4]:
+            a: dict[str, Any] = {
+                "title": str(r.get("title", "") or "")[:160],
+                "deadline": str(r.get("deadline", "") or "")[:60],
+                "owner": str(r.get("owner", "") or "")[:60],
+                "type": str(r.get("type", "") or ""),
+            }
+            if fh:
+                a["framework_hit"] = fh
+            actions.append(a)
+
+        shared: dict[str, Any] = {"what_changed": {"headline": title}}
+        if img:
+            shared["image_url"] = img
+        personalised: dict[str, Any] = {
+            "tier": "critical",
+            # a lede makes the feed classify the card as critical (has_lede)
+            "lede": {"text": summary_line[:400], "model_used": "curated"},
+            "what_changed": {"headline": title, "polarity": "negative", "source": source},
+            "why_it_matters": {
+                "materiality_band": "HIGH",
+                "criticality_summary": summary_line[:400],
+                "stakes_for_company": (key_risk or summary_line)[:600],
+            },
+            "what_it_triggers": {
+                "recommended_actions": actions,
+                "framework_hit": fh,
+            },
+        }
+        if img:
+            personalised["image_url"] = img
+
+        article_pool.upsert(
+            article_id=aid, url=url, title=title, source=source,
+            published_at=published_at, primary_industry=industry,
+            material_industries=[industry], primary_pillar=None,
+            primary_theme=None, event_id=None, event_polarity="negative",
+            shared_analysis=shared,
+        )
+        company_article_view.upsert(
+            article_id=aid, company_slug=slug,
+            personalised_analysis=personalised,
+            criticality_score=0.9, criticality_band="CRITICAL",
+        )
+        logger.info("[deck] direct-wrote curated critical %s (%s)", aid, title[:50])
+        return True
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[deck] publish_curated_critical_direct failed for %s: %s",
+                       getattr(article, "id", "?"), exc)
+        return False
+
+
 def stamp_curated_card(
     company: Any, article_id: str, *,
     recommendations: list[dict] | None = None,

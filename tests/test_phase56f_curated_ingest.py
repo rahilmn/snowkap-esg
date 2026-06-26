@@ -196,3 +196,36 @@ def test_stamp_curated_card_overlays_recommendations(monkeypatch):
     assert actions[0]["framework_hit"]["principle_code"] == "BRSR:P6"  # kept
     assert captured["criticality_band"] == "CRITICAL"  # re-pinned
     assert "penalty exposure" in captured["personalised_analysis"]["why_it_matters"]["stakes_for_company"]
+
+
+def test_publish_curated_critical_direct_writes_full_card(monkeypatch):
+    """Fallback when the pipeline fails to write a curated critical: builds the
+    article_pool + company_article_view rows directly (critical tier, lede, recs,
+    image, BRSR chip) so the card reliably shows."""
+    captured = {}
+    monkeypatch.setattr("engine.models.article_pool.upsert",
+                        lambda **kw: captured.update(pool=kw))
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(view=kw))
+    art = SimpleNamespace(
+        id="rev1", url="http://x/rev", title="Maruti Q4: profit down 6.45%",
+        source="Whalesbook", published_at="2026-04-29T00:00:00+00:00",
+        content="Net profit declined 6.45% to Rs 3,659 crore on margin pressure.",
+        metadata={"image_url": "https://img/rev.jpg"},
+    )
+    company = SimpleNamespace(slug="maruti-suzuki-india", industry="Automotive",
+                             name="Maruti Suzuki India Limited", framework_region="INDIA")
+    ok = db.publish_curated_critical_direct(
+        company, art,
+        recommendations=[{"title": "Defend operating margin", "owner": "Finance", "type": "financial"}],
+        key_risk="Net profit down 6.45% on margin pressure",
+        principle_code="BRSR:P1", principle_title="Principle 1 — Ethical Conduct",
+    )
+    assert ok is True
+    pe = captured["view"]["personalised_analysis"]
+    assert pe["tier"] == "critical" and pe.get("lede", {}).get("text")  # tier=critical via lede
+    actions = pe["what_it_triggers"]["recommended_actions"]
+    assert actions[0]["title"] == "Defend operating margin"
+    assert actions[0]["framework_hit"]["principle_code"] == "BRSR:P1"
+    assert captured["view"]["criticality_band"] == "CRITICAL"
+    assert captured["pool"]["shared_analysis"]["image_url"] == "https://img/rev.jpg"
