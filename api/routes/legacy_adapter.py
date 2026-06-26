@@ -1825,6 +1825,9 @@ class CuratedArticleIn(BaseModel):
     # engine's framework_hit text (which can fabricate a precise ₹ "modeled
     # exposure" figure not in the source, e.g. CAFE-3's invented "~₹55 crore").
     framework_interpretation: str | None = None
+    # Phase 56.H — clean "How it impacts" line for the card's criticality_summary
+    # (overrides the engine's degraded/figure-laden one on the swipe-up detail).
+    impact_summary: str | None = None
 
 
 class IngestArticlesIn(BaseModel):
@@ -1927,6 +1930,7 @@ def _run_curated_ingest(
             recs = a.get("recommendations") or []
             key_risk = (a.get("key_risk") or "").strip()
             fw_interp = (a.get("framework_interpretation") or "").strip()
+            impact_summary = (a.get("impact_summary") or "").strip()
             row = cav.get(aid, slug)
             if row is None:
                 art = crit_by_id.get(aid)
@@ -1944,11 +1948,12 @@ def _run_curated_ingest(
                 )
             # Phase 56.H — the swipe-up detail view reads the SEPARATE
             # insight_payload store (deep_insight), not the deck card. Patch it
-            # too so the detail matches the card (curated recs + clean prose).
-            if recs or key_risk or fw_interp:
+            # too so the detail matches the card (curated recs + clean prose +
+            # truthful exposure pill + clean impact summary).
+            if recs or key_risk or fw_interp or impact_summary:
                 stamp_curated_insight(
                     aid, slug, recommendations=recs, key_risk=key_risk,
-                    framework_interpretation=fw_interp,
+                    framework_interpretation=fw_interp, impact_summary=impact_summary,
                 )
     except Exception as exc:  # noqa: BLE001
         logger.exception("curated-ingest failed for %s: %s", slug, exc)
