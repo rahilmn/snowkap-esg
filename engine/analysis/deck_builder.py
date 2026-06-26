@@ -498,22 +498,20 @@ def build_curated_deck(
 
 def _force_critical_band(company: Any, article_id: str) -> None:
     """Re-stamp a published article's per-company view row to band=CRITICAL so
-    it leads the /now feed sort (band → score → recency). No-op on any failure
-    (the card still shows, just at its natural sort position)."""
+    it leads the /now feed sort (band → score → recency) AND bypasses the 30-day
+    window. Direct band UPDATE (no personalised_analysis re-write) so a large /
+    edge-case payload can't make the stamp silently fail."""
     if not article_id:
         return
+    slug = getattr(company, "slug", "")
     try:
         from engine.models import company_article_view as cav
-        row = cav.get(article_id, getattr(company, "slug", ""))
-        if row is None:
-            return
-        cav.upsert(
-            article_id=article_id,
-            company_slug=getattr(company, "slug", ""),
-            personalised_analysis=row.personalised_analysis,
-            criticality_score=max(float(row.criticality_score or 0.0), 0.9),
-            criticality_band="CRITICAL",
-        )
+        updated = cav.set_band(article_id, slug, band="CRITICAL", score=0.9)
+        if updated == 0:
+            logger.warning(
+                "[deck] force_critical_band: no view row for %s/%s (per-company "
+                "write may have failed) — card will be age/sort-gated", article_id, slug,
+            )
     except Exception as exc:  # noqa: BLE001 — cosmetic sort hint, never fatal
         logger.warning("[deck] force_critical_band failed for %s: %s", article_id, exc)
 
