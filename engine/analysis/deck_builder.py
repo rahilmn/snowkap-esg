@@ -390,3 +390,119 @@ def build_company_deck(
         summary.approval_rejected, summary.elapsed_seconds,
     )
     return summary
+
+
+def build_curated_deck(
+    company: Any,
+    critical_candidates: list[Any],
+    light_candidates: list[Any],
+    *,
+    n_total: int = 10,
+    force_critical_band: bool = True,
+) -> DeckSummary:
+    """Phase 56.F — publish an admin-curated deck with PINNED tiers.
+
+    Unlike :func:`build_company_deck` (which ranks a candidate pool and lets the
+    criticality score decide the 3/7 split), this publishes a hand-picked set:
+    every ``critical_candidates`` article is forced through the full critical
+    pipeline (Stage 10-12 + lede + framework_hit + recs + Opus approval) and
+    pinned to the CRITICAL tier; ``light_candidates`` fill the quick-read tier.
+    Used by ``POST /api/admin/ingest-articles`` for demos / manual curation.
+
+    ``force_critical_band`` re-stamps each published critical's
+    ``company_article_view`` row to band=CRITICAL (score 0.9) so it sorts to the
+    very top of the /now feed (which orders by band → score → recency),
+    guaranteeing the curated picks lead the deck regardless of their natural
+    (often LOW, because positive-ESG) criticality score. A curated critical that
+    fails the Opus approval gate is demoted to light — never shown with
+    fabricated content.
+    """
+    t0 = time.monotonic()
+    summary = DeckSummary(company_slug=getattr(company, "slug", "?"))
+    summary.fetched = len(critical_candidates) + len(light_candidates)
+
+    demoted: list[Any] = []
+    published_critical = 0
+    for art in critical_candidates:
+        result = _run_stages_1_to_9(art, company)
+        if result is None:
+            summary.rejected += 1
+            continue
+        summary.processed += 1
+        outcome = _publish_critical(result, company)
+        if outcome == "published":
+            published_critical += 1
+            if force_critical_band:
+                _force_critical_band(company, getattr(result, "article_id", ""))
+            summary.published_items.append({
+                "article_id": getattr(result, "article_id", ""),
+                "title": (getattr(result, "title", "") or "")[:200],
+                "tier": "critical", "has_recs": True,
+            })
+        elif outcome == "rejected_approval":
+            summary.approval_rejected += 1
+            demoted.append(result)
+        elif outcome == "rejected_stage10":
+            summary.rejected += 1
+        else:
+            summary.errors.append(f"critical {getattr(result, 'article_id', '?')}: {outcome}")
+    summary.critical_published = published_critical
+
+    # Light tier — approval-demoted criticals + the curated light picks.
+    light_results: list[Any] = list(demoted)
+    for art in light_candidates:
+        result = _run_stages_1_to_9(art, company)
+        if result is None:
+            summary.rejected += 1
+            continue
+        summary.processed += 1
+        light_results.append(result)
+
+    light_slots = max(0, n_total - published_critical)
+    published_light = 0
+    for result in light_results:
+        if published_light >= light_slots:
+            break
+        outcome = _publish_light(result)
+        if outcome == "published":
+            published_light += 1
+            summary.published_items.append({
+                "article_id": getattr(result, "article_id", ""),
+                "title": (getattr(result, "title", "") or "")[:200],
+                "tier": "light", "has_recs": False,
+            })
+        elif outcome == "rejected_approval":
+            summary.approval_rejected += 1
+        else:
+            summary.errors.append(f"light {getattr(result, 'article_id', '?')}: {outcome}")
+    summary.light_published = published_light
+
+    summary.elapsed_seconds = time.monotonic() - t0
+    logger.info(
+        "[deck] CURATED %s: critical=%d light=%d rejected=%d approval_rejected=%d (%.0fs)",
+        summary.company_slug, summary.critical_published, summary.light_published,
+        summary.rejected, summary.approval_rejected, summary.elapsed_seconds,
+    )
+    return summary
+
+
+def _force_critical_band(company: Any, article_id: str) -> None:
+    """Re-stamp a published article's per-company view row to band=CRITICAL so
+    it leads the /now feed sort (band → score → recency). No-op on any failure
+    (the card still shows, just at its natural sort position)."""
+    if not article_id:
+        return
+    try:
+        from engine.models import company_article_view as cav
+        row = cav.get(article_id, getattr(company, "slug", ""))
+        if row is None:
+            return
+        cav.upsert(
+            article_id=article_id,
+            company_slug=getattr(company, "slug", ""),
+            personalised_analysis=row.personalised_analysis,
+            criticality_score=max(float(row.criticality_score or 0.0), 0.9),
+            criticality_band="CRITICAL",
+        )
+    except Exception as exc:  # noqa: BLE001 — cosmetic sort hint, never fatal
+        logger.warning("[deck] force_critical_band failed for %s: %s", article_id, exc)
