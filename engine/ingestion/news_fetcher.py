@@ -419,6 +419,21 @@ _ESG_HARM_BASE: tuple[str, ...] = (
     "data breach", "governance failure",
 )
 
+# Phase 56.E — full-spectrum vocab for the STRICT primary lane. The primary
+# query title-locks on the company name, so a wider keyword set stays
+# company-focused (no roundup noise — precision is the title-lock + the
+# downstream relevance/criticality ranking). The positive-only ``_ESG_KEYWORDS``
+# above made company-TITLED negative events invisible — a "<Company> Recalled" /
+# "<Company> fined" headline matched NO positive term, so the lane only ever
+# returned upbeat disclosure PR and the deck skewed positive. Folding in the
+# universal harm base lets the title-locked lane cover the FULL materiality
+# spectrum. Validated live: Maruti's Ignis product-safety recall now surfaces;
+# Adani/IDFC counts are essentially unchanged (no noise flood). ~72 keyword
+# words total — under the 80-word EventRegistry plan cap (empirically accepted).
+_ESG_KEYWORDS_FULL: tuple[str, ...] = tuple(
+    dict.fromkeys([*_ESG_KEYWORDS, *_ESG_HARM_BASE])
+)
+
 # Sector overlay — keyed by the SASB sector label from _sasb_sector_for() (NOT
 # company.sasb_category, which is the literal "Unknown" in prod and would silently
 # miss). Key space = the values of INDUSTRY_TO_SASB_DEFAULT. An unseeded sector
@@ -549,8 +564,36 @@ def _esg_second_fetch_enabled(company: Company) -> bool:
         return True
 
 
+# Phase 56.E — national-arm suffix. An Indian operating subsidiary often carries
+# the country in its legal name ("Maruti Suzuki India", "Hyundai Motor India"),
+# but news headlines say the bare brand ("Maruti Suzuki"). The fetch title-locks
+# on the company keyword, so the extra "India" token demanded all three words in
+# the headline and collapsed the lane to ~3 hits (live: Maruti 20→3). Strip a
+# trailing national token from the SEARCH name (never the stored name), guarded
+# two ways so we never over-strip: (1) require >=3 tokens so a 2-token name like
+# "Coal India" (where the country IS the brand) is left whole; (2) skip when the
+# preceding token is a preposition/article, so "State Bank OF India" /
+# "Bank of India" stay intact.
+_GEO_SUFFIX_TOKENS = {"india"}
+_GEO_SUFFIX_PREPS = {"of", "the", "de", "del", "du", "da", "van", "von", "and"}
+
+
+def _strip_geo_suffix(name: str) -> str:
+    """Drop a trailing national-arm token ("Maruti Suzuki India" → "Maruti
+    Suzuki"). No-op for <3-token names and for prepositional names. See the
+    block comment above for why."""
+    parts = (name or "").split()
+    if (
+        len(parts) >= 3
+        and parts[-1].lower().strip("()") in _GEO_SUFFIX_TOKENS
+        and parts[-2].lower() not in _GEO_SUFFIX_PREPS
+    ):
+        return " ".join(parts[:-1]).strip()
+    return name
+
+
 def _company_keyword(company: Company) -> str:
-    """Short, search-friendly company name (strip legal suffixes)."""
+    """Short, search-friendly company name (strip legal + national-arm suffixes)."""
     name = (company.name or company.slug or "").strip()
     for suffix in (
         " Limited", ", Inc.", " Inc.", " PLC", " Plc", " SE", " AG",
@@ -558,6 +601,7 @@ def _company_keyword(company: Company) -> str:
     ):
         if name.endswith(suffix):
             name = name[: -len(suffix)].strip()
+    name = _strip_geo_suffix(name)
     return name or company.slug
 
 
@@ -613,8 +657,10 @@ def fetch_newsapi_ai_for_company(
         strict_title = (company.slug or "").strip().lower() not in _broad_query_slugs()
     # Phase 52 — an explicit `esg_keywords` override (the ESG-material vocab on
     # the second, body-matched fetch) wins; otherwise pick by strict/broad.
+    # Phase 56.E — strict path uses the FULL-spectrum set (positive ∪ harm) so
+    # company-titled negatives (recall/penalty/strike) are no longer invisible.
     esg_terms = esg_keywords if esg_keywords is not None else (
-        _ESG_KEYWORDS if strict_title else _ESG_KEYWORDS_BROAD
+        _ESG_KEYWORDS_FULL if strict_title else _ESG_KEYWORDS_BROAD
     )
 
     # STRICT path: company name must appear in the TITLE (the article is
@@ -1194,6 +1240,15 @@ def _company_name_variants(name: str) -> list[str]:
     short = _CORP_SUFFIX_RE.sub("", canonical).strip()
     if short and short != canonical and len(short) >= 3:
         variants.append(short)
+    # Phase 56.E — also strip a trailing national-arm token ("maruti suzuki
+    # india" → "maruti suzuki") so the relevance guard accepts headlines that
+    # use the bare brand. Same guards as the search keyword (see
+    # _strip_geo_suffix). Without this, _is_article_about_company demanded the
+    # country token and dropped genuine "Maruti Suzuki ..." stories.
+    for base in list(variants):
+        geo = _strip_geo_suffix(base)
+        if geo != base and len(geo) >= 3 and geo not in variants:
+            variants.append(geo)
     return variants
 
 
