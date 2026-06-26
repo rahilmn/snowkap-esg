@@ -275,10 +275,19 @@ def _detect_cross_entity(
 def process_article(
     article: dict[str, Any],
     company: Company,
+    *,
+    force_accept: bool = False,
 ) -> PipelineResult:
     """Run the full analysis pipeline for a single article + company.
 
     ``article`` is the ingested JSON shape (title, content, source, url, etc.).
+
+    ``force_accept`` (Phase 56.F) bypasses the two early REJECT gates — the
+    cross-entity attribution gate and the relevance-tier floor — for an
+    admin-PINNED curated article. The admin has explicitly vouched for it, so it
+    must run the full pipeline + publish even if the relevance scorer would
+    normally drop it (e.g. an analysis/opinion ESG piece the scorer reads as
+    market commentary). Only used by the curated-ingest path.
     """
     started = time.perf_counter()
     stages: list[str] = []
@@ -314,7 +323,7 @@ def process_article(
     # actually about a sibling group company (e.g. Adani Energy Solutions
     # filed under Adani Power's feed), reject before running stages 2-12.
     # Saves LLM dollars and prevents confident-wrong CFO/CEO output.
-    is_cross, cross_reason = (False, "") if is_thematic else _detect_cross_entity(nlp, title, content, company)
+    is_cross, cross_reason = (False, "") if (is_thematic or force_accept) else _detect_cross_entity(nlp, title, content, company)
     if is_cross:
         result = PipelineResult(
             article_id=article.get("id", ""),
@@ -377,16 +386,27 @@ def process_article(
 
     # Gate: reject early
     if relevance.tier == TIER_REJECTED:
-        result.rejected = True
-        result.rejection_reason = relevance.rejection_reason
-        result.ontology_query_count = ontology_queries
-        result.elapsed_seconds = round(time.perf_counter() - started, 3)
-        logger.info(
-            "pipeline: %s REJECTED (%s)",
-            article.get("id", "")[:8],
-            relevance.rejection_reason,
-        )
-        return result
+        if force_accept:
+            # Admin-pinned curated article — bypass the relevance floor and run
+            # the full pipeline so it can publish as a critical. Promote the
+            # result tier to HOME; the original score is preserved on `relevance`
+            # for transparency.
+            result.tier = TIER_HOME
+            logger.info(
+                "pipeline: %s force-accepted (relevance would REJECT: %s)",
+                article.get("id", "")[:8], relevance.rejection_reason,
+            )
+        else:
+            result.rejected = True
+            result.rejection_reason = relevance.rejection_reason
+            result.ontology_query_count = ontology_queries
+            result.elapsed_seconds = round(time.perf_counter() - started, 3)
+            logger.info(
+                "pipeline: %s REJECTED (%s)",
+                article.get("id", "")[:8],
+                relevance.rejection_reason,
+            )
+            return result
 
     # Stage 5: Causal chain BFS (run for both HOME and SECONDARY tiers).
     # Two seed strategies are combined:
