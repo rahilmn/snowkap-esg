@@ -760,3 +760,76 @@ def stamp_curated_card(
     except Exception as exc:  # noqa: BLE001
         logger.warning("[deck] stamp_curated_card failed for %s: %s", article_id, exc)
         return False
+
+
+def stamp_curated_insight(
+    article_id: str, company_slug: str = "", *,
+    recommendations: list[dict] | None = None,
+    key_risk: str = "",
+    framework_interpretation: str = "",
+) -> bool:
+    """Phase 56.H — patch the durable ``insight_payload`` (the SECOND store).
+
+    The swipe-up ArticleSheet does NOT read the deck card
+    (``company_article_view.personalised_analysis``) — it calls
+    ``GET /news/{id}/analysis`` which returns ``deep_insight`` = a 1:1
+    passthrough of ``insight_payload[aid]["insight"]``. The force-accept
+    pipeline wrote a DEGRADED insight there (engine "File PMO…" rec + a
+    fabricated "~₹55 crore" framework_hit), so `stamp_curated_card` (which
+    only fixes the deck card) left the detail view showing the bad content.
+
+    This overlays the SAME curated recommendations + clean framework_hit +
+    key-risk onto ``insight.analysis.what_it_triggers`` (article-level hit AND
+    each rec's hit) and ``why_it_matters.stakes_for_company`` so the swipe-up
+    matches the card. Touches only this one article's payload row — no effect
+    on other tenants (the detail endpoint is shared but keyed by article_id).
+    Returns True if a payload row was patched.
+    """
+    if not article_id or not (recommendations or framework_interpretation or key_risk):
+        return False
+    try:
+        from engine.models import insight_payload
+        payload = insight_payload.get(article_id)
+        if not isinstance(payload, dict):
+            return False
+        insight = payload.get("insight")
+        if not isinstance(insight, dict):
+            return False
+        analysis = insight.get("analysis")
+        if not isinstance(analysis, dict):
+            return False
+        wit = dict(analysis.get("what_it_triggers") or {})
+        fh = wit.get("framework_hit")
+        if fh and framework_interpretation:
+            fh = dict(fh)
+            fh["interpretation"] = framework_interpretation
+            wit["framework_hit"] = fh
+        if recommendations:
+            actions: list[dict] = []
+            for r in recommendations[:4]:
+                a: dict[str, Any] = {
+                    "title": str(r.get("title", "") or "")[:160],
+                    "deadline": str(r.get("deadline", "") or "")[:60],
+                    "owner": str(r.get("owner", "") or "")[:60],
+                    "type": str(r.get("type", "") or ""),
+                }
+                if r.get("description"):
+                    a["description"] = str(r["description"])[:400]
+                if fh:
+                    a["framework_hit"] = fh
+                actions.append(a)
+            wit["recommended_actions"] = actions
+        analysis["what_it_triggers"] = wit
+        if key_risk:
+            wim = dict(analysis.get("why_it_matters") or {})
+            wim["stakes_for_company"] = str(key_risk)[:600]
+            analysis["why_it_matters"] = wim
+        insight["analysis"] = analysis
+        payload["insight"] = insight
+        slug = company_slug or payload.get("company_slug") or ""
+        insight_payload.upsert(article_id, slug, payload)
+        logger.info("[deck] patched curated insight payload for %s", article_id)
+        return True
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("[deck] stamp_curated_insight failed for %s: %s", article_id, exc)
+        return False
