@@ -368,3 +368,22 @@ def invalidate_for_company(company_slug: str) -> int:
             ("invalidated", company_slug),
         )
         return cur.rowcount or 0
+
+
+def delete_for_company(company_slug: str) -> int:
+    """Phase 56.F — hard-delete every per-company view row for a slug.
+
+    The /now feed JOINs article_pool ⋈ company_article_view, so removing the
+    view rows hides ALL of a company's cards without touching the shared
+    article_pool (other tenants' decks are unaffected). Used by the admin
+    curated-ingest path to reset a deck to a clean slate before publishing an
+    exact, hand-picked set. Returns the row count removed.
+    """
+    if not company_slug:
+        return 0
+    with _db_connect() as conn:
+        cur = conn.execute(
+            "DELETE FROM company_article_view WHERE company_slug = ?",
+            (company_slug,),
+        )
+        return cur.rowcount or 0

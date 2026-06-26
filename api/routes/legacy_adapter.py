@@ -1799,6 +1799,142 @@ def admin_refresh_deck(
     return {"slug": slug, "deck": deck.to_dict()}
 
 
+# Phase 56.F — admin curated-ingest: publish a hand-picked deck (demo / manual
+# override) where the supplied articles are PINNED as criticals (full pipeline:
+# lede + framework_hit + recs) and the quick-read tier is filled from the live
+# company fetch (UGC/forum noise filtered out).
+class CuratedArticleIn(BaseModel):
+    url: str
+    title: str
+    body: str
+    published_at: str | None = None  # ISO; defaults to now (keeps it in the 30d feed window)
+    source: str | None = None
+
+
+class IngestArticlesIn(BaseModel):
+    slug: str
+    articles: list[CuratedArticleIn]      # pinned CRITICAL, in order
+    fill_quick_reads: int = 7             # fetch + publish N light company articles
+    reset: bool = True                    # clear existing per-company view rows first
+
+
+def _looks_like_ugc(title: str, source: str | None) -> bool:
+    """Drop forum / user-generated posts ('I am planning to buy a car…',
+    TeamBHP threads) from the quick-read tier — they aren't news."""
+    t = (title or "").strip().lower()
+    s = (source or "").strip().lower()
+    if any(k in s for k in ("teambhp", "forum", "reddit", "quora")):
+        return True
+    if t.startswith(("i ", "i'm", "i (", "hi,", "hi ", "my ")):
+        return True
+    return any(k in t for k in (
+        "planning to buy", "i currently", "i am currently", "should i buy",
+        "which car", "help me choose", "looking for advice",
+    ))
+
+
+def _run_curated_ingest(
+    slug: str, articles: list[dict], fill_quick_reads: int, reset: bool,
+) -> None:
+    """Background worker: reset the deck, publish curated criticals + quick reads."""
+    from datetime import datetime, timezone
+    from engine.ingestion.news_fetcher import (
+        IngestedArticle, fetch_for_company, _url_hash,
+    )
+    from engine.analysis.deck_builder import build_curated_deck
+    from engine.models import company_article_view as cav
+
+    try:
+        company = next((c for c in load_companies() if c.slug == slug), None)
+        if company is None:
+            logger.warning("curated-ingest: unknown slug %s", slug)
+            return
+        if reset:
+            removed = cav.delete_for_company(slug)
+            logger.info("curated-ingest: reset %s -> removed %d view rows", slug, removed)
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        criticals: list[IngestedArticle] = []
+        for a in articles:
+            url = (a.get("url") or "").strip()
+            body = (a.get("body") or "").strip()
+            if not url or not body:
+                continue
+            criticals.append(IngestedArticle(
+                id=_url_hash(url),
+                title=(a.get("title") or "").strip()[:300],
+                content=body,
+                summary=body[:400],
+                source=(a.get("source") or "Curated").strip(),
+                url=url,
+                published_at=(a.get("published_at") or now_iso),
+                company_slug=slug,
+                source_type="curated",
+                metadata={"kind": "curated"},
+            ))
+
+        quick: list[IngestedArticle] = []
+        if fill_quick_reads > 0:
+            try:
+                fetched = fetch_for_company(company, max_per_query=18, ignore_processed=True, persist=False)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning("curated-ingest: quick-read fetch failed: %s", exc)
+                fetched = []
+            crit_urls = {c.url for c in criticals}
+            for art in fetched:
+                if len(quick) >= fill_quick_reads:
+                    break
+                if getattr(art, "url", "") in crit_urls:
+                    continue
+                if _looks_like_ugc(getattr(art, "title", ""), getattr(art, "source", "")):
+                    continue
+                quick.append(art)
+
+        summary = build_curated_deck(company, criticals, quick, n_total=3 + fill_quick_reads)
+        logger.info("curated-ingest: %s -> %s", slug, summary.to_dict())
+    except Exception as exc:  # noqa: BLE001
+        logger.exception("curated-ingest failed for %s: %s", slug, exc)
+
+
+@router.post("/admin/ingest-articles")
+def admin_ingest_articles(
+    body: IngestArticlesIn,
+    background_tasks: BackgroundTasks,
+    _: None = Depends(require_auth),
+    claims: dict[str, Any] = Depends(get_bearer_claims),
+) -> dict[str, Any]:
+    """Phase 56.F — super-admin curated deck publish (demo / manual override).
+
+    The supplied ``articles`` are pinned as CRITICAL (run through the full
+    pipeline → lede + ontology framework_hit + recommendations); the deck's
+    quick-read tier is filled from the live company fetch with forum/UGC noise
+    filtered out. Heavy (LLM per article) → runs in a background task; poll
+    ``/api/now/feed?company=<slug>`` to see the result land.
+    """
+    email = (claims.get("sub") or claims.get("email") or "").strip().lower()
+    if not is_snowkap_super_admin(email):
+        raise HTTPException(status_code=403, detail="super-admin only")
+    slug = (body.slug or "").strip()
+    if not any(c.slug == slug for c in load_companies()):
+        raise HTTPException(status_code=404, detail=f"unknown company slug: {slug}")
+    if not body.articles:
+        raise HTTPException(status_code=422, detail="at least one article is required")
+    background_tasks.add_task(
+        _run_curated_ingest,
+        slug, [a.model_dump() for a in body.articles],
+        int(body.fill_quick_reads), bool(body.reset),
+    )
+    return {
+        "status": "accepted",
+        "slug": slug,
+        "pinned_criticals": len(body.articles),
+        "fill_quick_reads": body.fill_quick_reads,
+        "reset": body.reset,
+        "poll_url": f"/api/now/feed?company={slug}",
+        "message": "Curated ingest queued; poll the feed in ~3-6 min.",
+    }
+
+
 @router.post("/news/{article_id}/trigger-analysis")
 def news_trigger_analysis(
     article_id: str,
