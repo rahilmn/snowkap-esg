@@ -23,6 +23,7 @@ from __future__ import annotations
 import concurrent.futures
 import logging
 import os
+import re
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -762,6 +763,50 @@ def stamp_curated_card(
         return False
 
 
+# Engine-estimate ₹-crore figure, e.g. "~₹55 Cr", "₹50–60 Cr", "Rs 55 crore".
+# Requires a currency mark + digits so the article-sourced qualitative
+# "hundreds of crores" (no ₹, no leading digit) is NEVER touched.
+_ENGINE_RUPEE_FIG = re.compile(
+    r"~?\s*(?:₹|Rs\.?)\s*\d+(?:\.\d+)?(?:\s*[–\-]\s*\d+(?:\.\d+)?)?\s*(?:Cr|crores?)\b",
+    re.IGNORECASE,
+)
+
+
+def _scrub_engine_exposure(payload: dict[str, Any]) -> dict[str, Any]:
+    """Strip the engine's FABRICATED ₹-crore 'modeled exposure' figures from a
+    curated critical's insight payload.
+
+    Curated criticals are pinned for articles with NO source-cited ₹ amount (the
+    card header reads 'No direct ₹ exposure in article'), yet the cascade still
+    computes a precise '(engine estimate)' figure and threads it through
+    decision_summary, financial_timeline, toulmin grounds, rec rationale, etc. —
+    so it resurfaces on the emailed technical report / desktop / Ask even after
+    the mobile card is clean. This removes the ₹ figure token while keeping the
+    honest '(engine estimate)' disclosure AND the article-sourced 'hundreds of
+    crores' qualitative framing. Never touches the source ``article`` subtree.
+    Returns a scrubbed deep copy.
+    """
+    def _clean(s: str) -> str:
+        out = _ENGINE_RUPEE_FIG.sub("", s)
+        out = re.sub(r"\s{2,}", " ", out)
+        out = re.sub(r"\s+([;,.)])", r"\1", out)
+        out = re.sub(r"\(\s+", "(", out)
+        out = out.replace("per of ", "per unit of ").replace("per  of", "per unit of")
+        return out.strip()
+
+    def _walk(node: Any, *, in_article: bool) -> Any:
+        if isinstance(node, dict):
+            return {k: _walk(v, in_article=in_article or k == "article")
+                    for k, v in node.items()}
+        if isinstance(node, list):
+            return [_walk(v, in_article=in_article) for v in node]
+        if isinstance(node, str) and not in_article and _ENGINE_RUPEE_FIG.search(node):
+            return _clean(node)
+        return node
+
+    return _walk(payload, in_article=False)
+
+
 def stamp_curated_insight(
     article_id: str, company_slug: str = "", *,
     recommendations: list[dict] | None = None,
@@ -826,9 +871,14 @@ def stamp_curated_insight(
             analysis["why_it_matters"] = wim
         insight["analysis"] = analysis
         payload["insight"] = insight
+        # Scrub the engine's fabricated ₹-crore "modeled exposure (engine
+        # estimate)" from EVERY engine-generated field (decision_summary,
+        # financial_timeline, toulmin, rec rationale, …) so it can't resurface
+        # on the emailed report / desktop / Ask. The card already reads clean.
+        payload = _scrub_engine_exposure(payload)
         slug = company_slug or payload.get("company_slug") or ""
         insight_payload.upsert(article_id, slug, payload)
-        logger.info("[deck] patched curated insight payload for %s", article_id)
+        logger.info("[deck] patched + scrubbed curated insight payload for %s", article_id)
         return True
     except Exception as exc:  # noqa: BLE001
         logger.warning("[deck] stamp_curated_insight failed for %s: %s", article_id, exc)
