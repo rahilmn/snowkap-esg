@@ -1752,6 +1752,10 @@ def news_refresh(background: BackgroundTasks, _: None = Depends(require_auth)) -
 
 class RefreshDeckIn(BaseModel):
     slug: str
+    # Phase 56.E — bypass the processed-URL dedup so a thin/stale deck can be
+    # rebuilt from scratch even when prior runs already marked the URLs seen
+    # (e.g. orphaned by a short-circuited re-onboard). Admin-only path.
+    force: bool = False
 
 
 @router.post("/admin/refresh-deck")
@@ -1784,9 +1788,14 @@ def admin_refresh_deck(
     from engine.analysis.deck_builder import build_company_deck
     from engine.ingestion.news_fetcher import fetch_for_company
 
-    fresh = fetch_for_company(company, max_per_query=18)
+    fresh = fetch_for_company(
+        company, max_per_query=18, ignore_processed=bool(body.force),
+    )
     deck = build_company_deck(company, fresh, n_critical=3, n_total=10)
-    logger.info("admin_refresh_deck: %s -> %s", slug, deck.to_dict())
+    logger.info(
+        "admin_refresh_deck: %s force=%s -> %s",
+        slug, bool(body.force), deck.to_dict(),
+    )
     return {"slug": slug, "deck": deck.to_dict()}
 
 
