@@ -380,6 +380,35 @@ snowkap:topic_tax_transparency snowkap:triggersFramework snowkap:GRI, snowkap:ES
 snowkap:topic_stakeholder_governance snowkap:triggersFramework snowkap:BRSR, snowkap:GRI, snowkap:ESRS, snowkap:EDELMAN .
 
 # =============================================================================
+# Phase 56.D — Theme → BRSR principle (deterministic). Replaces the brittle
+# keyword-title overlap in query_framework_sections for BRSR: each ESG topic is
+# authored to its governing BRSR principle (P1-P9, defined in
+# knowledge_expansion.ttl). Drives query_brsr_principles_for_theme(); one
+# primary principle per topic so the swipe-up shows a single clean "hits BRSR:Px".
+# =============================================================================
+snowkap:topic_climate snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_emissions snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_energy snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_water snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_waste snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_biodiversity snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_climate_adaptation snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_pollution snowkap:mapsToBRSRPrinciple snowkap:brsr_p6 .
+snowkap:topic_human_capital snowkap:mapsToBRSRPrinciple snowkap:brsr_p3 .
+snowkap:topic_health_safety snowkap:mapsToBRSRPrinciple snowkap:brsr_p3 .
+snowkap:topic_supply_chain_labor snowkap:mapsToBRSRPrinciple snowkap:brsr_p5 .
+snowkap:topic_dei snowkap:mapsToBRSRPrinciple snowkap:brsr_p5 .
+snowkap:topic_community snowkap:mapsToBRSRPrinciple snowkap:brsr_p8 .
+snowkap:topic_product_safety snowkap:mapsToBRSRPrinciple snowkap:brsr_p9 .
+snowkap:topic_data_privacy snowkap:mapsToBRSRPrinciple snowkap:brsr_p9 .
+snowkap:topic_board_leadership snowkap:mapsToBRSRPrinciple snowkap:brsr_p1 .
+snowkap:topic_ethics_compliance snowkap:mapsToBRSRPrinciple snowkap:brsr_p1 .
+snowkap:topic_risk_management snowkap:mapsToBRSRPrinciple snowkap:brsr_p1 .
+snowkap:topic_transparency snowkap:mapsToBRSRPrinciple snowkap:brsr_p1 .
+snowkap:topic_tax_transparency snowkap:mapsToBRSRPrinciple snowkap:brsr_p1 .
+snowkap:topic_stakeholder_governance snowkap:mapsToBRSRPrinciple snowkap:brsr_p4 .
+
+# =============================================================================
 # INDUSTRIES (15 relevant to the 7 target companies)
 # =============================================================================
 

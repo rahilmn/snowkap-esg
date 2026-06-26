@@ -168,13 +168,25 @@ def match_frameworks(
         ]
         match.applicable_deadlines = hits[:3]
 
-    # Phase 14: Populate triggered_sections from ontology
-    from engine.ontology.intelligence import query_framework_sections
+    # Phase 14 + 56.D: Populate triggered_sections from ontology. BRSR uses the
+    # DETERMINISTIC theme→principle edges (query_brsr_principles_for_theme, a real
+    # ontology relation); other frameworks keep the keyword-title section match.
+    from engine.ontology.intelligence import (
+        query_framework_sections,
+        query_brsr_principles_for_theme,
+    )
     primary_theme = tags.primary_theme or ""
     for match in collected.values():
-        sections = query_framework_sections(match.framework_id, primary_theme)
-        if sections:
-            match.triggered_sections = sections
+        if match.framework_id == "BRSR":
+            principles = query_brsr_principles_for_theme(primary_theme)
+            if principles:
+                match.triggered_sections = [
+                    {"code": code, "title": title} for code, title in principles
+                ]
+        else:
+            sections = query_framework_sections(match.framework_id, primary_theme)
+            if sections:
+                match.triggered_sections = sections
         queries += 1
 
     matches = sorted(collected.values(), key=lambda m: m.relevance, reverse=True)

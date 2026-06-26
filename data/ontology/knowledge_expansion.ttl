@@ -1074,11 +1074,16 @@ snowkap:boost_global_issb a snowkap:RegionalFrameworkBoost ; snowkap:forRegion "
 # MANDATORY FRAMEWORK RULES (replaces hardcoded if-else in framework_matcher.py)
 # =============================================================================
 
+# Phase 56.D — broadened from "Large Cap" to "ALL". SEBI's BRSR mandate is the
+# top-1000 listed companies by market cap (Large AND Mid Cap); the product's
+# universe is listed companies, and the resolver's coarse cap tier mis-flags many
+# top-1000 names as "Mid Cap", so gating on "Large Cap" wrongly read them
+# non-mandatory. "ALL" matches any India-listed tier (subject URI kept stable).
 snowkap:mandatory_india_brsr_large a snowkap:MandatoryRule ;
-    rdfs:label "BRSR mandatory for India Large Cap" ;
+    rdfs:label "BRSR mandatory for India-listed companies" ;
     snowkap:mandatoryFramework snowkap:BRSR ;
     snowkap:mandatoryRegion "INDIA" ;
-    snowkap:mandatoryCapTier "Large Cap" .
+    snowkap:mandatoryCapTier "ALL" .
 
 snowkap:mandatory_eu_csrd a snowkap:MandatoryRule ;
     rdfs:label "CSRD mandatory for EU" ;

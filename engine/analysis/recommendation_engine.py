@@ -57,6 +57,18 @@ class Recommendation:
     #    "ref": "BRSR:P6:Q14" | "P2::SC→OX" | etc.,
     #    "value": "human-readable evidence string"}
     audit_trail: list[dict[str, str]] = field(default_factory=list)
+    # Phase 56.D — anchored framework-hit interpretation surfaced on the
+    # mobile swipe-up. The framework / principle / mandatory facts come from
+    # the DETERMINISTIC ontology layer (theme→BRSR-principle edge + mandatory
+    # rules); only `interpretation` is LLM-written, and it explains what THIS
+    # news means for that principle's disclosure. None when no principle
+    # applies (non-mapped theme, or a jurisdiction with no encoded principle
+    # layer). Shape:
+    #   {"framework": "BRSR", "principle_code": "BRSR:P6",
+    #    "principle_title": "Principle 6 — Environmental Protection",
+    #    "mandatory": true, "region": "INDIA",
+    #    "interpretation": "<1-2 LLM sentences, this-news-specific>"}
+    framework_hit: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -1781,6 +1793,176 @@ def _build_monitoring_recommendation(
     )
 
 
+def _framework_hit_anchor(
+    result: PipelineResult, company: Company
+) -> dict[str, Any] | None:
+    """Phase 56.D — the DETERMINISTIC framework facts for the article's theme.
+
+    Returns ``{framework, principle_code, principle_title, mandatory, region}``
+    sourced ENTIRELY from the ontology (theme→BRSR-principle edge +
+    ``query_mandatory_rules``), or ``None`` when no framework principle applies.
+    These facts are the ANCHOR — the LLM may never change them; it only writes
+    the interpretation prose (see ``_generate_framework_interpretation``).
+
+    Prefers the Stage-6 BRSR match (it already ran
+    ``query_brsr_principles_for_theme`` via ``framework_matcher`` and so agrees
+    with the desktop framework chips). Falls back to a direct ontology lookup
+    when Stage 6 didn't collect a BRSR match — the theme has a
+    ``mapsToBRSRPrinciple`` edge but no ``triggersFramework→BRSR`` edge, or
+    Stage 6 was skipped. BRSR (India) is the only principle-level layer this
+    phase; non-India principle mapping is a follow-up.
+    """
+    region = (getattr(company, "framework_region", "") or "").upper().strip()
+    themes = getattr(result, "themes", None)
+    primary_theme = (getattr(themes, "primary_theme", "") or "") if themes else ""
+
+    for fm in (getattr(result, "frameworks", None) or []):
+        if fm.framework_id != "BRSR":
+            continue
+        secs = fm.triggered_sections or []
+        if secs and isinstance(secs[0], dict) and secs[0].get("code"):
+            return {
+                "framework": "BRSR",
+                "principle_code": str(secs[0].get("code", "")),
+                "principle_title": str(secs[0].get("title", "") or ""),
+                "mandatory": bool(fm.is_mandatory),
+                "region": region or "INDIA",
+            }
+        break  # BRSR match exists but carries no principle — try the fallback
+
+    if region == "INDIA" and primary_theme:
+        from engine.ontology.intelligence import (
+            query_brsr_principles_for_theme,
+            query_mandatory_rules,
+        )
+        principles = query_brsr_principles_for_theme(primary_theme)
+        if principles:
+            code, title = principles[0]
+            cap = getattr(company, "market_cap", "") or ""
+            try:
+                mandatory = any(
+                    r.framework_id == "BRSR"
+                    and (r.cap_tier == "ALL" or r.cap_tier == cap)
+                    for r in query_mandatory_rules("INDIA")
+                )
+            except Exception:  # noqa: BLE001 — mandatory rule lookup is best-effort
+                mandatory = True
+            return {
+                "framework": "BRSR",
+                "principle_code": code,
+                "principle_title": title,
+                "mandatory": mandatory,
+                "region": "INDIA",
+            }
+    return None
+
+
+def _generate_framework_interpretation(
+    anchor: dict[str, Any],
+    insight: DeepInsight,
+    result: PipelineResult,
+    company: Company,
+    llm: Any,
+) -> str:
+    """Phase 56.D — one focused LLM call: what THIS news means under the
+    ontology-given principle.
+
+    The model writes ONLY prose. The framework / principle / mandatory are
+    fixed by ``anchor`` and passed in as immutable facts the model must not
+    change or supplement with a different framework. Returns ``""`` on any
+    failure (the UI then renders the deterministic facts without prose).
+    """
+    fw = anchor.get("framework", "")
+    pc = anchor.get("principle_code", "")
+    pt = anchor.get("principle_title", "")
+    mand = "mandatory" if anchor.get("mandatory") else "voluntary"
+    decision = insight.decision_summary or {}
+    headline = insight.headline or result.title
+    key_risk = decision.get("key_risk", "")
+    system = (
+        "You are an ESG disclosure analyst writing for a CFO. You are given a "
+        "news event and the EXACT framework principle it maps to — this mapping "
+        "is already fixed and you MUST NOT change it or name any other framework "
+        "or principle. In 1-2 plain-English sentences, explain what THIS specific "
+        "event means for the company's disclosure under that principle: the "
+        "concrete obligation or line item it touches in the next annual filing. "
+        "Refer to 'the next annual BRSR filing' / 'the next disclosure cycle', "
+        "never a specific invented date. Do not restate the principle's title as "
+        "a definition. Output ONLY the sentences — no preamble, no bullet, no JSON."
+    )
+    user = (
+        f"COMPANY: {company.name} ({company.industry}, region {anchor.get('region', '')})\n"
+        f"EVENT: {headline}\n"
+        f"KEY RISK: {key_risk}\n"
+        f"MAPPED FRAMEWORK: {fw} — {mand} for this company\n"
+        f"MAPPED PRINCIPLE: {pc} ({pt})\n\n"
+        f"What must {company.name} address under {pc} in its next {fw} "
+        f"disclosure because of this event?"
+    )
+    try:
+        model = llm.model_for()
+        resp = llm.sync.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            temperature=0.2,
+            max_tokens=220,
+        )
+        prose = (resp.choices[0].message.content or "").strip().strip('"').strip()
+        try:
+            from engine.models.llm_calls import log_openai_usage
+            log_openai_usage(
+                resp, model=model,
+                article_id=getattr(result, "article_id", None),
+                stage="framework_interpretation",
+            )
+        except Exception:  # noqa: BLE001 — usage logging is best-effort
+            pass
+        return prose[:600]
+    except Exception as exc:  # noqa: BLE001 — additive, never block recs
+        logger.warning(
+            "framework interpretation call failed (non-fatal): %s",
+            type(exc).__name__,
+        )
+        return ""
+
+
+def _stamp_framework_hit(
+    recs: list[Recommendation],
+    insight: DeepInsight,
+    result: PipelineResult,
+    company: Company,
+    llm: Any,
+) -> None:
+    """Phase 56.D — attach the anchored ``framework_hit`` (ontology facts + one
+    LLM interpretation sentence) to every surviving rec.
+
+    Article-level: all recs for one article share the same ``framework_hit``
+    object (the principle is driven by the article's theme, not the individual
+    rec). No-op — and no LLM call — when no principle applies.
+    """
+    if not recs:
+        return
+    anchor = _framework_hit_anchor(result, company)
+    if not anchor:
+        return
+    interpretation = _generate_framework_interpretation(
+        anchor, insight, result, company, llm,
+    )
+    framework_hit = {
+        "framework": anchor["framework"],
+        "principle_code": anchor.get("principle_code", ""),
+        "principle_title": anchor.get("principle_title", ""),
+        "mandatory": bool(anchor.get("mandatory")),
+        "region": anchor.get("region", ""),
+        "interpretation": interpretation,
+    }
+    for rec in recs:
+        rec.framework_hit = framework_hit
+
+
 def generate_recommendations(
     insight: DeepInsight, result: PipelineResult, company: Company
 ) -> RecommendationResult:
@@ -1846,6 +2028,16 @@ def generate_recommendations(
     validated = _filter_regional_frameworks(
         validated, getattr(company, "framework_region", None)
     )
+
+    # Phase 56.D — anchored framework-hit interpretation. The framework /
+    # principle / mandatory come from the DETERMINISTIC ontology layer
+    # (theme→BRSR principle edge + mandatory rules); the LLM writes ONLY the
+    # news-specific interpretation prose. One focused call, stamped on every
+    # surviving rec so the swipe-up can show "how this hits your framework".
+    try:
+        _stamp_framework_hit(validated, insight, result, company, llm)
+    except Exception as exc:  # noqa: BLE001 — additive, never block recs
+        logger.warning("framework_hit stamping failed (non-fatal): %s", exc)
 
     # Phase 14: Build priority matrix (urgency × impact)
     priority_matrix = _build_priority_matrix(validated)

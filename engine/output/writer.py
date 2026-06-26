@@ -266,7 +266,11 @@ def write_insight(
             # insights at schema 3.2 will re-enrich on next view via the
             # engine.analysis.on_demand schema-stale check, picking up
             # the new analysis.lede block.
-            "schema_version": "3.3-editorial-lede",
+            # Phase 56.D — 3.4-framework-interpretation: each recommended
+            # action now carries an anchored framework_hit (BRSR principle +
+            # mandatory flag + interpretation prose). Kept in lockstep with
+            # on_demand.CURRENT_SCHEMA_VERSION so the stale-gate re-enriches.
+            "schema_version": "3.4-framework-interpretation",
         },
     }
 
@@ -544,7 +548,7 @@ def write_light_insight(result: PipelineResult) -> WrittenFiles:
         "role_payloads": {},
         "meta": {
             "written_at": datetime.now(timezone.utc).isoformat(),
-            "schema_version": "3.3-editorial-lede",
+            "schema_version": "3.4-framework-interpretation",
             "tier": "light",
         },
     }
