@@ -360,6 +360,49 @@ def render_article_morning_brew(
       </div>
     """
 
+    # ── How this hits your framework (Phase 56.D/F/K) ─────────────────────
+    # The framework / principle / mandatory facts are ontology-derived
+    # (deterministic); only the interpretation prose is LLM-written. Prefer the
+    # article-level hit, else the top recommendation's hit. Mirrors the mobile
+    # ArticleSheet's "How this hits your framework" block.
+    fhit = what_it_triggers.get("framework_hit")
+    if not (isinstance(fhit, dict) and fhit.get("framework")):
+        for _a in actions:
+            _h = _a.get("framework_hit") if isinstance(_a, dict) else None
+            if isinstance(_h, dict) and _h.get("framework"):
+                fhit = _h
+                break
+    framework_html = ""
+    if isinstance(fhit, dict) and fhit.get("framework"):
+        _fw = _escape(fhit.get("framework") or "")
+        _pc = _escape(fhit.get("principle_code") or "")
+        _pt = _escape(fhit.get("principle_title") or "")
+        _mand = bool(fhit.get("mandatory"))
+        _interp = _escape(fhit.get("interpretation") or "")
+        _cbg = "#FEE2E2" if _mand else "#F1F5F9"
+        _cfg = "#991B1B" if _mand else _INK
+        _cbd = "#FCA5A5" if _mand else _DIVIDER
+        _mbadge = (' <span style="font-size:9px; font-weight:800; letter-spacing:0.5px;">'
+                   "MANDATORY</span>") if _mand else ""
+        _chip = (
+            f'<span style="display:inline-block; padding:3px 10px; border-radius:6px; '
+            f'background:{_cbg}; color:{_cfg}; border:1px solid {_cbd}; '
+            f'font-size:11px; font-weight:700;">{_fw}{(" · " + _pc) if _pc else ""}{_mbadge}</span>'
+        )
+        _pt_html = (f'<span style="font-size:12px; color:{_INK_MUTED}; margin-left:8px;">'
+                    f"{_pt}</span>") if _pt else ""
+        _interp_html = (f'<p style="margin:0; font-size:13px; line-height:1.6; color:{_INK};">'
+                        f"{_interp}</p>") if _interp else ""
+        framework_html = f"""
+          <div style="margin-bottom:24px;">
+            {_section_label("How this hits your framework")}
+            <div style="margin-bottom:8px;">
+              {_chip}{_pt_html}
+            </div>
+            {_interp_html}
+          </div>
+        """
+
     # ── CTAs ───────────────────────────────────────────────────────────
     # Phase 33 fix #2 — the user asked for three buttons in this row:
     #   1. "Read full article →" — opens the SOURCE publication (Whalesbook,
@@ -405,16 +448,15 @@ def render_article_morning_brew(
           How this brief was built
         </p>
         <p style="margin:0; font-size:11px; line-height:1.6; color:{_INK_MUTED};">
-          Snowkap reads each article and scores it against
-          industry-specific materiality benchmarks. We estimate the
-          financial exposure on a per-company basis using our in-house
-          calibration models. Figures tagged "(engine estimate)" are
-          scenario projections, not numbers the article reported. We
-          clamp them to plausible ranges. The full breakdown, source
-          citations, and audit trail live inside the Snowkap app.
-          Tap the <strong>(i)</strong> icons on each section. We
-          surface analysis to inform decisions. We do not provide
-          investment, legal, or compliance advice.
+          Snowkap reads each article and scores it against industry-specific
+          materiality benchmarks. Framework mappings come from our regulatory
+          ontology: the BRSR principle and whether disclosure is mandatory are
+          looked up, not guessed per article. Any &#8377; figure tagged
+          "(engine estimate)" is a scenario projection clamped to a plausible
+          range, not a number the article reported. Figures the article itself
+          states are shown as reported. Full source citations and the audit
+          trail live inside the Snowkap app. This brief informs decisions. It
+          is not investment, legal, or compliance advice.
         </p>
       </div>
     """
@@ -456,6 +498,7 @@ def render_article_morning_brew(
           {story_html}
           {why_html}
           {means_html}
+          {framework_html}
           {watch_html}
         </td></tr>
 
