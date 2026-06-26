@@ -307,38 +307,73 @@ def test_stamp_curated_insight_patches_detail_payload(monkeypatch):
     assert "CAFE-3 penalties" in wim["stakes_for_company"]                       # key-risk overlaid
 
 
-def test_scrub_engine_exposure_strips_fabricated_rupee_figures():
-    """Phase 56.H — remove the engine's '~₹55 Cr modeled exposure (engine
-    estimate)' from every engine field, KEEP the '(engine estimate)' disclosure
-    and the article-sourced 'hundreds of crores' qualitative framing, and NEVER
-    touch the source article body."""
+def test_scrub_engine_exposure_strips_fabricated_keeps_anchors():
+    """Phase 56.H — drop the engine's fabricated modeled-exposure ₹ figures
+    (incl. comma-grouped / ranged), KEEP (a) the '(engine estimate)' disclosure,
+    (b) article-sourced 'hundreds of crores', (c) REAL revenue/market-cap
+    anchors, and NEVER touch the source article body."""
     payload = {
         "article": {"body": "Penalties could reach ~₹55 Cr per the filing."},  # source — untouched
         "insight": {
             "decision_summary": {
                 "financial_exposure": "~₹55 Cr modeled direct transition exposure (engine estimate); "
                                       "article states penalties could reach hundreds of crores at fleet scale",
-                "key_risk": "~₹55 Cr modeled direct exposure (engine estimate) rising to hundreds of crores",
             },
-            "financial_timeline": {"immediate": {
-                "headline": "~₹55 Cr modeled regulatory transition exposure (engine estimate) as CAFE-3 advances"}},
+            "causal_chain": {"company_impact":
+                "Avoided CAFE-3 penalties estimated at ₹500-1,500 Cr (engine estimate) over FY27"},
             "impact_analysis": {"valuation_cashflow":
-                "Penalty exposure of hundreds of crores (engine estimate: ~₹50–60 Cr modeled direct exposure)"},
+                "compresses net margins on Maruti's ~₹1,40,000 Cr annual revenue base"},  # REAL anchor
         },
         "recommendations": {"validated_recommendations": [
-            {"profitability_link": "compresses margin by approximately 0.4-1 bps per ₹55 Cr of direct exposure"}]},
+            {"profitability_link": "on Maruti's ₹85,000 Cr market cap, a 5% premium represents ₹4,250 Cr"}]},
     }
     out = db._scrub_engine_exposure(payload)
-    # Engine-generated subtrees must be free of the fabricated figure …
-    engine_blob = json.dumps({"insight": out["insight"], "recommendations": out["recommendations"]},
-                             ensure_ascii=False)
-    assert "55 Cr" not in engine_blob and "₹55" not in engine_blob and "50–60 Cr" not in engine_blob
-    assert "engine estimate" in out["insight"]["decision_summary"]["financial_exposure"]  # disclosure kept
-    assert "hundreds of crores" in out["insight"]["decision_summary"]["financial_exposure"]  # sourced framing kept
-    assert "modeled regulatory transition exposure" in out["insight"]["financial_timeline"]["immediate"]["headline"]
-    assert out["article"]["body"] == "Penalties could reach ~₹55 Cr per the filing."  # SOURCE untouched
-    # no dangling double-spaces / orphaned punctuation
-    assert "  " not in out["insight"]["decision_summary"]["financial_exposure"]
+    ds = out["insight"]["decision_summary"]["financial_exposure"]
+    cc = out["insight"]["causal_chain"]["company_impact"]
+    vc = out["insight"]["impact_analysis"]["valuation_cashflow"]
+    pl = out["recommendations"]["validated_recommendations"][0]["profitability_link"]
+    # fabricated modeled figures gone …
+    assert "55 Cr" not in ds and "500-1,500 Cr" not in cc and "4,250 Cr" not in pl
+    # … disclosure + sourced framing kept …
+    assert "engine estimate" in ds and "hundreds of crores" in ds
+    assert "engine estimate" in cc
+    # … REAL anchors preserved …
+    assert "1,40,000 Cr" in vc and "annual revenue" in vc          # revenue anchor kept
+    assert "85,000 Cr" in pl and "market cap" in pl                # market-cap anchor kept
+    # … source untouched, no orphaned punctuation / double spaces
+    assert out["article"]["body"] == "Penalties could reach ~₹55 Cr per the filing."
+    assert "  " not in ds and " ." not in ds
+
+
+def test_stamp_curated_insight_truthful_exposure_and_impact(monkeypatch):
+    """Phase 56.H — the curated overlay makes the card-rendered why_it_matters
+    truthful: a non_financial_event exposure pill (no fabricated '~₹1,500 Cr'
+    pill) and a clean curated criticality_summary (no 'modeled exposure ~.')."""
+    payload = {
+        "company_slug": "maruti-suzuki-india",
+        "insight": {"analysis": {
+            "why_it_matters": {
+                "criticality_summary": "Low priority — recall; total modeled exposure ~₹1,500 Cr",
+                "financial_exposure": {"kind": "modeled", "label": "~₹1,500 Cr (engine estimate)"},
+            },
+            "what_it_triggers": {"framework_hit": {"framework": "BRSR", "principle_code": "BRSR:P6",
+                                                   "interpretation": "x"}, "recommended_actions": []},
+        }},
+    }
+    captured = {}
+    monkeypatch.setattr("engine.models.insight_payload.get", lambda aid: payload)
+    monkeypatch.setattr("engine.models.insight_payload.upsert",
+                        lambda aid, slug, p: captured.update(payload=p))
+    ok = db.stamp_curated_insight(
+        "aid", "maruti-suzuki-india",
+        framework_interpretation="clean prose",
+        impact_summary="Maruti's E100 WagonR earns CAFE-3 credits if the E85 rollout keeps pace.",
+    )
+    assert ok is True
+    wim = captured["payload"]["insight"]["analysis"]["why_it_matters"]
+    assert wim["financial_exposure"]["kind"] == "non_financial_event"   # truthful pill
+    assert "1,500 Cr" not in json.dumps(wim, ensure_ascii=False)        # fabricated pill gone
+    assert wim["criticality_summary"].startswith("Maruti's E100 WagonR")  # curated impact line
 
 
 def test_stamp_curated_insight_noop_when_no_payload(monkeypatch):

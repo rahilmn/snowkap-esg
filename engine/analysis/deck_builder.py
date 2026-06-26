@@ -763,31 +763,41 @@ def stamp_curated_card(
         return False
 
 
-# Engine-estimate ₹-crore figure, e.g. "~₹55 Cr", "₹50–60 Cr", "Rs 55 crore".
-# Requires a currency mark + digits so the article-sourced qualitative
-# "hundreds of crores" (no ₹, no leading digit) is NEVER touched.
+# Engine ₹-crore figure incl. comma grouping + ranges, e.g. "~₹55 Cr",
+# "₹500-1,500 Cr", "₹1,40,000 Cr", "Rs 2,500 crore". Requires a currency mark +
+# digits, so the article-sourced qualitative "hundreds of crores" (no ₹, no
+# leading digit) and rupee-LAKH prices (a different unit) are NEVER touched.
 _ENGINE_RUPEE_FIG = re.compile(
-    r"~?\s*(?:₹|Rs\.?)\s*\d+(?:\.\d+)?(?:\s*[–\-]\s*\d+(?:\.\d+)?)?\s*(?:Cr|crores?)\b",
+    r"~?\s*(?:₹|Rs\.?)\s*[\d,]+(?:\.\d+)?(?:\s*[–\-]\s*[\d,]+(?:\.\d+)?)?\s*(?:Cr|crores?)\b",
     re.IGNORECASE,
 )
+# A real-world scale anchor next to a figure → KEEP it. Maruti's actual revenue
+# (~₹1,40,000 Cr) / market cap are legitimate materiality anchors, not the
+# fabricated "modeled exposure (engine estimate)" the cascade invents for a
+# no-₹ article. Only un-anchored Cr figures are scrubbed.
+_EXPOSURE_ANCHOR = re.compile(r"revenue|market\s*cap|turnover|valuation|annual", re.I)
 
 
 def _scrub_engine_exposure(payload: dict[str, Any]) -> dict[str, Any]:
     """Strip the engine's FABRICATED ₹-crore 'modeled exposure' figures from a
-    curated critical's insight payload.
+    curated critical's insight payload, PRESERVING real revenue/market-cap
+    anchors.
 
-    Curated criticals are pinned for articles with NO source-cited ₹ amount (the
-    card header reads 'No direct ₹ exposure in article'), yet the cascade still
-    computes a precise '(engine estimate)' figure and threads it through
-    decision_summary, financial_timeline, toulmin grounds, rec rationale, etc. —
-    so it resurfaces on the emailed technical report / desktop / Ask even after
-    the mobile card is clean. This removes the ₹ figure token while keeping the
-    honest '(engine estimate)' disclosure AND the article-sourced 'hundreds of
-    crores' qualitative framing. Never touches the source ``article`` subtree.
-    Returns a scrubbed deep copy.
+    Curated criticals are pinned for articles with NO source-cited ₹ amount, yet
+    the cascade still computes precise '(engine estimate)' Cr figures and threads
+    them through decision_summary, financial_timeline, toulmin grounds, rec
+    rationale, etc. — so they resurface on the emailed technical report / desktop
+    / Ask. This drops each un-anchored ₹-Cr figure while KEEPING (a) the honest
+    '(engine estimate)' disclosure, (b) the article-sourced 'hundreds of crores'
+    qualitative framing, and (c) real revenue/market-cap anchors. Never touches
+    the source ``article`` subtree. Returns a scrubbed deep copy.
     """
     def _clean(s: str) -> str:
-        out = _ENGINE_RUPEE_FIG.sub("", s)
+        def _repl(m: "re.Match[str]") -> str:
+            ctx = m.string[max(0, m.start() - 30): m.end() + 30]
+            return m.group(0) if _EXPOSURE_ANCHOR.search(ctx) else ""
+        out = _ENGINE_RUPEE_FIG.sub(_repl, s)
+        out = re.sub(r"~\s*(?=[.,;)])", "", out)   # dangling "~" left before punctuation
         out = re.sub(r"\s{2,}", " ", out)
         out = re.sub(r"\s+([;,.)])", r"\1", out)
         out = re.sub(r"\(\s+", "(", out)
@@ -812,6 +822,7 @@ def stamp_curated_insight(
     recommendations: list[dict] | None = None,
     key_risk: str = "",
     framework_interpretation: str = "",
+    impact_summary: str = "",
 ) -> bool:
     """Phase 56.H — patch the durable ``insight_payload`` (the SECOND store).
 
@@ -830,7 +841,8 @@ def stamp_curated_insight(
     on other tenants (the detail endpoint is shared but keyed by article_id).
     Returns True if a payload row was patched.
     """
-    if not article_id or not (recommendations or framework_interpretation or key_risk):
+    if not article_id or not (recommendations or framework_interpretation
+                              or key_risk or impact_summary):
         return False
     try:
         from engine.models import insight_payload
@@ -865,10 +877,22 @@ def stamp_curated_insight(
                 actions.append(a)
             wit["recommended_actions"] = actions
         analysis["what_it_triggers"] = wit
+        # Card-rendered why_it_matters fields — make them truthful + curated so
+        # the swipe-up shows no fabricated ₹ (the flex-fuel card was rendering a
+        # "~₹1,500 Cr (engine estimate)" exposure pill; the recall card a
+        # dangling "modeled exposure ~." artifact).
+        wim = dict(analysis.get("why_it_matters") or {})
         if key_risk:
-            wim = dict(analysis.get("why_it_matters") or {})
             wim["stakes_for_company"] = str(key_risk)[:600]
-            analysis["why_it_matters"] = wim
+        if impact_summary:
+            wim["criticality_summary"] = str(impact_summary)[:400]
+        # Curated criticals are pinned for articles with no source-cited ₹ →
+        # show the honest exposure pill, never a fabricated modeled figure.
+        wim["financial_exposure"] = {
+            "kind": "non_financial_event",
+            "label": "No direct ₹ exposure in article",
+        }
+        analysis["why_it_matters"] = wim
         insight["analysis"] = analysis
         payload["insight"] = insight
         # Scrub the engine's fabricated ₹-crore "modeled exposure (engine
