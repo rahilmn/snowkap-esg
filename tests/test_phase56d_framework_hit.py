@@ -192,3 +192,20 @@ def test_stamp_noop_on_empty_recs() -> None:
     llm = _StubLLM()
     _stamp_framework_hit([], _insight(), _result(frameworks=[_brsr_match()]), _company(), llm)
     assert llm.calls == []
+
+
+def test_interpretation_falls_back_when_llm_empty() -> None:
+    """An empty LLM reply (seen on monitor-only contexts) must NOT leave the
+    framework chip with blank prose — a deterministic fallback fills it."""
+    from engine.analysis.recommendation_engine import _generate_framework_interpretation
+    anchor = {
+        "framework": "BRSR", "principle_code": "BRSR:P6",
+        "principle_title": "Principle 6 — Environmental Protection",
+        "mandatory": True, "region": "INDIA",
+    }
+    llm = _StubLLM(content="")  # empty reply → fallback
+    prose = _generate_framework_interpretation(
+        anchor, _insight(), _result(frameworks=[_brsr_match()]), _company(), llm,
+    )
+    assert len(prose) >= 25
+    assert "BRSR:P6" in prose and "BRSR" in prose

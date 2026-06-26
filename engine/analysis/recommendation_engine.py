@@ -1879,6 +1879,18 @@ def _generate_framework_interpretation(
     decision = insight.decision_summary or {}
     headline = insight.headline or result.title
     key_risk = decision.get("key_risk", "")
+    theme = (getattr(getattr(result, "themes", None), "primary_theme", "") or "").strip()
+
+    def _fallback() -> str:
+        """Deterministic interpretation when the LLM is empty/unavailable, so
+        the swipe-up's framework chip is never shown with blank prose."""
+        topic = (theme or "this development").lower()
+        return (
+            f"This {topic} is reportable under {fw} {pc} "
+            f"({pt}) — {mand} for {company.name}. Reflect it in the next annual "
+            f"{fw} disclosure cycle: update the Principle's metrics, targets and "
+            f"narrative to capture this event."
+        )
     system = (
         "You are an ESG disclosure analyst writing for a CFO. You are given a "
         "news event and the EXACT framework principle it maps to — this mapping "
@@ -1920,13 +1932,15 @@ def _generate_framework_interpretation(
             )
         except Exception:  # noqa: BLE001 — usage logging is best-effort
             pass
-        return prose[:600]
+        # An empty / too-short LLM reply (seen on monitor-only contexts) would
+        # leave the chip with no explanation — fall back to deterministic prose.
+        return prose[:600] if len(prose) >= 25 else _fallback()
     except Exception as exc:  # noqa: BLE001 — additive, never block recs
         logger.warning(
             "framework interpretation call failed (non-fatal): %s",
             type(exc).__name__,
         )
-        return ""
+        return _fallback()
 
 
 def _stamp_framework_hit(
