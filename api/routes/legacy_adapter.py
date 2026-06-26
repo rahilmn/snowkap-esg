@@ -1821,6 +1821,10 @@ class CuratedArticleIn(BaseModel):
     # (used only when the pipeline fails to write the card). e.g. "BRSR:P6".
     framework_principle: str | None = None
     framework_title: str | None = None
+    # Phase 56.G — fact-checked framework interpretation prose. Overrides the
+    # engine's framework_hit text (which can fabricate a precise ₹ "modeled
+    # exposure" figure not in the source, e.g. CAFE-3's invented "~₹55 crore").
+    framework_interpretation: str | None = None
 
 
 class IngestArticlesIn(BaseModel):
@@ -1921,6 +1925,7 @@ def _run_curated_ingest(
             aid = _url_hash((a.get("url") or "").strip())
             recs = a.get("recommendations") or []
             key_risk = (a.get("key_risk") or "").strip()
+            fw_interp = (a.get("framework_interpretation") or "").strip()
             row = cav.get(aid, slug)
             if row is None:
                 art = crit_by_id.get(aid)
@@ -1929,9 +1934,13 @@ def _run_curated_ingest(
                         company, art, recommendations=recs, key_risk=key_risk,
                         principle_code=(a.get("framework_principle") or ""),
                         principle_title=(a.get("framework_title") or ""),
+                        framework_interpretation=fw_interp,
                     )
-            elif recs or key_risk:
-                stamp_curated_card(company, aid, recommendations=recs, key_risk=key_risk)
+            elif recs or key_risk or fw_interp:
+                stamp_curated_card(
+                    company, aid, recommendations=recs, key_risk=key_risk,
+                    framework_interpretation=fw_interp,
+                )
     except Exception as exc:  # noqa: BLE001
         logger.exception("curated-ingest failed for %s: %s", slug, exc)
 

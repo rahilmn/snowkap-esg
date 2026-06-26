@@ -587,6 +587,7 @@ def publish_curated_critical_direct(
     key_risk: str = "",
     principle_code: str = "",
     principle_title: str = "",
+    framework_interpretation: str = "",
 ) -> bool:
     """Phase 56.F — write a CRITICAL card DIRECTLY (no LLM pipeline).
 
@@ -623,7 +624,9 @@ def publish_curated_critical_direct(
                 "principle_title": principle_title or principle_code,
                 "mandatory": getattr(company, "framework_region", "") == "INDIA",
                 "region": getattr(company, "framework_region", "") or "INDIA",
-                "interpretation": (
+                # Admin's fact-checked prose when supplied; else the safe,
+                # number-free template (never an LLM-invented exposure figure).
+                "interpretation": framework_interpretation or (
                     f"This development is reportable under BRSR "
                     f"{principle_title or principle_code} ({obligation} for "
                     f"{getattr(company, 'name', 'the company')}). Reflect it in "
@@ -688,6 +691,7 @@ def stamp_curated_card(
     company: Any, article_id: str, *,
     recommendations: list[dict] | None = None,
     key_risk: str = "",
+    framework_interpretation: str = "",
 ) -> bool:
     """Phase 56.F — overlay admin-curated recommendations (and an optional
     key-risk line) onto a published critical's per-company card.
@@ -699,9 +703,16 @@ def stamp_curated_card(
     the real, article-specific actions; this overlays them on the card's
     `what_it_triggers.recommended_actions` (keeping the deterministic
     article-level framework_hit). Re-stamps band=CRITICAL/0.9 so the pin holds.
+
+    ``framework_interpretation`` (Phase 56.G) overrides the framework_hit prose.
+    When the reasoning LLM DOES fire on a force-accepted critical it sometimes
+    fabricates a precise "modeled exposure" ₹ figure that is not in the source
+    (e.g. the CAFE-3 card's invented "~₹55 crore"). Supplying a fact-checked
+    interpretation here replaces that hallucinated prose on BOTH the
+    article-level hit and every rec's hit — anchored, never invented.
     Returns True if a row was updated.
     """
-    if not article_id or not recommendations:
+    if not article_id or not (recommendations or framework_interpretation):
         return False
     try:
         from engine.models import company_article_view as cav
@@ -713,8 +724,15 @@ def stamp_curated_card(
         pa = dict(row.personalised_analysis or {})
         wit = dict(pa.get("what_it_triggers") or {})
         fh = wit.get("framework_hit")  # article-level hit, already deterministic
+        # Replace any (possibly LLM-fabricated) interpretation with the admin's
+        # fact-checked prose — applied to the article-level hit so the swipe-up
+        # "How this hits your framework" block shows the clean text.
+        if fh and framework_interpretation:
+            fh = dict(fh)
+            fh["interpretation"] = framework_interpretation
+            wit["framework_hit"] = fh
         actions: list[dict] = []
-        for r in recommendations[:4]:
+        for r in (recommendations or [])[:4]:
             a: dict[str, Any] = {
                 "title": str(r.get("title", "") or "")[:160],
                 "deadline": str(r.get("deadline", "") or "")[:60],
@@ -726,7 +744,8 @@ def stamp_curated_card(
             if fh:
                 a["framework_hit"] = fh  # so the swipe-up framework block stays
             actions.append(a)
-        wit["recommended_actions"] = actions
+        if recommendations:
+            wit["recommended_actions"] = actions
         pa["what_it_triggers"] = wit
         if key_risk:
             wim = dict(pa.get("why_it_matters") or {})
