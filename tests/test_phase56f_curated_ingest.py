@@ -260,6 +260,61 @@ def test_publish_curated_critical_direct_uses_supplied_interpretation(monkeypatc
     assert fh["interpretation"] == clean
 
 
+def test_stamp_curated_insight_patches_detail_payload(monkeypatch):
+    """Phase 56.H — the swipe-up detail view reads insight_payload (deep_insight),
+    not the deck card. stamp_curated_insight must overlay the curated recs +
+    clean framework_hit + key-risk onto insight.analysis.what_it_triggers so the
+    detail matches the card and the fabricated figure is gone."""
+    payload = {
+        "company_slug": "maruti-suzuki-india",
+        "insight": {
+            "decision_summary": {"materiality": "CRITICAL"},
+            "analysis": {
+                "why_it_matters": {"stakes_for_company": "Carries potential downside…"},
+                "what_it_triggers": {
+                    "framework_hit": {
+                        "framework": "BRSR", "principle_code": "BRSR:P6",
+                        "interpretation": "…modeled penalty exposure ~₹55 crore at the engine level…",
+                    },
+                    "recommended_actions": [
+                        {"title": "File PMO Representation Restoring Small-Car CAFE-3 Credit Concessions"}
+                    ],
+                },
+            },
+        },
+    }
+    captured = {}
+    monkeypatch.setattr("engine.models.insight_payload.get", lambda aid: payload)
+    monkeypatch.setattr("engine.models.insight_payload.upsert",
+                        lambda aid, slug, p: captured.update(aid=aid, slug=slug, payload=p))
+    clean = ("Under BRSR Principle 6, the draft CAFE-3 norms are a material regulatory-transition "
+             "risk; no specific penalty figure should be stated while the norms remain in draft.")
+    ok = db.stamp_curated_insight(
+        "fdb24e6ff3226d25", "maruti-suzuki-india",
+        recommendations=[{"title": "Model the FY27 CAFE-3 fleet-CO2 gap + per-car penalty exposure",
+                          "owner": "ESG / Finance", "type": "compliance"}],
+        key_risk="Hundreds of crores in CAFE-3 penalties if the fleet misses 3.73->3.01 L/100km.",
+        framework_interpretation=clean,
+    )
+    assert ok is True
+    wit = captured["payload"]["insight"]["analysis"]["what_it_triggers"]
+    assert wit["recommended_actions"][0]["title"].startswith("Model the FY27")  # curated rec
+    assert wit["framework_hit"]["interpretation"] == clean                       # article-level clean
+    assert "55 crore" not in wit["framework_hit"]["interpretation"]              # fabrication gone
+    assert wit["recommended_actions"][0]["framework_hit"]["interpretation"] == clean  # per-rec clean
+    wim = captured["payload"]["insight"]["analysis"]["why_it_matters"]
+    assert "CAFE-3 penalties" in wim["stakes_for_company"]                       # key-risk overlaid
+
+
+def test_stamp_curated_insight_noop_when_no_payload(monkeypatch):
+    """No insight payload row → no-op (returns False), never raises."""
+    monkeypatch.setattr("engine.models.insight_payload.get", lambda aid: None)
+    ok = db.stamp_curated_insight("missing", "slug",
+                                  recommendations=[{"title": "x"}],
+                                  framework_interpretation="y")
+    assert ok is False
+
+
 def test_publish_curated_critical_direct_writes_full_card(monkeypatch):
     """Fallback when the pipeline fails to write a curated critical: builds the
     article_pool + company_article_view rows directly (critical tier, lede, recs,

@@ -1919,6 +1919,7 @@ def _run_curated_ingest(
         # curated content so it reliably shows.
         from engine.analysis.deck_builder import (
             stamp_curated_card, publish_curated_critical_direct,
+            stamp_curated_insight,
         )
         crit_by_id = {c.id: c for c in criticals}
         for a in articles:
@@ -1939,6 +1940,14 @@ def _run_curated_ingest(
             elif recs or key_risk or fw_interp:
                 stamp_curated_card(
                     company, aid, recommendations=recs, key_risk=key_risk,
+                    framework_interpretation=fw_interp,
+                )
+            # Phase 56.H — the swipe-up detail view reads the SEPARATE
+            # insight_payload store (deep_insight), not the deck card. Patch it
+            # too so the detail matches the card (curated recs + clean prose).
+            if recs or key_risk or fw_interp:
+                stamp_curated_insight(
+                    aid, slug, recommendations=recs, key_risk=key_risk,
                     framework_interpretation=fw_interp,
                 )
     except Exception as exc:  # noqa: BLE001
