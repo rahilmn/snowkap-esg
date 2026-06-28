@@ -197,6 +197,8 @@ def test_stamp_curated_card_overlays_recommendations(monkeypatch):
     assert actions[0]["framework_hit"]["principle_code"] == "BRSR:P6"  # kept
     assert captured["criticality_band"] == "CRITICAL"  # re-pinned
     assert "penalty exposure" in captured["personalised_analysis"]["why_it_matters"]["stakes_for_company"]
+    # deck-card exposure chip is truthful (no fabricated ₹), mirrors the detail fix
+    assert captured["personalised_analysis"]["why_it_matters"]["financial_exposure"]["kind"] == "non_financial_event"
 
 
 def test_stamp_curated_card_overrides_fabricated_interpretation(monkeypatch):

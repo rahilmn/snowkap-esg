@@ -807,10 +807,19 @@ def stamp_curated_card(
         if recommendations:
             wit["recommended_actions"] = actions
         pa["what_it_triggers"] = wit
+        # Curated criticals are pinned for articles with no source-cited ₹, so
+        # the DECK CARD exposure chip must be truthful, never a fabricated
+        # modeled figure (the flex-fuel card was showing "~₹1,500 Cr"). SwipeCard
+        # hides the chip when kind == non_financial_event — mirrors the detail/
+        # email fix in stamp_curated_insight so the card and the swipe-up agree.
+        wim = dict(pa.get("why_it_matters") or {})
         if key_risk:
-            wim = dict(pa.get("why_it_matters") or {})
             wim["stakes_for_company"] = str(key_risk)[:600]
-            pa["why_it_matters"] = wim
+        wim["financial_exposure"] = {
+            "kind": "non_financial_event",
+            "label": "No direct ₹ exposure in article",
+        }
+        pa["why_it_matters"] = wim
         cav.upsert(
             article_id=article_id, company_slug=slug,
             personalised_analysis=pa,
