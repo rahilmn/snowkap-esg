@@ -14,6 +14,7 @@
  *   criticality_band                 → CRITICAL / HIGH / MEDIUM pill
  *   insight.analysis.why_it_matters.financial_exposure → footer metric
  */
+import { useState } from "react";
 import type { Article } from "@/types";
 import { categoryTint, pillTokens } from "@/lib/designTokensV2";
 
@@ -22,11 +23,24 @@ interface UnifiedAnalysis {
   why_it_matters?: {
     materiality_band?: string;
     criticality_summary?: string;
+    // Phase 56.M — a short FOMO hook shown on the deck card (the card summary
+    // is intentionally empty on the feed; this fills it). Curated; falls back
+    // to criticality_summary.
+    card_teaser?: string;
     financial_exposure?: { amount_cr?: number; label?: string; kind?: string; source?: string };
   };
   headline_only?: boolean;
   body_char_count?: number;
 }
+
+// Phase 56.M — plain-English meaning of each criticality band, shown in a
+// tap-to-reveal legend on the band pill.
+const _BAND_LEGEND: Record<string, string> = {
+  CRITICAL: "Act now — high materiality to your company.",
+  HIGH: "Review soon — likely material.",
+  MEDIUM: "Moderate materiality — review before your next reporting cycle.",
+  LOW: "Monitor — nothing to act on yet.",
+};
 
 function _cleanTitle(raw: string): string {
   if (!raw) return "";
@@ -92,21 +106,15 @@ function _band(article: Article): "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" {
   return "MEDIUM";
 }
 
-function _norm(s: string): string {
-  return (s || "").toLowerCase().replace(/\s+/g, " ").trim();
-}
-
-function _deck(article: Article): string {
-  // The subtitle must ADD information, not echo the headline. `_headline`
-  // already prefers what_changed.headline, so the deck must NOT fall back to
-  // the same field (that produced the duplicated headline + the clipped
-  // "…Bank / branch" overlap on mobile). Use the article summary only when it
-  // is meaningfully different from the headline; otherwise show nothing.
-  const head = _norm(_headline(article));
-  const summary = (article.summary || "").trim();
-  const sNorm = _norm(summary);
-  if (!sNorm || sNorm === head || head.startsWith(sNorm) || sNorm.startsWith(head)) return "";
-  return summary.slice(0, 160);
+function _teaser(article: Article): string {
+  // Phase 56.M — the FOMO hook on the deck card. The feed hardcodes
+  // article.summary="" so the card body is otherwise blank; show a short,
+  // curated teaser (falls back to the "how it impacts" line).
+  const di = article.deep_insight as { analysis?: UnifiedAnalysis } | undefined;
+  const wim = di?.analysis?.why_it_matters;
+  const curated = (wim?.card_teaser || "").trim();
+  if (curated) return curated;
+  return (wim?.criticality_summary || "").trim().slice(0, 180);
 }
 
 function _metric(article: Article): { label: string; value: string } | null {
@@ -145,10 +153,13 @@ export function SwipeCard({ article, bookmarked }: Props) {
   const band = _band(article);
   const pill = pillTokens(band);
   const metric = _metric(article);
-  const deck = _deck(article);
+  const teaser = _teaser(article);
   const headline = _headline(article);
   const freshness = _freshness(article);
   const headlineOnly = _isHeadlineOnly(article);
+  const [legendOpen, setLegendOpen] = useState(false);
+  // Stop the swipe-deck pointer handlers from capturing taps on the legend.
+  const stop = (e: { stopPropagation: () => void }) => e.stopPropagation();
 
   return (
     <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column" }}>
@@ -219,9 +230,8 @@ export function SwipeCard({ article, bookmarked }: Props) {
           fontSize: 10.5, color: "#8a8f98", fontWeight: 600, letterSpacing: "0.04em",
           display: "flex", alignItems: "center", gap: 6, minWidth: 0,
         }}>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {article.frameworks?.[0] || article.esg_pillar || ""}
-          </span>
+          {/* Phase 56.M — the framework/pillar tag was removed here; it
+              duplicated the top-left "ESG / Pillar" category chip. */}
           {/* Transparency cue: when the article body couldn't be scraped
               (paywall / JS SPA / 403), every specific figure in the
               analysis is an engine projection rather than an article
@@ -257,11 +267,60 @@ export function SwipeCard({ article, bookmarked }: Props) {
               Quick read
             </span>
           )}
-          <span className={`pon-pill ${band.toLowerCase()}`} style={{ background: pill.bg, color: pill.fg }}>
+          {/* Phase 56.M — tap the band to reveal a plain-English legend. */}
+          <span
+            className={`pon-pill ${band.toLowerCase()}`}
+            onClick={(e) => { stop(e); setLegendOpen((v) => !v); }}
+            onPointerDown={stop}
+            title="What does this mean?"
+            style={{
+              background: pill.bg, color: pill.fg, cursor: "pointer",
+              display: "inline-flex", alignItems: "center", gap: 4,
+            }}>
             {band}
+            <span style={{ fontSize: 9, fontWeight: 800, opacity: 0.65 }}>ⓘ</span>
           </span>
         </div>
       </div>
+
+      {/* Phase 56.M — band legend popover (tap the pill to open). */}
+      {legendOpen && (
+        <>
+          <div
+            onPointerDown={(e) => { stop(e); setLegendOpen(false); }}
+            onClick={stop}
+            style={{ position: "absolute", inset: 0, zIndex: 18, background: "transparent" }}
+          />
+          <div
+            onPointerDown={stop}
+            style={{
+              position: "absolute", top: 168, right: 14, zIndex: 19,
+              width: 232, padding: "10px 12px",
+              background: "#ffffff", borderRadius: 12,
+              border: "1px solid #ececef",
+              boxShadow: "0 8px 24px rgba(15,17,21,0.16)",
+            }}>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#8a8f98", marginBottom: 6 }}>
+              Priority levels
+            </div>
+            {(["CRITICAL", "HIGH", "MEDIUM", "LOW"] as const).map((b) => {
+              const p = pillTokens(b);
+              return (
+                <div key={b} style={{ display: "flex", gap: 8, alignItems: "flex-start", margin: "5px 0" }}>
+                  <span className={`pon-pill ${b.toLowerCase()}`} style={{
+                    background: p.bg, color: p.fg, flex: "0 0 auto",
+                    fontWeight: b === band ? 800 : 600,
+                    outline: b === band ? "1.5px solid rgba(15,17,21,0.25)" : "none",
+                  }}>{b}</span>
+                  <span style={{ fontSize: 11.5, lineHeight: 1.4, color: "#5a5f68" }}>
+                    {_BAND_LEGEND[b]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Headline — prefers the LLM-generated clean headline; falls back to a
           publisher-suffix-stripped raw title. Clamped to 4 lines with a hard
@@ -280,8 +339,10 @@ export function SwipeCard({ article, bookmarked }: Props) {
         {headline}
       </div>
 
-      {/* Deck — a DISTINCT summary (never the headline). Clamped to 3 lines. */}
-      {deck && (
+      {/* Phase 56.M — FOMO teaser: a short hook telling the reader what this
+          story is + why it matters, since the card body is otherwise blank.
+          Clamped to 3 lines. */}
+      {teaser && (
         <div style={{
           padding: "6px 18px 0",
           fontSize: 14, lineHeight: 1.45,
@@ -291,7 +352,7 @@ export function SwipeCard({ article, bookmarked }: Props) {
           WebkitLineClamp: 3,
           overflow: "hidden",
         }}>
-          {deck}
+          {teaser}
         </div>
       )}
 
@@ -316,7 +377,17 @@ export function SwipeCard({ article, bookmarked }: Props) {
               {metric.value}
             </span>
           </div>
-        ) : <span/>}
+        ) : (
+          /* Phase 56.M — when there's no ₹ exposure, the footer was empty.
+             Show the swipe affordance so the reader knows to go deeper. */
+          <span style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            fontSize: 12, fontWeight: 700, color: "#df5900", letterSpacing: "0.01em",
+          }}>
+            <span style={{ fontSize: 14, lineHeight: 1 }}>↑</span>
+            Swipe up to read the full brief
+          </span>
+        )}
         {/* Freshness: replaces the meaningless "Live signal" label with
             an actual time-since-publish. Green dot when <48h (recent),
             grey otherwise. Hover shows the full timestamp. */}

@@ -79,6 +79,25 @@ def test_stamp_curated_insight_writes_other_frameworks(monkeypatch):
     assert wit["other_frameworks"][0]["section_code"] == "GRI 305"
 
 
+def test_stamp_curated_card_writes_card_teaser(monkeypatch):
+    """Phase 56.M — the FOMO teaser is stamped onto the deck card's
+    why_it_matters.card_teaser (the field SwipeCard reads to fill the blank)."""
+    from types import SimpleNamespace
+    existing = SimpleNamespace(
+        personalised_analysis={"what_it_triggers": {}, "why_it_matters": {}},
+        criticality_score=0.9, criticality_band="CRITICAL")
+    captured = {}
+    monkeypatch.setattr("engine.models.company_article_view.get", lambda aid, slug: existing)
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(kw))
+    ok = db.stamp_curated_card(
+        SimpleNamespace(slug="maruti-suzuki-india"), "aid",
+        card_teaser="Draft norms could put hundreds of crores in play.")
+    assert ok is True
+    wim = captured["personalised_analysis"]["why_it_matters"]
+    assert wim["card_teaser"].startswith("Draft norms")
+
+
 def test_email_renders_other_frameworks_stacked():
     from engine.output.newsletter_morning_brew import render_article_morning_brew
     payload = {"article": {"title": "x", "company_slug": "s", "id": "a"},
