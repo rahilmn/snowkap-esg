@@ -115,6 +115,30 @@ def _run_article(article: dict[str, Any], company: Company) -> ArticleRunSummary
     from engine.output.writer import write_insight
 
     started = time.perf_counter()
+
+    # Demo / pinned-deck FREEZE — automatic ingestion (hourly cmd_ingest +
+    # the overnight batch both flow through _run_article) must NOT overwrite a
+    # frozen tenant's hand-curated deck. Skip the whole pipeline write for a
+    # frozen company. The admin curated path uses process_article /
+    # build_curated_deck (NOT _run_article), so manual curation still works
+    # while frozen. This is the legacy-path complement to the build_company_deck
+    # guard (which only covered the weekly refresh).
+    try:
+        from engine.models import deck_freeze
+        if deck_freeze.is_frozen(getattr(company, "slug", "")):
+            logger.info("_run_article: %s is FROZEN — skipping pipeline + write", company.slug)
+            return ArticleRunSummary(
+                article_id=str(article.get("id") or ""),
+                title=str(article.get("title") or "")[:100],
+                tier="FROZEN", rejected=True, impact_score=None,
+                recommendations=0, ontology_queries=0,
+                elapsed_seconds=round(time.perf_counter() - started, 2),
+                files_written=0,
+            )
+    except Exception as exc:  # noqa: BLE001 — never let the guard block ingestion
+        logger.warning("_run_article freeze check failed for %s (continuing): %s",
+                       getattr(company, "slug", "?"), exc)
+
     result = process_article(article, company)
 
     insight = None
@@ -222,7 +246,13 @@ def cmd_ingest(args: argparse.Namespace) -> int:
         "total_elapsed_s": 0.0,
     }
 
+    from engine.models import deck_freeze
     for company in companies:
+        # Skip frozen tenants BEFORE the fetch (saves the NewsAPI call); the
+        # _run_article guard is the backstop for the overnight batch path.
+        if deck_freeze.is_frozen(company.slug):
+            print(f"\n=== {company.name} ({company.slug}) — FROZEN, skipped ===")
+            continue
         print(f"\n=== {company.name} ({company.slug}) ===")
         fresh = fetch_for_company(company, max_per_query=args.max)
         print(f"  fetched {len(fresh)} new articles")

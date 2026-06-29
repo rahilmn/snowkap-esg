@@ -101,6 +101,24 @@ def test_set_article_image_rejects_empty():
 
 
 # ---------------------------------------------------------------------------
+# _run_article freeze guard — the legacy ingest path (hourly + overnight batch)
+# must NOT overwrite a frozen tenant's curated deck.
+# ---------------------------------------------------------------------------
+
+
+def test_run_article_skips_frozen_tenant(monkeypatch):
+    from engine import main as engmain
+    monkeypatch.setattr("engine.models.deck_freeze.is_frozen", lambda slug: True)
+    company = SimpleNamespace(slug="maruti-suzuki-india", name="Maruti Suzuki")
+    # If the guard fails, process_article would run on this stub and raise — a
+    # clean FROZEN summary proves the legacy ingest short-circuits before writing.
+    summary = engmain._run_article({"id": "a1", "title": "x"}, company)
+    assert summary.tier == "FROZEN"
+    assert summary.rejected is True
+    assert summary.files_written == 0
+
+
+# ---------------------------------------------------------------------------
 # company_article_view.delete_one — surgical single-card removal
 # ---------------------------------------------------------------------------
 
