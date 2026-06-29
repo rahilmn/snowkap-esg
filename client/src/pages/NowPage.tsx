@@ -452,8 +452,12 @@ export function NowPage() {
               {(() => {
                 const d = feedQuery.data;
                 const crit = d?.critical_count ?? 0;
-                const total = d?.total_count ?? d?.count ?? articles.length;
-                if (articles.length > 0 && (crit < 3 || total < 10)) {
+                // Phase 56.M — only a genuine incompleteness signal: when fewer
+                // than 3 priority briefs are ready. A clean 3-critical deck is
+                // complete (the quick-read tier is optional), so no ribbon — the
+                // old "N of 10 cards ready" read as broken for a criticals-only
+                // deck.
+                if (articles.length > 0 && crit < 3) {
                   return (
                     <div style={{
                       position: "absolute", top: 6, left: 0, right: 0, zIndex: 5,
@@ -462,7 +466,7 @@ export function NowPage() {
                       background: "rgba(14,58,95,0.07)", color: TOKENS.ink3,
                       borderRadius: 999, fontSize: 11, fontWeight: 600, textAlign: "center",
                     }}>
-                      {crit} of 3 priority briefs · {total} of 10 cards ready
+                      {crit} of 3 priority briefs ready
                     </div>
                   );
                 }
