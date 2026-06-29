@@ -772,6 +772,7 @@ def stamp_curated_card(
     key_risk: str = "",
     framework_interpretation: str = "",
     other_frameworks: list[dict] | None = None,
+    card_teaser: str = "",
 ) -> bool:
     """Phase 56.F — overlay admin-curated recommendations (and an optional
     key-risk line) onto a published critical's per-company card.
@@ -792,7 +793,8 @@ def stamp_curated_card(
     article-level hit and every rec's hit — anchored, never invented.
     Returns True if a row was updated.
     """
-    if not article_id or not (recommendations or framework_interpretation or other_frameworks):
+    if not article_id or not (recommendations or framework_interpretation
+                              or other_frameworks or card_teaser):
         return False
     try:
         from engine.models import company_article_view as cav
@@ -837,6 +839,8 @@ def stamp_curated_card(
         wim = dict(pa.get("why_it_matters") or {})
         if key_risk:
             wim["stakes_for_company"] = str(key_risk)[:600]
+        if card_teaser:
+            wim["card_teaser"] = str(card_teaser)[:240]
         wim["financial_exposure"] = {
             "kind": "non_financial_event",
             "label": "No direct ₹ exposure in article",

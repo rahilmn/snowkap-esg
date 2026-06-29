@@ -1833,6 +1833,9 @@ class CuratedArticleIn(BaseModel):
     # mandatory?, interpretation}. e.g. [{"framework":"GRI","section_code":"GRI 305",
     # "interpretation":"…"}, {"framework":"CSRD (ESRS)","section_code":"ESRS E1",…}].
     other_frameworks: list[dict] | None = None
+    # Phase 56.M — a short FOMO hook shown on the DECK CARD (the feed hardcodes
+    # the card summary to "", so the card body is otherwise blank).
+    card_teaser: str | None = None
 
 
 class IngestArticlesIn(BaseModel):
@@ -1937,6 +1940,7 @@ def _run_curated_ingest(
             fw_interp = (a.get("framework_interpretation") or "").strip()
             impact_summary = (a.get("impact_summary") or "").strip()
             other_fw = a.get("other_frameworks") or []
+            card_teaser = (a.get("card_teaser") or "").strip()
             row = cav.get(aid, slug)
             if row is None:
                 art = crit_by_id.get(aid)
@@ -1947,10 +1951,11 @@ def _run_curated_ingest(
                         principle_title=(a.get("framework_title") or ""),
                         framework_interpretation=fw_interp,
                     )
-            elif recs or key_risk or fw_interp or other_fw:
+            elif recs or key_risk or fw_interp or other_fw or card_teaser:
                 stamp_curated_card(
                     company, aid, recommendations=recs, key_risk=key_risk,
                     framework_interpretation=fw_interp, other_frameworks=other_fw,
+                    card_teaser=card_teaser,
                 )
             # Phase 56.H — the swipe-up detail view reads the SEPARATE
             # insight_payload store (deep_insight), not the deck card. Patch it
