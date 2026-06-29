@@ -57,6 +57,14 @@ interface UnifiedAnalysis {
     }>;
     // Phase 56.F — article-level framework hit (shown even with no recs).
     framework_hit?: FrameworkHit | null;
+    // Phase 56.L — other frameworks the story impacts (GRI, CSRD/ESRS, IFRS
+    // S1/S2) shown in a collapsible dropdown below the primary BRSR hit.
+    other_frameworks?: Array<{
+      framework?: string;
+      section_code?: string;
+      mandatory?: boolean;
+      interpretation?: string;
+    }> | null;
   };
   what_to_watch?: {
     top_risk_categories?: string[];
@@ -199,6 +207,10 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   // one (so every critical shows its BRSR principle even with no actionable rec).
   const fhit: FrameworkHit | null | undefined =
     topAction?.framework_hit || analysis?.what_it_triggers?.framework_hit;
+  // Phase 56.L — other frameworks this story impacts (GRI, CSRD/ESRS, IFRS S1/S2).
+  const otherFw = (analysis?.what_it_triggers?.other_frameworks || []).filter(
+    (f) => f && f.framework,
+  );
 
   const parsedExtras = recipientsInput
     .split(/[,;\s]+/)
@@ -527,6 +539,48 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
                 }}>
                   {fhit.interpretation}
                 </p>
+              )}
+              {/* Phase 56.L — other frameworks this story impacts, collapsed. */}
+              {otherFw.length > 0 && (
+                <details style={{ marginTop: 10 }}>
+                  <summary style={{
+                    cursor: "pointer", fontSize: 12, fontWeight: 700,
+                    color: TOKENS.brand, listStyle: "none", outline: "none",
+                  }}>
+                    + Other frameworks this impacts ({otherFw.length})
+                  </summary>
+                  <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
+                    {otherFw.map((f, i) => (
+                      <div key={i} style={{
+                        padding: "9px 11px", borderRadius: 10,
+                        background: "#F8FAFC", border: `1px solid ${TOKENS.line}`,
+                      }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+                          <span style={{
+                            display: "inline-flex", alignItems: "center", gap: 5,
+                            padding: "3px 8px", borderRadius: 6,
+                            background: f.mandatory ? "#FEE2E2" : "#EEF2F7",
+                            border: f.mandatory ? "1px solid #FCA5A5" : `1px solid ${TOKENS.line}`,
+                            fontSize: 10.5, fontWeight: 600,
+                            color: f.mandatory ? "#991B1B" : TOKENS.ink2,
+                          }}>
+                            <span>{f.framework}{f.section_code ? ` · ${f.section_code}` : ""}</span>
+                            {f.mandatory && (
+                              <span style={{ fontSize: 8.5, fontWeight: 800, letterSpacing: 0.5 }}>MANDATORY</span>
+                            )}
+                          </span>
+                        </div>
+                        {f.interpretation && (
+                          <p style={{
+                            margin: "6px 0 0", fontSize: 12, lineHeight: 1.5, color: TOKENS.ink3,
+                          }}>
+                            {f.interpretation}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </details>
               )}
             </div>
           )}

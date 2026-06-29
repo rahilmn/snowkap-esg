@@ -747,11 +747,31 @@ def set_article_image(company_slug: str, article_id: str, image_url: str) -> boo
     return updated
 
 
+def _sanitize_other_frameworks(items: list[dict] | None) -> list[dict]:
+    """Phase 56.L — clamp the curated 'other frameworks' list (GRI / CSRD / IFRS)
+    to a safe shape for the dropdown."""
+    out: list[dict] = []
+    for it in (items or [])[:5]:
+        if not isinstance(it, dict):
+            continue
+        fw = str(it.get("framework", "") or "").strip()[:32]
+        if not fw:
+            continue
+        out.append({
+            "framework": fw,
+            "section_code": str(it.get("section_code", "") or "").strip()[:40],
+            "mandatory": bool(it.get("mandatory")),
+            "interpretation": str(it.get("interpretation", "") or "").strip()[:400],
+        })
+    return out
+
+
 def stamp_curated_card(
     company: Any, article_id: str, *,
     recommendations: list[dict] | None = None,
     key_risk: str = "",
     framework_interpretation: str = "",
+    other_frameworks: list[dict] | None = None,
 ) -> bool:
     """Phase 56.F — overlay admin-curated recommendations (and an optional
     key-risk line) onto a published critical's per-company card.
@@ -772,7 +792,7 @@ def stamp_curated_card(
     article-level hit and every rec's hit — anchored, never invented.
     Returns True if a row was updated.
     """
-    if not article_id or not (recommendations or framework_interpretation):
+    if not article_id or not (recommendations or framework_interpretation or other_frameworks):
         return False
     try:
         from engine.models import company_article_view as cav
@@ -783,6 +803,8 @@ def stamp_curated_card(
             return False
         pa = dict(row.personalised_analysis or {})
         wit = dict(pa.get("what_it_triggers") or {})
+        if other_frameworks:
+            wit["other_frameworks"] = _sanitize_other_frameworks(other_frameworks)
         fh = wit.get("framework_hit")  # article-level hit, already deterministic
         # Replace any (possibly LLM-fabricated) interpretation with the admin's
         # fact-checked prose — applied to the article-level hit so the swipe-up
@@ -891,6 +913,7 @@ def stamp_curated_insight(
     key_risk: str = "",
     framework_interpretation: str = "",
     impact_summary: str = "",
+    other_frameworks: list[dict] | None = None,
 ) -> bool:
     """Phase 56.H — patch the durable ``insight_payload`` (the SECOND store).
 
@@ -910,7 +933,7 @@ def stamp_curated_insight(
     Returns True if a payload row was patched.
     """
     if not article_id or not (recommendations or framework_interpretation
-                              or key_risk or impact_summary):
+                              or key_risk or impact_summary or other_frameworks):
         return False
     try:
         from engine.models import insight_payload
@@ -924,6 +947,8 @@ def stamp_curated_insight(
         if not isinstance(analysis, dict):
             return False
         wit = dict(analysis.get("what_it_triggers") or {})
+        if other_frameworks:
+            wit["other_frameworks"] = _sanitize_other_frameworks(other_frameworks)
         fh = wit.get("framework_hit")
         if fh and framework_interpretation:
             fh = dict(fh)

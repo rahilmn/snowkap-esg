@@ -925,7 +925,67 @@ def _build_what_it_triggers(
         # "monitor"). The rec-level framework_hit rides on a recommendation; this
         # guarantees every critical surfaces its BRSR principle.
         "framework_hit": _article_framework_hit(result, actions_out),
+        # Phase 56.L — the OTHER frameworks the story impacts (beyond the primary
+        # BRSR hit): GRI, CSRD/ESRS, IFRS S1/S2 (ISSB). Rendered as the
+        # "Other frameworks this impacts" dropdown. Built from the ontology-
+        # derived matches; curated cards can override via the ingest payload.
+        "other_frameworks": _other_framework_hits(result),
     }
+
+
+# Display labels for the "other frameworks" dropdown. PRESENTATION only — the
+# match + section codes come from the ontology (result.frameworks). TCFD is
+# folded into IFRS S1/S2 (ISSB consolidated TCFD).
+_OTHER_FW_LABELS = {
+    "GRI": "GRI", "CSRD": "CSRD (ESRS)", "ESRS": "CSRD (ESRS)",
+    "ISSB": "IFRS S1/S2", "TCFD": "IFRS S1/S2",
+}
+_OTHER_FW_ORDER = {"GRI": 0, "CSRD (ESRS)": 1, "IFRS S1/S2": 2}
+
+
+def _clean_section_label(label: str, raw: str) -> str:
+    raw = (raw or "").strip()
+    if label == "IFRS S1/S2":
+        return "IFRS S2"  # the climate standard (ISSB)
+    if label == "CSRD (ESRS)":
+        return raw.replace("ESRS:", "ESRS ") if raw.upper().startswith("ESRS") else "ESRS E1"
+    if label == "GRI":
+        return raw.replace("GRI:", "GRI ") if raw.upper().startswith("GRI") else "GRI Standards"
+    return raw
+
+
+def _other_framework_hits(result: Any) -> list[dict[str, Any]]:
+    """Phase 56.L — frameworks a story impacts BEYOND the primary BRSR hit, for
+    the 'Other frameworks this impacts' dropdown. Surfaces GRI, CSRD/ESRS and
+    IFRS S1/S2, deduped, with the ontology-matched section + a plain interpretation."""
+    seen: set[str] = set()
+    out: list[dict[str, Any]] = []
+    theme = (getattr(getattr(result, "themes", None), "primary_theme", "") or "").strip() or "this development"
+    for fm in (getattr(result, "frameworks", None) or []):
+        fid = (getattr(fm, "framework_id", "") or "").upper()
+        label = _OTHER_FW_LABELS.get(fid)
+        if not label or label in seen:
+            continue
+        secs = getattr(fm, "triggered_sections", None) or []
+        raw = ""
+        if isinstance(secs, list) and secs:
+            first = secs[0]
+            raw = (first.get("code") if isinstance(first, dict) else str(first)) or ""
+        section = _clean_section_label(label, raw)
+        if not section:
+            continue
+        seen.add(label)
+        out.append({
+            "framework": label,
+            "section_code": section,
+            "mandatory": bool(getattr(fm, "is_mandatory", False)),
+            "interpretation": (
+                f"This {theme} development also reports under {label} {section} — "
+                f"a voluntary global disclosure standard that investors increasingly expect."
+            ),
+        })
+    out.sort(key=lambda h: _OTHER_FW_ORDER.get(h["framework"], 9))
+    return out[:3]
 
 
 def _clean_framework_prose(
