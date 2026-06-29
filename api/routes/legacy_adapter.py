@@ -1828,6 +1828,11 @@ class CuratedArticleIn(BaseModel):
     # Phase 56.H — clean "How it impacts" line for the card's criticality_summary
     # (overrides the engine's degraded/figure-laden one on the swipe-up detail).
     impact_summary: str | None = None
+    # Phase 56.L — the OTHER frameworks this story impacts beyond BRSR, for the
+    # "Other frameworks this impacts" dropdown. Each: {framework, section_code,
+    # mandatory?, interpretation}. e.g. [{"framework":"GRI","section_code":"GRI 305",
+    # "interpretation":"…"}, {"framework":"CSRD (ESRS)","section_code":"ESRS E1",…}].
+    other_frameworks: list[dict] | None = None
 
 
 class IngestArticlesIn(BaseModel):
@@ -1931,6 +1936,7 @@ def _run_curated_ingest(
             key_risk = (a.get("key_risk") or "").strip()
             fw_interp = (a.get("framework_interpretation") or "").strip()
             impact_summary = (a.get("impact_summary") or "").strip()
+            other_fw = a.get("other_frameworks") or []
             row = cav.get(aid, slug)
             if row is None:
                 art = crit_by_id.get(aid)
@@ -1941,19 +1947,20 @@ def _run_curated_ingest(
                         principle_title=(a.get("framework_title") or ""),
                         framework_interpretation=fw_interp,
                     )
-            elif recs or key_risk or fw_interp:
+            elif recs or key_risk or fw_interp or other_fw:
                 stamp_curated_card(
                     company, aid, recommendations=recs, key_risk=key_risk,
-                    framework_interpretation=fw_interp,
+                    framework_interpretation=fw_interp, other_frameworks=other_fw,
                 )
             # Phase 56.H — the swipe-up detail view reads the SEPARATE
             # insight_payload store (deep_insight), not the deck card. Patch it
             # too so the detail matches the card (curated recs + clean prose +
-            # truthful exposure pill + clean impact summary).
-            if recs or key_risk or fw_interp or impact_summary:
+            # truthful exposure pill + clean impact summary + other frameworks).
+            if recs or key_risk or fw_interp or impact_summary or other_fw:
                 stamp_curated_insight(
                     aid, slug, recommendations=recs, key_risk=key_risk,
                     framework_interpretation=fw_interp, impact_summary=impact_summary,
+                    other_frameworks=other_fw,
                 )
     except Exception as exc:  # noqa: BLE001
         logger.exception("curated-ingest failed for %s: %s", slug, exc)

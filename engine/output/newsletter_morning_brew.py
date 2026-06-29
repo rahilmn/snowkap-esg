@@ -393,6 +393,32 @@ def render_article_morning_brew(
                     f"{_pt}</span>") if _pt else ""
         _interp_html = (f'<p style="margin:0; font-size:13px; line-height:1.6; color:{_INK};">'
                         f"{_interp}</p>") if _interp else ""
+        # Phase 56.L — other frameworks this story impacts (GRI, CSRD/ESRS,
+        # IFRS S1/S2). Email can't collapse, so render a short stacked list.
+        _other_html = ""
+        _others = what_it_triggers.get("other_frameworks") or []
+        if isinstance(_others, list) and _others:
+            _rows = ""
+            for _of in _others[:4]:
+                if not isinstance(_of, dict) or not _of.get("framework"):
+                    continue
+                _ofw = _escape(_of.get("framework"))
+                _osec = _escape(_of.get("section_code") or "")
+                _oint = _escape(_of.get("interpretation") or "")
+                _rows += (
+                    f'<div style="margin-top:6px; padding:8px 10px; background:#F8FAFC; '
+                    f'border:1px solid {_DIVIDER}; border-radius:8px;">'
+                    f'<span style="font-size:11px; font-weight:700; color:{_INK};">{_ofw}'
+                    f'{(" &middot; " + _osec) if _osec else ""}</span>'
+                    + (f'<p style="margin:4px 0 0; font-size:11px; line-height:1.5; color:{_INK_MUTED};">{_oint}</p>' if _oint else "")
+                    + "</div>"
+                )
+            if _rows:
+                _other_html = (
+                    f'<p style="margin:10px 0 0; font-size:11px; font-weight:700; '
+                    f'letter-spacing:0.4px; text-transform:uppercase; color:{_INK_MUTED};">'
+                    f"Other frameworks this impacts</p>{_rows}"
+                )
         framework_html = f"""
           <div style="margin-bottom:24px;">
             {_section_label("How this hits your framework")}
@@ -400,6 +426,7 @@ def render_article_morning_brew(
               {_chip}{_pt_html}
             </div>
             {_interp_html}
+            {_other_html}
           </div>
         """
 
