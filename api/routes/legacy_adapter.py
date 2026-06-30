@@ -1836,6 +1836,12 @@ class CuratedArticleIn(BaseModel):
     # Phase 56.M — a short FOMO hook shown on the DECK CARD (the feed hardcodes
     # the card summary to "", so the card body is otherwise blank).
     card_teaser: str | None = None
+    # Phase 56.N — a glossary term to explain (e.g. {"term":"CAFE-3","text":"…"}):
+    # rendered as a hover/tap tooltip where the term appears in the headline AND
+    # as an attention callout. highlight_terms = risk words bolded in the
+    # "why this matters" copy (e.g. ["penalties"]).
+    glossary: dict | None = None
+    highlight_terms: list[str] | None = None
 
 
 class IngestArticlesIn(BaseModel):
@@ -1941,6 +1947,8 @@ def _run_curated_ingest(
             impact_summary = (a.get("impact_summary") or "").strip()
             other_fw = a.get("other_frameworks") or []
             card_teaser = (a.get("card_teaser") or "").strip()
+            glossary = a.get("glossary") or None
+            hl_terms = a.get("highlight_terms") or None
             row = cav.get(aid, slug)
             if row is None:
                 art = crit_by_id.get(aid)
@@ -1951,21 +1959,22 @@ def _run_curated_ingest(
                         principle_title=(a.get("framework_title") or ""),
                         framework_interpretation=fw_interp,
                     )
-            elif recs or key_risk or fw_interp or other_fw or card_teaser:
+            elif recs or key_risk or fw_interp or other_fw or card_teaser or glossary or hl_terms:
                 stamp_curated_card(
                     company, aid, recommendations=recs, key_risk=key_risk,
                     framework_interpretation=fw_interp, other_frameworks=other_fw,
-                    card_teaser=card_teaser,
+                    card_teaser=card_teaser, glossary=glossary, highlight_terms=hl_terms,
                 )
             # Phase 56.H — the swipe-up detail view reads the SEPARATE
             # insight_payload store (deep_insight), not the deck card. Patch it
             # too so the detail matches the card (curated recs + clean prose +
-            # truthful exposure pill + clean impact summary + other frameworks).
-            if recs or key_risk or fw_interp or impact_summary or other_fw:
+            # truthful exposure pill + clean impact summary + other frameworks +
+            # the glossary/highlight terms the ArticleSheet renders).
+            if recs or key_risk or fw_interp or impact_summary or other_fw or glossary or hl_terms:
                 stamp_curated_insight(
                     aid, slug, recommendations=recs, key_risk=key_risk,
                     framework_interpretation=fw_interp, impact_summary=impact_summary,
-                    other_frameworks=other_fw,
+                    other_frameworks=other_fw, glossary=glossary, highlight_terms=hl_terms,
                 )
     except Exception as exc:  # noqa: BLE001
         logger.exception("curated-ingest failed for %s: %s", slug, exc)

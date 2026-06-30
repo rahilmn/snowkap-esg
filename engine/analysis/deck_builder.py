@@ -766,6 +766,18 @@ def _sanitize_other_frameworks(items: list[dict] | None) -> list[dict]:
     return out
 
 
+def _clean_glossary(g: Any) -> dict | None:
+    if not isinstance(g, dict):
+        return None
+    term = str(g.get("term", "") or "").strip()[:60]
+    text = str(g.get("text", "") or "").strip()[:300]
+    return {"term": term, "text": text} if term and text else None
+
+
+def _clean_highlight_terms(terms: Any) -> list[str]:
+    return [str(t).strip()[:40] for t in (terms or []) if str(t).strip()][:8]
+
+
 def stamp_curated_card(
     company: Any, article_id: str, *,
     recommendations: list[dict] | None = None,
@@ -773,6 +785,8 @@ def stamp_curated_card(
     framework_interpretation: str = "",
     other_frameworks: list[dict] | None = None,
     card_teaser: str = "",
+    glossary: dict | None = None,
+    highlight_terms: list[str] | None = None,
 ) -> bool:
     """Phase 56.F — overlay admin-curated recommendations (and an optional
     key-risk line) onto a published critical's per-company card.
@@ -794,7 +808,8 @@ def stamp_curated_card(
     Returns True if a row was updated.
     """
     if not article_id or not (recommendations or framework_interpretation
-                              or other_frameworks or card_teaser):
+                              or other_frameworks or card_teaser
+                              or glossary or highlight_terms):
         return False
     try:
         from engine.models import company_article_view as cav
@@ -846,6 +861,15 @@ def stamp_curated_card(
             "label": "No direct ₹ exposure in article",
         }
         pa["why_it_matters"] = wim
+        # Phase 56.N — glossary term + risk-word highlights, top-level so NowPage
+        # merges them into the rendered analysis (SwipeCard / ArticleSheet read
+        # analysis.glossary + analysis.highlight_terms).
+        _g = _clean_glossary(glossary)
+        if _g:
+            pa["glossary"] = _g
+        _hl = _clean_highlight_terms(highlight_terms)
+        if _hl:
+            pa["highlight_terms"] = _hl
         cav.upsert(
             article_id=article_id, company_slug=slug,
             personalised_analysis=pa,
@@ -918,6 +942,8 @@ def stamp_curated_insight(
     framework_interpretation: str = "",
     impact_summary: str = "",
     other_frameworks: list[dict] | None = None,
+    glossary: dict | None = None,
+    highlight_terms: list[str] | None = None,
 ) -> bool:
     """Phase 56.H — patch the durable ``insight_payload`` (the SECOND store).
 
@@ -937,7 +963,8 @@ def stamp_curated_insight(
     Returns True if a payload row was patched.
     """
     if not article_id or not (recommendations or framework_interpretation
-                              or key_risk or impact_summary or other_frameworks):
+                              or key_risk or impact_summary or other_frameworks
+                              or glossary or highlight_terms):
         return False
     try:
         from engine.models import insight_payload
@@ -990,6 +1017,14 @@ def stamp_curated_insight(
             "label": "No direct ₹ exposure in article",
         }
         analysis["why_it_matters"] = wim
+        # Phase 56.N — glossary term + risk-word highlights for the swipe-up
+        # (ArticleSheet reads analysis.glossary + analysis.highlight_terms).
+        _g = _clean_glossary(glossary)
+        if _g:
+            analysis["glossary"] = _g
+        _hl = _clean_highlight_terms(highlight_terms)
+        if _hl:
+            analysis["highlight_terms"] = _hl
         insight["analysis"] = analysis
         payload["insight"] = insight
         # Scrub the engine's fabricated ₹-crore "modeled exposure (engine

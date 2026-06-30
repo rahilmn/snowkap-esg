@@ -26,6 +26,7 @@ import type { Article } from "@/types";
 import { TOKENS, categoryTint, pillTokens } from "@/lib/designTokensV2";
 import { articleEmail, news } from "@/lib/api";
 import { CommentThread } from "@/components/now/CommentThread";
+import { withGlossary, highlightTerms } from "@/components/now/GlossaryTerm";
 
 // Phase 56.D/F — ontology-anchored framework hit (BRSR principle + mandatory
 // flag + interpretation). Carried per-recommendation AND at the article level.
@@ -69,6 +70,11 @@ interface UnifiedAnalysis {
   what_to_watch?: {
     top_risk_categories?: string[];
   };
+  // Phase 56.N — a glossary term (e.g. "CAFE-3") with a one-line explainer
+  // (hover tooltip + attention callout), and risk words to highlight in the
+  // "why this matters" copy (e.g. "penalties"). Both curated per article.
+  glossary?: { term?: string; text?: string } | null;
+  highlight_terms?: string[] | null;
   headline_only?: boolean;
   body_char_count?: number;
 }
@@ -211,6 +217,9 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
   const otherFw = (analysis?.what_it_triggers?.other_frameworks || []).filter(
     (f) => f && f.framework,
   );
+  // Phase 56.N — glossary term + risk-word highlighting.
+  const glossary = analysis?.glossary || null;
+  const hlTerms = analysis?.highlight_terms || null;
 
   const parsedExtras = recipientsInput
     .split(/[,;\s]+/)
@@ -351,14 +360,14 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
               }}
               title="Open the original article in a new tab"
             >
-              {article.title}
+              {withGlossary(article.title, glossary)}
             </a>
           ) : (
             <h1 className="serif" style={{
               margin: 0, fontSize: 22, lineHeight: 1.25, fontWeight: 600,
               color: TOKENS.ink, letterSpacing: "-0.015em",
             }}>
-              {article.title}
+              {withGlossary(article.title, glossary)}
             </h1>
           )}
           <div style={{
@@ -442,22 +451,35 @@ export function ArticleSheet({ article, open, bookmarked, onClose, onBookmarkTog
           }}>
             Why this matters
           </p>
-          {/* Para 1 — Why this matters to YOU */}
+          {/* Phase 56.N — attention callout: a one-line explainer of the key
+              term in the story (e.g. what CAFE-3 is). Same text appears as the
+              headline hover tooltip; here it's always visible to catch the eye. */}
+          {glossary?.term && glossary?.text && (
+            <div style={{
+              margin: "10px 0 0", padding: "8px 11px",
+              background: "rgba(223,89,0,0.06)",
+              border: `1px solid rgba(223,89,0,0.22)`,
+              borderRadius: 10, fontSize: 12.5, lineHeight: 1.45, color: TOKENS.ink2,
+            }}>
+              <strong style={{ color: TOKENS.brand }}>ⓘ {glossary.term}</strong> — {glossary.text}
+            </div>
+          )}
+          {/* Para 1 — Why this matters to YOU (risk words highlighted) */}
           {stakes && (
             <p style={{
               margin: "10px 0 0", fontSize: 14.5, lineHeight: 1.6, color: TOKENS.ink,
             }}>
               <strong style={{ color: TOKENS.brand }}>For you · </strong>
-              {stakes}
+              {highlightTerms(stakes, hlTerms)}
             </p>
           )}
-          {/* Para 2 — How it impacts YOUR business */}
+          {/* Para 2 — How it impacts YOUR business (risk words highlighted) */}
           {critSummary && (
             <p style={{
               margin: "12px 0 0", fontSize: 14, lineHeight: 1.6, color: TOKENS.ink2,
             }}>
               <strong style={{ color: TOKENS.brand }}>How it impacts · </strong>
-              {critSummary}
+              {highlightTerms(critSummary, hlTerms)}
               {topRisks.length > 0 && (
                 <> Top risks to watch: {topRisks.join(" · ")}.</>
               )}
