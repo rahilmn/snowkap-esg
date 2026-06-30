@@ -79,6 +79,46 @@ def test_stamp_curated_insight_writes_other_frameworks(monkeypatch):
     assert wit["other_frameworks"][0]["section_code"] == "GRI 305"
 
 
+def test_stamp_curated_card_writes_glossary_and_highlights(monkeypatch):
+    """Phase 56.N — glossary term + highlight terms land on the deck card
+    (personalised_analysis top-level) so NowPage merges them into analysis."""
+    from types import SimpleNamespace
+    existing = SimpleNamespace(
+        personalised_analysis={"what_it_triggers": {}, "why_it_matters": {}},
+        criticality_score=0.9, criticality_band="CRITICAL")
+    captured = {}
+    monkeypatch.setattr("engine.models.company_article_view.get", lambda aid, slug: existing)
+    monkeypatch.setattr("engine.models.company_article_view.upsert",
+                        lambda **kw: captured.update(kw))
+    ok = db.stamp_curated_card(
+        SimpleNamespace(slug="maruti-suzuki-india"), "aid",
+        glossary={"term": "CAFE-3", "text": "India's corporate fuel-efficiency norms."},
+        highlight_terms=["penalties", ""])
+    assert ok is True
+    pa = captured["personalised_analysis"]
+    assert pa["glossary"] == {"term": "CAFE-3", "text": "India's corporate fuel-efficiency norms."}
+    assert pa["highlight_terms"] == ["penalties"]   # blank dropped
+
+
+def test_stamp_curated_insight_writes_glossary_and_highlights(monkeypatch):
+    """Phase 56.N — same on the swipe-up store (insight.analysis), which the
+    ArticleSheet reads."""
+    payload = {"company_slug": "maruti-suzuki-india",
+               "insight": {"analysis": {"why_it_matters": {}, "what_it_triggers": {}}}}
+    captured = {}
+    monkeypatch.setattr("engine.models.insight_payload.get", lambda aid: payload)
+    monkeypatch.setattr("engine.models.insight_payload.upsert",
+                        lambda aid, slug, p: captured.update(payload=p))
+    ok = db.stamp_curated_insight(
+        "aid", "maruti-suzuki-india",
+        glossary={"term": "CAFE-3", "text": "Fuel-efficiency norms."},
+        highlight_terms=["penalties"])
+    assert ok is True
+    a = captured["payload"]["insight"]["analysis"]
+    assert a["glossary"]["term"] == "CAFE-3"
+    assert a["highlight_terms"] == ["penalties"]
+
+
 def test_stamp_curated_card_writes_card_teaser(monkeypatch):
     """Phase 56.M — the FOMO teaser is stamped onto the deck card's
     why_it_matters.card_teaser (the field SwipeCard reads to fill the blank)."""
